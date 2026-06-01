@@ -201,6 +201,7 @@ Static values extracted from Figma that do not change based on context.
     --token-font-size-sm: 14px;
     --token-font-size-md: 16px;
     --token-font-size-lg: 18px;
+    --token-font-size-xl: 24px;
 
     /* Font weights */
     --token-font-weight-regular: 400;

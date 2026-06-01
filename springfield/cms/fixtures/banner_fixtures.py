@@ -30,12 +30,22 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Default Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. Visit'
-                    ' <a href="https://www.mozilla.org"'
-                    ' uid="ba260000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {"type": "tags", "id": "ba260001-0000-0000-0000-000000000001", "value": [tags["purple"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "ba260001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260000-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260001-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000001",
         },
@@ -52,11 +62,22 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Simple Outlined Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["red"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {"type": "tags", "id": "ba260002-0000-0000-0000-000000000001", "value": [tags["red"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "ba260002-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
+                        "If no media is provided, it uses the centered layout.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260002-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000002",
         },
@@ -73,10 +94,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Radial Gradient Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["tertiary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260003-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
+                        "If no media is provided, it uses the centered layout.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260003-0000-0000-0000-000000000002",
+                        "value": [buttons["tertiary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a166176e-de29-4ee8-99b3-110406f11a40",
         },
@@ -93,11 +125,26 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["orange"], tags["green"]],
-                "buttons": [buttons["tertiary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "ba260004-0000-0000-0000-000000000001",
+                        "value": [tags["orange"], tags["green"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "ba260004-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
+                        "If no media is provided, it uses the centered layout.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260004-0000-0000-0000-000000000003",
+                        "value": [buttons["tertiary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a944ae4e-dfe9-44ab-9d7d-e297ff85a642",
         },
@@ -114,10 +161,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Inverted Banner</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">A banner only needs the heading text. '
-                    "If no media is provided, it uses the centered layout.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["tertiary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260005-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
+                        "If no media is provided, it uses the centered layout.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260005-0000-0000-0000-000000000002",
+                        "value": [buttons["tertiary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a27def29-a3e6-45eb-aed8-5b8283bb4d70",
         },
@@ -147,11 +205,26 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Default Banner with Image</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                    "Switch between light and dark mode to see the alternative images.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"], tags["red"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "ba260006-0000-0000-0000-000000000001",
+                        "value": [tags["purple"], tags["red"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "ba260006-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                        "Switch between light and dark mode to see the alternative images.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260006-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000005",
         },
@@ -181,11 +254,22 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with Image</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                    "Switch between light and dark mode to see the alternative images.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["orange"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {"type": "tags", "id": "ba260007-0000-0000-0000-000000000001", "value": [tags["orange"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "ba260007-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                        "Switch between light and dark mode to see the alternative images.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260007-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000007",
         },
@@ -215,10 +299,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with Image</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                    "Switch between light and dark mode to see the alternative images.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260008-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                        "Switch between light and dark mode to see the alternative images.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260008-0000-0000-0000-000000000002",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000009",
         },
@@ -248,9 +343,20 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Default Banner with Image After</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260009-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260009-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000011",
         },
@@ -280,9 +386,20 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with Image After</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260010-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260010-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000013",
         },
@@ -312,9 +429,20 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with Image After</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260011-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260011-0000-0000-0000-000000000002",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000015",
         },
@@ -337,9 +465,20 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Default Banner with QR Code</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260012-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260012-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000017",
         },
@@ -362,9 +501,20 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with QR Code</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260013-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260013-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000019",
         },
@@ -387,10 +537,25 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with QR Code</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"], tags["orange"], tags["green"]],
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "ba260014-0000-0000-0000-000000000001",
+                        "value": [tags["purple"], tags["orange"], tags["green"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "ba260014-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260014-0000-0000-0000-000000000003",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000021",
         },
@@ -407,10 +572,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Default Banner with Video</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260015-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260015-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000022",
         },
@@ -427,10 +603,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with Video</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260016-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260016-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000023",
         },
@@ -447,10 +634,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with Video</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260017-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from YouTube or <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The poster image will be displayed and swapped with the video once the user clicks the play button.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260017-0000-0000-0000-000000000002",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000024",
         },
@@ -462,10 +660,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Default Banner with Animation</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260018-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260018-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000025",
         },
@@ -477,10 +686,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Outlined Banner with Animation</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260019-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260019-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000026",
         },
@@ -492,10 +712,21 @@ def get_banner_2026_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Banner with Animation (Autoplay once)</p>',
-                    "subheading_text": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
-                    "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "ba260020-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="bu3eb">You can add a video from <a href="https://assets.mozilla.net">'
+                        "Mozilla CDN</a>. The video will play automatically in loop. The poster image will be displayed as a fallback.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260020-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a1b2c3d4-0001-0001-0001-000000000027",
         },

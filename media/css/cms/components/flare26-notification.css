@@ -23,9 +23,10 @@
 /*  Because .fl-split-page-upper has top padding, and pages
     that don't use it rely on the padding of the component.
     TODO: Fix _that_ unnecessary headache. */
-.fl-split-page-upper .fl-notification-wrapper:first-child {
+
+/* .fl-split-page-upper .fl-notification-wrapper:first-child {
     margin-block-start: calc(-1 * var(--fl-section-v-padding));
-}
+} */
 
 .fl-notification {
     align-items: center;

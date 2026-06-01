@@ -11,6 +11,8 @@
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
 
+{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
+
 {% block body_class %}fl-download-page{% endblock %}
 
 {% set params = link_params or '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-desktop' %}
@@ -57,11 +59,11 @@
     <div class="{% if ftl_file_is_active('firefox/download/platform') %}fl-split-page-upper{% endif %}">
       <div class="fl-section">
         <div class="fl-section-container">
-          <include:intro slim vertical media_position="right">
+          <include:intro slim media_position="right">
             <content:heading>
               <h1 class="fl-heading fl-heading-size-1">{{ hero_title }}</h1>
             </content:heading>
-            <content:actions>
+            <content:content>
               {% block intro_download_button_26 %}
                 {{ download_firefox_thanks(
                   alt_copy=ftl('download-button-download-now'),
@@ -79,7 +81,7 @@
                 {% endif %}
                 <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
               </ul>
-            </content:actions>
+            </content:content>
             <content:media>
               <img src="/media/{{ hero_img }}" class="fl-mediacontent-asset" aria-hidden="true" />
             </content:media>

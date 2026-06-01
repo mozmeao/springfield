@@ -25,10 +25,21 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner without Kit Image</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {"type": "tags", "id": "cb260001-0000-0000-0000-000000000001", "value": [tags["purple"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cb260001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260001-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "12a807da-2838-44b6-8a65-d9243059de02",
         },
@@ -44,9 +55,20 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Dark Purple Gradient - Filled Banner without Kit Image</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cb260002-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260002-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "a7cc50a9-c4e4-4049-b9e4-c5f38c0644b2",
         },
@@ -61,11 +83,21 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Small Curious Kit</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a centered layout and the Kit image is '
-                    "placed on the right corner.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["orange"]],
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {"type": "tags", "id": "cb260003-0000-0000-0000-000000000001", "value": [tags["orange"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cb260003-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="84om5">The banner uses a centered layout and the Kit image is placed on the right corner.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260003-0000-0000-0000-000000000003",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "1bc90319-cce6-4052-b181-5bff4c4a42c0",
         },
@@ -80,11 +112,26 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Large Curious Kit</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
-                    "placed on the right corner.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["purple"], tags["green"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "cb260004-0000-0000-0000-000000000001",
+                        "value": [tags["purple"], tags["green"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "cb260004-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
+                        "placed on the right corner.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260004-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "607bd5fd-c2a8-41ef-a323-cf18da478ec4",
         },
@@ -99,11 +146,26 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Sitting Kit</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
-                    "placed on the right corner.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["red"], tags["orange"]],
-                "buttons": [buttons["tertiary"], buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "cb260005-0000-0000-0000-000000000001",
+                        "value": [tags["red"], tags["orange"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "cb260005-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
+                        "placed on the right corner.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260005-0000-0000-0000-000000000003",
+                        "value": [buttons["tertiary"], buttons["ghost"]],
+                    },
+                ],
             },
             "id": "456a6d24-7ff7-4024-9f98-14bbbeae9e60",
         },
@@ -118,11 +180,22 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Kit Tail</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
-                    "placed on the right corner.</p>",
+                    "subheading_text": "",
                 },
-                "tags": [tags["green"]],
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {"type": "tags", "id": "cb260006-0000-0000-0000-000000000001", "value": [tags["green"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cb260006-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit image is '
+                        "placed on the right corner.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260006-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "54ea6d6a-6490-4946-8caf-b5fba56d5a10",
         },
@@ -137,10 +210,21 @@ def get_kit_banner_variants():
                 "heading": {
                     "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Curious Kit Animation</p>',
-                    "subheading_text": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit animation is '
-                    "placed on the right corner.</p>",
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"], buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cb260007-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="84om5">The banner uses a left aligned layout and the Kit animation is '
+                        "placed on the right corner.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cb260007-0000-0000-0000-000000000002",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
             },
             "id": "54ea6d6a-6490-4946-8caf-b5fba56d5a10",
         },

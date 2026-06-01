@@ -9,7 +9,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0095_merge_20260526_1344"),
+        ("cms", "0096_migrate_media_content_intro_banner_blocks"),
     ]
 
     operations = [

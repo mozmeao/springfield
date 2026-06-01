@@ -37,6 +37,14 @@ test.describe(
             await expectComponentScreenshot(page, 'intro-video');
         });
 
+        test('media right', async ({ page }) => {
+            await expectComponentScreenshot(page, 'intro-media-right');
+        });
+
+        test('media left', async ({ page }) => {
+            await expectComponentScreenshot(page, 'intro-media-left');
+        });
+
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
