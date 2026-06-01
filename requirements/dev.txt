@@ -1452,12 +1452,12 @@ protobuf==7.34.1 \
     #   google-api-core
     #   googleapis-common-protos
     #   proto-plus
-psycopg[c]==3.2.6 \
-    --hash=sha256:16fa094efa2698f260f2af74f3710f781e4a6f226efe9d1fd0c37f384639ed8a \
-    --hash=sha256:f3ff5488525890abb0566c429146add66b329e20d6d4835662b920cbbf90ac58
+psycopg[c]==3.3.4 \
+    --hash=sha256:b6bbc25ccf05c8fad3b061d9db2ef0909a555171b84b07f29458a447253d679a \
+    --hash=sha256:e21207764952cff81b6b8bdacad9a3939f2793367fdac2987b3aac36a651b5bc
     # via -r requirements/prod.txt
-psycopg-c==3.2.6 \
-    --hash=sha256:b5fd4ce70f82766a122ca5076a36c4d5818eaa9df9bf76870bc83a064ffaed3a
+psycopg-c==3.3.4 \
+    --hash=sha256:ed8106128b2d04359c185fc9641b4409abfce4d0b6fb1d1ff6800646e27f1a22
     # via
     #   -r requirements/prod.txt
     #   psycopg

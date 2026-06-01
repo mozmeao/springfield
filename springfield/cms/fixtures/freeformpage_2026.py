@@ -213,20 +213,26 @@ def get_set_as_default_button_block() -> dict:
                 "heading_text": '<p data-block-key="sad01">Make Firefox your default</p>',
                 "subheading_text": "",
             },
-            "buttons": [
+            "content": [
                 {
-                    "type": "set_as_default_button",
-                    "value": {
-                        "settings": {
-                            "theme": "",
-                            "icon": "",
-                            "icon_position": "right",
-                            "analytics_id": "sad00001-0000-0000-0000-000000000001",
-                        },
-                        "label": "Set Firefox as default",
-                        "snippet": snippet.id,
-                    },
-                    "id": "sad00001-0000-0000-0000-000000000002",
+                    "type": "buttons",
+                    "id": "sad00001-0000-0000-0000-000000000001",
+                    "value": [
+                        {
+                            "type": "set_as_default_button",
+                            "value": {
+                                "settings": {
+                                    "theme": "",
+                                    "icon": "",
+                                    "icon_position": "right",
+                                    "analytics_id": "sad00001-0000-0000-0000-000000000002",
+                                },
+                                "label": "Set Firefox as default",
+                                "snippet": snippet.id,
+                            },
+                            "id": "sad00001-0000-0000-0000-000000000003",
+                        }
+                    ],
                 }
             ],
         },

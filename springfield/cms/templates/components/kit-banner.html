@@ -26,15 +26,7 @@
     <div class="fl-banner-content">
       <div class="fl-banner-content-inner">
         {{ contents.heading }}
-        {% if contents.body %}
-          <div class="fl-body">{{ contents.body }}</div>
-        {% endif %}
-
-        {% if contents.actions %}
-          <div class="fl-buttons">
-            {{ contents.actions }}
-          </div>
-        {% endif %}
+        {{ contents.content }}
       </div>
     </div>
     {% if theme == "curious-animation" %}

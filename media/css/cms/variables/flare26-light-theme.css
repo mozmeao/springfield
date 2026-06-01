@@ -51,6 +51,7 @@
 --fl-step-card-bg: var(--token-color-cream);
 --fl-step-card-index-bg: var(--token-color-white);
 --fl-theme-illustration-icon-bg: var(--token-color-soft-purple);
+--display-light-mode-only: block;
 
 /* Two column cards */
 --two-column-accent-color: var(--token-color-black-1);

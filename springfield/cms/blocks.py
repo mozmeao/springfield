@@ -1130,6 +1130,7 @@ def MixedButtonsBlock(
     max_num: int,
     themes=BUTTON_THEMES_2025,
     label="Buttons",
+    template="cms/blocks/mixed-buttons.html",
     **kwargs,
 ):
     """
@@ -1154,6 +1155,7 @@ def MixedButtonsBlock(
         max_num=max_num,
         min_num=min_num,
         label=label,
+        template=template,
         **kwargs,
     )
 
@@ -1213,6 +1215,9 @@ class CTABlock(blocks.StructBlock):
         label = "Link"
         label_format = "Link - {label}"
         template = "cms/blocks/cta-link.html"
+
+
+# Tags
 
 
 class TagBlock(blocks.StructBlock):
@@ -1275,6 +1280,21 @@ class TagBlock2026(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+
+
+class TagsBlock(blocks.ListBlock):
+    def __init__(self, child=None, *args, **kwargs):
+        if child is None:
+            child = TagBlock2026()
+        super().__init__(child, *args, **kwargs)
+
+    class Meta:
+        template = "cms/blocks/tags-list.html"
+        label = "Tags"
+        label_format = "Tags"
+
+
+# Media
 
 
 class ImageVariantsBlockSettings(blocks.StructBlock):
@@ -1392,6 +1412,9 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+# Content
+
+
 class SmartWindowInstructionsBlock(blocks.StructBlock):
     pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
     typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
@@ -1401,6 +1424,25 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
         label = "Smart Window Instructions"
         label_format = "Smart Window Instructions - {instructions}"
         template = "cms/blocks/smart-window-instructions.html"
+
+
+def BaseContentBlock(allow_uitour=False, **kwargs):
+    class _BaseContentBlock(blocks.StreamBlock):
+        tags = TagsBlock(min_num=0, max_num=3, default=[])
+        rich_text = RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            label = "Content"
+            label_format = "Content"
+            template = "cms/blocks/base_content.html"
+
+    return _BaseContentBlock(**kwargs)
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -1441,25 +1483,27 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
-                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("tags", TagsBlock(tag_block, min_num=0, max_num=3, default=[])),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        min_num=0,
+                        max_num=2,
+                        required=False,
+                    ),
+                ),
             ]
-        )
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
-            required=False,
         )
 
         class Meta:
             label = "Media + Content"
-            label_format = "{headline}"
+            label_format = "{heading}"
             template = "cms/blocks/media-content.html"
 
     return _MediaContentBlock(*args, **kwargs)
@@ -2770,14 +2814,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings2026()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/intro-2026.html"
@@ -3015,13 +3052,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/banner.html"
@@ -3072,14 +3103,7 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
     class _KitBannerBlock(blocks.StructBlock):
         settings = KitBannerSettings()
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=button_themes,
-            min_num=0,
-            max_num=2,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/kit-banner.html"

@@ -36,7 +36,7 @@ Markdown==3.10.2
 markus[datadog]==5.0.0
 mozilla-django-oidc==5.0.2
 Pillow==12.2.0
-psycopg[c]==3.2.6  # use version with psycopg_c support - also needs libpq-dev in the Docker image;     may need it for local dev, too
+psycopg[c]==3.3.4  # use version with psycopg_c support - also needs libpq-dev in the Docker image;     may need it for local dev, too
 py-svg-hush==0.3.0
 PyGithub==2.9.1
 PyYAML==6.0.3

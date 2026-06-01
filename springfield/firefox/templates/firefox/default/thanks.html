@@ -35,41 +35,43 @@
       <include:heading level="h1" heading_size="fl-heading-size-2"
         heading_text="{{ ftl('set-as-default-thanks-set-as-default-thanks-for-choosing-firefox') }}" />
     </content:heading>
-    <content:body>
-      <div class="thanks-state-not-firefox">
-        <p>{{ ftl('set-as-default-thanks-looks-like-youre-using-a') }}</p>
-        <include:download-firefox-button
-          analytics_id="set-default-download-firefox"
-          label="{{ ftl('download-button-download-firefox') }}"
-          cta_text="{{ ftl('download-button-download-firefox') }}"
-          block_position="primary cta"
-          exclude_unsupported_content="True"
-        />
-      </div>
+    <content:content>
+      <div class="fl-intro-body">
+        <div class="thanks-state-not-firefox">
+          <p>{{ ftl('set-as-default-thanks-looks-like-youre-using-a') }}</p>
+          <include:download-firefox-button
+            analytics_id="set-default-download-firefox"
+            label="{{ ftl('download-button-download-firefox') }}"
+            cta_text="{{ ftl('download-button-download-firefox') }}"
+            block_position="primary cta"
+            exclude_unsupported_content="True"
+          />
+        </div>
 
-      <div class="thanks-state-not-default-desktop" data-testid="firefox-not-default-message">
-        <p>{{ ftl('set-as-default-thanks-youre-almost-done-just-change') }}</p>
-        <p class="thanks-help-text">
-          <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ params }}">
-            {{ ftl('set-as-default-thanks-having-trouble-setting-your') }}
-          </a>
+        <div class="thanks-state-not-default-desktop" data-testid="firefox-not-default-message">
+          <p>{{ ftl('set-as-default-thanks-youre-almost-done-just-change') }}</p>
+          <p class="thanks-help-text">
+            <a href="https://support.mozilla.org/kb/make-firefox-your-default-browser{{ params }}">
+              {{ ftl('set-as-default-thanks-having-trouble-setting-your') }}
+            </a>
+          </p>
+        </div>
+
+        <p class="thanks-state-not-default-android">
+          {{ ftl('set-as-default-thanks-heres-everything-you-need-android',
+                 android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params) }}
+        </p>
+
+        <p class="thanks-state-not-default-ios">
+          {{ ftl('set-as-default-thanks-heres-everything-you-need-ios',
+                 ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ params) }}
+        </p>
+
+        <p class="thanks-state-is-default">
+          {{ ftl('set-as-default-thanks-youre-all-set') }}
         </p>
       </div>
-
-      <p class="thanks-state-not-default-android">
-        {{ ftl('set-as-default-thanks-heres-everything-you-need-android',
-               android='https://support.mozilla.org/kb/make-firefox-default-browser-android' ~ params) }}
-      </p>
-
-      <p class="thanks-state-not-default-ios">
-        {{ ftl('set-as-default-thanks-heres-everything-you-need-ios',
-               ios='https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios' ~ params) }}
-      </p>
-
-      <p class="thanks-state-is-default">
-        {{ ftl('set-as-default-thanks-youre-all-set') }}
-      </p>
-    </content:body>
+    </content:content>
   </include:intro>
 </div>
 {% endblock %}
