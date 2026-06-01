@@ -28,6 +28,10 @@
     padding: 0;
 }
 
+.fl-section-container > .fl-heading {
+    margin-block-end: 0;
+}
+
 .fl-section-container.is-narrow {
     max-inline-size: var(--token-width-desktop-content-lg);
 }
