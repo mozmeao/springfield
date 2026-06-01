@@ -565,12 +565,12 @@ def assert_animation_attributes(animation_element: BeautifulSoup, animation_data
         assert source and source["src"] == video_url
 
 
-def assert_heading_block(element: BeautifulSoup, block_data: dict) -> str:
-    heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text().strip()
-    superheading_text = BeautifulSoup(block_data["value"].get("superheading_text", ""), "html.parser").get_text().strip()
-    subheading_text = BeautifulSoup(block_data["value"].get("subheading_text", ""), "html.parser").get_text().strip()
+def assert_heading_block(element: BeautifulSoup, heading_data: dict, heading_tag: str = "h2"):
+    heading_text = BeautifulSoup(heading_data["heading_text"], "html.parser").get_text().strip()
+    superheading_text = BeautifulSoup(heading_data.get("superheading_text", ""), "html.parser").get_text().strip()
+    subheading_text = BeautifulSoup(heading_data.get("subheading_text", ""), "html.parser").get_text().strip()
 
-    heading_el = element.find(class_="fl-heading")
+    heading_el = element.find(heading_tag, class_="fl-heading")
     assert heading_el and heading_text in heading_el.get_text()
 
     if superheading_text:
@@ -580,8 +580,6 @@ def assert_heading_block(element: BeautifulSoup, block_data: dict) -> str:
     if subheading_text:
         subheading_el = element.find("p", class_="fl-subheading")
         assert subheading_el and subheading_text in subheading_el.get_text()
-
-    return heading_text
 
 
 def assert_pricing_heading_block(element: BeautifulSoup, block_data: dict):
@@ -630,7 +628,7 @@ def assert_timeline_block(element: BeautifulSoup, block_data: dict):
     item_els = timeline_el.find_all("li", class_="fl-timeline-item")
     assert len(item_els) == len(items_data)
     for item_el, item_data in zip(item_els, items_data):
-        assert_heading_block(item_el, item_data)
+        assert_heading_block(item_el, item_data["value"])
 
 
 def assert_media_block(element: BeautifulSoup, block_data: dict):
@@ -768,6 +766,79 @@ class TestLabelSourceMixin:
         value = {"pretranslated_label": None, "custom_label": "Click me", "settings": {}}
         content = download_firefox_button_block.get_searchable_content(value)
         assert "Click me" in content
+
+
+def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):
+    tags_element = rendered_element.find("div", class_="fl-tags")
+    assert tags_element
+    tag_elements = tags_element.find_all("span", class_="fl-tag")
+    assert len(tag_elements) == len(tags_value)
+    for tag_element, tag_data in zip(tag_elements, tags_value):
+        assert_tag_attributes(tag_element, tag_data)
+
+
+def assert_rich_text_content_item(
+    rich_text_value: str,
+    rendered_element: BeautifulSoup,
+    heading_text: str,
+    cta_position_prefix: str,
+):
+    content_text = BeautifulSoup(rich_text_value, "html.parser").get_text()
+    assert content_text in rendered_element.get_text()
+
+    rich_text_soup = BeautifulSoup(rich_text_value, "html.parser")
+    for link_index, link in enumerate(rich_text_soup.find_all("a")):
+        uid = link.get("uid")
+        if uid:
+            link_text = link.get_text().strip()
+            rendered_link = rendered_element.find("a", attrs={"data-cta-uid": uid})
+            assert rendered_link is not None, f"Rich text link uid={uid!r} not found in rendered HTML"
+            assert _UUID_RE.match(uid), f"Rich text link {link.get('href')!r} has invalid uid: {uid!r}"
+            expected_cta_text = f"{heading_text.strip()} - {link_text}" if heading_text.strip() else link_text
+            expected_cta_position = f"{cta_position_prefix}.link-{link_index + 1}"
+            assert rendered_link["data-cta-text"] == expected_cta_text
+            assert rendered_link["data-cta-position"] == expected_cta_position
+
+
+def assert_buttons_content_item(
+    buttons_value: list,
+    rendered_element: BeautifulSoup,
+    context: dict,
+    cta_position_prefix: str,
+    heading_text: str,
+):
+    buttons_wrapper = rendered_element.find("div", class_="fl-buttons")
+    assert buttons_wrapper
+    button_elements = buttons_wrapper.find_all("a", class_="fl-button")
+    assert len(button_elements) == len(buttons_value)
+    for button_index, button in enumerate(buttons_value):
+        button_element = button_elements[button_index]
+        cta_position = f"{cta_position_prefix}.button-{button_index + 1}"
+        cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+        assert_button_attributes(
+            button_element=button_element,
+            button_data=button,
+            context=context,
+            cta_position=cta_position,
+            cta_text=cta_text,
+        )
+
+
+def assert_content_items(
+    content_items: list,
+    rendered_element: BeautifulSoup,
+    context: dict,
+    cta_position_prefix: str,
+    heading_text: str,
+):
+    assert len(content_items) > 0
+    for item in content_items:
+        if item["type"] == "tags":
+            assert_tags_content_item(item["value"], rendered_element)
+        elif item["type"] == "rich_text":
+            assert_rich_text_content_item(item["value"], rendered_element, heading_text, cta_position_prefix)
+        elif item["type"] == "buttons":
+            assert_buttons_content_item(item["value"], rendered_element, context, cta_position_prefix, heading_text)
 
 
 def test_inline_notifications(index_page, rf):
@@ -967,32 +1038,15 @@ def test_media_content_block(index_page, placeholder_images, rf):
     for index, media_content in enumerate(media_contents):
         div = media_content_divs[index]
 
-        # Content
-        eyebrow_text = BeautifulSoup(media_content["value"]["eyebrow"], "html.parser").get_text()
-        headline_text = BeautifulSoup(media_content["value"]["headline"], "html.parser").get_text()
-        content_html = media_content["value"]["content"][0]["value"]
-        content_text = BeautifulSoup(content_html, "html.parser").get_text()
+        # Heading
+        heading_data = media_content["value"]["heading"]
+        assert_heading_block(div, heading_data, heading_tag="h2")
 
-        eyebrow = div.find("p", class_="fl-superheading")
-        headline = div.find("h2", class_="fl-heading")
-        content = div.find("div", class_="fl-body")
-
-        assert eyebrow and eyebrow_text in eyebrow.get_text()
-        assert headline and headline_text in headline.get_text()
-        assert content and content_text in content.get_text()
-
-        # Buttons
-        button = media_content["value"]["buttons"][0]
-        button_element = div.find("a", class_="fl-button")
-        cta_position = f"block-1-section.item-{index + 1}-media_content.button-1"
-        cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
-        assert_button_attributes(
-            button_element=button_element,
-            button_data=button,
-            context=context,
-            cta_position=cta_position,
-            cta_text=cta_text,
-        )
+        # Content items
+        heading_text = BeautifulSoup(heading_data["heading_text"], "html.parser").get_text()
+        content_items = media_content["value"]["content"]
+        cta_position_prefix = f"block-1-section.item-{index + 1}-media_content"
+        assert_content_items(content_items, div, context, cta_position_prefix, heading_text)
 
         # Media
         media_element = div.find("div", class_="fl-mediacontent-media")
@@ -1001,71 +1055,28 @@ def test_media_content_block(index_page, placeholder_images, rf):
         media_value = media_content["value"]["media"][0]
         if media_value["type"] == "image":
             assert_image_variants_attributes(images_element=media_element, images_value=media_value["value"])
-
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
             assert_video_attributes(video_div, media_value)
-
         elif media_value["type"] == "animation":
             animation_div = div.find("div", class_="fl-video")
             assert_animation_attributes(animation_div, media_value)
 
-        # Tags
-        tags = media_content["value"]["tags"]
-        tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
-        assert len(tag_elements) == len(tags)
-        for index, tag in enumerate(tags):
-            tag_element = tag_elements[index]
-            assert_tag_attributes(tag_element, tag)
 
-
-def _assert_media_content_2026_variants(region, variants, section_prefix, context, heading_tag="h3"):
+def assert_media_content_2026_variants(region, variants, section_prefix, context, heading_tag="h3"):
     for index, variant in enumerate(variants):
         div = region.find_all("div", class_="fl-mediacontent")[index]
         value = variant["value"]
 
-        # Headline
-        headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-        headline = div.find(heading_tag, class_="fl-heading")
-        assert headline and headline_text in headline.get_text()
+        # Heading
+        heading_value = value["heading"]
+        assert_heading_block(div, heading_value, heading_tag=heading_tag)
 
-        # Eyebrow (optional)
-        if value.get("eyebrow"):
-            eyebrow_text = BeautifulSoup(value["eyebrow"], "html.parser").get_text()
-            eyebrow = div.find("p", class_="fl-superheading")
-            assert eyebrow and eyebrow_text in eyebrow.get_text()
-
-        # Content (StreamBlock — first rich_text block)
-        content_html = value["content"][0]["value"]
-        content_text = BeautifulSoup(content_html, "html.parser").get_text()
-        body = div.find("div", class_="fl-body")
-        assert body and content_text in body.get_text()
-
-        # Every <a> in the raw content HTML must be rendered with all three
-        # CTA tracking attributes (uid, text, position).
-        content_soup = BeautifulSoup(content_html, "html.parser")
-        expected_link_count = len(content_soup.find_all("a"))
-        if expected_link_count:
-            rich_text_links = body.find_all("a", attrs={"data-cta-uid": True})
-            assert len(rich_text_links) == expected_link_count
-            for link in rich_text_links:
-                uid = link["data-cta-uid"]
-                assert _UUID_RE.match(uid), f"Body link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
-                assert link.get("data-cta-text"), f"Body link {link.get('href')!r} missing data-cta-text"
-                assert link.get("data-cta-position"), f"Body link {link.get('href')!r} missing data-cta-position"
-
-        # Buttons
-        button = value["buttons"][0]
-        button_element = div.find("a", class_="fl-button")
-        cta_position = f"{section_prefix}.item-{index + 1}-media_content.button-1"
-        cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
-        assert_button_attributes(
-            button_element=button_element,
-            button_data=button,
-            context=context,
-            cta_position=cta_position,
-            cta_text=cta_text,
-        )
+        # Content items
+        heading_text = BeautifulSoup(heading_value["heading_text"], "html.parser").get_text()
+        content_items = value["content"]
+        cta_position_prefix = f"{section_prefix}.item-{index + 1}-media_content"
+        assert_content_items(content_items, div, context, cta_position_prefix, heading_text)
 
         # Media
         media_element = div.find("div", class_="fl-mediacontent-media")
@@ -1077,14 +1088,6 @@ def _assert_media_content_2026_variants(region, variants, section_prefix, contex
         elif media_value["type"] == "video":
             video_div = div.find("div", class_="fl-video")
             assert_video_attributes(video_div, media_value)
-
-        # Tags
-        tags = value["tags"]
-        if tags:
-            tag_elements = div.find("div", class_="fl-mediacontent-tags").find_all("span", class_="fl-tag")
-            assert len(tag_elements) == len(tags)
-            for i, tag in enumerate(tags):
-                assert_tag_attributes(tag_elements[i], tag)
 
         # Settings: media_after → fl-mediacontent-reverse; narrow → is-narrow
         if value["settings"].get("media_after"):
@@ -1120,16 +1123,16 @@ def test_media_content_2026_block(index_page, placeholder_images, rf):
     assert len(upper_section_elements) == len(sections)
     assert len(upper_section_elements[0].find_all("div", class_="fl-mediacontent")) == len(variants)
     assert len(upper_section_elements[1].find_all("div", class_="fl-mediacontent")) == len(narrow_variants)
-    _assert_media_content_2026_variants(upper_section_elements[0], variants, "upper-block-1-section", context, heading_tag="h2")
-    _assert_media_content_2026_variants(upper_section_elements[1], narrow_variants, "upper-block-2-section", context, heading_tag="h3")
+    assert_media_content_2026_variants(upper_section_elements[0], variants, "upper-block-1-section", context, heading_tag="h2")
+    assert_media_content_2026_variants(upper_section_elements[1], narrow_variants, "upper-block-2-section", context, heading_tag="h3")
 
     # Lower region: all sections have block_level=2 (children get h3)
     lower_section_elements = lower.find_all("section", class_="fl-section")
     assert len(lower_section_elements) == len(sections)
     assert len(lower_section_elements[0].find_all("div", class_="fl-mediacontent")) == len(variants)
     assert len(lower_section_elements[1].find_all("div", class_="fl-mediacontent")) == len(narrow_variants)
-    _assert_media_content_2026_variants(lower_section_elements[0], variants, "lower-block-1-section", context, heading_tag="h3")
-    _assert_media_content_2026_variants(lower_section_elements[1], narrow_variants, "lower-block-2-section", context, heading_tag="h3")
+    assert_media_content_2026_variants(lower_section_elements[0], variants, "lower-block-1-section", context, heading_tag="h3")
+    assert_media_content_2026_variants(lower_section_elements[1], narrow_variants, "lower-block-2-section", context, heading_tag="h3")
 
 
 def test_icon_card_block(index_page, rf):
@@ -1754,34 +1757,10 @@ def test_banner_block(index_page, placeholder_images, rf):
 
         heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
-        # Links with uid in subheading must render with all three CTA tracking attributes.
-        subheading_html = banner["value"]["heading"]["subheading_text"]
-        subheading_soup = BeautifulSoup(subheading_html, "html.parser")
-        uid_link_count = len([a for a in subheading_soup.find_all("a") if a.get("uid")])
-        if uid_link_count:
-            subheading = banner_element.find("p", class_="fl-subheading")
-            rendered_uid_links = subheading.find_all("a", attrs={"data-cta-uid": True}) if subheading else []
-            assert len(rendered_uid_links) == uid_link_count, f"Expected {uid_link_count} links with data-cta-uid"
-            for link in rendered_uid_links:
-                uid = link["data-cta-uid"]
-                assert _UUID_RE.match(uid), f"Subheading link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
-                assert link.get("data-cta-text"), f"Subheading link {link.get('href')!r} missing data-cta-text"
-                assert link.get("data-cta-position"), f"Subheading link {link.get('href')!r} missing data-cta-position"
-
-        # Buttons
-        buttons = banner["value"]["buttons"]
-        button_elements = banner_element.find_all("a", class_="fl-button")
-        for button_index, button in enumerate(buttons):
-            button_element = button_elements[button_index]
-            cta_position = f"block-{index + 1}-banner.button-{button_index + 1}"
-            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-            assert_button_attributes(
-                button_element=button_element,
-                button_data=button,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
+        # Content items
+        content_items = banner["value"]["content"]
+        cta_position_prefix = f"block-{index + 1}-banner"
+        assert_content_items(content_items, banner_element, context, cta_position_prefix, heading_text)
 
         # Media
         if media := banner["value"]["media"]:
@@ -1845,44 +1824,10 @@ def test_banner_2026_block(index_page, placeholder_images, rf):
 
             heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
-            # Links with uid in subheading must render with all three CTA tracking attributes.
-            subheading_html = banner["value"]["heading"]["subheading_text"]
-            subheading_soup = BeautifulSoup(subheading_html, "html.parser")
-            uid_link_count = len([a for a in subheading_soup.find_all("a") if a.get("uid")])
-            if uid_link_count:
-                subheading = banner_element.find("p", class_="fl-subheading")
-                rendered_uid_links = subheading.find_all("a", attrs={"data-cta-uid": True}) if subheading else []
-                assert len(rendered_uid_links) == uid_link_count, f"Expected {uid_link_count} links with data-cta-uid"
-                for link in rendered_uid_links:
-                    uid = link["data-cta-uid"]
-                    assert _UUID_RE.match(uid), f"Subheading link {link.get('href')!r} has invalid data-cta-uid: {uid!r}"
-                    assert link.get("data-cta-text"), f"Subheading link {link.get('href')!r} missing data-cta-text"
-                    assert link.get("data-cta-position"), f"Subheading link {link.get('href')!r} missing data-cta-position"
-
-            buttons = banner["value"]["buttons"]
-            button_elements = banner_element.find_all("a", class_="fl-button")
-            for button_index, button in enumerate(buttons):
-                button_element = button_elements[button_index]
-                cta_position = f"{region_name}-block-{index + 1}-banner.button-{button_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-                assert_button_attributes(
-                    button_element=button_element,
-                    button_data=button,
-                    context=context,
-                    cta_position=cta_position,
-                    cta_text=cta_text,
-                )
-
-            banner_tags = banner["value"].get("tags", [])
-            tags_container = banner_element.find("div", class_="fl-tags")
-            if banner_tags:
-                assert tags_container
-                tag_elements = tags_container.find_all("span", class_="fl-tag")
-                assert len(tag_elements) == len(banner_tags)
-                for tag_element, tag_data in zip(tag_elements, banner_tags):
-                    assert_tag_attributes(tag_element, tag_data)
-            else:
-                assert not tags_container
+            # Content items
+            content_items = banner["value"]["content"]
+            cta_position_prefix = f"{region_name}-block-{index + 1}-banner"
+            assert_content_items(content_items, banner_element, context, cta_position_prefix, heading_text)
 
             if media := banner["value"]["media"]:
                 media = media[0]
@@ -1945,31 +1890,10 @@ def test_kit_banner_block(index_page, rf):
 
         heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
-        # Buttons
-        buttons = banner["value"]["buttons"]
-        button_elements = banner_element.find_all("a", class_="fl-button")
-        for button_index, button in enumerate(buttons):
-            button_element = button_elements[button_index]
-            cta_position = f"block-{index + 1}-kit_banner.button-{button_index + 1}"
-            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-            assert_button_attributes(
-                button_element=button_element,
-                button_data=button,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-        banner_tags = banner["value"].get("tags", [])
-        tags_container = banner_element.find("div", class_="fl-tags")
-        if banner_tags:
-            assert tags_container
-            tag_elements = tags_container.find_all("span", class_="fl-tag")
-            assert len(tag_elements) == len(banner_tags)
-            for tag_element, tag_data in zip(tag_elements, banner_tags):
-                assert_tag_attributes(tag_element, tag_data)
-        else:
-            assert not tags_container
+        # Content items
+        content_items = banner["value"]["content"]
+        cta_position_prefix = f"block-{index + 1}-kit_banner"
+        assert_content_items(content_items, banner_element, context, cta_position_prefix, heading_text)
 
 
 def test_kit_banner_curious_animation(index_page, rf):
@@ -2152,30 +2076,10 @@ def test_kit_banner_2026_block(index_page, placeholder_images, rf):
 
             heading_text = BeautifulSoup(heading_block["heading_text"], "html.parser").get_text()
 
-            buttons = banner["value"]["buttons"]
-            button_elements = banner_element.find_all("a", class_="fl-button")
-            for button_index, button in enumerate(buttons):
-                button_element = button_elements[button_index]
-                cta_position = f"{region_name}-block-{index + 1}-kit_banner.button-{button_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
-                assert_button_attributes(
-                    button_element=button_element,
-                    button_data=button,
-                    context=context,
-                    cta_position=cta_position,
-                    cta_text=cta_text,
-                )
-
-            banner_tags = banner["value"].get("tags", [])
-            tags_container = banner_element.find("div", class_="fl-tags")
-            if banner_tags:
-                assert tags_container
-                tag_elements = tags_container.find_all("span", class_="fl-tag")
-                assert len(tag_elements) == len(banner_tags)
-                for tag_element, tag_data in zip(tag_elements, banner_tags):
-                    assert_tag_attributes(tag_element, tag_data)
-            else:
-                assert not tags_container
+            # Content items
+            content_items = banner["value"]["content"]
+            cta_position_prefix = f"{region_name}-block-{index + 1}-kit_banner"
+            assert_content_items(content_items, banner_element, context, cta_position_prefix, heading_text)
 
 
 # Homepage
@@ -2995,6 +2899,7 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
     response = page.serve(request)
     assert response.status_code == 200
 
+    context = page.get_context(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
     upper = soup.find("div", class_="fl-split-page-upper")
@@ -3004,6 +2909,7 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
 
     # Both upper and lower contain all variants
     for region_index, region in enumerate([upper, lower]):
+        region_name = "upper" if region_index == 0 else "lower"
         intro_divs = region.find_all("div", class_="fl-intro")
         assert len(intro_divs) == len(variants)
 
@@ -3040,17 +2946,10 @@ def test_intro_2026_block(index_page, placeholder_images, rf):
             else:
                 assert not intro_el.get("id")
 
-            # Tags
-            intro_tags = value.get("tags", [])
-            tags_container = intro_el.find("div", class_="fl-tags")
-            if intro_tags:
-                assert tags_container
-                tag_elements = tags_container.find_all("span", class_="fl-tag")
-                assert len(tag_elements) == len(intro_tags)
-                for tag_element, tag_data in zip(tag_elements, intro_tags):
-                    assert_tag_attributes(tag_element, tag_data)
-            else:
-                assert not tags_container
+            # Content items
+            content_items = value.get("content", [])
+            cta_position_prefix = f"{region_name}-block-{index + 1}-intro"
+            assert_content_items(content_items, intro_el, context, cta_position_prefix, heading_text)
 
             # Media
             media = value.get("media")
@@ -4086,8 +3985,8 @@ def test_smart_window_explainer_page(index_page, rf):
     assert len(instructions_els) == len(content_fixture) == 3
 
     for i, media_content in enumerate(content_fixture):
-        headline_text = BeautifulSoup(media_content["value"]["headline"], "html.parser").get_text()
-        assert headline_text in media_content_headings[i].get_text()
+        heading_text = BeautifulSoup(media_content["value"]["heading"]["heading_text"], "html.parser").get_text()
+        assert heading_text in media_content_headings[i].get_text()
 
         instructions_block = media_content["value"]["content"][1]
         typewriter_text = instructions_block["value"]["typewriter_text"]
@@ -4454,8 +4353,7 @@ def test_notification_block(index_page, rf):
                 assert message in heading_el.get_text()
 
 
-_TWO_COLUMN_CARD_CONTENT_ASSERTERS = {
-    "heading": assert_heading_block,
+TWO_COLUMN_CARD_CONTENT_ASSERTERS = {
     "pricing_heading": assert_pricing_heading_block,
     "icon_list": assert_icon_list_block,
     "numbered_list": assert_numbered_list_block,
@@ -4523,14 +4421,18 @@ def test_two_column_cards_block(index_page, rf):
                     assert tag_el and tag in tag_el.get_text()
 
                 heading_text = ""
+                assert card_data["content"], "Each card must have content blocks for the test to verify correct rendering"
                 for content_index, block_data in enumerate(card_data["content"]):
                     block_type = block_data["type"]
                     content_position = (
                         f"{region_name}-block-{block_number}-two_column_cards.card-{card_number}.content-{content_index + 1}-{block_type}"
                     )
-                    if block_type == "button_row":
+                    if block_type == "heading":
+                        assert_heading_block(card_el, block_data["value"])
+                        heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text()
+                    elif block_type == "button_row":
                         button_data = block_data["value"]["buttons"][0]
-                        cta_text = f"{heading_text} - {button_data['value']['label'].strip()}" if heading_text else None
+                        cta_text = f"{heading_text} - {button_data['value']['label'].strip()}"
                         assert_button_attributes(
                             button_element=card_el.find("a", class_="fl-button"),
                             button_data=button_data,
@@ -4538,8 +4440,8 @@ def test_two_column_cards_block(index_page, rf):
                             cta_position=content_position + ".button-1",
                             cta_text=cta_text,
                         )
-                    elif block_type in _TWO_COLUMN_CARD_CONTENT_ASSERTERS:
-                        _TWO_COLUMN_CARD_CONTENT_ASSERTERS[block_type](card_el, block_data)
+                    elif block_type in TWO_COLUMN_CARD_CONTENT_ASSERTERS:
+                        TWO_COLUMN_CARD_CONTENT_ASSERTERS[block_type](card_el, block_data)
 
 
 def _make_card_value(image_position, content_types):
@@ -4779,7 +4681,7 @@ def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
     intro_heading_data = intro_value["heading"]
-    intro_button_data = intro_value["buttons"][0]["value"]
+    intro_button_data = intro_value["content"][0]["value"][0]["value"]
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
@@ -4820,9 +4722,6 @@ def test_roadmap_list_section_block(index_page, rf):
         tag = button["data-filter"]
         assert tag in ROADMAP_TAG_LABELS, f"Unexpected filter tag {tag}"
         assert str(ROADMAP_TAG_LABELS[tag]) in button.get_text(), f"Expected label for tag {tag}"
-        icon_el = button.find("span", class_="fl-icon")
-        assert icon_el, f"Expected icon element for tag {tag}"
-        assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag}"
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el

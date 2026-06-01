@@ -8,7 +8,7 @@
   <content:heading>
     {% include_block value.heading %}
   </content:heading>
-  <content:actions>
+  <content:content>
     {% set block_position = block_position or "intro" %}
     {% set block_text = value.heading.heading_text|richtext|remove_tags %}
     {% if value.buttons %}
@@ -19,7 +19,7 @@
         {% endfor %}
       </div>
     {% endif %}
-  </content:actions>
+  </content:content>
   {% if value.media %}
     <content:media>
       {% for block in value.media %}

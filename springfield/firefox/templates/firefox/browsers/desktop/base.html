@@ -15,6 +15,8 @@
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
 
+{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
+
 {% block body_class %}{% if switch("flare26_enabled") %}fl-download-page{% else %}mzp-t-firefox{% endif %}{% endblock %}
 
 {% block experiments %}{% endblock %}
@@ -91,25 +93,27 @@
               <content:heading>
                 <h1 class="fl-heading fl-heading-size-1">{{ hero_title }}</h1>
               </content:heading>
-              <content:actions>
-                {% block intro_download_button_26 %}
-                  {{ download_firefox_thanks(
-                    alt_copy=ftl('download-button-download-now'),
-                    locale_in_transition=True,
-                    download_location='primary cta',
-                    flare_styles=True,
-                  ) }}
-                {% endblock %}
-                <ul class="fl-small-links">
-                  {% if ftl_has_messages('firefox-new-download-a-different') %}
-                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-new-download-a-different') }}</a></li>
-                  {% else %}
-                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_advanced }}</a></li>
-                  <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_lang }}</a></li>
-                  {% endif %}
-                  <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
-                </ul>
-              </content:actions>
+              <content:content>
+                <div class="fl-intro-actions">
+                  {% block intro_download_button_26 %}
+                    {{ download_firefox_thanks(
+                      alt_copy=ftl('download-button-download-now'),
+                      locale_in_transition=True,
+                      download_location='primary cta',
+                      flare_styles=True,
+                    ) }}
+                  {% endblock %}
+                  <ul class="fl-small-links">
+                    {% if ftl_has_messages('firefox-new-download-a-different') %}
+                    <li><a href="{{ firefox_url('desktop', 'all') }}">{{ ftl('firefox-new-download-a-different') }}</a></li>
+                    {% else %}
+                    <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_advanced }}</a></li>
+                    <li><a href="{{ firefox_url('desktop', 'all') }}">{{ small_lang }}</a></li>
+                    {% endif %}
+                    <li><a href="https://support.mozilla.org/products/firefox{{ params }}&utm_content=need-help-link">{{ small_help }}</a></li>
+                  </ul>
+                </div>
+              </content:content>
               <content:media>
                 <img src="/media/{{ hero_img }}" class="fl-mediacontent-asset" aria-hidden="true" />
               </content:media>

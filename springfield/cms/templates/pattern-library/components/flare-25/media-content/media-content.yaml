@@ -2,9 +2,9 @@ name: "Media Content 2025"
 context:
   media_after: false
   contents:
-    eyebrow: Eyebrow text
     heading:
       level: h3
+      superheading_text: Eyebrow text
       heading_text: Media Content Heading
     tags:
       - text: Feature

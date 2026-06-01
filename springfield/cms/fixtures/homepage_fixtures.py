@@ -18,6 +18,7 @@ def get_home_intro():
     return {
         "type": "intro",
         "value": {
+            "settings": {"slim": False},
             "heading": {
                 "superheading_text": '<p data-block-key="1khhq"><a href="https://mozilla.org"><i>NEW</i> See the latest</a></p>',
                 "heading_text": '<p data-block-key="yy3vb">This is the internet, on your terms</p>',

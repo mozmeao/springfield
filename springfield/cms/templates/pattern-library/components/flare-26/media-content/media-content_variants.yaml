@@ -4,9 +4,9 @@ context:
     - title: Media Content (Media Before)
       testid: "media-content-media-before"
       media_after: false
-      eyebrow: Eyebrow
       heading:
         level: h3
+        superheading_text: Eyebrow
         heading_text: Media Content with Image First
       tags:
         - text: Privacy
@@ -33,9 +33,9 @@ context:
     - title: Media Content (Media After)
       testid: "media-content-media-after"
       media_after: true
-      eyebrow: Eyebrow
       heading:
         level: h3
+        superheading_text: Eyebrow
         heading_text: Media Content with Image After
       tags:
         - text: Featured
@@ -80,9 +80,9 @@ context:
     - title: Media Content (YouTube Video)
       testid: "media-content-youtube-video"
       media_after: false
-      eyebrow: Eyebrow
       heading:
         level: h3
+        superheading_text: Eyebrow
         heading_text: Media Content with YouTube Video
       body: This variant shows the media content component rendering a YouTube video instead of an image.
       buttons:
@@ -99,9 +99,9 @@ context:
     - title: Media Content (CDN Video)
       testid: "media-content-cdn-video"
       media_after: false
-      eyebrow: Eyebrow
       heading:
         level: h3
+        superheading_text: Eyebrow
         heading_text: Media Content with CDN Video
       body: This variant shows the media content component rendering a CDN-hosted video from assets.mozilla.net.
       buttons:
