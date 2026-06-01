@@ -22,7 +22,7 @@ def migrate_labels(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0097_create_pretranslated_phrases"),
+        ("cms", "0098_create_pretranslated_phrases"),
     ]
 
     operations = [

@@ -22,7 +22,7 @@ def create_pretranslated_phrases(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0096_pretranslatedphrase"),
+        ("cms", "0097_pretranslatedphrase"),
         # Required because save_target() may interact with wagtail_localize_smartling
         # which has a handler that queries LandedTranslationTask / JobTranslation.
         ("wagtail_localize_smartling", "0008_jobtranslation_content_hash"),
