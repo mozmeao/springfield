@@ -490,15 +490,18 @@ BUTTON_SECONDARY = "secondary"
 BUTTON_TERTIARY = "tertiary"
 BUTTON_GHOST = "ghost"
 BUTTON_LINK = "link"
+BUTTON_GOLD = "gold"
+
 BUTTON_THEME_CHOICES = {
     BUTTON_PRIMARY: "Primary",
     BUTTON_SECONDARY: "Secondary",
     BUTTON_TERTIARY: "Tertiary",
     BUTTON_GHOST: "Ghost",
+    BUTTON_GOLD: "Gold",
     BUTTON_LINK: "Link",
 }
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
-BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
+BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_GOLD, BUTTON_LINK]
 
 
 def validate_animation_url(value):
@@ -637,6 +640,7 @@ class BaseButtonValue(blocks.StructValue):
             "ghost": "button-ghost",
             "secondary": "button-secondary",
             "tertiary": "button-tertiary",
+            "gold": "button-gold",
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
@@ -2854,6 +2858,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
