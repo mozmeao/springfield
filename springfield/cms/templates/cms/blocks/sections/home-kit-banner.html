@@ -33,12 +33,12 @@
     </content:heading>
 
     {% if value.buttons %}
-      <content:actions>
+      <content:content>
         {% for button in value.buttons %}
           {% set block_position = block_position ~ ".button-" ~ loop.index %}
           {% include_block button %}
         {% endfor %}
-      </content:actions>
+      </content:content>
     {% endif %}
   </include:kit-banner>
 

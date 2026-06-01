@@ -50,6 +50,7 @@
 --fl-theme-card-outline-superheading-color-active: var(
     --token-color-soft-purple-3
 );
+--display-light-mode-only: none;
 
 /* Two column and gallery cards */
 --two-column-accent-color: var(--token-color-soft-purple-4);

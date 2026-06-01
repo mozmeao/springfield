@@ -9,7 +9,7 @@
     <content:media>
       <img src="{{ image.url }}" alt="{{ image.alt }}" loading="lazy" />
     </content:media>
-    <content:body>
+    <content:content>
       <include:icon-list>
         {% for item in items %}
           <li>
@@ -20,6 +20,6 @@
           </li>
         {% endfor %}
       </include:icon-list>
-    </content:body>
+    </content:content>
   </include:media-content>
 </div>

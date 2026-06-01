@@ -4,57 +4,33 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="pl-frame pl-frame--white">
-  <div class="pl-row">
-    <h4>Media Content variants</h4>
-    <hr/>
-  </div>
-  {% for item in variants %}
-    <div data-testid="{{ item.testid }}" class="pl-row">
-      <h5>{{ item.title }}</h5>
-      <hr/>
+{% for item in variants %}
+  <section data-testid="{{ item.testid }}" class="fl-section">
+    <div class="fl-section-container">
       <include:media-content media_after="{{ item.media_after }}">
-        {% if item.eyebrow %}
-          <content:eyebrow>
-            {{ item.eyebrow }}
-          </content:eyebrow>
-        {% endif %}
-        <content:heading>
+        <content:content>
           <include:heading
             level="{{ item.heading.level }}"
+            superheading_text="{{ item.heading.superheading_text }}"
             heading_text="{{ item.heading.heading_text }}"
+            subheading_text="{{ item.heading.subheading_text }}"
           />
-        </content:heading>
-        {% if item.tags %}
-          <content:tags>
+          {% if item.tags %}
             {% for tag in item.tags %}
               <include:tag
                 text="{{ tag.text }}"
                 color="{{ tag.color }}"
                 corners="{{ tag.corners }}"
-              >
-                {% if tag.before_icon %}
-                  <content:before_icon>
-                    <include:icon icon_name="{{ tag.before_icon }}" hidden=true extra_class="icon-left" />
-                  </content:before_icon>
-                {% endif %}
-                {% if tag.after_icon %}
-                  <content:after_icon>
-                    <include:icon icon_name="{{ tag.after_icon }}" hidden=true extra_class="icon-right" />
-                  </content:after_icon>
-                {% endif %}
-              </include:tag>
+                before_icon="{{ tag.before_icon }}"
+                after_icon="{{ tag.after_icon }}"
+              />
             {% endfor %}
-          </content:tags>
-        {% endif %}
-        <content:body>
+          {% endif %}
           <p>{{ item.body }}</p>
-        </content:body>
-        {% if item.buttons %}
-          <content:buttons>
+          {% if item.buttons %}
             <include:buttons buttons="{{ item.buttons }}" />
-          </content:buttons>
-        {% endif %}
+          {% endif %}
+        </content:content>
         {% if item.video %}
           <content:media>
             <include:video
@@ -69,7 +45,6 @@
           </content:media>
         {% endif %}
       </include:media-content>
-      <hr>
     </div>
-  {% endfor %}
-</div>
+  </section>
+{% endfor %}
