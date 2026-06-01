@@ -7,8 +7,24 @@ from django.test import override_settings
 from django.urls import reverse
 
 import pytest
+from wagtail.models import TranslatableMixin
+from wagtail.snippets.models import get_snippet_models
 
 from springfield.cms.tests.factories import LocaleFactory
+
+EXPECTED_TRANSLATABLE_SNIPPETS = {
+    "BannerSnippet",
+    "DownloadFirefoxCallToActionSnippet",
+    "PreFooterCTAFormSnippet",
+    "PreFooterCTASnippet",
+    "PretranslatedPhrase",
+    "QRCodeFloatingSnippet",
+    "QRCodeSnippet",
+    "SetAsDefaultSnippet",
+    "Tag",
+}
+
+TRANSLATABLE_SNIPPET_MODELS = [m for m in get_snippet_models() if issubclass(m, TranslatableMixin)]
 
 
 @pytest.fixture
@@ -42,36 +58,65 @@ def fr_locale(db):
     return LocaleFactory(language_code="fr")
 
 
-LISTING_URL = reverse("wagtailsnippets_cms_pretranslatedphrase:list")
-RESULTS_URL = reverse("wagtailsnippets_cms_pretranslatedphrase:list_results")
-CHOOSER_URL = reverse("wagtailsnippetchoosers_cms_pretranslatedphrase:choose")
+def _listing_url(model):
+    return reverse(f"wagtailsnippets_{model._meta.app_label}_{model._meta.model_name}:list")
+
+
+def _results_url(model):
+    return reverse(f"wagtailsnippets_{model._meta.app_label}_{model._meta.model_name}:list_results")
+
+
+def _chooser_url(model):
+    return reverse(f"wagtailsnippetchoosers_{model._meta.app_label}_{model._meta.model_name}:choose")
 
 
 @pytest.mark.django_db
-class TestPretranslatedPhraseListingLocaleDefault:
-    """Locks the key-presence-not-value-truthiness rule on `?locale=`."""
+def test_snippet_registry_matches_expected():
+    """
+    Test meant to catch accidentally forgetting to update which snippets should be translatable.
 
-    def test_listing_with_no_locale_param_redirects_to_default_locale(self, admin_client):
+    The goal here is to ensure that each snippet that is translatable (using TranslatableMixin)
+    also uses the LocaleDefaultingSnippetViewSet.
+    If a translatable snippet is added and does not use the LocaleDefaultingSnippetViewSet,
+    then it will fail some tests in this file.
+    """
+    discovered = {m.__name__ for m in TRANSLATABLE_SNIPPET_MODELS}
+    assert discovered == EXPECTED_TRANSLATABLE_SNIPPETS
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("model", TRANSLATABLE_SNIPPET_MODELS, ids=lambda m: m.__name__)
+class TestSnippetListingLocaleDefault:
+    """
+    Verifies the rule for the `locale` kwarg across every translatable snippet model.
+
+     - GETting the list URL redirects to the list URL with locale=en-US
+     - GETting the list URL with a locale parameter does not redirect
+     - GETting the list URL with an empty locale parameter does not redirect
+     - GETting the results URL does not redirect
+    """
+
+    def test_listing_with_no_locale_param_redirects_to_default_locale(self, model, admin_client):
         """GETting the list URL redirects to the list URL with locale=en-US."""
-        response = admin_client.get(LISTING_URL)
+        response = admin_client.get(_listing_url(model))
         assert response.status_code == 302
         assert response["Location"].endswith("?locale=en-US")
 
-    def test_listing_with_explicit_locale_param_does_not_redirect(self, admin_client, fr_locale):
+    def test_listing_with_explicit_locale_param_does_not_redirect(self, model, admin_client, fr_locale):
         """GETting the list URL with a locale parameter does not redirect."""
-        response = admin_client.get(LISTING_URL + "?locale=fr")
+        response = admin_client.get(_listing_url(model) + "?locale=fr")
         assert response.status_code == 200
 
-    def test_listing_with_empty_locale_param_does_not_redirect(self, admin_client):
+    def test_listing_with_empty_locale_param_does_not_redirect(self, model, admin_client):
         """
         GETting the list URL with an empty locale parameter does not redirect.
 
         Having "locale=" in the URL is considered the "All locales" choice.
         """
-        response = admin_client.get(LISTING_URL + "?locale=")
+        response = admin_client.get(_listing_url(model) + "?locale=")
         assert response.status_code == 200
 
-    def test_results_only_endpoint_does_not_redirect(self, admin_client):
+    def test_results_only_endpoint_does_not_redirect(self, model, admin_client):
         """
         GETting the results URL does not redirect.
 
@@ -79,17 +124,18 @@ class TestPretranslatedPhraseListingLocaleDefault:
         every change. Redirecting that AJAX call would break the filter form
         and/or cause infinite redirect loops.
         """
-        response = admin_client.get(RESULTS_URL)
+        response = admin_client.get(_results_url(model))
         assert response.status_code == 200
 
 
 @pytest.mark.django_db
-class TestPretranslatedPhraseChooserNotRedirected:
+@pytest.mark.parametrize("model", TRANSLATABLE_SNIPPET_MODELS, ids=lambda m: m.__name__)
+def test_chooser_modal_does_not_redirect_to_en_us(model, admin_client):
     """
-    Add explicit asserts for the chooser modal, to trigger failures on changes in Wagtail.
+    The chooser modal is a separate ChooseView and must NOT receive the
+    listing-level locale-defaulting redirect — otherwise the chooser breaks
+    inside the block editor.
     """
-
-    def test_chooser_modal_does_not_redirect_to_en_us(self, admin_client):
-        response = admin_client.get(CHOOSER_URL)
-        assert response.status_code == 200
-        assert "Location" not in response
+    response = admin_client.get(_chooser_url(model))
+    assert response.status_code == 200
+    assert "Location" not in response

@@ -19,7 +19,6 @@ from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
-from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 
@@ -106,9 +105,6 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return "cms/snippets/pre-footer-cta-snippet-preview.html"
 
 
-register_snippet(PreFooterCTASnippet)
-
-
 class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the Newsletter sign-up form at the bottom of pages."""
 
@@ -133,9 +129,6 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pre-footer-cta-form-snippet-preview.html"
-
-
-register_snippet(PreFooterCTAFormSnippet)
 
 
 class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -172,9 +165,6 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTransl
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/download-firefox-cta-snippet-preview.html"
-
-
-register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
 class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -218,9 +208,6 @@ class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         return "cms/snippets/banner-snippet-preview.html"
 
 
-register_snippet(BannerSnippet)
-
-
 class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
     """A tag for categorizing articles."""
 
@@ -239,9 +226,6 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
-
-
-register_snippet(Tag)
 
 
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -289,9 +273,6 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         return response
 
 
-register_snippet(QRCodeSnippet)
-
-
 class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render the modal content for the 'set as default' button."""
 
@@ -336,9 +317,6 @@ class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/set-as-default-snippet-preview.html"
-
-
-register_snippet(SetAsDefaultSnippet)
 
 
 class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -418,9 +396,6 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         if not self.url and not self.image:
             raise ValidationError("Missing url or image")
         return super().clean()
-
-
-register_snippet(QRCodeFloatingSnippet)
 
 
 class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
