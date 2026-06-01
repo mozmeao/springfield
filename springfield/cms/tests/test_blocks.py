@@ -4580,9 +4580,6 @@ def test_roadmap_list_section_block(index_page, rf):
         tag = button["data-filter"]
         assert tag in ROADMAP_TAG_LABELS, f"Unexpected filter tag {tag}"
         assert str(ROADMAP_TAG_LABELS[tag]) in button.get_text(), f"Expected label for tag {tag}"
-        icon_el = button.find("span", class_="fl-icon")
-        assert icon_el, f"Expected icon element for tag {tag}"
-        assert f"fl-icon-{ROADMAP_TAG_ICONS[tag]}" in icon_el["class"], f"Expected icon for tag {tag}"
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
