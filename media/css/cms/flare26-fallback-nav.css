@@ -67,6 +67,12 @@
     position: absolute;
     right: 0;
     top: 100%;
+    z-index: 10;
+}
+
+.fl-menu-heading {
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .fl-ie-only.fl-nav:hover .fl-nav-menu {
