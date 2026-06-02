@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props link="" title="" description="" dismissable=False #}
+
+<div class="fl-pencil-banner">
+  <div class="fl-pencil-banner-content">
+  <a href="{{ link }}" class="fl-pencil-banner-link">
+    <span class="fl-pencil-banner-title">{{ title }}</span>
+    <span class="fl-pencil-banner-description">{{ description }}</span>
+  </a>
+  {% if dismissable %}
+  <button type="button" class="fl-button button-link" aria-label="Close banner">
+    <include:icon icon_name="close" />
+  </button>
+  {% endif %}
+</div>
+</div>
