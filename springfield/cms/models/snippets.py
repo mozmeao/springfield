@@ -292,6 +292,33 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
 register_snippet(QRCodeSnippet)
 
 
+class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render the 'Scroll to see more' text."""
+
+    text = models.CharField(default="Scroll to see more")
+
+    panels = [
+        FieldPanel("text"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Scroll to see more Snippet"
+        verbose_name_plural = "Scroll to see more Snippets"
+        # template = "cms/snippets/scroll-to-see-more-snippet.html"
+
+    def __str__(self):
+        return f"{self.text} – {self.locale}"
+
+    def get_template(self, request, mode_name):
+        return "cms/snippets/scroll-to-see-more-snippet.html"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/scroll-to-see-more-snippet-preview.html"
+
+
+register_snippet(ScrollToSeeMoreSnippet)
+
+
 class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render the modal content for the 'set as default' button."""
 

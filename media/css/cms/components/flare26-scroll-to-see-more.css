@@ -1,0 +1,27 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-scroll-to-see-more-wrapper {
+    align-items: center;
+    display: flex;
+    inline-size: 100%;
+    inset-block-end: 0;
+    justify-content: center;
+    position: absolute;
+}
+
+.fl-scroll-to-see-more {
+    align-items: center;
+    background-color: var(--token-color-light-purple-40);
+    border-start-end-radius: var(--token-border-radius-lg);
+    border-start-start-radius: var(--token-border-radius-lg);
+    color: var(--token-color-white);
+    display: flex;
+    gap: var(--token-spacing-sm);
+    justify-content: center;
+    padding: var(--token-spacing-lg) var(--token-spacing-2xl);
+    line-height: 1;
+}
