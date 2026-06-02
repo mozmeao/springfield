@@ -153,6 +153,22 @@ def test_CMSLocaleFallbackMiddleware_query_string_preserved__cross_locale_302(
     assert response.headers["Location"] == "/fr/test-page/child-page/?utm_source=test"
 
 
+@override_settings(APPEND_SLASH=False)
+def test_CMSLocaleFallbackMiddleware_no_redirect_when_APPEND_SLASH_disabled(
+    rf,
+    tiny_localized_site,
+):
+    # Regression: with APPEND_SLASH=False the middleware must not invent
+    # a trailing-slash redirect. The slash-less request stays a 404.
+    request = rf.get(
+        "/en-US/test-page/child-page",
+        HTTP_ACCEPT_LANGUAGE="en-US",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+    assert response.status_code == 404
+
+
 def test_CMSLocaleFallbackMiddleware_locale_root_without_trailing_slash(
     rf,
     tiny_localized_site,
