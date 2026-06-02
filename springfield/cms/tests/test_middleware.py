@@ -122,6 +122,54 @@ def test_CMSLocaleFallbackMiddleware_url_path_without_trailing_slash__same_local
     assert response.headers["Location"] == "/en-US/test-page/child-page/"
 
 
+def test_CMSLocaleFallbackMiddleware_query_string_preserved__same_locale_301(
+    rf,
+    tiny_localized_site,
+):
+    # Query strings must survive the redirect — matches Django CommonMiddleware
+    # APPEND_SLASH semantics. Critical for the 301 path so tracking/UTM params
+    # don't get permanently cached out of existence.
+    request = rf.get(
+        "/en-US/test-page/child-page?utm_source=test&foo=bar",
+        HTTP_ACCEPT_LANGUAGE="en-US",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+    assert response.status_code == 301
+    assert response.headers["Location"] == "/en-US/test-page/child-page/?utm_source=test&foo=bar"
+
+
+def test_CMSLocaleFallbackMiddleware_query_string_preserved__cross_locale_302(
+    rf,
+    tiny_localized_site,
+):
+    request = rf.get(
+        "/sv/test-page/child-page/?utm_source=test",
+        HTTP_ACCEPT_LANGUAGE="fr",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/fr/test-page/child-page/?utm_source=test"
+
+
+def test_CMSLocaleFallbackMiddleware_locale_root_without_trailing_slash(
+    rf,
+    tiny_localized_site,
+):
+    # Edge case: /en-US (no slash, no sub-path) must not produce a `/home//`
+    # lookup pattern. Should 301 to the locale root, same as any other
+    # same-locale slash canonicalisation.
+    request = rf.get(
+        "/en-US",
+        HTTP_ACCEPT_LANGUAGE="en-US",
+    )
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+    assert response.status_code == 301
+    assert response.headers["Location"] == "/en-US/"
+
+
 def test_CMSLocaleFallbackMiddleware_404_when_no_page_exists_in_any_locale(
     rf,
     tiny_localized_site,

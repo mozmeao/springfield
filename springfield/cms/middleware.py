@@ -96,8 +96,8 @@ class CMSLocaleFallbackMiddleware:
                 ranked_locales.append(settings.LANGUAGE_CODE)
 
             _url_path = sub_path.lstrip("/")
-            append_slash_needed = settings.APPEND_SLASH and not _url_path.endswith("/")
-            if append_slash_needed:
+            append_slash_needed = settings.APPEND_SLASH and not request.path.endswith("/")
+            if append_slash_needed and _url_path:
                 _url_path += "/"
 
             # Now try to get hold of all the pages that exist in the CMS for the extracted path
@@ -144,11 +144,14 @@ class CMSLocaleFallbackMiddleware:
                         if len(page_list) > 1:
                             logger.warning(f"CMS 404-fallback problem - multiple pages with same path found: {page_list}")
                         page = page_list[0]  # page_list should be a list of 1 item
+                        target = page.url
+                        if query_string := request.META.get("QUERY_STRING"):
+                            target = f"{target}?{query_string}"
                         # Pure trailing-slash canonicalisation within the same locale → 301.
                         # Cross-locale fallbacks remain 302 (Accept-Language dependent).
                         if append_slash_needed and locale_code == lang_prefix:
-                            return HttpResponsePermanentRedirect(page.url)
-                        return HttpResponseRedirect(page.url)
+                            return HttpResponsePermanentRedirect(target)
+                        return HttpResponseRedirect(target)
 
                 # Note: we can make this more efficient by leveraging the cached page tree
                 # (once the work to pre-cache the page tree lands)
