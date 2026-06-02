@@ -6,6 +6,11 @@
 
 {% extends "cms/base-flare26.html" %}
 
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare26-header />
+{% endblock %}
+
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
 
 {% block page_title %}{{ ftl('cookie-settings-page-title') }}{% endblock %}
