@@ -4,6 +4,43 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+function isAlphaWebmUnsupported() {
+    const ua = navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+}
+
+function isAlphaWebm(src) {
+    return /-alpha\.webm(\?|$)/i.test(src);
+}
+
+function swapAlphaWebmForPoster() {
+    if (!isAlphaWebmUnsupported()) return;
+
+    document.querySelectorAll('.fl-video').forEach(function (container) {
+        const video = container.querySelector('video');
+        if (!video) return;
+
+        const source = video.querySelector('source');
+        if (!source || !isAlphaWebm(source.src)) return;
+
+        const poster = video.getAttribute('poster');
+        if (!poster) return;
+
+        const fallbackImg = video.querySelector('img');
+        const img = document.createElement('img');
+        img.src = poster;
+        img.alt = fallbackImg ? fallbackImg.alt : '';
+        img.className = 'fl-video-poster';
+        video.replaceWith(img);
+
+        container.querySelectorAll('.fl-video-play').forEach(function (btn) {
+            btn.remove();
+        });
+        container.classList.remove('fl-animation-playing');
+    });
+}
+
 function initAnimations() {
     const animations = document.querySelectorAll('.fl-animation');
 
@@ -75,6 +112,7 @@ function initAnimationPauseButtons() {
 }
 
 export default function setupAnimations() {
+    swapAlphaWebmForPoster();
     initAnimations();
     initAnimationPauseButtons();
 }
