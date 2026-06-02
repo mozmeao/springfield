@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -55,7 +55,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
 # ---------------------------------------------------------------------------
 
 
-def get_sticker_card_2026_variants() -> list[dict]:
+def get_sticker_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -120,8 +120,8 @@ def _cards_list(cards, settings=None, block_id=""):
     }
 
 
-def get_sticker_cards_2026_sections() -> list[dict]:
-    cards = get_sticker_card_2026_variants()
+def get_sticker_cards_sections() -> list[dict]:
+    cards = get_sticker_card_variants()
     return [
         _section(
             heading_text="Sticker Cards - Default",
@@ -190,17 +190,17 @@ def get_sticker_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_sticker_cards_2026_test_page() -> FreeFormPage2026:
+def get_sticker_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-sticker-cards-2026"
+    slug = "test-sticker-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Sticker Cards 2026")
         index_page.add_child(instance=page)
 
-    sections = get_sticker_cards_2026_sections()
+    sections = get_sticker_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()
@@ -212,7 +212,7 @@ def get_sticker_cards_2026_test_page() -> FreeFormPage2026:
 # ---------------------------------------------------------------------------
 
 
-def get_illustration_card_2026_variants() -> list[dict]:
+def get_illustration_card_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
@@ -267,8 +267,8 @@ def get_illustration_card_2026_variants() -> list[dict]:
     ]
 
 
-def get_illustration_cards_2026_sections() -> list[dict]:
-    cards = get_illustration_card_2026_variants()
+def get_illustration_cards_sections() -> list[dict]:
+    cards = get_illustration_card_variants()
     return [
         _section(
             heading_text="Illustration Cards - 3 Columns",
@@ -313,17 +313,17 @@ def get_illustration_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_illustration_cards_2026_test_page() -> FreeFormPage2026:
+def get_illustration_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-illustration-cards-2026"
+    slug = "test-illustration-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Illustration Cards 2026")
         index_page.add_child(instance=page)
 
-    sections = get_illustration_cards_2026_sections()
+    sections = get_illustration_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()
@@ -335,7 +335,7 @@ def get_illustration_cards_2026_test_page() -> FreeFormPage2026:
 # ---------------------------------------------------------------------------
 
 
-def get_step_card_2026_variants() -> list[dict]:
+def get_step_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -389,8 +389,8 @@ def get_step_card_2026_variants() -> list[dict]:
     ]
 
 
-def get_step_cards_2026_sections() -> list[dict]:
-    cards = get_step_card_2026_variants()
+def get_step_cards_sections() -> list[dict]:
+    cards = get_step_card_variants()
     return [
         _section(
             heading_text="Step Cards - 3 Columns",
@@ -419,17 +419,17 @@ def get_step_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_step_cards_2026_test_page() -> FreeFormPage2026:
+def get_step_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-step-cards-2026"
+    slug = "test-step-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Step Cards 2026")
         index_page.add_child(instance=page)
 
-    sections = get_step_cards_2026_sections()
+    sections = get_step_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()
@@ -441,7 +441,7 @@ def get_step_cards_2026_test_page() -> FreeFormPage2026:
 # ---------------------------------------------------------------------------
 
 
-def get_outlined_card_2026_variants() -> list[dict]:
+def get_outlined_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -491,8 +491,8 @@ def get_outlined_card_2026_variants() -> list[dict]:
     ]
 
 
-def get_outlined_cards_2026_sections() -> list[dict]:
-    cards = get_outlined_card_2026_variants()
+def get_outlined_cards_sections() -> list[dict]:
+    cards = get_outlined_card_variants()
     return [
         _section(
             heading_text="Outlined Cards - 3 Columns",
@@ -537,17 +537,17 @@ def get_outlined_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_outlined_cards_2026_test_page() -> FreeFormPage2026:
+def get_outlined_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-outlined-cards-2026"
+    slug = "test-outlined-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Outlined Cards 2026")
         index_page.add_child(instance=page)
 
-    sections = get_outlined_cards_2026_sections()
+    sections = get_outlined_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()

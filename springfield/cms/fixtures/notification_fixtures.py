@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_test_index_page
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
@@ -197,7 +197,7 @@ def get_notification_variants() -> list[dict]:
 
 
 def get_notification_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
     page = FreeFormPage2026.objects.filter(slug="test-notifications-page").first()
     if not page:

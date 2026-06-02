@@ -332,7 +332,7 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     assert response.headers["location"].endswith(pt_br_v124_page.url)
 
 
-def test_freeform_page_2026(minimal_site, rf):
+def test_freeform_page(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
     page.save()
@@ -345,7 +345,7 @@ def test_freeform_page_2026(minimal_site, rf):
     assert response.status_code == 200
 
 
-def test_article_index_and_detail_pages_2026(minimal_site, rf):
+def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
         parent=root_page,

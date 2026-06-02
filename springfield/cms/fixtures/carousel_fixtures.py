@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -22,7 +22,7 @@ def _image(image_id, dark_mode_image_id=None):
     }
 
 
-def get_carousel_2026_variants() -> list[dict]:
+def get_carousel_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         # Minimal: no buttons, 2 slides
@@ -100,17 +100,17 @@ def get_carousel_2026_variants() -> list[dict]:
     ]
 
 
-def get_carousel_2026_test_page() -> FreeFormPage2026:
+def get_carousel_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-carousel-2026"
+    slug = "test-carousel"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Carousel 2026")
         index_page.add_child(instance=page)
 
-    variants = get_carousel_2026_variants()
+    variants = get_carousel_variants()
     page.upper_content = variants
     page.content = variants
     page.save_revision().publish()

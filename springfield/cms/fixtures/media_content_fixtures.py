@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -90,7 +90,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_media_content_2026_variants() -> list[dict]:
+def get_media_content_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
@@ -179,7 +179,7 @@ def get_media_content_2026_variants() -> list[dict]:
     ]
 
 
-def get_media_content_2026_narrow_variants() -> list[dict]:
+def get_media_content_narrow_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -241,34 +241,34 @@ def get_media_content_2026_narrow_variants() -> list[dict]:
     ]
 
 
-def get_media_content_2026_sections() -> list[dict]:
+def get_media_content_sections() -> list[dict]:
     return [
         _section(
             heading_text="Media + Content 2026",
             subheading_text="Media content blocks in the 2026 design system.",
-            content_blocks=get_media_content_2026_variants(),
+            content_blocks=get_media_content_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000001",
         ),
         _section(
             heading_text="Media + Content 2026 — Narrow",
             subheading_text="Narrow layout narrows the media element relative to the content.",
-            content_blocks=get_media_content_2026_narrow_variants(),
+            content_blocks=get_media_content_narrow_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000002",
         ),
     ]
 
 
-def get_media_content_2026_test_page() -> FreeFormPage2026:
+def get_media_content_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-media-content-2026"
+    slug = "test-media-content"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Media Content 2026")
         index_page.add_child(instance=page)
 
-    sections = get_media_content_2026_sections()
+    sections = get_media_content_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()

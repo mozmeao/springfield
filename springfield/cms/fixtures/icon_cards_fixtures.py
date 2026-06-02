@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -29,7 +29,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_icon_card_2026_variants() -> list[dict]:
+def get_icon_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         {
@@ -90,8 +90,8 @@ def _cards_list(cards, settings=None, block_id=""):
     }
 
 
-def get_icon_cards_2026_sections() -> list[dict]:
-    cards = get_icon_card_2026_variants()
+def get_icon_cards_sections() -> list[dict]:
+    cards = get_icon_card_variants()
     return [
         _section(
             heading_text="Icon Cards 2026 - 3 Columns",
@@ -136,17 +136,17 @@ def get_icon_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_icon_cards_2026_test_page() -> FreeFormPage2026:
+def get_icon_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-icon-cards-2026"
+    slug = "test-icon-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Icon Cards 2026")
         index_page.add_child(instance=page)
 
-    sections = get_icon_cards_2026_sections()
+    sections = get_icon_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()

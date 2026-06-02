@@ -4,17 +4,17 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.tag_fixtures import get_tag_2026_variants
+from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
 
 
-def get_intro_2026_variants() -> list[dict]:
+def get_intro_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
-    tags = get_tag_2026_variants()
+    tags = get_tag_variants()
     return [
         # Vertical layout (default), no media
         {
@@ -218,17 +218,17 @@ def get_intro_2026_variants() -> list[dict]:
     ]
 
 
-def get_intro_2026_test_page() -> FreeFormPage2026:
+def get_intro_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_test_index_page()
 
-    slug = "test-intro-2026"
+    slug = "test-intro"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Intro 2026")
         index_page.add_child(instance=page)
 
-    variants = get_intro_2026_variants()
+    variants = get_intro_variants()
     page.upper_content = variants
     page.content = variants
     page.save_revision().publish()
