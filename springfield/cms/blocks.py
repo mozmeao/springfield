@@ -490,15 +490,18 @@ BUTTON_SECONDARY = "secondary"
 BUTTON_TERTIARY = "tertiary"
 BUTTON_GHOST = "ghost"
 BUTTON_LINK = "link"
+BUTTON_GOLD = "gold"
+
 BUTTON_THEME_CHOICES = {
     BUTTON_PRIMARY: "Primary",
     BUTTON_SECONDARY: "Secondary",
     BUTTON_TERTIARY: "Tertiary",
     BUTTON_GHOST: "Ghost",
+    BUTTON_GOLD: "Gold (over dark background only)",
     BUTTON_LINK: "Link",
 }
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
-BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
+BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_GOLD, BUTTON_LINK]
 
 
 def validate_animation_url(value):
@@ -631,15 +634,25 @@ def get_button_types(allow_uitour=False):
     return base_button_types
 
 
+BUTTON_SIZE_CHOICES = [
+    ("", "Default"),
+    ("large", "Large"),
+]
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
             "tertiary": "button-tertiary",
+            "gold": "button-gold",
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+    def size_class(self) -> str:
+        return "fl-button-large" if self.get("settings", {}).get("size") == "large" else ""
 
 
 class UUIDBlock(blocks.CharBlock):
@@ -663,6 +676,13 @@ def BaseButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon = IconChoiceBlock(required=False)
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
@@ -680,7 +700,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
-            label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
+            label_format = "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
 
     return _BaseButtonSettings(**kwargs)
@@ -949,6 +969,13 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
             default="right",
@@ -991,7 +1018,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             collapsed = True
             label = "Settings"
             label_format = (
-                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
+                "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
@@ -2854,6 +2881,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )

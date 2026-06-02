@@ -148,6 +148,11 @@ Static values extracted from Figma that do not change based on context.
 
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #ffe500 0%, #ff980e 100%);
+    --token-gradient-gold-button: linear-gradient(
+        180deg,
+        #ffeb49 0.09%,
+        #f60 120%
+    );
 
     /* Spacing variables */
     --token-spacing-2xs: 2px;

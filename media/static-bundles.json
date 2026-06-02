@@ -559,6 +559,12 @@
         "css/cms/pages/flare26-year-in-review.css"
       ],
       "name": "flare26-year-in-review"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-kick-page.css"
+      ],
+      "name": "flare26-kick-page"
     }
   ],
   "js": [

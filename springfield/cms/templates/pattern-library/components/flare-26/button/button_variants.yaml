@@ -83,6 +83,33 @@ context:
             disabled: true
             icon_name: 'forward'
             icon_position: 'right'
+      - name: "Gold (dark mode only)"
+        buttons:
+          - theme_class: 'button-gold fl-button-small'
+            label: "Button"
+            link: "#"
+            external: false
+            icon_name: 'forward'
+            icon_position: 'right'
+          - theme_class: 'button-gold'
+            label: "Button"
+            link: "#"
+            external: false
+            icon_name: 'forward'
+            icon_position: 'right'
+          - theme_class: 'button-gold fl-button-large'
+            label: "Button"
+            link: "#"
+            external: false
+            icon_name: 'forward'
+            icon_position: 'right'
+          - theme_class: 'button-gold'
+            label: "Disabled Button"
+            link: "#"
+            external: false
+            disabled: true
+            icon_name: 'forward'
+            icon_position: 'right'
   main_grid_square:
     columns:
       - name: "Primary"
@@ -140,3 +167,6 @@ context:
       - label: "Ghost Button"
         link: "#"
         theme_class: 'button-ghost'
+      - label: "Gold Button"
+        link: "#"
+        theme_class: 'button-gold'
