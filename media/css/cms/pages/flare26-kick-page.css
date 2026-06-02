@@ -1,0 +1,16 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare26-media-query-tokens.css';
+
+.fl-pre-footer-cta {
+    --kit-size: 0px;
+}
+
+.fl-pre-footer-cta .fl-pre-footer-cta-button::before {
+    content: unset;
+}

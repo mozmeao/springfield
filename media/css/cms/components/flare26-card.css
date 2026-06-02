@@ -25,7 +25,6 @@ Card Grid - Flare 2026 Design System Cards
     justify-content: center;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-content-lg); /* 934px default */
-    padding-block: var(--token-layout-3xs);
 }
 
 /* symmetrical card grid for sticker cards. (homepage) */
@@ -423,6 +422,7 @@ Step Cards List - With Kit variant
     justify-content: center;
     margin: 0 auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-block: var(--token-layout-2xs);
 }
 
 .fl-step-card {

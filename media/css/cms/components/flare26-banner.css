@@ -107,12 +107,13 @@
 .fl-split-page-lower > .fl-banner-container:last-child,
 .fl-split-page-lower .fl-banner-container.is-last-visible {
     max-inline-size: none;
-    padding: 0 var(--token-spacing-lg);
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg) 0;
 }
 
 .fl-main:not(:has(.fl-split-page-lower)) .fl-banner-container.is-last-visible {
     max-inline-size: none;
-    padding: 0 var(--token-spacing-lg) var(--token-spacing-lg);
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg)
+        var(--token-spacing-lg);
 }
 
 /* This one isn't used on kit banners, and will need some adjustments if those need to be combined. */

@@ -20,19 +20,22 @@ Button - Flare 2026 Design System Buttons
     --button-border-color-disabled: var(--button-bg-color-disabled);
     --button-text-color-disabled: var(--token-color-link-purple);
     --button-color-focus-outline: var(--token-color-light-purple);
+    --button-font-size: var(--fl-theme-font-size-body-sm);
+    --button-icon-size: var(--token-spacing-lg);
 }
 
 /* Base button styles */
 .fl-button {
     align-items: center;
     background-color: var(--button-bg-color);
+    background-image: var(--button-bg-image, none);
     border: 2px solid var(--button-border-color);
     border-radius: var(--token-border-radius-xl);
     color: var(--button-text-color);
     cursor: pointer;
     display: inline-flex;
     font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-body-sm);
+    font-size: var(--button-font-size);
     font-weight: 600;
     gap: var(--token-spacing-md);
     justify-content: center;
@@ -44,7 +47,8 @@ Button - Flare 2026 Design System Buttons
     transition:
         background-color var(--token-transition-fast),
         color var(--token-transition-fast),
-        border-color var(--token-transition-fast);
+        border-color var(--token-transition-fast),
+        background-position var(--token-transition-fast);
 }
 
 /* Disabled state */
@@ -171,6 +175,38 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
         --button-border-color-disabled: var(--button-bg-color-disabled);
         --button-text-color-disabled: var(--token-color-white);
     }
+
+    /* Gold only applies over dark backgrounds. When used over white,
+    it falls back to the primary variation. */
+    .fl-button.button-gold {
+        --button-bg-color: transparent;
+        --button-text-color: var(--token-color-black-4);
+        --button-border-color: transparent;
+        --button-bg-color-hover: var(--button-bg-color);
+        --button-text-color-hover: var(--token-color-black-4);
+        --button-bg-color-active: var(--button-bg-color);
+        --button-bg-color-disabled: transparent;
+        --button-border-color-disabled: var(--token-color-soft-purple);
+        --button-text-color-disabled: var(--fl-theme-color-text);
+        --button-bg-image: var(--token-gradient-gold-button);
+        background-position: top -2px left;
+        background-size: calc(100% + 24px) calc(100% + 24px);
+    }
+
+    /* hover and active states are variations on the same gold gradient, so we can just shift the background position */
+    .fl-button.button-gold:hover,
+    .fl-button.button-gold:focus {
+        background-position: top -10px left;
+    }
+
+    .fl-button.button-gold:active {
+        background-position: top -18px left;
+    }
+
+    .fl-button.button-gold:disabled,
+    .fl-button.button-gold[disabled] {
+        background-image: none;
+    }
 }
 
 /* copy of the dark query above for theme classes. */
@@ -220,6 +256,44 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     --button-text-color-disabled: var(--token-color-white);
 }
 
+/* Gold only applies over dark backgrounds. When used over white,
+   it falls back to the primary variation. */
+.fl-split-page-upper .fl-button.button-gold,
+.fl-force-dark-theme .fl-button.button-gold {
+    --button-bg-color: transparent;
+    --button-text-color: var(--token-color-black-4);
+    --button-border-color: transparent;
+    --button-bg-color-hover: var(--button-bg-color);
+    --button-text-color-hover: var(--token-color-black-4);
+    --button-bg-color-active: var(--button-bg-color);
+    --button-bg-color-disabled: transparent;
+    --button-border-color-disabled: var(--token-color-soft-purple);
+    --button-text-color-disabled: var(--fl-theme-color-text);
+    --button-bg-image: var(--token-gradient-gold-button);
+    background-position: top -2px left;
+    background-size: calc(100% + 24px) calc(100% + 24px);
+}
+
+/* hover and active states are variations on the same gold gradient, so we can just shift the background position */
+.fl-split-page-upper .fl-button.button-gold:hover,
+.fl-force-dark-theme .fl-button.button-gold:hover,
+.fl-split-page-upper .fl-button.button-gold:focus,
+.fl-force-dark-theme .fl-button.button-gold:focus {
+    background-position: top -10px left;
+}
+
+.fl-split-page-upper .fl-button.button-gold:active,
+.fl-force-dark-theme .fl-button.button-gold:active {
+    background-position: top -18px left;
+}
+
+.fl-split-page-upper .fl-button.button-gold:disabled,
+.fl-force-dark-theme .fl-button.button-gold:disabled,
+.fl-split-page-upper .fl-button.button-gold[disabled],
+.fl-force-dark-theme .fl-button.button-gold[disabled] {
+    background-image: none;
+}
+
 /* Button sizes */
 .fl-button-small {
     padding: var(--token-spacing-sm) var(--token-spacing-xl);
@@ -230,6 +304,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-button-large {
+    --button-font-size: var(--fl-theme-font-size-body-md);
+    --button-icon-size: 20px;
     padding: var(--token-spacing-lg) var(--token-spacing-xl);
 }
 
@@ -239,8 +315,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
 /* Button icons */
 .fl-button .fl-icon {
-    block-size: var(--token-spacing-lg);
-    inline-size: var(--token-spacing-lg);
+    block-size: var(--button-icon-size);
+    inline-size: var(--button-icon-size);
 }
 
 .fl-buttons {
