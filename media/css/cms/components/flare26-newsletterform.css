@@ -27,12 +27,15 @@
 @media (--viewport-md-up) {
     .fl-newsletterform-cta {
         align-items: center;
-        display: grid;
         flex-direction: row;
         gap: var(--token-layout-md);
-        grid-template-columns: 1fr 1fr;
         justify-content: center;
         padding: var(--token-layout-sm);
+    }
+
+    .fl-newsletterform-cta:has(.fl-newsletterform-illustration) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
     }
 }
 

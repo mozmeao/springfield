@@ -247,10 +247,12 @@ class SanitizingWagtailImageField(WagtailImageField):
         This uses a three-layer defense:
         1. Fast regex check for obvious dangerous patterns (scripts, event handlers)
         2. XML parsing to detect dangerous elements/attributes more reliably
-        3. py-svg-hush as a final safety net (but we don't reject based on normalization)
-        This approach avoids false positives from py-svg-hush's normalization
-        (attribute reordering, encoding changes) while still catching actual threats.
-        Returns None if file is safe, otherwise returns a ValidationError.
+        3. `py-svg-hush`, whose sanitized output replaces the uploaded bytes.
+        Layers 1 and 2 reject inputs that clearly look unsafe so editors get a
+        useful error. Subtler content is silently normalized by `py-svg-hush`,
+        which interprets SVG and URL syntax through a real parser rather than
+        by substring matching.
+        Returns `None` if file is safe (possibly after rewrite), otherwise a `ValidationError`.
         """
         try:
             # Read original content
@@ -270,26 +272,33 @@ class SanitizingWagtailImageField(WagtailImageField):
                     code="svg_dangerous_content",
                 )
 
-            # Layer 3: Run py-svg-hush as defense-in-depth
-            # We don't reject based on changes - this is just a safety net
-            # in case our detection missed something
+            # Layer 3: Run `py-svg-hush` and adopt its sanitized output.
+            # Using its output (not just its parse result) is what closes the
+            # long tail of SVG bypasses that `defusedxml`'s substring checks
+            # miss, e.g. `<a xlink:href="java&#x0a;script:...">` where the
+            # browser strips the encoded newline at URL resolution time.
             try:
-                # Run sanitization to catch edge cases our detection missed
-                # Allow common image data URLs in SVGs
-                filter_svg(
+                sanitized_content = filter_svg(
                     original_content,
                     keep_data_url_mime_types=ALLOWED_DATA_URL_MIME_TYPES,
                 )
-                # If py-svg-hush succeeds without errors, the SVG structure is valid
-                # We accept it regardless of normalization changes
             except (ValueError, ET.ParseError) as ex:
-                # py-svg-hush failed to process it - SVG might be malformed
                 return ValidationError(
                     f"{self.error_messages['svg_sanitization_error']}: {ex}",
                     code="svg_sanitization_error",
                 )
 
-            # All checks passed - file is safe
+            # Write the sanitized output back in place.
+            f.seek(0)
+            f.truncate()
+            f.write(sanitized_content)
+            f.seek(0)
+            # `f.size` is cached on the upload object at construction time,
+            # not derived from the buffer. Keep it in sync or length-aware
+            # downstream code reads a stale value.
+            if hasattr(f, "size"):
+                f.size = len(sanitized_content)
+
             return None
 
         except OSError as ex:
