@@ -30,6 +30,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_sticker_cards_2026_test_page,
 )
 from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
+from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage_2026 import (
@@ -166,6 +167,9 @@ class Command(BaseCommand):
 
         notification_page = get_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
+
+        conditional_display_page = get_conditional_display_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Conditional Display test page loaded: {conditional_display_page.slug}"))
 
         banner_2026_page = get_banner_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))

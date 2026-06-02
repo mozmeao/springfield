@@ -430,6 +430,37 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+GEO_CHOICES = [
+    ("US", "United States"),
+    ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AT", "Austria"),
+    ("BE", "Belgium"),
+    ("BG", "Bulgaria"),
+    ("DK", "Denmark"),
+    ("FI", "Finland"),
+    ("IE", "Ireland"),
+    ("IT", "Italy"),
+    ("NL", "Netherlands"),
+    ("PT", "Portugal"),
+    ("ES", "Spain"),
+    ("CH", "Switzerland"),
+    ("PL", "Poland"),
+    ("SE", "Sweden"),
+    ("NO", "Norway"),
+    ("ZA", "South Africa"),
+    ("MY", "Malaysia"),
+    ("NZ", "New Zealand"),
+    ("SG", "Singapore"),
+    ("AU", "Australia"),
+    ("KR", "South Korea"),
+    ("TH", "Thailand"),
+    ("CL", "Chile"),
+    ("CO", "Colombia"),
+    ("MX", "Mexico"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -577,10 +608,16 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+    geo = blocks.MultipleChoiceBlock(
+        choices=GEO_CHOICES,
+        required=False,
+        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+        widget=CheckboxSelectMultiple,
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
         icon = "eye"
         collapsed = True
         form_classname = "compact-form struct-block"
