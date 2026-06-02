@@ -497,7 +497,6 @@ BUTTON_THEME_CHOICES = {
     BUTTON_GHOST: "Ghost",
     BUTTON_LINK: "Link",
 }
-BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
 BUTTON_THEMES = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
 
 
@@ -1052,7 +1051,7 @@ def MixedButtonsBlock(
     button_types: list,
     min_num: int,
     max_num: int,
-    themes=BUTTON_THEMES_2025,
+    themes=BUTTON_THEMES,
     label="Buttons",
     template="cms/blocks/mixed-buttons.html",
     **kwargs,
@@ -2627,7 +2626,7 @@ class KitBannerSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, **kwargs):
+def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES, *args, **kwargs):
     """Factory function to create KitBannerBlock with appropriate button types."""
 
     class _KitBannerBlock(blocks.StructBlock):
