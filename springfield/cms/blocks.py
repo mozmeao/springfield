@@ -611,14 +611,15 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     geo = blocks.MultipleChoiceBlock(
         choices=GEO_CHOICES,
         required=False,
+        label="GEO",
         help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
-        widget=CheckboxSelectMultiple,
+        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
     )
 
     class Meta:
         label = "Conditional Display"
         label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
-        icon = "eye"
+        icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
 
