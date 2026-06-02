@@ -1,0 +1,60 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<header class="fl-header
+  {% if no_menu %}fl-header-no-menu{% endif %}
+    {% if not disable_sticky %}enable-sticky{% endif %}
+    {% if theme == 'dark' %}fl-force-dark-theme{% endif %}
+    {% if theme == 'light' %}fl-force-light-theme{% endif %}
+">
+  <div class="fl-header-inner">
+    <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
+      <img
+        src="/media/img/logos/firefox/logo-word-hor-2026.svg"
+        alt="Firefox"
+        width="120"
+        height="40"
+      />
+    </a>
+    {% if not no_menu %}
+    <nav class="fl-nav" data-testid="navigation-menu-items">
+      {% if not no_menu_dropdowns %}
+        <ul class="fl-nav-menu">
+          {% include 'cms/includes/flare-menus/browser.html' %}
+          {% include 'cms/includes/flare-menus/features.html' %}
+          {% include 'cms/includes/flare-menus/resources.html' %}
+        </ul>
+      {% endif %}
+      <div class="fl-nav-mobile-download-link">
+        {% include 'cms/includes/nav-cta.html' %}
+      </div>
+    </nav>
+    <div class="fl-header-buttons">
+      <div class="fl-header-main-download-button">
+        {% include 'cms/includes/nav-cta.html' %}
+      </div>
+      {% if not no_menu_dropdowns %}
+        <button class="fl-show-mobile-menu" type="button" data-testid="navigation-menu-button">
+          <span class="fl-show-mobile-menu-content">
+            <span class="fl-icon fl-icon-app-menu" aria-label="{{ ftl('ui-menu') }}"></span>
+            <span class="fl-icon fl-icon-close" aria-label="{{ ftl('ui-close') }}"></span>
+            <span class="fallback-text">Menu</span>
+          </span>
+        </button>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="fl-ie-only fl-nav">
+      <a class="ie-menu-button" href="#">Menu</a>
+      <ul class="fl-nav-menu">
+        {% include 'cms/includes/flare-menus/browser.html' %}
+        {% include 'cms/includes/flare-menus/features.html' %}
+        {% include 'cms/includes/flare-menus/resources.html' %}
+      </ul>
+    </div>
+  </div>
+</header>

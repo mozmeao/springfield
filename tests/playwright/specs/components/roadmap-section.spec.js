@@ -14,7 +14,7 @@ const url = `${patternLibraryURL}/roadmap-list-section/roadmap-list-section.html
 test.describe(
     `Roadmap List Section`,
     {
-        tag: '@flare26-components'
+        tag: '@flare-components'
     },
     () => {
         test.beforeEach(async ({ page, browserName }) => {

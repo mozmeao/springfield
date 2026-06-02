@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=cookie-settings' %}
 
@@ -12,13 +12,13 @@
 {% block page_desc %}{{ ftl('cookie-settings-page-desc') }}{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('flare26-cookie-settings') }}
+  {{ css_bundle('flare-cookie-settings') }}
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% include "privacy/cookie-settings-flare26.html" %}
+  {% include "privacy/cookie-settings-flare.html" %}
 {% endblock %}
 
 {% block consent_banner_js %}

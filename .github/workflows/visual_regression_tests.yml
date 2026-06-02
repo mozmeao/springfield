@@ -1,4 +1,4 @@
-# Workflows that run visual regression tests on Flare26 components
+# Workflows that run visual regression tests on Flare components
 
 name: Visual regression tests
 concurrency:

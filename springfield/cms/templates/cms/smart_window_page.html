@@ -4,9 +4,9 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
-{% block page_css %}{{ css_bundle('flare26-smart-window') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-smart-window') }}{% endblock %}
 
 {% block body_class %}fl-smart-window-page{% endblock %}
 
@@ -49,7 +49,7 @@
       {% endif %}
     </div>
   {% endset %}
-  <include:flare26-header theme="dark" hide_nav_cta disable_sticky no_menu_dropdowns />
+  <include:flare-header theme="dark" hide_nav_cta disable_sticky no_menu_dropdowns />
 {% endblock %}
 
 {% block content %}

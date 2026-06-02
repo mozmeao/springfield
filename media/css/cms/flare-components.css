@@ -1,0 +1,49 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+@import 'components/flare-article.css';
+@import 'components/flare-navigation.css';
+@import 'components/flare-subnav.css';
+@import 'components/flare-modal.css';
+@import 'components/flare-footer.css';
+@import 'components/flare-language-switcher.css';
+@import 'components/flare-download-link.css';
+@import 'components/flare-download-utils.css';
+@import 'components/flare-icon.css';
+@import 'components/flare-nav-icons.css';
+@import 'components/flare-button.css';
+@import 'components/flare-typography.css';
+@import 'components/flare-card.css';
+@import 'components/flare-section.css';
+@import 'components/flare-intro.css';
+@import 'components/flare-carousel.css';
+@import 'components/flare-sliding-carousel.css';
+@import 'components/flare-showcase.css';
+@import 'components/flare-card-gallery.css';
+@import 'components/flare-pre-footer-cta.css';
+@import 'components/flare-banner.css';
+@import 'components/flare-kit-banner.css';
+@import 'components/flare-newsletterform.css';
+@import 'components/flare-mediacontent.css';
+@import 'components/flare-icon-list.css';
+@import 'components/flare-numbered-list.css';
+@import 'components/flare-timeline.css';
+@import 'components/flare-two-column-cards.css';
+@import 'components/flare-notification.css';
+@import 'components/flare-media.css';
+@import 'components/flare-mobile-qr.css';
+@import 'components/flare-tag.css';
+@import 'components/flare-topic.css';
+@import 'components/flare-breadcrumb.css';
+@import 'components/flare-consent-banner.css';
+@import 'components/flare-qr-overlay.css';
+@import 'components/flare-set-as-default.css';
+@import 'components/flare-floating-qr-overlay.css';
+@import 'components/flare-typewriter.css';
+@import 'components/flare-smart-window-instructions.css';
+@import 'components/flare-pricing-heading.css';
+@import 'components/flare-featured-image-section.css';
+@import 'components/flare-roadmap-list-section.css';

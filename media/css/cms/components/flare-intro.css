@@ -1,0 +1,298 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-intro {
+    inline-size: 100%;
+    padding-block: var(--fl-section-v-padding);
+    padding-inline: var(--fl-section-h-padding);
+    position: relative;
+    text-align: center;
+}
+
+/* give the intro more vertical padding when it's used as the first component on a page.
+   This is primary use case, but sometimes a notification at the top should reduce the padding. */
+.fl-intro:first-child {
+    padding-block: var(--token-layout-md);
+}
+
+.fl-intro.is-slim {
+    padding-block: var(--token-layout-sm);
+}
+
+.fl-intro > * {
+    margin: 0 auto;
+}
+
+.fl-intro-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    max-inline-size: 848px;
+}
+
+.fl-intro-content > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-intro .fl-heading,
+.fl-intro .fl-heading-group {
+    inline-size: 100%;
+}
+
+.fl-intro-full-width .fl-intro-content {
+    max-inline-size: unset;
+}
+
+.fl-intro.fl-intro-media-left,
+.fl-intro.fl-intro-media-right {
+    display: grid;
+    gap: var(--token-layout-md);
+    grid-template-columns: 1fr;
+    margin-inline: auto;
+    max-inline-size: 1440px;
+}
+
+.fl-intro.fl-intro-media-left .fl-intro-content,
+.fl-intro.fl-intro-media-right .fl-intro-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fl-intro.fl-intro-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-intro-vertical .fl-buttons {
+    align-items: center;
+}
+
+.fl-intro-vertical .fl-buttons > *:not(.fl-set-as-default-dialog) {
+    block-size: fit-content;
+}
+
+.fl-intro-vertical .fl-buttons.is-horizontal {
+    align-items: start;
+}
+
+.fl-intro-vertical .fl-buttons.is-horizontal > * {
+    margin: 0;
+}
+
+.fl-intro-media {
+    align-items: center;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
+}
+
+.fl-intro-content .fl-buttons {
+    align-items: start;
+    justify-content: center;
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
+}
+
+.fl-intro-content .text {
+    padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
+}
+
+.fl-intro-body {
+    padding-block-start: var(--token-spacing-lg);
+}
+
+.fl-intro .fl-heading-group {
+    margin-block-end: var(--token-layout-3xs);
+}
+
+.fl-intro .fl-superheading {
+    color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-font-size-subheading-xs);
+    text-transform: uppercase;
+}
+
+.fl-intro .fl-heading:not([class*='fl-heading-']) {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
+.fl-intro .fl-subheading {
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+.fl-intro-actions {
+    margin-block: var(--token-spacing-2xl);
+}
+
+.fl-intro.fl-intro-media-left .fl-intro-media {
+    order: -1;
+}
+
+.fl-intro.fl-intro-media-right .fl-intro-media img,
+.fl-intro.fl-intro-media-left .fl-intro-media img,
+.fl-intro.fl-intro-media-right .fl-intro-media video,
+.fl-intro.fl-intro-media-left .fl-intro-media video {
+    border-radius: var(--token-border-radius-md);
+    inline-size: 100%;
+}
+
+.fl-home-intro {
+    position: relative;
+}
+
+.fl-home-intro .fl-intro {
+    padding-block-end: var(--token-layout-sm);
+}
+
+.fl-home-intro .fl-intro-content {
+    display: block;
+}
+
+/* This is only for the 'features theme' page, for now. */
+.has-sitting-kit .fl-intro .fl-subheading {
+    margin: var(--token-layout-md-half) auto;
+    text-wrap: balance;
+}
+
+.fl-home-intro::before {
+    aspect-ratio: 4/3;
+    background: url('/media/img/firefox/flare/kit-tail-2.svg');
+    background-position: top right;
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: '';
+    inline-size: var(--banner-kit-width, 580px);
+    inset-block-end: var(--banner-kit-bottom-position, -300px);
+    inset-inline-end: var(--banner-kit-right-position, calc(50% - 85px));
+    position: absolute;
+    z-index: 0;
+}
+
+.fl-home-intro .fl-superheading {
+    align-items: center;
+    background: linear-gradient(
+        180deg,
+        var(--token-color-light-purple-40) 0%,
+        var(--token-color-light-purple-20) 100%
+    );
+    border-radius: var(--token-border-radius-xl);
+    display: inline-flex;
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1;
+    margin: 0;
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
+    position: relative;
+}
+
+.fl-home-intro .fl-superheading:has(a:hover) {
+    background: linear-gradient(
+        180deg,
+        var(--token-color-light-purple-60) 0%,
+        var(--token-color-light-purple-40) 100%
+    );
+}
+
+.fl-home-intro .fl-superheading a {
+    color: var(--token-color-white);
+    text-decoration: none;
+}
+
+.fl-home-intro .fl-superheading a::before {
+    content: '';
+    inset: 0;
+    position: absolute;
+}
+
+.fl-home-intro .fl-superheading a::after {
+    background-color: currentColor;
+    block-size: 1em;
+    content: '';
+    display: inline-block;
+    inline-size: 1em;
+    margin-inline-start: var(--token-spacing-xs);
+    mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/forward-16.svg')
+        no-repeat center / 1em 1em;
+    mask-size: contain;
+    vertical-align: middle;
+}
+
+.fl-home-intro .fl-superheading i,
+.fl-home-intro .fl-superheading em {
+    background: var(--token-gradient-gold);
+    border-radius: var(--token-border-radius-2xs);
+    color: var(--token-color-black-4);
+    font-style: normal;
+    margin-inline-end: var(--token-spacing-sm);
+    padding: var(--token-spacing-2xs) var(--token-spacing-xs);
+    text-transform: uppercase;
+}
+
+.fl-home-intro .fl-heading {
+    margin-block: var(--token-layout-2xs);
+}
+
+.fl-home-intro .fl-subheading {
+    margin: var(--token-layout-md-half) auto;
+    max-inline-size: 48ch;
+    text-wrap: balance;
+}
+
+/* todo: these selectors shouldn't exist. There ought to be
+   options on the intro component. For example, see the `.is-slim`
+   variant. On the other hand, maybe this is an abuse of a
+   component called "intro". We can discuss post-launch. */
+.fl-channel-page .fl-split-page-lower .fl-intro:last-child,
+.fl-page-user-privacy .fl-section:last-child .fl-intro {
+    padding-block: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-intro:first-child {
+        padding-block: var(--token-layout-lg);
+    }
+
+    .fl-intro.is-slim {
+        padding-block: var(--token-layout-sm);
+    }
+
+    .fl-channel-page .fl-intro:first-child,
+    .has-sitting-kit .fl-intro {
+        padding-block: var(--token-layout-xs);
+    }
+
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 109px);
+        --banner-kit-bottom-position: -394px;
+        --banner-kit-width: 800px;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-intro.fl-intro-media-right,
+    .fl-intro.fl-intro-media-left {
+        grid-template-columns: 1fr 1fr;
+        text-align: start;
+    }
+
+    .fl-intro.fl-intro-media-right .fl-intro-content,
+    .fl-intro.fl-intro-media-left .fl-intro-content {
+        align-items: start;
+    }
+
+    .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 134px);
+        --banner-kit-bottom-position: -464px;
+        --banner-kit-width: 940px;
+    }
+
+    .fl-home-intro .fl-subheading {
+        margin: var(--token-layout-xs) auto;
+    }
+}
