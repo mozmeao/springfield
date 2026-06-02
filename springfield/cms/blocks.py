@@ -2870,6 +2870,9 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
 
 def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
     class _FeaturedImageSectionBlock(blocks.StructBlock):
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet", label="Scroll To See More Snippet", required=False
+        )
         heading = HeadingBlock()
         content = blocks.StreamBlock(
             [

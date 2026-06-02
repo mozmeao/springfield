@@ -22,4 +22,7 @@
   <div class="fl-featured-image-section-media">
     {{ contents.media }}
   </div>
+  {% if contents.scroll_to_see_more_snippet %}
+    {{ contents.scroll_to_see_more_snippet }}
+  {% endif %}
 </section>
