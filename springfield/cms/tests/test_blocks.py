@@ -25,7 +25,7 @@ from springfield.cms.blocks import (
     ArticleBlock,
     BaseArticleValue,
     ButtonRowBlock,
-    SectionBlock2026,
+    SectionBlock,
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
 )
@@ -3530,7 +3530,7 @@ def test_button_row_block_four_buttons_raises():
 
 
 def test_section_block_2026_accepts_button_row():
-    block = SectionBlock2026(require_heading=False)
+    block = SectionBlock(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
 

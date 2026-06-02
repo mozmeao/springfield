@@ -14,7 +14,7 @@
   default_browser_condition="{{ value.settings.show_to.default_browser }}"
   min_version="{{ value.settings.show_to.min_version }}"
   max_version="{{ value.settings.show_to.max_version }}">
-  <include:sticker-card-2026 expand_link="{{ value.settings.expand_link }}">
+  <include:sticker-card expand_link="{{ value.settings.expand_link }}">
     <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
 
     <content:heading>
@@ -43,5 +43,5 @@
           {% endfor %}
       </content:buttons>
     {% endif %}
-  </include:sticker-card-2026>
+  </include:sticker-card>
 </include:conditional-display>

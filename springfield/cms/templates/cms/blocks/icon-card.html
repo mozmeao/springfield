@@ -7,38 +7,38 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 
+
 <include:conditional-display
   platform_conditions="{{ value.settings.show_to.platforms }}"
   firefox_condition="{{ value.settings.show_to.firefox }}"
   auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}"
   min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
-  <include:illustration-card-2026
-    expand_link="{{ value.settings.expand_link }}"
-  >
+  max_version="{{ value.settings.show_to.max_version }}"
+>
+  <include:illustration-card variant="icon" expand_link="{{ value.settings.expand_link }}">
     <content:media>
-      {% for block in value.media %}
-        {% include_block block %}
-      {% endfor %}
+      <include:icon
+        icon_name="{{ value.icon }}"
+        hidden="true"
+      />
     </content:media>
     <content:heading>
-      <include:heading
-        level="{{ heading_level }}"
-        heading_text="{{ value.headline|richtext|remove_p_tag }}"
-        superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
-      />
+        <include:heading
+          level="{{ heading_level }}"
+          heading_size="fl-heading-size-3"
+          heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        />
     </content:heading>
     <content:body>
       {{ value.content|richtext }}
     </content:body>
       {% if value.buttons %}
-      <content:buttons>
-        {% for button in value.buttons %}
-          {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      </content:buttons>
+        <content:buttons>
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+        </content:buttons>
       {% endif %}
-  </include:illustration-card-2026>
+  </include:illustration-card>
 </include:conditional-display>
