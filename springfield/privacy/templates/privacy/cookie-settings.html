@@ -26,14 +26,6 @@
   {% include "privacy/cookie-settings-flare26.html" %}
 {% endblock %}
 
-{% block consent_banner_js %}
-  {{ super() }}
-  <!--[if IE 9]> -->
-    {# Cookie settings page is supported on all evergreen browsers plus IE9 and above #}
-    {{ js_bundle('cookie-settings-form') }}
-  <!--<![endif]-->
-{% endblock %}
-
 {% block js %}
   {{ js_bundle('cookie-settings-form') }}
 {% endblock %}
