@@ -11,7 +11,7 @@ on:
       - main
     paths:
       - 'springfield/cms/templates/components/**'
-      - 'springfield/cms/templates/pattern-library/components/flare-26/**'
+      - 'springfield/cms/templates/pattern-library/components/flare/**'
       - 'media/css/cms/**'
       - 'tests/playwright/specs/visual-regression/**'
   workflow_dispatch:
