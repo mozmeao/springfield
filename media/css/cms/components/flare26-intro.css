@@ -37,6 +37,11 @@
     margin-block-end: 0;
 }
 
+.fl-intro .fl-superheading {
+    color: var(--fl-theme-color-link);
+    text-transform: uppercase;
+}
+
 .fl-intro .fl-heading,
 .fl-intro .fl-heading-group {
     inline-size: 100%;
@@ -112,12 +117,6 @@
     margin-block-end: var(--token-layout-3xs);
 }
 
-.fl-intro .fl-superheading {
-    color: var(--fl-theme-color-link);
-    font-size: var(--fl-theme-font-size-subheading-xs);
-    text-transform: uppercase;
-}
-
 .fl-intro .fl-heading:not([class*='fl-heading-']) {
     font-size: var(--fl-theme-font-size-heading-md);
 }
@@ -174,7 +173,7 @@
     z-index: 0;
 }
 
-.fl-home-intro .fl-superheading {
+.superheading-is-pill .fl-superheading {
     align-items: center;
     background: linear-gradient(
         180deg,
@@ -182,16 +181,18 @@
         var(--token-color-light-purple-20) 100%
     );
     border-radius: var(--token-border-radius-xl);
+    color: var(--fl-theme-color-link);
     display: inline-flex;
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
     line-height: 1;
-    margin: 0;
+    margin: 0 auto var(--token-spacing-xl);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
+    text-transform: uppercase;
 }
 
-.fl-home-intro .fl-superheading:has(a:hover) {
+.superheading-is-pill .fl-superheading:has(a:hover) {
     background: linear-gradient(
         180deg,
         var(--token-color-light-purple-60) 0%,
@@ -199,18 +200,18 @@
     );
 }
 
-.fl-home-intro .fl-superheading a {
+.superheading-is-pill .fl-superheading a {
     color: var(--token-color-white);
     text-decoration: none;
 }
 
-.fl-home-intro .fl-superheading a::before {
+.superheading-is-pill .fl-superheading a::before {
     content: '';
     inset: 0;
     position: absolute;
 }
 
-.fl-home-intro .fl-superheading a::after {
+.superheading-is-pill .fl-superheading a::after {
     background-color: currentColor;
     block-size: 1em;
     content: '';
@@ -223,8 +224,8 @@
     vertical-align: middle;
 }
 
-.fl-home-intro .fl-superheading i,
-.fl-home-intro .fl-superheading em {
+.superheading-is-pill .fl-superheading i,
+.superheading-is-pill .fl-superheading em {
     background: var(--token-gradient-gold);
     border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
@@ -232,6 +233,10 @@
     margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     text-transform: uppercase;
+}
+
+.fl-home-intro .fl-superheading {
+    margin-block-end: 0;
 }
 
 .fl-home-intro .fl-heading {
