@@ -43,7 +43,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_2026_test_page
+from springfield.cms.fixtures.button_fixtures import get_button_blocks_2026, get_button_variants, get_buttons_2026_test_page
 from springfield.cms.fixtures.card_gallery_2026_fixtures import get_card_gallery_2026_test_page, get_card_gallery_2026_variants
 from springfield.cms.fixtures.cards_2026_fixtures import (
     get_illustration_cards_2026_sections,
@@ -752,7 +752,7 @@ def test_media_content_2026_block(index_page, placeholder_images, rf):
 
 def test_buttons_2026(index_page, rf):
     test_page = get_buttons_2026_test_page()
-    blocks = get_button_blocks()
+    blocks = get_button_blocks_2026()
 
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
@@ -770,7 +770,7 @@ def test_buttons_2026(index_page, rf):
         assert len(intros) == len(blocks)
 
         for block_index, (intro, block) in enumerate(zip(intros, blocks)):
-            buttons_data = block["value"]["buttons"]
+            buttons_data = next((c["value"] for c in block["value"]["content"] if c["type"] == "buttons"), [])
             # Store buttons render as fl-store-button; all others render as fl-button
             non_store_data = [b for b in buttons_data if b["type"] != "store_button"]
             store_data = [b for b in buttons_data if b["type"] == "store_button"]
