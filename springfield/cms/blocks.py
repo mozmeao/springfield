@@ -943,16 +943,19 @@ def ButtonBlock(themes=None, **kwargs):
         themes: List of theme strings to include in the button settings.
     """
 
-    class _ButtonBlock(blocks.StructBlock):
+    class _ButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         link = SpringfieldLinkBlock()
 
         class Meta:
             template = "cms/blocks/button.html"
             label = "Button"
-            label_format = "Button - {label}"
+            label_format = "{custom_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "link"],
+                settings=["settings"],
+            )
 
     return _ButtonBlock(**kwargs)
 
@@ -969,49 +972,58 @@ class UITourButtonValue(BaseButtonValue):
 
 
 def UITourButtonBlock(themes=None, **kwargs):
-    class _UITourButtonBlock(blocks.StructBlock):
+    class _UITourButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         button_type = blocks.ChoiceBlock(
             default=UITOUR_BUTTON_NEW_TAB,
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
             label = "UI Tour Button"
-            label_format = "UI Tour Button - {label}"
+            label_format = "{custom_label}"
             value_class = UITourButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "button_type"],
+                settings=["settings"],
+            )
 
     return _UITourButtonBlock(**kwargs)
 
 
 def FXAccountButtonBlock(themes=None, **kwargs):
-    class _FXAccountButtonBlock(blocks.StructBlock):
+    class _FXAccountButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/fxa_button.html"
             label = "Firefox Account Button"
-            label_format = "Firefox Account Button"
+            label_format = "{custom_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label"],
+                settings=["settings"],
+            )
 
     return _FXAccountButtonBlock(**kwargs)
 
 
 def SetAsDefaultButtonBlock(themes=None, **kwargs):
-    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+    class _SetAsDefaultButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
 
         class Meta:
             template = "cms/blocks/set_as_default_button.html"
             label = "Set As Default Button"
-            label_format = "Set As Default Button"
+            label_format = "{custom_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "snippet"],
+                settings=["settings"],
+            )
 
     return _SetAsDefaultButtonBlock(**kwargs)
 
@@ -1104,9 +1116,8 @@ class StoreButtonBlock(blocks.StructBlock):
 
 
 def FirefoxFocusButtonBlock(themes=None, **kwargs):
-    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+    class _FirefoxFocusButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
         store = blocks.ChoiceBlock(
             choices=[
                 ("android", "Android (Google Play)"),
@@ -1117,9 +1128,13 @@ def FirefoxFocusButtonBlock(themes=None, **kwargs):
 
         class Meta:
             label = "Firefox Focus Button"
-            label_format = "Firefox Focus Button - {label}"
+            label_format = "{custom_label}"
             template = "cms/blocks/firefox-focus-button.html"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "store"],
+                settings=["settings"],
+            )
 
     return _FirefoxFocusButtonBlock(**kwargs)
 

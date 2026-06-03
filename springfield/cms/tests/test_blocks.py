@@ -4,8 +4,9 @@
 
 import re
 from unittest import mock
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qs, urlparse, urlunparse
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -18,17 +19,23 @@ from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
-from lib.l10n_utils import get_locale
+from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import (
     ROADMAP_STATUS_LABELS,
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
+    UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
+    ButtonBlock,
     ButtonRowBlock,
+    FirefoxFocusButtonBlock,
+    FXAccountButtonBlock,
     SectionBlock2026,
+    SetAsDefaultButtonBlock,
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
+    UITourButtonBlock,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -133,7 +140,7 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_set_as_default_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page, get_subscription_variants
 from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_2026_sections,
@@ -153,6 +160,86 @@ pytestmark = [
 ]
 
 _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+_BTN_SETTINGS = {
+    "theme": "",
+    "icon": "",
+    "icon_position": "right",
+    "analytics_id": "00000000-0000-0000-0000-000000000001",
+}
+
+_BTN_LINK = {
+    "link_to": "custom_url",
+    "page": None,
+    "file": None,
+    "custom_url": "https://mozilla.org",
+    "anchor": "",
+    "email": "",
+    "phone": "",
+    "new_window": False,
+    "relative_url": "",
+}
+
+# The non-download button blocks
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button"]
+
+
+def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
+    """Return (block_instance, raw_value_dict) for a given button type."""
+    value = {"settings": dict(_BTN_SETTINGS)}
+    if custom_label is not None:
+        value["custom_label"] = custom_label
+    if pretranslated_label is not None:
+        value["pretranslated_label"] = pretranslated_label
+
+    if btn_type == "button":
+        block = ButtonBlock()
+        value["link"] = dict(_BTN_LINK)
+    elif btn_type == "uitour_button":
+        block = UITourButtonBlock()
+        value["button_type"] = UITOUR_BUTTON_NEW_TAB
+    elif btn_type == "fxa_button":
+        block = FXAccountButtonBlock()
+    elif btn_type == "set_as_default_button":
+        block = SetAsDefaultButtonBlock()
+        value["snippet"] = snippet_pk
+    elif btn_type == "focus_button":
+        block = FirefoxFocusButtonBlock()
+        value["store"] = "android"
+    else:  # pragma: no cover
+        raise ValueError(btn_type)
+    return block, value
+
+
+def _render_context(request):
+    """
+    Minimal parent context a button block needs to render in isolation.
+
+    `fluent_l10n` is normally injected by the page/snippet context (see
+    `springfield.cms.pattern_contexts`); we supply it here so set_as_default
+    (whose snippet uses Fluent) renders without a context KeyError.
+    """
+    return {
+        "block_text": "Heading",
+        "block_position": "1",
+        "request": request,
+        "fluent_l10n": fluent_l10n(["en"], settings.FLUENT_DEFAULT_FILES),
+    }
+
+
+def _render_button(btn_type, request, **label_kwargs):
+    snippet_pk = get_set_as_default_snippet().id if btn_type == "set_as_default_button" else None
+    block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
+    bound = block.to_python(raw)
+    return block.render(bound, context=_render_context(request))
+
+
+def _fxa_utm_campaign(html):
+    """
+    Return the ``utm_campaign`` query-param value from a rendered FXA button.
+    """
+    a = BeautifulSoup(html, "html.parser").find("a")
+    return parse_qs(urlparse(a["href"]).query).get("utm_campaign", [None])[0]
 
 
 def strip_host(url):
@@ -766,6 +853,115 @@ class TestLabelSourceMixin:
         value = {"pretranslated_label": None, "custom_label": "Click me", "settings": {}}
         content = download_firefox_button_block.get_searchable_content(value)
         assert "Click me" in content
+
+
+class TestButtonBlockLabelRendering:
+    """Tests that every button template renders the locale-resolved `button_label`."""
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_render_uses_button_label(self, btn_type, rf):
+        html = _render_button(btn_type, rf.get("/"), custom_label="Zqxlabel123")
+        assert "Zqxlabel123" in html, f"{btn_type} did not render the custom_label via button_label"
+        assert "None" not in html
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_render_with_no_label_set_emits_no_none(self, btn_type, rf):
+        """
+        Test a block with neither pretranslated_label nor custom_label.
+
+        Such a block must render without raising an error, and without emitting
+        a literal 'None'.
+        """
+        html = _render_button(btn_type, rf.get("/"))
+        assert "None" not in html
+
+
+class TestButtonBlockCleanComposition:
+    """Test ButtonBlock's clean() method."""
+
+    def test_label_missing_and_link_invalid_surfaces_both_errors(self):
+        block = ButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "link": {**_BTN_LINK, "custom_url": ""},  # custom_url type with blank url -> link error
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors  # mixin's missing-label error
+        assert "link" in exc.value.block_errors  # child block's own error
+
+    def test_label_missing_and_link_valid_surfaces_only_label_error(self):
+        block = ButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "link": dict(_BTN_LINK),  # valid
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors
+        assert "link" not in exc.value.block_errors  # no cross-pollination
+
+    def test_set_as_default_label_missing_and_snippet_missing_surfaces_both_errors(self):
+        """Verify that SetAsDefault.clean() raises errors as expected."""
+        block = SetAsDefaultButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "snippet": None,  # required chooser left empty -> snippet error
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors  # mixin's missing-label error
+        assert "snippet" in exc.value.block_errors  # child chooser's own error
+
+
+class TestFXAButtonUtmCampaign:
+    """Test FXAButton's clean() method."""
+
+    def test_per_locale_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet):
+        es_mx = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        block, raw = _button_block_and_value("fxa_button", pretranslated_label=pretranslated_phrase_snippet.pk)
+        ctx = _render_context(rf.get("/"))
+
+        # Build a fresh value inside each locale: the snippet's localized lookup
+        # caches on the instance, so reusing one bound value across locales would
+        # leak the first locale's result into the second. (A real request renders
+        # under a single locale, so this only matters for this two-locale test.)
+        with translation.override("en-US"):
+            en = _fxa_utm_campaign(block.render(block.to_python(raw), context=dict(ctx)))
+        with translation.override("es-mx"):
+            es = _fxa_utm_campaign(block.render(block.to_python(raw), context=dict(ctx)))
+
+        assert en and es and en != es
+
+    def test_per_locale_when_custom_label_used(self, rf):
+        ctx = _render_context(rf.get("/"))
+
+        block_en, raw_en = _button_block_and_value("fxa_button", custom_label="Log in")
+        en = _fxa_utm_campaign(block_en.render(block_en.to_python(raw_en), context=dict(ctx)))
+
+        block_fr, raw_fr = _button_block_and_value("fxa_button", custom_label="Se connecter")
+        fr = _fxa_utm_campaign(block_fr.render(block_fr.to_python(raw_fr), context=dict(ctx)))
+
+        assert en == "log_in"
+        assert fr == "se_connecter"
 
 
 def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):

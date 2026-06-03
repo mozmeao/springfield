@@ -4,17 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_text = block_text ~ " - " ~ value.label %}
+{% set block_text = block_text ~ " - " ~ (button_label or "") %}
 
 {% set utm_parameters = utm_parameters or {
   "utm_source": "www.firefox.com",
   "utm_medium": "referral",
-  "utm_campaign": value.label.lower().replace(" ", "_"),
+  "utm_campaign": (button_label or "").lower().replace(" ", "_"),
 } %}
 
 <include:fxa_button
   theme_class="{{ value.theme_class() }}"
-  label="{{ value.label }}"
+  label="{{ button_label or '' }}"
   icon_name="{{ value.settings.icon }}"
   icon_position="{{ value.settings.icon_position }}"
   analytics_text="{{ block_text }}"

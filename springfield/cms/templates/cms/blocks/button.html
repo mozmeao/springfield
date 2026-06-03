@@ -4,11 +4,11 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_text = block_text ~ " - " ~ value.label %}
+{% set block_text = block_text ~ " - " ~ (button_label or "") %}
 
 <include:button
   theme_class="{{ value.theme_class() }}"
-  label="{{ value.label }}"
+  label="{{ button_label or '' }}"
   size_class="{{ size_class }}"
   link="{{ value.link.get_url()|add_utm_parameters }}"
   external="{{ value.link.new_window }}"
