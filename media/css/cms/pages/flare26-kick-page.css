@@ -33,6 +33,12 @@
     margin: 0;
     object-fit: contain;
     position: absolute;
+    z-index: 1;
+}
+
+.fl-featured-image-section .fl-section {
+    position: relative;
+    z-index: 2;
 }
 
 /* todo: This should be a global fix. */
