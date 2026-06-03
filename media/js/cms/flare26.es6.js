@@ -24,6 +24,7 @@ import setupTypewriter, {
     typewriter
 } from './components/flare26-typewriter.es6';
 import setupVideo from './components/flare26-video.es6';
+import setupGeoConditionalDisplay from './components/flare26-geo.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -51,6 +52,7 @@ function setupComponents() {
     setupSlidingCarousels();
     setupSetAsDefault();
     setupLastVisibleBanner();
+    setupGeoConditionalDisplay();
 }
 
 if (document.readyState === 'loading') {
