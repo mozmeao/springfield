@@ -3027,6 +3027,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"
