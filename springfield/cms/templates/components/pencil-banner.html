@@ -8,12 +8,21 @@
 
 <div class="fl-pencil-banner">
   <div class="fl-pencil-banner-content">
-  <a href="{{ link|add_utm_parameters }}" class="fl-pencil-banner-link">
+
+  {% if link %}
+    <a href="{{ link|add_utm_parameters }}" class="fl-pencil-banner-link">
+  {% else %}
+  <span class="fl-pencil-banner-link">
+{% endif %}
     {% set badge_start = title.lstrip().startswith('<i>') %}
     {% set badge_end = title.rstrip().endswith('</i>') %}
     <span class="fl-pencil-banner-title{% if badge_start %} has-badge-start{% endif %}{% if badge_end %} has-badge-end{% endif %}">{{ title }}</span>
     <span class="fl-pencil-banner-description">{{ description }}</span>
-  </a>
+  {% if link %}
+    </a>
+  {% else %}
+    </span>
+  {% endif %}
   {% if dismissable %}
   <button type="button" class="fl-button button-link" aria-label="Close banner">
     <include:icon icon_name="close" />

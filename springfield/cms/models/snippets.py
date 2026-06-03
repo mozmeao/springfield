@@ -453,7 +453,7 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
     description = RichTextField(
         features=EXPANDED_TEXT_FEATURES,
     )
-    link = models.URLField()
+    link = models.URLField(blank=True)
     dismissable = models.BooleanField(default=False, help_text="Whether the banner can be dismissed by the user.")
     settings = StreamField(
         [
