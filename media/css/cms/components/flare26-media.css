@@ -114,6 +114,26 @@
     position: absolute;
 }
 
+.fl-video-reduced-motion-fallback {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-video-is-animation video,
+    .fl-video-is-animation .fl-video-play {
+        display: none;
+    }
+
+    .fl-video-is-animation .fl-video-reduced-motion-fallback {
+        block-size: 100%;
+        display: block;
+        inline-size: 100%;
+        inset: 0;
+        object-fit: cover;
+        position: absolute;
+    }
+}
+
 /* Animation component with playback modes */
 .fl-animation video {
     margin: 0;

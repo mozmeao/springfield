@@ -17,6 +17,9 @@
     <source src="{{ video_url }}" type="video/webm">
     <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-poster" />
   </video>
+  {% if poster %}
+    <img src="{{ poster }}" alt="{{ alt }}" class="fl-video-reduced-motion-fallback" />
+  {% endif %}
   {% if show_pause_button %}
     <button
       class="fl-video-play js-animation-pause"
