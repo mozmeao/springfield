@@ -42,7 +42,7 @@ MarketingOptOut.processAttributionRequest = (checked) => {
                     ? previousPreferenceCookie
                     : true
         });
-        window.Mozilla.StubAttribution.init(() => {
+        window.Mozilla.DownloadAttribution.initAnalytics(true, () => {
             /**
              * Rebind event listeners only after attribution
              * request has been successful.
@@ -62,7 +62,7 @@ MarketingOptOut.processAttributionRequest = (checked) => {
                     ? previousPreferenceCookie
                     : true
         });
-        window.Mozilla.StubAttribution.removeAttributionData();
+        window.Mozilla.DownloadAttribution.removeAttributionData();
         MarketingOptOut.bindEvents();
 
         // Remove param to download /thanks links sharing consent state with /thanks page
@@ -158,7 +158,7 @@ MarketingOptOut.shouldShowCheckbox = () => {
      */
     if (dntEnabled() || gpcEnabled()) {
         show = false;
-    } else if (window.Mozilla.StubAttribution.hasCookie()) {
+    } else if (window.Mozilla.DownloadAttribution.hasSignedCookie()) {
         /**
          * Does the visitor have an existing attribution cookie?
          */
@@ -218,8 +218,8 @@ MarketingOptOut.showCheckbox = () => {
  */
 MarketingOptOut.meetsRequirements = () => {
     return (
-        typeof window.Mozilla.StubAttribution !== 'undefined' &&
-        window.Mozilla.StubAttribution.meetsRequirements()
+        typeof window.Mozilla.DownloadAttribution !== 'undefined' &&
+        window.Mozilla.DownloadAttribution.meetsFunctionalRequirements()
     );
 };
 
