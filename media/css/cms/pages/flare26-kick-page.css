@@ -25,13 +25,20 @@
     position: relative;
 }
 
-.fl-featured-image-section-media .fl-video video {
+.fl-featured-image-section-media .fl-video video,
+.fl-featured-image-section-media .fl-video .fl-video-poster {
     block-size: 228%;
     inline-size: auto;
     inset: auto -27% -47% auto;
     margin: 0;
     object-fit: contain;
     position: absolute;
+    z-index: 1;
+}
+
+.fl-featured-image-section .fl-section {
+    position: relative;
+    z-index: 2;
 }
 
 /* todo: This should be a global fix. */

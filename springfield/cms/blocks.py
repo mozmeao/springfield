@@ -1345,7 +1345,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         video_url = blocks.URLBlock(
             required=required,
             label="Animation URL",
-            help_text="Link to a webm video from assets.mozilla.net.",
+            help_text="Link to a webm video from assets.mozilla.net. For transparent/alpha-channel webms, name the file with -alpha.webm",
             validators=[validate_animation_url],
         )
         alt = blocks.CharBlock(
