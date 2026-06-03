@@ -17,7 +17,7 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
-from springfield.cms.models.snippets import QRCodeFloatingSnippet
+from springfield.cms.models.snippets import QRCodeFloatingSnippet, ScrollToSeeMoreSnippet
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -135,6 +135,15 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
             "url": "https://www.firefox.com/browsers/mobile/",
             "default_open": True,
         },
+    )
+    return snippet
+
+
+def get_scroll_to_see_more_snippet() -> ScrollToSeeMoreSnippet:
+    locale = Locale.get_default()
+    snippet, _ = ScrollToSeeMoreSnippet.objects.get_or_create(
+        locale=locale,
+        defaults={"text": "Scroll to see more"},
     )
     return snippet
 
