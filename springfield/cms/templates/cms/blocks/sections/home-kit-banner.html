@@ -29,10 +29,12 @@
 
     {% if value.buttons %}
       <content:content>
-        {% for button in value.buttons %}
-          {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
+        <div class="fl-buttons">
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+        </div>
       </content:content>
     {% endif %}
   </include:kit-banner>
