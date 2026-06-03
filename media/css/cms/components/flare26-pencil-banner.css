@@ -13,7 +13,6 @@
     gap: var(--token-spacing-lg);
     inline-size: 100%;
     margin-inline: auto;
-    max-inline-size: var(--token-width-desktop-layout);
     padding-block: var(--token-spacing-lg);
     padding-inline: var(--fl-section-h-padding);
     position: relative;
