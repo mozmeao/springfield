@@ -1118,7 +1118,7 @@ def MixedButtonsBlock(
     button_types: list,
     min_num: int,
     max_num: int,
-    themes=BUTTON_THEMES_2025,
+    themes=BUTTON_THEMES_2026,
     label="Buttons",
     template="cms/blocks/mixed-buttons.html",
     **kwargs,

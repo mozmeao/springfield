@@ -24,7 +24,7 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
+from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock, ConditionalDisplayBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
@@ -444,3 +444,44 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
 
 
 register_snippet(QRCodeFloatingSnippet)
+
+
+class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a banner above the header."""
+
+    title = RichTextField(features=HEADING_TEXT_FEATURES, help_text="Use italic text to insert a yellow pill.")
+    description = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+    )
+    link = models.URLField()
+    dismissable = models.BooleanField(default=False, help_text="Whether the banner can be dismissed by the user.")
+    settings = StreamField(
+        [
+            ("show_to", ConditionalDisplayBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+
+    panels = [
+        FieldPanel("title"),
+        FieldPanel("description"),
+        FieldPanel("link"),
+        FieldPanel("dismissable"),
+        FieldPanel("settings"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pencil Banner Snippet"
+        verbose_name_plural = "Pencil Banner Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.title))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pencil-banner-snippet-preview.html"
+
+
+register_snippet(PencilBannerSnippet)
