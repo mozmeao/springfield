@@ -430,6 +430,37 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+GEO_CHOICES = [
+    ("US", "United States"),
+    ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AT", "Austria"),
+    ("BE", "Belgium"),
+    ("BG", "Bulgaria"),
+    ("DK", "Denmark"),
+    ("FI", "Finland"),
+    ("IE", "Ireland"),
+    ("IT", "Italy"),
+    ("NL", "Netherlands"),
+    ("PT", "Portugal"),
+    ("ES", "Spain"),
+    ("CH", "Switzerland"),
+    ("PL", "Poland"),
+    ("SE", "Sweden"),
+    ("NO", "Norway"),
+    ("ZA", "South Africa"),
+    ("MY", "Malaysia"),
+    ("NZ", "New Zealand"),
+    ("SG", "Singapore"),
+    ("AU", "Australia"),
+    ("KR", "South Korea"),
+    ("TH", "Thailand"),
+    ("CL", "Chile"),
+    ("CO", "Colombia"),
+    ("MX", "Mexico"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -577,11 +608,18 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+    geo = blocks.MultipleChoiceBlock(
+        choices=GEO_CHOICES,
+        required=False,
+        label="GEO",
+        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
-        icon = "eye"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
+        icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
 
@@ -1129,7 +1167,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
@@ -2870,6 +2908,9 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
 
 def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
     class _FeaturedImageSectionBlock(blocks.StructBlock):
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet", label="Scroll To See More Snippet", required=False
+        )
         heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
@@ -2891,6 +2932,10 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/featured-image-section.html"
             label = "Featured Image Section"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "content", "media"],
+                settings=["scroll_to_see_more_snippet"],
+            )
 
     return _FeaturedImageSectionBlock(*args, **kwargs)
 
@@ -2989,6 +3034,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"

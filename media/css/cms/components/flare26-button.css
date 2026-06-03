@@ -441,3 +441,20 @@ Button row
     max-inline-size: var(--token-width-desktop-content);
     text-align: center;
 }
+
+.fl-button-row-help-text ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-lg);
+    inline-size: 100%;
+    justify-content: center;
+    list-style-position: inside;
+    margin-inline-start: 0;
+    padding-inline: var(--token-spacing-lg);
+}
+
+.fl-button-row-help-text li {
+    flex: 0 1 auto;
+    margin: 0;
+    max-inline-size: 200px;
+}

@@ -242,6 +242,11 @@
     margin-block-end: 0;
 }
 
+.fl-banner-content-inner.fl-banner-content-inner-centralize-content {
+    align-items: center;
+    text-align: center;
+}
+
 .fl-banner-content-inner .fl-buttons {
     align-items: center;
     display: flex;
@@ -368,6 +373,14 @@
     .fl-banner-content-left .fl-banner-content-inner .fl-buttons {
         align-items: start;
         justify-content: start;
+    }
+
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content,
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content
+        .fl-buttons {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 }
 

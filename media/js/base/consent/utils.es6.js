@@ -323,6 +323,7 @@ function getConsentState(obj) {
 }
 
 export {
+    attributionRefactorEnabled,
     consentRequired,
     dntEnabled,
     getConsentCookie,
