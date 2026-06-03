@@ -7,13 +7,7 @@
 {% set block_level = block_level + 1 if block_level else 2 %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}"
->
+  condition_settings="{{ value.settings.show_to }}">
   <include:two-column-cards
     theme="{{ value.settings.theme }}"
     anchor_id="{{ value.settings.anchor_id }}"

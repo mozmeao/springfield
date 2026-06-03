@@ -45,6 +45,13 @@ test.describe(
             await expectComponentScreenshot(page, 'banner-default');
         });
 
+        test('default centralize content', async ({ page }) => {
+            await expectComponentScreenshot(
+                page,
+                'banner-default-centralize-content'
+            );
+        });
+
         test('dark purple', async ({ page }) => {
             await expectComponentScreenshot(page, 'banner-dark-purple');
         });
