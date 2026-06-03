@@ -304,13 +304,9 @@ class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippe
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "Scroll to see more Snippet"
         verbose_name_plural = "Scroll to see more Snippets"
-        # template = "cms/snippets/scroll-to-see-more-snippet.html"
 
     def __str__(self):
         return f"{self.text} – {self.locale}"
-
-    def get_template(self, request, mode_name):
-        return "cms/snippets/scroll-to-see-more-snippet.html"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/scroll-to-see-more-snippet-preview.html"
