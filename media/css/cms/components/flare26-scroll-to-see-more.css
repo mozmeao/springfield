@@ -22,6 +22,6 @@
     display: flex;
     gap: var(--token-spacing-sm);
     justify-content: center;
-    padding: var(--token-spacing-lg) var(--token-spacing-2xl);
     line-height: 1;
+    padding: var(--token-spacing-lg) var(--token-spacing-2xl);
 }
