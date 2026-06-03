@@ -66,6 +66,7 @@
 }
 
 .fl-pencil-banner .fl-button {
+    color: var(--token-color-white);
     flex: 0;
 }
 
