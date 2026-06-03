@@ -190,6 +190,13 @@ html {
     text-decoration: none;
 }
 
+.fl-menu-title:where(button) {
+    background: none;
+    border-radius: 0;
+    margin-block-end: 0;
+    padding: 0;
+}
+
 .fl-menu-subtitle {
     font-family: var(--fl-theme-font-family-headline);
 }
