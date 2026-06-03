@@ -23,7 +23,7 @@ from springfield.cms.models.snippets import PencilBannerSnippet, QRCodeFloatingS
 def get_banner_snippet() -> BannerSnippet:
     locale = Locale.get_default()
     snippet, _ = BannerSnippet.objects.update_or_create(
-        id=settings.BANNER_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "kit_theme": True,
@@ -39,7 +39,7 @@ def get_banner_snippet() -> BannerSnippet:
 def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
     locale = Locale.get_default()
     snippet, _ = PreFooterCTASnippet.objects.update_or_create(
-        id=settings.PRE_FOOTER_CTA_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "label": "Get Firefox",
@@ -52,7 +52,7 @@ def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
 def get_pre_footer_cta_form_snippet() -> PreFooterCTAFormSnippet:
     locale = Locale.get_default()
     snippet, _ = PreFooterCTAFormSnippet.objects.update_or_create(
-        id=settings.PRE_FOOTER_CTA_FORM_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf0">Keep up with all things Firefox</p>',
@@ -67,7 +67,7 @@ def get_download_firefox_cta_snippet() -> DownloadFirefoxCallToActionSnippet:
     image, _, _, _ = get_placeholder_images()
     locale = Locale.get_default()
     snippet, _ = DownloadFirefoxCallToActionSnippet.objects.update_or_create(
-        id=settings.DOWNLOAD_FIREFOX_CTA_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf0">Download Firefox Browser</p>',
@@ -81,7 +81,7 @@ def get_download_firefox_cta_snippet() -> DownloadFirefoxCallToActionSnippet:
 def get_qr_code_snippet() -> QRCodeSnippet:
     locale = Locale.get_default()
     snippet, _ = QRCodeSnippet.objects.update_or_create(
-        id=settings.QR_CODE_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf0">Get Firefox on your phone</p>',
@@ -94,29 +94,32 @@ def get_qr_code_snippet() -> QRCodeSnippet:
 
 def get_set_as_default_snippet() -> SetAsDefaultSnippet:
     locale = Locale.get_default()
-    snippet = SetAsDefaultSnippet.objects.filter(id=settings.SET_AS_DEFAULT_SNIPPET_ID).first()
-    if not snippet:
-        snippet = SetAsDefaultSnippet(id=settings.SET_AS_DEFAULT_SNIPPET_ID, locale=locale)
-
-    snippet.heading_text = "Thanks for choosing Firefox"
-    snippet.not_firefox_content = (
-        '<p data-block-key="nf001">Looks like you\'re using a different browser right now. Make sure you have Firefox downloaded on your device.</p>'
+    snippet, _ = SetAsDefaultSnippet.objects.update_or_create(
+        id=settings.PLACEHOLDER_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "heading_text": "Thanks for choosing Firefox",
+            "not_firefox_content": (
+                '<p data-block-key="nf001">Looks like you\'re using a different browser right now. '
+                "Make sure you have Firefox downloaded on your device.</p>"
+            ),
+            "not_default_desktop_content": (
+                '<p data-block-key="nd001">You\'re almost done. Just change your default browser'
+                " to Firefox in the settings panel on your screen.</p>"
+                '<p data-block-key="nd002"><a href="https://support.mozilla.org/kb/make-firefox-your-default-browser">'
+                "Having trouble setting your default browser?</a></p>"
+            ),
+            "not_default_android_content": (
+                '<p data-block-key="na001">Here\'s everything you need to know about setting your default browser on'
+                ' <a href="https://support.mozilla.org/kb/make-firefox-default-browser-android">Android devices</a>.</p>'
+            ),
+            "not_default_ios_content": (
+                '<p data-block-key="ni001">Here\'s everything you need to know about setting your default browser on'
+                ' <a href="https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios">iOS devices</a>.</p>'
+            ),
+            "success_content": '<p data-block-key="sc001">You\'re all set.</p>',
+        },
     )
-    snippet.not_default_desktop_content = (
-        '<p data-block-key="nd001">You\'re almost done. Just change your default browser'
-        " to Firefox in the settings panel on your screen.</p>"
-        '<p data-block-key="nd002"><a href="https://support.mozilla.org/kb/make-firefox-your-default-browser">'
-        "Having trouble setting your default browser?</a></p>"
-    )
-    snippet.not_default_android_content = (
-        '<p data-block-key="na001">Here\'s everything you need to know about setting your default browser on'
-        ' <a href="https://support.mozilla.org/kb/make-firefox-default-browser-android">Android devices</a>.</p>'
-    )
-    snippet.not_default_ios_content = (
-        '<p data-block-key="ni001">Here\'s everything you need to know about setting your default browser on'
-        ' <a href="https://support.mozilla.org/en-US/kb/unable-set-firefox-default-browser-ios">iOS devices</a>.</p>'
-    )
-    snippet.success_content = '<p data-block-key="sc001">You\'re all set.</p>'
     snippet.save()
     snippet.save_revision().publish()
     snippet.refresh_from_db()
@@ -127,7 +130,7 @@ def get_set_as_default_snippet() -> SetAsDefaultSnippet:
 def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
     locale = Locale.get_default()
     snippet, _ = QRCodeFloatingSnippet.objects.update_or_create(
-        id=settings.QR_CODE_SNIPPET_ID,
+        id=settings.PLACEHOLDER_SNIPPET_ID,
         defaults={
             "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
@@ -141,16 +144,18 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
 
 def get_pencil_banner_snippet() -> PencilBannerSnippet:
     locale = Locale.get_default()
-    snippet = PencilBannerSnippet.objects.filter(id=settings.PENCIL_BANNER_SNIPPET_ID, locale=locale).first()
-    if not snippet:
-        snippet = PencilBannerSnippet(id=settings.PENCIL_BANNER_SNIPPET_ID, locale=locale)
+    snippet, _ = PencilBannerSnippet.objects.update_or_create(
+        id=settings.PLACEHOLDER_SNIPPET_ID,
+        defaults={
+            "locale": locale,
+            "title": '<p data-block-key="pb001"><i>New</i> Firefox is here</p>',
+            "description": '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>',
+            "link": "https://www.firefox.com/",
+            "dismissable": True,
+            "settings": [],
+        },
+    )
 
-    snippet.title = '<p data-block-key="pb001"><i>New</i> Firefox is here</p>'
-    snippet.description = '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>'
-    snippet.link = "https://www.firefox.com/"
-    snippet.dismissable = True
-    snippet.settings = []
-    snippet.save()
     snippet.save_revision().publish()
     snippet.refresh_from_db()
     return snippet
@@ -158,9 +163,9 @@ def get_pencil_banner_snippet() -> PencilBannerSnippet:
 
 def get_scroll_to_see_more_snippet() -> ScrollToSeeMoreSnippet:
     locale = Locale.get_default()
-    snippet, _ = ScrollToSeeMoreSnippet.objects.get_or_create(
-        locale=locale,
-        defaults={"text": "Scroll to see more"},
+    snippet, _ = ScrollToSeeMoreSnippet.objects.update_or_create(
+        id=settings.PLACEHOLDER_SNIPPET_ID,
+        defaults={"locale": locale, "text": "Scroll to see more"},
     )
     return snippet
 
