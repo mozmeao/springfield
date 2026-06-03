@@ -1129,7 +1129,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
