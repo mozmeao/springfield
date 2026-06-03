@@ -41,10 +41,15 @@
     font-weight: var(--fl-theme-font-weight-headline);
     gap: var(--token-spacing-sm);
     line-height: 1;
+    padding: 4px 12px;
+}
 
-    /* padding: var(--token-spacing-2xs) var(--token-spacing-sm)
-        var(--token-spacing-sm); */
-    padding: 4px 12px 4px 4px;
+.fl-pencil-banner-title.has-badge-start {
+    padding-inline-start: 4px;
+}
+
+.fl-pencil-banner-title.has-badge-end {
+    padding-inline-end: 4px;
 }
 
 .fl-pencil-banner-title i {

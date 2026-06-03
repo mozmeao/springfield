@@ -17,7 +17,7 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
-from springfield.cms.models.snippets import QRCodeFloatingSnippet, ScrollToSeeMoreSnippet
+from springfield.cms.models.snippets import PencilBannerSnippet, QRCodeFloatingSnippet, ScrollToSeeMoreSnippet
 
 
 def get_banner_snippet() -> BannerSnippet:
@@ -136,6 +136,23 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
             "default_open": True,
         },
     )
+    return snippet
+
+
+def get_pencil_banner_snippet() -> PencilBannerSnippet:
+    locale = Locale.get_default()
+    snippet = PencilBannerSnippet.objects.filter(locale=locale).first()
+    if not snippet:
+        snippet = PencilBannerSnippet(locale=locale)
+
+    snippet.title = '<p data-block-key="pb001"><i>New</i> Firefox is here</p>'
+    snippet.description = '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>'
+    snippet.link = "https://www.firefox.com/"
+    snippet.dismissable = True
+    snippet.settings = []
+    snippet.save()
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
     return snippet
 
 

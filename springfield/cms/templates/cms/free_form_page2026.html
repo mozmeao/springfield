@@ -8,6 +8,12 @@
 
 
 {% block flare_header %}
+  {% for placement in page.pencil_banner_placements.all() %}
+    {% set value = placement.snippet.get_localized() %}
+    {% if value %}
+      {% include "cms/snippets/pencil-banner.html" %}
+    {% endif %}
+  {% endfor %}
   {% set theme = "dark" if page.upper_content else None %}
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
