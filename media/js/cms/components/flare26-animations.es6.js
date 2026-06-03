@@ -7,6 +7,9 @@
 function isAlphaWebmUnsupported() {
     const ua = navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return true;
+    // iPadOS 13+ may use a desktop-class UA (contains "Macintosh") to request desktop sites.
+    // Use touch points to distinguish it from real macOS Safari.
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
     return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
 }
 
@@ -22,7 +25,8 @@ function swapAlphaWebmForPoster() {
         if (!video) return;
 
         const source = video.querySelector('source');
-        if (!source || !isAlphaWebm(source.src)) return;
+        if (!source || !isAlphaWebm(source.getAttribute('src') || source.src))
+            return;
 
         const poster = video.getAttribute('poster');
         if (!poster) return;
