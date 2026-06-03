@@ -62,7 +62,7 @@ FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="fals
 # the redirects from temporary (302) to permanent (301); defaults to false so we can
 # verify the rollout and later make redirects permanent or remove them as part of cleanup.
 ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
