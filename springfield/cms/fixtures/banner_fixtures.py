@@ -1083,6 +1083,56 @@ def get_banner_2026_variants():
         {
             "type": "banner",
             "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-image-centralize-content",
+                    "centralize_content": True,
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000029",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Image (Centralize Content)</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "ba260021-0000-0000-0000-000000000001",
+                        "value": [tags["purple"], tags["red"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "ba260021-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                        "Switch between light and dark mode to see the alternative images.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260021-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000028",
+        },
+        {
+            "type": "banner",
+            "value": {
                 "settings": {"theme": "default", "media_after": False, "show_to": SHOW_TO_ALL},
                 "media": [videos["animation"]],
                 "heading": {
