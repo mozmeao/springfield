@@ -25,7 +25,8 @@
     position: relative;
 }
 
-.fl-featured-image-section-media .fl-video video {
+.fl-featured-image-section-media .fl-video video,
+.fl-featured-image-section-media .fl-video .fl-video-poster {
     block-size: 228%;
     inline-size: auto;
     inset: auto -27% -47% auto;
