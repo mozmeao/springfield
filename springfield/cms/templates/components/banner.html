@@ -27,6 +27,7 @@
     class="
       fl-banner
       fl-banner-{{ theme }}
+      {% if theme and "purple" in theme %}fl-force-dark-theme{% endif %}
       {% if media_after %}fl-banner-reverse{% endif %}"
     aria-labelledby="fl-banner-heading">
 
