@@ -592,7 +592,7 @@ Illustration Card
 }
 
 .fl-illustration-card .fl-video {
-    aspect-ratio: 11/12;
+    aspect-ratio: 17/20;
     border-radius: var(--token-spacing-xl);
 }
 
