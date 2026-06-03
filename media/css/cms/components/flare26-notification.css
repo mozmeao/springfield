@@ -16,7 +16,11 @@
 }
 
 /* For the odd cases where there are stacked notifications. */
-.fl-notification-wrapper + .fl-notification-wrapper {
+.fl-notification-wrapper + .fl-notification-wrapper,
+.fl-notification-wrapper + .conditional-display:has(.fl-notification-wrapper),
+.conditional-display:has(.fl-notification-wrapper) + .fl-notification-wrapper,
+.conditional-display:has(.fl-notification-wrapper)
+    + .conditional-display:has(.fl-notification-wrapper) {
     margin-block-start: var(--token-spacing-lg);
 }
 
