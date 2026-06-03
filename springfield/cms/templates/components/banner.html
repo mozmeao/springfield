@@ -10,6 +10,7 @@
   qr_code=None anchor_id=""
   slim=""
   remove_border_radius=False
+  centralize_content=False
   phone_qr_bg=False
 #}
 
@@ -46,7 +47,12 @@
       {% endif %}
 
       <div class="fl-banner-content {% if contents.media or qr_code %}fl-banner-content-left{% endif %}">
-        <div class="fl-banner-content-inner">
+        <div
+          class="
+            fl-banner-content-inner
+            {% if centralize_content %}fl-banner-content-inner-centralize-content{% endif %}
+          "
+        >
           {{ contents.heading }}
           {{ contents.content }}
         </div>

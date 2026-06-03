@@ -1167,7 +1167,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
@@ -3034,6 +3034,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"
