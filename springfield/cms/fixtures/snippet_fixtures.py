@@ -141,9 +141,9 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
 
 def get_pencil_banner_snippet() -> PencilBannerSnippet:
     locale = Locale.get_default()
-    snippet = PencilBannerSnippet.objects.filter(locale=locale).first()
+    snippet = PencilBannerSnippet.objects.filter(id=settings.PENCIL_BANNER_SNIPPET_ID, locale=locale).first()
     if not snippet:
-        snippet = PencilBannerSnippet(locale=locale)
+        snippet = PencilBannerSnippet(id=settings.PENCIL_BANNER_SNIPPET_ID, locale=locale)
 
     snippet.title = '<p data-block-key="pb001"><i>New</i> Firefox is here</p>'
     snippet.description = '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>'
