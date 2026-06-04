@@ -478,6 +478,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
+UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -494,6 +495,7 @@ UITOUR_BUTTON_CHOICES = (
     ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
+    (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
 )
 
 UI_TOUR_CLASSES = {
@@ -509,6 +511,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+    UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
 }
 
 BUTTON_TYPE = "button"
