@@ -23,7 +23,7 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
         );
         // We don't want to include nav download button
         const downloadButtons = document.querySelectorAll(
-            '#outer-wrapper .download-link'
+            '#partial-target .download-link'
         );
 
         function showHelpModal(modalContent, modalTitle, eventLabel) {

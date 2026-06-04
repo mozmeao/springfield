@@ -10,6 +10,7 @@
   vertical=""
   full_width=""
   slim=""
+  superheading_is_pill=False
   remove_border_radius=False
 #}
 
@@ -22,6 +23,7 @@
     {% if full_width %}fl-intro-full-width{% endif %}
     {% if slim %}is-slim{% endif %}
     {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+    {% if superheading_is_pill %}superheading-is-pill{% endif %}
   "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >

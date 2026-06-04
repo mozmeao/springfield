@@ -34,11 +34,13 @@ from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.models import (
     BannerSnippet,
     DownloadFirefoxCallToActionSnippet,
+    PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
     PretranslatedPhrase,
     QRCodeFloatingSnippet,
     QRCodeSnippet,
+    ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     Tag,
 )
@@ -515,17 +517,23 @@ class PreFooterCTASnippetViewSet(LocaleDefaultingSnippetViewSet):
 
 class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = PreFooterCTAFormSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class DownloadFirefoxCallToActionSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = DownloadFirefoxCallToActionSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = BannerSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class TagViewSet(LocaleDefaultingSnippetViewSet):
@@ -535,7 +543,9 @@ class TagViewSet(LocaleDefaultingSnippetViewSet):
 
 class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = QRCodeSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
@@ -545,7 +555,21 @@ class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
 
 class QRCodeFloatingSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = QRCodeFloatingSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = ScrollToSeeMoreSnippet
+    list_display = ["text", "locale", "live"]
+
+
+class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PencilBannerSnippet
+    # `title` is a RichTextField — use the `title_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["title_plain", "locale", "live"]
 
 
 for _viewset in (
@@ -558,5 +582,7 @@ for _viewset in (
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,
     QRCodeFloatingSnippetViewSet,
+    ScrollToSeeMoreSnippetViewSet,
+    PencilBannerSnippetViewSet,
 ):
     register_snippet(_viewset)

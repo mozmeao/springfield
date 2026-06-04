@@ -7,11 +7,7 @@
 {% set heading_level = "h" ~ block_level if block_level else "h2" %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
+  condition_settings="{{ value.settings.show_to }}">
   <section class="fl-section">
     <div class="fl-section-container">
       <div class="fl-sliding-carousel" data-js="fl-sliding-carousel">

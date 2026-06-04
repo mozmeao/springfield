@@ -12,7 +12,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0096_migrate_media_content_intro_banner_blocks"),
+        ("cms", "0100_alter_pencilbannersnippet_link"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 

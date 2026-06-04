@@ -57,7 +57,7 @@
 --two-column-accent-color: var(--token-color-black-1);
 
 /* light-dark theme */
---two-column-light-dark-second-card-border-color: transparent;
+--two-column-light-dark-first-card-bg: var(--token-color-soft-purple);
 --two-column-light-dark-second-card-bg: var(--token-color-purple);
 
 /* light-light theme */

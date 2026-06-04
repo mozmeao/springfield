@@ -13,12 +13,7 @@
 {% endif %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
+  condition_settings="{{ value.settings.show_to }}">
 
   <include:banner
     theme="{{ value.settings.theme }}"
@@ -27,6 +22,7 @@
     anchor_id="{{ value.settings.anchor_id }}"
     slim="{{ value.settings.slim }}"
     remove_border_radius="{{ value.settings.remove_border_radius }}"
+    centralize_content="{{ value.settings.centralize_content }}"
   >
 
     <content:heading>

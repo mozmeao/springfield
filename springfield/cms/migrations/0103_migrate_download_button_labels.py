@@ -11,23 +11,20 @@ from django.db import migrations
 from springfield.base.config_manager import config
 
 
-def create_pretranslated_phrases(apps, schema_editor):
-    # Skip in test environments and CI — test fixtures create the snippets they need.
+def migrate_labels(apps, schema_editor):
+    # Skip in test environments and CI — test fixtures create the data they need.
     is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
     if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return
 
-    call_command("create_pretranslated_phrases", verbosity=1)
+    call_command("migrate_download_button_labels", verbosity=1)
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0097_pretranslatedphrase"),
-        # Required because save_target() may interact with wagtail_localize_smartling
-        # which has a handler that queries LandedTranslationTask / JobTranslation.
-        ("wagtail_localize_smartling", "0008_jobtranslation_content_hash"),
+        ("cms", "0102_create_pretranslated_phrases"),
     ]
 
     operations = [
-        migrations.RunPython(create_pretranslated_phrases, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(migrate_labels, reverse_code=migrations.RunPython.noop),
     ]
