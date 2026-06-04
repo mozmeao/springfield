@@ -259,7 +259,7 @@ def assert_button_attributes(
     The cta_position and cta_text are built by the parent component
     and passed down to the button.
     """
-    label = button_data["value"]["label"]
+    label = button_data["value"]["custom_label"]
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -529,7 +529,7 @@ def assert_card_attributes(
     # TODO: Fix icon card buttons
     buttons = card_data["value"].get("button") or card_data["value"].get("buttons")
     if buttons:
-        cta_text = f"{headline_text.strip()} - {buttons[0]['value']['label'].strip()}"
+        cta_text = f"{headline_text.strip()} - {buttons[0]['value']['custom_label'].strip()}"
 
         assert_button_attributes(
             button_element=card_element.find("a", class_="fl-button"),
@@ -1010,7 +1010,7 @@ def assert_buttons_content_item(
     for button_index, button in enumerate(buttons_value):
         button_element = button_elements[button_index]
         cta_position = f"{cta_position_prefix}.button-{button_index + 1}"
-        cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+        cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
         assert_button_attributes(
             button_element=button_element,
             button_data=button,
@@ -1110,7 +1110,7 @@ def test_intro_block(index_page, placeholder_images, rf):
         button = intro["value"]["buttons"][0]
         button_element = intro_element.find("a", class_="fl-button")
         cta_position = f"block-{index + 1}-intro.button-1"
-        cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+        cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
         assert_button_attributes(
             button_element=button_element,
             button_data=button,
@@ -1744,7 +1744,7 @@ def test_buttons(index_page, rf):
         for btn_index, (button_data, button_element) in enumerate(zip(non_store_data, button_elements)):
             if button_data["type"] == "button":
                 cta_position = f"block-{block_index + 1}-intro.button-{btn_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button_data['value']['label'].strip()}"
+                cta_text = f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
                 assert_button_attributes(
                     button_element=button_element,
                     button_data=button_data,
@@ -1765,16 +1765,16 @@ def test_buttons(index_page, rf):
                         "hidden": True,
                     }
                     icon_html = render_to_string("components/icon.html", icon_context)
-                    inner_html = f"{icon_html}{button_data['value']['label']}"
+                    inner_html = f"{icon_html}{button_data['value']['custom_label']}"
                 rendered_fxa_button = fxa_button(
                     ctx=context,
                     entrypoint=entrypoint,
-                    button_text=button_data["value"]["label"],
+                    button_text=button_data["value"]["custom_label"],
                     optional_parameters={
                         "utm_campaign": utm_parameters["utm_campaign"],
                     },
                     optional_attributes={
-                        "data-cta-text": f"{heading_text.strip()} - {button_data['value']['label'].strip()}",
+                        "data-cta-text": f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
                         "data-cta-position": f"block-{block_index + 1}-intro.button-{btn_index + 1}",
                         "data-cta-uid": button_data["value"]["settings"]["analytics_id"],
                     },
@@ -1790,7 +1790,7 @@ def test_buttons(index_page, rf):
                     context=context,
                 )
             elif button_data["type"] == "focus_button":
-                assert button_data["value"]["label"] in button_element.get_text()
+                assert button_data["value"]["custom_label"] in button_element.get_text()
                 theme = button_data["value"]["settings"]["theme"]
                 if theme:
                     assert f"button-{theme}" in button_element["class"]
@@ -1848,7 +1848,7 @@ def test_buttons_2026(index_page, rf):
             for btn_index, (button_data, button_element) in enumerate(zip(non_store_data, button_elements)):
                 if button_data["type"] == "button":
                     cta_position = f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}"
-                    cta_text = f"{heading_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_element,
                         button_data=button_data,
@@ -1869,16 +1869,16 @@ def test_buttons_2026(index_page, rf):
                             "hidden": True,
                         }
                         icon_html = render_to_string("components/icon.html", icon_context)
-                        inner_html = f"{icon_html}{button_data['value']['label']}"
+                        inner_html = f"{icon_html}{button_data['value']['custom_label']}"
                     rendered_fxa_button = fxa_button(
                         ctx=context,
                         entrypoint=entrypoint,
-                        button_text=button_data["value"]["label"],
+                        button_text=button_data["value"]["custom_label"],
                         optional_parameters={
                             "utm_campaign": utm_parameters["utm_campaign"],
                         },
                         optional_attributes={
-                            "data-cta-text": f"{heading_text.strip()} - {button_data['value']['label'].strip()}",
+                            "data-cta-text": f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
                             "data-cta-position": f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
                             "data-cta-uid": button_data["value"]["settings"]["analytics_id"],
                         },
@@ -1894,7 +1894,7 @@ def test_buttons_2026(index_page, rf):
                         context=context,
                     )
                 elif button_data["type"] == "focus_button":
-                    assert button_data["value"]["label"] in button_element.get_text()
+                    assert button_data["value"]["custom_label"] in button_element.get_text()
                     theme = button_data["value"]["settings"]["theme"]
                     if theme:
                         assert f"button-{theme}" in button_element["class"]
@@ -2216,7 +2216,7 @@ def test_topic_list_2026_block(index_page, placeholder_images, rf):
                 for button_index, button in enumerate(buttons):
                     button_element = button_elements[button_index]
                     cta_position = f"{region_name}-block-{block_index + 1}-topic_list.topic-{topic_index + 1}.button-{button_index + 1}"
-                    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                    cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_element,
                         button_data=button,
@@ -2502,7 +2502,7 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
     button = main_card["buttons"][0]
     button_element = main_card_element.find("a", class_="fl-button")
     cta_position = "lower-block-3-card_gallery.main-card.button-1"
-    cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+    cta_text = f"{headline_text.strip()} - {button['value']['custom_label'].strip()}"
     assert_button_attributes(
         button_element=button_element,
         button_data=button,
@@ -2536,7 +2536,7 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
     button = secondary_card["buttons"][0]
     button_element = secondary_card_element.find("a", class_="fl-button")
     cta_position = "lower-block-3-card_gallery.secondary-card.button-1"
-    cta_text = f"{headline_text.strip()} - {button['value']['label'].strip()}"
+    cta_text = f"{headline_text.strip()} - {button['value']['custom_label'].strip()}"
     assert_button_attributes(
         button_element=button_element,
         button_data=button,
@@ -2599,7 +2599,7 @@ def test_home_kit_banner_block(index_page, rf):
         button_data=button,
         context=test_page.get_context(request),
         cta_position="lower-block-4-kit_banner.button-1",
-        cta_text=f"{heading_text} - {button['value']['label'].strip()}",
+        cta_text=f"{heading_text} - {button['value']['custom_label'].strip()}",
     )
 
 
@@ -3223,7 +3223,7 @@ def assert_sticker_card_2026(card_el, variant, context, region_name, heading_tag
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -3264,7 +3264,7 @@ def assert_illustration_card_2026(card_el, variant, context, region_name, headin
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -3298,7 +3298,7 @@ def assert_outlined_card_2026(card_el, variant, context, region_name, heading_ta
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -3330,7 +3330,7 @@ def assert_icon_card_2026(card_el, variant, context, region_name, heading_tag, b
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -3490,7 +3490,7 @@ def test_step_cards_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
-                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-2-section.item-1-step_cards.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -3622,7 +3622,7 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
                     cta_position = f"{block_position_prefix}.card-{card_index + 1}.button-1"
-                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
@@ -3727,7 +3727,7 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                     if button_data["type"] == "button":
                         button_els = card_el.find_all("a", class_="fl-button")
                         button_el = button_els[button_index]
-                        cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                         cta_position = f"{position_prefix}.button-{button_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
@@ -3877,7 +3877,7 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["main_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = main_card.find("a", class_="fl-button")
-                    cta_text = f"{main_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{main_headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.main-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -3915,7 +3915,7 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["secondary_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = secondary_card.find("a", class_="fl-button")
-                    cta_text = f"{secondary_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{secondary_headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.secondary-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -3953,7 +3953,7 @@ def test_card_gallery_2026_block(index_page, placeholder_images, rf):
                 for button_data in variant["value"]["cta"]:
                     if button_data["type"] == "button":
                         button_el = cta_wrap.find("a", class_="fl-button")
-                        cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
                         cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
                         assert_button_attributes(
                             button_element=button_el,
@@ -4022,7 +4022,7 @@ def test_kit_intro_2026_block(index_page, rf):
         assert len(button_elements) == len(buttons)
         for button_index, button in enumerate(buttons):
             cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
-            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
                 button_element=button_elements[button_index],
                 button_data=button,
@@ -4085,7 +4085,7 @@ def test_carousel_2026_block(index_page, placeholder_images, rf):
             assert len(button_elements) == len(buttons)
             for button_index, button in enumerate(buttons):
                 cta_position = f"{region_name}-block-{index + 1}-carousel.button-{button_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
                 assert_button_attributes(
                     button_element=button_elements[button_index],
                     button_data=button,
@@ -4628,7 +4628,7 @@ def test_two_column_cards_block(index_page, rf):
                         heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text()
                     elif block_type == "button_row":
                         button_data = block_data["value"]["buttons"][0]
-                        cta_text = f"{heading_text} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{heading_text} - {button_data['value']['custom_label'].strip()}"
                         assert_button_attributes(
                             button_element=card_el.find("a", class_="fl-button"),
                             button_data=button_data,
@@ -4902,8 +4902,8 @@ def test_roadmap_list_section_block(index_page, rf):
     # Intro button links to what's new index page with correct analytics
     whatsnew_index = Page.objects.get(id=intro_button_data["link"]["page"]).specific
     intro_button = soup.find("a", href=whatsnew_index.get_url())
-    assert intro_button and intro_button_data["label"] in intro_button.get_text()
-    assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['label']}"
+    assert intro_button and intro_button_data["custom_label"] in intro_button.get_text()
+    assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['custom_label']}"
     assert intro_button["data-cta-uid"] == intro_button_data["settings"]["analytics_id"]
     assert intro_button["data-cta-position"] == "intro.button-1"
 

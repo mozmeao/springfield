@@ -57,7 +57,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "11111111-1111-1111-1111-111111111111"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -88,7 +89,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "22222222-2222-2222-2222-222222222221"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -119,7 +121,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "33333333-3333-3333-3333-333333333331"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -227,7 +230,8 @@ def get_set_as_default_button_block() -> dict:
                                     "icon_position": "right",
                                     "analytics_id": "sad00001-0000-0000-0000-000000000002",
                                 },
-                                "label": "Set Firefox as default",
+                                "pretranslated_label": None,
+                                "custom_label": "Set Firefox as default",
                                 "snippet": snippet.id,
                             },
                             "id": "sad00001-0000-0000-0000-000000000003",
