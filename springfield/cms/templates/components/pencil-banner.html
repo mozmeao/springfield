@@ -10,7 +10,7 @@
   <div class="fl-pencil-banner-content">
 
   {% if link %}
-    <a href="{{ link }}" class="fl-pencil-banner-link">
+    <a href="{{ link|add_utm_parameters }}" class="fl-pencil-banner-link">
   {% else %}
   <span class="fl-pencil-banner-link">
 {% endif %}
