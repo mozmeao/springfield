@@ -27,6 +27,15 @@ describe('mobile-attribution.js', function () {
     beforeEach(function () {
         html = document.documentElement;
         container = document.createElement('div');
+        // Suppress default <a> navigation for any test that dispatches a
+        // click event. Synthetic clicks on real-looking URLs (e.g.
+        // https://apps.apple.com/...) in headless CI browsers will navigate
+        // the runner away, killing the rest of the suite — so we
+        // preventDefault at the container level for any click that bubbles
+        // out unhandled by a test's own listeners.
+        container.addEventListener('click', function (event) {
+            event.preventDefault();
+        });
         document.body.appendChild(container);
     });
 
