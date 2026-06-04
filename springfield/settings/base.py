@@ -491,8 +491,10 @@ if DEBUG:
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
-    "/all-urls-global.xml",  # in sitemap urls
-    "/all-urls.xml",  # in sitemap urls
+    "/all-urls-global.xml",  # in sitemap urls (legacy alias)
+    "/all-urls.xml",  # in sitemap urls (legacy alias)
+    "/sitemap-global.xml",  # in sitemap urls
+    "/sitemap.xml",  # in sitemap urls
 ]
 
 # Pages that we don't want to be indexed by search engines.
