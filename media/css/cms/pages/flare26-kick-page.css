@@ -7,6 +7,19 @@
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
 @import 'variables/flare26-media-query-tokens.css';
 
+.flare26-kick-page .fl-logo-fx:has(.fl-video) {
+    background-image: none;
+}
+
+.flare26-kick-page .fl-logo-fx .fl-video {
+    max-block-size: 56px;
+}
+
+.flare26-kick-page .fl-logo-fx .fl-video-poster {
+    cursor: pointer;
+    object-fit: contain;
+}
+
 .flare26-kick-page .fl-pre-footer-cta {
     --kit-size: 0px;
 }
