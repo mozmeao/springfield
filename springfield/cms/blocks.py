@@ -632,7 +632,10 @@ class ConditionalDisplayBlock(blocks.StructBlock):
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
+        label_format = (
+            "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
+            "AI {ai_controls} - Versions {min_version} to {max_version}"
+        )
         icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"

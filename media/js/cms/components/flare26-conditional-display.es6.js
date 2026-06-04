@@ -60,31 +60,39 @@ function initGeoConditionalDisplay() {
 }
 
 function initDefaultBrowserConditionalDisplay() {
-    isUITourEnabled().then(() => {
-        Mozilla.UITour.getConfiguration('appinfo', (details) => {
-            if (details.defaultBrowser) {
-                document.documentElement.classList.add('firefox-is-default');
-            } else {
-                document.documentElement.classList.add(
-                    'firefox-is-not-default'
-                );
-            }
-        });
-    });
+    isUITourEnabled()
+        .then(() => {
+            Mozilla.UITour.getConfiguration('appinfo', (details) => {
+                if (details.defaultBrowser) {
+                    document.documentElement.classList.add(
+                        'firefox-is-default'
+                    );
+                } else {
+                    document.documentElement.classList.add(
+                        'firefox-is-not-default'
+                    );
+                }
+            });
+        })
+        .catch();
 }
 
 function initAiControlsConditionalDisplay() {
-    isUITourEnabled().then(() => {
-        Mozilla.UITour.getConfiguration('aiControls', (config) => {
-            if (config.default === 'available') {
-                document.documentElement.classList.add('ai-controls-available');
-            } else {
-                document.documentElement.classList.add(
-                    'ai-controls-unavailable'
-                );
-            }
-        });
-    });
+    isUITourEnabled()
+        .then(() => {
+            Mozilla.UITour.getConfiguration('aiControls', (config) => {
+                if (config.default === 'available') {
+                    document.documentElement.classList.add(
+                        'ai-controls-available'
+                    );
+                } else {
+                    document.documentElement.classList.add(
+                        'ai-controls-unavailable'
+                    );
+                }
+            });
+        })
+        .catch();
 }
 
 export default function setupConditionalDisplay() {

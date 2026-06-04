@@ -207,6 +207,7 @@ function init() {
                         'click',
                         (e) => {
                             e.preventDefault();
+                            e.stopPropagation();
 
                             Mozilla.UITour.pinToTaskbar();
                         },
