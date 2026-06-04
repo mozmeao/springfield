@@ -74,11 +74,9 @@
     gap: 0;
 }
 
-.fl-banner.fl-banner-purple-radial-gradient,
-.fl-banner.fl-banner-dark-purple-gradient {
-    --fl-theme-color-link: var(--token-color-soft-purple-4);
+.fl-banner.fl-banner-purple-radial-gradient {
+    --fl-theme-color-link: var(--token-color-white);
     --fl-theme-color-link-hover: var(--token-color-white);
-    --fl-theme-color-text: var(--token-color-white);
 }
 
 .fl-banner.fl-banner-purple-radial-gradient:not(.fl-banner-kit),
@@ -107,17 +105,17 @@
 .fl-split-page-lower > .fl-banner-container:last-child,
 .fl-split-page-lower .fl-banner-container.is-last-visible {
     max-inline-size: none;
-    padding: 0 var(--token-spacing-lg);
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg) 0;
 }
 
 .fl-main:not(:has(.fl-split-page-lower)) .fl-banner-container.is-last-visible {
     max-inline-size: none;
-    padding: 0 var(--token-spacing-lg) var(--token-spacing-lg);
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg)
+        var(--token-spacing-lg);
 }
 
 /* This one isn't used on kit banners, and will need some adjustments if those need to be combined. */
 .fl-banner.fl-banner-dark-purple-gradient-inverted {
-    --fl-theme-color-text: var(--token-color-white);
     --fl-theme-color-link: var(--token-color-white);
     background-image: var(--token-gradient-radial-purple);
     background-position: center;
@@ -132,22 +130,6 @@
     line-height: 1.2;
     margin-block-end: var(--token-spacing-md);
     text-transform: uppercase;
-}
-
-.fl-banner.fl-banner-purple-radial-gradient .fl-superheading {
-    color: var(--token-color-white);
-}
-
-.fl-banner-dark-purple-gradient .fl-button.button-ghost {
-    border-color: var(--token-color-white);
-    color: var(--token-color-white);
-}
-
-.fl-banner-dark-purple-gradient .fl-button.button-ghost:hover,
-.fl-banner-dark-purple-gradient .fl-button.button-ghost:focus,
-.fl-banner-dark-purple-gradient .fl-button.button-ghost:active {
-    background: var(--token-color-white);
-    color: var(--token-color-dark-purple);
 }
 
 .fl-banner-media {
@@ -239,6 +221,11 @@
 
 .fl-banner-content-inner > *:last-child {
     margin-block-end: 0;
+}
+
+.fl-banner-content-inner.fl-banner-content-inner-centralize-content {
+    align-items: center;
+    text-align: center;
 }
 
 .fl-banner-content-inner .fl-buttons {
@@ -367,6 +354,14 @@
     .fl-banner-content-left .fl-banner-content-inner .fl-buttons {
         align-items: start;
         justify-content: start;
+    }
+
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content,
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content
+        .fl-buttons {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
 }
 

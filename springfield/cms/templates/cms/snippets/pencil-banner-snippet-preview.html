@@ -1,0 +1,27 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% block flare_header %}
+  {% set value = object %}
+  {% include "cms/snippets/pencil-banner.html" %}
+  {{ super() }}
+{% endblock flare_header %}
+
+{% block content %}
+  <div class="fl-main">
+    <include:intro>
+      <content:heading>
+        <include:heading
+          level="h1"
+          heading_text="Pencil Banner Snippet Preview"
+          subheading_text="The Pencil Banner is placed above the header."
+        />
+      </content:heading>
+    </include:intro>
+  </div>
+{% endblock content %}

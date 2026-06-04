@@ -5,8 +5,14 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet, get_set_as_default_snippet
+from springfield.cms.fixtures.snippet_fixtures import (
+    get_floating_qr_code_snippet,
+    get_pencil_banner_snippet,
+    get_qr_code_snippet,
+    get_set_as_default_snippet,
+)
 from springfield.cms.models import FreeFormPage2026
+from springfield.cms.models.pages import PencilBannerPlacement
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -29,14 +35,20 @@ def get_mobile_store_qr_code():
 
 def get_mobile_browsers_cards():
     image, _, _, _ = get_placeholder_images()
-    image_value = {
-        "image": image.id,
-        "settings": {
-            "dark_mode_image": None,
-            "mobile_image": None,
-            "dark_mode_mobile_image": None,
-        },
-    }
+    image_block = [
+        {
+            "type": "image",
+            "value": {
+                "image": image.id,
+                "settings": {
+                    "dark_mode_image": None,
+                    "mobile_image": None,
+                    "dark_mode_mobile_image": None,
+                },
+            },
+            "id": "00000000-0000-0000-0000-000000000001",
+        }
+    ]
     link_button_settings = {
         "theme": "link",
         "icon": None,
@@ -48,7 +60,7 @@ def get_mobile_browsers_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": image_value,
+                "media": image_block,
                 "eyebrow": "",
                 "headline": '<p data-block-key="android-h">Firefox for Android</p>',
                 "content": '<p data-block-key="android-c">Private by default, with more ways to make Firefox your own on Android.</p>',
@@ -79,7 +91,7 @@ def get_mobile_browsers_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": image_value,
+                "media": image_block,
                 "eyebrow": "",
                 "headline": '<p data-block-key="ios-h">Firefox for iOS</p>',
                 "content": '<p data-block-key="ios-c">A more private way to browse on iPhone and iPad, with built-in tracking protection.</p>',
@@ -110,7 +122,7 @@ def get_mobile_browsers_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": image_value,
+                "media": image_block,
                 "eyebrow": "",
                 "headline": '<p data-block-key="focus-h">Firefox Focus</p>',
                 "content": '<p data-block-key="focus-c">A fast, minimal browser that clears your history when you\'re done.</p>',
@@ -184,7 +196,10 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
                 "content": [
                     {
                         "type": "cards_list",
-                        "value": {"cards": get_mobile_browsers_cards()},
+                        "value": {
+                            "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+                            "cards": get_mobile_browsers_cards(),
+                        },
                         "id": "44444444-4444-4444-4444-444444444444",
                     }
                 ],
@@ -193,6 +208,8 @@ def get_freeform_page_2026_test_page() -> FreeFormPage2026:
             "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
         },
     ]
+    snippet = get_pencil_banner_snippet()
+    PencilBannerPlacement.objects.get_or_create(page=page, snippet=snippet)
     page.save_revision().publish()
     return page
 

@@ -23,6 +23,8 @@ module.exports = {
             'media/js/base/experiment-amo.es6.js',
             'media/js/base/mozilla-fxa.js',
             'media/js/base/stub-attribution/stub-attribution.js',
+            'media/js/base/datalayer-productdownload-init.es6.js',
+            'media/js/base/mobile-attribution.js',
             'media/js/firefox/download/common/thanks.js',
             'node_modules/sinon/pkg/sinon.js'
         ]

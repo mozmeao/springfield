@@ -18,9 +18,10 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
+from modelcluster.fields import ParentalKey
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
-from wagtail.models import Page as WagtailBasePage
+from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
@@ -930,6 +931,22 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"FreeFormPage: {self.title} - {self.locale}"
 
 
+class PencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.FreeFormPage2026", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Pencil Banner Placement"
+        verbose_name_plural = "Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
 class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
@@ -980,6 +997,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 FieldPanel("show_pre_footer"),
                 FieldPanel("show_navigation"),
                 FieldPanel("show_nav_cta"),
+                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
                 FieldPanel("body_class"),
             ],
