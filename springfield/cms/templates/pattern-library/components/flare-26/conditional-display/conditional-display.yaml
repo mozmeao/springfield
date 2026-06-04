@@ -25,8 +25,8 @@ context:
       html_class: windows
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-windows</b>
-          will be displayed if wrapped in class <b>.windows</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-windows</code>
+          will be displayed if wrapped in class <code>.windows</code>.</p>
     - name: "Platform: macOS"
       platform_conditions:
         - osx
@@ -40,8 +40,8 @@ context:
       html_class: osx
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-osx</b>
-          will be displayed if wrapped in class <b>.osx</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-osx</code>
+          will be displayed if wrapped in class <code>.osx</code>.</p>
     - name: "Platform: Linux"
       platform_conditions:
         - linux
@@ -55,8 +55,8 @@ context:
       html_class: linux
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-linux</b>
-          will be displayed if wrapped in class <b>.linux</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-linux</code>
+          will be displayed if wrapped in class <code>.linux</code>.</p>
     - name: "Platform: Android"
       platform_conditions:
         - android
@@ -70,8 +70,8 @@ context:
       html_class: android
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-android</b>
-          will be displayed if wrapped in class <b>.android</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-android</code>
+          will be displayed if wrapped in class <code>.android</code>.</p>
     - name: "Platform: iOS"
       platform_conditions:
         - ios
@@ -85,8 +85,8 @@ context:
       html_class: ios
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-ios</b>
-          will be displayed if wrapped in class <b>.ios</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-ios</code>
+          will be displayed if wrapped in class <code>.ios</code>.</p>
     - name: "Platform: Windows 10+"
       platform_conditions:
         - windows-10-plus
@@ -100,8 +100,8 @@ context:
       html_class: windows-10-plus
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-windows-10-plus</b>
-          will be displayed if wrapped in class <b>.windows-10-plus</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-windows-10-plus</code>
+          will be displayed if wrapped in class <code>.windows-10-plus</code>.</p>
     - name: "Platform: Other OS"
       platform_conditions:
         - other
@@ -115,8 +115,8 @@ context:
       html_class: other
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-other</b>
-          will be displayed if wrapped in the HTML element with class <b>.other</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-other</code>
+          will be displayed if wrapped in the HTML element with class <code>.other</code>.</p>
     - name: "Unsupported Platform"
       platform_conditions:
         - unsupported
@@ -130,8 +130,8 @@ context:
       html_class: fx-unsupported
       body_class:
       unconditional_contents: |
-        <p>Content with class <b>.conditional-display.condition-unsupported</b>
-          will be displayed if wrapped in class <b>.fx-unsupported</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-unsupported</code>
+          will be displayed if wrapped in class <code>.fx-unsupported</code>.</p>
         <p><b>Note:</b> The CSS rule uses the <code>html</code> tag, so this condition cannot be faked in the pattern library.</p>
     - name: "Platform: macOS or Linux (multiple)"
       platform_conditions:
@@ -148,8 +148,8 @@ context:
       body_class:
       contents: |
         <p>Content is shown when <em>any</em> of the selected platform classes are present.
-          Content with class <b>.conditional-display.condition-osx.condition-linux</b>
-          will be displayed if wrapped in class <b>.osx</b> or <b>.linux</b>.</p>
+          Content with class <code>.conditional-display.condition-osx.condition-linux</code>
+          will be displayed if wrapped in class <code>.osx</code> or <code>.linux</code>.</p>
     - name: "Firefox: Firefox users only"
       platform_conditions: []
       firefox_condition: is-firefox
@@ -162,8 +162,8 @@ context:
       html_class: is-firefox
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-is-firefox</b>
-          will be displayed if wrapped in class <b>.is-firefox</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-is-firefox</code>
+          will be displayed if wrapped in class <code>.is-firefox</code>.</p>
     - name: "Firefox: Non-Firefox users only"
       platform_conditions: []
       firefox_condition: not-firefox
@@ -176,8 +176,8 @@ context:
       html_class: not-firefox
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-not-firefox</b>
-          will be displayed if wrapped in class <b>.not-firefox</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-not-firefox</code>
+          will be displayed if wrapped in class <code>.not-firefox</code>.</p>
     - name: "Auth: Signed-in users only"
       platform_conditions: []
       firefox_condition: null
@@ -190,8 +190,8 @@ context:
       html_class:
       body_class: state-fxa-supported-signed-in
       contents: |
-        <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-in</b>
-          will be displayed if wrapped in class <b>.state-fxa-supported-signed-in</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-state-fxa-supported-signed-in</code>
+          will be displayed if wrapped in class <code>.state-fxa-supported-signed-in</code>.</p>
     - name: "Auth: Signed-out users only"
       platform_conditions: []
       firefox_condition: null
@@ -204,8 +204,8 @@ context:
       html_class:
       body_class: state-fxa-supported-signed-out
       contents: |
-        <p>Content with class <b>.conditional-display.condition-state-fxa-supported-signed-out</b>
-          will be displayed if wrapped in class <b>.state-fxa-supported-signed-out</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-state-fxa-supported-signed-out</code>
+          will be displayed if wrapped in class <code>.state-fxa-supported-signed-out</code>.</p>
     - name: "Default browser: Firefox is default"
       platform_conditions: []
       firefox_condition: null
@@ -215,11 +215,11 @@ context:
       min_version: null
       max_version: null
       ai_controls_condition: null
-      html_class:
-      body_class: is-default
+      html_class: firefox-is-default
+      body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-is-default</b>
-          will be displayed if wrapped in class <b>.is-default</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-is-default</code>
+          will be displayed if wrapped in class <code>.firefox-is-default</code>.</p>
     - name: "Default browser: Firefox is not default"
       platform_conditions: []
       firefox_condition: null
@@ -229,11 +229,11 @@ context:
       min_version: null
       max_version: null
       ai_controls_condition: null
-      html_class:
-      body_class: is-not-default
+      html_class: firefox-is-not-default
+      body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-is-not-default</b>
-          will be displayed if wrapped in class <b>.is-not-default</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-is-not-default</code>
+          will be displayed if wrapped in class <code>.firefox-is-not-default</code>.</p>
     - name: "Geo: US only"
       platform_conditions: []
       firefox_condition: null
@@ -247,9 +247,9 @@ context:
       html_class:
       body_class:
       contents: |
-        <p>Content inside a <b>.conditional-display.condition-geo</b> div with
-          <b>data-geo-conditions="US"</b> will be revealed by JS when the user's
-          country code matches, adding class <b>.geo-match</b> to it.</p>
+        <p>Content inside a <code>.conditional-display.condition-geo</code> div with
+          <code>data-geo-conditions="US"</code> will be revealed by JS when the user's
+          country code matches, adding class <code>.geo-match</code> to it.</p>
         <p><b>Note:</b> Since the pattern library's request is an iframe, passing the <code>?geo=COUNTRY_CODE</code>
           parameter in the URL doesn't work to fake the user's location. The <code>data-country-code="COUNTRY_CODE"</code>
           attribute in the <code>html</code> element will always be US.</p>
@@ -268,9 +268,9 @@ context:
       html_class:
       body_class:
       contents: |
-        <p>Content inside a <b>.conditional-display.condition-geo</b> div with
-          <b>data-geo-conditions="US,UK,CA"</b> will be revealed by JS when the
-          user's country code matches any entry, adding class <b>.geo-match</b> to it.</p>
+        <p>Content inside a <code>.conditional-display.condition-geo</code> div with
+          <code>data-geo-conditions="US,UK,CA"</code> will be revealed by JS when the
+          user's country code matches any entry, adding class <code>.geo-match</code> to it.</p>
         <p><b>Note:</b> Since the pattern library's request is an iframe, passing the <code>?geo=COUNTRY_CODE</code>
           parameter in the URL doesn't work to fake the user's location. The <code>data-country-code="COUNTRY_CODE"</code>
           attribute in the <code>html</code> element will always be US.</p>
@@ -286,9 +286,9 @@ context:
       html_class:
       body_class:
       contents: |
-        <p>Content inside a <b>.conditional-display.condition-fx-version</b> div with
-          <b>data-min-version="150"</b> will be revealed by JS for Firefox >= 150
-          with the class <b>.version-match</b>.</p>
+        <p>Content inside a <code>.conditional-display.condition-fx-version</code> div with
+          <code>data-min-version="150"</code> will be revealed by JS for Firefox >= 150
+          with the class <code>.version-match</code>.</p>
     - name: "Version: Firefox <= 149 (maximum)"
       platform_conditions: []
       firefox_condition: null
@@ -301,9 +301,9 @@ context:
       html_class:
       body_class:
       contents: |
-        <p>Content inside a <b>.conditional-display.condition-fx-version</b> div with
-          <b>data-max-version="149"</b> will be revealed by JS for Firefox <= 149
-          with the class <b>.version-match</b>.</p>
+        <p>Content inside a <code>.conditional-display.condition-fx-version</code> div with
+          <code>data-max-version="149"</code> will be revealed by JS for Firefox <= 149
+          with the class <code>.version-match</code>.</p>
     - name: "Version: Firefox 148-150 (range)"
       platform_conditions: []
       firefox_condition: null
@@ -316,9 +316,9 @@ context:
       html_class:
       body_class:
       contents: |
-        <p>Content inside a <b>.conditional-display.condition-fx-version</b> div with
-          <b>data-min-version="148" data-max-version="150"</b> will be revealed by JS
-          for Firefox 148 through 150 with the class <b>.version-match</b>.</p>
+        <p>Content inside a <code>.conditional-display.condition-fx-version</code> div with
+          <code>data-min-version="148" data-max-version="150"</code> will be revealed by JS
+          for Firefox 148 through 150 with the class <code>.version-match</code>.</p>
     - name: "AI Controls: available"
       platform_conditions: []
       firefox_condition: null
@@ -331,9 +331,9 @@ context:
       html_class: ai-controls-available
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-ai-controls-available</b>
-          will be displayed when JS adds class <b>.ai-controls-available</b> to
-          <b>&lt;html&gt;</b> via <b>UITour.getConfiguration('aiControls')</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-ai-controls-available</code>
+          will be displayed when JS adds class <code>.ai-controls-available</code> to
+          <code>&lt;html&gt;</code> via <code>UITour.getConfiguration('aiControls')</code>.</p>
     - name: "AI Controls: unavailable"
       platform_conditions: []
       firefox_condition: null
@@ -343,12 +343,12 @@ context:
       min_version: null
       max_version: null
       ai_controls_condition: unavailable
-      html_class:
+      html_class: ai-controls-unavailable
       body_class:
       contents: |
-        <p>Content with class <b>.conditional-display.condition-ai-controls-unavailable</b>
-          will be displayed when JS adds class <b>.ai-controls-unavailable</b> to
-          <b>&lt;html&gt;</b> via <b>UITour.getConfiguration('aiControls')</b>.</p>
+        <p>Content with class <code>.conditional-display.condition-ai-controls-unavailable</code>
+          will be displayed when JS adds class <code>.ai-controls-unavailable</code> to
+          <code>&lt;html&gt;</code> via <code>UITour.getConfiguration('aiControls')</code>.</p>
     - name: "Combo: Windows + Firefox users"
       platform_conditions:
         - windows
@@ -362,8 +362,8 @@ context:
       html_class: windows is-firefox
       body_class:
       contents: |
-        <p>All condition types can be combined. The content is wrapped in a <b>.conditional-display.condition-windows</b>
-          and a <b>.conditional-display.condition-is-firefox</b> divs. It will be displayed only when both conditions are met.</p>
+        <p>All condition types can be combined. The content is wrapped in a <code>.conditional-display.condition-windows</code>
+          and a <code>.conditional-display.condition-is-firefox</code> divs. It will be displayed only when both conditions are met.</p>
     - name: "Combo: Signed-out + US + Firefox 150+"
       platform_conditions: []
       firefox_condition: is-firefox
@@ -377,5 +377,5 @@ context:
       html_class: is-firefox
       body_class: state-fxa-supported-signed-out
       contents: |
-        <p>Multiple conditions combined: Firefox browser, signed-out, Canada geo, and
+        <p>Multiple conditions combined: Firefox browser, signed-out, US geo, and
           Firefox version >= 150. All must be satisfied simultaneously.</p>

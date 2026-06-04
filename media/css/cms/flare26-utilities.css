@@ -320,13 +320,12 @@ html.other .conditional-display.condition-other-os {
     display: revert;
 }
 
-html.ai-controls-available
-    .conditional-display.condition-ai-controls-available {
+.ai-controls-available .conditional-display.condition-ai-controls-available {
     display: block;
     display: revert;
 }
 
-html.ai-controls-unavailable
+.ai-controls-unavailable
     .conditional-display.condition-ai-controls-unavailable {
     display: block;
     display: revert;

@@ -59,6 +59,20 @@ function initGeoConditionalDisplay() {
     });
 }
 
+function initDefaultBrowserConditionalDisplay() {
+    isUITourEnabled().then(() => {
+        Mozilla.UITour.getConfiguration('appinfo', (details) => {
+            if (details.defaultBrowser) {
+                document.documentElement.classList.add('firefox-is-default');
+            } else {
+                document.documentElement.classList.add(
+                    'firefox-is-not-default'
+                );
+            }
+        });
+    });
+}
+
 function initAiControlsConditionalDisplay() {
     isUITourEnabled().then(() => {
         Mozilla.UITour.getConfiguration('aiControls', (config) => {
@@ -76,5 +90,6 @@ function initAiControlsConditionalDisplay() {
 export default function setupConditionalDisplay() {
     initFirefoxVersionConditionalDisplay();
     initGeoConditionalDisplay();
+    initDefaultBrowserConditionalDisplay();
     initAiControlsConditionalDisplay();
 }
