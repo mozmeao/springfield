@@ -68,3 +68,14 @@
 .fl-banner-container.is-last-visible .fl-banner-layout {
     max-inline-size: var(--token-width-desktop-content-lg);
 }
+
+.fl-newsletterform-illustration {
+    background-image: url('/media/img/firefox/world-cup/globe.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 60% auto;
+}
+
+.fl-newsletterform-illustration img {
+    opacity: 0;
+}
