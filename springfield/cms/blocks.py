@@ -54,6 +54,7 @@ EXPANDED_TEXT_FEATURES = [
     "blockquote",
     "ol",
     "ul",
+    "code",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -1436,7 +1437,7 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
 def BaseContentBlock(allow_uitour=False, **kwargs):
     class _BaseContentBlock(blocks.StreamBlock):
         tags = TagsBlock(min_num=0, max_num=3, default=[])
-        rich_text = RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
+        rich_text = RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,

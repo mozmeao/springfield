@@ -22,6 +22,7 @@ from springfield.cms.blocks import (
     ROADMAP_STATUS_LABELS,
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
+    UI_TOUR_CLASSES,
     ArticleBlock,
     BaseArticleValue,
     ButtonRowBlock,
@@ -43,7 +44,13 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_2026_test_page, get_banner_2026_variants, get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_2026_test_page, get_buttons_test_page
+from springfield.cms.fixtures.button_fixtures import (
+    get_button_blocks,
+    get_button_blocks_2026,
+    get_button_variants,
+    get_buttons_2026_test_page,
+    get_buttons_test_page,
+)
 from springfield.cms.fixtures.card_fixtures import (
     get_cards_list_variants,
     get_filled_card_variants,
@@ -1479,7 +1486,7 @@ def test_buttons(index_page, rf):
 
 def test_buttons_2026(index_page, rf):
     test_page = get_buttons_2026_test_page()
-    blocks = get_button_blocks()
+    blocks = get_button_blocks_2026()
 
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
@@ -1497,9 +1504,9 @@ def test_buttons_2026(index_page, rf):
         assert len(intros) == len(blocks)
 
         for block_index, (intro, block) in enumerate(zip(intros, blocks)):
-            buttons_data = block["value"]["buttons"]
+            buttons_data = next(b for b in block["value"]["content"] if b["type"] == "buttons")["value"]
             # Store buttons render as fl-store-button; all others render as fl-button
-            non_store_data = [b for b in buttons_data if b["type"] != "store_button"]
+            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button"]]
             store_data = [b for b in buttons_data if b["type"] == "store_button"]
 
             button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]
@@ -1579,6 +1586,48 @@ def test_buttons_2026(index_page, rf):
                     assert btn_el["href"] == play_store_url(context, "firefox", campaign)
                 else:
                     assert btn_el["href"] == app_store_url(context, "firefox", campaign)
+
+
+def test_uitour_buttons_2026(index_page, rf):
+    test_page = get_buttons_2026_test_page()
+
+    request = rf.get(test_page.get_full_url())
+    response = test_page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Collect all uitour_button entries from the fixture blocks, keyed by analytics_id.
+    uitour_buttons_data = {}
+    for block in get_button_blocks_2026():
+        for content_item in block["value"].get("content", []):
+            if content_item["type"] != "buttons":
+                continue
+            for btn in content_item["value"]:
+                if btn["type"] == "uitour_button":
+                    analytics_id = btn["value"]["settings"]["analytics_id"]
+                    uitour_buttons_data[analytics_id] = btn["value"]
+
+    assert uitour_buttons_data, "Expected UITour button fixture data"
+
+    # Each uitour_button renders as <div class="ui-tour is-hidden"><button ...>
+    uitour_wrappers = soup.find_all("div", class_="ui-tour")
+    rendered_by_uid = {el.find("button")["data-cta-uid"]: el for el in uitour_wrappers if el.find("button")}
+
+    assert len(rendered_by_uid) == len(uitour_buttons_data), f"Expected {len(uitour_buttons_data)} UITour buttons, found {len(rendered_by_uid)}"
+
+    for analytics_id, btn_value in uitour_buttons_data.items():
+        wrapper = rendered_by_uid.get(analytics_id)
+        assert wrapper, f"No rendered UITour button found for analytics_id={analytics_id}"
+
+        assert "is-hidden" in wrapper["class"], f"{analytics_id}: wrapper should start hidden"
+
+        button_el = wrapper.find("button")
+        button_type = btn_value["button_type"]
+        expected_class = UI_TOUR_CLASSES[button_type]
+        assert expected_class in button_el["class"], f"{analytics_id}: expected class '{expected_class}' on button, got {button_el['class']}"
+
+        assert btn_value["label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['label']}' in button text"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
