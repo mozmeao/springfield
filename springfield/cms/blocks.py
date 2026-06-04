@@ -431,6 +431,37 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+GEO_CHOICES = [
+    ("US", "United States"),
+    ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AT", "Austria"),
+    ("BE", "Belgium"),
+    ("BG", "Bulgaria"),
+    ("DK", "Denmark"),
+    ("FI", "Finland"),
+    ("IE", "Ireland"),
+    ("IT", "Italy"),
+    ("NL", "Netherlands"),
+    ("PT", "Portugal"),
+    ("ES", "Spain"),
+    ("CH", "Switzerland"),
+    ("PL", "Poland"),
+    ("SE", "Sweden"),
+    ("NO", "Norway"),
+    ("ZA", "South Africa"),
+    ("MY", "Malaysia"),
+    ("NZ", "New Zealand"),
+    ("SG", "Singapore"),
+    ("AU", "Australia"),
+    ("KR", "South Korea"),
+    ("TH", "Thailand"),
+    ("CL", "Chile"),
+    ("CO", "Colombia"),
+    ("MX", "Mexico"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -491,15 +522,18 @@ BUTTON_SECONDARY = "secondary"
 BUTTON_TERTIARY = "tertiary"
 BUTTON_GHOST = "ghost"
 BUTTON_LINK = "link"
+BUTTON_GOLD = "gold"
+
 BUTTON_THEME_CHOICES = {
     BUTTON_PRIMARY: "Primary",
     BUTTON_SECONDARY: "Secondary",
     BUTTON_TERTIARY: "Tertiary",
     BUTTON_GHOST: "Ghost",
+    BUTTON_GOLD: "Gold (over dark background only)",
     BUTTON_LINK: "Link",
 }
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
-BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
+BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_GOLD, BUTTON_LINK]
 
 
 def validate_animation_url(value):
@@ -650,11 +684,18 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+    geo = blocks.MultipleChoiceBlock(
+        choices=GEO_CHOICES,
+        required=False,
+        label="GEO",
+        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
-        icon = "eye"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
+        icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
 
@@ -707,15 +748,25 @@ def get_button_types(allow_uitour=False):
     return base_button_types
 
 
+BUTTON_SIZE_CHOICES = [
+    ("", "Default"),
+    ("large", "Large"),
+]
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
             "tertiary": "button-tertiary",
+            "gold": "button-gold",
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+    def size_class(self) -> str:
+        return "fl-button-large" if self.get("settings", {}).get("size") == "large" else ""
 
 
 class UUIDBlock(blocks.CharBlock):
@@ -739,6 +790,13 @@ def BaseButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon = IconChoiceBlock(required=False)
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
@@ -756,7 +814,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
-            label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
+            label_format = "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
 
     return _BaseButtonSettings(**kwargs)
@@ -1025,6 +1083,13 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
             default="right",
@@ -1067,7 +1132,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             collapsed = True
             label = "Settings"
             label_format = (
-                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
+                "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
@@ -1128,7 +1193,7 @@ def MixedButtonsBlock(
     button_types: list,
     min_num: int,
     max_num: int,
-    themes=BUTTON_THEMES_2025,
+    themes=BUTTON_THEMES_2026,
     label="Buttons",
     template="cms/blocks/mixed-buttons.html",
     **kwargs,
@@ -1177,7 +1242,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
@@ -1355,7 +1420,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         video_url = blocks.URLBlock(
             required=required,
             label="Animation URL",
-            help_text="Link to a webm video from assets.mozilla.net.",
+            help_text="Link to a webm video from assets.mozilla.net. For transparent/alpha-channel webms, name the file with -alpha.webm",
             validators=[validate_animation_url],
         )
         alt = blocks.CharBlock(
@@ -2918,6 +2983,9 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
 
 def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
     class _FeaturedImageSectionBlock(blocks.StructBlock):
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet", label="Scroll To See More Snippet", required=False
+        )
         heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
@@ -2929,6 +2997,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2938,6 +3007,10 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/featured-image-section.html"
             label = "Featured Image Section"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "content", "media"],
+                settings=["scroll_to_see_more_snippet"],
+            )
 
     return _FeaturedImageSectionBlock(*args, **kwargs)
 
@@ -3036,6 +3109,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"

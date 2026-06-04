@@ -346,6 +346,40 @@ context:
           icon_position: "right"
           theme_class: ""
 
+    - title: "Default Banner with Image (Centralize Content)"
+      testid: "default-centralize-content"
+      theme: "default"
+      centralize_content: true
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Default Theme Banner"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        subheading_text: "Browse freely with enhanced protection"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Open Source
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "forward"
+          icon_position: "right"
+          theme_class: ""
+
     - title: "Purple Banner with Video"
       testid: "purple-with-video"
       theme: "purple-radial-gradient"

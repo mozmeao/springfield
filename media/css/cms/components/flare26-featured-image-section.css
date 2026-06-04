@@ -31,6 +31,15 @@
     margin-block-start: calc(-1 * var(--fl-section-v-padding));
 }
 
+.fl-split-page-upper > .fl-scallop-decoration:first-child {
+    display: none;
+}
+
+.fl-split-page-upper:has(.fl-featured-image-section:last-child),
+.fl-split-page-upper .fl-featured-image-section:last-child {
+    margin-block-end: 0;
+}
+
 .fl-scallop-decoration-inner {
     background-color: var(--fl-theme-background);
     block-size: var(--fl-theme-main-border-radius);
