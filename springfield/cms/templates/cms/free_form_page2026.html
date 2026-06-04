@@ -17,7 +17,22 @@
   {% set theme = "dark" if page.upper_content else None %}
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
-  <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
+
+  {% if page.body_class == 'flare26-kick-page' %}
+    <include:flare26-header theme="dark" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}">
+      <content:custom_logo>
+        <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
+          <div class="fl-video">
+            <video muted poster="/media/img/logos/firefox/logo-word-hor-white-2026.svg">
+              <source src="https://assets.mozilla.net/wc/logo-1-alpha.webm" type="video/webm">
+            </video>
+          </div>
+        </a>
+      </content:custom_logo>
+    </include:flare26-header>
+  {% else %}
+    <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
+  {% endif %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}
