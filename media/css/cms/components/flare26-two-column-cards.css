@@ -99,6 +99,10 @@
     gap: var(--token-spacing-lg);
 }
 
+.fl-two-column-card-content .fl-heading-size-4 {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
 .fl-card-tag {
     --notification-bg: var(--token-color-light-purple);
     --notification-stacked-color: var(--token-color-white);
