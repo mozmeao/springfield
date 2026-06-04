@@ -573,15 +573,18 @@ Illustration Card
     margin: 0;
 }
 
-.fl-illustration-card .fl-card-media {
-    margin-block-end: var(--token-spacing-xl);
-}
-
 .fl-illustration-card .fl-card-media,
 .fl-illustration-card .fl-card-media img {
     border-radius: var(--token-border-radius-sm);
     inline-size: 100%;
-    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-illustration-card .fl-card-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-illustration-card .fl-card-media img {
+    margin-block-end: 0;
 }
 
 .fl-illustration-card .fl-card-content {
