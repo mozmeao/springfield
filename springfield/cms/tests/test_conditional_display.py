@@ -38,7 +38,7 @@ def test_conditional_display_blocks(index_page, rf):
         geo = show_to.get("geo") or []
         min_version = show_to.get("min_version")
         max_version = show_to.get("max_version")
-        ai_controls = show_to.get("ai_controls") or []
+        ai_controls = show_to.get("ai_controls")
 
         wrappers = [el for el in notification.parents if "conditional-display" in (el.get("class") or [])]
 
@@ -82,8 +82,7 @@ def test_conditional_display_blocks(index_page, rf):
 
         # AI controls — each value becomes condition-ai-controls-<value>
         if ai_controls:
-            for value in ai_controls:
-                assert f"condition-ai-controls-{value}" in wrapper_classes, f"Block {index}: missing class 'condition-ai-controls-{value}'"
+            assert f"condition-ai-controls-{ai_controls}" in wrapper_classes, f"Block {index}: missing class 'condition-ai-controls-{ai_controls}'"
 
         # Version — wrapper has condition-fx-version class with data attributes
         if min_version or max_version:

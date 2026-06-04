@@ -464,6 +464,7 @@ GEO_CHOICES = [
 AI_CONTROLS_CHOICES = [
     ("", "No restriction"),
     ("available", "AI Controls available"),
+    ("unavailable", "AI Controls unavailable"),
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
@@ -486,7 +487,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (

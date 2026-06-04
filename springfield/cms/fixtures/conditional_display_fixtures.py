@@ -222,8 +222,16 @@ def get_conditional_display_variants() -> list[dict]:
             "Visible when Firefox AI Controls are available.",
             make_show_to(ai_controls="available"),
             headline="AI Controls: available",
-            color="purple",
-            icon="settings",
+            color="green",
+            icon="sparkles",
+        ),
+        make_notification(
+            "cdai02",
+            "Visible when Firefox AI Controls are unavailable.",
+            make_show_to(ai_controls="unavailable"),
+            headline="AI Controls: unavailable",
+            color="red",
+            icon="sparkles",
         ),
         # Combinations
         make_notification(

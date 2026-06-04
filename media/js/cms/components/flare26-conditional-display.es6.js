@@ -64,6 +64,10 @@ function initAiControlsConditionalDisplay() {
         Mozilla.UITour.getConfiguration('aiControls', (config) => {
             if (config.default === 'available') {
                 document.documentElement.classList.add('ai-controls-available');
+            } else {
+                document.documentElement.classList.add(
+                    'ai-controls-unavailable'
+                );
             }
         });
     });

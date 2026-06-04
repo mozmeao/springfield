@@ -325,3 +325,9 @@ html.ai-controls-available
     display: block;
     display: revert;
 }
+
+html.ai-controls-unavailable
+    .conditional-display.condition-ai-controls-unavailable {
+    display: block;
+    display: revert;
+}
