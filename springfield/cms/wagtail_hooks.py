@@ -517,17 +517,23 @@ class PreFooterCTASnippetViewSet(LocaleDefaultingSnippetViewSet):
 
 class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = PreFooterCTAFormSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class DownloadFirefoxCallToActionSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = DownloadFirefoxCallToActionSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = BannerSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class TagViewSet(LocaleDefaultingSnippetViewSet):
@@ -537,7 +543,9 @@ class TagViewSet(LocaleDefaultingSnippetViewSet):
 
 class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = QRCodeSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
@@ -547,7 +555,9 @@ class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
 
 class QRCodeFloatingSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = QRCodeFloatingSnippet
-    list_display = ["heading", "locale", "live"]
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
 
 
 class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
@@ -557,7 +567,9 @@ class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
 
 class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = PencilBannerSnippet
-    list_display = ["title", "locale", "live"]
+    # `title` is a RichTextField — use the `title_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["title_plain", "locale", "live"]
 
 
 for _viewset in (
