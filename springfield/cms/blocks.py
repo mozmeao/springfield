@@ -461,6 +461,10 @@ GEO_CHOICES = [
     ("CO", "Colombia"),
     ("MX", "Mexico"),
 ]
+AI_CONTROLS_CHOICES = [
+    ("", "No restriction"),
+    ("available", "AI Controls available"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -614,6 +618,12 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="GEO",
         help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
         widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+    )
+    ai_controls = blocks.ChoiceBlock(
+        choices=AI_CONTROLS_CHOICES,
+        required=False,
+        label="AI Controls",
+        help_text="Show based on AI Controls availability. Leave empty for no restriction.",
     )
 
     class Meta:

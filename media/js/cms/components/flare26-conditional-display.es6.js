@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import { isUITourEnabled } from './flare26-ui-tour-helpers.es6';
+
 const client = Mozilla.Client;
 
 function initFirefoxVersionConditionalDisplay() {
@@ -33,6 +35,42 @@ function initFirefoxVersionConditionalDisplay() {
     }
 }
 
-export default function setupFirefoxVersionConditionalDisplay() {
+function initGeoConditionalDisplay() {
+    const countryCode = document.documentElement.dataset.countryCode;
+    if (!countryCode) {
+        return;
+    }
+
+    const conditionalEls = document.querySelectorAll('.condition-geo');
+    conditionalEls.forEach((el) => {
+        const raw = el.dataset.geoConditions;
+        if (!raw) {
+            return;
+        }
+        const conditions = raw
+            .split(',')
+            .map((c) => c.trim().toUpperCase())
+            .filter(Boolean);
+        if (conditions.includes(countryCode.toUpperCase())) {
+            el.classList.add('geo-match');
+        } else {
+            el.classList.remove('geo-match');
+        }
+    });
+}
+
+function initAiControlsConditionalDisplay() {
+    isUITourEnabled().then(() => {
+        Mozilla.UITour.getConfiguration('aiControls', (config) => {
+            if (config.default === 'available') {
+                document.documentElement.classList.add('ai-controls-available');
+            }
+        });
+    });
+}
+
+export default function setupConditionalDisplay() {
     initFirefoxVersionConditionalDisplay();
+    initGeoConditionalDisplay();
+    initAiControlsConditionalDisplay();
 }

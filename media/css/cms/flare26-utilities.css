@@ -319,3 +319,9 @@ html.other .conditional-display.condition-other-os {
     display: block;
     display: revert;
 }
+
+html.ai-controls-available
+    .conditional-display.condition-ai-controls-available {
+    display: block;
+    display: revert;
+}

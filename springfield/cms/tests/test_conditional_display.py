@@ -38,10 +38,11 @@ def test_conditional_display_blocks(index_page, rf):
         geo = show_to.get("geo") or []
         min_version = show_to.get("min_version")
         max_version = show_to.get("max_version")
+        ai_controls = show_to.get("ai_controls") or []
 
         wrappers = [el for el in notification.parents if "conditional-display" in (el.get("class") or [])]
 
-        has_any_condition = any([platforms, firefox, auth_state, default_browser, geo, min_version, max_version])
+        has_any_condition = any([platforms, firefox, auth_state, default_browser, geo, min_version, max_version, ai_controls])
 
         if not has_any_condition:
             assert wrappers == [], f"Block {index}: expected no conditional-display wrappers, got {len(wrappers)}"
@@ -78,6 +79,11 @@ def test_conditional_display_blocks(index_page, rf):
             geo_attr = geo_wrapper.get("data-geo-conditions", "")
             for country in geo:
                 assert country in geo_attr, f"Block {index}: country '{country}' not in data-geo-conditions='{geo_attr}'"
+
+        # AI controls — each value becomes condition-ai-controls-<value>
+        if ai_controls:
+            for value in ai_controls:
+                assert f"condition-ai-controls-{value}" in wrapper_classes, f"Block {index}: missing class 'condition-ai-controls-{value}'"
 
         # Version — wrapper has condition-fx-version class with data attributes
         if min_version or max_version:
