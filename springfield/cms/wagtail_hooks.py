@@ -34,11 +34,13 @@ from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.models import (
     BannerSnippet,
     DownloadFirefoxCallToActionSnippet,
+    PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
     PretranslatedPhrase,
     QRCodeFloatingSnippet,
     QRCodeSnippet,
+    ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     Tag,
 )
@@ -548,6 +550,16 @@ class QRCodeFloatingSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading", "locale", "live"]
 
 
+class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = ScrollToSeeMoreSnippet
+    list_display = ["text", "locale", "live"]
+
+
+class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PencilBannerSnippet
+    list_display = ["title", "locale", "live"]
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -558,5 +570,7 @@ for _viewset in (
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,
     QRCodeFloatingSnippetViewSet,
+    ScrollToSeeMoreSnippetViewSet,
+    PencilBannerSnippetViewSet,
 ):
     register_snippet(_viewset)

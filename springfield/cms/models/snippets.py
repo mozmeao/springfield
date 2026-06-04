@@ -7,8 +7,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from wagtail.snippets.models import register_snippet
-
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
@@ -275,9 +273,6 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         return response
 
 
-register_snippet(QRCodeSnippet)
-
-
 class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render the 'Scroll to see more' text."""
 
@@ -296,9 +291,6 @@ class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippe
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/scroll-to-see-more-snippet-preview.html"
-
-
-register_snippet(ScrollToSeeMoreSnippet)
 
 
 class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -426,9 +418,6 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return super().clean()
 
 
-register_snippet(QRCodeFloatingSnippet)
-
-
 class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a banner above the header."""
 
@@ -465,9 +454,6 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pencil-banner-snippet-preview.html"
-
-
-register_snippet(PencilBannerSnippet)
 
 
 class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
