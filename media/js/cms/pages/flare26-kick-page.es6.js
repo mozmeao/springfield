@@ -4,27 +4,50 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+function isAlphaWebmUnsupported() {
+    const ua = navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
+    return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+}
+
 const setupKickPage = () => {
     if (!document.querySelector('.flare26-kick-page')) return;
+    if (isAlphaWebmUnsupported()) return;
 
-    /**
-     * @type {HTMLVideoElement | null}
-     */
-    const videoLogo = document.querySelector('.fl-logo-fx video');
+    const logoLink = document.querySelector('.fl-logo-fx');
 
-    if (videoLogo) {
-        videoLogo.addEventListener('mouseover', () => {
-            videoLogo.play();
-        });
-        videoLogo.addEventListener('mouseout', () => {
-            videoLogo.pause();
-            videoLogo.currentTime = 0;
-        });
+    if (!logoLink) return;
 
-        // we play and pause just to trigger the first frame to be loaded
-        videoLogo.play();
-        videoLogo.pause();
-    }
+    const existingLogo = logoLink.querySelector('img');
+    if (existingLogo) existingLogo.remove();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'fl-video';
+
+    const video = document.createElement('video');
+    video.muted = true;
+    video.poster = '/media/img/logos/firefox/logo-word-hor-white-2026.svg';
+
+    const source = document.createElement('source');
+    source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
+    source.type = 'video/webm';
+
+    video.appendChild(source);
+    wrapper.appendChild(video);
+    logoLink.appendChild(wrapper);
+
+    video.addEventListener('mouseover', () => {
+        video.play();
+    });
+    video.addEventListener('mouseout', () => {
+        video.pause();
+        video.currentTime = 0;
+    });
+
+    // play and pause to trigger the first frame to be loaded
+    video.play();
+    video.pause();
 };
 
 if (document.readyState === 'loading') {

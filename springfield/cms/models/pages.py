@@ -988,6 +988,12 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
             "The page will also inject <this>.css, so ensure that exists before using this field."
         ),
     )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -1000,6 +1006,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
                 FieldPanel("body_class"),
+                FieldPanel("extra_js"),
             ],
             heading="Page Options",
         ),
