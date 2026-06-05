@@ -7,18 +7,15 @@
 {% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' %}
 
 <li class="fl-menu-category" data-testid="menu-category-browser">
-  <button
+  <a
     class="fl-menu-title"
-    type="button"
-    aria-expanded="false"
-    aria-controls="fl-menu-panel-browser"
     data-testid="navigation-link-browser"
   >
     <span class="fl-menu-heading">
       {{ ftl('navigation-browser')}}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </span>
-  </button>
+  </a>
   <div class="fl-menu-panel" id="fl-menu-panel-browser" data-testid="navigation-menu-browser">
 
     <div class="fl-menu-panel-content">
