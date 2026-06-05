@@ -190,11 +190,15 @@ html {
     text-decoration: none;
 }
 
-.fl-menu-title:where(button) {
+.fl-menu-title:where(button, [role='button']) {
     background: none;
     border-radius: 0;
     margin-block-end: 0;
     padding: 0;
+}
+
+.fl-menu-title:is(a:not(:any-link):hover) {
+    text-decoration: none;
 }
 
 .fl-menu-subtitle {
