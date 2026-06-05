@@ -381,7 +381,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-main
-    > .fl-buttons:not(.fl-buttons-spacing-large):not(
+    > .fl-buttons:not(
+        .fl-buttons-spacing-large,
         .fl-buttons-spacing-small
     ):last-of-type {
     margin-block-end: var(--token-layout-sm);
