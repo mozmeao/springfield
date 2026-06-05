@@ -26,8 +26,10 @@ class SetAsDefaultComponent {
     }
 
     trySetDefaultBrowser() {
-        Mozilla.UITour.setConfiguration('defaultBrowser');
-        this.checkForDefaultSwitch();
+        isUITourEnabled().then(() => {
+            Mozilla.UITour.setConfiguration('defaultBrowser');
+            this.checkForDefaultSwitch();
+        });
     }
 
     onDefaultSwitch() {
