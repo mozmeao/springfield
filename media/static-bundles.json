@@ -683,6 +683,12 @@
     },
     {
       "files": [
+        "js/base/mobile-attribution.js"
+      ],
+      "name": "mobile-attribution"
+    },
+    {
+      "files": [
         "js/base/protocol/modal-global.es6.js"
       ],
       "name": "protocol-modal"

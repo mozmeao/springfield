@@ -12,6 +12,22 @@ from springfield.cms.models import DownloadIndexPage, DownloadPage
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
+_IMAGE_MEDIA = [
+    {
+        "type": "image",
+        "value": {
+            "image": settings.PLACEHOLDER_IMAGE_ID,
+            "settings": {
+                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "mobile_image": None,
+                "dark_mode_mobile_image": None,
+            },
+        },
+        "id": "dlm00001-0000-0000-0000-000000000001",
+    }
+]
+
+
 def get_illustration_cards():
     buttons = get_button_variants()
     return [
@@ -19,14 +35,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">AI</p>',
                 "headline": '<p data-block-key="9elvq">Your favorite AI chatbot in your sidebar. </p>',
                 "content": '<p data-block-key="hz26f">Conversations stay between you and your AI. </p>',
@@ -38,17 +47,10 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Privacy</p>',
                 "headline": '<p data-block-key="9elvq">Your data stays where it belongs — with you. </p>',
-                "content": '<p data-block-key="hz26f">Firefox doesn’t exploit your data and is backed by a people-first foundation. </p>',
+                "content": '<p data-block-key="hz26f">Firefox doesn\'t exploit your data and is backed by a people-first foundation. </p>',
                 "buttons": [buttons["link"]],
             },
             "id": "0d6a3510-a4ff-48b4-8c09-7c9d8bfb649e",
@@ -57,14 +59,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Independence</p>',
                 "headline": '<p data-block-key="9elvq">Billionaire-free and open source for over 20 years. </p>',
                 "content": '<p data-block-key="hz26f">Since 2004, Firefox has been the independent choice.</p>',
@@ -76,14 +71,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Organization</p>',
                 "headline": '<p data-block-key="9elvq">Get organized. Stay organized.</p>',
                 "content": '<p data-block-key="hz26f">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing, and AI chat.</p>',

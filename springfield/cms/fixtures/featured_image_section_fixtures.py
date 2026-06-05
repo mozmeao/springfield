@@ -6,6 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_card_variants
+from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
 
 _IMAGE_VARIANTS = {
@@ -50,6 +51,33 @@ def get_featured_image_section_variants() -> list[dict]:
             "id": "fis00001-0000-0000-0000-000000000001",
         },
     ]
+
+
+def get_featured_image_section_with_scroll_snippet_test_page() -> FreeFormPage2026:
+    get_placeholder_images()
+    index_page = get_test_index_page()
+    snippet = get_scroll_to_see_more_snippet()
+
+    slug = "test-featured-image-section-with-scroll-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Test Featured Image Section with Scroll Snippet")
+        index_page.add_child(instance=page)
+
+    variants = [
+        {
+            "type": "featured_image_section",
+            "value": {
+                "scroll_to_see_more_snippet": snippet.id,
+                **get_featured_image_section_variants()[0]["value"],
+            },
+            "id": "fis00002-0000-0000-0000-000000000001",
+        }
+    ]
+    page.upper_content = variants
+    page.content = variants
+    page.save_revision().publish()
+    return page
 
 
 def get_featured_image_section_test_page() -> FreeFormPage2026:

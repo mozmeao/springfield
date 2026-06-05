@@ -7,16 +7,8 @@
 {% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 {% set block_text =  value.headline|richtext|remove_tags %}
 
-<include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
+<include:conditional-display condition_settings="{{ value.settings.show_to }}">
   <include:sticker-card expand_link="{{ value.settings.expand_link }}">
-    <content:pre_heading>{{ value.superheading|richtext|remove_p_tag }}</content:pre_heading>
-
     <content:heading>
       <include:heading
         level="{{ heading_level }}"
@@ -37,10 +29,10 @@
     </content:body>
     {% if value.buttons %}
       <content:buttons>
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+        {% for button in value.buttons %}
+          {% set block_position = block_position ~ ".button-" ~ loop.index %}
+          {% include_block button %}
+        {% endfor %}
       </content:buttons>
     {% endif %}
   </include:sticker-card>

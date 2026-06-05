@@ -430,6 +430,37 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+GEO_CHOICES = [
+    ("US", "United States"),
+    ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AT", "Austria"),
+    ("BE", "Belgium"),
+    ("BG", "Bulgaria"),
+    ("DK", "Denmark"),
+    ("FI", "Finland"),
+    ("IE", "Ireland"),
+    ("IT", "Italy"),
+    ("NL", "Netherlands"),
+    ("PT", "Portugal"),
+    ("ES", "Spain"),
+    ("CH", "Switzerland"),
+    ("PL", "Poland"),
+    ("SE", "Sweden"),
+    ("NO", "Norway"),
+    ("ZA", "South Africa"),
+    ("MY", "Malaysia"),
+    ("NZ", "New Zealand"),
+    ("SG", "Singapore"),
+    ("AU", "Australia"),
+    ("KR", "South Korea"),
+    ("TH", "Thailand"),
+    ("CL", "Chile"),
+    ("CO", "Colombia"),
+    ("MX", "Mexico"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -574,11 +605,18 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+    geo = blocks.MultipleChoiceBlock(
+        choices=GEO_CHOICES,
+        required=False,
+        label="GEO",
+        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
-        icon = "eye"
+        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
+        icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
 
@@ -705,7 +743,7 @@ def BaseButtonSettings(themes=BUTTON_THEMES, **kwargs):
 class SpringfieldLinkBlockURLValue(URLValue):
     @staticmethod
     def _with_locale_prefix(url, lang):
-        """Replace the locale prefix in url with lang, or return url unchanged if unparseable."""
+        """Replace the locale prefix in url with lang, or return url unchanged if unparsable."""
         if url:
             # page.url can return an absolute URL (e.g. http://host/en-US/path/)
             # when the page belongs to a different Wagtail site. Extract just the path.
@@ -750,7 +788,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # then return the translated page's URL.
                         if translated_page.locale.language_code == active_lang:
                             return translated_page.url
-                        # The translated page doesn not match the active language;
+                        # The translated page does not match the active language;
                         # we reconstruct the URL using the URL-facing locale prefix.
                         return self._with_locale_prefix(translated_page.url, active_lang)
                     except Page.DoesNotExist:
@@ -992,7 +1030,7 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
         show_extra_links = blocks.BooleanBlock(
             required=False,
             default=True,
-            help_text="Display a link to the Privacy Notice and a note about usuported systems (for user in those systems) below the button.",
+            help_text="Display a link to the Privacy Notice and a note about unsupported systems (for user in those systems) below the button.",
         )
         specific_version = blocks.ChoiceBlock(
             choices=[
@@ -1124,7 +1162,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
@@ -1267,7 +1305,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         video_url = blocks.URLBlock(
             required=required,
             label="Animation URL",
-            help_text="Link to a webm video from assets.mozilla.net.",
+            help_text="Link to a webm video from assets.mozilla.net. For transparent/alpha-channel webm, name the file with -alpha.webm",
             validators=[validate_animation_url],
         )
         alt = blocks.CharBlock(
@@ -1329,7 +1367,7 @@ class MediaBlock(blocks.StreamBlock):
 
 class SmartWindowInstructionsBlock(blocks.StructBlock):
     pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
-    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
+    typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicking a Smart Window prompt.")
     instructions = RichTextBlock(features=HEADING_TEXT_FEATURES, label="Instructions")
 
     class Meta:
@@ -2483,6 +2521,9 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
 
 def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
     class _FeaturedImageSectionBlock(blocks.StructBlock):
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet", label="Scroll To See More Snippet", required=False
+        )
         heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
@@ -2504,6 +2545,10 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/featured-image-section.html"
             label = "Featured Image Section"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "content", "media"],
+                settings=["scroll_to_see_more_snippet"],
+            )
 
     return _FeaturedImageSectionBlock(*args, **kwargs)
 
@@ -2591,6 +2636,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"

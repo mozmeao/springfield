@@ -882,6 +882,9 @@ def test_banner_block(index_page, placeholder_images, rf):
             assert f"fl-banner-{settings['theme']}" in banner_element["class"]
             if settings.get("media_after"):
                 assert "fl-banner-reverse" in banner_element["class"]
+            if settings.get("centralize_content"):
+                inner = banner_element.find("div", class_="fl-banner-content-inner")
+                assert "fl-banner-content-inner-centralize-content" in inner["class"]
             anchor_id = settings.get("anchor_id")
             if anchor_id:
                 assert banner_element.parent.get("id") == anchor_id

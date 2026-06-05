@@ -70,7 +70,8 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260002-0000-0000-0000-000000000002",
                         "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
-                        "If no media is provided, it uses the centered layout.</p>",
+                        "If no media is provided, it uses the centered layout. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260002-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -92,7 +93,7 @@ def get_banner_variants():
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "superheading_text": '<p data-block-key="9gmqf">Purple Radial Gradient Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Purple Radial Gradient Banner</p>',
                     "subheading_text": "",
                 },
@@ -101,12 +102,13 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260003-0000-0000-0000-000000000001",
                         "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
-                        "If no media is provided, it uses the centered layout.</p>",
+                        "If no media is provided, it uses the centered layout. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260003-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260003-0000-0000-0000-000000000002",
-                        "value": [buttons["tertiary"], buttons["secondary"]],
+                        "value": [buttons["primary"], buttons["secondary"]],
                     },
                 ],
             },
@@ -123,7 +125,7 @@ def get_banner_variants():
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "superheading_text": '<p data-block-key="9gmqf">Dark Purple Gradient Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Banner</p>',
                     "subheading_text": "",
                 },
@@ -137,12 +139,13 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260004-0000-0000-0000-000000000002",
                         "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
-                        "If no media is provided, it uses the centered layout.</p>",
+                        "If no media is provided, it uses the centered layout. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260004-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260004-0000-0000-0000-000000000003",
-                        "value": [buttons["tertiary"], buttons["secondary"]],
+                        "value": [buttons["ghost"], buttons["gold"]],
                     },
                 ],
             },
@@ -159,7 +162,7 @@ def get_banner_variants():
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
+                    "superheading_text": '<p data-block-key="9gmqf">Dark Purple Gradient Inverted Theme</p>',
                     "heading_text": '<p data-block-key="hhifz">Dark Purple Gradient Inverted Banner</p>',
                     "subheading_text": "",
                 },
@@ -168,12 +171,13 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260005-0000-0000-0000-000000000001",
                         "value": '<p data-block-key="bu3eb">Use the content field to add any of the available content blocks. '
-                        "If no media is provided, it uses the centered layout.</p>",
+                        "If no media is provided, it uses the centered layout. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260005-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260005-0000-0000-0000-000000000002",
-                        "value": [buttons["tertiary"], buttons["secondary"]],
+                        "value": [buttons["gold"], buttons["secondary"]],
                     },
                 ],
             },
@@ -217,7 +221,8 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260006-0000-0000-0000-000000000002",
                         "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                        "Switch between light and dark mode to see the alternative images.</p>",
+                        "Switch between light and dark mode to see the alternative images. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260006-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -262,7 +267,8 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260007-0000-0000-0000-000000000002",
                         "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                        "Switch between light and dark mode to see the alternative images.</p>",
+                        "Switch between light and dark mode to see the alternative images. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260007-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -306,12 +312,13 @@ def get_banner_variants():
                         "type": "rich_text",
                         "id": "ba260008-0000-0000-0000-000000000001",
                         "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
-                        "Switch between light and dark mode to see the alternative images.</p>",
+                        "Switch between light and dark mode to see the alternative images. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260008-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260008-0000-0000-0000-000000000002",
-                        "value": [buttons["tertiary"], buttons["ghost"]],
+                        "value": [buttons["gold"], buttons["ghost"]],
                     },
                 ],
             },
@@ -349,7 +356,8 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260009-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260009-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -392,7 +400,8 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260010-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260010-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -435,12 +444,13 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260011-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout.</p>',
+                        "value": '<p data-block-key="bu3eb">Check the <i>Media After</i> option to switch the layout. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260011-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260011-0000-0000-0000-000000000002",
-                        "value": [buttons["tertiary"], buttons["ghost"]],
+                        "value": [buttons["gold"], buttons["ghost"]],
                     },
                 ],
             },
@@ -471,7 +481,8 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260012-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260012-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -507,7 +518,8 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260013-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260013-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
@@ -548,12 +560,13 @@ def get_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "ba260014-0000-0000-0000-000000000002",
-                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background.</p>',
+                        "value": '<p data-block-key="bu3eb">Add the QR code data and an image to use as the QR background. '
+                        'Visit <a href="https://www.mozilla.org" uid="ba260014-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
                     },
                     {
                         "type": "buttons",
                         "id": "ba260014-0000-0000-0000-000000000003",
-                        "value": [buttons["tertiary"], buttons["ghost"]],
+                        "value": [buttons["gold"], buttons["ghost"]],
                     },
                 ],
             },
@@ -646,7 +659,7 @@ def get_banner_variants():
                     {
                         "type": "buttons",
                         "id": "ba260017-0000-0000-0000-000000000002",
-                        "value": [buttons["tertiary"], buttons["ghost"]],
+                        "value": [buttons["gold"], buttons["ghost"]],
                     },
                 ],
             },
@@ -655,7 +668,63 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "default", "media_after": False, "show_to": SHOW_TO_ALL},
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-image-centralize-content",
+                    "centralize_content": True,
+                },
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "a1b2c3d4-0001-0001-0001-000000000029",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
+                    "heading_text": '<p data-block-key="hhifz">Default Banner with Image (Centralize Content)</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "ba260021-0000-0000-0000-000000000001",
+                        "value": [tags["purple"], tags["red"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "ba260021-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bu3eb">When media is provided, the banner uses a two column layout. '
+                        "Switch between light and dark mode to see the alternative images. "
+                        'Visit <a href="https://www.mozilla.org" uid="ba260021-0001-0001-0001-000000000001">Mozilla</a> for more.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "ba260021-0000-0000-0000-000000000003",
+                        "value": [buttons["primary"], buttons["secondary"]],
+                    },
+                ],
+            },
+            "id": "a1b2c3d4-0001-0001-0001-000000000028",
+        },
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "default-banner-with-animation",
+                },
                 "media": [videos["animation"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Default Theme</p>',
@@ -681,7 +750,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "outlined", "media_after": False, "show_to": SHOW_TO_ALL},
+                "settings": {
+                    "theme": "outlined",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "outlined-banner-with-animation-2026",
+                },
                 "media": [videos["animation"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Outlined Theme</p>',
@@ -707,7 +781,12 @@ def get_banner_variants():
         {
             "type": "banner",
             "value": {
-                "settings": {"theme": "purple-radial-gradient", "media_after": True, "show_to": SHOW_TO_ALL},
+                "settings": {
+                    "theme": "purple-radial-gradient",
+                    "media_after": True,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "purple-banner-with-animation-autoplay-once-2026",
+                },
                 "media": [videos["animation_autoplay_once"]],
                 "heading": {
                     "superheading_text": '<p data-block-key="9gmqf">Purple Theme</p>',
