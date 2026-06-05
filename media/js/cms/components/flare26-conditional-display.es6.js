@@ -19,14 +19,14 @@ function initFirefoxVersionConditionalDisplay() {
         conditionalEls.forEach((el) => {
             const minVersion = el.dataset.minVersion;
             const maxVersion = el.dataset.maxVersion;
-            let show = false;
-            if (parseFloat(minVersion) && version >= parseFloat(minVersion)) {
-                show = true;
-            }
-            if (parseFloat(maxVersion) && version <= parseFloat(maxVersion)) {
-                show = true;
-            }
-            if (show) {
+            const matchInterval =
+                minVersion &&
+                maxVersion &&
+                version >= minVersion &&
+                version <= maxVersion;
+            const matchMin = minVersion && !maxVersion && version >= minVersion;
+            const matchMax = maxVersion && !minVersion && version <= maxVersion;
+            if (matchInterval || matchMin || matchMax) {
                 el.classList.add('version-match');
             } else {
                 el.classList.remove('version-match');
