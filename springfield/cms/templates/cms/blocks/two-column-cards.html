@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_level = block_level + 1 if block_level else 2 %}
+{% set block_level = block_level or 2 %}
 
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
