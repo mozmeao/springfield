@@ -84,6 +84,22 @@ class TestRobots(TestCase):
         self.assertFalse(response.context_data["disallow_all"])
         self.assertEqual(response.get("Content-Type"), "text/plain")
 
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
+    def test_robots_production_emits_sitemap_directive(self):
+        """On production hostname, robots.txt advertises the sitemap."""
+        response = self.client.get("/robots.txt", headers={"host": "www.firefox.com"})
+        body = response.content.decode("utf-8")
+        self.assertIn("Sitemap: https://www.firefox.com/sitemap.xml", body)
+
+    @override_switch("ROBOTS_FORCE_DISALLOW_ALL", active=False)
+    def test_robots_non_production_omits_sitemap(self):
+        """On non-production hostnames, disallow_all is True; the response is
+        a blanket disallow with no Sitemap directive."""
+        response = self.client.get("/robots.txt", headers={"host": "www.springfield.moz.works"})
+        body = response.content.decode("utf-8")
+        self.assertIn("disallow: /", body)
+        self.assertNotIn("Sitemap:", body)
+
 
 class TestSecurityDotTxt(TestCase):
     def setUp(self):
