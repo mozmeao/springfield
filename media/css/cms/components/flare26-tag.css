@@ -60,7 +60,9 @@ a.fl-tag:hover .fl-tag {
 }
 
 .fl-tag.is-uppercase {
-    text-transform: uppercase;
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 /* red */

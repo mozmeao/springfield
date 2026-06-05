@@ -39,7 +39,10 @@
 
 .fl-intro .fl-superheading {
     color: var(--fl-theme-color-link);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-intro .fl-heading,
@@ -190,7 +193,10 @@
     margin: 0 auto var(--token-spacing-xl);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .superheading-is-pill .fl-superheading:has(a:hover) {
@@ -233,7 +239,10 @@
     font-style: normal;
     margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-home-intro .fl-superheading {

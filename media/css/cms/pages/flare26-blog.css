@@ -56,7 +56,10 @@
     gap: var(--token-spacing-xs);
     position: relative;
     text-decoration: none;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-blog-topic-link:hover .fl-blog-topic-name {
@@ -70,7 +73,10 @@
 .fl-blog-topics-all {
     inline-size: 100%;
     margin-block-start: auto;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-article-back {
@@ -80,7 +86,10 @@
 .fl-blog-back-link {
     color: var(--fl-theme-color-link-fade);
     text-decoration: none;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-blog-back-link:hover {
@@ -95,7 +104,10 @@
     background-color: var(--notification-stacked-color);
     color: var(--notification-bg);
     font-size: var(--fl-theme-font-size-body-xs);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-tag.fl-blog-selected-topic .close-button {
@@ -236,7 +248,10 @@
     color: var(--fl-theme-color-brand-text);
     font-size: var(--fl-theme-label-xs);
     font-weight: var(--token-font-weight-medium);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 /* More articles */
@@ -255,7 +270,10 @@
 .fl-blog-cards-list-link {
     font-size: var(--fl-theme-font-size-body-2xs);
     margin-inline-start: auto;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 /* Pagination */
