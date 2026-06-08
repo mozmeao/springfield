@@ -346,7 +346,7 @@ test.describe.skip('essential download attribution', () => {
                 // Navigate to new page with different essential campaign
                 await page.addInitScript(
                     forceEssentialCampaign,
-                    'SET_AS_DEFAULT'
+                    'SET_DEFAULT_BROWSER'
                 );
 
                 await openPage(`/fr/?geo=fr`, page, browserName);
@@ -372,7 +372,9 @@ test.describe.skip('essential download attribution', () => {
                 const essentialCookieData = JSON.parse(
                     decodeURIComponent(essentialCookie.value)
                 );
-                expect(essentialCookieData.utm_campaign).toBe('SET_AS_DEFAULT');
+                expect(essentialCookieData.utm_campaign).toBe(
+                    'SET_DEFAULT_BROWSERT'
+                );
 
                 // Confirm new essential data was sent to stub attribution service
                 expect(capture.params.utm_campaign).toBe(
