@@ -51,13 +51,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     DLSOURCE: 'fxdotcom',
     // This is an extra precaution to ensure we never mix essential and analytics campaigns
     // Any campaign can be added from the CMS, but Essential campaigns must be validated in code
-    ESSENTIAL_CAMPAIGNS: [
-        'rtamo',
-        'SET_AS_DEFAULT',
-        'smart_window',
-        'kick',
-        'sidekick'
-    ],
+    ESSENTIAL_CAMPAIGNS: ['rtamo', 'SET_AS_DEFAULT', 'smart_window'],
 
     /**
      * Custom event handler callback globals. These can be defined as functions when
