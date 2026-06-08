@@ -55,7 +55,7 @@ _STUB_VALUE_NAMES = [
     ("ua", "(not set)"),
     ("client_id_ga4", "(not set)"),
     ("session_id", "(not set)"),
-    ("dlsource", "(not set)"),
+    ("dlsource", "fxdotcom"),
 ]
 _STUB_VALUE_NAMES_LEGACY = [
     # name, default value
@@ -134,9 +134,6 @@ def stub_attribution_code(request):
     if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
         if not codes["client_id_ga4"] == "(not set)":
             # set basic defaults
-            if codes["dlsource"] == "(not set)":
-                codes["dlsource"] = "fxdotcom"
-
             if codes["medium"] == "(not set)":
                 codes["medium"] = "(direct)"
 
