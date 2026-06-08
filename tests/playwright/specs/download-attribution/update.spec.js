@@ -373,7 +373,7 @@ test.describe.skip('essential download attribution', () => {
                     decodeURIComponent(essentialCookie.value)
                 );
                 expect(essentialCookieData.utm_campaign).toBe(
-                    'SET_DEFAULT_BROWSERT'
+                    'SET_DEFAULT_BROWSER'
                 );
 
                 // Confirm new essential data was sent to stub attribution service
