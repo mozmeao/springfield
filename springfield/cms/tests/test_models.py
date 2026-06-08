@@ -205,6 +205,108 @@ def test_get_active_locale_url_returns_original_url_if_active_language_not_in_fa
     assert "/pt-BR/" not in url
 
 
+_PT_BR_CHILD_URL = "/pt-BR/test-page/child-page/"
+_PT_PT_CHILD_URL = "/pt-PT/test-page/child-page/"
+
+
+def _pt_br_child():
+    return Page.objects.get(locale__language_code="pt-BR", slug="child-page").specific
+
+
+@pytest.mark.parametrize("enable_admin", [True, False])
+def test_get_url_parts_does_not_affect_non_admin_urls(tiny_localized_site, enable_admin):
+    """
+    Assert get_url_parts() does not affect non-admin URLs, regardless of the WAGTAIL_ENABLE_ADMIN.
+    """
+    with override_settings(WAGTAIL_ENABLE_ADMIN=enable_admin, FALLBACK_LOCALES={"pt-PT": "pt-BR"}):
+        LocaleFactory(language_code="pt-PT")
+        page = _pt_br_child()
+        with translation.override("pt-pt"):
+            # For non-admin requests, Wagtail promotes pt-BR to the active pt-pt (/pt-PT/) locale.
+            assert page.get_url() == _PT_PT_CHILD_URL
+            assert page.get_url_parts()[2] == _PT_PT_CHILD_URL
+            # Our get_url_parts() override returns exactly what Wagtail's
+            # Page.get_url_parts()[2] returns.
+            assert Page.get_url_parts(page, None)[2] == _PT_PT_CHILD_URL
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_points_pt_br_page_to_own_locale(admin_request_middleware_admin_request, tiny_localized_site):
+    """
+    If a user with a preferred pt-pt locale edits a pt-BR page, page's URL should be the pt-BR URL.
+    """
+    LocaleFactory(language_code="pt-PT")
+    page = _pt_br_child()
+    with translation.override("pt-pt"):
+        assert page.get_url() == _PT_BR_CHILD_URL
+        assert page.get_url_parts()[2] == _PT_BR_CHILD_URL
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_page_url_property(admin_request_middleware_admin_request, tiny_localized_site):
+    """
+    If user with preferred pt-pt locale gets a pt-BR page's URL, page's URL should be the pt-BR URL.
+    """
+    LocaleFactory(language_code="pt-PT")
+    page = _pt_br_child()
+    with translation.override("pt-pt"):
+        assert page.url == _PT_BR_CHILD_URL
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_pt_pt_page_keeps_pt_pt(admin_request_middleware_admin_request, pt_pt_test_page):
+    """
+    If a user with a preferred pt-pt locale edits a pt-PT page, page's URL should be the pt-PT URL.
+    """
+    with translation.override("pt-pt"):
+        url = pt_pt_test_page.get_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+    assert url == "/pt-PT/test-page/"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_english_pt_br_page(admin_request_middleware_admin_request, tiny_localized_site):
+    """
+    If a user with a preferred en-us locale edits a pt-BR page, page's URL should be the pt-BR URL.
+    """
+    LocaleFactory(language_code="pt-PT")
+    page = _pt_br_child()
+    with translation.override("en-us"):
+        assert page.get_url() == _PT_BR_CHILD_URL
+        assert page.get_url_parts()[2] == _PT_BR_CHILD_URL
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_lowercase_own_locale(admin_request_middleware_admin_request, tiny_localized_site):
+    """
+    If a user with a preferred pt-br locale edits a pt-BR page, page's URL should be the pt-BR URL.
+    """
+    LocaleFactory(language_code="pt-PT")
+    page = _pt_br_child()
+    with translation.override("pt-br"):
+        assert page.get_url() == _PT_BR_CHILD_URL
+        assert page.get_url_parts()[2] == _PT_BR_CHILD_URL
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_admin_request_get_active_locale_url_unchanged(admin_request_middleware_admin_request, tiny_localized_site):
+    """
+    If a user with a preferred pt-pt locale gets the active-locale URL for a pt-BR page, it should be the
+    pt-PT alias URL.
+
+    This test asserts that the get_url_parts() override does not affect get_active_locale_url():
+    get_active_locale_url() still rewrites the pinned /pt-BR/ prefix back to the active /pt-PT/ alias.
+    """
+    LocaleFactory(language_code="pt-PT")
+    page = _pt_br_child()
+    with translation.override("pt-pt"):
+        url = page.get_active_locale_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+    assert url == _PT_PT_CHILD_URL
+
+
 def test_whats_new_index_page_redirects_to_latest_whats_new(
     minimal_site,
     rf,
