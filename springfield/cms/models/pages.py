@@ -65,7 +65,6 @@ from springfield.cms.blocks import (
     SlidingCarouselBlock,
     SubscriptionBlock,
     TopicListBlock,
-    TwoColumnCardsBlock,
     VideoBlock,
     validate_animation_url,
 )
@@ -891,7 +890,6 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
-        ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
@@ -988,6 +986,12 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
             "The page will also inject <this>.css, so ensure that exists before using this field."
         ),
     )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -1000,6 +1004,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
                 FieldPanel("body_class"),
+                FieldPanel("extra_js"),
             ],
             heading="Page Options",
         ),
