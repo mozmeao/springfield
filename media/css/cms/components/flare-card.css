@@ -1,0 +1,860 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Card Grid - Flare Design System Cards
+===================================================================== */
+
+/* The idea with the card grid is that we'll adjust the container based
+   on how many cards are present, and also the container size. We're setting
+   reasonable defaults, and then adjusting with :has() based on which
+   type of card is being used. The selectors are a little complicated,
+   but this allows us to make the card list component in the CMS completely
+   agnostic to which card type it contains.
+*/
+
+.fl-card-grid {
+    --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
+    --fl-card-sticker-size: 120px;
+    display: grid;
+    gap: var(--fl-card-grid-gap);
+    grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
+    justify-content: center;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg); /* 934px default */
+}
+
+/* symmetrical card grid for sticker cards. (homepage) */
+.fl-card-grid:has(.fl-sticker-card) {
+    --fl-card-grid-gap: var(--token-spacing-lg);
+}
+
+/* Two-wide on mobile variation. */
+.fl-card-grid.two-col-xs {
+    --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fl-card-grid.container-narrow {
+    max-inline-size: var(--token-width-desktop-content); /* 725px */
+}
+
+.fl-card-grid.container-wide {
+    max-inline-size: var(--token-width-desktop-wide-banner); /* 1170px */
+}
+
+.fl-card-grid.container-fill,
+.fl-card-grid.container-scroll {
+    max-inline-size: none;
+}
+
+@media (--viewport-sm-up) {
+    /* for most instances, tablet size gets two-wide cards */
+    .fl-card-grid {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* when a card grid only has two items, let them fill the space on tablet+ sizes */
+    .fl-card-grid:has(> *:nth-child(2):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-md-up) {
+    /* The default assumes four cards */
+    .fl-card-grid,
+    .fl-card-grid.two-col-xs {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* when there are three cards, let them fill the space. */
+    .fl-card-grid:not(.cols-2-md):has(> *:nth-child(3):last-child),
+    .fl-card-grid.two-col-xs:not(.cols-2-md):has(> *:nth-child(3):last-child) {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* two cards wide */
+    .fl-card-grid.cols-2-md {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Three-cards wide */
+    .fl-card-grid.cols-3-md {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-lg-up) {
+    /* special case for when sticker cards have four items. */
+    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.fl-card-heading .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    order: 0;
+}
+
+.fl-card-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.fl-card-expand-link {
+    cursor: pointer;
+}
+
+.fl-card-heading-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-card-heading-link:hover .fl-heading,
+.fl-card-heading-link:focus .fl-heading,
+.fl-card-heading-link:active .fl-heading {
+    text-decoration: underline;
+}
+
+.fl-card-expand-link a::after,
+.fl-card-expand-link button::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+}
+
+.fl-card-expand-link:hover
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
+    text-decoration: underline;
+}
+
+/* =====================================================================
+Basic Card
+===================================================================== */
+
+.fl-card {
+    align-items: stretch;
+
+    /* backdrop-filter: blur(7.5px); */
+    background: var(--fl-theme-default-card-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    padding: var(--token-spacing-2xl);
+    position: relative;
+    transition: transform var(--token-transition-base);
+}
+
+/* Transitioning box-shadow causes a repaint every frame. Instead, we place
+   the hover shadow on a ::after pseudo-element and transition its opacity —
+   opacity is composited on the GPU with zero repaint cost. */
+.fl-card::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-card:hover {
+    transform: translateY(-2px);
+}
+
+.fl-card:hover::after {
+    opacity: 1;
+}
+
+.fl-card .fl-heading-group {
+    gap: unset;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card-heading-group .fl-card-sticker {
+    margin-block-end: var(--token-spacing-md);
+}
+
+.fl-card-heading-group > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-card .fl-buttons {
+    margin-block-start: auto;
+}
+
+.fl-card .learn-more-link {
+    display: block;
+    margin-block: var(--token-spacing-md);
+}
+
+/* Drop backdrop-filter for users who prefer reduced transparency or motion —
+   both are signals that the OS is running in a low-power or accessibility mode. */
+@media (prefers-reduced-transparency: reduce),
+    (prefers-reduced-motion: reduce) {
+    .fl-card,
+    .fl-sticker-card {
+        backdrop-filter: none;
+    }
+}
+
+/* =====================================================================
+Sticker Card
+===================================================================== */
+
+.fl-sticker-card {
+    align-items: stretch;
+
+    /* backdrop-filter: blur(7.5px); */
+    background: var(--fl-theme-surface-card-gradient);
+    block-size: auto;
+    border: 1px solid var(--sticker-card-border-color);
+    border-radius: var(--token-border-radius-md);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--token-color-black-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    justify-content: flex-start;
+    min-block-size: 316px;
+    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
+    position: relative;
+    text-align: center;
+    transition: transform var(--token-transition-base);
+}
+
+/* Same opacity-shadow technique as .fl-card::after — avoids per-frame repaints
+   that transitioning box-shadow directly would cause. */
+.fl-sticker-card::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-sticker-card:hover {
+    transform: translateY(-2px);
+}
+
+.fl-sticker-card:hover::after {
+    opacity: 1;
+}
+
+.fl-sticker-card .fl-heading {
+    color: var(--token-color-black-4);
+}
+
+.fl-sticker-card .fl-heading-group {
+    color: var(--token-color-black-4);
+    gap: unset;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-sticker-card
+    > :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading,
+        .fl-heading-group
+    ) {
+    margin-block-end: 0;
+    order: 0;
+}
+
+.fl-card-sticker {
+    margin: auto;
+    order: 1;
+}
+
+.fl-sticker-card > div:has(.fl-card-sticker) {
+    order: 2;
+}
+
+.fl-sticker-card > .fl-body {
+    order: 3;
+}
+
+.fl-sticker-card > .fl-buttons {
+    order: 4;
+}
+
+.fl-sticker-card > div:has(.fl-card-sticker),
+.fl-sticker-card > div:has(.fl-card-icon),
+.fl-sticker-card > div:has(.fl-tag) {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--token-spacing-sm);
+    inline-size: 100%;
+    justify-content: center;
+}
+
+.fl-sticker-card
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
+    color: inherit;
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin: 0;
+}
+
+.fl-sticker-card .fl-superheading {
+    color: var(--token-color-light-purple);
+    display: block;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    letter-spacing: 0.02em;
+    margin: 0 0 var(--token-spacing-xl);
+    text-transform: uppercase;
+}
+
+.fl-sticker-card .fl-body > * {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    text-wrap: balance;
+}
+
+.fl-sticker-card .fl-body > *:first-child {
+    margin-block-start: 0;
+}
+
+.fl-sticker-card .fl-body > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-sticker-card .fl-body a:not(.fl-button) {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.fl-sticker-card .fl-body a:not(.fl-button):hover {
+    text-decoration: none;
+}
+
+.fl-sticker-card .fl-buttons {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-lg);
+    justify-content: center;
+    margin-block-start: var(--token-spacing-lg);
+}
+
+.fl-sticker-card .fl-buttons:empty {
+    display: none;
+}
+
+.fl-sticker-card .fl-button {
+    margin: 0;
+}
+
+.fl-card-sticker img {
+    block-size: var(--fl-card-sticker-size, 60px);
+    inline-size: var(--fl-card-sticker-size, 60px);
+    margin: 0;
+    object-fit: contain;
+}
+
+.fl-sticker-card > div:has(.fl-card-icon) {
+    color: var(--token-color-light-purple);
+}
+
+.fl-sticker-card.fl-card-fill {
+    background: var(--token-gradient-soft-purple);
+}
+
+/* =====================================================================
+Step Cards List - With Kit variant
+===================================================================== */
+
+/*
+ * Scoped styling hook applied to the Cards List wrapper:
+ *   <div class="fl-card-grid fl-step-cards-with-kit">...</div>
+ *
+ */
+
+.fl-card-grid.fl-step-cards-with-kit {
+    gap: var(--token-layout-2xs);
+    inline-size: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-block: var(--token-layout-2xs);
+}
+
+.fl-step-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    position: relative;
+}
+
+.fl-step-card .fl-card-media {
+    align-items: center;
+    background: var(--fl-step-card-bg);
+    border-radius: var(--token-border-radius-md);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+    inline-size: 100%;
+    justify-content: center;
+
+    /* Figma: 240px on desktop, but keep responsive */
+    min-block-size: calc(var(--token-layout-md) * 3);
+    overflow: hidden;
+    padding: var(--token-spacing-2xl);
+}
+
+.fl-step-card .fl-card-media img {
+    block-size: auto;
+    inline-size: auto;
+    max-block-size: 96px;
+    max-inline-size: 100%;
+    object-fit: contain;
+}
+
+.fl-step-card-index {
+    align-items: center;
+    background: var(--fl-step-card-index-bg);
+    block-size: var(--token-layout-3xs);
+    border-radius: var(--token-border-radius-sm);
+    box-sizing: border-box;
+    color: var(--fl-theme-color-text);
+    display: flex;
+    font-size: var(--token-font-size-xs);
+    font-weight: var(--token-font-weight-medium);
+    inline-size: var(--token-layout-3xs);
+    justify-content: center;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+}
+
+.fl-step-card .fl-card-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    text-align: center;
+}
+
+.fl-step-card .fl-heading-group {
+    margin: 0;
+}
+
+.fl-step-card .fl-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-step-card .fl-heading {
+    font-size: var(--token-font-size-md);
+    font-variation-settings: unset;
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: 0;
+    line-height: 1.1;
+    margin: 0;
+    text-wrap: balance;
+}
+
+.fl-step-card .fl-body p:last-child {
+    margin: 0;
+}
+
+/* Decorative Kit (Figma): only on the last card */
+.fl-step-cards-with-kit .fl-step-card:last-child {
+    margin-block-start: var(--token-layout-sm);
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::before,
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    background-repeat: no-repeat;
+    background-size: auto;
+    content: '';
+    inset-block-start: -32px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 3;
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::before {
+    background-image: url('/media/img/firefox/flare/fox-tail.png');
+    background-size: contain;
+    block-size: 110px;
+    inline-size: 68px;
+    inset-inline-start: -20px;
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    background-image: url('/media/img/firefox/flare/fox-head.png');
+    background-size: contain;
+    block-size: 86px;
+    inline-size: 98px;
+    inset-block-start: -60px;
+    inset-inline-end: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-sticker-card {
+        min-block-size: 480px;
+    }
+
+    .fl-card-grid.fl-step-cards-with-kit {
+        gap: var(--token-layout-lg) var(--token-layout-3xs);
+    }
+
+    .fl-step-cards-with-kit .fl-step-card:last-child {
+        margin-block-start: 0;
+    }
+}
+
+/* =====================================================================
+Illustration Card
+===================================================================== */
+
+.fl-illustration-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+}
+
+.fl-illustration-card .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    margin: 0;
+}
+
+.fl-illustration-card .fl-heading-group .fl-superheading {
+    margin: 0;
+}
+
+.fl-illustration-card .fl-card-media,
+.fl-illustration-card .fl-card-media img {
+    border-radius: var(--token-border-radius-sm);
+    inline-size: 100%;
+}
+
+.fl-illustration-card .fl-card-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-illustration-card .fl-card-media img {
+    margin-block-end: 0;
+}
+
+.fl-illustration-card .fl-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-illustration-card .fl-video {
+    aspect-ratio: 17/20;
+    border-radius: var(--token-spacing-xl);
+}
+
+.fl-illustration-card .fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
+.fl-illustration-card .fl-heading,
+.fl-illustration-card .fl-body,
+.fl-illustration-card .fl-body p {
+    margin: 0;
+}
+
+.fl-illustration-card .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    display: block;
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-medium);
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-illustration-card .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-variation-settings: unset;
+    line-height: 1.1;
+}
+
+.fl-illustration-icon-card {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-illustration-icon-card .fl-icon {
+    font-size: 24px;
+}
+
+.fl-illustration-card.fl-illustration-icon-card,
+.fl-illustration-card.fl-illustration-sticker-card {
+    --media-padding: var(--token-spacing-md);
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-illustration-card.fl-illustration-sticker-card {
+    --media-size: 56px;
+    --media-border-radius: var(--token-border-radius-xs);
+}
+
+.fl-illustration-card.fl-illustration-icon-card {
+    --media-size: 48px;
+    --media-border-radius: var(--token-border-radius-2xs);
+}
+
+.fl-illustration-card.fl-illustration-icon-card img,
+.fl-illustration-card.fl-illustration-sticker-card img {
+    border-radius: 0;
+    margin: 0;
+    max-block-size: 100%;
+    max-inline-size: 100%;
+}
+
+.fl-illustration-card.fl-illustration-icon-card .fl-card-media,
+.fl-illustration-card.fl-illustration-sticker-card .fl-card-media {
+    align-items: center;
+    background-color: var(--fl-theme-illustration-icon-bg);
+    block-size: var(--media-size);
+    border-radius: var(--media-border-radius);
+    display: flex;
+    inline-size: var(--media-size);
+    justify-content: center;
+    margin-block-end: var(--token-spacing-lg);
+    min-block-size: var(--media-size);
+    min-inline-size: var(--media-size);
+    padding: var(--media-padding);
+}
+
+@media (--viewport-md-up) {
+    .fl-illustration-card.fl-illustration-sticker-card {
+        --media-border-radius: var(--token-border-radius-sm);
+        --media-padding: var(--token-spacing-lg);
+        --media-size: 102px;
+    }
+}
+
+/* =====================================================================
+Testimonial Card
+===================================================================== */
+
+.fl-testimonial-card {
+    background: var(--fl-theme-default-card-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-xl);
+    padding: var(--token-spacing-xl);
+    position: relative;
+    transition: transform var(--token-transition-base);
+}
+
+.fl-testimonial-card::after {
+    border-radius: inherit;
+    box-shadow: 0 20px 46px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-testimonial-card:hover {
+    transform: translateY(-2px);
+}
+
+.fl-testimonial-card:hover::after {
+    opacity: 1;
+}
+
+.fl-testimonial-card-quote {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-testimonial-card-quote > *:first-child::before {
+    content: '“';
+}
+
+.fl-testimonial-card-quote > *:last-child::after {
+    content: '”';
+}
+
+.fl-testimonial-card-footer {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-start: auto;
+}
+
+.fl-testimonial-card-image {
+    block-size: 48px;
+    border-radius: var(--token-border-radius-xs);
+    flex-shrink: 0;
+    inline-size: 48px;
+    overflow: hidden;
+}
+
+.fl-testimonial-card-image img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-testimonial-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xs);
+}
+
+.fl-testimonial-card-attribution {
+    font-style: normal;
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-testimonial-card-role {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-xs);
+    opacity: 0.7;
+}
+
+/* =====================================================================
+Card Grid - Scroll variant
+===================================================================== */
+
+.fl-section .fl-card-grid-scroll {
+    margin-block-start: calc(-1 * var(--token-spacing-2xl));
+    margin-inline: calc(-1 * var(--fl-section-h-padding));
+    padding-block: var(--token-spacing-2xl) var(--token-layout-sm);
+}
+
+.fl-section-container:has(.fl-card-grid-scroll) {
+    max-inline-size: none;
+}
+
+.fl-card-grid-scroll {
+    --fl-card-grid-columns: none;
+    display: block; /* override display: grid from .fl-card-grid */
+    gap: 0;
+    overflow: hidden;
+
+    /* Extra block padding so card shadows aren't clipped */
+    padding-block: var(--token-layout-sm);
+    position: relative;
+    z-index: 1;
+}
+
+/* Mirrors swiper-wrapper core CSS for our custom class name */
+.fl-card-grid-scroll-inner {
+    box-sizing: content-box;
+    display: flex;
+    inline-size: 100%;
+    padding-inline-start: var(--token-spacing-lg);
+    position: relative;
+    transition-property: transform;
+    transition-timing-function: linear;
+    z-index: 1;
+}
+
+/*
+    if the viewport has enough space for the cards,
+    or became bigger than all the cards,
+    centralize cards
+ */
+.fl-card-grid-scroll-inner[style*='transition-duration: 0ms'],
+.fl-card-grid-scroll-inner:not([style*='transition-duration']) {
+    justify-content: center;
+}
+
+/* Mirrors swiper-slide core CSS for our custom class name */
+.fl-card-grid-scroll-item {
+    flex-shrink: 0;
+    inline-size: clamp(260px, 30vw, 360px);
+    position: relative;
+    transition-property: transform;
+}
+
+/* Stretch card to fill slide so all cards share the same height */
+.fl-card-grid-scroll-item > * {
+    block-size: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* When motion is reduced JS doesn't run, cards are direct children */
+    .fl-card-grid-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+        overflow-x: auto;
+    }
+
+    .fl-card-grid-scroll-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+    }
+
+    .fl-testimonial-card:hover {
+        transform: none;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-testimonial-card {
+        font-size: var(--fl-theme-font-size-body-sm);
+        padding: var(--token-spacing-2xl);
+    }
+}

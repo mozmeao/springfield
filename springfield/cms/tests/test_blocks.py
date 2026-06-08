@@ -1682,11 +1682,6 @@ def test_freeform_page_single_column_layout(index_page, rf):
     assert main and "has-gradient-bottom" in main.get("class", [])
 
 
-# ---------------------------------------------------------------------------
-# 2026 Blocks
-# ---------------------------------------------------------------------------
-
-
 def test_intro_block(index_page, placeholder_images, rf):
     variants = get_intro_variants()
     page = get_intro_test_page()

@@ -973,6 +973,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     promote_panels = UTMParamsMixin.promote_panels + [
         FieldPanel("enable_marketing_attribution"),
     ]
+    template = "cms/free_form_page.html"
 
     class Meta:
         verbose_name = "Free Form 2026 Page"
@@ -1048,6 +1049,7 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
+    template = "cms/whats_new_page.html"
 
     class Meta:
         indexes = [

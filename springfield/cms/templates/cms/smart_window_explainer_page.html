@@ -4,9 +4,9 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/free_form_page2026.html" %}
+{% extends "cms/free_form_page.html" %}
 
-{% block page_css %}{{ css_bundle('flare26-smart-window') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-smart-window') }}{% endblock %}
 
 {% block body_class %}fl-smart-window-explainer-page{% endblock %}
 
@@ -14,13 +14,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="fl-page fl-freeform-2026-page">
+<div class="fl-page fl-freeform-page">
   <main class="fl-main has-gradient-bottom">
     {% set ns = namespace(headings=0) %}
     {% set block_level = 1 %}
 
     <div class="fl-smart-window-explainer-hero">
-      <include:flare26-header hide_nav_cta disable_sticky no_menu />
+      <include:flare-header hide_nav_cta disable_sticky no_menu />
       {% for block in page.upper_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
