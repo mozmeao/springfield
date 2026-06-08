@@ -575,7 +575,7 @@ class LabelSourceMixin(blocks.StructBlock):
 
     When using this mixin,
       1. declare an explicit `Meta.form_layout` to set the admin field order, and
-      2. `label_format = "{custom_label}"` to set the value for the StreamField preview
+      2. `label_format = "{custom_label}{pretranslated_label}"` to set the value for the StreamField preview
     """
 
     pretranslated_label = LocalizedLiveSnippetChooserBlock(
@@ -593,11 +593,11 @@ class LabelSourceMixin(blocks.StructBlock):
     def clean(self, value):
         # 1. Mixin's own checks.
         errors = {}
-        has_p = bool(value.get("pretranslated_label"))
-        has_c = bool((value.get("custom_label") or "").strip())
-        if not has_p and not has_c:
+        has_pretranslated = bool(value.get("pretranslated_label"))
+        has_custom = bool((value.get("custom_label") or "").strip())
+        if not has_pretranslated and not has_custom:
             errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
-        if has_p and has_c:
+        if has_pretranslated and has_custom:
             errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
 
         # 2. Call super().clean() and merge any subclass/child errors.
@@ -615,14 +615,14 @@ class LabelSourceMixin(blocks.StructBlock):
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context)
-        p = value.get("pretranslated_label")
-        if p:
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
             # English-only source for analytics: the source row's label, which is
             # the en-US text regardless of active locale.
-            context["button_label_en_us"] = p.label
+            context["button_label_en_us"] = pretranslated.label
             # User-visible label: locale-resolved with fallback to source row.
-            localized = p.get_localized() if hasattr(p, "get_localized") else None
-            context["button_label"] = (localized or p).label
+            localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
+            context["button_label"] = (localized or pretranslated).label
         elif value.get("custom_label"):
             context["button_label"] = value["custom_label"]
             context["button_label_en_us"] = value["custom_label"]
@@ -632,9 +632,9 @@ class LabelSourceMixin(blocks.StructBlock):
         # Match against both the snippet's en-US label and any custom_label so
         # editor search hits both forms.
         items = list(super().get_searchable_content(value) or [])
-        p = value.get("pretranslated_label")
-        if p:
-            items.append(p.label)
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            items.append(pretranslated.label)
         if value.get("custom_label"):
             items.append(value["custom_label"])
         return items
@@ -1146,7 +1146,7 @@ def DownloadFirefoxButtonBlock(themes=None, **kwargs):
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label}{pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 

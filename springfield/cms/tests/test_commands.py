@@ -478,7 +478,7 @@ class TestLinkTranslationsAfterExport:
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="de")
 
 
-def _run_create_pretranslated_phrases():
+def run_create_pretranslated_phrases():
     out = StringIO()
     call_command("create_pretranslated_phrases", stdout=out)
     return out.getvalue()
@@ -487,7 +487,7 @@ def _run_create_pretranslated_phrases():
 @pytest.mark.django_db
 class TestCreatePretranslatedPhrases:
     def test_creates_one_record_per_phrase(self):
-        _run_create_pretranslated_phrases()
+        run_create_pretranslated_phrases()
 
         assert PretranslatedPhrase.objects.count() == len(PHRASES)
         for info in PHRASES.values():
@@ -497,14 +497,14 @@ class TestCreatePretranslatedPhrases:
             ).exists()
 
     def test_translation_sources_created_for_every_phrase(self):
-        _run_create_pretranslated_phrases()
+        run_create_pretranslated_phrases()
 
         ct = ContentType.objects.get_for_model(PretranslatedPhrase)
         assert TranslationSource.objects.filter(specific_content_type=ct).count() == len(PHRASES)
 
     def test_rerunning_is_idempotent(self):
-        _run_create_pretranslated_phrases()
-        _run_create_pretranslated_phrases()
+        run_create_pretranslated_phrases()
+        run_create_pretranslated_phrases()
 
         assert PretranslatedPhrase.objects.count() == len(PHRASES)
         ct = ContentType.objects.get_for_model(PretranslatedPhrase)
@@ -530,7 +530,7 @@ class TestCreatePretranslatedPhrases:
             "springfield.cms.ftl_parser.get_ftl_translations_at_subpath",
             side_effect=fake_get_ftl_translations_at_subpath,
         ):
-            _run_create_pretranslated_phrases()
+            run_create_pretranslated_phrases()
 
         # PretranslatedPhrases exist for each phrase in en-US and in fr.
         assert PretranslatedPhrase.objects.count() == len(["en-US", "fr"]) * len(PHRASES)

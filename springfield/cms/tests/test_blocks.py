@@ -222,7 +222,7 @@ def assert_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
 
-def _resolve_download_button_label(button_data: dict) -> str:
+def resolve_download_button_label(button_data: dict) -> str:
     """Resolve the rendered button label from pretranslated_label (snippet) or custom_label."""
     value = button_data["value"]
     snippet_id = value.get("pretranslated_label")
@@ -236,7 +236,7 @@ def _resolve_download_button_label(button_data: dict) -> str:
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = _resolve_download_button_label(button_data)
+    label = resolve_download_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -2113,7 +2113,7 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {_resolve_download_button_label(button).strip()}"
+    cta_text = f"{heading_text.strip()} - {resolve_download_button_label(button).strip()}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
