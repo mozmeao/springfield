@@ -45,8 +45,8 @@ class TestStubAttributionCode(TestCase):
 
     def test_no_valid_param_names(self):
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -68,7 +68,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_no_valid_param_data(self):
@@ -82,8 +82,8 @@ class TestStubAttributionCode(TestCase):
             "dlsource": "fs<a>44fn</a>",
         }
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -105,11 +105,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_some_valid_param_data(self):
-        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom"}
+        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -119,7 +119,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -134,7 +134,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_campaign_data_too_long(self):
@@ -238,7 +238,7 @@ class TestStubAttributionCode(TestCase):
         )
 
     def test_handles_referrer(self):
-        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy"}
+        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -248,7 +248,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -263,14 +263,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_handles_referrer_no_source(self):
-        params = {
-            "referrer": "https://example.com:5000/searchin",
-            "utm_medium": "aether",
-        }
+        params = {"referrer": "https://example.com:5000/searchin", "utm_medium": "aether", "session_id": "1234567890"}
         final_params = {
             "source": "example.com:5000",
             "medium": "referral",
@@ -280,7 +277,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -295,7 +292,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1791839786fe22e61e20e570ff0860082b16527cc9f982564461d0b33afed4b8",
+            "ec97d9206561d925c778ddeeaf9e94e77dcd84b6d7f6698225ede54f70a3129b",
         )
 
     def test_handles_referrer_utf8(self):
@@ -305,7 +302,7 @@ class TestStubAttributionCode(TestCase):
         non-ascii domain names in the referrer. The allowed list for bouncer
         doesn't include any such domains anyway, so we should just ignore them.
         """
-        params = {"referrer": "http://youtubê.com/sorry/"}
+        params = {"referrer": "http://youtubê.com/sorry/", "session_id": "1234567890"}
         final_params = {
             "source": "www.firefox.com",
             "medium": "(none)",
@@ -315,7 +312,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -330,7 +327,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "126ffdd4c7959d0ff42e2dea728d4cf21edb70a79c186449b90d129d382ffb64",
         )
 
     @override_settings(STUB_ATTRIBUTION_RATE=0.2)
