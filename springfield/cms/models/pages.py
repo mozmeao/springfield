@@ -1153,9 +1153,14 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        FieldPanel("body_class"),
-        FieldPanel("extra_js"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Page Settings",
+        ),
     ]
 
     class Meta:
