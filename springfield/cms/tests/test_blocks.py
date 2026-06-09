@@ -222,7 +222,7 @@ def assert_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
 
-def _resolve_download_button_label(button_data: dict) -> str:
+def resolve_download_button_label(button_data: dict) -> str:
     """Resolve the rendered button label from pretranslated_label (snippet) or custom_label."""
     value = button_data["value"]
     snippet_id = value.get("pretranslated_label")
@@ -236,7 +236,7 @@ def _resolve_download_button_label(button_data: dict) -> str:
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = _resolve_download_button_label(button_data)
+    label = resolve_download_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -582,12 +582,13 @@ def assert_heading_block(element: BeautifulSoup, heading_data: dict, heading_tag
         assert subheading_el and subheading_text in subheading_el.get_text()
 
 
-def assert_pricing_heading_block(element: BeautifulSoup, block_data: dict):
+def assert_pricing_heading_block(element: BeautifulSoup, block_data: dict, heading_tag: str = "h2"):
     pricing_heading_el = element.find("div", class_="fl-pricing-heading")
     assert pricing_heading_el
 
     heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text().strip()
-    assert heading_text in pricing_heading_el.get_text()
+    heading_el = pricing_heading_el.find(heading_tag, class_="fl-heading")
+    assert heading_el and heading_text in heading_el.get_text()
 
     subheading_text = BeautifulSoup(block_data["value"].get("subheading_text", ""), "html.parser").get_text().strip()
     if subheading_text:
@@ -621,14 +622,14 @@ def assert_numbered_list_block(element: BeautifulSoup, block_data: dict):
         assert text in item_el.find("div", class_="fl-numbered-list-item-text").get_text()
 
 
-def assert_timeline_block(element: BeautifulSoup, block_data: dict):
+def assert_timeline_block(element: BeautifulSoup, block_data: dict, heading_tag: str = "h2"):
     timeline_el = element.find("ol", class_="fl-timeline")
     assert timeline_el
     items_data = block_data["value"]["list_items"]
     item_els = timeline_el.find_all("li", class_="fl-timeline-item")
     assert len(item_els) == len(items_data)
     for item_el, item_data in zip(item_els, items_data):
-        assert_heading_block(item_el, item_data["value"])
+        assert_heading_block(item_el, item_data["value"], heading_tag=heading_tag)
 
 
 def assert_media_block(element: BeautifulSoup, block_data: dict):
@@ -2113,7 +2114,7 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {_resolve_download_button_label(button).strip()}"
+    cta_text = f"{heading_text.strip()} - {resolve_download_button_label(button).strip()}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
@@ -4356,15 +4357,6 @@ def test_notification_block(index_page, rf):
                 assert message in heading_el.get_text()
 
 
-TWO_COLUMN_CARD_CONTENT_ASSERTERS = {
-    "pricing_heading": assert_pricing_heading_block,
-    "icon_list": assert_icon_list_block,
-    "numbered_list": assert_numbered_list_block,
-    "timeline": assert_timeline_block,
-    "media": assert_media_block,
-}
-
-
 def test_two_column_cards_block(index_page, rf):
     variants = get_two_column_cards_variants()
     page = get_two_column_cards_test_page()
@@ -4380,15 +4372,28 @@ def test_two_column_cards_block(index_page, rf):
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
 
-    tcc_variants = [(index, v) for index, v in enumerate(variants) if v["type"] == "two_column_cards"]
+    # Each variant is a section containing one two_column_cards block.
+    tcc_variants = [(section_index, section["value"]["content"][0]) for section_index, section in enumerate(variants)]
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    # ns.headings persists across both page regions: upper runs first, so lower
+    # starts with ns_headings = len(tcc_variants) (all sections have a heading).
+    for region_name, region, ns_headings_start in [
+        ("upper", upper, 0),
+        ("lower", lower, len(tcc_variants)),
+    ]:
         block_containers = region.find_all("div", class_="fl-two-column-cards")
         assert len(block_containers) == len(tcc_variants)
 
-        for (variant_index, variant_data), container in zip(tcc_variants, block_containers):
-            block_number = variant_index + 1
-            settings = variant_data["value"]["settings"]
+        ns_headings = ns_headings_start
+        for (section_index, tcc_data), container in zip(tcc_variants, block_containers):
+            section_number = section_index + 1
+            # The page template sets block_level=1 for the first heading block,
+            # block_level=2 for all subsequent ones. Each section adds 1 for
+            # its content, so card headings are h(outer_block_level + 1).
+            outer_block_level = 1 if ns_headings == 0 else 2
+            card_heading_tag = f"h{outer_block_level + 1}"
+            ns_headings += 1
+            settings = tcc_data["value"]["settings"]
 
             anchor_id = settings.get("anchor_id", "")
             if anchor_id:
@@ -4408,7 +4413,7 @@ def test_two_column_cards_block(index_page, rf):
             assert len(card_wrappers) == 2
 
             for card_index, card_wrapper in enumerate(card_wrappers):
-                card_data = variant_data["value"]["cards"][card_index]["value"]
+                card_data = tcc_data["value"]["cards"][card_index]["value"]
                 card_number = card_index + 1
                 card_el = card_wrapper.find("div", class_="fl-two-column-card")
 
@@ -4428,10 +4433,12 @@ def test_two_column_cards_block(index_page, rf):
                 for content_index, block_data in enumerate(card_data["content"]):
                     block_type = block_data["type"]
                     content_position = (
-                        f"{region_name}-block-{block_number}-two_column_cards.card-{card_number}.content-{content_index + 1}-{block_type}"
+                        f"{region_name}-block-{section_number}-section"
+                        f".item-1-two_column_cards.card-{card_number}"
+                        f".content-{content_index + 1}-{block_type}"
                     )
                     if block_type == "heading":
-                        assert_heading_block(card_el, block_data["value"])
+                        assert_heading_block(card_el, block_data["value"], heading_tag=card_heading_tag)
                         heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text()
                     elif block_type == "button_row":
                         button_data = block_data["value"]["buttons"][0]
@@ -4443,8 +4450,16 @@ def test_two_column_cards_block(index_page, rf):
                             cta_position=content_position + ".button-1",
                             cta_text=cta_text,
                         )
-                    elif block_type in TWO_COLUMN_CARD_CONTENT_ASSERTERS:
-                        TWO_COLUMN_CARD_CONTENT_ASSERTERS[block_type](card_el, block_data)
+                    elif block_type == "pricing_heading":
+                        assert_pricing_heading_block(card_el, block_data, heading_tag=card_heading_tag)
+                    elif block_type == "timeline":
+                        assert_timeline_block(card_el, block_data, heading_tag=card_heading_tag)
+                    elif block_type == "icon_list":
+                        assert_icon_list_block(card_el, block_data)
+                    elif block_type == "numbered_list":
+                        assert_numbered_list_block(card_el, block_data)
+                    elif block_type == "media":
+                        assert_media_block(card_el, block_data)
 
 
 def _make_card_value(image_position, content_types):

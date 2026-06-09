@@ -7,15 +7,28 @@
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
 @import 'variables/flare26-media-query-tokens.css';
 
-.fl-pre-footer-cta {
+.flare26-kick-page .fl-logo-fx:has(.fl-video) {
+    background-image: none;
+}
+
+.flare26-kick-page .fl-logo-fx .fl-video {
+    max-block-size: 56px;
+}
+
+.flare26-kick-page .fl-logo-fx .fl-video-poster {
+    cursor: pointer;
+    object-fit: contain;
+}
+
+.flare26-kick-page .fl-pre-footer-cta {
     --kit-size: 0px;
 }
 
-.fl-pre-footer-cta .fl-pre-footer-cta-button::before {
+.flare26-kick-page .fl-pre-footer-cta .fl-pre-footer-cta-button::before {
     content: unset;
 }
 
-.fl-featured-image-section-media .fl-video {
+.flare26-kick-page .fl-featured-image-section-media .fl-video {
     aspect-ratio: 70 / 27; /* from the aspect ratio of the background image */
     background-image: url('/media/img/firefox/world-cup/world-cup-hero-bg.png');
     background-position: bottom center;
@@ -25,8 +38,8 @@
     position: relative;
 }
 
-.fl-featured-image-section-media .fl-video video,
-.fl-featured-image-section-media .fl-video .fl-video-poster {
+.flare26-kick-page .fl-featured-image-section-media .fl-video video,
+.flare26-kick-page .fl-featured-image-section-media .fl-video .fl-video-poster {
     block-size: 228%;
     inline-size: auto;
     inset: auto -27% -47% auto;
@@ -36,18 +49,15 @@
     z-index: 1;
 }
 
-.fl-featured-image-section .fl-section {
+.flare26-kick-page .fl-featured-image-section .fl-section {
     position: relative;
     z-index: 2;
 }
 
-/* todo: This should be a global fix. */
-.fl-two-column-card-content .fl-heading-size-4 {
-    font-size: var(--fl-theme-font-size-heading-sm);
-}
-
 /* last banner gets a special background image. */
-.fl-banner-container.is-last-visible .fl-banner-dark-purple-gradient {
+.flare26-kick-page
+    .fl-banner-container.is-last-visible
+    .fl-banner-dark-purple-gradient {
     background-image:
         var(--token-noise-gradient),
         url('/media/img/firefox/world-cup/soccer-field-lines-bg.png');
@@ -61,10 +71,21 @@
 }
 
 /* kit is too big */
-.fl-banner-container.is-last-visible .fl-banner-media img {
+.flare26-kick-page .fl-banner-container.is-last-visible .fl-banner-media img {
     max-inline-size: 320px;
 }
 
-.fl-banner-container.is-last-visible .fl-banner-layout {
+.flare26-kick-page .fl-banner-container.is-last-visible .fl-banner-layout {
     max-inline-size: var(--token-width-desktop-content-lg);
+}
+
+.fl-newsletterform-illustration {
+    background-image: url('/media/img/firefox/world-cup/globe.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 60% auto;
+}
+
+.fl-newsletterform-illustration img {
+    opacity: 0;
 }
