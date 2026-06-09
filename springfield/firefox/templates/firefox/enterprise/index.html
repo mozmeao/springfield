@@ -35,17 +35,12 @@
 {% block content %}
 <div class="{% if switch("flare26_enabled") %}fl-main has-gradient-bottom fl-2026-enterprise{% endif %}">
   {% if switch("flare26_enabled") %}
-    {% set superheading_text %}
-      <span class="fl-logo-fx"></span>
-    {% endset %}
-
     <div class="fl-section-container">
-    <include:intro slim vertical media_position="right">
+    <include:intro media_position="right">
       <content:heading>
         <include:heading
           level="h1"
-          superheading_text="{{superheading_text}}"
-          heading_size="fl-heading-size-1"
+          heading_size="fl-heading-lg"
           heading_text="{{ftl('firefox-enterprise-use-as-your-enterprise-browser')}}"
           subheading_text="{{ ftl('firefox-enterprise-secure-at-scale') }}"
         />
@@ -78,7 +73,7 @@
       <include:heading
         level="h2"
         heading_text="{{ ftl('firefox-enterprise-support-for-organizations') }}"
-        heading_size="fl-heading-size-2"
+        heading_size="fl-heading-lg"
         subheading_text="{{ ftl('firefox-enterprise-early-access-is-v2', fallback='firefox-enterprise-early-access-is') }}"
         subheading_size="fl-subheading-4"
       />
@@ -160,8 +155,7 @@
     </include:card>
   </include:cards-list>
   <include:banner
-      theme="outlined"
-      media_after="false"
+      theme="dark-purple-gradient-inverted"
     >
       <content:heading>
         <include:heading
