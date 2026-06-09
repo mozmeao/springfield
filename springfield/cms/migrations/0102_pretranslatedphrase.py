@@ -12,7 +12,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0100_alter_pencilbannersnippet_link"),
+        ("cms", "0101_freeformpage2026_extra_js"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 
