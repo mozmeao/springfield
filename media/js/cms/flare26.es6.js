@@ -10,7 +10,7 @@ import setupCarousels from './components/flare26-carousel.es6';
 import setupCopyToClipboardButtons from './components/flare26-copy-to-clipboard.es6';
 import setupDialogs, { initDialogs } from './components/flare26-dialogs.es6';
 import setupDownloadDropdown from './components/flare26-download-dropdown.es6';
-import setupFirefoxVersionConditionalDisplay from './components/flare26-firefox-version.es6';
+import setupConditionalDisplay from './components/flare26-conditional-display.es6';
 import setupLastVisibleBanner from './components/flare26-last-visible-banner.es6';
 import setupNewsletter from './components/flare26-newsletter.es6';
 import setupNotificationClose from './components/flare26-notification-close.es6';
@@ -25,7 +25,6 @@ import setupTypewriter, {
 } from './components/flare26-typewriter.es6';
 import setupVideo from './components/flare26-video.es6';
 import setupPencilBanners from './components/flare26-pencil-banner.es6';
-import setupGeoConditionalDisplay from './components/flare26-geo.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -49,12 +48,11 @@ function setupComponents() {
     setupCarousels();
     setupScrollingCardGrid();
     setupCopyToClipboardButtons();
-    setupFirefoxVersionConditionalDisplay();
+    setupConditionalDisplay();
     setupSlidingCarousels();
     setupSetAsDefault();
     setupLastVisibleBanner();
     setupPencilBanners();
-    setupGeoConditionalDisplay();
 }
 
 if (document.readyState === 'loading') {

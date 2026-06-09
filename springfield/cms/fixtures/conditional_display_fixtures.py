@@ -32,6 +32,7 @@ def make_show_to(
     min_version=None,
     max_version=None,
     geo=None,
+    ai_controls="",
 ):
     return {
         "platforms": platforms or [],
@@ -41,6 +42,7 @@ def make_show_to(
         "min_version": min_version,
         "max_version": max_version,
         "geo": geo or [],
+        "ai_controls": ai_controls,
     }
 
 
@@ -213,6 +215,23 @@ def get_conditional_display_variants() -> list[dict]:
             headline="Geo: US, UK, CA",
             color="green",
             icon="globe",
+        ),
+        # AI controls conditions
+        make_notification(
+            "cdai01",
+            "Visible when Firefox AI Controls are available.",
+            make_show_to(ai_controls="available"),
+            headline="AI Controls: available",
+            color="green",
+            icon="sparkles",
+        ),
+        make_notification(
+            "cdai02",
+            "Visible when Firefox AI Controls are unavailable.",
+            make_show_to(ai_controls="unavailable"),
+            headline="AI Controls: unavailable",
+            color="red",
+            icon="sparkles",
         ),
         # Combinations
         make_notification(
