@@ -10,7 +10,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const postcssCustomMedia = require('postcss-custom-media');
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
@@ -41,151 +40,162 @@ function getBundles() {
     });
 }
 
-module.exports = {
-    entry: () => getBundles(),
-    output: {
-        filename: 'js/[name].js',
-        path: path.resolve(__dirname, 'assets/'),
-        publicPath: '/media/'
-    },
-    optimization: {
-        minimizer: [
-            new TerserPlugin({
-                terserOptions: { ie8: true }
-            }),
-            new CssMinimizerPlugin({})
-        ]
-    },
-    module: {
-        rules: [
-            {
-                test: /\.es6\.js$/,
-                include: path.resolve(__dirname, 'media'),
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: [
-                            [
-                                '@babel/preset-env',
-                                {
-                                    targets: {
-                                        ie: '10'
-                                    }
-                                }
-                            ]
-                        ]
-                    }
-                }
-            },
-            {
-                test: /\.css$/,
-                include: path.resolve(__dirname, 'media'),
-                exclude: /node_modules/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            url: false,
-                            import: false
-                        }
-                    },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: {
-                                plugins: [postcssCustomMedia()]
-                            }
-                        }
-                    },
-                    {
-                        loader: flareImportAnywhereLoader
-                    }
-                ]
-            },
-            {
-                test: /\.scss$/,
-                include: path.resolve(__dirname, 'media'),
-                exclude: /node_modules/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            url: false
-                        }
-                    },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sassOptions: {
-                                silenceDeprecations: ['mixed-decls', 'import']
-                            }
-                        }
-                    }
-                ]
-            }
-        ]
-    },
-    watchOptions: {
-        aggregateTimeout: 600,
-        ignored: '/node_modules/'
-    },
-    performance: {
-        hints: 'warning'
-    },
-    devServer: {
-        port: 8000,
-        allowedHosts: 'all',
-        open: false,
-        hot: false,
-        static: false,
-        devMiddleware: {
-            index: false // specify to enable root proxy'ing
+module.exports = async () => {
+    // postcss-custom-media v12+ is ESM-only, so it must be loaded via a
+    // dynamic import rather than require(). Passing the resolved plugin
+    // instance directly avoids postcss-loader's synchronous require().
+    const { default: postcssCustomMedia } =
+        await import('postcss-custom-media');
+
+    return {
+        entry: () => getBundles(),
+        output: {
+            filename: 'js/[name].js',
+            path: path.resolve(__dirname, 'assets/'),
+            publicPath: '/media/'
         },
-        proxy: [
-            {
-                context: () => true,
-                target: process.env.WP_PROXY_URL || 'http://0.0.0.0:8080'
-            }
-        ],
-        watchFiles: [
-            'media/**/*.js',
-            'media/**/*.scss',
-            'springfield/**/*.html'
-        ],
-        client: {
-            logging: 'error',
-            overlay: false
+        optimization: {
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: { ie8: true }
+                }),
+                new CssMinimizerPlugin({})
+            ]
         },
-        setupExitSignals: true
-    },
-    plugins: [
-        new CopyPlugin({
-            patterns: [
+        module: {
+            rules: [
                 {
-                    // Copy legacy IE scripts that aren't bundled.
-                    from: path.resolve(__dirname, 'media/js/ie/'),
-                    to: 'js/ie/'
+                    test: /\.es6\.js$/,
+                    include: path.resolve(__dirname, 'media'),
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        targets: {
+                                            ie: '10'
+                                        }
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                },
+                {
+                    test: /\.css$/,
+                    include: path.resolve(__dirname, 'media'),
+                    exclude: /node_modules/,
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                url: false,
+                                import: false
+                            }
+                        },
+                        {
+                            loader: 'postcss-loader',
+                            options: {
+                                postcssOptions: {
+                                    plugins: [postcssCustomMedia()]
+                                }
+                            }
+                        },
+                        {
+                            loader: flareImportAnywhereLoader
+                        }
+                    ]
+                },
+                {
+                    test: /\.scss$/,
+                    include: path.resolve(__dirname, 'media'),
+                    exclude: /node_modules/,
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        {
+                            loader: 'css-loader',
+                            options: {
+                                url: false
+                            }
+                        },
+                        {
+                            loader: 'sass-loader',
+                            options: {
+                                sassOptions: {
+                                    silenceDeprecations: [
+                                        'mixed-decls',
+                                        'import'
+                                    ]
+                                }
+                            }
+                        }
+                    ]
                 }
             ]
-        }),
-        new Dotenv(),
-        /**
-         * Enable tree shaking of Sentry SDK debug code
-         * https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/
-         */
-        new webpack.DefinePlugin({
-            __SENTRY_DEBUG__: false,
-            __SENTRY_TRACING__: false,
-            __RRWEB_EXCLUDE_IFRAME__: true,
-            __RRWEB_EXCLUDE_SHADOW_DOM__: true,
-            __SENTRY_EXCLUDE_REPLAY_WORKER__: true
-        }),
-        new MiniCssExtractPlugin({
-            filename: ({ chunk }) =>
-                `css/${chunk.name.replace('--css', '')}.css`
-        })
-    ]
+        },
+        watchOptions: {
+            aggregateTimeout: 600,
+            ignored: '/node_modules/'
+        },
+        performance: {
+            hints: 'warning'
+        },
+        devServer: {
+            port: 8000,
+            allowedHosts: 'all',
+            open: false,
+            hot: false,
+            static: false,
+            devMiddleware: {
+                index: false // specify to enable root proxy'ing
+            },
+            proxy: [
+                {
+                    context: () => true,
+                    target: process.env.WP_PROXY_URL || 'http://0.0.0.0:8080'
+                }
+            ],
+            watchFiles: [
+                'media/**/*.js',
+                'media/**/*.scss',
+                'springfield/**/*.html'
+            ],
+            client: {
+                logging: 'error',
+                overlay: false
+            },
+            setupExitSignals: true
+        },
+        plugins: [
+            new CopyPlugin({
+                patterns: [
+                    {
+                        // Copy legacy IE scripts that aren't bundled.
+                        from: path.resolve(__dirname, 'media/js/ie/'),
+                        to: 'js/ie/'
+                    }
+                ]
+            }),
+            new Dotenv(),
+            /**
+             * Enable tree shaking of Sentry SDK debug code
+             * https://docs.sentry.io/platforms/javascript/configuration/tree-shaking/
+             */
+            new webpack.DefinePlugin({
+                __SENTRY_DEBUG__: false,
+                __SENTRY_TRACING__: false,
+                __RRWEB_EXCLUDE_IFRAME__: true,
+                __RRWEB_EXCLUDE_SHADOW_DOM__: true,
+                __SENTRY_EXCLUDE_REPLAY_WORKER__: true
+            }),
+            new MiniCssExtractPlugin({
+                filename: ({ chunk }) =>
+                    `css/${chunk.name.replace('--css', '')}.css`
+            })
+        ]
+    };
 };
