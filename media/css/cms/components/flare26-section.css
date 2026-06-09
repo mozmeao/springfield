@@ -78,3 +78,9 @@
 .fl-freeform-2026-page .fl-split-page-upper > .fl-section:first-child {
     padding-block-start: 0;
 }
+
+.fl-freeform-2026-page
+    .fl-split-page-upper
+    > .fl-section.fl-mobile-store-qr-section:first-child {
+    padding-block-start: var(--token-layout-lg);
+}
