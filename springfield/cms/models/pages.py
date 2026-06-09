@@ -121,10 +121,10 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        children = list(self.get_children().live().public().specific())
+        children = list(self.get_children().live().public().specific().order_by("title"))
         steplen = WagtailBasePage.steplen
         grandchildren_by_parent = {}
-        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public():
+        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().order_by("title"):
             grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
         context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
         return context
