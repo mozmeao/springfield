@@ -314,3 +314,19 @@ html.other .conditional-display.condition-other-os {
     display: block;
     display: revert;
 }
+
+.conditional-display.condition-geo.geo-match {
+    display: block;
+    display: revert;
+}
+
+.ai-controls-available .conditional-display.condition-ai-controls-available {
+    display: block;
+    display: revert;
+}
+
+.ai-controls-unavailable
+    .conditional-display.condition-ai-controls-unavailable {
+    display: block;
+    display: revert;
+}

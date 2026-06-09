@@ -18,9 +18,10 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel, TitleFieldPanel
+from modelcluster.fields import ParentalKey
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
-from wagtail.models import Page as WagtailBasePage
+from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
@@ -64,7 +65,6 @@ from springfield.cms.blocks import (
     SlidingCarouselBlock,
     SubscriptionBlock,
     TopicListBlock,
-    TwoColumnCardsBlock,
     VideoBlock,
     validate_animation_url,
 )
@@ -909,7 +909,6 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
-        ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
@@ -947,6 +946,22 @@ class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"FreeFormPage: {self.title} - {self.locale}"
+
+
+class PencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.FreeFormPage2026", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Pencil Banner Placement"
+        verbose_name_plural = "Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
 
 
 class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -990,6 +1005,12 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
             "The page will also inject <this>.css, so ensure that exists before using this field."
         ),
     )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -999,8 +1020,10 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 FieldPanel("show_pre_footer"),
                 FieldPanel("show_navigation"),
                 FieldPanel("show_nav_cta"),
+                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
                 FieldPanel("body_class"),
+                FieldPanel("extra_js"),
             ],
             heading="Page Options",
         ),

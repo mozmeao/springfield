@@ -30,6 +30,7 @@ from springfield.cms.fixtures.cards_2026_fixtures import (
     get_sticker_cards_2026_test_page,
 )
 from springfield.cms.fixtures.carousel_2026_fixtures import get_carousel_2026_test_page
+from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage_2026 import (
@@ -58,7 +59,7 @@ from springfield.cms.fixtures.showcase_2026_fixtures import get_showcase_2026_te
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_scroll_to_see_more_snippet
 from springfield.cms.fixtures.subscription_fixtures import get_subscription_test_page
 from springfield.cms.fixtures.testimonial_card_fixtures import get_testimonial_cards_2026_test_page
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
@@ -105,6 +106,9 @@ class Command(BaseCommand):
 
         snippet = get_pre_footer_cta_form_snippet()
         self.stdout.write(self.style.SUCCESS(f"Pre-Footer CTA Form Snippet loaded: {snippet.id}"))
+
+        scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
+        self.stdout.write(self.style.SUCCESS(f"Scroll to See More Snippet loaded: {scroll_to_see_more_snippet.id}"))
 
         home_page = get_home_test_page()
         self.stdout.write(self.style.SUCCESS(f"Home test page loaded: {home_page.slug}"))
@@ -166,6 +170,9 @@ class Command(BaseCommand):
 
         notification_page = get_notification_test_page()
         self.stdout.write(self.style.SUCCESS(f"Notification test page loaded: {notification_page.slug}"))
+
+        conditional_display_page = get_conditional_display_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Conditional Display test page loaded: {conditional_display_page.slug}"))
 
         banner_2026_page = get_banner_2026_test_page()
         self.stdout.write(self.style.SUCCESS(f"Banner 2026 test page loaded: {banner_2026_page.slug}"))

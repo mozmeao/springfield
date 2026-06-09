@@ -2,6 +2,7 @@ name: "Banner variants"
 context:
   variants:
     - title: "QR Code Banner"
+      testid: "qr-code"
       theme: "outlined"
       media_after: false
       heading:
@@ -9,13 +10,21 @@ context:
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+        subheading_text: "Available on iOS and Android"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Mobile
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/qr-background-simple.png"
         alt: "QR background"
       qr_code: "https://mozilla.org/firefox/mobile/"
 
     - title: "Simple Banner"
+      testid: "simple"
       theme: "outlined"
       media_after: false
       heading:
@@ -23,7 +32,18 @@ context:
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       buttons:
         - label: "Learn More"
           link: "/"
@@ -39,6 +59,7 @@ context:
           theme_class: ""
 
     - title: "Banner with Media"
+      testid: "with-media"
       theme: "outlined"
       media_after: false
       heading:
@@ -46,7 +67,14 @@ context:
         heading_text: "Banner with Media"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+        subheading_text: "Discover the latest improvements"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: bookmark
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
@@ -59,6 +87,7 @@ context:
           theme_class: ""
 
     - title: "Banner with Media After"
+      testid: "with-media-after"
       theme: "outlined"
       media_after: true
       heading:
@@ -66,7 +95,13 @@ context:
         heading_text: "Banner with Media After"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: New
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
@@ -79,6 +114,7 @@ context:
           theme_class: ""
 
     - title: "Banner with Video"
+      testid: "with-video"
       theme: "outlined"
       media_after: true
       heading:
@@ -86,7 +122,13 @@ context:
         heading_text: "Banner with Video"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Video
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       video:
         url: "https://www.youtube.com/watch?v=F-nFQryDB0s"
         poster: "/media/img/firefox/flare/placeholder.png"
@@ -99,7 +141,101 @@ context:
           icon_position: "right"
           theme_class: ""
 
+    - title: "Default Banner"
+      testid: "default"
+      theme: "default"
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Default Theme Banner"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        subheading_text: "Browse freely with enhanced protection"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Open Source
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "forward"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Dark Purple Gradient Banner"
+      testid: "dark-purple"
+      theme: "dark-purple-gradient"
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Dark Purple Gradient Banner"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        subheading_text: "Your data, your control"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "forward"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Dark Purple Gradient Inverted Banner"
+      testid: "dark-purple-inverted"
+      theme: "dark-purple-gradient-inverted"
+      media_after: true
+      heading:
+        level: "h2"
+        heading_text: "Dark Purple Gradient Inverted Banner"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: bookmark
+          after_icon: ''
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "forward"
+          icon_position: "right"
+          theme_class: ""
+
     - title: "Purple QR Code Banner"
+      testid: "purple-qr-code"
       theme: "purple-radial-gradient"
       media_after: false
       heading:
@@ -107,13 +243,21 @@ context:
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+        subheading_text: "Available on iOS and Android"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Mobile
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/qr-background-simple.png"
         alt: "QR background"
       qr_code: "https://mozilla.org/firefox/mobile/"
 
     - title: "Purple Simple Banner"
+      testid: "purple-simple"
       theme: "purple-radial-gradient"
       media_after: false
       heading:
@@ -121,7 +265,18 @@ context:
         heading_text: "Take Firefox with you"
         heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       buttons:
         - label: "Learn More"
           link: "/"
@@ -137,6 +292,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Media"
+      testid: "purple-with-media"
       theme: "purple-radial-gradient"
       media_after: false
       heading:
@@ -144,7 +300,14 @@ context:
         heading_text: "Banner with Media"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+        subheading_text: "Explore new browsing features"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: bookmark
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
@@ -157,6 +320,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Media After"
+      testid: "purple-with-media-after"
       theme: "purple-radial-gradient"
       media_after: true
       heading:
@@ -164,7 +328,47 @@ context:
         heading_text: "Banner with Media After"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: New
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      media:
+        url: "/media/img/firefox/flare/placeholder.png"
+        alt: "Feature image"
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          external: false
+          icon_name: "forward"
+          icon_position: "right"
+          theme_class: ""
+
+    - title: "Default Banner with Image (Centralize Content)"
+      testid: "default-centralize-content"
+      theme: "default"
+      centralize_content: true
+      media_after: false
+      heading:
+        level: "h2"
+        heading_text: "Default Theme Banner"
+        heading_size: "heading-size-2"
+        superheading_text: "New Feature"
+        subheading_text: "Browse freely with enhanced protection"
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Open Source
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
       media:
         url: "/media/img/firefox/flare/placeholder.png"
         alt: "Feature image"
@@ -177,6 +381,7 @@ context:
           theme_class: ""
 
     - title: "Purple Banner with Video"
+      testid: "purple-with-video"
       theme: "purple-radial-gradient"
       media_after: true
       heading:
@@ -184,7 +389,13 @@ context:
         heading_text: "Banner with Video"
         heading_size: "heading-size-2"
         superheading_text: "New Feature"
-        subheading_text: <a href="lslsls">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
+      tags:
+        - text: Video
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
       video:
         url: "https://www.youtube.com/watch?v=F-nFQryDB0s"
         poster: "/media/img/firefox/flare/placeholder.png"

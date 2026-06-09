@@ -51,7 +51,7 @@ def get_smart_window_explainer_intro() -> dict:
                 "subheading_text": '<p data-block-key="swepi1b">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
                 "incididunt ut labore et dolore magna aliqua.</p>",
             },
-            "buttons": [],
+            "content": [],
         },
         "id": "swepi01-0000-0000-0000-000000000001",
     }
@@ -65,9 +65,11 @@ def get_smart_window_explainer_content() -> list[dict]:
             "value": {
                 "settings": {"media_after": True, "narrow": False},
                 "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000010")],
-                "eyebrow": "",
-                "headline": '<p data-block-key="swepmc1h">Lorem ipsum dolor sit amet</p>',
-                "tags": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="swepmc1h">Lorem ipsum dolor sit amet</p>',
+                    "subheading_text": "",
+                },
                 "content": [
                     _rich_text(
                         '<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
@@ -83,7 +85,6 @@ def get_smart_window_explainer_content() -> list[dict]:
                         "swepmc01-0000-0000-0000-000000000013",
                     ),
                 ],
-                "buttons": [],
             },
             "id": "swepmc01-0000-0000-0000-000000000001",
         },
@@ -92,9 +93,11 @@ def get_smart_window_explainer_content() -> list[dict]:
             "value": {
                 "settings": {"media_after": False, "narrow": False},
                 "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000020")],
-                "eyebrow": '<p data-block-key="swepmc2e">Consectetur</p>',
-                "headline": '<p data-block-key="swepmc2h">Sed do eiusmod tempor incididunt</p>',
-                "tags": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="swepmc2e">Consectetur</p>',
+                    "heading_text": '<p data-block-key="swepmc2h">Sed do eiusmod tempor incididunt</p>',
+                    "subheading_text": "",
+                },
                 "content": [
                     _rich_text(
                         '<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu '
@@ -111,7 +114,6 @@ def get_smart_window_explainer_content() -> list[dict]:
                         "swepmc01-0000-0000-0000-000000000023",
                     ),
                 ],
-                "buttons": [],
             },
             "id": "swepmc01-0000-0000-0000-000000000002",
         },
@@ -120,9 +122,11 @@ def get_smart_window_explainer_content() -> list[dict]:
             "value": {
                 "settings": {"media_after": True, "narrow": False},
                 "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000030")],
-                "eyebrow": '<p data-block-key="swepmc3e">Adipiscing</p>',
-                "headline": '<p data-block-key="swepmc3h">Quis nostrud exercitation ullamco</p>',
-                "tags": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="swepmc3e">Adipiscing</p>',
+                    "heading_text": '<p data-block-key="swepmc3h">Quis nostrud exercitation ullamco</p>',
+                    "subheading_text": "",
+                },
                 "content": [
                     _rich_text(
                         '<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
@@ -139,7 +143,6 @@ def get_smart_window_explainer_content() -> list[dict]:
                         "swepmc01-0000-0000-0000-000000000033",
                     ),
                 ],
-                "buttons": [],
             },
             "id": "swepmc01-0000-0000-0000-000000000003",
         },

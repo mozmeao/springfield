@@ -565,6 +565,12 @@
         "css/cms/pages/flare26-year-in-review.css"
       ],
       "name": "flare26-year-in-review"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-kick-page.css"
+      ],
+      "name": "flare26-kick-page"
     }
   ],
   "js": [
@@ -680,6 +686,12 @@
         "js/firefox/download/auto-download.es6.js"
       ],
       "name": "auto-download"
+    },
+    {
+      "files": [
+        "js/base/mobile-attribution.js"
+      ],
+      "name": "mobile-attribution"
     },
     {
       "files": [
@@ -922,6 +934,12 @@
         "js/base/base-page-init.js"
       ],
       "name": "firefox-cms-flare26"
+    },
+    {
+      "files":[
+        "js/cms/pages/flare26-kick-page.es6.js"
+      ],
+      "name": "flare26-kick-page"
     },
     {
       "files": [

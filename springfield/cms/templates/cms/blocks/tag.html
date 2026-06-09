@@ -8,15 +8,6 @@
   text="{{ value.title }}"
   color="{{ value.color }}"
   corners="{{ value.corners }}"
->
-  {% if value.icon and value.icon_position == 'before' %}
-    <content:before_icon>
-      <include:icon icon_name="{{ value.icon }}" hidden=true extra_class="icon-left" />
-    </content:before_icon>
-  {% endif %}
-  {% if value.icon and value.icon_position == 'after' %}
-    <content:after_icon>
-      <include:icon icon_name="{{ value.icon }}" hidden=true extra_class="icon-right" />
-    </content:after_icon>
-  {% endif %}
-</include:tag>
+  before_icon="{{ value.icon if value.icon and value.icon_position == 'before' else '' }}"
+  after_icon="{{ value.icon if value.icon and value.icon_position == 'after' else '' }}"
+/>

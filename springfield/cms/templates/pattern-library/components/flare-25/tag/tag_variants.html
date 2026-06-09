@@ -17,18 +17,9 @@
               text="{{ t.text }}"
               color="{{ color }}"
               corners="{{ t.corners }}"
-            >
-              {% if t.before_icon %}
-                <content:before_icon>
-                  <include:icon icon_name="{{ t.before_icon }}" hidden=true extra_class="icon-left" />
-                </content:before_icon>
-              {% endif %}
-              {% if t.after_icon %}
-                <content:after_icon>
-                  <include:icon icon_name="{{ t.after_icon }}" hidden=true extra_class="icon-right" />
-                </content:after_icon>
-              {% endif %}
-            </include:tag>
+              before_icon="{{ t.before_icon }}"
+              after_icon="{{ t.after_icon }}"
+            />
           </div>
         {% endfor %}
         {% for t in tags if t.color == color and t.corners == 'soft' %}
@@ -37,18 +28,9 @@
               text="{{ t.text }}"
               color="{{ color }}"
               corners="{{ t.corners }}"
-            >
-              {% if t.before_icon %}
-                <content:before_icon>
-                  <include:icon icon_name="{{ t.before_icon }}" hidden=true extra_class="icon-left" />
-                </content:before_icon>
-              {% endif %}
-              {% if t.after_icon %}
-                <content:after_icon>
-                  <include:icon icon_name="{{ t.after_icon }}" hidden=true extra_class="icon-right" />
-                </content:after_icon>
-              {% endif %}
-            </include:tag>
+              before_icon="{{ t.before_icon }}"
+              after_icon="{{ t.after_icon }}"
+            />
           </div>
         {% endfor %}
       </div>

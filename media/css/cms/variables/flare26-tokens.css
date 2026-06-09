@@ -101,6 +101,11 @@ Static values extracted from Figma that do not change based on context.
         #f90 89.02%,
         #f5c451 109.44%
     );
+    --token-gradient-dark-purple: linear-gradient(
+        to bottom,
+        var(--token-color-dark-purple-50) 0%,
+        var(--token-color-dark-purple-22) 100%
+    );
 
     /* using manual OCLCH copies of var(--token-color-light-purple)
        and var(--token-color-dark-purple), plus some tweaking of the color stops
@@ -148,6 +153,11 @@ Static values extracted from Figma that do not change based on context.
 
     /* Gold gradient */
     --token-gradient-gold: linear-gradient(180deg, #ffe500 0%, #ff980e 100%);
+    --token-gradient-gold-button: linear-gradient(
+        180deg,
+        #ffeb49 0.09%,
+        #f60 120%
+    );
 
     /* Spacing variables */
     --token-spacing-2xs: 2px;
@@ -201,6 +211,7 @@ Static values extracted from Figma that do not change based on context.
     --token-font-size-sm: 14px;
     --token-font-size-md: 16px;
     --token-font-size-lg: 18px;
+    --token-font-size-xl: 24px;
 
     /* Font weights */
     --token-font-weight-regular: 400;

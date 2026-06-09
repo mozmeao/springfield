@@ -8,15 +8,6 @@
   text="{{ text }}"
   color="{{ color }}"
   corners="{{ corners }}"
->
-  {% if before_icon %}
-    <content:before_icon>
-      <include:icon icon_name="{{ before_icon }}" hidden=true extra_class="icon-left" />
-    </content:before_icon>
-  {% endif %}
-  {% if after_icon %}
-    <content:after_icon>
-      <include:icon icon_name="{{ after_icon }}" hidden=true extra_class="icon-right" />
-    </content:after_icon>
-  {% endif %}
-</include:tag>
+  before_icon="{{ before_icon }}"
+  after_icon="{{ after_icon }}"
+/>

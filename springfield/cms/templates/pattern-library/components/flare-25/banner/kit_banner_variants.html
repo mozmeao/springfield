@@ -22,18 +22,20 @@
     </content:heading>
 
     {% if variant.buttons %}
-      <content:actions>
-        {% for button in variant.buttons %}
-          <include:button
-            label="{{ button.label }}"
-            link="{{ button.link }}"
-            theme_class="{{ button.theme_class }}"
-            external="{{ button.external }}"
-            icon_name="{{ button.icon_name }}"
-            icon_position="{{ button.icon_position }}"
-          />
-        {% endfor %}
-      </content:actions>
+      <content:content>
+        <div class="fl-buttons">
+          {% for button in variant.buttons %}
+            <include:button
+              label="{{ button.label }}"
+              link="{{ button.link }}"
+              theme_class="{{ button.theme_class }}"
+              external="{{ button.external }}"
+              icon_name="{{ button.icon_name }}"
+              icon_position="{{ button.icon_position }}"
+            />
+          {% endfor %}
+        </div>
+      </content:content>
     {% endif %}
   </include:kit-banner>
   </div>

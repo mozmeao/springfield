@@ -7,11 +7,7 @@
 {% set block_level = block_level or 1 %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
+  condition_settings="{{ value.settings.show_to }}">
   <include:testimonial-card>
     <content:body>
       {{ value.content|richtext }}

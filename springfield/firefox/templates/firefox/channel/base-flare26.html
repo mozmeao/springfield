@@ -73,21 +73,23 @@
       />
       </content:heading>
 
-      <content:body>
-        <div class="fl-buttons">
-        <include:button
-          label="{{ ftl('firefox-channel-file-a-bug-now') }}"
-          theme_class="button-ghost"
-          link="https://bugzilla.mozilla.org/enter_bug.cgi"
-        />
+      <content:content>
+        <div class="fl-intro-body">
+          <div class="fl-buttons">
+            <include:button
+              label="{{ ftl('firefox-channel-file-a-bug-now') }}"
+              theme_class="button-ghost"
+              link="https://bugzilla.mozilla.org/enter_bug.cgi"
+            />
 
-        <include:button
-          label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
-          theme_class="button-ghost"
-          link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
-        />
+            <include:button
+              label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
+              theme_class="button-ghost"
+              link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
+            />
+          </div>
         </div>
-      </content:body>
+      </content:content>
     </include:intro>
   </section>
 </div>

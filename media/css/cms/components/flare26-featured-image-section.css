@@ -13,7 +13,7 @@
     background-color: var(--token-color-dark-purple);
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
-    margin-block: 0;
+    margin-block: 0 var(--fl-section-v-padding);
     position: relative;
 }
 
@@ -21,9 +21,23 @@
     padding-block-start: calc(var(--fl-section-v-padding) * 2);
 }
 
-/* build scalloped top to fake the border radius of the previous element */
+/* build scalloped top to fake the border radius of the previous element.
+   This is only necessary on light mode, as the dark background color is
+   the same.
+*/
+
 .fl-scallop-decoration {
     background-color: var(--token-color-dark-purple);
+    margin-block-start: calc(-1 * var(--fl-section-v-padding));
+}
+
+.fl-split-page-upper > .fl-scallop-decoration:first-child {
+    display: none;
+}
+
+.fl-split-page-upper:has(.fl-featured-image-section:last-child),
+.fl-split-page-upper .fl-featured-image-section:last-child {
+    margin-block-end: 0;
 }
 
 .fl-scallop-decoration-inner {
@@ -31,7 +45,7 @@
     block-size: var(--fl-theme-main-border-radius);
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
-    display: block;
+    display: var(--display-light-mode-only);
     inline-size: 100vw;
 }
 

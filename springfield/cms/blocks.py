@@ -54,6 +54,7 @@ EXPANDED_TEXT_FEATURES = [
     "blockquote",
     "ol",
     "ul",
+    "code",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -430,6 +431,42 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+GEO_CHOICES = [
+    ("US", "United States"),
+    ("GB", "United Kingdom"),
+    ("DE", "Germany"),
+    ("FR", "France"),
+    ("CA", "Canada"),
+    ("AT", "Austria"),
+    ("BE", "Belgium"),
+    ("BG", "Bulgaria"),
+    ("DK", "Denmark"),
+    ("FI", "Finland"),
+    ("IE", "Ireland"),
+    ("IT", "Italy"),
+    ("NL", "Netherlands"),
+    ("PT", "Portugal"),
+    ("ES", "Spain"),
+    ("CH", "Switzerland"),
+    ("PL", "Poland"),
+    ("SE", "Sweden"),
+    ("NO", "Norway"),
+    ("ZA", "South Africa"),
+    ("MY", "Malaysia"),
+    ("NZ", "New Zealand"),
+    ("SG", "Singapore"),
+    ("AU", "Australia"),
+    ("KR", "South Korea"),
+    ("TH", "Thailand"),
+    ("CL", "Chile"),
+    ("CO", "Colombia"),
+    ("MX", "Mexico"),
+]
+AI_CONTROLS_CHOICES = [
+    ("", "No restriction"),
+    ("available", "AI Controls available"),
+    ("unavailable", "AI Controls unavailable"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -443,6 +480,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
+UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -450,7 +488,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (
@@ -459,6 +497,7 @@ UITOUR_BUTTON_CHOICES = (
     ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
+    (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
 )
 
 UI_TOUR_CLASSES = {
@@ -474,6 +513,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+    UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
 }
 
 BUTTON_TYPE = "button"
@@ -490,15 +530,18 @@ BUTTON_SECONDARY = "secondary"
 BUTTON_TERTIARY = "tertiary"
 BUTTON_GHOST = "ghost"
 BUTTON_LINK = "link"
+BUTTON_GOLD = "gold"
+
 BUTTON_THEME_CHOICES = {
     BUTTON_PRIMARY: "Primary",
     BUTTON_SECONDARY: "Secondary",
     BUTTON_TERTIARY: "Tertiary",
     BUTTON_GHOST: "Ghost",
+    BUTTON_GOLD: "Gold (over dark background only)",
     BUTTON_LINK: "Link",
 }
 BUTTON_THEMES_2025 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, BUTTON_GHOST]
-BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_LINK]
+BUTTON_THEMES_2026 = [BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_GHOST, BUTTON_GOLD, BUTTON_LINK]
 
 
 def validate_animation_url(value):
@@ -574,11 +617,27 @@ class ConditionalDisplayBlock(blocks.StructBlock):
     )
     min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
     max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+    geo = blocks.MultipleChoiceBlock(
+        choices=GEO_CHOICES,
+        required=False,
+        label="GEO",
+        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+    )
+    ai_controls = blocks.ChoiceBlock(
+        choices=AI_CONTROLS_CHOICES,
+        required=False,
+        label="AI Controls",
+        help_text="Show based on AI Controls availability. Leave empty for no restriction.",
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state}"
-        icon = "eye"
+        label_format = (
+            "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
+            "AI {ai_controls} - Versions {min_version} to {max_version}"
+        )
+        icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
 
@@ -631,15 +690,25 @@ def get_button_types(allow_uitour=False):
     return base_button_types
 
 
+BUTTON_SIZE_CHOICES = [
+    ("", "Default"),
+    ("large", "Large"),
+]
+
+
 class BaseButtonValue(blocks.StructValue):
     def theme_class(self) -> str:
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
             "tertiary": "button-tertiary",
+            "gold": "button-gold",
             "link": "button-link",
         }
         return classes.get(self.get("settings", {}).get("theme"), "")
+
+    def size_class(self) -> str:
+        return "fl-button-large" if self.get("settings", {}).get("size") == "large" else ""
 
 
 class UUIDBlock(blocks.CharBlock):
@@ -663,6 +732,13 @@ def BaseButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon = IconChoiceBlock(required=False)
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
@@ -680,7 +756,7 @@ def BaseButtonSettings(themes=None, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
-            label_format = "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
+            label_format = "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
 
     return _BaseButtonSettings(**kwargs)
@@ -949,6 +1025,13 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             required=len(themes) == 1,
             inline_form=True,
         )
+        size = blocks.ChoiceBlock(
+            choices=BUTTON_SIZE_CHOICES,
+            default="",
+            required=False,
+            label="Button Size",
+            inline_form=True,
+        )
         icon_position = blocks.ChoiceBlock(
             choices=(("left", "Left"), ("right", "Right")),
             default="right",
@@ -991,7 +1074,7 @@ def DownloadFirefoxButtonSettings(themes=None, **kwargs):
             collapsed = True
             label = "Settings"
             label_format = (
-                "Theme: {theme} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
+                "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id} - "
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
@@ -1053,8 +1136,9 @@ def MixedButtonsBlock(
     button_types: list,
     min_num: int,
     max_num: int,
-    themes=BUTTON_THEMES_2025,
+    themes=BUTTON_THEMES_2026,
     label="Buttons",
+    template="cms/blocks/mixed-buttons.html",
     **kwargs,
 ):
     """
@@ -1079,6 +1163,7 @@ def MixedButtonsBlock(
         max_num=max_num,
         min_num=min_num,
         label=label,
+        template=template,
         **kwargs,
     )
 
@@ -1100,7 +1185,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             min_num=1,
             max_num=3,
         )
-        help_text = blocks.CharBlock(required=False)
+        help_text = blocks.RichTextBlock(required=False)
 
         class Meta:
             label = "Button Row"
@@ -1138,6 +1223,9 @@ class CTABlock(blocks.StructBlock):
         label = "Link"
         label_format = "Link - {label}"
         template = "cms/blocks/cta-link.html"
+
+
+# Tags
 
 
 class TagBlock(blocks.StructBlock):
@@ -1202,6 +1290,21 @@ class TagBlock2026(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
+class TagsBlock(blocks.ListBlock):
+    def __init__(self, child=None, *args, **kwargs):
+        if child is None:
+            child = TagBlock2026()
+        super().__init__(child, *args, **kwargs)
+
+    class Meta:
+        template = "cms/blocks/tags-list.html"
+        label = "Tags"
+        label_format = "Tags"
+
+
+# Media
+
+
 class ImageVariantsBlockSettings(blocks.StructBlock):
     dark_mode_image = ImageChooserBlock(
         required=False,
@@ -1260,7 +1363,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         video_url = blocks.URLBlock(
             required=required,
             label="Animation URL",
-            help_text="Link to a webm video from assets.mozilla.net.",
+            help_text="Link to a webm video from assets.mozilla.net. For transparent/alpha-channel webms, name the file with -alpha.webm",
             validators=[validate_animation_url],
         )
         alt = blocks.CharBlock(
@@ -1317,6 +1420,9 @@ class MediaBlock(blocks.StreamBlock):
         template = "cms/blocks/media.html"
 
 
+# Content
+
+
 class SmartWindowInstructionsBlock(blocks.StructBlock):
     pre_typewriter_text = blocks.CharBlock(default="Prompt to try", required=False)
     typewriter_text = blocks.CharBlock(required=False, help_text="This text will animated as if being typed, mimicing a Smart Window prompt.")
@@ -1326,6 +1432,25 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
         label = "Smart Window Instructions"
         label_format = "Smart Window Instructions - {instructions}"
         template = "cms/blocks/smart-window-instructions.html"
+
+
+def BaseContentBlock(allow_uitour=False, **kwargs):
+    class _BaseContentBlock(blocks.StreamBlock):
+        tags = TagsBlock(min_num=0, max_num=3, default=[])
+        rich_text = RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
+        buttons = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour),
+            min_num=0,
+            max_num=3,
+            required=False,
+        )
+
+        class Meta:
+            label = "Content"
+            label_format = "Content"
+            template = "cms/blocks/base_content.html"
+
+    return _BaseContentBlock(**kwargs)
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -1366,25 +1491,27 @@ def MediaContentBlock(allow_uitour=False, is_2026=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        tags = blocks.ListBlock(tag_block, min_num=0, max_num=3, default=[])
+        heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
-                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES)),
+                ("tags", TagsBlock(tag_block, min_num=0, max_num=3, default=[])),
+                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                (
+                    "buttons",
+                    MixedButtonsBlock(
+                        button_types=get_button_types(allow_uitour),
+                        min_num=0,
+                        max_num=2,
+                        required=False,
+                    ),
+                ),
             ]
-        )
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
-            required=False,
         )
 
         class Meta:
             label = "Media + Content"
-            label_format = "{headline}"
+            label_format = "{heading}"
             template = "cms/blocks/media-content.html"
 
     return _MediaContentBlock(*args, **kwargs)
@@ -2695,14 +2822,7 @@ def IntroBlock2026(allow_uitour=False, *args, **kwargs):
         settings = IntroBlockSettings2026()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=BUTTON_THEMES_2026,
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/intro-2026.html"
@@ -2806,6 +2926,9 @@ def SectionBlock2026(allow_uitour=False, require_heading=True, *args, **kwargs):
 
 def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
     class _FeaturedImageSectionBlock(blocks.StructBlock):
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet", label="Scroll To See More Snippet", required=False
+        )
         heading = HeadingBlock()
         content = blocks.StreamBlock(
             [
@@ -2817,6 +2940,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
             ],
             required=False,
         )
@@ -2826,6 +2950,10 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/featured-image-section.html"
             label = "Featured Image Section"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "content", "media"],
+                settings=["scroll_to_see_more_snippet"],
+            )
 
     return _FeaturedImageSectionBlock(*args, **kwargs)
 
@@ -2924,6 +3052,7 @@ class BannerSettings(blocks.StructBlock):
         help_text="Use a more compact layout with reduced spacing and a smaller headline.",
     )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
+    centralize_content = blocks.BooleanBlock(required=False, default=False)
 
     class Meta:
         icon = "cog"
@@ -2940,13 +3069,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/banner.html"
@@ -2997,14 +3120,7 @@ def KitBannerBlock(allow_uitour=False, button_themes=BUTTON_THEMES_2025, *args, 
     class _KitBannerBlock(blocks.StructBlock):
         settings = KitBannerSettings()
         heading = HeadingBlock()
-        tags = blocks.ListBlock(TagBlock2026(), min_num=0, max_num=3, default=[])
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=button_themes,
-            min_num=0,
-            max_num=2,
-            required=False,
-        )
+        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
 
         class Meta:
             template = "cms/blocks/sections/kit-banner.html"
@@ -3274,6 +3390,7 @@ class RoadmapItemBlock(blocks.StructBlock):
     description = RichTextBlock(features=HEADING_TEXT_FEATURES)
     status = blocks.ChoiceBlock(
         choices=list(ROADMAP_STATUS_LABELS.items()),
+        required=False,
     )
     tags = blocks.MultipleChoiceBlock(
         choices=list(ROADMAP_TAG_LABELS.items()),

@@ -20,18 +20,12 @@
         <td style="border: none; padding: 8px 16px 8px 0; font-weight: 600;">Normal</td>
         {% for tag in tags %}
           <td data-testid="{{ tag.testid }}" style="border: none; padding: 8px 16px;">
-            <include:tag text="{{ tag.text }}" color="{{ tag.color }}">
-              {% if tag.before_icon %}
-                <content:before_icon>
-                  <include:icon icon_name="{{ tag.before_icon }}" hidden=true extra_class="icon-left" />
-                </content:before_icon>
-              {% endif %}
-              {% if tag.after_icon %}
-                <content:after_icon>
-                  <include:icon icon_name="{{ tag.after_icon }}" hidden=true extra_class="icon-right" />
-                </content:after_icon>
-              {% endif %}
-            </include:tag>
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              before_icon="{{ tag.before_icon }}"
+              after_icon="{{ tag.after_icon }}"
+            />
           </td>
         {% endfor %}
       </tr>
@@ -39,18 +33,13 @@
         <td style="border: none; padding: 8px 16px 8px 0; font-weight: 600;">Selected</td>
         {% for tag in tags %}
           <td data-testid="{{ tag.testid }}-selected" style="border: none; padding: 8px 16px;">
-            <include:tag text="{{ tag.text }}" color="{{ tag.color }}" is_selected=true>
-              {% if tag.before_icon %}
-                <content:before_icon>
-                  <include:icon icon_name="{{ tag.before_icon }}" hidden=true extra_class="icon-left" />
-                </content:before_icon>
-              {% endif %}
-              {% if tag.after_icon %}
-                <content:after_icon>
-                  <include:icon icon_name="{{ tag.after_icon }}" hidden=true extra_class="icon-right" />
-                </content:after_icon>
-              {% endif %}
-            </include:tag>
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              is_selected=true
+              before_icon="{{ tag.before_icon }}"
+              after_icon="{{ tag.after_icon }}"
+            />
           </td>
         {% endfor %}
       </tr>

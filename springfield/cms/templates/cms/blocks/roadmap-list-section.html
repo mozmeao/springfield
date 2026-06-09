@@ -37,7 +37,9 @@
           {% set item_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
           <{{ item_heading_level }} class="fl-heading">
             {{ item.title }}
-            <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
+            {% if item.status %}
+              <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
+            {% endif %}
           </{{ item_heading_level }}>
         </content:header>
 
@@ -45,13 +47,10 @@
           <content:tags>
             {% for tag in item.get_tags() %}
               <span data-tag="{{ tag.value }}">
-                <include:tag text="{{ tag.label }}">
-                  {% if tag.icon %}
-                    <content:before_icon>
-                      <include:icon icon_name="{{ tag.icon }}" hidden=true extra_class="icon-left" />
-                    </content:before_icon>
-                  {% endif %}
-                </include:tag>
+                <include:tag
+                  text="{{ tag.label }}"
+                  before_icon="{{ tag.icon }}"
+                />
               </span>
             {% endfor %}
           </content:tags>

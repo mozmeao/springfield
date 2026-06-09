@@ -28,6 +28,10 @@
     padding: 0;
 }
 
+.fl-section-container > .fl-heading {
+    margin-block-end: 0;
+}
+
 .fl-section-container.is-narrow {
     max-inline-size: var(--token-width-desktop-content-lg);
 }
@@ -58,7 +62,12 @@
     text-align: center;
 }
 
-.fl-section .fl-heading-group:last-child {
+.fl-featured-image-section-heading .fl-heading-group {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+}
+
+.fl-featured-image-section-heading .fl-heading-group:last-child {
     margin-block-end: 0;
 }
 

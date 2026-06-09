@@ -18,6 +18,10 @@
     {% with block_text=ns.block_text %}
       {% if block.block_type == "rich_text" %}
         {{ block.value|richtext }}
+      {% elif block.block_type == "heading" %}
+        {% with heading_size="fl-heading-sm" %}
+          {% include_block block %}
+        {% endwith %}
       {% else %}
         {% if block.block_type == "media" %}<div class="media">{% endif %}
             {% include_block block %}

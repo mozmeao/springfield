@@ -70,10 +70,6 @@ _TAGS = [
 ]
 
 
-def _rich_text(text, block_id):
-    return [{"type": "rich_text", "value": text, "id": block_id}]
-
-
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
     return {
         "type": "section",
@@ -109,16 +105,24 @@ def get_media_content_2026_variants() -> list[dict]:
                         "id": "2026mc01-0000-0000-0000-000000000010",
                     }
                 ],
-                "eyebrow": '<p data-block-key="2026mc1e">Eyebrow</p>',
-                "headline": '<p data-block-key="2026mc1h">Media Content 2026 — Content Before</p>',
-                "tags": _TAGS[:3],
-                "content": _rich_text(
-                    '<p data-block-key="2026mc1c">Media content block in the 2026 design system. Visit the'
-                    ' <a href="https://www.mozilla.org"'
-                    ' uid="20260001-aaaa-aaaa-aaaa-000000000001">Mozilla website</a> for more.</p>',
-                    "2026mc01-0000-0000-0000-000000000011",
-                ),
-                "buttons": [buttons["primary"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="2026mc1e">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="2026mc1h">Media Content 2026 — Content Before</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "2026mc01-0000-0000-0000-000000000012", "value": _TAGS[:3]},
+                    {
+                        "type": "rich_text",
+                        "id": "2026mc01-0000-0000-0000-000000000011",
+                        "value": (
+                            '<p data-block-key="2026mc1c">Media content block in the 2026 design system. Visit the'
+                            ' <a href="https://www.mozilla.org"'
+                            ' uid="20260001-aaaa-aaaa-aaaa-000000000001">Mozilla website</a> for more.</p>'
+                        ),
+                    },
+                    {"type": "buttons", "id": "2026mc01-0000-0000-0000-000000000013", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026mc01-0000-0000-0000-000000000001",
         },
@@ -133,14 +137,20 @@ def get_media_content_2026_variants() -> list[dict]:
                         "id": "2026mc01-0000-0000-0000-000000000020",
                     }
                 ],
-                "eyebrow": '<p data-block-key="2026mc2e">Eyebrow</p>',
-                "headline": '<p data-block-key="2026mc2h">Media Content 2026 — Media Before</p>',
-                "tags": _TAGS[3:6],
-                "content": _rich_text(
-                    '<p data-block-key="2026mc2c">Media content block with media on the left side.</p>',
-                    "2026mc01-0000-0000-0000-000000000021",
-                ),
-                "buttons": [buttons["secondary"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="2026mc2e">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="2026mc2h">Media Content 2026 — Media Before</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "2026mc01-0000-0000-0000-000000000022", "value": _TAGS[3:6]},
+                    {
+                        "type": "rich_text",
+                        "id": "2026mc01-0000-0000-0000-000000000021",
+                        "value": '<p data-block-key="2026mc2c">Media content block with media on the left side.</p>',
+                    },
+                    {"type": "buttons", "id": "2026mc01-0000-0000-0000-000000000023", "value": [buttons["secondary"]]},
+                ],
             },
             "id": "2026mc01-0000-0000-0000-000000000002",
         },
@@ -149,14 +159,20 @@ def get_media_content_2026_variants() -> list[dict]:
             "value": {
                 "settings": {"media_after": False},
                 "media": [videos["youtube"]],
-                "eyebrow": "",
-                "headline": '<p data-block-key="2026mc3h">Media Content 2026 — Video</p>',
-                "tags": _TAGS[6:9],
-                "content": _rich_text(
-                    '<p data-block-key="2026mc3c">Media content block with a YouTube video.</p>',
-                    "2026mc01-0000-0000-0000-000000000031",
-                ),
-                "buttons": [buttons["ghost"]],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="2026mc3h">Media Content 2026 — Video</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "2026mc01-0000-0000-0000-000000000032", "value": _TAGS[6:9]},
+                    {
+                        "type": "rich_text",
+                        "id": "2026mc01-0000-0000-0000-000000000031",
+                        "value": '<p data-block-key="2026mc3c">Media content block with a YouTube video.</p>',
+                    },
+                    {"type": "buttons", "id": "2026mc01-0000-0000-0000-000000000033", "value": [buttons["ghost"]]},
+                ],
             },
             "id": "2026mc01-0000-0000-0000-000000000003",
         },
@@ -177,14 +193,20 @@ def get_media_content_2026_narrow_variants() -> list[dict]:
                         "id": "2026mcn1-0000-0000-0000-000000000010",
                     }
                 ],
-                "eyebrow": '<p data-block-key="2026mcn1e">Narrow Layout</p>',
-                "headline": '<p data-block-key="2026mcn1h">Narrow — Media Right</p>',
-                "tags": _TAGS[:2],
-                "content": _rich_text(
-                    '<p data-block-key="2026mcn1c">Narrow layout narrows the media column, giving more space to the content.</p>',
-                    "2026mcn1-0000-0000-0000-000000000011",
-                ),
-                "buttons": [buttons["primary"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="2026mcn1e">Narrow Layout</p>',
+                    "heading_text": '<p data-block-key="2026mcn1h">Narrow — Media Right</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "2026mcn1-0000-0000-0000-000000000012", "value": _TAGS[:2]},
+                    {
+                        "type": "rich_text",
+                        "id": "2026mcn1-0000-0000-0000-000000000011",
+                        "value": '<p data-block-key="2026mcn1c">Narrow layout narrows the media column, giving more space to the content.</p>',
+                    },
+                    {"type": "buttons", "id": "2026mcn1-0000-0000-0000-000000000013", "value": [buttons["primary"]]},
+                ],
             },
             "id": "2026mcn1-0000-0000-0000-000000000001",
         },
@@ -199,14 +221,20 @@ def get_media_content_2026_narrow_variants() -> list[dict]:
                         "id": "2026mcn2-0000-0000-0000-000000000020",
                     }
                 ],
-                "eyebrow": '<p data-block-key="2026mcn2e">Narrow Layout</p>',
-                "headline": '<p data-block-key="2026mcn2h">Narrow — Media Left</p>',
-                "tags": _TAGS[3:5],
-                "content": _rich_text(
-                    '<p data-block-key="2026mcn2c">Narrow layout with media on the left side.</p>',
-                    "2026mcn2-0000-0000-0000-000000000021",
-                ),
-                "buttons": [buttons["secondary"]],
+                "heading": {
+                    "superheading_text": '<p data-block-key="2026mcn2e">Narrow Layout</p>',
+                    "heading_text": '<p data-block-key="2026mcn2h">Narrow — Media Left</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "2026mcn2-0000-0000-0000-000000000022", "value": _TAGS[3:5]},
+                    {
+                        "type": "rich_text",
+                        "id": "2026mcn2-0000-0000-0000-000000000021",
+                        "value": '<p data-block-key="2026mcn2c">Narrow layout with media on the left side.</p>',
+                    },
+                    {"type": "buttons", "id": "2026mcn2-0000-0000-0000-000000000023", "value": [buttons["secondary"]]},
+                ],
             },
             "id": "2026mcn2-0000-0000-0000-000000000002",
         },

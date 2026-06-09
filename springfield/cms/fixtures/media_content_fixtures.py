@@ -14,10 +14,6 @@ from springfield.cms.models import FreeFormPage
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
-def _rich_text_stream(text, block_id):
-    return [{"type": "rich_text", "value": text, "id": block_id}]
-
-
 def get_media_content_variants() -> list[dict]:
     tags = list(get_tag_variants().values())
     buttons = get_button_variants()
@@ -41,16 +37,20 @@ def get_media_content_variants() -> list[dict]:
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
                     }
                 ],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Content Before, Media After</p>',
-                "tags": tags[:3],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">The block is composed of text and media. '
-                    "You can also add tags between the Headline and the Content.</p>",
-                    "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
-                ),
-                "buttons": [
-                    buttons["primary"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Content Before, Media After</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010001-0000-0000-0000-000000000001", "value": tags[:3]},
+                    {
+                        "type": "rich_text",
+                        "id": "c1a2b3c4-d5e6-7890-abcd-ef1234567890",
+                        "value": '<p data-block-key="4fkrh">The block is composed of text and media. '
+                        "You can also add tags between the Headline and the Content.</p>",
+                    },
+                    {"type": "buttons", "id": "00010001-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
             },
             "id": "e3320867-b02a-460d-8bab-492bfcaf1bd3",
@@ -73,15 +73,19 @@ def get_media_content_variants() -> list[dict]:
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
                     }
                 ],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Content <sup>After</sup>, Media <sub>Before</sub></p>',
-                "tags": tags[3:6],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">More tag variations and some <b>richtext</b> formatting examples.</p>',
-                    "d2b3c4d5-e6f7-8901-bcde-f12345678901",
-                ),
-                "buttons": [
-                    buttons["secondary"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Content <sup>After</sup>, Media <sub>Before</sub></p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010002-0000-0000-0000-000000000001", "value": tags[3:6]},
+                    {
+                        "type": "rich_text",
+                        "id": "d2b3c4d5-e6f7-8901-bcde-f12345678901",
+                        "value": '<p data-block-key="4fkrh">More tag variations and some <b>richtext</b> formatting examples.</p>',
+                    },
+                    {"type": "buttons", "id": "00010002-0000-0000-0000-000000000002", "value": [buttons["secondary"]]},
                 ],
             },
             "id": "0b474f02-d3fd-4d86-83cd-c1bc4d7eadf0",
@@ -91,15 +95,19 @@ def get_media_content_variants() -> list[dict]:
             "value": {
                 "settings": {"media_after": False},
                 "media": [videos["youtube"]],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Video + Content</p>',
-                "tags": tags[6:9],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
-                    "e3c4d5e6-f7a8-9012-cdef-123456789012",
-                ),
-                "buttons": [
-                    buttons["tertiary"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Video + Content</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010003-0000-0000-0000-000000000001", "value": tags[6:9]},
+                    {
+                        "type": "rich_text",
+                        "id": "e3c4d5e6-f7a8-9012-cdef-123456789012",
+                        "value": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                    },
+                    {"type": "buttons", "id": "00010003-0000-0000-0000-000000000002", "value": [buttons["tertiary"]]},
                 ],
             },
             "id": "6e56b431-f30f-43c9-8fed-3b74f50873f2",
@@ -109,15 +117,19 @@ def get_media_content_variants() -> list[dict]:
             "value": {
                 "settings": {"media_after": True},
                 "media": [videos["cdn"]],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Video + Content Before</p>',
-                "tags": tags[9:12],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
-                    "f4d5e6f7-a8b9-0123-defa-234567890123",
-                ),
-                "buttons": [
-                    buttons["ghost"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Video + Content Before</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010004-0000-0000-0000-000000000001", "value": tags[9:12]},
+                    {
+                        "type": "rich_text",
+                        "id": "f4d5e6f7-a8b9-0123-defa-234567890123",
+                        "value": '<p data-block-key="4fkrh">Add a Video instead of an image as the media element.</p>',
+                    },
+                    {"type": "buttons", "id": "00010004-0000-0000-0000-000000000002", "value": [buttons["ghost"]]},
                 ],
             },
             "id": "98b08efa-ddd2-4feb-b070-6a50781fc253",
@@ -127,15 +139,19 @@ def get_media_content_variants() -> list[dict]:
             "value": {
                 "settings": {"media_after": False},
                 "media": [videos["animation"]],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Animation Autoplay Loop</p>',
-                "tags": tags[:3],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">Animation with autoplay loop (default). Plays continuously.</p>',
-                    "a5e6f7a8-b9c0-1234-efab-345678901234",
-                ),
-                "buttons": [
-                    buttons["ghost"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Animation Autoplay Loop</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010005-0000-0000-0000-000000000001", "value": tags[:3]},
+                    {
+                        "type": "rich_text",
+                        "id": "a5e6f7a8-b9c0-1234-efab-345678901234",
+                        "value": '<p data-block-key="4fkrh">Animation with autoplay loop (default). Plays continuously.</p>',
+                    },
+                    {"type": "buttons", "id": "00010005-0000-0000-0000-000000000002", "value": [buttons["ghost"]]},
                 ],
             },
             "id": "7e56b431-f30f-43c9-8fed-3b74f50873f2",
@@ -145,15 +161,19 @@ def get_media_content_variants() -> list[dict]:
             "value": {
                 "settings": {"media_after": False},
                 "media": [videos["animation_autoplay_once"]],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">Animation Autoplay Once</p>',
-                "tags": tags[:3],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">Animation with autoplay once. Plays on load then shows poster and play button.</p>',
-                    "b6f7a8b9-c0d1-2345-fabc-456789012345",
-                ),
-                "buttons": [
-                    buttons["ghost"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">Animation Autoplay Once</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010006-0000-0000-0000-000000000001", "value": tags[:3]},
+                    {
+                        "type": "rich_text",
+                        "id": "b6f7a8b9-c0d1-2345-fabc-456789012345",
+                        "value": '<p data-block-key="4fkrh">Animation with autoplay once. Plays on load then shows poster and play button.</p>',
+                    },
+                    {"type": "buttons", "id": "00010006-0000-0000-0000-000000000002", "value": [buttons["ghost"]]},
                 ],
             },
             "id": "a7262a66-eefb-4ae1-90ae-ab85a1e4acf5",
@@ -169,15 +189,19 @@ def get_media_content_variants() -> list[dict]:
                         "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
                     },
                 ],
-                "eyebrow": '<p data-block-key="jqkbk">Eyebrow</p>',
-                "headline": '<p data-block-key="4h9nd">QR Code + Content Before</p>',
-                "tags": tags[3:6],
-                "content": _rich_text_stream(
-                    '<p data-block-key="4fkrh">Add a QR Code instead of an image as the media element.</p>',
-                    "c7a8b9c0-d1e2-3456-abcd-567890123456",
-                ),
-                "buttons": [
-                    buttons["primary"],
+                "heading": {
+                    "superheading_text": '<p data-block-key="jqkbk">Eyebrow</p>',
+                    "heading_text": '<p data-block-key="4h9nd">QR Code + Content Before</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {"type": "tags", "id": "00010007-0000-0000-0000-000000000001", "value": tags[3:6]},
+                    {
+                        "type": "rich_text",
+                        "id": "c7a8b9c0-d1e2-3456-abcd-567890123456",
+                        "value": '<p data-block-key="4fkrh">Add a QR Code instead of an image as the media element.</p>',
+                    },
+                    {"type": "buttons", "id": "00010007-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
             },
             "id": "38b08efa-ddd2-4feb-b070-6a50781fc253",

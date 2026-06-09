@@ -26,11 +26,13 @@
         heading_text="{{ ftl('set-as-default-landing-make-sure-youre-protected') }}"
         subheading_text="{{ ftl('set-as-default-landing-thanks-for-using-the') }}" />
     </content:heading>
-    <content:actions>
-      <a id="set-as-default-button" href="{{ url('firefox.default.thanks') }}" class="fl-button" data-cta-text="Make Firefox your default browser" data-testid="button-set-as-default">
-        {{ ftl('set-as-default-landing-make-firefox-your-default') }}
-      </a>
-    </content:actions>
+    <content:content>
+      <div class="fl-intro-actions">
+        <a id="set-as-default-button" href="{{ url('firefox.default.thanks') }}" class="fl-button" data-cta-text="Make Firefox your default browser" data-testid="button-set-as-default">
+          {{ ftl('set-as-default-landing-make-firefox-your-default') }}
+        </a>
+      </div>
+    </content:content>
   </include:intro>
 
   <include:section>

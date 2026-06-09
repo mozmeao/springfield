@@ -40,7 +40,7 @@ def get_bottom_section() -> list[dict]:
                 "heading_text": '<p data-block-key="i26h1">Some content to fill out the space</p>',
                 "subheading_text": '<p data-block-key="i26b1">The Kit Intro overflows and needs some content underneath.</p>',
             },
-            "buttons": [],
+            "content": [],
         },
         "id": "2026int1-0000-0000-0000-000000000001",
     }

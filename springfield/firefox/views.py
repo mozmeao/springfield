@@ -55,7 +55,7 @@ _STUB_VALUE_NAMES = [
     ("ua", "(not set)"),
     ("client_id_ga4", "(not set)"),
     ("session_id", "(not set)"),
-    ("dlsource", "(not set)"),
+    ("dlsource", "fxdotcom"),
 ]
 _STUB_VALUE_NAMES_LEGACY = [
     # name, default value
@@ -116,6 +116,7 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
+    fallback_fields = ["medium", "source"]
     stub_value_names = _STUB_VALUE_NAMES if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR") else _STUB_VALUE_NAMES_LEGACY
     for name, default_value in stub_value_names:
         val = data.get(name, "")
@@ -125,22 +126,21 @@ def stub_attribution_code(request):
 
         if val and STUB_VALUE_RE.match(val):
             codes[name] = val
-            has_value = True
+            if name in fallback_fields:
+                # we don't need the fallbacks
+                has_value = True
         else:
             codes[name] = default_value
 
     # Only provide default analytics data if analytics data is allowed
-    # (as indicated by set ga4 client value)
+    # (as indicated by set session_id value)
     if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-        if not codes["client_id_ga4"] == "(not set)":
-            # set basic defaults
-            if codes["dlsource"] == "(not set)":
-                codes["dlsource"] = "fxdotcom"
-
+        if not codes["session_id"] == "(not set)":
+            # set basic fallbacks
             if codes["medium"] == "(not set)":
                 codes["medium"] = "(direct)"
 
-            # try more advanced defaults
+            # try more advanced fallbacks
             if codes["source"] == "(not set)" and "referrer" in data:
                 try:
                     domain = urlparse(data["referrer"]).netloc

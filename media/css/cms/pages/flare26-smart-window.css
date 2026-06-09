@@ -13,7 +13,7 @@
         z-index: 1;
     }
 
-    .fl-smart-window-explainer-page .fl-heading-group::before {
+    .fl-smart-window-explainer-page .fl-intro-content::before {
         background: var(--smart-window-logo-url) no-repeat center;
         background-size: contain;
         block-size: 31px;

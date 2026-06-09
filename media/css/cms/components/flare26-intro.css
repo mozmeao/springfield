@@ -4,10 +4,6 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-freeform-2026-page .fl-split-page-upper:has(.fl-intro:first-child) {
-    padding-block-start: 0;
-}
-
 .fl-intro {
     inline-size: 100%;
     padding-block: var(--fl-section-v-padding);
@@ -37,6 +33,15 @@
     max-inline-size: 848px;
 }
 
+.fl-intro-content > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-intro .fl-superheading {
+    color: var(--fl-theme-color-link);
+    text-transform: uppercase;
+}
+
 .fl-intro .fl-heading,
 .fl-intro .fl-heading-group {
     inline-size: 100%;
@@ -44,10 +49,6 @@
 
 .fl-intro-full-width .fl-intro-content {
     max-inline-size: unset;
-}
-
-.fl-intro-vertical .fl-intro-content {
-    display: block;
 }
 
 .fl-intro.fl-intro-media-left,
@@ -65,6 +66,12 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.fl-intro.fl-intro-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
 }
 
 .fl-intro-vertical .fl-buttons {
@@ -95,6 +102,7 @@
 .fl-intro-content .fl-buttons {
     align-items: start;
     justify-content: center;
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
 }
 
 .fl-intro-content .text {
@@ -107,12 +115,6 @@
 
 .fl-intro .fl-heading-group {
     margin-block-end: var(--token-layout-3xs);
-}
-
-.fl-intro .fl-superheading {
-    color: var(--fl-theme-color-link);
-    font-size: var(--fl-theme-font-size-subheading-xs);
-    text-transform: uppercase;
 }
 
 .fl-intro .fl-heading:not([class*='fl-heading-']) {
@@ -143,7 +145,8 @@
     position: relative;
 }
 
-.fl-home-intro .fl-intro {
+.fl-home-intro .fl-intro,
+.fl-home-intro .fl-intro:first-child {
     padding-block-end: var(--token-layout-sm);
 }
 
@@ -165,13 +168,13 @@
     background-size: contain;
     content: '';
     inline-size: var(--banner-kit-width, 580px);
-    inset-block-end: var(--banner-kit-bottom-position, -300px);
+    inset-block-end: var(--banner-kit-bottom-position, -240px);
     inset-inline-end: var(--banner-kit-right-position, calc(50% - 85px));
     position: absolute;
     z-index: 0;
 }
 
-.fl-home-intro .fl-superheading {
+.superheading-is-pill .fl-superheading {
     align-items: center;
     background: linear-gradient(
         180deg,
@@ -179,16 +182,18 @@
         var(--token-color-light-purple-20) 100%
     );
     border-radius: var(--token-border-radius-xl);
+    color: var(--fl-theme-color-link);
     display: inline-flex;
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
     line-height: 1;
-    margin: 0;
+    margin: 0 auto var(--token-spacing-xl);
     padding: var(--token-spacing-sm) var(--token-spacing-md);
     position: relative;
+    text-transform: uppercase;
 }
 
-.fl-home-intro .fl-superheading:has(a:hover) {
+.superheading-is-pill .fl-superheading:has(a:hover) {
     background: linear-gradient(
         180deg,
         var(--token-color-light-purple-60) 0%,
@@ -196,18 +201,18 @@
     );
 }
 
-.fl-home-intro .fl-superheading a {
+.superheading-is-pill .fl-superheading a {
     color: var(--token-color-white);
     text-decoration: none;
 }
 
-.fl-home-intro .fl-superheading a::before {
+.superheading-is-pill .fl-superheading a::before {
     content: '';
     inset: 0;
     position: absolute;
 }
 
-.fl-home-intro .fl-superheading a::after {
+.superheading-is-pill .fl-superheading a::after {
     background-color: currentColor;
     block-size: 1em;
     content: '';
@@ -220,8 +225,8 @@
     vertical-align: middle;
 }
 
-.fl-home-intro .fl-superheading i,
-.fl-home-intro .fl-superheading em {
+.superheading-is-pill .fl-superheading i,
+.superheading-is-pill .fl-superheading em {
     background: var(--token-gradient-gold);
     border-radius: var(--token-border-radius-2xs);
     color: var(--token-color-black-4);
@@ -229,6 +234,10 @@
     margin-inline-end: var(--token-spacing-sm);
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
     text-transform: uppercase;
+}
+
+.fl-home-intro .fl-superheading {
+    margin-block-end: 0;
 }
 
 .fl-home-intro .fl-heading {
@@ -266,7 +275,7 @@
 
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 109px);
-        --banner-kit-bottom-position: -394px;
+        --banner-kit-bottom-position: -364px;
         --banner-kit-width: 800px;
     }
 }
@@ -285,7 +294,7 @@
 
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 134px);
-        --banner-kit-bottom-position: -464px;
+        --banner-kit-bottom-position: -414px;
         --banner-kit-width: 940px;
     }
 
