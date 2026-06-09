@@ -219,8 +219,8 @@
     display: inline-block;
     inline-size: 1em;
     margin-inline-start: var(--token-spacing-xs);
-    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat
-        center / 1em 1em;
+    mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/forward-16.svg')
+        no-repeat center / 1em 1em;
     mask-size: contain;
     vertical-align: middle;
 }
