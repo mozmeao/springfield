@@ -1782,7 +1782,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ContactPage(AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
 
-    parent_page_types = ["wagtailcore.Page"]
+    parent_page_types = ["cms.HomePage"]
     subpage_types = []
     template = "cms/contact_page.html"
 
@@ -1849,7 +1849,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 return response
 
             self.send_form_email(request)
-            return redirect(self.redirect_to.url)
+            return redirect(self.redirect_to.localized.url)
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)

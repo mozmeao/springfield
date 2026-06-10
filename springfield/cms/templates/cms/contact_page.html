@@ -47,9 +47,9 @@
         {% include_block field %}
       {% endfor %}
 
-      <div class="contact-form-honeypot">
+      <div class="contact-form-honeypot" style="display:none" aria-hidden="true">
         <label for="office-fax">Leave this field empty</label>
-        <input type="text" name="office_fax" id="office-fax" autocomplete="off">
+        <input type="text" name="office_fax" id="office-fax" autocomplete="off" tabindex="-1">
       </div>
 
       <div class="mzp-c-form-submit">

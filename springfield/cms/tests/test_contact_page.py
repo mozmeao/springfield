@@ -9,11 +9,14 @@ from django.test import RequestFactory
 import pytest
 from wagtail.models import Site
 
+from wagtail.models import Locale
+
 from springfield.cms.fixtures.base_fixtures import get_test_index_page
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import ContactPage
 from springfield.cms.tests.conftest import minimal_site  # noqa: F401
+from springfield.cms.tests.factories import LocaleFactory
 
 pytestmark = [
     pytest.mark.django_db,
@@ -119,7 +122,9 @@ def test_contact_page_get_is_never_cached(
     assert "no-store" in cache_control
 
 
+@patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_errors_is_never_cached(
+    mock_email_class,
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
@@ -149,6 +154,7 @@ def test_contact_page_post_errors_is_never_cached(
     assert "Please fill in at least one field." in resp.text
     cache_control = resp.get("Cache-Control", "")
     assert "no-store" in cache_control
+    mock_email_class.assert_not_called()
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -195,7 +201,9 @@ def test_contact_page_post_valid(
     mock_email_class.return_value.send.assert_called_once()
 
 
+@patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_missing_required(
+    mock_email_class,
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
@@ -230,6 +238,7 @@ def test_contact_page_post_missing_required(
     assert "Full Name is required." in page_content
     assert "Email Address is required." in page_content
     assert "Area of Interest is required." in page_content
+    mock_email_class.assert_not_called()
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -301,7 +310,9 @@ def test_contact_page_post_empty_submission(
     assert "Please fill in at least one field." in page_content
 
 
+@patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_honeypot(
+    mock_email_class,
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
@@ -335,3 +346,51 @@ def test_contact_page_post_honeypot(
 
     assert resp.status_code == 200
     assert "Form submission failed." in page_content
+    mock_email_class.assert_not_called()
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_post_valid_redirects_to_localised_page(
+    mock_email_class,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """Test that a valid POST redirects to the locale-appropriate version of redirect_to.
+
+    The CMS editor configures redirect_to pointing at the en-US thank-you page.
+    A user whose active locale is fr should be redirected to the fr translation
+    of that page, not the en-US original.
+    """
+    index_page = get_test_index_page()
+    form_field_variants = get_form_field_variants()
+    en_us_thank_you = _create_thank_you_page(index_page)
+
+    fr_locale = Locale.objects.get(language_code="fr")
+    fr_thank_you = en_us_thank_you.copy_for_translation(fr_locale, copy_parents=True)
+    fr_thank_you.save_revision().publish()
+
+    page = ContactPage(
+        title="Contact Locale Test",
+        slug="contact-locale-test",
+        form_fields=form_field_variants,
+        to_email_address="recipient@example.com",
+        redirect_to=en_us_thank_you,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "interest": "privacy",
+        },
+    )
+    # Simulate an active fr locale for this request
+    request.LANGUAGE_CODE = "fr"
+    with patch("wagtail.models.i18n.Locale.get_active", return_value=fr_locale):
+        resp = page.serve(request)
+
+    assert resp.status_code == 302
+    assert resp["Location"] == fr_thank_you.url
