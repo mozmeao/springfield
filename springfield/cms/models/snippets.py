@@ -138,6 +138,43 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
 register_snippet(PreFooterCTAFormSnippet)
 
 
+# TODO: This snippet is not used and will be deleted on a following PR
+class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render an image with a Call to Action for downloading Firefox."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    description = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("description"),
+        FieldPanel("image"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Download Firefox Call To Action Snippet"
+        verbose_name_plural = "Download Firefox Call To Action Snippets"
+
+    def __str__(self):
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/download-firefox-cta-snippet-preview.html"
+
+
 class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a banner with a QR code."""
 
