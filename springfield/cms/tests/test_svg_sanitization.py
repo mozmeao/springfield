@@ -457,3 +457,37 @@ class SVGSanitizationFieldTestCase(TestCase):
 
         # The encoded byte sequence from the fixture must not survive.
         self.assertNotIn(b"data:te&#x78;t/html", rewritten)
+
+    def test_sanitized_output_exceeding_max_upload_size_rejected(self):
+        """SVG whose sanitized output exceeds Wagtail max upload size is rejected."""
+        svg_file = SimpleUploadedFile(
+            "nested.svg",
+            CLEAN_SVG.encode("utf-8"),
+            content_type="image/svg+xml",
+        )
+        bloated = b"x" * 20_000
+
+        with mock.patch.object(self.field, "max_upload_size", 10_000):
+            with mock.patch("springfield.cms.fields.filter_svg", return_value=bloated):
+                result = self.field._sanitize_svg(svg_file)
+
+        self.assertIsInstance(result, ValidationError)
+        self.assertEqual(result.code, "svg_sanitized_too_large")
+        # Upload buffer must not be rewritten when rejected.
+        svg_file.seek(0)
+        self.assertEqual(svg_file.read(), CLEAN_SVG.encode("utf-8"))
+
+    def test_deeply_nested_svg_rejected_when_sanitized_output_too_large(self):
+        """Regression: compact nested <g> SVG must not persist after ~56x expansion."""
+        compact = b"<svg xmlns='http://www.w3.org/2000/svg'>" + b"<g>" * 200 + b"<rect width='1' height='1'/>" + b"</g>" * 200 + b"</svg>"
+        svg_file = SimpleUploadedFile(
+            "nested.svg",
+            compact,
+            content_type="image/svg+xml",
+        )
+
+        with mock.patch.object(self.field, "max_upload_size", 50_000):
+            result = self.field._sanitize_svg(svg_file)
+
+        self.assertIsInstance(result, ValidationError)
+        self.assertEqual(result.code, "svg_sanitized_too_large")
