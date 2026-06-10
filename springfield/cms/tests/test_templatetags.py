@@ -93,6 +93,22 @@ def test_remove_tags():
             "example.firefox.com/page",
             "example.firefox.com/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
         ),
+        (
+            "https://example.mozilla.ai/page",
+            "https://example.mozilla.ai/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.mozilla.vc/page",
+            "https://example.mozilla.vc/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.thunderbird.net/page",
+            "https://example.thunderbird.net/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.mozilla.com/page",
+            "https://example.mozilla.com/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
         ("https://www.firefox.com/page", "https://www.firefox.com/page"),
         ("www.firefox.com/page", "www.firefox.com/page"),
         ("firefox.com/page", "firefox.com/page"),
@@ -179,6 +195,22 @@ def test_richtext_parses_fxa_tag():
         ),
         (
             "example.firefox.com/page",
+            True,
+        ),
+        (
+            "example.mozilla.ai/page",
+            True,
+        ),
+        (
+            "example.mozilla.vc/page",
+            True,
+        ),
+        (
+            "example.thunderbird.net/page",
+            True,
+        ),
+        (
+            "example.mozilla.com/page",
             True,
         ),
         (
