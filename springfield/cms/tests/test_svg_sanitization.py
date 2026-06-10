@@ -478,7 +478,7 @@ class SVGSanitizationFieldTestCase(TestCase):
         self.assertEqual(svg_file.read(), CLEAN_SVG.encode("utf-8"))
 
     def test_deeply_nested_svg_rejected_when_sanitized_output_too_large(self):
-        """Regression: compact nested <g> SVG must not persist after ~1400x expansion."""
+        """Regression: compact nested <g> SVG must not persist after ~56x expansion."""
         compact = b"<svg xmlns='http://www.w3.org/2000/svg'>" + b"<g>" * 200 + b"<rect width='1' height='1'/>" + b"</g>" * 200 + b"</svg>"
         svg_file = SimpleUploadedFile(
             "nested.svg",
