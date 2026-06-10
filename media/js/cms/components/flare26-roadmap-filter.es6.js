@@ -4,14 +4,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+/** @type {string} - The URL query parameter name used to store selected filter tags */
 const PARAM = 'tags';
 
+/**
+ * Reads the current URL query string and returns the active filter tags as a Set.
+ * @returns {Set<string>} Set of active tag filters from the URL
+ */
 function getActiveFilters() {
+    /** @type {URLSearchParams} */
     const params = new URLSearchParams(window.location.search);
     const value = params.get(PARAM);
     return value ? new Set(value.split(',').filter(Boolean)) : new Set();
 }
 
+/**
+ * Updates the browser URL with the given set of active filters.
+ * Uses replaceState so it doesn't add a history entry.
+ * @param {Set<string>} activeFilters - The set of currently selected filter tags
+ */
 function setUrlParams(activeFilters) {
     const url = new URL(window.location.href);
     if (activeFilters.size > 0) {
@@ -22,11 +33,18 @@ function setUrlParams(activeFilters) {
     history.replaceState(null, '', url);
 }
 
+/**
+ * Shows/hides roadmap items and sections based on the active filters.
+ * Items matching any active filter are shown; unmatched items are hidden.
+ * Sections with no visible items are hidden entirely.
+ * @param {Set<string>} activeFilters - The set of currently selected filter tags
+ */
 function applyFilter(activeFilters) {
     const sections = document.querySelectorAll('.fl-roadmap-list-section');
 
     sections.forEach((section) => {
         const items = section.querySelectorAll('.fl-roadmap-item');
+        /** @type {number} - Count of visible items in this section */
         let visibleCount = 0;
 
         items.forEach((item) => {
@@ -59,6 +77,12 @@ function applyFilter(activeFilters) {
     });
 }
 
+/**
+ * Updates the visual state (aria-pressed, selected class) of filter buttons
+ * to reflect the current set of active filters.
+ * @param {NodeList} filterButtons - The filter toggle buttons in the DOM
+ * @param {Set<string>} activeFilters - The set of currently selected filter tags
+ */
 function syncButtonState(filterButtons, activeFilters) {
     filterButtons.forEach((button) => {
         const isActive = activeFilters.has(button.dataset.filter);
@@ -69,20 +93,35 @@ function syncButtonState(filterButtons, activeFilters) {
         }
         button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
+
+    const clearAllButton = document.querySelector(
+        '.fl-roadmap-filter-button-clear-all'
+    );
+
+    if (clearAllButton && activeFilters.size) {
+        clearAllButton.disabled = false;
+        clearAllButton.querySelector('.fl-tag').classList.add('is-selected');
+    } else {
+        clearAllButton.disabled = true;
+        clearAllButton.querySelector('.fl-tag').classList.remove('is-selected');
+    }
 }
 
+/**
+ * Initializes the roadmap filter component: applies any filters from the URL
+ * and attaches click handlers to the filter buttons.
+ */
 function initRoadmapFilter() {
     const filterButtons = document.querySelectorAll(
-        '.fl-roadmap-filter-button'
+        '.fl-roadmap-filter-button:not(.fl-roadmap-filter-button-clear-all)'
     );
     if (!filterButtons.length) return;
 
+    /** @type {Set<string>} */
     const activeFilters = getActiveFilters();
 
-    if (activeFilters.size > 0) {
-        syncButtonState(filterButtons, activeFilters);
-        applyFilter(activeFilters);
-    }
+    syncButtonState(filterButtons, activeFilters);
+    applyFilter(activeFilters);
 
     filterButtons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -99,8 +138,24 @@ function initRoadmapFilter() {
             setUrlParams(activeFilters);
         });
     });
+
+    const clearAllButton = document.querySelector(
+        '.fl-roadmap-filter-button-clear-all'
+    );
+    if (clearAllButton) {
+        clearAllButton.addEventListener('click', () => {
+            activeFilters.clear();
+            syncButtonState(filterButtons, activeFilters);
+            applyFilter(activeFilters);
+            setUrlParams(activeFilters);
+        });
+    }
 }
 
+/**
+ * Entry point for the roadmap filter module.
+ * Called from the template when the page is ready.
+ */
 export default function setupRoadmapFilter() {
     initRoadmapFilter();
 }

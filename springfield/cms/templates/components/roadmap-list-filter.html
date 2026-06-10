@@ -20,6 +20,15 @@
             <include:tag text="{{ tag.label }}" before_icon={{ tag.icon }} after_icon="close" />
           </button>
         {% endfor %}
+        <button
+          type="button"
+          class="fl-roadmap-filter-button fl-roadmap-filter-button-clear-all"
+          data-filter="all"
+          aria-pressed="false"
+          disabled
+        >
+          <include:tag text="Clear all" after_icon="close" />
+        </button>
       </div>
       {% if last_updated %}
         <p>{{ last_updated }}</p>
