@@ -54,6 +54,7 @@ EXPANDED_TEXT_FEATURES = [
     "blockquote",
     "ol",
     "ul",
+    "code",
 ]
 
 HEADING_LEVEL_CHOICES = (
@@ -461,6 +462,11 @@ GEO_CHOICES = [
     ("CO", "Colombia"),
     ("MX", "Mexico"),
 ]
+AI_CONTROLS_CHOICES = [
+    ("", "No restriction"),
+    ("available", "AI Controls available"),
+    ("unavailable", "AI Controls unavailable"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -474,6 +480,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
+UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
@@ -481,7 +488,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
-    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Control"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
     (
@@ -490,6 +497,7 @@ UITOUR_BUTTON_CHOICES = (
     ),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
+    (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
 )
 
 UI_TOUR_CLASSES = {
@@ -505,6 +513,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
+    UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
 }
 
 BUTTON_TYPE = "button"
@@ -612,10 +621,19 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
         widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
     )
+    ai_controls = blocks.ChoiceBlock(
+        choices=AI_CONTROLS_CHOICES,
+        required=False,
+        label="AI Controls",
+        help_text="Show based on AI Controls availability. Leave empty for no restriction.",
+    )
 
     class Meta:
         label = "Conditional Display"
-        label_format = "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - Versions {min_version} to {max_version}"
+        label_format = (
+            "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
+            "AI {ai_controls} - Versions {min_version} to {max_version}"
+        )
         icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
@@ -1379,7 +1397,7 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
 def BaseContentBlock(allow_uitour=False, **kwargs):
     class _BaseContentBlock(blocks.StreamBlock):
         tags = TagsBlock(min_num=0, max_num=3, default=[])
-        rich_text = RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
+        rich_text = RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,

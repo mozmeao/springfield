@@ -9,7 +9,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0101_freeformpage2026_extra_js"),
+        ("cms", "0102_whatsnewpage2026_body_class_and_more"),
     ]
 
     operations = [

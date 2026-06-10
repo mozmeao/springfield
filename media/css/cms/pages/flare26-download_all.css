@@ -135,6 +135,10 @@
         line-height: 1;
     }
 
+    .download-ms-store-badge .ms-store-badge-img {
+        inline-size: 152px;
+    }
+
     @media (--viewport-xs) {
         /* Divider goes across entire first section */
         .fl-c-flow-steps {

@@ -1041,12 +1041,36 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
+
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
+    )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
+
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Page Settings",
+        ),
     ]
 
     class Meta:
