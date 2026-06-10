@@ -9,8 +9,10 @@ from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import models
+from django.template.loader import render_to_string
 from django.db.models import Count
 from django.db.models.expressions import Case, F, Value, When
 from django.forms.widgets import CheckboxSelectMultiple
@@ -34,6 +36,11 @@ from springfield.cms.blocks import (
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
+    CheckboxGroupFieldBlock,
+    EmailFieldBlock,
+    PhoneFieldBlock,
+    SelectFieldBlock,
+    TextFieldBlock,
     BlogArticleBlock,
     BlogCardsListBlock,
     ButtonRowBlock,
@@ -1770,3 +1777,142 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"RoadmapPage: {self.title} - {self.locale}"
+
+
+class ContactPage(AbstractSpringfieldCMSPage):
+    """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    parent_page_types = ["wagtailcore.Page"]
+    subpage_types = []
+    template = "cms/contact_page.html"
+
+    subheading = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Optional subheading displayed below the page title.",
+    )
+
+    form_fields = StreamField(
+        [
+            ("text_field", TextFieldBlock()),
+            ("email_field", EmailFieldBlock()),
+            ("phone_field", PhoneFieldBlock()),
+            ("select_field", SelectFieldBlock()),
+            ("checkbox_group_field", CheckboxGroupFieldBlock()),
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        help_text="Define the form fields that will appear on the contact page.",
+    )
+
+    to_email_address = models.EmailField(
+        help_text="Email address where form submissions will be sent.",
+    )
+
+    redirect_to = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.PROTECT,
+        related_name="+",
+        help_text="Page to redirect to after a successful form submission (e.g. a thank-you page).",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("subheading"),
+        FieldPanel("form_fields"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("to_email_address"),
+                FieldPanel("redirect_to"),
+            ],
+            heading="Form Submission Settings",
+        ),
+    ]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        form_errors = getattr(request, "form_errors", None)
+        if form_errors:
+            context["form_errors"] = form_errors
+        return context
+
+    def serve(self, request, *args, **kwargs):
+        if request.method == "POST":
+            form_errors = self.validate_form_data(request.POST)
+            if form_errors:
+                request.form_errors = form_errors
+                response = super().serve(request, *args, **kwargs)
+                add_never_cache_headers(response)
+                return response
+
+            self.send_form_email(request)
+            return redirect(self.redirect_to.url)
+
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
+
+    def validate_form_data(self, post_data):
+        """Validate submitted form data against the field configuration.
+
+        Returns a list of error messages. An empty list means the data is valid.
+        """
+        if post_data.get("office_fax", ""):
+            return ["Form submission failed."]
+
+        errors = []
+        has_any_data = False
+
+        for field in self.form_fields:
+            block_type = field.block_type
+            value = field.value
+            identifier = value["settings"]["internal_identifier"]
+            label = value["label"]
+            is_required = value.get("required", False)
+
+            if block_type == "checkbox_group_field":
+                submitted = post_data.getlist(identifier)
+            else:
+                submitted = post_data.get(identifier, "").strip()
+
+            if submitted:
+                has_any_data = True
+
+            if is_required and not submitted:
+                errors.append(f"{label} is required.")
+
+        if not has_any_data:
+            errors.append("Please fill in at least one field.")
+
+        return errors
+
+    def send_form_email(self, request):
+        """Collect form data and send it as an email."""
+        fields = []
+        for field in self.form_fields:
+            block_type = field.block_type
+            value = field.value
+            identifier = value["settings"]["internal_identifier"]
+            label = value["label"]
+
+            if block_type == "checkbox_group_field":
+                submitted = ", ".join(request.POST.getlist(identifier))
+            else:
+                submitted = request.POST.get(identifier, "")
+
+            fields.append({"label": label, "value": submitted})
+
+        msg = render_to_string("cms/emails/contact-form.txt", {"fields": fields})
+        subject = f"Contact form submission: {self.title}"
+        email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
+        email.send()
+
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
+    def __str__(self):
+        return f"ContactPage: {self.title} - {self.locale}"

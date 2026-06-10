@@ -1,0 +1,12 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="mzp-c-field">
+  <label class="mzp-c-field-label" for="{{ value.settings.internal_identifier }}">
+    {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
+  </label>
+  <input class="mzp-c-field-control" type="text" id="{{ value.settings.internal_identifier }}" name="{{ value.settings.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
+</div>
