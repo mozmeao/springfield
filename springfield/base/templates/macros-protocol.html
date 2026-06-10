@@ -116,7 +116,7 @@
 {% macro callout_compact(title, desc=None, class=None, heading_level=2, brand=False, brand_product=None, brand_type=None, brand_size=None, brand_text=None) -%}
 <section class="mzp-c-callout mzp-l-compact {% if class %}{{ class }}{% endif %} fl-section-container is-narrow">
 
-  <div class="fl-channel-header">
+  <div class="mzp-l-content mzp-t-content-lg fl-channel-header">
     <div class="mzp-c-callout-content {% if brand %}mzp-c-callout-content-has-brand{% endif %} fl-channel-row">
       {% if brand %}
       <div class="fl-brand-icon-wrap">
@@ -136,7 +136,7 @@
       </div>
       {% endif %}
       <div class="mzp-c-callout-container">
-        <h{{ heading_level }} class="fl-heading fl-heading-sm">{{ title }}</h{{ heading_level }}>
+        <h{{ heading_level }} class="mzp-c-callout-title fl-heading fl-heading-sm">{{ title }}</h{{ heading_level }}>
         {% if desc %}
         <p class="fl-body-md">{{ desc }}</p>
         {% endif %}

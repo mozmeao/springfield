@@ -1252,7 +1252,7 @@ class TagBlock(blocks.StructBlock):
 
 
 class TagsBlock(blocks.ListBlock):
-    def __init__(self, child=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         child = TagBlock()
         super().__init__(child, *args, **kwargs)
 
