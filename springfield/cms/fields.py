@@ -7,6 +7,7 @@ import os
 import re
 
 from django.core.exceptions import ValidationError
+from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext_lazy as _
 
 import defusedxml.ElementTree as ET
@@ -136,6 +137,10 @@ class SanitizingWagtailImageField(WagtailImageField):
         )
 
         self.error_messages["svg_sanitization_error"] = _("Unable to process this SVG file. Please ensure it is a valid SVG.")
+
+        self.error_messages["svg_sanitized_too_large"] = _(
+            "This SVG file is too large after sanitization (%(file_size)s). Maximum filesize is %(max_filesize)s."
+        )
 
     def _is_svg_file(self, f) -> bool:
         """
@@ -286,6 +291,18 @@ class SanitizingWagtailImageField(WagtailImageField):
                 return ValidationError(
                     f"{self.error_messages['svg_sanitization_error']}: {ex}",
                     code="svg_sanitization_error",
+                )
+
+            # The upload size was validated before sanitization, but `filter_svg`
+            # can expand nested SVGs into a much larger file, so re-check it here.
+            if self.max_upload_size is not None and len(sanitized_content) > self.max_upload_size:
+                return ValidationError(
+                    self.error_messages["svg_sanitized_too_large"],
+                    code="svg_sanitized_too_large",
+                    params={
+                        "file_size": filesizeformat(len(sanitized_content)),
+                        "max_filesize": self.max_upload_size_text,
+                    },
                 )
 
             # Write the sanitized output back in place.
