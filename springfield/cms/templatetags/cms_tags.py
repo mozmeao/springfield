@@ -104,7 +104,7 @@ def add_utm_parameters(context: dict, value: str) -> str:
     """
     Appends UTM parameters to URLs that point to *.mozilla.org, *.mozillafoundation.org,
     *.firefox.com, *.mozilla.ai, *.mozilla.vc, *.thunderbird.net, and *.mozilla.com
-    domains, except for www.firefox.com.
+    domains, except for www.firefox.com and firefox.com.
     """
 
     utm_parameters = context.get("utm_parameters", {})
@@ -117,9 +117,10 @@ def add_utm_parameters(context: dict, value: str) -> str:
         elif parsed_url.path:
             host = parsed_url.path.split("/")[0]
         pattern = re.compile(
-            r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com)|(mozilla.ai)|(mozilla.vc)|(thunderbird.net)|(mozilla.com))",
+            r"^(\w+\.)?((mozilla\.org)|(mozillafoundation\.org)|(firefox\.com)|(mozilla\.ai)|(mozilla\.vc)|(thunderbird\.net)|(mozilla\.com))\Z",
             re.IGNORECASE,
         )
+        host = host.lower().rstrip(".")
         if host and host not in ["www.firefox.com", "firefox.com"] and pattern.match(host):
             query_string = parsed_url.query
             query = parse_qs(query_string)
