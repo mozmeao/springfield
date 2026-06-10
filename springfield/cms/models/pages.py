@@ -12,11 +12,11 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import models
-from django.template.loader import render_to_string
 from django.db.models import Count
 from django.db.models.expressions import Case, F, Value, When
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
@@ -36,19 +36,16 @@ from springfield.cms.blocks import (
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
-    CheckboxGroupFieldBlock,
-    EmailFieldBlock,
-    PhoneFieldBlock,
-    SelectFieldBlock,
-    TextFieldBlock,
     BlogArticleBlock,
     BlogCardsListBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock2026,
     CarouselBlock,
+    CheckboxGroupFieldBlock,
     CodeBlock,
     DownloadSupportBlock,
+    EmailFieldBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
     HomeKitBannerBlock,
@@ -63,14 +60,17 @@ from springfield.cms.blocks import (
     MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
+    PhoneFieldBlock,
     QuoteBlock,
     RelatedArticlesListBlock,
     RoadmapListSectionBlock,
     SectionBlock,
     SectionBlock2026,
+    SelectFieldBlock,
     ShowcaseBlock,
     SlidingCarouselBlock,
     SubscriptionBlock,
+    TextFieldBlock,
     TopicListBlock,
     VideoBlock,
     validate_animation_url,

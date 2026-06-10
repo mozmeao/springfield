@@ -4,9 +4,9 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="mzp-c-field">
-  <label class="mzp-c-field-label" for="{{ value.settings.internal_identifier }}">
+<div class="flare-field-wrap">
+  <label class="flare-label" for="{{ value.settings.internal_identifier }}">
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
-  <input class="mzp-c-field-control" type="tel" id="{{ value.settings.internal_identifier }}" name="{{ value.settings.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
+  <input class="flare-field" type="tel" id="{{ value.settings.internal_identifier }}" name="{{ value.settings.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
 </div>

@@ -7,16 +7,13 @@ from unittest.mock import patch
 from django.test import RequestFactory
 
 import pytest
-from wagtail.models import Site
-
-from wagtail.models import Locale
+from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.base_fixtures import get_test_index_page
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import ContactPage
 from springfield.cms.tests.conftest import minimal_site  # noqa: F401
-from springfield.cms.tests.factories import LocaleFactory
 
 pytestmark = [
     pytest.mark.django_db,
