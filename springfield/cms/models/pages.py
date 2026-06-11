@@ -1900,7 +1900,11 @@ class ContactPage(AbstractSpringfieldCMSPage):
             block_type = field.block_type
             value = field.value
             identifier = value["settings"]["internal_identifier"]
-            label = value["label"]
+
+            if block_type == "hidden_field":
+                label = identifier
+            else:
+                label = value["label"]
 
             if block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))
