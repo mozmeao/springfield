@@ -4,7 +4,7 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.flare-form-page {
+.fl-form-page {
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-2xl);
@@ -13,16 +13,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     max-inline-size: var(--token-width-desktop-content);
 }
 
-.flare-field-wrap {
+.fl-field-wrap {
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-sm);
 
-    .flare-legend {
+    .fl-legend {
         margin-block-end: var(--token-spacing-md);
     }
 
-    .flare-field {
+    .fl-field {
         background-color: var(--theme-form-field-background);
         border: 1px solid var(--theme-form-field-border-color);
         border-radius: var(--token-border-radius-3xs);
@@ -49,7 +49,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     }
 }
 
-.flare-checkbox {
+.fl-checkbox {
     -webkit-appearance: none;
     block-size: 19px;
     border: 1px solid var(--token-color-light-purple);
@@ -62,16 +62,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     position: relative;
 }
 
-.flare-label,
-.flare-checkbox-label,
-.flare-legend {
+.fl-label,
+.fl-checkbox-label,
+.fl-legend {
     display: block;
     font-size: var(--fl-theme-label-sm);
     font-weight: var(--token-font-weight-medium);
     inline-size: 100%;
 }
 
-.flare-checkbox-label {
+.fl-checkbox-label {
     align-items: center;
     cursor: pointer;
     display: flex;

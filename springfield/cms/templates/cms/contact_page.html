@@ -30,11 +30,11 @@
     <p><b>Success! </b> Your message has been sent. We will get back to you as soon as possible.</p>
 </include:notification>
 
-    <form method="post" action="/page-not-found/" data-actn="{{ page.url or '' }}" class="flare-form-page contact-form">
+    <form method="post" action="/page-not-found/" data-actn="{{ page.url or '' }}" class="fl-form-page contact-form">
       {% csrf_token %}
 
       {% if form_errors %}
-        <div class="flare-errors">
+        <div class="fl-errors">
           <ul>
             {% for error in form_errors %}
               <li>{{ error }}</li>
