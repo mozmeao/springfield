@@ -5,6 +5,7 @@
 import json
 from unittest.mock import patch
 
+from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.test import RequestFactory
 
@@ -521,8 +522,6 @@ def test_contact_page_post_basket_api_called(
     rf: RequestFactory,
 ) -> None:
     """Valid POST with basket_api_path calls the basket URL with the correct JSON body."""
-    from django.conf import settings as django_settings
-
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=200)
 
@@ -563,8 +562,6 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
     rf: RequestFactory,
 ) -> None:
     """5xx basket API response re-renders the form with an error (no Sentry report)."""
-    from django.conf import settings as django_settings
-
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=500)
 
@@ -604,8 +601,6 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
     rf: RequestFactory,
 ) -> None:
     """4xx basket API response re-renders with an error AND sends a Sentry event."""
-    from django.conf import settings as django_settings
-
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=400)
 
