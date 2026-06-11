@@ -3371,7 +3371,7 @@ ROADMAP_TAG_LABELS = {
 ROADMAP_TAG_ICONS = {
     "android": "android",
     "ios": "apple",
-    "desktop": "device-desktop-fill",
+    "desktop": "device-desktop",
 }
 
 
