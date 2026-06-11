@@ -11,7 +11,7 @@
   <select class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
     <option value="">Select an option</option>
     {% for option in value.options %}
-      <option value="{{ option.value }}">{{ option.label }}</option>
+      <option value="{{ option.value }}"{% if option.value == form_data.get(value.internal_identifier) %} selected{% endif %}>{{ option.label }}</option>
     {% endfor %}
   </select>
 </div>

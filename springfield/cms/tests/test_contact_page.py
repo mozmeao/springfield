@@ -1071,3 +1071,48 @@ def test_form_persistence_textarea_field(
 
     assert resp.status_code == 200
     assert ">Hello world<" in content
+
+
+def test_form_persistence_select_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, the previously selected option is marked as selected."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Select Persistence Test",
+        slug="select-persistence-test",
+        form_fields=[
+            {
+                "type": "select_field",
+                "value": {
+                    "internal_identifier": "interest",
+                    "label": "Area of Interest",
+                    "required": False,
+                    "options": [
+                        {"value": "privacy", "label": "Privacy"},
+                        {"value": "security", "label": "Security"},
+                    ],
+                },
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"interest": "privacy"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="privacy" selected' in content
+    assert 'value="security" selected' not in content
