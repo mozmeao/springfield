@@ -1104,3 +1104,27 @@ class TestFxALinkFragment(TestCase):
 def test_needs_data_consent(country_code, expected):
     template = "{{ needs_data_consent('%s') }}" % country_code
     assert render(template) == expected
+
+
+@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
+@patch.object(misc, "switch", return_value=True)
+def test_plausible_enabled_for_eu_visitor(switch_mock):
+    assert misc.plausible_enabled("DE") is True
+
+
+@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
+@patch.object(misc, "switch", return_value=True)
+def test_plausible_disabled_for_non_eu_visitor(switch_mock):
+    assert misc.plausible_enabled("US") is False
+
+
+@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
+@patch.object(misc, "switch", return_value=False)
+def test_plausible_disabled_when_switch_off(switch_mock):
+    assert misc.plausible_enabled("DE") is False
+
+
+@override_settings(PLAUSIBLE_DOMAIN="")
+@patch.object(misc, "switch", return_value=True)
+def test_plausible_disabled_without_domain(switch_mock):
+    assert misc.plausible_enabled("DE") is False

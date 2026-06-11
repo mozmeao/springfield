@@ -5,6 +5,7 @@
 import logging.config
 import sys
 from copy import deepcopy
+from urllib.parse import urlparse
 
 import csp.constants
 
@@ -126,6 +127,12 @@ if TRANSCEND_AIRGAP_URL:  # noqa: F405
 # TODO change settings so we don't need unsafes even in dev
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
+
+if PLAUSIBLE_DOMAIN:  # noqa: F405
+    _plausible_host = urlparse(PLAUSIBLE_SCRIPT_URL).netloc  # noqa: F405
+    if _plausible_host:
+        _csp_script_src.add(_plausible_host)
+        _csp_connect_src.add(_plausible_host)
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes
