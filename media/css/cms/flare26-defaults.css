@@ -224,6 +224,9 @@ input[type='checkbox']:checked {
 input[type='checkbox']:not(:disabled):checked {
     background-color: var(--checkbox-checked-bg-color);
     background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/checkmarks/checkmark-white.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 90% auto;
     border-color: var(--checkbox-checked-border-color);
 }
 

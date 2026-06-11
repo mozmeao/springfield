@@ -3076,3 +3076,124 @@ class DownloadSupportBlock(blocks.StaticBlock):
     class Meta:
         template = "cms/blocks/download-support.html"
         label = "Download Support Message"
+
+
+# Contact Page Form Field Blocks
+
+
+class BaseField(blocks.StructBlock):
+    label = blocks.CharBlock(label="Field Label")
+    internal_identifier = blocks.CharBlock(
+        label="Internal Identifier",
+        help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",
+    )
+    required = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Required field",
+    )
+
+    def clean(self, value):
+        value = super().clean(value)
+        internal_identifier = value.get("internal_identifier", "")
+        if internal_identifier == "office_fax":
+            raise ValidationError("The internal identifier 'office_fax' is reserved and cannot be used.")
+        return value
+
+
+class TextFieldBlock(BaseField):
+    class Meta:
+        template = "cms/blocks/form_fields/text_field.html"
+        label = "Text Field"
+        label_format = "Text - {label}"
+
+
+class TextAreaFieldBlock(BaseField):
+    rows = blocks.IntegerBlock(
+        required=False,
+        default=4,
+        label="Rows",
+        help_text="Number of visible text lines.",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/textarea_field.html"
+        label = "Text Area Field"
+        label_format = "Text Area - {label}"
+
+
+class EmailFieldBlock(BaseField):
+    class Meta:
+        template = "cms/blocks/form_fields/email_field.html"
+        label = "Email Field"
+        label_format = "Email - {label}"
+
+
+class PhoneFieldBlock(BaseField):
+    class Meta:
+        template = "cms/blocks/form_fields/phone_field.html"
+        label = "Phone Field"
+        label_format = "Phone - {label}"
+
+
+class SelectOptionBlock(blocks.StructBlock):
+    value = blocks.CharBlock(label="Option Value")
+    label = blocks.CharBlock(label="Option Label")
+
+    class Meta:
+        label = "Select Option"
+        label_format = "{label}"
+
+
+class SelectFieldBlock(BaseField):
+    options = blocks.ListBlock(
+        SelectOptionBlock(),
+        min_num=1,
+        label="Options",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/select_field.html"
+        label = "Select Field"
+        label_format = "Select - {label}"
+
+
+class CheckboxOptionBlock(blocks.StructBlock):
+    value = blocks.CharBlock(label="Option Value")
+    label = blocks.CharBlock(label="Option Label")
+
+    class Meta:
+        label = "Checkbox Option"
+        label_format = "{label}"
+
+
+class CheckboxGroupFieldBlock(BaseField):
+    options = blocks.ListBlock(
+        CheckboxOptionBlock(),
+        min_num=1,
+        label="Options",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/checkbox_group_field.html"
+        label = "Checkbox Group Field"
+        label_format = "Checkbox Group - {label}"
+
+
+class CheckboxFieldBlock(BaseField):
+    class Meta:
+        template = "cms/blocks/form_fields/checkbox_field.html"
+        label = "Checkbox Field"
+        label_format = "Checkbox - {label}"
+
+
+class HiddenFieldBlock(BaseField):
+    default_value = blocks.CharBlock(
+        label="Default value",
+        help_text="Value submitted with the form for this hidden field.",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/hidden_field.html"
+        label = "Hidden Field"
+        label_format = "Hidden - {label}"

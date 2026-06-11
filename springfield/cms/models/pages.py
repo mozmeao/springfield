@@ -6,19 +6,24 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
 from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
+import requests
 from modelcluster.fields import ParentalKey
+from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
@@ -26,7 +31,7 @@ from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
-from lib.l10n_utils.fluent import ftl
+from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -40,10 +45,14 @@ from springfield.cms.blocks import (
     CardGalleryBlock,
     CardsListBlock,
     CarouselBlock,
+    CheckboxFieldBlock,
+    CheckboxGroupFieldBlock,
     CodeBlock,
     DownloadSupportBlock,
+    EmailFieldBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
+    HiddenFieldBlock,
     HomeKitBannerBlock,
     IntroBlock,
     KitBannerBlock,
@@ -54,12 +63,16 @@ from springfield.cms.blocks import (
     MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
+    PhoneFieldBlock,
     QuoteBlock,
     RelatedArticlesListBlock,
     RoadmapListSectionBlock,
     SectionBlock,
+    SelectFieldBlock,
     ShowcaseBlock,
     SlidingCarouselBlock,
+    TextAreaFieldBlock,
+    TextFieldBlock,
     TopicListBlock,
     VideoBlock,
     validate_animation_url,
@@ -1740,3 +1753,293 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"RoadmapPage: {self.title} - {self.locale}"
+
+
+class ContactPage(AbstractSpringfieldCMSPage):
+    """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    template = "cms/contact_page.html"
+    ftl_files = ["cms/contact"]
+
+    intro = StreamField(
+        [("intro", IntroBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    form_fields = StreamField(
+        [
+            ("text_field", TextFieldBlock()),
+            ("textarea_field", TextAreaFieldBlock()),
+            ("email_field", EmailFieldBlock()),
+            ("phone_field", PhoneFieldBlock()),
+            ("select_field", SelectFieldBlock()),
+            ("checkbox_field", CheckboxFieldBlock()),
+            ("checkbox_group_field", CheckboxGroupFieldBlock()),
+            ("hidden_field", HiddenFieldBlock()),
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        help_text="Define the form fields that will appear on the contact page.",
+    )
+
+    to_email_address = models.EmailField(
+        blank=True,
+        help_text="Email address where form submissions will be sent.",
+    )
+
+    basket_api_path = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=(
+            "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
+        ),
+    )
+
+    redirect_to = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text="Page to redirect to after a successful form submission (e.g. a thank-you page).",
+    )
+
+    thank_you_message = RichTextField(
+        blank=True,
+        help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("intro"),
+        FieldPanel("form_fields"),
+        FieldPanel("thank_you_message"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("to_email_address"),
+                FieldPanel("basket_api_path"),
+                FieldPanel("redirect_to"),
+            ],
+            heading="Form Submission Settings",
+        ),
+    ]
+
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        has_email = bool(self.to_email_address)
+        has_basket = bool(self.basket_api_path)
+
+        if not has_email and not has_basket:
+            msg = "Set either an email address or a basket API path."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+        elif has_email and has_basket:
+            msg = "Set either an email address or a basket API path, not both."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+
+        if has_basket and not has_email:
+            parsed = urlparse(self.basket_api_path)
+            if parsed.scheme or parsed.netloc:
+                errors["basket_api_path"] = "Enter a path (e.g. /api/v1/contact/), not a full URL."
+            elif not parsed.path.startswith("/"):
+                errors["basket_api_path"] = "Path must start with /."
+
+        if not self.redirect_to and not self.thank_you_message:
+            msg = "Set either a redirect page or a thank you message."
+            errors["redirect_to"] = msg
+            errors["thank_you_message"] = msg
+
+        if errors:
+            raise ValidationError(errors)
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        form_errors = getattr(request, "form_errors", None)
+        if form_errors:
+            context["form_errors"] = form_errors
+        if getattr(request, "form_success", False):
+            context["form_success"] = True
+        context["form_data"] = getattr(request, "form_data", {})
+        return context
+
+    def serve(self, request, *args, **kwargs):
+        if request.method == "POST":
+            form_errors = self.validate_form_data(request.POST)
+            if form_errors:
+                request.form_errors = form_errors
+                request.form_data = self._get_form_data_for_context(request.POST)
+                response = super().serve(request, *args, **kwargs)
+                add_never_cache_headers(response)
+                return response
+
+            if self.basket_api_path:
+                form_data = self._collect_form_data(request)
+                try:
+                    api_response = requests.post(
+                        f"{settings.BASKET_URL}{self.basket_api_path}",
+                        json=form_data,
+                        timeout=settings.BASKET_TIMEOUT,
+                    )
+                    if not api_response.ok:
+                        if 400 <= api_response.status_code < 500:
+                            with new_scope() as scope:
+                                scope.set_extra("post_data", form_data)
+                                scope.set_extra("basket_path", self.basket_api_path)
+                                scope.set_extra("status_code", api_response.status_code)
+                                capture_message(
+                                    f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
+                                    level="error",
+                                )
+                        request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                        request.form_data = self._get_form_data_for_context(request.POST)
+                        response = super().serve(request, *args, **kwargs)
+                        add_never_cache_headers(response)
+                        return response
+                except requests.RequestException as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            f"Basket API request failed for path {self.basket_api_path}",
+                            level="error",
+                        )
+                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_data = self._get_form_data_for_context(request.POST)
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
+
+            if self.to_email_address:
+                try:
+                    self.send_form_email(request)
+                except Exception as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            "Failed to send contact form email",
+                            level="error",
+                        )
+                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_data = self._get_form_data_for_context(request.POST)
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
+
+            if self.redirect_to:
+                return redirect(self.redirect_to.localized.url)
+
+            request.form_success = True
+            response = super().serve(request, *args, **kwargs)
+            add_never_cache_headers(response)
+            return response
+
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
+
+    def _collect_form_data(self, request):
+        """Return submitted form data as a plain dict (lists joined for checkboxes)."""
+        data = {}
+        for field in self.form_fields:
+            value = field.value
+            identifier = value["internal_identifier"]
+            if field.block_type == "hidden_field":
+                data[identifier] = value.get("default_value", "")
+            elif field.block_type == "checkbox_group_field":
+                data[identifier] = ", ".join(request.POST.getlist(identifier))
+            else:
+                data[identifier] = request.POST.get(identifier, "")
+        return data
+
+    def _get_form_data_for_context(self, post_data):
+        """Return submitted form values keyed by internal_identifier for template use.
+
+        Returns a dict with string values for text-like fields and lists for
+        checkbox_group_field. Hidden fields are excluded — they always render
+        their default_value regardless of POST data.
+        """
+        form_data = {}
+        for field in self.form_fields:
+            if field.block_type == "hidden_field":
+                continue
+            identifier = field.value["internal_identifier"]
+            if field.block_type == "checkbox_group_field":
+                form_data[identifier] = post_data.getlist(identifier)
+            else:
+                form_data[identifier] = post_data.get(identifier, "")
+        return form_data
+
+    def validate_form_data(self, post_data):
+        """Validate submitted form data against the field configuration.
+
+        Returns a list of error messages. An empty list means the data is valid.
+        """
+        if post_data.get("office_fax", ""):
+            return [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+
+        errors = []
+        has_any_data = False
+
+        for field in self.form_fields:
+            if field.block_type == "hidden_field":
+                continue
+
+            value = field.value
+            identifier = value["internal_identifier"]
+            label = value["label"]
+            is_required = value.get("required", False)
+
+            if field.block_type == "checkbox_group_field":
+                submitted = post_data.getlist(identifier)
+            else:
+                submitted = post_data.get(identifier, "").strip()
+
+            if submitted:
+                has_any_data = True
+
+            if is_required and not submitted:
+                errors.append(ftl_lazy("contact-form-error-required-field", ftl_files=self.ftl_files, field=label))
+
+        if not has_any_data:
+            errors.append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+
+        return errors
+
+    def send_form_email(self, request):
+        """Collect form data and send it as an email."""
+        fields = []
+        for field in self.form_fields:
+            block_type = field.block_type
+            value = field.value
+            identifier = value["internal_identifier"]
+            label = value["label"]
+
+            if block_type == "hidden_field":
+                submitted = value.get("default_value", "")
+            elif block_type == "checkbox_group_field":
+                submitted = ", ".join(request.POST.getlist(identifier))
+            else:
+                submitted = request.POST.get(identifier, "")
+
+            fields.append({"label": label, "value": submitted})
+
+        msg = render_to_string("cms/emails/contact-form.txt", {"fields": fields})
+        subject = f"Contact form submission: {self.title}"
+        email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
+        email.send()
+
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
+    def __str__(self):
+        return f"ContactPage: {self.title} - {self.locale}"

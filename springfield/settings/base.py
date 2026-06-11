@@ -1498,6 +1498,7 @@ _allowed_page_models = [
     "cms.BlogIndexPage",
     "cms.BlogArticlePage",
     "cms.RoadmapPage",
+    "cms.ContactPage",
 ]
 
 if DEV is True:

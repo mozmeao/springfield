@@ -181,3 +181,11 @@
 /* Roadmap list section */
 --theme-roadmap-list-background: var(--token-color-soft-purple-40);
 --theme-roadmap-list-border-color: var(--token-color-soft-purple-2);
+
+/* Form fields */
+--theme-form-field-background: var(--token-color-soft-purple);
+--theme-form-field-background-focus: var(--token-color-white);
+--theme-form-field-border-color: transparent;
+--theme-form-field-border-color-focus: var(--token-color-light-purple);
+--theme-form-color: var(--token-color-black-4);
+--theme-form-focus-outline-color: var(--token-color-soft-purple-3);
