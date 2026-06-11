@@ -6,7 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_download_firefox_cta_snippet, get_tags
+from springfield.cms.fixtures.snippet_fixtures import get_tags
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
 
 LOREM_IPSUM = (
@@ -32,7 +32,6 @@ def create_article(
     tag: Tag,
     link_text: str,
     featured_image: SpringfieldImage,
-    cta_field: list,
 ) -> ArticleDetailPage:
     index_page = get_article_index_test_page()
 
@@ -50,7 +49,6 @@ def create_article(
     article.link_text = link_text
     article.description = description
     article.content = [{"type": "text", "value": "".join(content_blocks)}]
-    article.call_to_action = cta_field
     article.save_revision().publish()
 
     return article
@@ -58,14 +56,7 @@ def create_article(
 
 def get_article_pages():
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-    cta_snippet = get_download_firefox_cta_snippet()
     tags = get_tags()
-    cta_field = [
-        {
-            "type": "download_firefox",
-            "value": cta_snippet.id,
-        }
-    ]
     p_keys = ["c1bc4d7eadf0", "0b474f02", "d3fd4d86", "83cdc1bc", "4d7eadf0"]
 
     featured_article_1 = create_article(
@@ -82,7 +73,6 @@ def get_article_pages():
         sticker=dark_image,
         tag=tags["security"],
         link_text="See Featured 1",
-        cta_field=cta_field,
     )
 
     featured_article_2 = create_article(
@@ -99,7 +89,6 @@ def get_article_pages():
         sticker=image,
         tag=tags["privacy"],
         link_text="See Featured 2",
-        cta_field=cta_field,
     )
 
     regular_article_1 = create_article(
@@ -116,7 +105,6 @@ def get_article_pages():
         sticker=dark_image,
         tag=tags["performance"],
         link_text="See Regular 1",
-        cta_field=cta_field,
     )
 
     regular_article_2 = create_article(
@@ -133,7 +121,6 @@ def get_article_pages():
         sticker=image,
         tag=tags["tips"],
         link_text="See Regular 2",
-        cta_field=cta_field,
     )
 
     return [

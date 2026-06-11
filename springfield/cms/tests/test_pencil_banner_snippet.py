@@ -8,14 +8,14 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_test_page
+from springfield.cms.fixtures.freeformpage import get_freeform_page_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet
 
 pytestmark = [pytest.mark.django_db]
 
 
-def test_freeform_page_2026_renders_pencil_banner(minimal_site, rf):
-    page = get_freeform_page_2026_test_page()
+def test_freeform_page_renders_pencil_banner(minimal_site, rf):
+    page = get_freeform_page_test_page()
     snippet = get_pencil_banner_snippet()
 
     request = rf.get(page.get_full_url())
@@ -44,7 +44,7 @@ def test_freeform_page_2026_renders_pencil_banner(minimal_site, rf):
 
 
 def test_unpublished_snippet_does_not_render(minimal_site, rf):
-    page = get_freeform_page_2026_test_page()
+    page = get_freeform_page_test_page()
     snippet = get_pencil_banner_snippet()
     snippet.unpublish()
 
@@ -57,7 +57,7 @@ def test_unpublished_snippet_does_not_render(minimal_site, rf):
 
 
 def test_translated_page_renders_translated_snippet(minimal_site, rf):
-    en_page = get_freeform_page_2026_test_page()
+    en_page = get_freeform_page_test_page()
     en_snippet = get_pencil_banner_snippet()
 
     fr_locale = Locale.objects.get(language_code="fr")
@@ -84,7 +84,7 @@ def test_translated_page_renders_translated_snippet(minimal_site, rf):
 
 
 def test_page_without_pencil_banner_placement_does_not_render_banner(minimal_site, rf):
-    page = get_freeform_page_2026_test_page()
+    page = get_freeform_page_test_page()
     page.pencil_banner_placements.all().delete()
     page.save_revision().publish()
 
