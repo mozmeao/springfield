@@ -74,7 +74,9 @@ function initDefaultBrowserConditionalDisplay() {
                 }
             });
         })
-        .catch();
+        .catch(() => {
+            /* UITour not available */
+        });
 }
 
 function initAiControlsConditionalDisplay() {
@@ -92,7 +94,9 @@ function initAiControlsConditionalDisplay() {
                 }
             });
         })
-        .catch();
+        .catch(() => {
+            /* UITour not available */
+        });
 }
 
 export default function setupConditionalDisplay() {
