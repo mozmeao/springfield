@@ -7,29 +7,20 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 
-<include:conditional-display
-  condition_settings="{{ value.settings.show_to }}">
+<include:conditional-display condition_settings="{{ value.settings.show_to }}">
   <include:illustration-card
-    image_after="{{ value.settings.image_after }}"
     expand_link="{{ value.settings.expand_link }}"
   >
     <content:media>
-      {% with widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 768px) 50vw, (min-width: 1024px) 30vw, (min-width: 1440px) 500px, 100vw" %}
-        {% include_block value.image %}
-      {% endwith %}
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
     </content:media>
     <content:heading>
-      {% if value.tags %}
-        <div>
-          {% for tag in value.tags %}
-            {% include_block tag %}
-          {% endfor %}
-        </div>
-      {% endif %}
       <include:heading
         level="{{ heading_level }}"
-        heading_size="fl-heading-size-3"
         heading_text="{{ value.headline|richtext|remove_p_tag }}"
+        superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
       />
     </content:heading>
     <content:body>

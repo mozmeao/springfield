@@ -872,7 +872,6 @@ PATTERN_LIBRARY = {
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
         ("Components", ["pattern-library/components/flare-26/"]),
-        ("Components - Flare 25", ["pattern-library/components/flare-25/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -881,7 +880,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare.html", "base-flare26.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare26.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1484,10 +1483,8 @@ WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)(
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
     "cms.SmartWindowPage",
     "cms.SmartWindowExplainerPage",
