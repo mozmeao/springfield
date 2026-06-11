@@ -16,6 +16,11 @@
         var decoyAction = form.getAttribute('action');
         form.setAttribute('action', realAction);
         form.setAttribute('data-actn', decoyAction);
+
+        var honeypot = document.getElementById('office-fax');
+        if (honeypot) {
+            honeypot.removeAttribute('required');
+        }
     }
 
     function init() {
