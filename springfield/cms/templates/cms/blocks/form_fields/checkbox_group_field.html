@@ -8,7 +8,7 @@
   <legend class="fl-legend">{{ value.label }}</legend>
   {% for option in value.options %}
     <label class="fl-checkbox-label" for="{{ value.internal_identifier }}-{{ option.value|slugify }}">
-      <input class="fl-checkbox" id="{{ value.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.internal_identifier }}" value="{{ option.value }}">
+      <input class="fl-checkbox" id="{{ value.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.internal_identifier }}" value="{{ option.value }}"{% if option.value in form_data.get(value.internal_identifier, []) %} checked{% endif %}>
       {{ option.label }}
     </label>
   {% endfor %}

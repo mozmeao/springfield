@@ -1116,3 +1116,89 @@ def test_form_persistence_select_field(
     assert resp.status_code == 200
     assert 'value="privacy" selected' in content
     assert 'value="security" selected' not in content
+
+
+def test_form_persistence_checkbox_group(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, previously checked checkbox group options are re-checked."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Checkbox Group Persistence Test",
+        slug="checkbox-group-persistence-test",
+        form_fields=[
+            {
+                "type": "checkbox_group_field",
+                "value": {
+                    "internal_identifier": "services",
+                    "label": "Services",
+                    "options": [
+                        {"value": "consulting", "label": "Consulting"},
+                        {"value": "support", "label": "Support"},
+                        {"value": "training", "label": "Training"},
+                    ],
+                },
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {"services": ["consulting", "support"]},
+    )
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="consulting" checked' in content
+    assert 'value="support" checked' in content
+    assert 'value="training" checked' not in content
+
+
+def test_form_persistence_checkbox_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, a checked single checkbox remains checked."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Checkbox Persistence Test",
+        slug="checkbox-persistence-test",
+        form_fields=[
+            {
+                "type": "checkbox_field",
+                "value": {"internal_identifier": "agree", "label": "I agree", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # agree is checked ("on"), full_name is required and missing → validation error
+    request = rf.post(page.relative_url(minimal_site), {"agree": "on"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="on" checked' in content

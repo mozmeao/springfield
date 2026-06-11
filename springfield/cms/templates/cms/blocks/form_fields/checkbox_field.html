@@ -6,7 +6,7 @@
 
 <div class="fl-field-wrap">
   <label class="fl-checkbox-label" for="{{ value.internal_identifier }}">
-    <input class="fl-checkbox" id="{{ value.internal_identifier }}" type="checkbox" name="{{ value.internal_identifier }}" value="on"{% if value.required %} required aria-required="true"{% endif %}>
+    <input class="fl-checkbox" id="{{ value.internal_identifier }}" type="checkbox" name="{{ value.internal_identifier }}" value="on"{% if form_data.get(value.internal_identifier) %} checked{% endif %}{% if value.required %} required aria-required="true"{% endif %}>
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
 </div>
