@@ -183,11 +183,14 @@ def test_contact_page_post_valid(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
+            "first_name": "Jane",
+            "last_name": "Doe",
             "company": "Acme",
-            "email": "jane@example.com",
-            "phone": "555-1234",
-            "interest": "privacy",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
             "services": ["consulting", "support"],
         },
     )
@@ -224,12 +227,11 @@ def test_contact_page_post_missing_required(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    # POST with missing required fields (full_name, email, interest are required)
+    # POST with only optional fields so all required fields are missing
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "company": "Acme",
-            "phone": "555-1234",
+            "message": "Hello",
         },
     )
 
@@ -237,9 +239,9 @@ def test_contact_page_post_missing_required(
     page_content = resp.text
 
     assert resp.status_code == 200
-    assert "You must fill out the Full Name field." in page_content
-    assert "You must fill out the Email Address field." in page_content
-    assert "You must fill out the Area of Interest field." in page_content
+    assert "You must fill out the First Name field." in page_content
+    assert "You must fill out the Business Email field." in page_content
+    assert "You must fill out the Company Size field." in page_content
     mock_email_class.assert_not_called()
 
 
@@ -267,9 +269,14 @@ def test_contact_page_post_checkbox_group(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
             "services": ["consulting", "implementation"],
         },
     )
@@ -387,9 +394,14 @@ def test_contact_page_post_valid_redirects_to_localised_page(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
         },
     )
     # Simulate an active fr locale for this request
@@ -567,9 +579,14 @@ def test_contact_page_post_basket_api_called(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
         },
     )
     resp = page.serve(request)
@@ -577,8 +594,8 @@ def test_contact_page_post_basket_api_called(
     assert resp.status_code == 302
     assert len(responses.calls) == 1
     body = json.loads(responses.calls[0].request.body)
-    assert body["full_name"] == "Jane Doe"
-    assert body["email"] == "jane@example.com"
+    assert body["first_name"] == "Jane"
+    assert body["business_email"] == "jane@acme.com"
 
 
 @responses.activate
@@ -609,9 +626,14 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
         },
     )
     resp = page.serve(request)
@@ -649,9 +671,14 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
         },
     )
     resp = page.serve(request)
@@ -692,9 +719,14 @@ def test_contact_page_post_valid_shows_thank_you_message(
     request = rf.post(
         page.relative_url(minimal_site),
         {
-            "full_name": "Jane Doe",
-            "email": "jane@example.com",
-            "interest": "privacy",
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
         },
     )
     resp = page.serve(request)
