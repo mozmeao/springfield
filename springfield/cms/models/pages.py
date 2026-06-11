@@ -45,6 +45,7 @@ from springfield.cms.blocks import (
     CardGalleryBlock,
     CardsListBlock,
     CarouselBlock,
+    CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
     DownloadSupportBlock,
@@ -1760,10 +1761,12 @@ class ContactPage(AbstractSpringfieldCMSPage):
     template = "cms/contact_page.html"
     ftl_files = ["cms/contact"]
 
-    subheading = models.CharField(
-        max_length=255,
+    intro = StreamField(
+        [("intro", IntroBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
         blank=True,
-        help_text="Optional subheading displayed below the page title.",
     )
 
     form_fields = StreamField(
@@ -1773,6 +1776,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             ("email_field", EmailFieldBlock()),
             ("phone_field", PhoneFieldBlock()),
             ("select_field", SelectFieldBlock()),
+            ("checkbox_field", CheckboxFieldBlock()),
             ("checkbox_group_field", CheckboxGroupFieldBlock()),
             ("hidden_field", HiddenFieldBlock()),
         ],
@@ -1810,7 +1814,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("subheading"),
+        FieldPanel("intro"),
         FieldPanel("form_fields"),
         FieldPanel("thank_you_message"),
     ]

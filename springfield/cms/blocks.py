@@ -3173,6 +3173,13 @@ class CheckboxGroupFieldBlock(BaseField):
         label_format = "Checkbox Group - {label}"
 
 
+class CheckboxFieldBlock(BaseField):
+    class Meta:
+        template = "cms/blocks/form_fields/checkbox_field.html"
+        label = "Checkbox Field"
+        label_format = "Checkbox - {label}"
+
+
 class HiddenFieldBlock(BaseField):
     default_value = blocks.CharBlock(
         label="Default value",
