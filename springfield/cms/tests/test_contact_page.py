@@ -8,6 +8,7 @@ from unittest.mock import patch
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.test import Client, RequestFactory
+from django.utils.functional import Promise
 
 import pytest
 import responses
@@ -151,7 +152,7 @@ def test_contact_page_post_errors_is_never_cached(
     resp = page.serve(request)
 
     assert resp.status_code == 200
-    assert "Please fill in at least one field." in resp.text
+    assert "Please fill out the form." in resp.text
     cache_control = resp.get("Cache-Control", "")
     assert "no-store" in cache_control
     mock_email_class.assert_not_called()
@@ -235,9 +236,9 @@ def test_contact_page_post_missing_required(
     page_content = resp.text
 
     assert resp.status_code == 200
-    assert "Full Name is required." in page_content
-    assert "Email Address is required." in page_content
-    assert "Area of Interest is required." in page_content
+    assert "You must fill out the Full Name field." in page_content
+    assert "You must fill out the Email Address field." in page_content
+    assert "You must fill out the Area of Interest field." in page_content
     mock_email_class.assert_not_called()
 
 
@@ -309,7 +310,7 @@ def test_contact_page_post_empty_submission(
     page_content = resp.text
 
     assert resp.status_code == 200
-    assert "Please fill in at least one field." in page_content
+    assert "Please fill out the form." in page_content
     mock_email_class.assert_not_called()
 
 
@@ -348,7 +349,7 @@ def test_contact_page_post_honeypot(
     page_content = resp.text
 
     assert resp.status_code == 200
-    assert "Form submission failed." in page_content
+    assert "There was an error sending your message. Please try again." in page_content
     mock_email_class.assert_not_called()
 
 
@@ -615,7 +616,7 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
     resp = page.serve(request)
 
     assert resp.status_code == 200
-    assert "Form submission failed." in resp.content.decode()
+    assert "There was an error sending your message. Please try again." in resp.content.decode()
     mock_capture_message.assert_not_called()
 
 
@@ -655,7 +656,7 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
     resp = page.serve(request)
 
     assert resp.status_code == 200
-    assert "Form submission failed." in resp.content.decode()
+    assert "There was an error sending your message. Please try again." in resp.content.decode()
     mock_capture_message.assert_called_once()
     call_args = mock_capture_message.call_args
     assert "400" in call_args[0][0]
@@ -699,3 +700,133 @@ def test_contact_page_post_valid_shows_thank_you_message(
 
     assert resp.status_code == 200
     assert "Thanks for reaching out!" in resp.content.decode()
+
+
+# ============================================================================
+# TextAreaFieldBlock Tests
+# ============================================================================
+
+
+def test_textarea_field_renders_correctly(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """TextAreaFieldBlock renders a <textarea> with the correct rows, name, and id."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Textarea Render Test",
+        slug="textarea-render-test",
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {
+                    "settings": {"internal_identifier": "message"},
+                    "label": "Message",
+                    "required": False,
+                    "rows": 6,
+                },
+                "id": "textarea-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    content = page.serve(request).content.decode()
+
+    assert "<textarea" in content
+    assert 'name="message"' in content
+    assert 'id="message"' in content
+    assert 'rows="6"' in content
+
+
+def test_textarea_field_required_validates(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """A required TextAreaFieldBlock triggers a validation error when left empty."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Textarea Required Test",
+        slug="textarea-required-test",
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {
+                    "settings": {"internal_identifier": "message"},
+                    "label": "Message",
+                    "required": True,
+                    "rows": 4,
+                },
+                "id": "textarea-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"message": ""})
+    resp = page.serve(request)
+
+    assert resp.status_code == 200
+    assert "You must fill out the Message field." in resp.content.decode()
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_textarea_field_value_in_email(
+    mock_email_class,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """A submitted textarea value is included in the form email body."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Textarea Email Test",
+        slug="textarea-email-test",
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {
+                    "settings": {"internal_identifier": "message"},
+                    "label": "Message",
+                    "required": False,
+                    "rows": 4,
+                },
+                "id": "textarea-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {"message": "Hello, I have a question about your product."},
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 302
+    email_body = mock_email_class.call_args[0][1]
+    assert "Hello, I have a question about your product." in email_body
+
+
+def test_validation_error_strings_are_translatable() -> None:
+    """validate_form_data returns lazy strings so errors can be localised at render time."""
+    page = ContactPage(to_email_address="test@example.com")
+    # An empty submission with no configured fields triggers the "fill out the form" error
+    errors = page.validate_form_data({})
+    assert errors
+    assert isinstance(errors[0], Promise), "Validation errors must use gettext_lazy for i18n support"

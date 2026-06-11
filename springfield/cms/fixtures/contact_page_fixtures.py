@@ -74,4 +74,14 @@ def get_form_field_variants() -> list[dict]:
             },
             "id": "checkbox-group-field",
         },
+        {
+            "type": "textarea_field",
+            "value": {
+                "settings": {"internal_identifier": "message"},
+                "label": "Message",
+                "required": False,
+                "rows": 4,
+            },
+            "id": "textarea-field",
+        },
     ]
