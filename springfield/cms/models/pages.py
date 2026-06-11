@@ -1919,7 +1919,20 @@ class ContactPage(AbstractSpringfieldCMSPage):
                     return response
 
             if self.to_email_address:
-                self.send_form_email(request)
+                try:
+                    self.send_form_email(request)
+                except Exception as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            "Failed to send contact form email",
+                            level="error",
+                        )
+                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_data = self._get_form_data_for_context(request.POST)
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
 
             if self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
@@ -2010,7 +2023,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
             identifier = value["internal_identifier"]
             label = value["label"]
 
-            if block_type == "checkbox_group_field":
+            if block_type == "hidden_field":
+                submitted = value.get("default_value", "")
+            elif block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))
             else:
                 submitted = request.POST.get(identifier, "")

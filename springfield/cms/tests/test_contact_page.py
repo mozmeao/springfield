@@ -203,6 +203,53 @@ def test_contact_page_post_valid(
     mock_email_class.return_value.send.assert_called_once()
 
 
+@patch("springfield.cms.models.pages.capture_message")
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_post_email_send_failure(
+    mock_email_class,
+    mock_capture_message,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """When email.send() raises, the form re-renders with an error and Sentry is notified."""
+    mock_email_class.return_value.send.side_effect = Exception("SMTP connection refused")
+
+    index_page = minimal_site.root_page
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Email Failure Test",
+        slug="email-failure-test",
+        form_fields=form_field_variants,
+        to_email_address="recipient@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+        },
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 200
+    assert "There was an error sending your message. Please try again." in resp.content.decode()
+    assert "no-store" in resp.get("Cache-Control", "")
+    mock_capture_message.assert_called_once()
+    assert "Failed to send contact form email" in mock_capture_message.call_args[0][0]
+
+
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_missing_required(
     mock_email_class,

@@ -4,8 +4,8 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<fieldset class="fl-field-wrap">
-  <legend class="fl-legend">{{ value.label }}</legend>
+<fieldset class="fl-field-wrap"{% if value.required %} aria-required="true"{% endif %}>
+  <legend class="fl-legend">{{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
   {% for option in value.options %}
     <label class="fl-checkbox-label" for="{{ value.internal_identifier }}-{{ option.value|slugify }}">
       <input class="fl-checkbox" id="{{ value.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.internal_identifier }}" value="{{ option.value }}"{% if option.value in form_data.get(value.internal_identifier, []) %} checked{% endif %}>

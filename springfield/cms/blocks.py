@@ -3093,6 +3093,13 @@ class BaseField(blocks.StructBlock):
         label="Required field",
     )
 
+    def clean(self, value):
+        value = super().clean(value)
+        internal_identifier = value.get("internal_identifier", "")
+        if internal_identifier == "office_fax":
+            raise ValidationError("The internal identifier 'office_fax' is reserved and cannot be used.")
+        return value
+
 
 class TextFieldBlock(BaseField):
     class Meta:
