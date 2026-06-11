@@ -3,8 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage, FreeFormPage2026
+from springfield.cms.fixtures.base_fixtures import get_test_document, get_test_index_page
+from springfield.cms.models import FreeFormPage2026
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
@@ -479,153 +479,6 @@ def get_cta_variants() -> dict[str, dict]:
 
 
 def get_button_blocks() -> list[dict]:
-    buttons = get_button_variants(full=True)
-    return [
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">External link Buttons with Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. '
-                    'Check the <i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5">'
-                    '</p><p data-block-key="a68ij"><b>*.mozilla.org</b>, <b>*.mozillafoundation.org</b>, and <b>*.firefox.com</b> '
-                    "(except <b>www.firefox.com</b>) domains automatically get UTM parameters added to the links. </p>",
-                },
-                "buttons": [buttons["external_mozilla"], buttons["external_mozilla_new_tab"]],
-            },
-            "id": "842aa17d-3dc9-450d-982e-3afe90f40472",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">External link buttons with non Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. Check the '
-                    '<i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5"></p>'
-                    '<p data-block-key="5inkg">Links to non Mozilla domain don\'t get the UTM parameters.</p>',
-                },
-                "buttons": [buttons["external_other"], buttons["external_other_new_tab"]],
-            },
-            "id": "3fa1b0a0-b990-4468-a3d7-39ab3a68b477",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Internal link button</p>',
-                    "subheading_text": "",
-                },
-                "buttons": [buttons["page"], buttons["page_new_tab"]],
-            },
-            "id": "961cf2a3-6b87-439a-8588-85b18d136781",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Mozilla Account Button</p>',
-                    "subheading_text": '<p data-block-key="6u373">If opened in Firefox, the button takes the user to the browser login. '
-                    "In other browsers it's a link to log in to the Mozilla Account.</p>",
-                },
-                "buttons": [buttons["fxa"]],
-            },
-            "id": "6662346e-f897-45a6-95c6-b68e239e465b",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "media": [],
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="dkgdn">Download Firefox Button</p>',
-                    "subheading_text": '<p data-block-key="dkgdn">A special link to /thanks with the required attributes for the download flow.</p>'
-                    '<p data-block-key="5inkg">Optional "Set as default browser" checkbox. The checkbox is only shown to Windows users.</p>',
-                },
-                "buttons": [buttons["download"], buttons["download_default_browser"]],
-            },
-            "id": "79f53077-d740-4332-b9ab-6f9dd95c326a",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Document link</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose from any document uploaded to the CMS.</p>',
-                },
-                "buttons": [buttons["document"]],
-            },
-            "id": "52a2b31d-7f05-4376-af75-52cf666e4365",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Email and phone links</p>',
-                    "subheading_text": "",
-                },
-                "buttons": [buttons["email"], buttons["phone"]],
-            },
-            "id": "706155ae-f993-4582-b2eb-21de4efa660e",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="sbh01">Store Buttons</p>',
-                    "subheading_text": '<p data-block-key="sbsub1">Display the Google Play or App Store button.</p>',
-                },
-                "buttons": [buttons["store_android"], buttons["store_ios"]],
-            },
-            "id": "storeintr-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="fbh01">Firefox Focus Buttons</p>',
-                    "subheading_text": '<p data-block-key="fbsub1">Display a link to Firefox Focus on Google Play or App Store.</p>',
-                },
-                "buttons": [buttons["focus_android"], buttons["focus_ios"]],
-            },
-            "id": "focusintr-0000-0000-0000-000000000001",
-        },
-    ]
-
-
-def get_button_blocks_2026() -> list[dict]:
     buttons = get_button_variants(full=True)
     return [
         {
@@ -1129,34 +982,17 @@ def get_button_blocks_2026() -> list[dict]:
     ]
 
 
-def get_buttons_2026_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+def get_buttons_test_page() -> FreeFormPage2026:
+    index_page = get_test_index_page()
 
-    slug = "test-buttons-2026"
+    slug = "test-buttons"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
         index_page.add_child(instance=page)
 
-    blocks = get_button_blocks_2026()
+    blocks = get_button_blocks()
     page.upper_content = blocks
     page.content = blocks
-    page.save_revision().publish()
-    return page
-
-
-def get_buttons_test_page() -> FreeFormPage:
-    content = get_button_blocks()
-    index_page = get_test_index_page()
-
-    page = FreeFormPage.objects.filter(slug="test-buttons-page").first()
-    if not page:
-        page = FreeFormPage(
-            slug="test-buttons-page",
-            title="Test Buttons Page",
-        )
-        index_page.add_child(instance=page)
-
-    page.content = content
     page.save_revision().publish()
     return page

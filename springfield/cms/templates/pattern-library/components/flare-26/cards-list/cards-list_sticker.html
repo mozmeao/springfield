@@ -9,7 +9,7 @@
     <div class="fl-section-container">
       <include:cards-list container_width="wide">
         {% for card in cards %}
-          <include:sticker-card-2026
+          <include:sticker-card
             expand_link="{{ card.expand_link }}"
           >
             <content:heading>
@@ -37,7 +37,7 @@
                 {% endfor %}
               </content:buttons>
             {% endif %}
-          </include:sticker-card-2026>
+          </include:sticker-card>
         {% endfor %}
       </include:cards-list>
     </div>

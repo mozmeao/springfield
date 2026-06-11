@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="fl-card fl-card-fill fl-illustration-card {% if image_after %}fl-illustration-card-reverse{% endif %} {% if expand_link %}fl-card-expand-link{% endif %}">
+{# props expand_link=0, variant="" #}
+
+<article class="fl-illustration-card {% if expand_link %}fl-card-expand-link{% endif %} {% if variant %}fl-illustration-{{ variant }}-card{% else %}fl-illustration-card-default{% endif %}">
   {% if contents.media %}
     <div class="fl-card-media">
       {{ contents.media }}

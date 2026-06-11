@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
-from django.db.models.expressions import Case, F, Value, When
+from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -44,7 +44,7 @@ from springfield.cms.blocks import (
     BlogCardsListBlock,
     ButtonRowBlock,
     CardGalleryBlock,
-    CardsListBlock2026,
+    CardsListBlock,
     CarouselBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
@@ -54,9 +54,7 @@ from springfield.cms.blocks import (
     HeadingBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
-    InlineNotificationBlock,
     IntroBlock,
-    IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
     LineCardsBlock,
@@ -305,7 +303,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
-            ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],
         use_json_field=True,
@@ -404,7 +402,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     content = StreamField(
         [
-            ("section", SectionBlock2026()),
+            ("section", SectionBlock()),
             (
                 "banner_snippet",
                 LocalizedLiveSnippetChooserBlock(
@@ -473,7 +471,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     content = StreamField(
         [
-            ("section", SectionBlock2026(allow_uitour=False)),
+            ("section", SectionBlock(allow_uitour=False)),
             ("download_support", DownloadSupportBlock()),
             (
                 "banner_snippet",
@@ -832,7 +830,7 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
-            ("intro", IntroBlock2026()),
+            ("intro", IntroBlock()),
         ],
         use_json_field=True,
         blank=True,
@@ -841,8 +839,8 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     content = StreamField(
         [
-            ("intro", IntroBlock2026()),
-            ("section", SectionBlock2026(require_heading=False)),
+            ("intro", IntroBlock()),
+            ("section", SectionBlock(require_heading=False)),
         ],
         use_json_field=True,
         default=list(),
@@ -857,28 +855,23 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"ArticleThemePage: {self.title} - {self.locale}"
 
 
-def _get_freeform_page_blocks(allow_uitour=False):
-    """Factory function to create block list with appropriate button types.
+# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
+class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A flexible page type that allows a variety of content blocks to be added."""
 
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
-                      If False, only allows regular buttons.
+    parent_page_types = []
 
-    Returns:
-        List of tuples containing block names and instances configured
-        with the appropriate button types.
-    """
-    return [
-        ("inline_notification", InlineNotificationBlock(group="Notifications")),
-        ("intro", IntroBlock(allow_uitour=allow_uitour)),
-        ("section", SectionBlock(allow_uitour=allow_uitour)),
-        ("subscription", SubscriptionBlock(group="Banners")),
-        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
-        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
+    content = StreamField([], use_json_field=True)
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
     ]
 
+    def __str__(self):
+        return f"FreeFormPage: {self.title} - {self.locale}"
 
-def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
+
+def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -891,14 +884,14 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     """
     base_blocks = [
         ("notification", NotificationBlock(group="Notification")),
-        ("intro", IntroBlock2026(allow_uitour=allow_uitour, group="Intro")),
-        ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
+        ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("showcase", ShowcaseBlock(group="Media")),
         ("carousel", CarouselBlock(group="Media")),
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
-        ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
-        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
@@ -923,23 +916,8 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     return base_blocks
 
 
-FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
-WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-UPPER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=True)
-LOWER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False)
-
-
-class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A flexible page type that allows a variety of content blocks to be added."""
-
-    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
-
-    def __str__(self):
-        return f"FreeFormPage: {self.title} - {self.locale}"
+UPPER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=True)
+LOWER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False)
 
 
 class PencilBannerPlacement(Orderable):
@@ -962,14 +940,14 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
-        UPPER_FREEFORM_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
@@ -1046,7 +1024,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     # Only one instance of this page should exist
     # When a HomePage is implemented, this page should be moved to be a child of HomePage
     # parent_page_types = []
-    subpage_types = ["cms.WhatsNewPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     class Meta:
         verbose_name = "What's New Index Page"
@@ -1061,14 +1039,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .exclude(slug="general")
-            .annotate(
-                version=Case(
-                    When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
-                    When(whatsnewpage2026__version__isnull=False, then=F("whatsnewpage2026__version")),
-                    default=Value(None),
-                    output_field=models.CharField(),
-                )
-            )
+            .annotate(version=F("whatsnewpage2026__version"))
             .order_by("-version")
             .specific()
             .first()
@@ -1078,10 +1049,11 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
+# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
 class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
-    parent_page_types = ["cms.WhatsNewIndexPage"]
+    parent_page_types = []
     subpage_types = []
 
     ftl_files = ["firefox/whatsnew/evergreen"]
@@ -1090,7 +1062,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_length=10,
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
-    content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    content = StreamField([], use_json_field=True)
     show_qr_code_snippet = models.BooleanField(
         default=False,
         help_text="If true, a floating QR code snippet will be displayed on the page.",
@@ -1134,14 +1106,14 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     upper_content = StreamField(
-        UPPER_FREEFORM_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
 
@@ -1235,7 +1207,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
 
@@ -1413,11 +1385,11 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A Smart Window themed page"""
 
     upper_content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
 
@@ -1757,7 +1729,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ftl_files = ["cms/roadmap"]
 
     intro = StreamField(
-        [("intro", IntroBlock2026())],
+        [("intro", IntroBlock())],
         max_num=1,
         use_json_field=True,
         null=True,
