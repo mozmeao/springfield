@@ -9,7 +9,7 @@
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
   <select class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
-    <option value="">Select an option</option>
+    <option value="">{{ ftl("contact-form-select-option") }}</option>
     {% for option in value.options %}
       <option value="{{ option.value }}"{% if option.value == form_data.get(value.internal_identifier) %} selected{% endif %}>{{ option.label }}</option>
     {% endfor %}

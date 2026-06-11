@@ -12,3 +12,4 @@ contact-form-error-required-field = You must fill out the { $field } field.
 contact-form-error-sending = There was an error sending your message. Please try again.
 contact-form-error-empty = Please fill out the form.
 contact-form-submit = Submit
+contact-form-select-option = Select an option
