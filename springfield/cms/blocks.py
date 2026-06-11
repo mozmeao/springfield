@@ -3593,3 +3593,17 @@ class CheckboxGroupFieldBlock(blocks.StructBlock):
         template = "cms/blocks/form_fields/checkbox_group_field.html"
         label = "Checkbox Group Field"
         label_format = "Checkbox Group - {label}"
+
+
+class HiddenFieldBlock(blocks.StructBlock):
+    settings = FieldSettings()
+    default_value = blocks.CharBlock(
+        required=False,
+        label="Default value",
+        help_text="Value submitted with the form for this hidden field.",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/hidden_field.html"
+        label = "Hidden Field"
+        label_format = "Hidden - {settings}"

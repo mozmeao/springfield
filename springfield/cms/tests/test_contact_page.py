@@ -391,3 +391,39 @@ def test_contact_page_post_valid_redirects_to_localised_page(
 
     assert resp.status_code == 302
     assert resp["Location"] == fr_thank_you.url
+
+
+def test_contact_page_hidden_field_not_visible(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """HiddenFieldBlock renders as <input type='hidden'> with the default value."""
+    index_page = get_test_index_page()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    hidden_field = {
+        "type": "hidden_field",
+        "value": {
+            "settings": {"internal_identifier": "source"},
+            "default_value": "contact-page",
+        },
+        "id": "hidden-field",
+    }
+
+    page = ContactPage(
+        title="Hidden Field Test",
+        slug="hidden-field-test",
+        form_fields=[hidden_field],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert 'type="hidden"' in content
+    assert 'name="source"' in content
+    assert 'value="contact-page"' in content

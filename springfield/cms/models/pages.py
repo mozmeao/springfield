@@ -48,6 +48,7 @@ from springfield.cms.blocks import (
     EmailFieldBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
+    HiddenFieldBlock,
     HomeKitBannerBlock,
     InlineNotificationBlock,
     IntroBlock,
@@ -1799,6 +1800,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             ("phone_field", PhoneFieldBlock()),
             ("select_field", SelectFieldBlock()),
             ("checkbox_group_field", CheckboxGroupFieldBlock()),
+            ("hidden_field", HiddenFieldBlock()),
         ],
         blank=True,
         null=True,
@@ -1867,13 +1869,15 @@ class ContactPage(AbstractSpringfieldCMSPage):
         has_any_data = False
 
         for field in self.form_fields:
-            block_type = field.block_type
+            if field.block_type == "hidden_field":
+                continue
+
             value = field.value
             identifier = value["settings"]["internal_identifier"]
             label = value["label"]
             is_required = value.get("required", False)
 
-            if block_type == "checkbox_group_field":
+            if field.block_type == "checkbox_group_field":
                 submitted = post_data.getlist(identifier)
             else:
                 submitted = post_data.get(identifier, "").strip()
