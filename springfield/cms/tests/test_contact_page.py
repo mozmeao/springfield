@@ -50,7 +50,6 @@ def test_contact_page_creation(minimal_site: Site) -> None:  # noqa: F811
     page = ContactPage(
         title="Contact Us",
         slug="contact",
-        subheading="Get in touch",
         to_email_address="test@example.com",
         redirect_to=thank_you_page,
     )
@@ -59,7 +58,6 @@ def test_contact_page_creation(minimal_site: Site) -> None:  # noqa: F811
 
     assert page.id is not None
     assert page.title == "Contact Us"
-    assert page.subheading == "Get in touch"
     assert page.to_email_address == "test@example.com"
     assert page.redirect_to == thank_you_page
 
@@ -78,7 +76,6 @@ def test_contact_page_serve(
     page = ContactPage(
         title="Contact Serve Test",
         slug="contact-serve-test",
-        subheading="Contact us today",
         form_fields=form_field_variants[:3],
         to_email_address="test@example.com",
         redirect_to=thank_you_page,
