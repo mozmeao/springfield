@@ -830,3 +830,100 @@ def test_validation_error_strings_are_translatable() -> None:
     errors = page.validate_form_data({})
     assert errors
     assert isinstance(errors[0], Promise), "Validation errors must use gettext_lazy for i18n support"
+
+
+# ============================================================================
+# Form Value Persistence Tests
+# ============================================================================
+
+
+def test_get_form_data_for_context_text_and_checkbox(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """_get_form_data_for_context returns strings for text-like fields, lists for
+    checkbox groups, and excludes hidden fields."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Form Data Helper Test",
+        slug="form-data-helper-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "checkbox_group_field",
+                "value": {
+                    "internal_identifier": "services",
+                    "label": "Services",
+                    "options": [{"value": "a", "label": "A"}, {"value": "b", "label": "B"}],
+                },
+                "id": "f2",
+            },
+            {
+                "type": "hidden_field",
+                "value": {"internal_identifier": "source", "label": "Source", "default_value": "web"},
+                "id": "f3",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    from django.http import QueryDict
+
+    post_data = QueryDict("name=Jane+Doe&services=a&services=b")
+    form_data = page._get_form_data_for_context(post_data)
+
+    assert form_data["name"] == "Jane Doe"
+    assert form_data["services"] == ["a", "b"]
+    assert "source" not in form_data
+
+
+def test_get_context_includes_form_data(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """get_context() passes form_data from request into the template context."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Context Form Data Test",
+        slug="context-form-data-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    request.form_data = {"name": "Jane Doe"}
+    context = page.get_context(request)
+
+    assert context["form_data"] == {"name": "Jane Doe"}
+
+
+def test_get_context_form_data_defaults_to_empty_dict(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """get_context() defaults form_data to {} on GET requests (no form_data on request)."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Context Default Test",
+        slug="context-default-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    context = page.get_context(request)
+
+    assert context["form_data"] == {}

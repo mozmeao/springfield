@@ -1868,6 +1868,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             context["form_errors"] = form_errors
         if getattr(request, "form_success", False):
             context["form_success"] = True
+        context["form_data"] = getattr(request, "form_data", {})
         return context
 
     def serve(self, request, *args, **kwargs):
@@ -1875,6 +1876,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             form_errors = self.validate_form_data(request.POST)
             if form_errors:
                 request.form_errors = form_errors
+                request.form_data = self._get_form_data_for_context(request.POST)
                 response = super().serve(request, *args, **kwargs)
                 add_never_cache_headers(response)
                 return response
@@ -1898,6 +1900,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     level="error",
                                 )
                         request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                        request.form_data = self._get_form_data_for_context(request.POST)
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
                         return response
@@ -1910,6 +1913,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             level="error",
                         )
                     request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_data = self._get_form_data_for_context(request.POST)
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
                     return response
@@ -1942,6 +1946,24 @@ class ContactPage(AbstractSpringfieldCMSPage):
             else:
                 data[identifier] = request.POST.get(identifier, "")
         return data
+
+    def _get_form_data_for_context(self, post_data):
+        """Return submitted form values keyed by internal_identifier for template use.
+
+        Returns a dict with string values for text-like fields and lists for
+        checkbox_group_field. Hidden fields are excluded — they always render
+        their default_value regardless of POST data.
+        """
+        form_data = {}
+        for field in self.form_fields:
+            if field.block_type == "hidden_field":
+                continue
+            identifier = field.value["internal_identifier"]
+            if field.block_type == "checkbox_group_field":
+                form_data[identifier] = post_data.getlist(identifier)
+            else:
+                form_data[identifier] = post_data.get(identifier, "")
+        return form_data
 
     def validate_form_data(self, post_data):
         """Validate submitted form data against the field configuration.
