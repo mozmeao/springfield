@@ -13,7 +13,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "text_field",
             "value": {
-                "settings": {"internal_identifier": "full_name"},
+                "internal_identifier": "full_name",
                 "label": "Full Name",
                 "required": True,
             },
@@ -22,7 +22,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "text_field",
             "value": {
-                "settings": {"internal_identifier": "company"},
+                "internal_identifier": "company",
                 "label": "Company",
                 "required": False,
             },
@@ -31,7 +31,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "email_field",
             "value": {
-                "settings": {"internal_identifier": "email"},
+                "internal_identifier": "email",
                 "label": "Email Address",
                 "required": True,
             },
@@ -40,7 +40,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "phone_field",
             "value": {
-                "settings": {"internal_identifier": "phone"},
+                "internal_identifier": "phone",
                 "label": "Phone Number",
                 "required": False,
             },
@@ -49,7 +49,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "select_field",
             "value": {
-                "settings": {"internal_identifier": "interest"},
+                "internal_identifier": "interest",
                 "label": "Area of Interest",
                 "required": True,
                 "options": [
@@ -64,7 +64,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "checkbox_group_field",
             "value": {
-                "settings": {"internal_identifier": "services"},
+                "internal_identifier": "services",
                 "label": "Services",
                 "options": [
                     {"value": "consulting", "label": "Consulting"},
@@ -77,7 +77,7 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "textarea_field",
             "value": {
-                "settings": {"internal_identifier": "message"},
+                "internal_identifier": "message",
                 "label": "Message",
                 "required": False,
                 "rows": 4,

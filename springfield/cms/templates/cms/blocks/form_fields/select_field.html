@@ -5,10 +5,10 @@
 #}
 
 <div class="fl-field-wrap">
-  <label class="fl-label" for="{{ value.settings.internal_identifier }}">
+  <label class="fl-label" for="{{ value.internal_identifier }}">
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
-  <select class="fl-field" id="{{ value.settings.internal_identifier }}" name="{{ value.settings.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
+  <select class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
     <option value="">Select an option</option>
     {% for option in value.options %}
       <option value="{{ option.value }}">{{ option.label }}</option>

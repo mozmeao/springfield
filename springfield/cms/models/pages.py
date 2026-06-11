@@ -31,7 +31,7 @@ from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
-from lib.l10n_utils.fluent import ftl
+from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -1791,7 +1791,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
         max_length=255,
         blank=True,
         help_text=(
-            "Basket API path (e.g. /news/subscribe/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
+            "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
         ),
     )
 
@@ -1845,7 +1845,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
         if has_basket and not has_email:
             parsed = urlparse(self.basket_api_path)
             if parsed.scheme or parsed.netloc:
-                errors["basket_api_path"] = "Enter a path (e.g. /news/subscribe/), not a full URL."
+                errors["basket_api_path"] = "Enter a path (e.g. /api/v1/contact/), not a full URL."
             elif not parsed.path.startswith("/"):
                 errors["basket_api_path"] = "Path must start with /."
 
@@ -1893,7 +1893,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = [ftl("contact-form-error-sending", ftl_files=self.ftl_files)]
+                        request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
                         return response
@@ -1905,7 +1905,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = [ftl("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
                     return response
@@ -1930,7 +1930,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
         data = {}
         for field in self.form_fields:
             value = field.value
-            identifier = value["settings"]["internal_identifier"]
+            identifier = value["internal_identifier"]
             if field.block_type == "hidden_field":
                 data[identifier] = value.get("default_value", "")
             elif field.block_type == "checkbox_group_field":
@@ -1945,7 +1945,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
         Returns a list of error messages. An empty list means the data is valid.
         """
         if post_data.get("office_fax", ""):
-            return [ftl("contact-form-error-sending", ftl_files=self.ftl_files)]
+            return [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
 
         errors = []
         has_any_data = False
@@ -1955,7 +1955,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 continue
 
             value = field.value
-            identifier = value["settings"]["internal_identifier"]
+            identifier = value["internal_identifier"]
             label = value["label"]
             is_required = value.get("required", False)
 
@@ -1968,10 +1968,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 has_any_data = True
 
             if is_required and not submitted:
-                errors.append(ftl("contact-form-error-required-field", ftl_files=self.ftl_files, field=label))
+                errors.append(ftl_lazy("contact-form-error-required-field", ftl_files=self.ftl_files, field=label))
 
         if not has_any_data:
-            errors.append(ftl("contact-form-error-empty", ftl_files=self.ftl_files))
+            errors.append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
 
         return errors
 
@@ -1981,12 +1981,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
         for field in self.form_fields:
             block_type = field.block_type
             value = field.value
-            identifier = value["settings"]["internal_identifier"]
-
-            if block_type == "hidden_field":
-                label = identifier
-            else:
-                label = value["label"]
+            identifier = value["internal_identifier"]
+            label = value["label"]
 
             if block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))

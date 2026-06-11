@@ -3081,43 +3081,27 @@ class DownloadSupportBlock(blocks.StaticBlock):
 # Contact Page Form Field Blocks
 
 
-class FieldSettings(blocks.StructBlock):
+class BaseField(blocks.StructBlock):
+    label = blocks.CharBlock(label="Field Label")
     internal_identifier = blocks.CharBlock(
         label="Internal Identifier",
         help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",
     )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "ID: {internal_identifier}"
-        form_classname = "compact-form struct-block"
-
-
-class TextFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
     required = blocks.BooleanBlock(
         required=False,
         default=False,
         label="Required field",
     )
 
+
+class TextFieldBlock(BaseField):
     class Meta:
         template = "cms/blocks/form_fields/text_field.html"
         label = "Text Field"
         label_format = "Text - {label}"
 
 
-class TextAreaFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
-    required = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Required field",
-    )
+class TextAreaFieldBlock(BaseField):
     rows = blocks.IntegerBlock(
         required=False,
         default=4,
@@ -3131,30 +3115,14 @@ class TextAreaFieldBlock(blocks.StructBlock):
         label_format = "Text Area - {label}"
 
 
-class EmailFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
-    required = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Required field",
-    )
-
+class EmailFieldBlock(BaseField):
     class Meta:
         template = "cms/blocks/form_fields/email_field.html"
         label = "Email Field"
         label_format = "Email - {label}"
 
 
-class PhoneFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
-    required = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Required field",
-    )
-
+class PhoneFieldBlock(BaseField):
     class Meta:
         template = "cms/blocks/form_fields/phone_field.html"
         label = "Phone Field"
@@ -3170,14 +3138,7 @@ class SelectOptionBlock(blocks.StructBlock):
         label_format = "{label}"
 
 
-class SelectFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
-    required = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Required field",
-    )
+class SelectFieldBlock(BaseField):
     options = blocks.ListBlock(
         SelectOptionBlock(),
         min_num=1,
@@ -3199,9 +3160,7 @@ class CheckboxOptionBlock(blocks.StructBlock):
         label_format = "{label}"
 
 
-class CheckboxGroupFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
-    label = blocks.CharBlock(label="Field Label")
+class CheckboxGroupFieldBlock(BaseField):
     options = blocks.ListBlock(
         CheckboxOptionBlock(),
         min_num=1,
@@ -3214,10 +3173,8 @@ class CheckboxGroupFieldBlock(blocks.StructBlock):
         label_format = "Checkbox Group - {label}"
 
 
-class HiddenFieldBlock(blocks.StructBlock):
-    settings = FieldSettings()
+class HiddenFieldBlock(BaseField):
     default_value = blocks.CharBlock(
-        required=False,
         label="Default value",
         help_text="Value submitted with the form for this hidden field.",
     )
@@ -3225,4 +3182,4 @@ class HiddenFieldBlock(blocks.StructBlock):
     class Meta:
         template = "cms/blocks/form_fields/hidden_field.html"
         label = "Hidden Field"
-        label_format = "Hidden - {settings}"
+        label_format = "Hidden - {label}"

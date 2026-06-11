@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 help_text=(
-                    "Basket API path (e.g. /news/subscribe/). Concatenated with settings.BASKET_URL"
+                    "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL"
                     " on submission. Required if Email Address is not set."
                 ),
                 max_length=255,

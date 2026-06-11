@@ -411,7 +411,7 @@ def test_contact_page_hidden_field_not_visible(
     hidden_field = {
         "type": "hidden_field",
         "value": {
-            "settings": {"internal_identifier": "source"},
+            "internal_identifier": "source",
             "default_value": "contact-page",
         },
         "id": "hidden-field",
@@ -722,7 +722,7 @@ def test_textarea_field_renders_correctly(
             {
                 "type": "textarea_field",
                 "value": {
-                    "settings": {"internal_identifier": "message"},
+                    "internal_identifier": "message",
                     "label": "Message",
                     "required": False,
                     "rows": 6,
@@ -760,7 +760,7 @@ def test_textarea_field_required_validates(
             {
                 "type": "textarea_field",
                 "value": {
-                    "settings": {"internal_identifier": "message"},
+                    "internal_identifier": "message",
                     "label": "Message",
                     "required": True,
                     "rows": 4,
@@ -798,7 +798,7 @@ def test_textarea_field_value_in_email(
             {
                 "type": "textarea_field",
                 "value": {
-                    "settings": {"internal_identifier": "message"},
+                    "internal_identifier": "message",
                     "label": "Message",
                     "required": False,
                     "rows": 4,

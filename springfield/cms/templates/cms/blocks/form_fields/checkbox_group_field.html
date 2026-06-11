@@ -7,8 +7,8 @@
 <fieldset class="fl-field-wrap">
   <legend class="fl-legend">{{ value.label }}</legend>
   {% for option in value.options %}
-    <label class="fl-checkbox-label" for="{{ value.settings.internal_identifier }}-{{ option.value|slugify }}">
-      <input class="fl-checkbox" id="{{ value.settings.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.settings.internal_identifier }}" value="{{ option.value }}">
+    <label class="fl-checkbox-label" for="{{ value.internal_identifier }}-{{ option.value|slugify }}">
+      <input class="fl-checkbox" id="{{ value.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.internal_identifier }}" value="{{ option.value }}">
       {{ option.label }}
     </label>
   {% endfor %}
