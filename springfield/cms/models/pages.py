@@ -20,7 +20,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
+import requests
 from modelcluster.fields import ParentalKey
+from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
@@ -1783,8 +1785,6 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 class ContactPage(AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
 
-    parent_page_types = ["cms.HomePage"]
-    subpage_types = []
     template = "cms/contact_page.html"
 
     subheading = models.CharField(
@@ -1809,36 +1809,86 @@ class ContactPage(AbstractSpringfieldCMSPage):
     )
 
     to_email_address = models.EmailField(
+        blank=True,
         help_text="Email address where form submissions will be sent.",
+    )
+
+    basket_api_path = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=(
+            "Basket API path (e.g. /news/subscribe/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
+        ),
     )
 
     redirect_to = models.ForeignKey(
         "wagtailcore.Page",
         on_delete=models.PROTECT,
         related_name="+",
+        null=True,
+        blank=True,
         help_text="Page to redirect to after a successful form submission (e.g. a thank-you page).",
+    )
+
+    thank_you_message = RichTextField(
+        blank=True,
+        help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("subheading"),
         FieldPanel("form_fields"),
+        FieldPanel("thank_you_message"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
                 FieldPanel("to_email_address"),
+                FieldPanel("basket_api_path"),
                 FieldPanel("redirect_to"),
             ],
             heading="Form Submission Settings",
         ),
     ]
 
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        has_email = bool(self.to_email_address)
+        has_basket = bool(self.basket_api_path)
+
+        if not has_email and not has_basket:
+            msg = "Set either an email address or a basket API path."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+        elif has_email and has_basket:
+            msg = "Set either an email address or a basket API path, not both."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+
+        if has_basket:
+            if not self.basket_api_path.startswith("/"):
+                errors["basket_api_path"] = "Path must start with /."
+            elif "://" in self.basket_api_path:
+                errors["basket_api_path"] = "Enter a path (e.g. /news/subscribe/), not a full URL."
+
+        if not self.redirect_to and not self.thank_you_message:
+            msg = "Set either a redirect page or a thank you message."
+            errors["redirect_to"] = msg
+            errors["thank_you_message"] = msg
+
+        if errors:
+            raise ValidationError(errors)
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         form_errors = getattr(request, "form_errors", None)
         if form_errors:
             context["form_errors"] = form_errors
+        if getattr(request, "form_success", False):
+            context["form_success"] = True
         return context
 
     def serve(self, request, *args, **kwargs):
@@ -1850,12 +1900,66 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 add_never_cache_headers(response)
                 return response
 
-            self.send_form_email(request)
-            return redirect(self.redirect_to.localized.url)
+            if self.basket_api_path:
+                form_data = self._collect_form_data(request)
+                try:
+                    api_response = requests.post(
+                        f"{settings.BASKET_URL}{self.basket_api_path}",
+                        json=form_data,
+                        timeout=settings.BASKET_TIMEOUT,
+                    )
+                    if not api_response.ok:
+                        if 400 <= api_response.status_code < 500:
+                            with new_scope() as scope:
+                                scope.set_extra("post_data", form_data)
+                                scope.set_extra("basket_path", self.basket_api_path)
+                                scope.set_extra("status_code", api_response.status_code)
+                                capture_message(
+                                    f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
+                                    level="error",
+                                )
+                        request.form_errors = ["Form submission failed."]
+                        response = super().serve(request, *args, **kwargs)
+                        add_never_cache_headers(response)
+                        return response
+                except requests.RequestException as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        capture_message(
+                            f"Basket API request failed for path {self.basket_api_path}: {exc}",
+                            level="error",
+                        )
+                    request.form_errors = ["Form submission failed."]
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
+
+            if self.to_email_address:
+                self.send_form_email(request)
+
+            if self.redirect_to:
+                return redirect(self.redirect_to.localized.url)
+
+            request.form_success = True
+            response = super().serve(request, *args, **kwargs)
+            add_never_cache_headers(response)
+            return response
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
         return response
+
+    def _collect_form_data(self, request):
+        """Return submitted form data as a plain dict (lists joined for checkboxes)."""
+        data = {}
+        for field in self.form_fields:
+            value = field.value
+            identifier = value["settings"]["internal_identifier"]
+            if field.block_type == "checkbox_group_field":
+                data[identifier] = ", ".join(request.POST.getlist(identifier))
+            else:
+                data[identifier] = request.POST.get(identifier, "")
+        return data
 
     def validate_form_data(self, post_data):
         """Validate submitted form data against the field configuration.

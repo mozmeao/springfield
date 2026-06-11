@@ -2,11 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from unittest.mock import patch
 
+from django.core.exceptions import ValidationError
 from django.test import RequestFactory
 
 import pytest
+import responses
 from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.base_fixtures import get_test_index_page
@@ -427,3 +430,251 @@ def test_contact_page_hidden_field_not_visible(
     assert 'type="hidden"' in content
     assert 'name="source"' in content
     assert 'value="contact-page"' in content
+
+
+# ============================================================================
+# ContactPage.clean() Validation Tests
+# ============================================================================
+
+
+def test_contact_page_clean_requires_email_or_basket(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """ContactPage.clean() raises if both to_email_address and basket_api_path are blank."""
+    page = ContactPage(
+        title="Clean Test",
+        slug="clean-test",
+        to_email_address="",
+        basket_api_path="",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError):
+        page.clean()
+
+
+def test_contact_page_clean_rejects_both_email_and_basket(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """ContactPage.clean() raises if both to_email_address and basket_api_path are set."""
+    page = ContactPage(
+        title="Clean Both Test",
+        slug="clean-both-test",
+        to_email_address="test@example.com",
+        basket_api_path="/news/subscribe/",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError):
+        page.clean()
+
+
+def test_contact_page_clean_requires_redirect_or_thank_you(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """ContactPage.clean() raises if both redirect_to and thank_you_message are blank."""
+    page = ContactPage(
+        title="Clean Redirect Test",
+        slug="clean-redirect-test",
+        to_email_address="test@example.com",
+        redirect_to=None,
+        thank_you_message="",
+    )
+    with pytest.raises(ValidationError):
+        page.clean()
+
+
+def test_contact_page_clean_validates_basket_path_format(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """ContactPage.clean() raises if basket_api_path doesn't start with /."""
+    page = ContactPage(
+        title="Basket Path Test",
+        slug="basket-path-test",
+        basket_api_path="news/subscribe/",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError):
+        page.clean()
+
+
+def test_contact_page_clean_rejects_full_url_as_basket_path(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """ContactPage.clean() raises if basket_api_path looks like a full URL."""
+    page = ContactPage(
+        title="Basket URL Test",
+        slug="basket-url-test",
+        basket_api_path="https://basket.mozilla.org/news/subscribe/",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError):
+        page.clean()
+
+
+# ============================================================================
+# Basket API Tests
+# ============================================================================
+
+
+@responses.activate
+def test_contact_page_post_basket_api_called(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """Valid POST with basket_api_path calls the basket URL with the correct JSON body."""
+    from django.conf import settings as django_settings
+
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=200)
+
+    index_page = get_test_index_page()
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Basket API Test",
+        slug="basket-api-test",
+        form_fields=form_field_variants,
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "interest": "privacy",
+        },
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 302
+    assert len(responses.calls) == 1
+    body = json.loads(responses.calls[0].request.body)
+    assert body["full_name"] == "Jane Doe"
+    assert body["email"] == "jane@example.com"
+
+
+@responses.activate
+def test_contact_page_post_basket_api_5xx_rejects_submission(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """5xx basket API response re-renders the form with an error (no Sentry report)."""
+    from django.conf import settings as django_settings
+
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=500)
+
+    index_page = get_test_index_page()
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Basket 5xx Test",
+        slug="basket-5xx-test",
+        form_fields=form_field_variants,
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "interest": "privacy",
+        },
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 200
+    assert "Form submission failed." in resp.content.decode()
+
+
+@responses.activate
+@patch("springfield.cms.models.pages.capture_message")
+def test_contact_page_post_basket_api_4xx_reports_to_sentry(
+    mock_capture_message,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """4xx basket API response re-renders with an error AND sends a Sentry event."""
+    from django.conf import settings as django_settings
+
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=400)
+
+    index_page = get_test_index_page()
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Basket 4xx Test",
+        slug="basket-4xx-test",
+        form_fields=form_field_variants,
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "interest": "privacy",
+        },
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 200
+    assert "Form submission failed." in resp.content.decode()
+    mock_capture_message.assert_called_once()
+    call_args = mock_capture_message.call_args
+    assert "400" in call_args[0][0]
+
+
+# ============================================================================
+# thank_you_message Tests
+# ============================================================================
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_post_valid_shows_thank_you_message(
+    mock_email_class,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """When thank_you_message is set and no redirect_to, valid POST re-renders
+    with the thank you content instead of the form."""
+    index_page = get_test_index_page()
+    form_field_variants = get_form_field_variants()
+
+    page = ContactPage(
+        title="Thank You Message Test",
+        slug="thank-you-message-test",
+        form_fields=form_field_variants,
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "full_name": "Jane Doe",
+            "email": "jane@example.com",
+            "interest": "privacy",
+        },
+    )
+    resp = page.serve(request)
+
+    assert resp.status_code == 200
+    assert "Thanks for reaching out!" in resp.content.decode()
