@@ -74,6 +74,7 @@ from springfield.cms.blocks import (
     ShowcaseBlock,
     SlidingCarouselBlock,
     SubscriptionBlock,
+    TextAreaFieldBlock,
     TextFieldBlock,
     TopicListBlock,
     VideoBlock,
@@ -1797,6 +1798,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
     form_fields = StreamField(
         [
             ("text_field", TextFieldBlock()),
+            ("textarea_field", TextAreaFieldBlock()),
             ("email_field", EmailFieldBlock()),
             ("phone_field", PhoneFieldBlock()),
             ("select_field", SelectFieldBlock()),

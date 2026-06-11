@@ -3512,6 +3512,27 @@ class TextFieldBlock(blocks.StructBlock):
         label_format = "Text - {label}"
 
 
+class TextAreaFieldBlock(blocks.StructBlock):
+    settings = FieldSettings()
+    label = blocks.CharBlock(label="Field Label")
+    required = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Required field",
+    )
+    rows = blocks.IntegerBlock(
+        required=False,
+        default=4,
+        label="Rows",
+        help_text="Number of visible text lines.",
+    )
+
+    class Meta:
+        template = "cms/blocks/form_fields/textarea_field.html"
+        label = "Text Area Field"
+        label_format = "Text Area - {label}"
+
+
 class EmailFieldBlock(blocks.StructBlock):
     settings = FieldSettings()
     label = blocks.CharBlock(label="Field Label")
