@@ -21,7 +21,7 @@
       heading_text="{{ page.title }}"
       heading_size="fl-heading-xl fl-heading-condensed"
       subheading_text="{{ page.subheading }}"
-      size="1"
+      level="h1"
       alignment_class="text-center mb-0"
     />
   </content:heading>
@@ -64,7 +64,5 @@
 
 {% block js %}
   {{ super() }}
-  {% if page.extra_js %}
-    {{ js_bundle(page.extra_js) }}
-  {% endif %}
+  {{ js_bundle('contact-form') }}
 {% endblock js %}
