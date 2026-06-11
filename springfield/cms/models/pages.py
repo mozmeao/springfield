@@ -1922,7 +1922,14 @@ class ContactPage(AbstractSpringfieldCMSPage):
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
                         return response
-                except requests.RequestException:
+                except requests.RequestException as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            f"Basket API request failed for path {self.basket_api_path}",
+                            level="error",
+                        )
                     request.form_errors = ["Form submission failed."]
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
