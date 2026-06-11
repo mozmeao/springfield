@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
+from django.http import QueryDict
 from django.test import Client, RequestFactory
 from django.utils.functional import Promise
 
@@ -874,8 +875,6 @@ def test_get_form_data_for_context_text_and_checkbox(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    from django.http import QueryDict
-
     post_data = QueryDict("name=Jane+Doe&services=a&services=b")
     form_data = page._get_form_data_for_context(post_data)
 
@@ -927,3 +926,148 @@ def test_get_context_form_data_defaults_to_empty_dict(
     context = page.get_context(request)
 
     assert context["form_data"] == {}
+
+
+def test_form_persistence_text_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, the submitted text field value is pre-filled."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Text Persistence Test",
+        slug="text-persistence-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "company", "label": "Company", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # company filled, full_name empty (required) → validation error → form re-renders
+    request = rf.post(page.relative_url(minimal_site), {"company": "Acme Corp"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="Acme Corp"' in content
+
+
+def test_form_persistence_email_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, the submitted email field value is pre-filled."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Email Persistence Test",
+        slug="email-persistence-test",
+        form_fields=[
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "contact_email", "label": "Email", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"contact_email": "jane@example.com"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="jane@example.com"' in content
+
+
+def test_form_persistence_phone_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, the submitted phone field value is pre-filled."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Phone Persistence Test",
+        slug="phone-persistence-test",
+        form_fields=[
+            {
+                "type": "phone_field",
+                "value": {"internal_identifier": "phone", "label": "Phone", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"phone": "555-1234"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert 'value="555-1234"' in content
+
+
+def test_form_persistence_textarea_field(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """After a validation error, the submitted textarea value is pre-filled."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Textarea Persistence Test",
+        slug="textarea-persistence-test",
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {"internal_identifier": "message", "label": "Message", "required": False, "rows": 4},
+                "id": "f1",
+            },
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"message": "Hello world"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert ">Hello world<" in content
