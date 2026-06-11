@@ -20,6 +20,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
+from django.utils.translation import gettext_lazy as _
 
 import requests
 from modelcluster.fields import ParentalKey
@@ -1922,7 +1923,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = ["Form submission failed."]
+                        request.form_errors = [_("There was an error sending your message. Please try again.")]
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
                         return response
@@ -1934,7 +1935,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = ["Form submission failed."]
+                    request.form_errors = [_("There was an error sending your message. Please try again.")]
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
                     return response
@@ -1974,7 +1975,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
         Returns a list of error messages. An empty list means the data is valid.
         """
         if post_data.get("office_fax", ""):
-            return ["Form submission failed."]
+            return [_("There was an error sending your message. Please try again.")]
 
         errors = []
         has_any_data = False
@@ -1997,10 +1998,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 has_any_data = True
 
             if is_required and not submitted:
-                errors.append(f"{label} is required.")
+                errors.append(_("You must fill out the %(field)s field.") % {"field": label})
 
         if not has_any_data:
-            errors.append("Please fill in at least one field.")
+            errors.append(_("Please fill out the form."))
 
         return errors
 
