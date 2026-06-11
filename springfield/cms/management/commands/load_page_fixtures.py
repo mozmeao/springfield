@@ -23,6 +23,7 @@ from springfield.cms.fixtures.cards_fixtures import (
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
+from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
@@ -164,6 +165,9 @@ class Command(BaseCommand):
 
         thanks_page = get_thanks_page()
         self.stdout.write(self.style.SUCCESS(f"Thanks test page loaded: {thanks_page.slug}"))
+
+        contact_page = get_contact_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Contact test page loaded: {contact_page.slug}"))
 
         article_index_page = get_article_index_test_page()
         self.stdout.write(self.style.SUCCESS(f"Article Index test page loaded: {article_index_page.slug}"))
