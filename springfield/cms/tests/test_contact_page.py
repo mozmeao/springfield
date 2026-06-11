@@ -557,7 +557,9 @@ def test_contact_page_post_basket_api_called(
 
 
 @responses.activate
+@patch("springfield.cms.models.pages.capture_message")
 def test_contact_page_post_basket_api_5xx_rejects_submission(
+    mock_capture_message,
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
@@ -591,6 +593,7 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
 
     assert resp.status_code == 200
     assert "Form submission failed." in resp.content.decode()
+    mock_capture_message.assert_not_called()
 
 
 @responses.activate

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -1868,11 +1869,12 @@ class ContactPage(AbstractSpringfieldCMSPage):
             errors["to_email_address"] = msg
             errors["basket_api_path"] = msg
 
-        if has_basket:
-            if not self.basket_api_path.startswith("/"):
-                errors["basket_api_path"] = "Path must start with /."
-            elif "://" in self.basket_api_path:
+        if has_basket and not has_email:
+            parsed = urlparse(self.basket_api_path)
+            if parsed.scheme or parsed.netloc:
                 errors["basket_api_path"] = "Enter a path (e.g. /news/subscribe/), not a full URL."
+            elif not parsed.path.startswith("/"):
+                errors["basket_api_path"] = "Path must start with /."
 
         if not self.redirect_to and not self.thank_you_message:
             msg = "Set either a redirect page or a thank you message."
@@ -1956,7 +1958,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
         for field in self.form_fields:
             value = field.value
             identifier = value["settings"]["internal_identifier"]
-            if field.block_type == "checkbox_group_field":
+            if field.block_type == "hidden_field":
+                data[identifier] = value.get("default_value", "")
+            elif field.block_type == "checkbox_group_field":
                 data[identifier] = ", ".join(request.POST.getlist(identifier))
             else:
                 data[identifier] = request.POST.get(identifier, "")
