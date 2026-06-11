@@ -77,6 +77,35 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
     {% endblock shared_meta %}
 
+    {% block structured_data %}
+      {% if page is defined %}
+        {% set breadcrumb_ancestors = page.get_ancestors().live().filter(depth__gt=1) %}
+        {% if breadcrumb_ancestors %}
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {% for ancestor in breadcrumb_ancestors %}
+            {
+              "@type": "ListItem",
+              "position": {{ loop.index }},
+              "name": {{ ancestor.title|tojson }},
+              "item": {{ ancestor.full_url|tojson }}
+            },
+            {% endfor %}
+            {
+              "@type": "ListItem",
+              "position": {{ breadcrumb_ancestors|length + 1 }},
+              "name": {{ page.title|tojson }}
+            }
+          ]
+        }
+        </script>
+        {% endif %}
+      {% endif %}
+    {% endblock %}
+
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
     {{ css_bundle('flare26_base') }}
