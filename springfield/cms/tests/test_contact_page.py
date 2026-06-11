@@ -7,13 +7,12 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 
 import pytest
 import responses
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import ContactPage
@@ -43,7 +42,7 @@ def _create_thank_you_page(index_page):
 
 def test_contact_page_creation(minimal_site: Site) -> None:  # noqa: F811
     """Test that a ContactPage can be created."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
@@ -70,7 +69,7 @@ def test_contact_page_serve(
     serving_method: str,
 ) -> None:
     """Test that ContactPage can be served and renders form field labels."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -104,7 +103,7 @@ def test_contact_page_get_is_never_cached(
     or shared cache — otherwise different users receive the same stale token
     and their form submissions are rejected with 403.
     """
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
@@ -134,7 +133,7 @@ def test_contact_page_post_errors_is_never_cached(
     A re-rendered form (after validation failure) still contains a CSRF token
     and must not be cached.
     """
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -165,7 +164,7 @@ def test_contact_page_post_valid(
     rf: RequestFactory,
 ) -> None:
     """Test that a valid POST sends an email and redirects."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -209,7 +208,7 @@ def test_contact_page_post_missing_required(
     rf: RequestFactory,
 ) -> None:
     """Test that a POST missing required fields re-renders with errors."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -249,7 +248,7 @@ def test_contact_page_post_checkbox_group(
     rf: RequestFactory,
 ) -> None:
     """Test that checkbox group values are collected and joined correctly."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -281,12 +280,14 @@ def test_contact_page_post_checkbox_group(
     assert "consulting, implementation" in email_body
 
 
+@patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_empty_submission(
+    mock_email_class,
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
     """Test that an empty POST (no fields filled in) is rejected."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -309,6 +310,7 @@ def test_contact_page_post_empty_submission(
 
     assert resp.status_code == 200
     assert "Please fill in at least one field." in page_content
+    mock_email_class.assert_not_called()
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -318,7 +320,7 @@ def test_contact_page_post_honeypot(
     rf: RequestFactory,
 ) -> None:
     """Test that a POST with the honeypot field filled is rejected."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -362,7 +364,7 @@ def test_contact_page_post_valid_redirects_to_localised_page(
     A user whose active locale is fr should be redirected to the fr translation
     of that page, not the en-US original.
     """
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     en_us_thank_you = _create_thank_you_page(index_page)
 
@@ -402,7 +404,7 @@ def test_contact_page_hidden_field_not_visible(
     rf: RequestFactory,
 ) -> None:
     """HiddenFieldBlock renders as <input type='hidden'> with the default value."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
 
     hidden_field = {
@@ -431,6 +433,27 @@ def test_contact_page_hidden_field_not_visible(
     assert 'type="hidden"' in content
     assert 'name="source"' in content
     assert 'value="contact-page"' in content
+
+
+def test_contact_page_post_requires_csrf_token(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """POST without a valid CSRF token is rejected with 403."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="CSRF Test",
+        slug="csrf-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    client = Client(enforce_csrf_checks=True)
+    resp = client.post(page.full_url, {"full_name": "Bot"})
+    assert resp.status_code == 403
 
 
 # ============================================================================
@@ -525,7 +548,7 @@ def test_contact_page_post_basket_api_called(
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=200)
 
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -567,7 +590,7 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=500)
 
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -607,7 +630,7 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=400)
 
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
@@ -651,7 +674,7 @@ def test_contact_page_post_valid_shows_thank_you_message(
 ) -> None:
     """When thank_you_message is set and no redirect_to, valid POST re-renders
     with the thank you content instead of the form."""
-    index_page = get_test_index_page()
+    index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
 
     page = ContactPage(
