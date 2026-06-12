@@ -83,7 +83,10 @@
     inline-size: max-content;
     line-height: 1;
     padding: var(--token-spacing-xs) var(--token-spacing-sm);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-roadmap-status::before {

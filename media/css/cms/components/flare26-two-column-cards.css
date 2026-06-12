@@ -99,9 +99,12 @@
     inset-block-start: calc(var(--token-spacing-md) * -1);
     inset-inline-start: 50%;
     position: absolute;
-    text-transform: uppercase;
     transform: translateX(-50%);
     z-index: 1;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-two-column-card[class*='image-is-stuck'] {
