@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple
@@ -15,6 +16,7 @@ from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
+from product_details import product_details
 from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Page
@@ -3197,3 +3199,21 @@ class HiddenFieldBlock(BaseField):
         template = "cms/blocks/form_fields/hidden_field.html"
         label = "Hidden Field"
         label_format = "Hidden - {label}"
+
+
+class CountrySelectFieldBlock(BaseField):
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        request = parent_context.get("request") if parent_context else None
+        locale = (getattr(request, "locale", None) or settings.LANGUAGE_CODE) if request else settings.LANGUAGE_CODE
+        countries = sorted(
+            ((code.upper(), name) for code, name in product_details.get_regions(locale).items()),
+            key=lambda item: item[1],
+        )
+        context["countries"] = countries
+        return context
+
+    class Meta:
+        template = "cms/blocks/form_fields/country_select_field.html"
+        label = "Country Select Field"
+        label_format = "Country Select - {label}"

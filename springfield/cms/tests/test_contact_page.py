@@ -15,6 +15,7 @@ import pytest
 import responses
 from wagtail.models import Locale, Site
 
+from springfield.cms.blocks import CountrySelectFieldBlock  # noqa: F401
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import ContactPage
@@ -1411,3 +1412,88 @@ def test_no_js_notification_present(
 
     assert "<noscript>" in content
     assert "fl-notification-orange" in content
+
+
+def test_country_select_field_renders_countries(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """CountrySelectField renders a <select> populated with country options."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Country Select Test",
+        slug="country-select-test",
+        form_fields=[
+            {
+                "type": "country_select_field",
+                "value": {
+                    "internal_identifier": "country",
+                    "label": "Country",
+                    "required": True,
+                },
+                "id": "country-select-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    response = page.serve(request)
+    content = response.text
+
+    assert response.status_code == 200
+    # The select should contain country options — check for a few known codes
+    assert 'value="US"' in content or 'value="GB"' in content
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_country_select_field_persistence(
+    mock_email_class,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """When validation fails, the previously selected country stays selected."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Country Persist Test",
+        slug="country-persist-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "name-field",
+            },
+            {
+                "type": "country_select_field",
+                "value": {
+                    "internal_identifier": "country",
+                    "label": "Country",
+                    "required": False,
+                },
+                "id": "country-select-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # POST with country but missing required name — triggers validation error
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {"country": "DE"},
+    )
+    response = page.serve(request)
+    content = response.text
+
+    assert response.status_code == 200
+    assert 'value="DE" selected' in content
+    mock_email_class.assert_not_called()

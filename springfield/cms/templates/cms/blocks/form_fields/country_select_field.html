@@ -1,0 +1,20 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}">
+  <label class="fl-label" for="{{ value.internal_identifier }}">
+    {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
+  </label>
+  <select class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
+    <option value="">{{ ftl("contact-form-select-option") }}</option>
+    {% for code, name in countries %}
+      <option value="{{ code }}"{% if code == form_data.get(value.internal_identifier) %} selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+  {% for error in form_errors.get(value.internal_identifier, []) %}
+    <p class="fl-field-error-message">{{ error }}</p>
+  {% endfor %}
+</div>
