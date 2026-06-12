@@ -11,3 +11,4 @@ contact-form-error-sending = There was an error sending your message. Please try
 contact-form-error-empty = Please fill out the form.
 contact-form-submit = Submit
 contact-form-select-option = Select an option
+contact-form-correct-errors = Please correct the errors below
