@@ -2996,7 +2996,7 @@ class RoadmapItemBlock(blocks.StructBlock):
         widget=CheckboxSelectMultiple(),
     )
     buttons = blocks.ListBlock(
-        ButtonBlock(themes=BUTTON_THEMES_2026),
+        ButtonBlock(themes=BUTTON_THEMES),
         min_num=0,
         max_num=3,
         label="Buttons",
