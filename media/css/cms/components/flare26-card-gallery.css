@@ -39,7 +39,10 @@ Card Gallery - Flare 2026 Design System Card Gallery Component
     color: var(--fl-theme-card-superheading-color);
     font-size: var(--fl-theme-font-size-body-2xs);
     margin: 0;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-card-gallery-card .fl-buttons {

@@ -17,6 +17,17 @@ theme layer.
 
 html {
     font-size: var(--fl-theme-font-size-body-sm);
+
+    /**
+     * Only allow uppercase text transform for supported languages.
+     *
+     * Use a container style query to apply uppercase and related styles.
+     *
+     * See: https://mozilla-l10n.github.io/documentation/localization/dev_best_practices.html#css-issues
+     */
+    &:is(:lang(de), :lang(en), :lang(fr)) {
+        --lang-supports-uppercase: true;
+    }
 }
 
 body {

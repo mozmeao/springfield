@@ -219,7 +219,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     max-inline-size: var(--token-width-desktop-layout);
     padding: var(--token-spacing-lg);
     position: relative;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-footer-secondary a:hover,

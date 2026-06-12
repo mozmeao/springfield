@@ -172,7 +172,9 @@ h2.fl-heading.fl-heading-sm {
 
 /* Label all caps class */
 .fl-label-allcaps {
-    text-transform: uppercase;
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-label-md.fl-label-allcaps {
