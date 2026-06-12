@@ -150,7 +150,7 @@ def test_contact_page_post_errors_is_never_cached(
     resp = page.serve(request)
 
     assert resp.status_code == 200
-    assert "Please fill out the form." in resp.text
+    assert "This field is required." in resp.text
     cache_control = resp.get("Cache-Control", "")
     assert "no-store" in cache_control
     mock_email_class.assert_not_called()
@@ -256,7 +256,7 @@ def test_contact_page_post_missing_required(
     minimal_site: Site,  # noqa: F811
     rf: RequestFactory,
 ) -> None:
-    """Test that a POST missing required fields re-renders with errors."""
+    """Test that a POST missing required fields re-renders with inline errors."""
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
@@ -283,9 +283,8 @@ def test_contact_page_post_missing_required(
     page_content = resp.text
 
     assert resp.status_code == 200
-    assert "You must fill out the First Name field." in page_content
-    assert "You must fill out the Business Email field." in page_content
-    assert "You must fill out the Company Size field." in page_content
+    # Error text appears inline multiple times (once per missing required field)
+    assert page_content.count("This field is required.") >= 3
     mock_email_class.assert_not_called()
 
 
@@ -345,7 +344,7 @@ def test_contact_page_post_empty_submission(
     thank_you_page = _create_thank_you_page(index_page)
 
     # Use only optional fields so required-field validation doesn't trigger first
-    optional_fields = [form_field_variants[1], form_field_variants[3]]  # company, phone
+    optional_fields = [form_field_variants[8], form_field_variants[10]]  # message (textarea), opt_in (checkbox)
 
     page = ContactPage(
         title="Contact Empty Test",
@@ -855,7 +854,7 @@ def test_textarea_field_required_validates(
     resp = page.serve(request)
 
     assert resp.status_code == 200
-    assert "You must fill out the Message field." in resp.content.decode()
+    assert "This field is required." in resp.content.decode()
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -900,13 +899,92 @@ def test_textarea_field_value_in_email(
     assert "Hello, I have a question about your product." in email_body
 
 
+def test_validate_form_data_per_field_errors(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """validate_form_data returns a dict keyed by identifier for missing required fields."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Validate Test",
+        slug="validate-test",
+        form_fields=get_form_field_variants()[:2],  # first_name and last_name, both required
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    post_data = QueryDict("")  # empty POST
+    errors = page.validate_form_data(post_data)
+
+    assert "first_name" in errors
+    assert "last_name" in errors
+    assert "__all__" not in errors  # no global errors when individual fields are caught
+    assert errors["first_name"] == ["This field is required."]
+
+
+def test_validate_form_data_valid_returns_empty_dict(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """validate_form_data returns {} (falsy) for a valid submission."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Validate Valid Test",
+        slug="validate-valid-test",
+        form_fields=get_form_field_variants()[:2],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    post_data = QueryDict("first_name=Jane&last_name=Doe")
+    errors = page.validate_form_data(post_data)
+
+    assert errors == {}
+
+
+def test_validate_form_data_empty_form(
+    minimal_site: Site,  # noqa: F811
+) -> None:
+    """validate_form_data adds '__all__' error when form has no data at all."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    # Only optional fields so required-field errors don't fire
+    optional_fields = [
+        {
+            "type": "text_field",
+            "value": {"internal_identifier": "message", "label": "Message", "required": False},
+            "id": "text-field-msg",
+        }
+    ]
+    page = ContactPage(
+        title="Validate Empty Test",
+        slug="validate-empty-test",
+        form_fields=optional_fields,
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    post_data = QueryDict("")
+    errors = page.validate_form_data(post_data)
+
+    assert "__all__" in errors
+    assert len(errors["__all__"]) == 1
+
+
 def test_validation_error_strings_are_translatable() -> None:
     """validate_form_data returns lazy strings so errors can be localised at render time."""
     page = ContactPage(to_email_address="test@example.com")
     # An empty submission with no configured fields triggers the "fill out the form" error
     errors = page.validate_form_data({})
     assert errors
-    assert isinstance(errors[0], Promise), "Validation errors must use gettext_lazy for i18n support"
+    assert isinstance(errors["__all__"][0], Promise), "Validation errors must use gettext_lazy for i18n support"
 
 
 # ============================================================================

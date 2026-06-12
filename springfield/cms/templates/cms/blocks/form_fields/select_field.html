@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-field-wrap">
+<div class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}">
   <label class="fl-label" for="{{ value.internal_identifier }}">
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
@@ -14,4 +14,7 @@
       <option value="{{ option.value }}"{% if option.value == form_data.get(value.internal_identifier) %} selected{% endif %}>{{ option.label }}</option>
     {% endfor %}
   </select>
+  {% for error in form_errors.get(value.internal_identifier, []) %}
+    <p class="fl-field-error-message">{{ error }}</p>
+  {% endfor %}
 </div>
