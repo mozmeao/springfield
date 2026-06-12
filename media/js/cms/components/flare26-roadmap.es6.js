@@ -36,13 +36,15 @@ function setUrlParams(activeFilters) {
 /**
  * Shows/hides roadmap items and sections based on the active filters.
  * Items matching any active filter are shown; unmatched items are hidden.
- * Sections with no visible items are hidden entirely.
+ * Sections with no visible items are hidden entirely on desktop;
+ * on mobile the header stays visible but the list is hidden.
  * @param {Set<string>} activeFilters - The set of currently selected filter tags
  */
 function applyFilter(activeFilters) {
     const sections = document.querySelectorAll('.fl-roadmap-list-section');
 
     sections.forEach((section) => {
+        const itemsList = section.querySelector('.fl-roadmap-list');
         const items = section.querySelectorAll('.fl-roadmap-item');
         /** @type {number} - Count of visible items in this section */
         let visibleCount = 0;
@@ -70,10 +72,14 @@ function applyFilter(activeFilters) {
             }
         });
 
-        section.classList.toggle(
-            'hidden',
-            activeFilters.size > 0 && visibleCount === 0
-        );
+        if (activeFilters.size > 0 && visibleCount === 0) {
+            section.classList.add('hidden');
+            if (itemsList) {
+                itemsList.classList.add('hidden');
+            }
+        } else {
+            section.classList.remove('hidden');
+        }
     });
 }
 
@@ -153,9 +159,36 @@ function initRoadmapFilter() {
 }
 
 /**
- * Entry point for the roadmap filter module.
+ * Initializes the mobile accordion for roadmap sections.
+ * Only active below 900px viewport width.
+ */
+function initRoadmapAccordion() {
+    const mq = window.matchMedia('not (min-width: 900px)');
+
+    function handleAccordion() {
+        if (!mq.matches) return;
+
+        const toggles = document.querySelectorAll('.fl-roadmap-section-toggle');
+        toggles.forEach((toggle) => {
+            const section = toggle.closest('.fl-roadmap-list-section');
+            if (!section) return;
+
+            toggle.addEventListener('click', () => {
+                const collapsed = section.classList.toggle('is-collapsed');
+                toggle.setAttribute('aria-expanded', String(!collapsed));
+            });
+        });
+    }
+
+    handleAccordion();
+    mq.addEventListener('change', handleAccordion);
+}
+
+/**
+ * Entry point for the roadmap module (filter + accordion).
  * Called from the template when the page is ready.
  */
-export default function setupRoadmapFilter() {
+export default function setupRoadmap() {
     initRoadmapFilter();
+    initRoadmapAccordion();
 }
