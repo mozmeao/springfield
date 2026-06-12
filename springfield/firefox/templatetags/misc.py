@@ -43,7 +43,7 @@ def plausible_enabled(country_code):
     should be injected. Plausible is loaded only for EU/consent countries
     when the `plausible` switch is on and a domain is configured.
     """
-    return bool(switch("plausible") and settings.PLAUSIBLE_DOMAIN and needs_data_consent(country_code))
+    return bool(settings.PLAUSIBLE_DOMAIN and needs_data_consent(country_code) and switch("plausible"))
 
 
 def _strip_img_prefix(url):
