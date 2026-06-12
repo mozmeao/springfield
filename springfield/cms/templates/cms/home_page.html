@@ -8,9 +8,9 @@
 
 {% block structured_data %}
 {%- if page and page.og_image %}
-{%- set og_image_url = settings.CANONICAL_URL ~ image(page.og_image, "width-1200").url %}
+{%- set og_image_url = image(page.og_image, "width-1200").url|absolute_url %}
 {%- else %}
-{%- set og_image_url = settings.CANONICAL_URL ~ static('img/firefox/flare/og.png') %}
+{%- set og_image_url = static('img/firefox/flare/og.png')|absolute_url %}
 {%- endif %}
 {%- set webpage_url = settings.CANONICAL_URL + '/' + CANONICAL_LANG + canonical_path %}
 <script type="application/ld+json">
