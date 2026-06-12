@@ -69,13 +69,28 @@ def test_contact_page_serve(
 ) -> None:
     """Test that ContactPage can be served and renders form field labels."""
     index_page = minimal_site.root_page
-    form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Serve Test",
         slug="contact-serve-test",
-        form_fields=form_field_variants[:3],
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "email", "label": "Email Address", "required": True},
+                "id": "f2",
+            },
+            {
+                "type": "phone_field",
+                "value": {"internal_identifier": "phone", "label": "Phone Number", "required": False},
+                "id": "f3",
+            },
+        ],
         to_email_address="test@example.com",
         redirect_to=thank_you_page,
     )
@@ -87,8 +102,8 @@ def test_contact_page_serve(
     page_content = resp.text
 
     assert "Contact Serve Test" in page_content
-    assert form_field_variants[0]["value"]["label"] in page_content
-    assert form_field_variants[2]["value"]["label"] in page_content
+    assert "Full Name" in page_content
+    assert "Phone Number" in page_content
 
 
 def test_contact_page_get_is_never_cached(
@@ -339,16 +354,24 @@ def test_contact_page_post_empty_submission(
 ) -> None:
     """Test that an empty POST (no fields filled in) is rejected."""
     index_page = minimal_site.root_page
-    form_field_variants = get_form_field_variants()
     thank_you_page = _create_thank_you_page(index_page)
 
     # Use only optional fields so required-field validation doesn't trigger first
-    optional_fields = [form_field_variants[8], form_field_variants[10]]  # message (textarea), opt_in (checkbox)
-
     page = ContactPage(
         title="Contact Empty Test",
         slug="contact-empty-test",
-        form_fields=optional_fields,
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {"internal_identifier": "message", "label": "Message", "required": False, "rows": 4},
+                "id": "f1",
+            },
+            {
+                "type": "checkbox_field",
+                "value": {"internal_identifier": "opt_in", "label": "I agree", "required": False},
+                "id": "f2",
+            },
+        ],
         to_email_address="recipient@example.com",
         redirect_to=thank_you_page,
     )
