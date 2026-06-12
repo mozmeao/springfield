@@ -1356,3 +1356,58 @@ def test_form_persistence_checkbox_field(
 
     assert resp.status_code == 200
     assert 'value="on" checked' in content
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_inline_field_error_html(
+    mock_email_class,
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """When a required field is missing, the field wrapper gets fl-field-error and a message."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Inline Error Test",
+        slug="inline-error-test",
+        form_fields=get_form_field_variants()[:1],  # first_name only, required
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {})
+    resp = page.serve(request)
+    content = resp.text
+
+    assert resp.status_code == 200
+    assert "fl-field-wrap fl-field-error" in content
+    assert "fl-field-error-message" in content
+    assert "This field is required." in content
+
+
+def test_no_js_notification_present(
+    minimal_site: Site,  # noqa: F811
+    rf: RequestFactory,
+) -> None:
+    """The contact page renders a noscript notification with orange color."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="NoJS Test",
+        slug="nojs-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    resp = page.serve(request)
+    content = resp.text
+
+    assert "<noscript>" in content
+    assert "fl-notification-orange" in content
