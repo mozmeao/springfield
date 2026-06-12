@@ -34,12 +34,26 @@ def make_link(url):
     }
 
 
+def make_button(label, url, theme="", icon="", icon_position="right", analytics_id=""):
+    """Create a button value for the buttons ListBlock."""
+    return {
+        "settings": {
+            "theme": theme,
+            "icon": icon,
+            "icon_position": icon_position,
+            "analytics_id": analytics_id,
+        },
+        "label": label,
+        "link": make_link(url) if url else EMPTY_LINK,
+    }
+
+
 def get_roadmap_item_variants() -> list[dict]:
     return [
         {
             "type": "item",
             "value": {
-                "title": "Roadmap Item - No icon, no buttons, no status",
+                "title": "Roadmap Item - No icon, no buttons",
                 "icon": "",
                 "description": (
                     '<p data-block-key="rm01d">The description field accepts rich text. '
@@ -48,13 +62,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": None,
                 "tags": ["android", "ios"],
-                "learn_more_link": EMPTY_LINK,
-                "learn_more_analytics_id": "",
-                "secondary_button_link": EMPTY_LINK,
-                "secondary_button_icon": "",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "",
-                "secondary_button_analytics_id": "",
+                "buttons": [],
             },
             "id": "rm0001-0000-0000-0000-000000000001",
         },
@@ -65,18 +73,25 @@ def get_roadmap_item_variants() -> list[dict]:
                 "icon": "activity",
                 "description": (
                     '<p data-block-key="rm02d">The icon field is optional. When set, it appears above the title. '
-                    "The Learn More button uses the localized ui-learn-more FTL string; "
-                    "only the URL is provided here.</p>"
+                    "This item has a Learn More button and a primary button.</p>"
                 ),
                 "status": "exploring",
                 "tags": ["desktop"],
-                "learn_more_link": make_link("https://mozilla.org/privacy/"),
-                "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000012",
-                "secondary_button_link": make_link("https://mozilla.org/download/"),
-                "secondary_button_icon": "forward",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "Secondary Button Label",
-                "secondary_button_analytics_id": "",
+                "buttons": [
+                    make_button(
+                        "Download Firefox",
+                        "https://mozilla.org/download/",
+                        theme="",
+                        icon="forward",
+                    ),
+                    make_button(
+                        "Learn more",
+                        "https://mozilla.org/privacy/",
+                        theme="ghost",
+                        icon="forward",
+                        analytics_id="rm0001-0000-0000-0000-000000000012",
+                    ),
+                ],
             },
             "id": "rm0001-0000-0000-0000-000000000002",
         },
@@ -87,39 +102,53 @@ def get_roadmap_item_variants() -> list[dict]:
                 "icon": "shield",
                 "description": (
                     '<p data-block-key="rm02d">The icon field is optional. When set, it appears above the title. '
-                    "The Learn More button uses the localized ui-learn-more FTL string; "
-                    "only the URL is provided here.</p>"
+                    "This item has a single Learn More button.</p>"
                 ),
                 "status": "in-progress",
                 "tags": ["desktop"],
-                "learn_more_link": make_link("https://mozilla.org/privacy/"),
-                "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000012",
-                "secondary_button_link": EMPTY_LINK,
-                "secondary_button_icon": "",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "",
-                "secondary_button_analytics_id": "",
+                "buttons": [
+                    make_button(
+                        "Learn more",
+                        "https://mozilla.org/privacy/",
+                        theme="ghost",
+                        icon="forward",
+                        analytics_id="rm0001-0000-0000-0000-000000000012",
+                    )
+                ],
             },
             "id": "rm0001-0000-0000-0000-000000000003",
         },
         {
             "type": "item",
             "value": {
-                "title": "Roadmap Item - Both buttons, secondary button has icon",
+                "title": "Roadmap Item - All three buttons",
                 "icon": "sparkles",
                 "description": (
-                    '<p data-block-key="rm03d">The secondary button has its own URL, label, icon, and icon position. '
-                    "The icon position field controls whether it appears to the left or right of the label.</p>"
+                    '<p data-block-key="rm03d">This item has three buttons: a primary button, a secondary ghost button, and a Learn More button.</p>'
                 ),
                 "status": "testing",
                 "tags": ["desktop", "android"],
-                "learn_more_link": make_link("https://mozilla.org/features/ai/"),
-                "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000013",
-                "secondary_button_link": make_link("https://mozilla.org/download/"),
-                "secondary_button_icon": "forward",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "Secondary Button Label",
-                "secondary_button_analytics_id": "rm0001-0000-0000-0000-000000000023",
+                "buttons": [
+                    make_button(
+                        "Download Firefox",
+                        "https://mozilla.org/download/",
+                        theme="",
+                        icon="forward",
+                        analytics_id="rm0001-0000-0000-0000-000000000023",
+                    ),
+                    make_button(
+                        "Secondary Button",
+                        "https://mozilla.org/about/",
+                        theme="ghost",
+                    ),
+                    make_button(
+                        "Learn more",
+                        "https://mozilla.org/features/ai/",
+                        theme="ghost",
+                        icon="forward",
+                        analytics_id="rm0001-0000-0000-0000-000000000013",
+                    ),
+                ],
             },
             "id": "rm0001-0000-0000-0000-000000000004",
         },
@@ -134,13 +163,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": "coming-soon",
                 "tags": ["android", "ios", "desktop"],
-                "learn_more_link": EMPTY_LINK,
-                "learn_more_analytics_id": "",
-                "secondary_button_link": EMPTY_LINK,
-                "secondary_button_icon": "",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "",
-                "secondary_button_analytics_id": "",
+                "buttons": [],
             },
             "id": "rm0001-0000-0000-0000-000000000005",
         },
@@ -151,17 +174,19 @@ def get_roadmap_item_variants() -> list[dict]:
                 "icon": "passkey",
                 "description": (
                     '<p data-block-key="rm05d">Tags are optional — leaving them empty omits the tags list entirely. '
-                    "The Learn More link is the only button here; the secondary button fields are left blank.</p>"
+                    "The Learn More link is the only button here.</p>"
                 ),
                 "status": "recently-shipped",
                 "tags": [],
-                "learn_more_link": make_link("https://mozilla.org/security/passkeys/"),
-                "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000015",
-                "secondary_button_link": EMPTY_LINK,
-                "secondary_button_icon": "",
-                "secondary_button_icon_position": "right",
-                "secondary_button_label": "",
-                "secondary_button_analytics_id": "",
+                "buttons": [
+                    make_button(
+                        "Learn more",
+                        "https://mozilla.org/security/passkeys/",
+                        theme="ghost",
+                        icon="forward",
+                        analytics_id="rm0001-0000-0000-0000-000000000015",
+                    )
+                ],
             },
             "id": "rm0001-0000-0000-0000-000000000006",
         },

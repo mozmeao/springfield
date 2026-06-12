@@ -2995,26 +2995,11 @@ class RoadmapItemBlock(blocks.StructBlock):
         required=False,
         widget=CheckboxSelectMultiple(),
     )
-    learn_more_link = SpringfieldLinkBlock(required=False, label="Learn More Link")
-    learn_more_analytics_id = UUIDBlock(
-        label="Learn More Analytics ID",
-        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
-        required=False,
-    )
-    # Because of time constraints, only the labels are being changed,
-    # so we don't need a data migration here.
-    # TODO: This should later be refactored into a button list,
-    # to make it more flexible like the figma designs.
-    secondary_button_link = SpringfieldLinkBlock(required=False, label="Primary Button Link")
-    secondary_button_icon = IconChoiceBlock(required=False, label="Primary Button Icon")
-    secondary_button_icon_position = blocks.ChoiceBlock(
-        choices=[("left", "Left"), ("right", "Right")], default="right", label="Primary Button Icon Position"
-    )
-    secondary_button_label = blocks.CharBlock(required=False, label="Primary Button Label")
-    secondary_button_analytics_id = UUIDBlock(
-        label="Primary Button Analytics ID",
-        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
-        required=False,
+    buttons = blocks.ListBlock(
+        ButtonBlock(themes=BUTTON_THEMES_2026),
+        min_num=0,
+        max_num=3,
+        label="Buttons",
     )
 
     class Meta:
@@ -3042,13 +3027,7 @@ class RoadmapItemBlock(blocks.StructBlock):
                 ),
                 blocks.BlockGroup(
                     children=[
-                        "secondary_button_link",
-                        "secondary_button_icon",
-                        "secondary_button_icon_position",
-                        "secondary_button_label",
-                        "secondary_button_analytics_id",
-                        "learn_more_link",
-                        "learn_more_analytics_id",
+                        "buttons",
                     ],
                     heading="Buttons",
                 ),

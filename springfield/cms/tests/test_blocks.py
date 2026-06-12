@@ -3569,7 +3569,7 @@ def test_roadmap_list_section_block(index_page, rf):
     assert len(filters) == 1
     filter_el = filters[0]
     filter_options = filter_el.find_all("button", class_="fl-roadmap-filter-button")
-    filter_options = [f for f in filter_options if f.get("data-filter")]
+    filter_options = [b for b in filter_options if b.get("data-filter")]
     assert len(filter_options) == len(ROADMAP_TAG_LABELS)
     for button in filter_options:
         assert button.has_attr("data-filter")
@@ -3651,34 +3651,24 @@ def test_roadmap_list_section_block(index_page, rf):
             description_text = BeautifulSoup(item_value["description"], "html.parser").get_text()
             assert description_text in item_el.get_text()
 
-            # Learn more button
-            learn_more_url = item_value["learn_more_link"].get("custom_url", "")
-            if learn_more_url:
-                learn_more_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.learn-more"})
-                assert learn_more_button, f"Expected learn more button for item {item_number}"
-                assert learn_more_button["href"] == add_utm_parameters(context, learn_more_url)
-                expected_learn_more_text = f"{item_value['title']} - Learn more"
-                assert learn_more_button["data-cta-text"] == expected_learn_more_text
-                learn_more_analytics_id = item_value.get("learn_more_analytics_id", "")
-                if learn_more_analytics_id:
-                    assert learn_more_button["data-cta-uid"] == learn_more_analytics_id
-
-            # Secondary button
-            secondary_url = item_value["secondary_button_link"].get("custom_url", "")
-            secondary_label = item_value.get("secondary_button_label", "")
-            if secondary_url and secondary_label:
-                secondary_button = item_el.find("a", attrs={"data-cta-position": f"{expected_position}.secondary-button"})
-                assert secondary_button, f"Expected secondary button for item {item_number}"
-                assert secondary_button["href"] == add_utm_parameters(context, secondary_url)
-                assert secondary_label in secondary_button.get_text()
-                expected_secondary_text = f"{item_value['title']} - {secondary_label}"
-                assert secondary_button["data-cta-text"] == expected_secondary_text
-                secondary_analytics_id = item_value.get("secondary_button_analytics_id", "")
-                if secondary_analytics_id:
-                    assert secondary_button["data-cta-uid"] == secondary_analytics_id
-                secondary_icon = item_value.get("secondary_button_icon", "")
-                secondary_icon_position = item_value.get("secondary_button_icon_position", "right")
-                if secondary_icon:
-                    assert item_el.find("span", class_=f"fl-icon-{secondary_icon}")
-                    icon_wrapper = item_el.find("span", class_=f"fl-icon-{secondary_icon_position}")
-                    assert icon_wrapper, f"Expected icon position {secondary_icon_position} for item {item_number}"
+            # Buttons
+            buttons = item_value.get("buttons", [])
+            if buttons:
+                button_elements = item_el.find_all("a", class_="fl-button")
+                assert len(button_elements) == len(buttons), f"Expected {len(buttons)} buttons for item {item_number}"
+                for btn_index, (btn_value, btn_el) in enumerate(zip(buttons, button_elements)):
+                    btn_number = btn_index + 1
+                    btn_position = f"{expected_position}.button-{btn_number}"
+                    assert btn_el["data-cta-position"] == btn_position, f"Expected position {btn_position}"
+                    assert btn_value["label"] in btn_el.get_text()
+                    url = btn_value["link"].get("custom_url", "")
+                    if url:
+                        assert btn_el["href"] == add_utm_parameters(context, url)
+                    expected_text = f"{item_value['title']} - {btn_value['label']}"
+                    assert btn_el["data-cta-text"] == expected_text
+                    analytics_id = btn_value["settings"].get("analytics_id", "")
+                    if analytics_id:
+                        assert btn_el["data-cta-uid"] == analytics_id
+                    icon = btn_value["settings"].get("icon", "")
+                    if icon:
+                        assert btn_el.find("span", class_=f"fl-icon-{icon}")

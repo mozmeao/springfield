@@ -34,7 +34,6 @@
   <content:list_items>
     {% for item in value.list_items %}
       {% set item_block_position = block_position ~ ".item-" ~ loop.index %}
-      {% set item_block_text = item.title %}
 
       <include:roadmap-item data_tags="{{ ','.join(item.tags) }}">
         {% if item.icon %}
@@ -70,36 +69,13 @@
           {{ item.description|richtext }}
         </content:body>
 
-        {% set learn_more_url = item.learn_more_link.get_url() %}
-        {% set secondary_url = item.secondary_button_link.get_url() %}
-
-        {% if learn_more_url or secondary_url %}
+        {% if item.buttons %}
           <content:buttons>
-            {% if secondary_url and item.secondary_button_label %}
-              {% set button_position = item_block_position ~ ".secondary-button" %}
-              <include:button
-                link="{{ secondary_url|add_utm_parameters }}"
-                label="{{ item.secondary_button_label }}"
-                icon_name="{{ item.secondary_button_icon }}"
-                icon_position="{{ item.secondary_button_icon_position }}"
-                analytics_id="{{ item.secondary_button_analytics_id }}"
-                analytics_text="{{ item_block_text ~ ' - ' ~ item.secondary_button_label }}"
-                analytics_position="{{ button_position }}"
-              />
-            {% endif %}
-            {% if learn_more_url %}
-              {% set button_position = item_block_position ~ ".learn-more" %}
-              <include:button
-                link="{{ learn_more_url|add_utm_parameters }}"
-                label="{{ ftl('ui-learn-more') }}"
-                theme_class="button-ghost"
-                icon_name="forward"
-                icon_position="after"
-                analytics_id="{{ item.learn_more_analytics_id }}"
-                analytics_text="{{ item_block_text ~ ' - ' ~ ftl('ui-learn-more') }}"
-                analytics_position="{{ button_position }}"
-              />
-            {% endif %}
+            {% for button in item.buttons %}
+              {% set block_position = item_block_position ~ ".button-" ~ loop.index %}
+              {% set block_text = item.title %}
+              {% include_block button %}
+            {% endfor %}
           </content:buttons>
         {% endif %}
 

@@ -58,23 +58,18 @@
           <content:body>
             <p>{{ item.body }}</p>
           </content:body>
-          {% if item.learn_more_link or item.secondary_link %}
+          {% if item.buttons %}
             <content:buttons>
-              {% if item.learn_more_link %}
-                <include:button
-                  link="{{ item.learn_more_link }}"
-                  label="{{ item.learn_more_label }}"
-                />
-              {% endif %}
-              {% if item.secondary_link %}
-                <include:button
-                  link="{{ item.secondary_link }}"
-                  label="{{ item.secondary_label }}"
-                  theme_class="button-ghost"
-                  icon_name="{{ item.secondary_icon }}"
-                  icon_position="{{ item.secondary_icon_position }}"
-                />
-              {% endif %}
+              <div class="fl-buttons">
+                {% for button in item.buttons %}
+                  <a class="fl-button{% if button.theme %} fl-button-{{ button.theme }}{% endif %}" href="{{ button.link }}">
+                    {{ button.label }}
+                    {% if button.icon %}
+                      <span class="fl-icon fl-icon-{{ button.icon }}{% if button.icon_position == 'left' %} fl-icon-left{% else %} fl-icon-right{% endif %}"></span>
+                    {% endif %}
+                  </a>
+                {% endfor %}
+              </div>
             </content:buttons>
           {% endif %}
         </include:roadmap-item>
