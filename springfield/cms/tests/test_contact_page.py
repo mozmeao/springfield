@@ -15,11 +15,9 @@ import pytest
 import responses
 from wagtail.models import Locale, Site
 
-from springfield.cms.blocks import CountrySelectFieldBlock  # noqa: F401
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import ContactPage
-from springfield.cms.tests.conftest import minimal_site  # noqa: F401
 
 pytestmark = [
     pytest.mark.django_db,
@@ -43,7 +41,7 @@ def _create_thank_you_page(index_page):
 # ============================================================================
 
 
-def test_contact_page_creation(minimal_site: Site) -> None:  # noqa: F811
+def test_contact_page_creation(minimal_site: Site) -> None:
     """Test that a ContactPage can be created."""
     index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
@@ -65,7 +63,7 @@ def test_contact_page_creation(minimal_site: Site) -> None:  # noqa: F811
 
 @pytest.mark.parametrize("serving_method", ("serve", "serve_preview"))
 def test_contact_page_serve(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
     serving_method: str,
 ) -> None:
@@ -94,7 +92,7 @@ def test_contact_page_serve(
 
 
 def test_contact_page_get_is_never_cached(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that GET responses include never-cache headers.
@@ -125,7 +123,7 @@ def test_contact_page_get_is_never_cached(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_errors_is_never_cached(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that POST-with-errors responses also include never-cache headers.
@@ -160,7 +158,7 @@ def test_contact_page_post_errors_is_never_cached(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_valid(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that a valid POST sends an email and redirects."""
@@ -209,7 +207,7 @@ def test_contact_page_post_valid(
 def test_contact_page_post_email_send_failure(
     mock_email_class,
     mock_capture_message,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """When email.send() raises, the form re-renders with an error and Sentry is notified."""
@@ -254,7 +252,7 @@ def test_contact_page_post_email_send_failure(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_missing_required(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that a POST missing required fields re-renders with inline errors."""
@@ -292,7 +290,7 @@ def test_contact_page_post_missing_required(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_checkbox_group(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that checkbox group values are collected and joined correctly."""
@@ -336,7 +334,7 @@ def test_contact_page_post_checkbox_group(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_empty_submission(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that an empty POST (no fields filled in) is rejected."""
@@ -369,7 +367,7 @@ def test_contact_page_post_empty_submission(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_honeypot(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that a POST with the honeypot field filled is rejected."""
@@ -408,7 +406,7 @@ def test_contact_page_post_honeypot(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_valid_redirects_to_localised_page(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Test that a valid POST redirects to the locale-appropriate version of redirect_to.
@@ -458,7 +456,7 @@ def test_contact_page_post_valid_redirects_to_localised_page(
 
 
 def test_contact_page_hidden_field_not_visible(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """HiddenFieldBlock renders as <input type='hidden'> with the default value."""
@@ -494,7 +492,7 @@ def test_contact_page_hidden_field_not_visible(
 
 
 def test_contact_page_post_requires_csrf_token(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """POST without a valid CSRF token is rejected with 403."""
     index_page = minimal_site.root_page
@@ -520,7 +518,7 @@ def test_contact_page_post_requires_csrf_token(
 
 
 def test_contact_page_clean_requires_email_or_basket(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """ContactPage.clean() raises if both to_email_address and basket_api_path are blank."""
     page = ContactPage(
@@ -535,7 +533,7 @@ def test_contact_page_clean_requires_email_or_basket(
 
 
 def test_contact_page_clean_rejects_both_email_and_basket(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """ContactPage.clean() raises if both to_email_address and basket_api_path are set."""
     page = ContactPage(
@@ -550,7 +548,7 @@ def test_contact_page_clean_rejects_both_email_and_basket(
 
 
 def test_contact_page_clean_requires_redirect_or_thank_you(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """ContactPage.clean() raises if both redirect_to and thank_you_message are blank."""
     page = ContactPage(
@@ -565,7 +563,7 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
 
 
 def test_contact_page_clean_validates_basket_path_format(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """ContactPage.clean() raises if basket_api_path doesn't start with /."""
     page = ContactPage(
@@ -579,7 +577,7 @@ def test_contact_page_clean_validates_basket_path_format(
 
 
 def test_contact_page_clean_rejects_full_url_as_basket_path(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """ContactPage.clean() raises if basket_api_path looks like a full URL."""
     page = ContactPage(
@@ -599,7 +597,7 @@ def test_contact_page_clean_rejects_full_url_as_basket_path(
 
 @responses.activate
 def test_contact_page_post_basket_api_called(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """Valid POST with basket_api_path calls the basket URL with the correct JSON body."""
@@ -646,7 +644,7 @@ def test_contact_page_post_basket_api_called(
 @patch("springfield.cms.models.pages.capture_message")
 def test_contact_page_post_basket_api_5xx_rejects_submission(
     mock_capture_message,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """5xx basket API response re-renders the form with an error (no Sentry report)."""
@@ -691,7 +689,7 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
 @patch("springfield.cms.models.pages.capture_message")
 def test_contact_page_post_basket_api_4xx_reports_to_sentry(
     mock_capture_message,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """4xx basket API response re-renders with an error AND sends a Sentry event."""
@@ -742,7 +740,7 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_valid_shows_thank_you_message(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """When thank_you_message is set and no redirect_to, valid POST re-renders
@@ -785,7 +783,7 @@ def test_contact_page_post_valid_shows_thank_you_message(
 
 
 def test_textarea_field_renders_correctly(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """TextAreaFieldBlock renders a <textarea> with the correct rows, name, and id."""
@@ -823,7 +821,7 @@ def test_textarea_field_renders_correctly(
 
 
 def test_textarea_field_required_validates(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """A required TextAreaFieldBlock triggers a validation error when left empty."""
@@ -861,7 +859,7 @@ def test_textarea_field_required_validates(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_textarea_field_value_in_email(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """A submitted textarea value is included in the form email body."""
@@ -901,7 +899,7 @@ def test_textarea_field_value_in_email(
 
 
 def test_validate_form_data_per_field_errors(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """validate_form_data returns a dict keyed by identifier for missing required fields."""
     index_page = minimal_site.root_page
@@ -926,7 +924,7 @@ def test_validate_form_data_per_field_errors(
 
 
 def test_validate_form_data_valid_returns_empty_dict(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """validate_form_data returns {} (falsy) for a valid submission."""
     index_page = minimal_site.root_page
@@ -948,7 +946,7 @@ def test_validate_form_data_valid_returns_empty_dict(
 
 
 def test_validate_form_data_empty_form(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
 ) -> None:
     """validate_form_data adds '__all__' error when form has no data at all."""
     index_page = minimal_site.root_page
@@ -994,7 +992,7 @@ def test_validation_error_strings_are_translatable() -> None:
 
 
 def test_get_form_data_for_context_text_and_checkbox(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """_get_form_data_for_context returns strings for text-like fields, lists for
@@ -1039,7 +1037,7 @@ def test_get_form_data_for_context_text_and_checkbox(
 
 
 def test_get_context_includes_form_data(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """get_context() passes form_data from request into the template context."""
@@ -1062,7 +1060,7 @@ def test_get_context_includes_form_data(
 
 
 def test_get_context_form_data_defaults_to_empty_dict(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """get_context() defaults form_data to {} on GET requests (no form_data on request)."""
@@ -1084,7 +1082,7 @@ def test_get_context_form_data_defaults_to_empty_dict(
 
 
 def test_form_persistence_text_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, the submitted text field value is pre-filled."""
@@ -1121,7 +1119,7 @@ def test_form_persistence_text_field(
 
 
 def test_form_persistence_email_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, the submitted email field value is pre-filled."""
@@ -1157,7 +1155,7 @@ def test_form_persistence_email_field(
 
 
 def test_form_persistence_phone_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, the submitted phone field value is pre-filled."""
@@ -1193,7 +1191,7 @@ def test_form_persistence_phone_field(
 
 
 def test_form_persistence_textarea_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, the submitted textarea value is pre-filled."""
@@ -1229,7 +1227,7 @@ def test_form_persistence_textarea_field(
 
 
 def test_form_persistence_select_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, the previously selected option is marked as selected."""
@@ -1274,7 +1272,7 @@ def test_form_persistence_select_field(
 
 
 def test_form_persistence_checkbox_group(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, previously checked checkbox group options are re-checked."""
@@ -1323,7 +1321,7 @@ def test_form_persistence_checkbox_group(
 
 
 def test_form_persistence_checkbox_field(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """After a validation error, a checked single checkbox remains checked."""
@@ -1362,7 +1360,7 @@ def test_form_persistence_checkbox_field(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_inline_field_error_html(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """When a required field is missing, the field wrapper gets fl-field-error and a message."""
@@ -1390,7 +1388,7 @@ def test_inline_field_error_html(
 
 
 def test_no_js_notification_present(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """The contact page renders a noscript notification with orange color."""
@@ -1415,7 +1413,7 @@ def test_no_js_notification_present(
 
 
 def test_country_select_field_renders_countries(
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """CountrySelectField renders a <select> populated with country options."""
@@ -1454,7 +1452,7 @@ def test_country_select_field_renders_countries(
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_country_select_field_persistence(
     mock_email_class,
-    minimal_site: Site,  # noqa: F811
+    minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
     """When validation fails, the previously selected country stays selected."""
