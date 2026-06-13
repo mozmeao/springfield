@@ -320,6 +320,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     class Meta:
@@ -809,6 +810,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("content"),
         FieldPanel("related_articles"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     if TYPE_CHECKING:
@@ -847,6 +849,7 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     def __str__(self):
@@ -925,6 +928,54 @@ class PencilBannerPlacement(Orderable):
     class Meta(Orderable.Meta):
         verbose_name = "Pencil Banner Placement"
         verbose_name_plural = "Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class HomePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.HomePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Home Page Pencil Banner Placement"
+        verbose_name_plural = "Home Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleThemePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleThemePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Theme Page Pencil Banner Placement"
+        verbose_name_plural = "Article Theme Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleDetailPagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleDetailPage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Detail Page Pencil Banner Placement"
+        verbose_name_plural = "Article Detail Page Pencil Banner Placements"
 
     panels = [
         FieldPanel("snippet"),

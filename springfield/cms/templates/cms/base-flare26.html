@@ -140,6 +140,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   >
     {{ wagtailuserbar() }}
 
+    {% block pencil_banners %}
+    {% if page is defined and page.pencil_banner_placements is defined %}
+      {% for placement in page.pencil_banner_placements.all() %}
+        {% set value = placement.snippet.get_localized() %}
+        {% if value %}
+          {% include "cms/snippets/pencil-banner.html" %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% endblock %}
+
     {% block flare_header %}
     <include:flare26-header />
     {% endblock %}
