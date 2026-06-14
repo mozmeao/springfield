@@ -179,6 +179,19 @@ function initRoadmapAccordion() {
             toggle.setAttribute('aria-expanded', String(!collapsed));
         });
     });
+
+    mq.addEventListener('change', (e) => {
+        if (!e.matches) {
+            toggles.forEach((toggle) => {
+                toggle.setAttribute('aria-expanded', 'true');
+                const section = toggle.closest('.fl-roadmap-list-section');
+
+                if (section) {
+                    section.classList.remove('is-collapsed');
+                }
+            });
+        }
+    });
 }
 
 /**
