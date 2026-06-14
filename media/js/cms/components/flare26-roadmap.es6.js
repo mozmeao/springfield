@@ -62,7 +62,7 @@ function applyFilter(activeFilters) {
                 if (tag) {
                     tag.classList.toggle(
                         'is-selected',
-                        visible && activeFilters.has(tagEl.dataset.tag)
+                        activeFilters.has(tagEl.dataset.tag)
                     );
                 }
             });
@@ -79,6 +79,9 @@ function applyFilter(activeFilters) {
             }
         } else {
             section.classList.remove('hidden');
+            if (itemsList) {
+                itemsList.classList.remove('hidden');
+            }
         }
     });
 }
@@ -104,12 +107,12 @@ function syncButtonState(filterButtons, activeFilters) {
         '.fl-roadmap-filter-button-clear-all'
     );
 
-    if (clearAllButton && activeFilters.size) {
-        clearAllButton.disabled = false;
-        clearAllButton.querySelector('.fl-tag').classList.add('is-selected');
-    } else {
-        clearAllButton.disabled = true;
-        clearAllButton.querySelector('.fl-tag').classList.remove('is-selected');
+    if (clearAllButton) {
+        clearAllButton.disabled = !activeFilters.size;
+        const tag = clearAllButton.querySelector('.fl-tag');
+        if (tag) {
+            tag.classList.toggle('is-selected', Boolean(activeFilters.size));
+        }
     }
 }
 
@@ -164,24 +167,18 @@ function initRoadmapFilter() {
  */
 function initRoadmapAccordion() {
     const mq = window.matchMedia('not (min-width: 900px)');
+    const toggles = document.querySelectorAll('.fl-roadmap-section-toggle');
 
-    function handleAccordion() {
-        if (!mq.matches) return;
+    toggles.forEach((toggle) => {
+        const section = toggle.closest('.fl-roadmap-list-section');
+        if (!section) return;
 
-        const toggles = document.querySelectorAll('.fl-roadmap-section-toggle');
-        toggles.forEach((toggle) => {
-            const section = toggle.closest('.fl-roadmap-list-section');
-            if (!section) return;
-
-            toggle.addEventListener('click', () => {
-                const collapsed = section.classList.toggle('is-collapsed');
-                toggle.setAttribute('aria-expanded', String(!collapsed));
-            });
+        toggle.addEventListener('click', () => {
+            if (!mq.matches) return;
+            const collapsed = section.classList.toggle('is-collapsed');
+            toggle.setAttribute('aria-expanded', String(!collapsed));
         });
-    }
-
-    handleAccordion();
-    mq.addEventListener('change', handleAccordion);
+    });
 }
 
 /**
