@@ -5,11 +5,11 @@
 #}
 
 <fieldset class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}"{% if value.required %} aria-required="true"{% endif %}{% if form_errors.get(value.internal_identifier) %} aria-invalid="true"{% endif %}>
-  <legend class="fl-legend">{{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
+  <legend class="fl-legend">{{ value.label|richtext|remove_p_tag }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
   {% for option in value.options %}
     <label class="fl-checkbox-label" for="{{ value.internal_identifier }}-{{ option.value|slugify }}">
       <input class="fl-checkbox" id="{{ value.internal_identifier }}-{{ option.value|slugify }}" type="checkbox" name="{{ value.internal_identifier }}" value="{{ option.value }}"{% if option.value in form_data.get(value.internal_identifier, []) %} checked{% endif %}>
-      {{ option.label }}
+      {{ option.label|richtext|remove_p_tag }}
     </label>
   {% endfor %}
   {% for error in form_errors.get(value.internal_identifier, []) %}

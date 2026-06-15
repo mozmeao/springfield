@@ -3088,7 +3088,7 @@ class DownloadSupportBlock(blocks.StaticBlock):
 
 
 class BaseField(blocks.StructBlock):
-    label = blocks.CharBlock(label="Field Label")
+    label = blocks.RichTextBlock(label="Field Label", features=HEADING_TEXT_FEATURES)
     internal_identifier = blocks.CharBlock(
         label="Internal Identifier",
         help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",

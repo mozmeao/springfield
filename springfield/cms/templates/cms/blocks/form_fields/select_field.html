@@ -6,7 +6,7 @@
 
 <div class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}">
   <label class="fl-label" for="{{ value.internal_identifier }}">
-    {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
+    {{ value.label|richtext|remove_p_tag }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
   <select
     class="fl-field"
