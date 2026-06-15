@@ -1106,25 +1106,15 @@ def test_needs_data_consent(country_code, expected):
     assert render(template) == expected
 
 
-@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
-@patch.object(misc, "switch", return_value=True)
-def test_plausible_enabled_for_eu_visitor(switch_mock):
-    assert misc.plausible_enabled("DE") is True
-
-
-@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
-@patch.object(misc, "switch", return_value=True)
-def test_plausible_disabled_for_non_eu_visitor(switch_mock):
-    assert misc.plausible_enabled("US") is False
-
-
-@override_settings(PLAUSIBLE_DOMAIN="firefox.com")
-@patch.object(misc, "switch", return_value=False)
-def test_plausible_disabled_when_switch_off(switch_mock):
-    assert misc.plausible_enabled("DE") is False
-
-
-@override_settings(PLAUSIBLE_DOMAIN="")
-@patch.object(misc, "switch", return_value=True)
-def test_plausible_disabled_without_domain(switch_mock):
-    assert misc.plausible_enabled("DE") is False
+@pytest.mark.parametrize(
+    "country_code, domain, switch_on, expected",
+    [
+        ("DE", "firefox.com", True, True),
+        ("US", "firefox.com", True, False),
+        ("DE", "firefox.com", False, False),
+        ("DE", "", True, False),
+    ],
+)
+def test_plausible_enabled(country_code, domain, switch_on, expected):
+    with override_settings(PLAUSIBLE_DOMAIN=domain), patch.object(misc, "switch", return_value=switch_on):
+        assert misc.plausible_enabled(country_code) is expected

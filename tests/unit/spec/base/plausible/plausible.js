@@ -33,19 +33,19 @@ describe('plausible.es6.js', function () {
             spyOn(Plausible, 'defineQueueStub');
         });
 
-        it('should not load the script if DNT is enabled', function () {
+        it('should define the queue stub but not load the script if DNT is enabled', function () {
             window.Mozilla.dntEnabled = sinon.stub().returns(true);
 
             Plausible.init();
-            expect(Plausible.defineQueueStub).not.toHaveBeenCalled();
+            expect(Plausible.defineQueueStub).toHaveBeenCalled();
             expect(Plausible.loadScript).not.toHaveBeenCalled();
         });
 
-        it('should not load the script if GPC is enabled', function () {
+        it('should define the queue stub but not load the script if GPC is enabled', function () {
             window.Mozilla.gpcEnabled = sinon.stub().returns(true);
 
             Plausible.init();
-            expect(Plausible.defineQueueStub).not.toHaveBeenCalled();
+            expect(Plausible.defineQueueStub).toHaveBeenCalled();
             expect(Plausible.loadScript).not.toHaveBeenCalled();
         });
 

@@ -128,8 +128,8 @@ if TRANSCEND_AIRGAP_URL:  # noqa: F405
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
 
-if PLAUSIBLE_DOMAIN:  # noqa: F405
-    _plausible_host = urlparse(PLAUSIBLE_SCRIPT_URL).netloc  # noqa: F405
+if PLAUSIBLE_DOMAIN:
+    _plausible_host = urlparse(PLAUSIBLE_SCRIPT_URL).netloc
     if _plausible_host:
         _csp_script_src.add(_plausible_host)
         _csp_connect_src.add(_plausible_host)

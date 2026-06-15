@@ -33,11 +33,12 @@ Plausible.loadScript = () => {
 };
 
 Plausible.init = () => {
+    Plausible.defineQueueStub();
+
     if (gpcEnabled() || dntEnabled()) {
         return;
     }
 
-    Plausible.defineQueueStub();
     Plausible.loadScript();
 };
 
