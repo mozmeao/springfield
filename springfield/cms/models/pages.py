@@ -330,6 +330,11 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def __str__(self):
         return f"HomePage: {self.title} - {self.locale}"
 
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        return [placement.snippet.get_localized() for placement in placements]
+
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
     subpage_types = ["cms.DownloadPage"]
@@ -824,6 +829,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             return self.tag.get_localized()
         return None
 
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        return [placement.snippet.get_localized() for placement in placements]
+
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
@@ -854,6 +864,11 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"ArticleThemePage: {self.title} - {self.locale}"
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        return [placement.snippet.get_localized() for placement in placements]
 
 
 # TODO: This page will be deleted on a following PR. It's currently not available anywhere.
@@ -1064,6 +1079,11 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     @property
     def noindex(self):
         return self.enable_marketing_attribution
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        return [placement.snippet.get_localized() for placement in placements]
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
