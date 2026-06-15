@@ -166,7 +166,7 @@ function initRoadmapFilter() {
  * Only active below 900px viewport width.
  */
 function initRoadmapAccordion() {
-    const mq = window.matchMedia('not (min-width: 900px)');
+    const mq = window.matchMedia('(max-width: 899px)');
     const toggles = document.querySelectorAll('.fl-roadmap-section-toggle');
 
     toggles.forEach((toggle) => {
