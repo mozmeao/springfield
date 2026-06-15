@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<fieldset class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}"{% if value.required %} aria-required="true"{% endif %}>
+<fieldset class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}"{% if value.required %} aria-required="true"{% endif %}{% if form_errors.get(value.internal_identifier) %} aria-invalid="true"{% endif %}>
   <legend class="fl-legend">{{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
   {% for option in value.options %}
     <label class="fl-checkbox-label" for="{{ value.internal_identifier }}-{{ option.value|slugify }}">

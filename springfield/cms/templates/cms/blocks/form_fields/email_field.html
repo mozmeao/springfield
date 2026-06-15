@@ -8,7 +8,7 @@
   <label class="fl-label" for="{{ value.internal_identifier }}">
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
-  <input class="fl-field" type="email" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}" value="{{ form_data.get(value.internal_identifier, '') }}"{% if value.required %} required aria-required="true"{% endif %}>
+  <input class="fl-field" type="email" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}" value="{{ form_data.get(value.internal_identifier, '') }}"{% if value.required %} required aria-required="true"{% endif %}{% if form_errors.get(value.internal_identifier) %} aria-invalid="true"{% endif %}>
   {% for error in form_errors.get(value.internal_identifier, []) %}
     <p class="fl-field-error-message"><include:icon icon_name="warning" /> {{ error }}</p>
   {% endfor %}
