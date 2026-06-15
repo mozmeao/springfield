@@ -875,6 +875,12 @@
     },
     {
       "files": [
+        "js/base/plausible/plausible-init.es6.js"
+      ],
+      "name": "plausible"
+    },
+    {
+      "files": [
         "js/base/datalayer-videoengagement-init.es6.js"
       ],
       "name": "data_videoengagement"
