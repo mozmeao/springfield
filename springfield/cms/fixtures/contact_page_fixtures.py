@@ -103,9 +103,9 @@ def get_form_field_variants() -> list[dict]:
                 "internal_identifier": "services",
                 "label": "Services",
                 "options": [
-                    {"value": "consulting", "label": "Consulting"},
-                    {"value": "implementation", "label": "Implementation"},
-                    {"value": "support", "label": "Support"},
+                    {"value": "consulting", "label": '<p data-block-key="ctpoptin1">Consulting</p>'},
+                    {"value": "implementation", "label": '<p data-block-key="ctpoptin2">Implementation</p>'},
+                    {"value": "support", "label": '<p data-block-key="ctpoptin3">Support</p>'},
                 ],
             },
             "id": "checkbox-group-field",
@@ -114,7 +114,8 @@ def get_form_field_variants() -> list[dict]:
             "type": "checkbox_field",
             "value": {
                 "internal_identifier": "opt_in",
-                "label": "Yes, send me lots of marketing emails!",
+                "label": '<p data-block-key="ctpoptin1">By checking this box, you agree to the '
+                '<a href="/terms-and-conditions/">terms and conditions</a>.</p>',
                 "required": False,
             },
             "id": "checkbox-field",

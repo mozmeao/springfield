@@ -104,7 +104,7 @@
 }
 
 .fl-intro-content .fl-buttons {
-    align-items: start;
+    align-items: center;
     justify-content: center;
     margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
 }

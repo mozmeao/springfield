@@ -3166,7 +3166,7 @@ class SelectFieldBlock(BaseField):
 
 class CheckboxOptionBlock(blocks.StructBlock):
     value = blocks.CharBlock(label="Option Value")
-    label = blocks.CharBlock(label="Option Label")
+    label = blocks.RichTextBlock(label="Option Label", features=HEADING_TEXT_FEATURES)
 
     class Meta:
         label = "Checkbox Option"
@@ -3187,6 +3187,8 @@ class CheckboxGroupFieldBlock(BaseField):
 
 
 class CheckboxFieldBlock(BaseField):
+    label = blocks.RichTextBlock(label="Field Label", features=HEADING_TEXT_FEATURES)
+
     class Meta:
         template = "cms/blocks/form_fields/checkbox_field.html"
         label = "Checkbox Field"

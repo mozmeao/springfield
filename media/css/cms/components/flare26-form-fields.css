@@ -72,7 +72,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-checkbox-label {
-    align-items: center;
+    align-items: start;
     cursor: pointer;
     display: flex;
     font-size: var(--fl-theme-label-md);
