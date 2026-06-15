@@ -48,13 +48,13 @@
           {% csrf_token %}
 
           {% if form_errors.get("__all__") %}
-            <include:notification color="red" icon="error">
+            <include:notification color="red" icon="warning">
               {% for error in form_errors["__all__"] %}
                 <p>{{ error }}</p>
               {% endfor %}
             </include:notification>
           {% elif form_errors %}
-            <include:notification color="orange" icon="warning">
+            <include:notification color="red" icon="warning">
               {{ ftl("contact-form-correct-errors") }}
             </include:notification>
           {% endif %}
