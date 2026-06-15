@@ -450,6 +450,7 @@ class DownloadThanksView(L10nTemplateView):
         "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
         "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
+        "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
