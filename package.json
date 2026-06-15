@@ -50,7 +50,7 @@
     "jasmine-core": "^6.2.0",
     "prettier": "^3.7.4",
     "prettier-plugin-css-order": "^2.2.0",
-    "sinon": "^21.1.2",
+    "sinon": "^22.0.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "stylelint-use-logical": "^2.1.3",
