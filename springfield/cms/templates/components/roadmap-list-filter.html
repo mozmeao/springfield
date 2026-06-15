@@ -17,18 +17,16 @@
             data-filter="{{ tag.value }}"
             aria-pressed="false"
           >
-            <include:tag text="{{ tag.label }}">
-              {% if tag.icon %}
-                <content:before_icon>
-                  <include:icon icon_name="{{ tag.icon }}" hidden=true extra_class="icon-left" />
-                </content:before_icon>
-              {% endif %}
-              <content:after_icon>
-                <include:icon icon_name="close" hidden=true extra_class="icon-right" />
-              </content:after_icon>
-            </include:tag>
+            <include:tag text="{{ tag.label }}" before_icon="{{ tag.icon }}" after_icon="close" />
           </button>
         {% endfor %}
+        <button
+          type="button"
+          class="fl-roadmap-filter-button fl-roadmap-filter-button-clear-all"
+          disabled
+        >
+          <include:tag text="Clear all" after_icon="close" />
+        </button>
       </div>
       {% if last_updated %}
         <p>{{ last_updated }}</p>

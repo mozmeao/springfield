@@ -2971,7 +2971,7 @@ ROADMAP_TAG_LABELS = {
 ROADMAP_TAG_ICONS = {
     "android": "android",
     "ios": "apple",
-    "desktop": "device-desktop-fill",
+    "desktop": "device-desktop",
 }
 
 
@@ -3003,14 +3003,18 @@ class RoadmapItemBlock(blocks.StructBlock):
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
     )
-    secondary_button_link = SpringfieldLinkBlock(required=False, label="Secondary Button Link")
-    secondary_button_icon = IconChoiceBlock(required=False, label="Secondary Button Icon")
+    # Because of time constraints, only the labels are being changed,
+    # so we don't need a data migration here.
+    # TODO: This should later be refactored into a button list,
+    # to make it more flexible like the figma designs.
+    secondary_button_link = SpringfieldLinkBlock(required=False, label="Primary Button Link")
+    secondary_button_icon = IconChoiceBlock(required=False, label="Primary Button Icon")
     secondary_button_icon_position = blocks.ChoiceBlock(
-        choices=[("left", "Left"), ("right", "Right")], default="right", label="Secondary Button Icon Position"
+        choices=[("left", "Left"), ("right", "Right")], default="right", label="Primary Button Icon Position"
     )
-    secondary_button_label = blocks.CharBlock(required=False, label="Secondary Button Label")
+    secondary_button_label = blocks.CharBlock(required=False, label="Primary Button Label")
     secondary_button_analytics_id = UUIDBlock(
-        label="Secondary Button Analytics ID",
+        label="Primary Button Analytics ID",
         help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
         required=False,
     )
@@ -3040,13 +3044,13 @@ class RoadmapItemBlock(blocks.StructBlock):
                 ),
                 blocks.BlockGroup(
                     children=[
-                        "learn_more_link",
-                        "learn_more_analytics_id",
                         "secondary_button_link",
                         "secondary_button_icon",
                         "secondary_button_icon_position",
                         "secondary_button_label",
                         "secondary_button_analytics_id",
+                        "learn_more_link",
+                        "learn_more_analytics_id",
                     ],
                     heading="Buttons",
                 ),

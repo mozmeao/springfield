@@ -1043,6 +1043,9 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 

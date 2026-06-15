@@ -39,6 +39,7 @@
 
 .fl-intro .fl-superheading {
     color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-font-size-subheading-xs);
 
     @container style(--lang-supports-uppercase: true) {
         text-transform: uppercase;
@@ -118,10 +119,6 @@
 
 .fl-intro .fl-heading-group {
     margin-block-end: var(--token-layout-3xs);
-}
-
-.fl-intro .fl-heading:not([class*='fl-heading-']) {
-    font-size: var(--fl-theme-font-size-heading-md);
 }
 
 .fl-intro .fl-subheading {
