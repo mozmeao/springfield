@@ -555,6 +555,16 @@ def validate_video_url(value):
     return value
 
 
+class UntranslatableCharBlock(blocks.CharBlock):
+    """A CharBlock that is not sent for translation"""
+
+    def get_translatable_segments(self, value):
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
+
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
     """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
@@ -3089,7 +3099,7 @@ class DownloadSupportBlock(blocks.StaticBlock):
 
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
-    internal_identifier = blocks.CharBlock(
+    internal_identifier = UntranslatableCharBlock(
         label="Internal Identifier",
         help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",
     )

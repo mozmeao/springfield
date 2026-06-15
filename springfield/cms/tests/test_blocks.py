@@ -29,6 +29,8 @@ from springfield.cms.blocks import (
     SectionBlock,
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
+    UntranslatableCharBlock,
+    UUIDBlock,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -3353,9 +3355,14 @@ def test_two_column_card_media_position_validation_no_media_skips_check():
 
 def test_uuid_block_is_not_translatable():
     """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
-    from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+def test_untranslatable_char_block_is_not_translatable():
+    """UntranslatableCharBlock content must not be sent to translators."""
+
+    assert UntranslatableCharBlock().get_translatable_segments("English text") == []
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
