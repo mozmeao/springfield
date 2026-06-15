@@ -84,6 +84,7 @@ fieldset.fl-field-wrap {
 }
 
 .fl-field-error {
+    --theme-form-field-background: var(--token-color-white);
     --theme-form-field-border-color: var(--theme-form-field-border-color-error);
     --theme-checkbox-border-color: var(--theme-form-field-border-color-error);
 }

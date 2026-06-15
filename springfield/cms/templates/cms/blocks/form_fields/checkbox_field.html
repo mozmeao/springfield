@@ -10,6 +10,6 @@
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
   {% for error in form_errors.get(value.internal_identifier, []) %}
-    <p class="fl-field-error-message">{{ error }}</p>
+    <p class="fl-field-error-message"><include:icon icon_name="warning" /> {{ error }}</p>
   {% endfor %}
 </div>

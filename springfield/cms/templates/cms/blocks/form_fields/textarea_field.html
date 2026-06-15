@@ -10,6 +10,6 @@
   </label>
   <textarea class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}" rows="{{ value.rows }}"{% if value.required %} required aria-required="true"{% endif %}>{{ form_data.get(value.internal_identifier, '') }}</textarea>
   {% for error in form_errors.get(value.internal_identifier, []) %}
-    <p class="fl-field-error-message">{{ error }}</p>
+    <p class="fl-field-error-message"><include:icon icon_name="warning" /> {{ error }}</p>
   {% endfor %}
 </div>
