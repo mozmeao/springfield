@@ -186,6 +186,9 @@
 --theme-form-field-background: var(--token-color-soft-purple);
 --theme-form-field-background-focus: var(--token-color-white);
 --theme-form-field-border-color: transparent;
+--theme-form-field-border-color-error: var(--token-color-error-red);
 --theme-form-field-border-color-focus: var(--token-color-light-purple);
 --theme-form-color: var(--token-color-black-4);
 --theme-form-focus-outline-color: var(--token-color-soft-purple-3);
+--theme-checkbox-border-color: var(--token-color-light-purple);
+--theme-form-error-message-color: var(--token-color-error-red);

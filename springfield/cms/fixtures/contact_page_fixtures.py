@@ -79,13 +79,13 @@ def get_form_field_variants() -> list[dict]:
             "id": "select-field",
         },
         {
-            "type": "text_field",
+            "type": "country_select_field",
             "value": {
                 "internal_identifier": "country",
                 "label": "Country",
                 "required": True,
             },
-            "id": "text-field-country",
+            "id": "country-select-field",
         },
         {
             "type": "textarea_field",

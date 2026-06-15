@@ -17,42 +17,42 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-sm);
+}
 
-    .fl-legend {
-        margin-block-end: var(--token-spacing-md);
-    }
+.fl-field-wrap .fl-legend {
+    margin-block-end: var(--token-spacing-md);
+}
 
-    .fl-field {
-        background-color: var(--theme-form-field-background);
-        border: 1px solid var(--theme-form-field-border-color);
-        border-radius: var(--token-border-radius-3xs);
-        color: var(--theme-form-color);
-        display: block;
-        inline-size: 100%;
-        margin: 0;
-        padding: var(--token-spacing-sm);
+.fl-field-wrap .fl-field {
+    background-color: var(--theme-form-field-background);
+    border: 1px solid var(--theme-form-field-border-color);
+    border-radius: var(--token-border-radius-3xs);
+    color: var(--theme-form-color);
+    display: block;
+    inline-size: 100%;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+}
 
-        &:focus {
-            background-color: var(--theme-form-field-background-focus);
-            border-color: var(--theme-form-field-border-color-focus);
-            outline: 2px solid var(--theme-form-focus-outline-color);
-        }
-    }
+.fl-field-wrap .fl-field:focus {
+    background-color: var(--theme-form-field-background-focus);
+    border-color: var(--theme-form-field-border-color-focus);
+    outline: 2px solid var(--theme-form-focus-outline-color);
+}
 
-    select {
-        appearance: none;
-        background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-down-small-16.svg');
-        background-position: right var(--token-spacing-sm) center;
-        background-repeat: no-repeat;
-        background-size: 20px 20px;
-        padding-inline-end: calc(var(--token-spacing-sm) * 2 + 20px);
-    }
+.fl-field-wrap select {
+    appearance: none;
+    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-down-small-16.svg');
+    background-position: right var(--token-spacing-sm) center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    padding-inline-end: calc(var(--token-spacing-sm) * 2 + 20px);
 }
 
 .fl-checkbox {
     -webkit-appearance: none;
     block-size: 19px;
-    border: 1px solid var(--token-color-light-purple);
+    border: 1px solid var(--theme-checkbox-border-color);
     border-radius: 5px;
     cursor: pointer;
     flex-shrink: 0;
@@ -79,6 +79,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     gap: var(--token-spacing-sm);
 }
 
-fieldset {
+fieldset.fl-field-wrap {
     border: 0 none;
+}
+
+.fl-field-error {
+    --theme-form-field-background: var(--token-color-white);
+    --theme-form-field-border-color: var(--theme-form-field-border-color-error);
+    --theme-checkbox-border-color: var(--theme-form-field-border-color-error);
+}
+
+.fl-field-error-message {
+    color: var(--theme-form-error-message-color);
+    font-size: var(--fl-theme-label-sm);
 }
