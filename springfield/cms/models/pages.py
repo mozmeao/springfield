@@ -334,7 +334,9 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
-        return [placement.snippet.get_localized() for placement in placements]
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
@@ -833,7 +835,9 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
-        return [placement.snippet.get_localized() for placement in placements]
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -869,7 +873,9 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
-        return [placement.snippet.get_localized() for placement in placements]
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 # TODO: This page will be deleted on a following PR. It's currently not available anywhere.
@@ -1084,7 +1090,9 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
-        return [placement.snippet.get_localized() for placement in placements]
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
