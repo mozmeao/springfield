@@ -477,7 +477,10 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                template = "firefox/download/desktop/thanks_direct.html"
+                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                    template = "firefox/download/rtamo.html"
+                else:
+                    template = "firefox/download/basic/thanks_direct.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:

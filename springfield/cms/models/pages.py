@@ -32,6 +32,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
+from springfield.base import waffle
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -516,7 +517,10 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
-            return "cms/thanks_page__direct.html"
+            if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                return "firefox/download/rtamo.html"
+            else:
+                return "cms/thanks_page__direct.html"
 
         return "cms/thanks_page.html"
 
