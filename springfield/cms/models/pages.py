@@ -321,6 +321,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     class Meta:
@@ -329,6 +330,13 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"HomePage: {self.title} - {self.locale}"
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
@@ -810,6 +818,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("content"),
         FieldPanel("related_articles"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     if TYPE_CHECKING:
@@ -822,6 +831,13 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         if self.tag:
             return self.tag.get_localized()
         return None
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -848,10 +864,18 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     def __str__(self):
         return f"ArticleThemePage: {self.title} - {self.locale}"
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 # TODO: This page will be deleted on a following PR. It's currently not available anywhere.
@@ -926,6 +950,54 @@ class PencilBannerPlacement(Orderable):
     class Meta(Orderable.Meta):
         verbose_name = "Pencil Banner Placement"
         verbose_name_plural = "Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class HomePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.HomePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Home Page Pencil Banner Placement"
+        verbose_name_plural = "Home Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleThemePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleThemePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Theme Page Pencil Banner Placement"
+        verbose_name_plural = "Article Theme Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleDetailPagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleDetailPage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Detail Page Pencil Banner Placement"
+        verbose_name_plural = "Article Detail Page Pencil Banner Placements"
 
     panels = [
         FieldPanel("snippet"),
@@ -1014,6 +1086,13 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     @property
     def noindex(self):
         return self.enable_marketing_attribution
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):

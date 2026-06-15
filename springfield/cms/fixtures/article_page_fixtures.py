@@ -6,8 +6,9 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_tags
+from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_tags
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
+from springfield.cms.models.pages import ArticleDetailPagePencilBannerPlacement, ArticleThemePagePencilBannerPlacement
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -74,6 +75,9 @@ def get_article_pages():
         tag=tags["security"],
         link_text="See Featured 1",
     )
+
+    snippet = get_pencil_banner_snippet()
+    ArticleDetailPagePencilBannerPlacement.objects.get_or_create(page=featured_article_1, snippet=snippet)
 
     featured_article_2 = create_article(
         title="Test Featured Article 2",
@@ -737,6 +741,8 @@ def get_article_theme_page():
         get_theme_page_icon_cards_section(),
         get_theme_page_sticker_row_section(),
     ]
+    snippet = get_pencil_banner_snippet()
+    ArticleThemePagePencilBannerPlacement.objects.get_or_create(page=theme_page, snippet=snippet)
     theme_page.save_revision().publish()
     return theme_page
 
