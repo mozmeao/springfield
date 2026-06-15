@@ -7,6 +7,9 @@
 {% set block_position = block_position or "intro" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 {% set block_level = block_level or 2 %}
+{% if value.settings.layout != "vertical" %}
+{% set heading_size = 'fl-heading-lg fl-heading-condensed' %}
+{% endif %}
 <include:intro
   {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
   anchor_id="{{ value.settings.anchor_id }}"
