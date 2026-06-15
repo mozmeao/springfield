@@ -4,14 +4,23 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-field-wrap">
+<div class="fl-field-wrap{% if form_errors.get(value.internal_identifier) %} fl-field-error{% endif %}">
   <label class="fl-label" for="{{ value.internal_identifier }}">
     {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
   </label>
-  <select class="fl-field" id="{{ value.internal_identifier }}" name="{{ value.internal_identifier }}"{% if value.required %} required aria-required="true"{% endif %}>
+  <select
+    class="fl-field"
+    id="{{ value.internal_identifier }}"
+    name="{{ value.internal_identifier }}"
+    {% if value.required %} required aria-required="true"{% endif %}
+    {% if form_errors.get(value.internal_identifier) %}aria-invalid="true"{% endif %}
+  >
     <option value="">{{ ftl("contact-form-select-option") }}</option>
     {% for option in value.options %}
       <option value="{{ option.value }}"{% if option.value == form_data.get(value.internal_identifier) %} selected{% endif %}>{{ option.label }}</option>
     {% endfor %}
   </select>
+  {% for error in form_errors.get(value.internal_identifier, []) %}
+    <p class="fl-field-error-message"><include:icon icon_name="warning" /> {{ error }}</p>
+  {% endfor %}
 </div>

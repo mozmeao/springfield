@@ -48,6 +48,7 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
+    CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
     FeaturedImageSectionBlock,
@@ -1779,6 +1780,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             ("checkbox_field", CheckboxFieldBlock()),
             ("checkbox_group_field", CheckboxGroupFieldBlock()),
             ("hidden_field", HiddenFieldBlock()),
+            ("country_select_field", CountrySelectFieldBlock()),
         ],
         blank=True,
         null=True,
@@ -1863,9 +1865,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        form_errors = getattr(request, "form_errors", None)
-        if form_errors:
-            context["form_errors"] = form_errors
+        context["form_errors"] = getattr(request, "form_errors", {})
         if getattr(request, "form_success", False):
             context["form_success"] = True
         context["form_data"] = getattr(request, "form_data", {})
@@ -1899,7 +1899,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                        request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
                         request.form_data = self._get_form_data_for_context(request.POST)
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
@@ -1912,7 +1912,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
                     request.form_data = self._get_form_data_for_context(request.POST)
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
@@ -1928,7 +1928,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             "Failed to send contact form email",
                             level="error",
                         )
-                    request.form_errors = [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
                     request.form_data = self._get_form_data_for_context(request.POST)
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
@@ -1981,12 +1981,14 @@ class ContactPage(AbstractSpringfieldCMSPage):
     def validate_form_data(self, post_data):
         """Validate submitted form data against the field configuration.
 
-        Returns a list of error messages. An empty list means the data is valid.
+        Returns a dict matching Django's ErrorDict shape:
+          {identifier: [msg], ..., "__all__": [global_msg]}
+        An empty dict means the data is valid.
         """
         if post_data.get("office_fax", ""):
-            return [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]
+            return {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
 
-        errors = []
+        errors = {}
         has_any_data = False
 
         for field in self.form_fields:
@@ -1995,7 +1997,6 @@ class ContactPage(AbstractSpringfieldCMSPage):
 
             value = field.value
             identifier = value["internal_identifier"]
-            label = value["label"]
             is_required = value.get("required", False)
 
             if field.block_type == "checkbox_group_field":
@@ -2007,10 +2008,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 has_any_data = True
 
             if is_required and not submitted:
-                errors.append(ftl_lazy("contact-form-error-required-field", ftl_files=self.ftl_files, field=label))
+                errors[identifier] = [ftl_lazy("contact-form-error-required", ftl_files=self.ftl_files)]
 
-        if not has_any_data:
-            errors.append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+        if not has_any_data and not errors:
+            errors.setdefault("__all__", []).append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
 
         return errors
 
