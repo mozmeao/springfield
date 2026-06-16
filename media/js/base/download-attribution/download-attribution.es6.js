@@ -63,6 +63,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     timeoutCallback: undefined,
     requestComplete: false,
     inFlightXHR: null,
+    gettingAnalyticsData: false,
 
     /**
      * Determines if session falls within the predefined download attribution sample rate.
@@ -413,6 +414,10 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
      * @param {Object} data - utm params and referrer.
      */
     requestAuthentication: (data) => {
+        // Avoid unnecessary essential-only request if imminent essential + analytics request
+        if (DownloadAttribution.gettingAnalyticsData) {
+            return;
+        }
         // Cancel any prior in-flight request so a later trigger with a more
         // complete payload always wins
         if (DownloadAttribution.inFlightXHR) {
@@ -893,6 +898,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
                 return;
             }
 
+            DownloadAttribution.gettingAnalyticsData = true;
             DownloadAttribution.waitForGoogleAnalyticsThen(() => {
                 const params = new window._SearchParams();
                 const analytics = DownloadAttribution.getAnalyticsData(
@@ -909,6 +915,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
                     DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
                 );
 
+                DownloadAttribution.gettingAnalyticsData = false;
                 DownloadAttribution.requestCombinedAuth(essential, analytics);
 
                 if (analytics.client_id_ga4) {
