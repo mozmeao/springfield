@@ -1104,3 +1104,17 @@ class TestFxALinkFragment(TestCase):
 def test_needs_data_consent(country_code, expected):
     template = "{{ needs_data_consent('%s') }}" % country_code
     assert render(template) == expected
+
+
+@pytest.mark.parametrize(
+    "country_code, domain, switch_on, expected",
+    [
+        ("DE", "firefox.com", True, True),
+        ("US", "firefox.com", True, False),
+        ("DE", "firefox.com", False, False),
+        ("DE", "", True, False),
+    ],
+)
+def test_plausible_enabled(country_code, domain, switch_on, expected):
+    with override_settings(PLAUSIBLE_DOMAIN=domain), patch.object(misc, "switch", return_value=switch_on):
+        assert misc.plausible_enabled(country_code) is expected

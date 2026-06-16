@@ -55,6 +55,7 @@
               {% if block.block_type == "heading" %}
                 <include:heading
                   level="h1"
+                  heading_size="fl-heading-xl"
                   superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
                   heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
                   subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
@@ -66,7 +67,7 @@
             <include:heading
               level="h1"
               heading_text="{{ page.title }}"
-              heading_size="fl-heading-size-1"
+              heading_size="fl-heading-xl"
               alignment_class="text-center"
             />
           {% endif %}
@@ -211,7 +212,7 @@
           <include:heading
             level="h2"
             heading_text="{{ page.more_articles_heading|richtext|remove_p_tag }}"
-            heading_size="fl-heading-size-2"
+            heading_size="fl-heading-md"
           />
 
           {% for block in page.cards_lists %}

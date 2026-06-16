@@ -1181,6 +1181,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/clear-close-cancel/cross-circle-fill-24.svg');
 }
 
+.fl-icon-device-desktop {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-24.svg');
+}
+
 .fl-icon-device-desktop-fill {
     --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-fill-24.svg');
 }

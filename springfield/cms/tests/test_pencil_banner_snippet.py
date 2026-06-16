@@ -8,8 +8,16 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
+from springfield.cms.fixtures.feature_page_fixtures import get_features_theme_page
 from springfield.cms.fixtures.freeformpage import get_freeform_page_test_page
+from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet
+from springfield.cms.models import ArticleDetailPage
+from springfield.cms.models.pages import (
+    ArticleDetailPagePencilBannerPlacement,
+    ArticleThemePagePencilBannerPlacement,
+    HomePagePencilBannerPlacement,
+)
 
 pytestmark = [pytest.mark.django_db]
 
@@ -94,3 +102,46 @@ def test_page_without_pencil_banner_placement_does_not_render_banner(minimal_sit
 
     soup = BeautifulSoup(response.content, "html.parser")
     assert not soup.find("div", class_="fl-pencil-banner"), "Pencil banner should not render when no placement exists"
+
+
+def _make_home_page():
+    return get_home_test_page(), HomePagePencilBannerPlacement
+
+
+def _make_article_theme_page():
+    return get_features_theme_page(), ArticleThemePagePencilBannerPlacement
+
+
+def _make_article_detail_page():
+    theme_page = get_features_theme_page()
+    page = ArticleDetailPage.objects.child_of(theme_page).filter(slug="test-pencil-detail").first()
+    if not page:
+        page = ArticleDetailPage(
+            slug="test-pencil-detail",
+            title="Test Pencil Detail",
+            content=[],
+        )
+        theme_page.add_child(instance=page)
+    return page, ArticleDetailPagePencilBannerPlacement
+
+
+PAGES_WITH_PENCIL_BANNER = [
+    pytest.param(_make_home_page, id="home"),
+    pytest.param(_make_article_theme_page, id="article_theme"),
+    pytest.param(_make_article_detail_page, id="article_detail"),
+]
+
+
+@pytest.mark.parametrize("page_factory", PAGES_WITH_PENCIL_BANNER)
+def test_page_renders_pencil_banner(page_factory, minimal_site, rf):
+    page, placement_cls = page_factory()
+    snippet = get_pencil_banner_snippet()
+    placement_cls.objects.get_or_create(page=page, snippet=snippet)
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("div", class_="fl-pencil-banner"), f"Pencil banner should render on {page.__class__.__name__}"

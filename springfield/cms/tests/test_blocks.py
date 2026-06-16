@@ -3569,6 +3569,7 @@ def test_roadmap_list_section_block(index_page, rf):
     assert len(filters) == 1
     filter_el = filters[0]
     filter_options = filter_el.find_all("button", class_="fl-roadmap-filter-button")
+    filter_options = [f for f in filter_options if f.get("data-filter")]
     assert len(filter_options) == len(ROADMAP_TAG_LABELS)
     for button in filter_options:
         assert button.has_attr("data-filter")

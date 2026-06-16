@@ -157,7 +157,7 @@ services:
       PLAYWRIGHT_BASE_URL: "${PLAYWRIGHT_BASE_URL:-http://localhost:8000}"
     command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --ui --ui-host=0.0.0.0 --ui-port=8085"
 
-  playwright-update-screenshots:
+  playwright-update-snapshots:
     image: mcr.microsoft.com/playwright:v1.60.0-noble
     network_mode: host
     working_dir: /app/tests/playwright

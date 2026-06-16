@@ -133,7 +133,7 @@
                 {% set call_out_desc = 'Release Notes tell you what\'s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
                 <include:heading
                   level="h1"
-                  heading_size="fl-heading-xl"
+                  heading_size="fl-heading-xl fl-heading-condensed"
                   heading_text="{{ primary_heading }}"
                   subheading_text="{{ call_out_desc | safe }}"
                 />
@@ -522,6 +522,7 @@
         <include:section>
           <content:heading>
             <include:heading
+              heading_size="fl-heading-md"
               heading_text="{{ download_title }}"
               alignment_class="text-center"
             />
