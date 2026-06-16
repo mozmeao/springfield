@@ -7,6 +7,7 @@
 {% set block_text = block_text ~ " - " ~ value.label %}
 
 <include:button
+  id="{{ value.id }}"
   theme_class="{{ value.theme_class() }}"
   label="{{ value.label }}"
   size_class="{{ value.size_class() }}"
@@ -17,4 +18,5 @@
   analytics_text="{{ block_text }}"
   analytics_position="{{ block_position }}"
   analytics_id="{{ value.settings.analytics_id }}"
+  aria_labelledby="{{ value.aria_labelledby }}"
 />
