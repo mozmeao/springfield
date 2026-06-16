@@ -357,6 +357,7 @@ class TestStubAttributionCode(TestCase):
 
 
 @override_settings(DEV=False)
+@override_switch("ENABLE_ATTRIBUTION_REFACTOR", active=True)
 @patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
 class TestFirefoxDownload(TestCase):
     def test_post(self, render_mock):
@@ -462,7 +463,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/desktop/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_thanks_basic_direct(self, render_mock):
@@ -471,7 +472,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/basic/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     # end /thanks?s=direct URL - issue 10520
 
