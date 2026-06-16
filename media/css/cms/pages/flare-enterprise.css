@@ -8,34 +8,34 @@
 @import 'variables/flare-media-query-tokens.css';
 
 @layer page {
-    main.fl-2026-enterprise {
+    main.fl-enterprise {
         background-color: var(--fl-theme-background);
     }
 
-    .fl-2026-enterprise .fl-body a {
+    .fl-enterprise .fl-body a {
         text-decoration: underline;
     }
 
-    .fl-2026-enterprise .fl-body a:hover {
+    .fl-enterprise .fl-body a:hover {
         text-decoration: none;
     }
 
-    .fl-2026-enterprise .fl-superheading {
+    .fl-enterprise .fl-superheading {
         display: flex;
         justify-content: center;
     }
 
-    .fl-2026-enterprise .fl-intro.fl-intro-media-right {
+    .fl-enterprise .fl-intro.fl-intro-media-right {
         grid-template-columns: 1fr;
         text-align: center;
     }
 
-    .fl-2026-enterprise .fl-intro-actions {
+    .fl-enterprise .fl-intro-actions {
         margin-inline: auto;
         text-align: center;
     }
 
-    .fl-2026-enterprise .heading-logo {
+    .fl-enterprise .heading-logo {
         display: block;
         inline-size: auto;
         margin-block-end: var(--token-spacing-xl);
@@ -44,46 +44,46 @@
         max-inline-size: 100%;
     }
 
-    .fl-2026-enterprise .fl-banner-container {
+    .fl-enterprise .fl-banner-container {
         padding-inline: var(--fl-section-h-padding);
     }
 
-    .fl-2026-enterprise .fl-banner-kit .fl-heading,
-    .fl-2026-enterprise .fl-banner-kit .fl-subheading {
+    .fl-enterprise .fl-banner-kit .fl-heading,
+    .fl-enterprise .fl-banner-kit .fl-subheading {
         max-inline-size: 840px;
     }
 
-    .fl-2026-enterprise .fl-card {
+    .fl-enterprise .fl-card {
         display: flex;
         flex-direction: column;
     }
 
-    .fl-2026-enterprise .fl-card-sticker {
+    .fl-enterprise .fl-card-sticker {
         margin: 0 auto var(--token-spacing-lg) 0;
         max-block-size: 60px;
         max-inline-size: 60px;
         order: 1;
     }
 
-    .fl-2026-enterprise .fl-card-heading-group {
+    .fl-enterprise .fl-card-heading-group {
         order: 2;
     }
 
-    .fl-2026-enterprise .fl-body {
+    .fl-enterprise .fl-body {
         order: 3;
     }
 
-    .fl-2026-enterprise-support h2 {
+    .fl-enterprise-support h2 {
         margin: 0 auto;
     }
 
-    .fl-2026-enterprise-protection {
+    .fl-enterprise-protection {
         margin: 60px auto;
         max-inline-size: 60%;
         text-align: center;
     }
 
-    .fl-2026-enterprise .fl-card-grid {
+    .fl-enterprise .fl-card-grid {
         padding: 0 var(--fl-section-h-padding);
     }
 
@@ -125,27 +125,27 @@
     }
 
     @media (--viewport-sm-up) {
-        .fl-2026-enterprise .heading-logo {
+        .fl-enterprise .heading-logo {
             margin-inline: 0;
             max-block-size: 80px;
         }
 
-        .fl-2026-enterprise .fl-intro-actions {
+        .fl-enterprise .fl-intro-actions {
             text-align: center;
         }
     }
 
     @media (--viewport-md-up) {
-        .fl-2026-enterprise .fl-superheading {
+        .fl-enterprise .fl-superheading {
             justify-content: start;
         }
 
-        .fl-2026-enterprise .fl-intro.fl-intro-media-right {
+        .fl-enterprise .fl-intro.fl-intro-media-right {
             grid-template-columns: 1fr 1fr;
             text-align: start;
         }
 
-        .fl-2026-enterprise .fl-intro-actions {
+        .fl-enterprise .fl-intro-actions {
             margin-inline: 0 auto;
             text-align: start;
         }

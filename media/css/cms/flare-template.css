@@ -77,7 +77,7 @@ body.fl-modal-open {
     gap: 0;
 }
 
-.fl-freeform-2026-page .fl-main:not(:has(.fl-split-page-lower)) {
+.fl-freeform-page .fl-main:not(:has(.fl-split-page-lower)) {
     padding-block-end: 0;
 }
 

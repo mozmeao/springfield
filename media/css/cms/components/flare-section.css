@@ -50,7 +50,7 @@
 }
 
 /* todo: I'm specifying this for the freeform page, but this how it should be everywhere. */
-.fl-freeform-2026-page .fl-heading-group {
+.fl-freeform-page .fl-heading-group {
     margin-block-end: 0;
 }
 
@@ -75,11 +75,11 @@
     padding-block-start: 0;
 }
 
-.fl-freeform-2026-page .fl-split-page-upper > .fl-section:first-child {
+.fl-freeform-page .fl-split-page-upper > .fl-section:first-child {
     padding-block-start: 0;
 }
 
-.fl-freeform-2026-page
+.fl-freeform-page
     .fl-split-page-upper
     > .fl-section.fl-mobile-store-qr-section:first-child {
     padding-block-start: var(--token-layout-lg);
