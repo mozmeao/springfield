@@ -132,7 +132,7 @@ html {
     content: '';
     display: inline-block;
     inline-size: var(--token-spacing-lg);
-    mask-image: url('/media/img/firefox/flare/2026/nav/append-up-right-24.svg');
+    mask-image: url('/media/img/firefox/flare/nav/append-up-right-24.svg');
     vertical-align: baseline;
 }
 

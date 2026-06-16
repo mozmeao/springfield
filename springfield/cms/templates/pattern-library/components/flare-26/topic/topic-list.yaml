@@ -1,7 +1,7 @@
 name: Topic list
 context:
   topics:
-    - image: "/media/img/firefox/flare/2026/user-privacy/fingerprint-tracking.svg"
+    - image: "/media/img/firefox/flare/user-privacy/fingerprint-tracking.svg"
       anchor_id: "privacy-online"
       short_title: "Privacy Online"
       heading: "Your privacy always comes first."
@@ -10,7 +10,7 @@ context:
         - theme_class: button-link
           label: "See Firefox’s data collection guidelines"
           link: "#"
-    - image: "/media/img/firefox/flare/2026/user-privacy/privacy-shield.svg"
+    - image: "/media/img/firefox/flare/user-privacy/privacy-shield.svg"
       anchor_id: "tracking-protection"
       short_title: "Tracking Protection"
       heading: "You’re automatically protected."
@@ -22,7 +22,7 @@ context:
         - theme_class: button-link
           label: "More about Total Cookie Protection"
           link: "#"
-    - image: "/media/img/firefox/flare/2026/user-privacy/tab-groups.svg"
+    - image: "/media/img/firefox/flare/user-privacy/tab-groups.svg"
       anchor_id: "data-control"
       short_title: "Control Your Data"
       heading: "You’re in control."
@@ -34,7 +34,7 @@ context:
         - theme_class: button-link
           label: "More about AI chatbots"
           link: "#"
-    - image: "/media/img/firefox/flare/2026/user-privacy/devices.svg"
+    - image: "/media/img/firefox/flare/user-privacy/devices.svg"
       anchor_id: "advertising"
       short_title: "Advertising"
       heading: "Ads? Totally up to you."
@@ -43,7 +43,7 @@ context:
         - theme_class: button-link
           label: "More about ads and privacy"
           link: "#"
-    - image: "/media/img/firefox/flare/2026/user-privacy/cursor.svg"
+    - image: "/media/img/firefox/flare/user-privacy/cursor.svg"
       anchor_id: "built-different"
       short_title: "Built Different"
       heading: "Privacy is a team effort."

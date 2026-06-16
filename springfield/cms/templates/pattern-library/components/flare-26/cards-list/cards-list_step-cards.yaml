@@ -7,7 +7,7 @@ context:
     - image: "/media/img/firefox/flare/firefox-dmg.png"
       heading: "Open Firefox.dmg from your Downloads folder."
       body: ""
-    - image: "/media/img/firefox/flare/2026/homepage/Group_1597882542.width-800.png"
+    - image: "/media/img/firefox/flare/homepage/Group_1597882542.width-800.png"
       heading: "Drag the Firefox icon into your Applications folder."
       body: ""
     - image: "/media/img/firefox/flare/dock.png"
@@ -23,7 +23,7 @@ context:
           link: /learn-more/
           icon_name: forward
           icon_position: right
-    - image: "/media/img/firefox/flare/2026/homepage/Group_1597882542.width-800.png"
+    - image: "/media/img/firefox/flare/homepage/Group_1597882542.width-800.png"
       superheading: "Step superheading"
       heading: "Drag the Firefox icon into your Applications folder."
       body: "This is the body text for the step card. It provides additional details about this step."
