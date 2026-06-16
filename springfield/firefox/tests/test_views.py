@@ -17,7 +17,7 @@ from waffle.testutils import override_switch
 from lib import querystringsafe_base64
 from springfield.base.tests import TestCase
 from springfield.firefox import views
-from springfield.firefox.views import detect_download_platform, download_redirect
+from springfield.firefox.views import _mobile_store_url, detect_download_platform, download_redirect, mobile_thanks_redirect
 
 
 @override_settings(
@@ -930,3 +930,176 @@ class TestDownloadRedirect(TestCase):
         resp = download_redirect(req)
         assert resp.status_code == 302
         assert resp["Location"] == "/en-US/"
+
+
+ANDROID_UA = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36"
+IOS_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"
+DESKTOP_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+
+
+class TestMobileStoreUrl:
+    def test_android_default_matches_link_utms_constant(self):
+        # Byte-identical to GOOGLE_PLAY_FIREFOX_LINK_UTMS — the URL today's
+        # /thanks/ JS already auto-redirects no-campaign Android users to.
+        from django.conf import settings
+
+        url = _mobile_store_url("android", "en-US", "download")
+        assert url == settings.GOOGLE_PLAY_FIREFOX_LINK_UTMS
+
+    def test_android_with_campaign(self):
+        url = _mobile_store_url("android", "en-US", "summer-2026")
+        assert url.startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
+        assert "utm_campaign%3Dsummer-2026" in url
+        assert "utm_source%3Dwww.firefox.com" in url
+        assert "utm_medium%3Dreferral" in url
+
+    def test_ios_default_us(self):
+        url = _mobile_store_url("ios", "en-US", "download")
+        assert url.startswith("https://apps.apple.com/us/app/apple-store/id989804926")
+        assert "pt=373246" in url
+        assert "ct=download" in url
+        assert "mz_pr=firefox_mobile" in url
+        assert url.endswith("&mt=8")
+
+    def test_ios_locale_country_mapping(self):
+        url = _mobile_store_url("ios", "de", "x")
+        assert url.startswith("https://apps.apple.com/de/")
+
+    def test_ios_unmapped_locale_omits_country(self):
+        # Locales not in APPLE_APPSTORE_COUNTRY_MAP get the country segment
+        # stripped, mirroring the existing app_store_url() behavior.
+        url = _mobile_store_url("ios", "ach", "x")
+        assert "/{country}/" not in url
+        assert url.startswith("https://apps.apple.com/app/apple-store/")
+
+    def test_ios_campaign_is_url_encoded(self):
+        url = _mobile_store_url("ios", "en-US", "hello world")
+        assert "ct=hello%20world" in url
+
+
+def _unreachable(request, *args, **kwargs):
+    raise AssertionError("inner view was called; decorator should have intercepted")
+
+
+class TestMobileThanksRedirectDecorator(TestCase):
+    """Unit tests for the decorator. Lifts the UA check above prefer_cms so
+    mobile users hitting /thanks/ get redirected regardless of whether a CMS
+    ThanksPage is published at that path or the Django view ends up serving it.
+    """
+
+    def setUp(self):
+        self.rf = RequestFactory()
+
+    def _request(self, ua, query="", locale="en-US", content_locale=None):
+        path = "/thanks/" + (f"?{query}" if query else "")
+        req = self.rf.get(path, HTTP_USER_AGENT=ua)
+        req.locale = locale
+        if content_locale is not None:
+            req.content_locale = content_locale
+        return req
+
+    def test_android_redirects_with_default_campaign(self):
+        req = self._request(ua=ANDROID_UA)
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
+        assert "utm_campaign%3Ddownload" in resp["Location"]
+
+    def test_ios_redirects_with_default_campaign(self):
+        req = self._request(ua=IOS_UA)
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://apps.apple.com/us/app/apple-store/id989804926")
+        assert "ct=download" in resp["Location"]
+
+    def test_android_url_campaign_overrides_default(self):
+        req = self._request(ua=ANDROID_UA, query="utm_campaign=test-19")
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert "utm_campaign%3Dtest-19" in resp["Location"]
+        assert "utm_campaign%3Ddownload" not in resp["Location"]
+
+    def test_ios_url_campaign_overrides_default(self):
+        req = self._request(ua=IOS_UA, query="utm_campaign=test-19")
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert "ct=test-19" in resp["Location"]
+        assert "ct=download" not in resp["Location"]
+
+    def test_ios_uses_locale_country_code(self):
+        req = self._request(ua=IOS_UA, locale="de")
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://apps.apple.com/de/")
+
+    def test_ios_uses_content_locale_for_alias_fallback(self):
+        # CMSLocaleFallbackMiddleware sets request.content_locale when serving
+        # fallback content at an alias locale URL (e.g. es-MX content at
+        # /es-AR/). get_locale() prefers content_locale, so the country code
+        # should match the fallback locale.
+        req = self._request(ua=IOS_UA, locale="es-AR", content_locale="es-MX")
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://apps.apple.com/mx/")
+
+    def test_redirect_is_not_cached(self):
+        req = self._request(ua=ANDROID_UA)
+        resp = mobile_thanks_redirect(_unreachable)(req)
+        assert "no-store" in resp["Cache-Control"]
+        assert "private" in resp["Cache-Control"]
+
+    def test_desktop_falls_through_to_inner_view(self):
+        called = {}
+
+        def inner(request, *args, **kwargs):
+            called["ok"] = True
+            return HttpResponse("ok")
+
+        req = self._request(ua=DESKTOP_UA)
+        resp = mobile_thanks_redirect(inner)(req)
+        assert resp.status_code == 200
+        assert called == {"ok": True}
+
+    def test_empty_ua_falls_through_to_inner_view(self):
+        # detect_download_platform returns None for empty UAs.
+        called = {}
+
+        def inner(request, *args, **kwargs):
+            called["ok"] = True
+            return HttpResponse("ok")
+
+        req = self._request(ua="")
+        resp = mobile_thanks_redirect(inner)(req)
+        assert resp.status_code == 200
+        assert called == {"ok": True}
+
+
+class TestDownloadThanksMobileRedirectIntegration(TestCase):
+    """Integration tests through the URL routing — confirms the decorator
+    wraps the URL handler ABOVE prefer_cms, so the redirect fires whether the
+    request resolves to a CMS ThanksPage or the Django DownloadThanksView.
+    """
+
+    def test_android_via_url_routing_redirects(self):
+        resp = self.client.get("/en-US/thanks/", headers={"user-agent": ANDROID_UA})
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
+        assert "utm_campaign%3Ddownload" in resp["Location"]
+
+    def test_ios_via_url_routing_redirects(self):
+        resp = self.client.get("/en-US/thanks/", headers={"user-agent": IOS_UA})
+        assert resp.status_code == 302
+        assert resp["Location"].startswith("https://apps.apple.com/us/app/apple-store/id989804926")
+        assert "ct=download" in resp["Location"]
+
+    def test_desktop_via_url_routing_renders_page(self):
+        # Confirms the decorator is a no-op for desktop UAs and the chain
+        # falls through to prefer_cms → Django thanks view as before.
+        resp = self.client.get("/en-US/thanks/", headers={"user-agent": DESKTOP_UA})
+        assert resp.status_code == 200
+
+    def test_mobile_xv_basic_still_redirects(self):
+        # The decorator runs before view-level routing — query params that
+        # would normally select a different template are irrelevant on mobile.
+        resp = self.client.get("/en-US/thanks/?xv=basic", headers={"user-agent": ANDROID_UA})
+        assert resp.status_code == 302

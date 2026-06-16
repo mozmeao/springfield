@@ -24,6 +24,11 @@ if (typeof window.Mozilla === 'undefined') {
     var ANDROID_RE = /\bAndroid\b/i;
     var IOS_RE = /\b(iPhone|iPad|iPod)\b/i;
 
+    // Matches the hardcoded value baked into GOOGLE_PLAY_FIREFOX_LINK_UTMS,
+    // so an Android user with no page-level campaign still hits the same
+    // attributed Play Store URL /thanks/ would have redirected them to.
+    var DEFAULT_CAMPAIGN = 'download';
+
     /**
      * Resolve the campaign value: force > override > URL utm_campaign > default.
      * IE9-safe parse avoids URLSearchParams.
@@ -128,7 +133,9 @@ if (typeof window.Mozilla === 'undefined') {
      *      the captured https:// URL. iOS Path A is unaffected and not
      *      supplemented (would double-fire).
      *   2. Path B: rewrite /thanks/-bound CTAs to attributed store URLs.
-     *      Gated on a declared campaign (CMS stub_attr or URL utm_campaign).
+     *      Falls back to DEFAULT_CAMPAIGN when no campaign is declared so
+     *      mobile users never route through /thanks/, which renders desktop-
+     *      stub-installer copy and serves no purpose pre-install on mobile.
      */
     MobileAttribution.init = function () {
         var html = document.documentElement;
@@ -143,13 +150,9 @@ if (typeof window.Mozilla === 'undefined') {
             MobileAttribution.attachAndroidStoreButtonTracking(document);
         }
 
-        var campaign = MobileAttribution.getCampaign(
-            html,
-            window.location.search
-        );
-        if (!campaign) {
-            return;
-        }
+        var campaign =
+            MobileAttribution.getCampaign(html, window.location.search) ||
+            DEFAULT_CAMPAIGN;
 
         var storeUrl = MobileAttribution.getStoreUrl(campaign, isAndroid);
         MobileAttribution.rewriteLinks(document, storeUrl);

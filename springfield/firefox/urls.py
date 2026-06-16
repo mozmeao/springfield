@@ -66,7 +66,11 @@ urlpatterns = (
     path(
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
-    path("thanks/", prefer_cms(views.DownloadThanksView.as_view()), name="firefox.download.thanks"),
+    path(
+        "thanks/",
+        views.mobile_thanks_redirect(prefer_cms(views.DownloadThanksView.as_view())),
+        name="firefox.download.thanks",
+    ),
     path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes
     re_path(f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?notes/$", springfield.releasenotes.views.latest_notes, name="firefox.notes"),

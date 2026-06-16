@@ -5,11 +5,12 @@ import hashlib
 import hmac
 import re
 from collections import OrderedDict
-from urllib.parse import urlparse
+from functools import wraps
+from urllib.parse import quote, urlparse
 
 from django.conf import settings
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
-from django.utils.cache import patch_response_headers
+from django.utils.cache import add_never_cache_headers, patch_response_headers
 from django.utils.encoding import force_str
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
@@ -442,6 +443,58 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
         )
 
     return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)
+
+
+# Matches the hardcoded value baked into GOOGLE_PLAY_FIREFOX_LINK_UTMS, so
+# Android users with no campaign declared still reach the same attributed
+# Play Store URL /thanks/ would have auto-redirected them to.
+_MOBILE_DEFAULT_CAMPAIGN = "download"
+
+
+def _mobile_store_url(platform, locale, campaign):
+    """Build the attributed store URL for a mobile UA landing on /thanks/.
+
+    Mirrors the URL shapes emitted by ``app_store_url`` / ``play_store_url``
+    template tags in ``templatetags/misc.py`` and by ``MobileAttribution.
+    getStoreUrl`` in ``media/js/base/mobile-attribution.js``.
+    """
+    if platform == "android":
+        referrer = quote(
+            f"utm_source=www.firefox.com&utm_medium=referral&utm_campaign={campaign}",
+            safe="",
+        )
+        return f"{settings.GOOGLE_PLAY_FIREFOX_LINK}&referrer={referrer}"
+    # iOS
+    base = settings.APPLE_APPSTORE_FIREFOX_LINK
+    country = settings.APPLE_APPSTORE_COUNTRY_MAP.get(locale)
+    if country:
+        base = base.format(country=country)
+    else:
+        base = base.replace("/{country}/", "/")
+    return f"{base}?mz_pr=firefox_mobile&pt=373246&ct={quote(campaign, safe='')}&mt=8"
+
+
+def mobile_thanks_redirect(view_func):
+    """Redirect mobile UAs to the attributed store URL before any view runs.
+
+    Wraps the /thanks/ URL handler ABOVE ``prefer_cms`` so the redirect fires
+    for both the CMS-served ``ThanksPage`` and the Django ``DownloadThanksView``
+    — otherwise mobile users would still see the desktop "Your download was
+    interrupted" interstitial for any locale with a published CMS thanks page.
+    """
+
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        platform = detect_download_platform(request.headers.get("User-Agent", ""))
+        if platform in ("android", "ios"):
+            campaign = request.GET.get("utm_campaign") or _MOBILE_DEFAULT_CAMPAIGN
+            locale = l10n_utils.get_locale(request)
+            response = HttpResponseRedirect(_mobile_store_url(platform, locale, campaign))
+            add_never_cache_headers(response)
+            return response
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
 
 
 class DownloadThanksView(L10nTemplateView):
