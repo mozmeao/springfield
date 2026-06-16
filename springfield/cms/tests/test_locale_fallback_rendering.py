@@ -757,7 +757,7 @@ def test_whatsnew_page_direct_request_has_canonical(client):
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
 def test_whatsnew_page_alias_request_gets_canonical(client):
     """
-    A WhatsNewPage (noindex=True, base-flare.html) served via an alias locale
+    A WhatsNewPage (noindex=True, base-flare26.html) served via an alias locale
     should emit a canonical link pointing to the fallback locale URL.
     """
     es_mx_locale = LocaleFactory(language_code="es-MX")
