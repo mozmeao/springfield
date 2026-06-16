@@ -8,6 +8,7 @@ import uuid
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
@@ -1944,24 +1945,23 @@ class ContactPage(AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["form_errors"] = getattr(request, "form_errors", {})
+        form = getattr(request, "form", None)
+        context["form_errors"] = getattr(form, "errors", {})
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        context["form_data"] = getattr(request, "form_data", {})
+        context["form_data"] = self._get_display_data(form)
         return context
 
     def serve(self, request, *args, **kwargs):
+        request.form = self.get_form(request)
         if request.method == "POST":
-            form_errors = self.validate_form_data(request.POST)
-            if form_errors:
-                request.form_errors = form_errors
-                request.form_data = self._get_form_data_for_context(request.POST)
+            if not request.form.is_valid():
                 response = super().serve(request, *args, **kwargs)
                 add_never_cache_headers(response)
                 return response
 
             if self.basket_api_path:
-                form_data = self._collect_form_data(request)
+                form_data = dict(request.form.cleaned_data)
                 try:
                     api_response = requests.post(
                         f"{settings.BASKET_URL}{self.basket_api_path}",
@@ -1978,8 +1978,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                        request.form_data = self._get_form_data_for_context(request.POST)
+                        request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
                         response = super().serve(request, *args, **kwargs)
                         add_never_cache_headers(response)
                         return response
@@ -1991,8 +1990,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
+                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
                     return response
@@ -2007,8 +2005,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             "Failed to send contact form email",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
+                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
                     response = super().serve(request, *args, **kwargs)
                     add_never_cache_headers(response)
                     return response
@@ -2025,94 +2022,65 @@ class ContactPage(AbstractSpringfieldCMSPage):
         add_never_cache_headers(response)
         return response
 
-    def _collect_form_data(self, request):
-        """Return submitted form data as a plain dict (lists joined for checkboxes)."""
-        data = {}
+    def get_form(self, request):
+        """Return a Django Form class generated from the form_fields StreamField."""
+        form_fields = {}
         for field in self.form_fields:
             value = field.value
-            identifier = value["internal_identifier"]
-            if field.block_type == "hidden_field":
-                data[identifier] = value.get("default_value", "")
-            elif field.block_type == "checkbox_group_field":
-                data[identifier] = ", ".join(request.POST.getlist(identifier))
-            else:
-                data[identifier] = request.POST.get(identifier, "")
-        return data
+            form_fields[value["internal_identifier"]] = field.value.get_form_field()
 
-    def _get_form_data_for_context(self, post_data):
-        """Return submitted form values keyed by internal_identifier for template use.
+        ContactForm = type("ContactForm", (forms.Form,), form_fields)
 
-        Returns a dict with string values for text-like fields and lists for
-        checkbox_group_field. Hidden fields are excluded — they always render
-        their default_value regardless of POST data.
+        field_identifiers = {f.value["internal_identifier"] for f in self.form_fields}
+
+        def clean_form(form_self):
+            if form_self.data.get("office_fax"):
+                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+            has_any_data = any(form_self.data.get(identifier) for identifier in field_identifiers)
+            if not has_any_data:
+                raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+
+        ContactForm.clean = clean_form
+
+        if request.method == "POST":
+            return ContactForm(request.POST)
+        else:
+            return ContactForm()
+
+    def _get_display_data(self, form):
+        """Build a display dict from raw form data for template persistence.
+
+        Returns lists for multivalue fields (e.g. checkbox groups), plain
+        strings for everything else.
         """
-        form_data = {}
+        if form is None:
+            return {}
+        data = form.data
+        result = {}
         for field in self.form_fields:
             if field.block_type == "hidden_field":
                 continue
             identifier = field.value["internal_identifier"]
-            if field.block_type == "checkbox_group_field":
-                form_data[identifier] = post_data.getlist(identifier)
+            if field.value.is_multivalue:
+                result[identifier] = data.getlist(identifier)
             else:
-                form_data[identifier] = post_data.get(identifier, "")
-        return form_data
-
-    def validate_form_data(self, post_data):
-        """Validate submitted form data against the field configuration.
-
-        Returns a dict matching Django's ErrorDict shape:
-          {identifier: [msg], ..., "__all__": [global_msg]}
-        An empty dict means the data is valid.
-        """
-        if post_data.get("office_fax", ""):
-            return {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-
-        errors = {}
-        has_any_data = False
-
-        for field in self.form_fields:
-            if field.block_type == "hidden_field":
-                continue
-
-            value = field.value
-            identifier = value["internal_identifier"]
-            is_required = value.get("required", False)
-
-            if field.block_type == "checkbox_group_field":
-                submitted = post_data.getlist(identifier)
-            else:
-                submitted = post_data.get(identifier, "").strip()
-
-            if submitted:
-                has_any_data = True
-
-            if is_required and not submitted:
-                errors[identifier] = [ftl_lazy("contact-form-error-required", ftl_files=self.ftl_files)]
-
-        if not has_any_data and not errors:
-            errors.setdefault("__all__", []).append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
-
-        return errors
+                result[identifier] = data.get(identifier, "")
+        return result
 
     def send_form_email(self, request):
         """Collect form data and send it as an email."""
-        fields = []
+        field_data = []
         for field in self.form_fields:
-            block_type = field.block_type
             value = field.value
             identifier = value["internal_identifier"]
             label = value["label"]
+            submitted = request.form.cleaned_data.get(identifier, "")
+            if isinstance(submitted, list):
+                submitted = ", ".join(submitted)
 
-            if block_type == "hidden_field":
-                submitted = value.get("default_value", "")
-            elif block_type == "checkbox_group_field":
-                submitted = ", ".join(request.POST.getlist(identifier))
-            else:
-                submitted = request.POST.get(identifier, "")
+            field_data.append({"label": label, "value": submitted})
 
-            fields.append({"label": label, "value": submitted})
-
-        msg = render_to_string("cms/emails/contact-form.txt", {"fields": fields})
+        msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
         subject = f"Contact form submission: {self.title}"
         email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
         email.send()

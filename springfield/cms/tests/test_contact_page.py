@@ -7,9 +7,7 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
-from django.http import QueryDict
 from django.test import Client, RequestFactory
-from django.utils.functional import Promise
 
 import pytest
 import responses
@@ -921,147 +919,9 @@ def test_textarea_field_value_in_email(
     assert "Hello, I have a question about your product." in email_body
 
 
-def test_validate_form_data_per_field_errors(
-    minimal_site: Site,
-) -> None:
-    """validate_form_data returns a dict keyed by identifier for missing required fields."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-    page = ContactPage(
-        title="Validate Test",
-        slug="validate-test",
-        form_fields=get_form_field_variants()[:2],  # first_name and last_name, both required
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    post_data = QueryDict("")  # empty POST
-    errors = page.validate_form_data(post_data)
-
-    assert "first_name" in errors
-    assert "last_name" in errors
-    assert "__all__" not in errors  # no global errors when individual fields are caught
-    assert errors["first_name"] == ["This field is required."]
-
-
-def test_validate_form_data_valid_returns_empty_dict(
-    minimal_site: Site,
-) -> None:
-    """validate_form_data returns {} (falsy) for a valid submission."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-    page = ContactPage(
-        title="Validate Valid Test",
-        slug="validate-valid-test",
-        form_fields=get_form_field_variants()[:2],
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    post_data = QueryDict("first_name=Jane&last_name=Doe")
-    errors = page.validate_form_data(post_data)
-
-    assert errors == {}
-
-
-def test_validate_form_data_empty_form(
-    minimal_site: Site,
-) -> None:
-    """validate_form_data adds '__all__' error when form has no data at all."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-
-    # Only optional fields so required-field errors don't fire
-    optional_fields = [
-        {
-            "type": "text_field",
-            "value": {"internal_identifier": "message", "label": "Message", "required": False},
-            "id": "text-field-msg",
-        }
-    ]
-    page = ContactPage(
-        title="Validate Empty Test",
-        slug="validate-empty-test",
-        form_fields=optional_fields,
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    post_data = QueryDict("")
-    errors = page.validate_form_data(post_data)
-
-    assert "__all__" in errors
-    assert len(errors["__all__"]) == 1
-
-
-def test_validation_error_strings_are_translatable() -> None:
-    """validate_form_data returns lazy strings so errors can be localised at render time."""
-    page = ContactPage(to_email_address="test@example.com")
-    # An empty submission with no configured fields triggers the "fill out the form" error
-    errors = page.validate_form_data({})
-    assert errors
-    assert isinstance(errors["__all__"][0], Promise), "Validation errors must use gettext_lazy for i18n support"
-
-
-# ============================================================================
-# Form Value Persistence Tests
-# ============================================================================
-
-
-def test_get_form_data_for_context_text_and_checkbox(
-    minimal_site: Site,
-    rf: RequestFactory,
-) -> None:
-    """_get_form_data_for_context returns strings for text-like fields, lists for
-    checkbox groups, and excludes hidden fields."""
-    index_page = minimal_site.root_page
-    page = ContactPage(
-        title="Form Data Helper Test",
-        slug="form-data-helper-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": False},
-                "id": "f1",
-            },
-            {
-                "type": "checkbox_group_field",
-                "value": {
-                    "internal_identifier": "services",
-                    "label": "Services",
-                    "options": [{"value": "a", "label": "A"}, {"value": "b", "label": "B"}],
-                },
-                "id": "f2",
-            },
-            {
-                "type": "hidden_field",
-                "value": {"internal_identifier": "source", "label": "Source", "default_value": "web"},
-                "id": "f3",
-            },
-        ],
-        to_email_address="test@example.com",
-        thank_you_message="<p>Thanks</p>",
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    post_data = QueryDict("name=Jane+Doe&services=a&services=b")
-    form_data = page._get_form_data_for_context(post_data)
-
-    assert form_data["name"] == "Jane Doe"
-    assert form_data["services"] == ["a", "b"]
-    assert "source" not in form_data
-
-
 def test_get_context_includes_form_data(
     minimal_site: Site,
-    rf: RequestFactory,
+    client: Client,
 ) -> None:
     """get_context() passes form_data from request into the template context."""
     index_page = minimal_site.root_page
@@ -1071,15 +931,16 @@ def test_get_context_includes_form_data(
         slug="context-form-data-test",
         to_email_address="test@example.com",
         redirect_to=thank_you_page,
+        form_fields=get_form_field_variants(),
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    request = rf.get(page.relative_url(minimal_site))
-    request.form_data = {"name": "Jane Doe"}
-    context = page.get_context(request)
-
-    assert context["form_data"] == {"name": "Jane Doe"}
+    response = client.post(page.full_url, {"first_name": "Jane Doe"})
+    assert response.status_code == 200
+    context = response.context
+    assert context["form_data"]
+    assert context["form_data"]["first_name"] == "Jane Doe"
 
 
 def test_get_context_form_data_defaults_to_empty_dict(

@@ -8,10 +8,11 @@ from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
-from django.forms.widgets import CheckboxSelectMultiple
+from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -733,7 +734,6 @@ class UUIDBlock(blocks.CharBlock):
 
 
 def BaseButtonSettings(themes=BUTTON_THEMES, **kwargs):
-
     class _BaseButtonSettings(blocks.StructBlock):
         theme = blocks.ChoiceBlock(
             choices=[(theme, BUTTON_THEME_CHOICES[theme]) for theme in themes],
@@ -3097,6 +3097,44 @@ class DownloadSupportBlock(blocks.StaticBlock):
 # Contact Page Form Field Blocks
 
 
+class BaseFieldValue(blocks.StructValue):
+    def get_field(self):
+        """Override in subclasses to return the appropriate Django form field class."""
+        return forms.CharField
+
+    def get_form_field(self):
+        Field = self.get_field()
+        kwargs = {
+            "label": self.get("label"),
+            "required": self.get("required", False),
+            "error_messages": {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])},
+        }
+        if initial := self.get_initial_value():
+            kwargs["initial"] = initial
+        if widget := self.get_widget():
+            kwargs["widget"] = widget
+        if choices := self.get_choices():
+            kwargs["choices"] = choices
+        return Field(**kwargs)
+
+    def get_widget(self):
+        """Override in subclasses if a specific widget is needed."""
+        return None
+
+    def get_initial_value(self):
+        """Override in subclasses if the field type has a specific initial value."""
+        return None
+
+    def get_choices(self):
+        """Override in subclasses if the field type has specific choices (e.g., for select fields)."""
+        return None
+
+    @property
+    def is_multivalue(self):
+        """True if this field submits multiple values (e.g. checkbox group). Used by _get_display_data."""
+        return False
+
+
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
     internal_identifier = UntranslatableCharBlock(
@@ -3122,6 +3160,12 @@ class TextFieldBlock(BaseField):
         template = "cms/blocks/form_fields/text_field.html"
         label = "Text Field"
         label_format = "Text - {label}"
+        value_class = BaseFieldValue
+
+
+class TextAreaFieldValue(BaseFieldValue):
+    def get_widget(self):
+        return forms.Textarea(attrs={"rows": self.get("rows", 4)})
 
 
 class TextAreaFieldBlock(BaseField):
@@ -3136,6 +3180,12 @@ class TextAreaFieldBlock(BaseField):
         template = "cms/blocks/form_fields/textarea_field.html"
         label = "Text Area Field"
         label_format = "Text Area - {label}"
+        value_class = TextAreaFieldValue
+
+
+class EmailFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.EmailField
 
 
 class EmailFieldBlock(BaseField):
@@ -3143,6 +3193,12 @@ class EmailFieldBlock(BaseField):
         template = "cms/blocks/form_fields/email_field.html"
         label = "Email Field"
         label_format = "Email - {label}"
+        value_class = EmailFieldValue
+
+
+class PhoneFieldValue(BaseFieldValue):
+    def get_widget(self):
+        return TelInput()
 
 
 class PhoneFieldBlock(BaseField):
@@ -3150,6 +3206,7 @@ class PhoneFieldBlock(BaseField):
         template = "cms/blocks/form_fields/phone_field.html"
         label = "Phone Field"
         label_format = "Phone - {label}"
+        value_class = PhoneFieldValue
 
 
 class SelectOptionBlock(blocks.StructBlock):
@@ -3159,6 +3216,15 @@ class SelectOptionBlock(blocks.StructBlock):
     class Meta:
         label = "Select Option"
         label_format = "{label}"
+
+
+class SelectFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.ChoiceField
+
+    def get_choices(self):
+        options = self.get("options", [])
+        return [(option["value"], option["label"]) for option in options]
 
 
 class SelectFieldBlock(BaseField):
@@ -3172,6 +3238,7 @@ class SelectFieldBlock(BaseField):
         template = "cms/blocks/form_fields/select_field.html"
         label = "Select Field"
         label_format = "Select - {label}"
+        value_class = SelectFieldValue
 
 
 class CheckboxOptionBlock(blocks.StructBlock):
@@ -3181,6 +3248,22 @@ class CheckboxOptionBlock(blocks.StructBlock):
     class Meta:
         label = "Checkbox Option"
         label_format = "{label}"
+
+
+class CheckboxGroupFieldValue(BaseFieldValue):
+    @property
+    def is_multivalue(self):
+        return True
+
+    def get_field(self):
+        return forms.MultipleChoiceField
+
+    def get_choices(self):
+        options = self.get("options", [])
+        return [(option["value"], option["label"]) for option in options]
+
+    def get_widget(self):
+        return forms.CheckboxSelectMultiple()
 
 
 class CheckboxGroupFieldBlock(BaseField):
@@ -3194,6 +3277,12 @@ class CheckboxGroupFieldBlock(BaseField):
         template = "cms/blocks/form_fields/checkbox_group_field.html"
         label = "Checkbox Group Field"
         label_format = "Checkbox Group - {label}"
+        value_class = CheckboxGroupFieldValue
+
+
+class CheckboxFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.BooleanField
 
 
 class CheckboxFieldBlock(BaseField):
@@ -3203,6 +3292,15 @@ class CheckboxFieldBlock(BaseField):
         template = "cms/blocks/form_fields/checkbox_field.html"
         label = "Checkbox Field"
         label_format = "Checkbox - {label}"
+        value_class = CheckboxFieldValue
+
+
+class HiddenFieldValue(BaseFieldValue):
+    def get_initial_value(self):
+        return self.get("default_value", "")
+
+    def get_widget(self):
+        return forms.HiddenInput()
 
 
 class HiddenFieldBlock(BaseField):
@@ -3215,6 +3313,7 @@ class HiddenFieldBlock(BaseField):
         template = "cms/blocks/form_fields/hidden_field.html"
         label = "Hidden Field"
         label_format = "Hidden - {label}"
+        value_class = HiddenFieldValue
 
 
 class CountrySelectFieldBlock(BaseField):
@@ -3233,3 +3332,4 @@ class CountrySelectFieldBlock(BaseField):
         template = "cms/blocks/form_fields/country_select_field.html"
         label = "Country Select Field"
         label_format = "Country Select - {label}"
+        value_class = BaseFieldValue
