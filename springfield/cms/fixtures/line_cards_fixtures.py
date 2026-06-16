@@ -113,7 +113,7 @@ def get_line_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    slug = "test-line-cards-2026"
+    slug = "test-line-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Line Cards")

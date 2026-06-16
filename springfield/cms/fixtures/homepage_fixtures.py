@@ -6,8 +6,9 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet
 from springfield.cms.models import HomePage
+from springfield.cms.models.pages import HomePagePencilBannerPlacement
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -330,5 +331,7 @@ def get_home_test_page() -> HomePage:
 
     page.upper_content = [get_home_intro(), get_cards_list(), get_home_carousel()]
     page.lower_content = [*get_showcase_variants().values(), get_card_gallery(), get_kit_banner()]
+    snippet = get_pencil_banner_snippet()
+    HomePagePencilBannerPlacement.objects.get_or_create(page=page, snippet=snippet)
     page.save_revision().publish()
     return page

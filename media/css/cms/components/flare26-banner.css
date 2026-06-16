@@ -126,10 +126,13 @@
 .fl-banner .fl-superheading {
     color: var(--fl-theme-color-link);
     font-size: var(--fl-theme-label-caps-sm);
-    letter-spacing: 0.0175rem;
     line-height: 1.2;
     margin-block-end: var(--token-spacing-md);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        letter-spacing: 0.0175rem;
+        text-transform: uppercase;
+    }
 }
 
 .fl-banner-media {

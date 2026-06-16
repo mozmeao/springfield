@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 from wagtail.documents.models import Document
 from wagtail.models import Site
 
-from springfield.cms.models import ArticleIndexPage, SpringfieldImage, StructuralPage
+from springfield.cms.models import ArticleIndexPage, SpringfieldImage
 from springfield.cms.models.pages import FlareDocsIndexPage
 
 
@@ -104,20 +104,6 @@ def get_placeholder_images():
     dark_mobile_image_buffer.seek(0)
 
     return image, dark_image, mobile_image, dark_mobile_image
-
-
-def get_test_index_page():
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
-    index_page = StructuralPage.objects.filter(slug="tests-index-page").first()
-    if not index_page:
-        index_page = StructuralPage(
-            slug="tests-index-page",
-            title="Tests Index Page",
-        )
-        root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
-    return index_page
 
 
 def get_flare_docs_index_page():

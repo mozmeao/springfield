@@ -381,7 +381,7 @@ def get_two_column_cards_variants() -> list[dict]:
 def get_two_column_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
-    slug = "test-two-column-cards-2026"
+    slug = "test-two-column-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Two Column Cards")

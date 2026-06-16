@@ -5,7 +5,7 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
-from springfield.cms.fixtures.icon_cards_2026_fixtures import get_icon_card_2026_variants
+from springfield.cms.fixtures.icon_cards_fixtures import get_icon_card_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
 
@@ -20,7 +20,7 @@ _IMAGE_VARIANTS = {
 
 
 def get_featured_image_section_variants() -> list[dict]:
-    icon_cards = get_icon_card_2026_variants()
+    icon_cards = get_icon_card_variants()
     return [
         {
             "type": "featured_image_section",

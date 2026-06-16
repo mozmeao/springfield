@@ -21,11 +21,8 @@
    account for the fact that Wagtail components are hierarchy-aware,
    so a card might have h3 on one page and h2 on another, and they
    need to look consistent everywhere. */
-.fl-heading h1,
-h1.fl-heading:not([class*='fl-heading-size-']),
 .fl-heading-size-1,
 .fl-rich-text h1,
-.fl-heading h2,
 .fl-heading-size-2,
 .fl-heading-lg,
 .fl-pre-footer-cta-button,
@@ -34,10 +31,6 @@ h1.fl-heading:not([class*='fl-heading-size-']),
         'wght' var(--token-font-weight-semibold),
         'wdth' var(--token-font-condensed-width);
     line-height: 0.9;
-}
-
-h2.fl-heading.fl-heading-sm {
-    font-variation-settings: unset;
 }
 
 .fl-rich-text pre {
@@ -172,7 +165,9 @@ h2.fl-heading.fl-heading-sm {
 
 /* Label all caps class */
 .fl-label-allcaps {
-    text-transform: uppercase;
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-label-md.fl-label-allcaps {

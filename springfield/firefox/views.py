@@ -320,14 +320,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     download_url = None
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        if waffle.switch("FLARE26_ENABLED"):
-            template_name = "firefox/all/includes/main-flare26.html"
-        else:
-            template_name = "firefox/all/includes/main.html"
-    elif waffle.switch("FLARE26_ENABLED"):
-        template_name = "firefox/all/base-flare26.html"
+        template_name = "firefox/all/includes/main-flare26.html"
     else:
-        template_name = "firefox/all/base.html"
+        template_name = "firefox/all/base-flare26.html"
 
     lang_multi = ftl("firefox-all-lang-multi", ftl_files=ftl_files)
 
@@ -455,6 +450,7 @@ class DownloadThanksView(L10nTemplateView):
         "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
         "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
+        "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
@@ -482,7 +478,10 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                template = "firefox/download/desktop/thanks_direct.html"
+                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                    template = "firefox/download/rtamo.html"
+                else:
+                    template = "firefox/download/desktop/thanks_direct.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:

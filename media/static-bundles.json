@@ -617,6 +617,12 @@
     },
     {
       "files": [
+        "js/cms/contact-form.js"
+      ],
+      "name": "contact-page"
+    },
+    {
+      "files": [
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"
@@ -872,6 +878,12 @@
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
+    },
+    {
+      "files": [
+        "js/base/plausible/plausible-init.es6.js"
+      ],
+      "name": "plausible"
     },
     {
       "files": [

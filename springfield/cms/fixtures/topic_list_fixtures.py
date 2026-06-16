@@ -91,14 +91,14 @@ def get_topic_list_lower_variants():
     ]
 
 
-def get_topic_list_2026_test_page() -> FreeFormPage2026:
+def get_topic_list_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage2026.objects.filter(slug="test-topic-list-2026-page").first()
+    page = FreeFormPage2026.objects.filter(slug="test-topic-list-page").first()
     if not page:
         page = FreeFormPage2026(
-            slug="test-topic-list-2026-page",
+            slug="test-topic-list-page",
             title="Topic List",
         )
         index_page.add_child(instance=page)

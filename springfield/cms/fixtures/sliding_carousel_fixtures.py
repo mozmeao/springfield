@@ -94,7 +94,7 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    slug = "test-sliding-carousel-2026"
+    slug = "test-sliding-carousel"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Sliding Carousel")
