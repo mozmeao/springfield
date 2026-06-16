@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=developer' %}
 
@@ -16,7 +16,7 @@
 {% block page_ios_icon %}{{ static('img/favicons/firefox/browser/developer/apple-touch-icon.png') }}{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('flare26-developer-edition') }}
+  {{ css_bundle('flare-developer-edition') }}
 {% endblock %}
 
 {% block body_id %}firefox-developer{% endblock %}
@@ -26,5 +26,5 @@
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% include "firefox/developer/index-flare26.html" %}
+  {% include "firefox/developer/index-flare.html" %}
 {% endblock %}

@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% from "macros-protocol.html" import callout, callout_compact %}
 
@@ -16,7 +16,7 @@
 {% block body_class %}mzp-t-firefox mzp-t-{{ channel_name|lower }}{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('flare26-system-requirements') }}
+  {{ css_bundle('flare-system-requirements') }}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

@@ -675,7 +675,7 @@ def test_alias_to_nonexistent_cms_fallback_page_redirects(client):
 
 def test_noindex_page_has_canonical(client):
     """
-    A page with noindex=True using base-flare26.html served directly should emit
+    A page with noindex=True using base-flare.html served directly should emit
     both a self-referencing canonical link and the noindex meta tag.
     """
     site = Site.objects.get(is_default_site=True)
@@ -698,7 +698,7 @@ def test_noindex_page_has_canonical(client):
 
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
 def test_noindex_page_alias_request_gets_canonical(client):
-    """A page with noindex=True on base-flare26.html served via an alias locale
+    """A page with noindex=True on base-flare.html served via an alias locale
     should emit a canonical link to the fallback locale alongside the noindex meta tag.
     """
     es_mx_locale = LocaleFactory(language_code="es-MX")
@@ -757,7 +757,7 @@ def test_whatsnew_page_direct_request_has_canonical(client):
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
 def test_whatsnew_page_alias_request_gets_canonical(client):
     """
-    A WhatsNewPage (noindex=True, base-flare26.html) served via an alias locale
+    A WhatsNewPage (noindex=True, base-flare.html) served via an alias locale
     should emit a canonical link pointing to the fallback locale URL.
     """
     es_mx_locale = LocaleFactory(language_code="es-MX")

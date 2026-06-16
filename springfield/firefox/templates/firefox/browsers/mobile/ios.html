@@ -6,7 +6,7 @@
 
 {% from "macros.html" import apple_app_store_button with context %}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% set show_send_to_device = LANG in settings.SEND_TO_DEVICE_LOCALES %}
 {% set ios_url = app_store_url('firefox', 'firefox-browsers-mobile-ios') %}
@@ -27,18 +27,18 @@
 {% block body_class %}{{ super() }} mobile-ios{% endblock %}
 
 {% block page_css %}
-  {{ css_bundle('flare26-mobile-pages') }}
+  {{ css_bundle('flare-mobile-pages') }}
 {% endblock %}
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header theme="dark" />
+  <include:flare-header theme="dark" />
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% include "firefox/browsers/mobile/ios-flare26.html" %}
+  {% include "firefox/browsers/mobile/ios-flare.html" %}
 {% endblock %}
 
 {% block js %}
