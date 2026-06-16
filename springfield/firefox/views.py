@@ -481,7 +481,7 @@ class DownloadThanksView(L10nTemplateView):
                 if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
                     template = "firefox/download/rtamo.html"
                 else:
-                    template = "firefox/download/basic/thanks_direct.html"
+                    template = "firefox/download/desktop/thanks_direct.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:
