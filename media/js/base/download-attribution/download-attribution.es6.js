@@ -750,6 +750,13 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
         }
 
         if (!DownloadAttribution.hasValidData(combined)) {
+            // clean out raw cookies and do nothing
+            DownloadAttribution.removeRawCookie(
+                DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+            );
+            DownloadAttribution.removeRawCookie(
+                DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
+            );
             return;
         }
 
