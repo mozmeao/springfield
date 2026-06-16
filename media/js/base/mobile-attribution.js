@@ -24,10 +24,12 @@ if (typeof window.Mozilla === 'undefined') {
     var ANDROID_RE = /\bAndroid\b/i;
     var IOS_RE = /\b(iPhone|iPad|iPod)\b/i;
 
-    // Matches the hardcoded value baked into GOOGLE_PLAY_FIREFOX_LINK_UTMS,
-    // so an Android user with no page-level campaign still hits the same
-    // attributed Play Store URL /thanks/ would have redirected them to.
-    var DEFAULT_CAMPAIGN = 'download';
+    // Fallback campaign for mobile users with no campaign declared on the
+    // page or in the URL. Distinct from "download" (the value baked into
+    // the server-rendered Path A Play Store URL) so attribution dashboards
+    // can tell "firefox.com mobile fallback" apart from explicit campaigns
+    // named "download".
+    var DEFAULT_CAMPAIGN = 'fxcomdefault';
 
     /**
      * Resolve the campaign value: force > override > URL utm_campaign > default.

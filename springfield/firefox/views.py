@@ -445,10 +445,12 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)
 
 
-# Matches the hardcoded value baked into GOOGLE_PLAY_FIREFOX_LINK_UTMS, so
-# Android users with no campaign declared still reach the same attributed
-# Play Store URL /thanks/ would have auto-redirected them to.
-_MOBILE_DEFAULT_CAMPAIGN = "download"
+# Fallback campaign for mobile users with no campaign declared on the page
+# or in the URL. Distinct from "download" (the value baked into
+# GOOGLE_PLAY_FIREFOX_LINK_UTMS for /thanks/-served Path A buttons) so
+# attribution dashboards can tell "firefox.com mobile fallback" apart from
+# explicit campaigns named "download".
+_MOBILE_DEFAULT_CAMPAIGN = "fxcomdefault"
 
 
 def _mobile_store_url(platform, locale, campaign):

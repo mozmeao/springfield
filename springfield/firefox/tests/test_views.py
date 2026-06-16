@@ -938,13 +938,15 @@ DESKTOP_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 
 
 class TestMobileStoreUrl:
-    def test_android_default_matches_link_utms_constant(self):
-        # Byte-identical to GOOGLE_PLAY_FIREFOX_LINK_UTMS — the URL today's
-        # /thanks/ JS already auto-redirects no-campaign Android users to.
-        from django.conf import settings
-
-        url = _mobile_store_url("android", "en-US", "download")
-        assert url == settings.GOOGLE_PLAY_FIREFOX_LINK_UTMS
+    def test_android_default_url_shape(self):
+        # Same shape as GOOGLE_PLAY_FIREFOX_LINK_UTMS but with the
+        # "fxcomdefault" fallback value instead of "download" so attribution
+        # dashboards can distinguish the fallback from explicit campaigns.
+        url = _mobile_store_url("android", "en-US", "fxcomdefault")
+        assert url.startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
+        assert "utm_campaign%3Dfxcomdefault" in url
+        assert "utm_source%3Dwww.firefox.com" in url
+        assert "utm_medium%3Dreferral" in url
 
     def test_android_with_campaign(self):
         url = _mobile_store_url("android", "en-US", "summer-2026")
@@ -954,10 +956,10 @@ class TestMobileStoreUrl:
         assert "utm_medium%3Dreferral" in url
 
     def test_ios_default_us(self):
-        url = _mobile_store_url("ios", "en-US", "download")
+        url = _mobile_store_url("ios", "en-US", "fxcomdefault")
         assert url.startswith("https://apps.apple.com/us/app/apple-store/id989804926")
         assert "pt=373246" in url
-        assert "ct=download" in url
+        assert "ct=fxcomdefault" in url
         assert "mz_pr=firefox_mobile" in url
         assert url.endswith("&mt=8")
 
@@ -1003,28 +1005,28 @@ class TestMobileThanksRedirectDecorator(TestCase):
         resp = mobile_thanks_redirect(_unreachable)(req)
         assert resp.status_code == 302
         assert resp["Location"].startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
-        assert "utm_campaign%3Ddownload" in resp["Location"]
+        assert "utm_campaign%3Dfxcomdefault" in resp["Location"]
 
     def test_ios_redirects_with_default_campaign(self):
         req = self._request(ua=IOS_UA)
         resp = mobile_thanks_redirect(_unreachable)(req)
         assert resp.status_code == 302
         assert resp["Location"].startswith("https://apps.apple.com/us/app/apple-store/id989804926")
-        assert "ct=download" in resp["Location"]
+        assert "ct=fxcomdefault" in resp["Location"]
 
     def test_android_url_campaign_overrides_default(self):
         req = self._request(ua=ANDROID_UA, query="utm_campaign=test-19")
         resp = mobile_thanks_redirect(_unreachable)(req)
         assert resp.status_code == 302
         assert "utm_campaign%3Dtest-19" in resp["Location"]
-        assert "utm_campaign%3Ddownload" not in resp["Location"]
+        assert "utm_campaign%3Dfxcomdefault" not in resp["Location"]
 
     def test_ios_url_campaign_overrides_default(self):
         req = self._request(ua=IOS_UA, query="utm_campaign=test-19")
         resp = mobile_thanks_redirect(_unreachable)(req)
         assert resp.status_code == 302
         assert "ct=test-19" in resp["Location"]
-        assert "ct=download" not in resp["Location"]
+        assert "ct=fxcomdefault" not in resp["Location"]
 
     def test_ios_uses_locale_country_code(self):
         req = self._request(ua=IOS_UA, locale="de")
@@ -1084,13 +1086,13 @@ class TestDownloadThanksMobileRedirectIntegration(TestCase):
         resp = self.client.get("/en-US/thanks/", headers={"user-agent": ANDROID_UA})
         assert resp.status_code == 302
         assert resp["Location"].startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
-        assert "utm_campaign%3Ddownload" in resp["Location"]
+        assert "utm_campaign%3Dfxcomdefault" in resp["Location"]
 
     def test_ios_via_url_routing_redirects(self):
         resp = self.client.get("/en-US/thanks/", headers={"user-agent": IOS_UA})
         assert resp.status_code == 302
         assert resp["Location"].startswith("https://apps.apple.com/us/app/apple-store/id989804926")
-        assert "ct=download" in resp["Location"]
+        assert "ct=fxcomdefault" in resp["Location"]
 
     def test_desktop_via_url_routing_renders_page(self):
         # Confirms the decorator is a no-op for desktop UAs and the chain
