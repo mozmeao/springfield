@@ -7,7 +7,7 @@
 import Swiper from 'swiper';
 import { EffectFade } from 'swiper/modules';
 
-function initFlare26Carousel(rootEl) {
+function initFlareCarousel(rootEl) {
     const viewportEl = rootEl.querySelector('.fl-carousel-viewport');
     const controls = Array.from(
         rootEl.querySelectorAll('.fl-carousel-control-item')
@@ -59,5 +59,5 @@ function initFlare26Carousel(rootEl) {
 }
 
 export default function setupCarousels() {
-    document.querySelectorAll('.fl-carousel').forEach(initFlare26Carousel);
+    document.querySelectorAll('.fl-carousel').forEach(initFlareCarousel);
 }

@@ -29,7 +29,7 @@ if (typeof window.cms === 'undefined') {
     window.cms = {};
 }
 
-window.cms.Flare26 = { typewriter, initDialogs };
+window.cms.Flare = { typewriter, initDialogs };
 
 function setupComponents() {
     setupBlogTopicsScroll();

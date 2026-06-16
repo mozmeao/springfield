@@ -14,7 +14,7 @@
     }
 
     .fl-release-notes img {
-        max-block-size: unset; /* override Flare26 default */
+        max-block-size: unset; /* override Flare default */
     }
 
     /* override default gap in favour of section-specific spacing */
