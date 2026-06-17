@@ -54,6 +54,29 @@ class FluentL10n(FluentLocalization):
 
         return list(messages)
 
+    def _content_locales(self):
+        """Locales the page actually renders content from.
+
+        This is the whole locale chain except a trailing "en" universal
+        fallback. For a normal ``[locale, "en"]`` chain it is ``[locale]``; for
+        an alias-fallback chain ``[alias, fallback, "en"]`` it is
+        ``[alias, fallback]``. English is excluded because it backs every
+        locale, so including it would make ``has_message`` always true.
+        """
+        if len(self.locales) > 1 and self.locales[-1] == "en":
+            return self.locales[:-1]
+        return self.locales
+
+    @cached_property
+    def _content_message_ids(self):
+        content_locales = set(self._content_locales())
+        messages = set()
+        for bundle in self._bundles():
+            if bundle.locales[0] in content_locales:
+                messages.update(bundle._messages.keys())
+
+        return messages
+
     @cached_property
     def required_message_ids(self):
         """
@@ -96,7 +119,11 @@ class FluentL10n(FluentLocalization):
         if self.locales[0].startswith("en-"):
             return True
 
-        return message_id in self._localized_message_ids
+        # A message counts as present if any content locale defines it (for an
+        # alias-fallback chain that means the alias OR the fallback locale), so
+        # ftl_has_messages() gates stay consistent with what ftl() can render.
+        # For a normal [locale, "en"] chain this is just the primary locale.
+        return message_id in self._content_message_ids
 
 
 class FluentResourceLoader:

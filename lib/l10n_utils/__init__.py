@@ -98,18 +98,13 @@ def _build_fluent_locale_chain(locale, locale_in_url, content_locale):
     Build the locale list passed to ``fluent_l10n``.
 
     Normally this returns ``[locale, "en"]``.
-    However, When we are serving content from a fallback locale on an alias
-    locale's URL, the alias locale is inserted between the fallback locale
-    and ``"en"`` so that FTL strings missing in the fallback locale can still
-    resolve to the alias locale before dropping to English.
+    However, when we are serving content from a fallback locale on an alias
+    locale's URL, the alias locale is prepended so that FTL strings are
+    resolved against the alias locale first, then the fallback locale, then
+    English.
 
     For example, if we're serving pt-BR (fallback locale) content at the
-    pt-PT (alias locale) URL, we return ["pt-BR", "pt-PT", "en"].
-
-    Ordering is fallback first, then alias, then English. Putting the fallback
-    locale first keeps ``has_message`` / ``ftl_has_messages`` gating on the
-    fallback bundle exactly as it behaves without an alias, while still
-    consulting the alias locale for strings the fallback lacks.
+    pt-PT (alias locale) URL, we return ["pt-PT", "pt-BR", "en"].
     """
     # content_locale is only set when serving fallback content at an alias URL
     # (see springfield/cms/views.py:_serve_fallback_page and render()'s own
@@ -121,7 +116,7 @@ def _build_fluent_locale_chain(locale, locale_in_url, content_locale):
     alias = normalize_language(locale_in_url)
     if not alias or alias == locale:
         return [locale, "en"]
-    return [locale, alias, "en"]
+    return [alias, locale, "en"]
 
 
 def render(request, template, context=None, ftl_files=None, activation_files=None, **kwargs):

@@ -29,20 +29,25 @@ pytestmark = [pytest.mark.django_db]
 
 TEST_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
-# Test FTL fixture path. navigation-firefox.ftl holds values that never
-# appear in live l10n data, so an assertion on one of them proves the string was
-# resolved from this fixture and not from the real l10n repo. Two keys with
-# opposite asymmetries cover both directions:
-#   navigation-download-firefox  -> en + pt-PT, ABSENT in pt-BR (the bug: missing
-#                                   in the fallback, present in the alias)
-#   navigation-browser           -> en + pt-BR, ABSENT in pt-PT (no-regression:
-#                                   present in the fallback, missing in the alias)
+# Test FTL fixture path. navigation-firefox.ftl holds values that never appear
+# in live l10n data, so an assertion on one of them proves the string was
+# resolved from this fixture and not from the real l10n repo. Keys with
+# different asymmetries (alias = pt-PT, fallback = pt-BR) cover each direction:
+#   navigation-download-firefox  -> en + pt-PT, ABSENT in pt-BR
+#                                    (alias-only: alias must win over en)
+#   navigation-browser           -> en + pt-BR, ABSENT in pt-PT
+#                                    (fallback-only: fallback must still resolve)
+#   navigation-features          -> en + pt-PT + pt-BR (present in BOTH)
+#                                    (alias must win over fallback)
+#   navigation-en-only           -> en only
+#                                    (en is not a content locale, so this should not appear)
 # Per locale:
-#   en/navigation-firefox.ftl     download = TEST-EN-download,   browser = TEST-EN-browser
-#   pt-PT/navigation-firefox.ftl  download = TEST-ptPT-download  (no browser)
-#   pt-BR/navigation-firefox.ftl  browser  = TEST-ptBR-browser   (no download)
-# Both keys are real navigation strings rendered by the flare26 nav, so they can
-# be asserted on a real CMS page as well as the controlled non-CMS template.
+#   en     download = TEST-EN-download,  browser = TEST-EN-browser,
+#          features = TEST-EN-features,  en-only = TEST-EN-only
+#   pt-PT  download = TEST-ptPT-download, features = TEST-ptPT-features
+#   pt-BR  browser  = TEST-ptBR-browser,  features = TEST-ptBR-features
+# These are real navigation keys rendered by the flare26 nav, so they can be
+# asserted on a real CMS page as well as the controlled non-CMS template.
 _FTL_FIXTURE_PATH = Path(__file__).parent.parent.parent.parent / "lib" / "l10n_utils" / "tests" / "test_files" / "l10n"
 
 
@@ -949,6 +954,43 @@ def test_alias_locale_ftl_non_cms_path(client):
     assert "TEST-ptBR-browser" in body
 
 
+@pytest.mark.urls(__name__)
+@pytest.mark.usefixtures("_add_test_templates_dir", "test_ftl")
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_alias_locale_ftl_non_cms_various_messages(client):
+    """
+    For a non-CMS page, we assert the FTL translations that should show up in the page body.
+
+     a. for a string that has a translation only in the alias (pt-PT) locale,
+        the alias (pt-PT) translation should be present
+     b. for a string that has a translation only in the fallback (pt-BR) locale,
+        the fallback (pt-BR) translation should be present
+     c.  for a string that has a translation in alias (pt-PT) and fallback (pt-BR)
+        locales, the alias (pt-PT) translation should be present
+     d.  A string that has a translation in no locale should not be present
+     e.  A string that has a translation only in en locale should not be present
+    """
+    # GET the pt-PT URL.
+    response = client.get("/pt-PT/ftl-alias-test/")
+    assert response.status_code == 200
+    body = response.content.decode("utf-8")
+
+    # a. for a string that has a translation only in the alias (pt-PT) locale,
+    # the alias (pt-PT) translation should be present
+    assert "navigation-download-firefox-string" in body
+    # b. for a string that has a translation only in the fallback (pt-BR) locale,
+    # the fallback (pt-BR) translation should be present
+    assert "navigation-browser-string" in body
+    # c. for a string that has a translation in alias (pt-PT) and fallback (pt-BR)
+    # locales, the alias (pt-PT) translation should be present
+    assert "TEST-ptPT-features" in body
+    assert "TEST-ptBR-features" not in body
+    # d. A string that has a translation in no locale should not be present
+    assert "navigation-does-not-exist-string" not in body
+    # e. A string that has a translation only in en locale should not be present
+    assert "navigation-en-only-string" not in body
+
+
 @pytest.mark.usefixtures("test_ftl")
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
 def test_alias_locale_ftl_cms_path(client):
@@ -960,15 +1002,17 @@ def test_alias_locale_ftl_cms_path(client):
     include the pt-PT locale in the Fluent lookup chain. Otherwise, the FTL
     translations miss the alias locale.
 
-    The WhatsNewPage2026 template renders both navigation-download-firefox and
-    navigation-browser via the flare26 nav. With the fixture FTL files (test_ftl)
-    these keys carry test values, so the assertions can only be satisfied by the
-    fixture, never by live l10n data. The positive assertions also fail loudly
-    if the nav ever stops rendering the strings.
-      * navigation-download-firefox (absent in pt-BR, present in pt-PT) should
-        resolve to the pt-PT value, not fall through to en.
-      * navigation-browser (present in pt-BR, absent in pt-PT) should render the
-        fallback (pt-BR) value.
+    The WhatsNewPage2026 template renders navigation-download-firefox,
+    navigation-browser and navigation-features via the flare26 nav. With the
+    fixture FTL files (test_ftl) these keys carry test values, so the assertions
+    can only be satisfied by the fixture, never by live l10n data. The positive
+    assertions also fail loudly if the nav ever stops rendering the strings.
+      a. navigation-download-firefox (absent in pt-BR, present in pt-PT) should
+         resolve to the pt-PT value, not fall through to en.
+      b.  navigation-browser (present in pt-BR, absent in pt-PT) should render the
+         fallback (pt-BR) value.
+      c. navigation-features (present in BOTH pt-PT and pt-BR) should render the
+         alias (pt-PT) value — the alias wins over the fallback.
     """
     _create_en_and_ptbr_whatsnew_149_pages()
 
@@ -979,15 +1023,19 @@ def test_alias_locale_ftl_cms_path(client):
     assert response.status_code == 200
     body = response.content.decode("utf-8")
 
-    # The template includes an FTL translation for navigation-download-firefox
+    # a. The template includes an FTL translation for navigation-download-firefox
     # (this is the "Download Firefox" text), which should use the pt-PT FTL file.
     # The navigation-download-firefox translation does not exist in the pt-BR FTL file.
     assert "TEST-ptPT-download" in body
     assert "TEST-EN-download" not in body
-    # navigation-browser is present in pt-BR but not pt-PT, so it should resolve
+    # b. navigation-browser is present in pt-BR but not pt-PT, so it should resolve
     # from pt-BR.
     assert "TEST-ptBR-browser" in body
     assert "TEST-EN-browser" not in body
+    # c. navigation-features is present in BOTH pt-PT and pt-BR: the alias (pt-PT)
+    # value must win over the fallback (pt-BR) value.
+    assert "TEST-ptPT-features" in body
+    assert "TEST-ptBR-features" not in body
 
 
 @pytest.mark.urls(__name__)

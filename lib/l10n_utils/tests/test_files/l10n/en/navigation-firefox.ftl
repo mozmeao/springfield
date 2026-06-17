@@ -6,3 +6,6 @@
 # A test asserting on one of these strings proves the "en" bundle was the source.
 navigation-download-firefox = TEST-EN-download
 navigation-browser = TEST-EN-browser
+navigation-features = TEST-EN-features
+# Defined ONLY in en (not pt-PT or pt-BR).
+navigation-en-only = TEST-EN-only

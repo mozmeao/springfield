@@ -6,3 +6,9 @@
 
 <p data-test="alias-key">{{ ftl('navigation-download-firefox') }}</p>
 <p data-test="fallback-key">{{ ftl('navigation-browser') }}</p>
+<p data-test="both-key">{{ ftl('navigation-features') }}</p>
+
+{% if ftl_has_messages('navigation-download-firefox') %}<p data-test="navigation-download-firefox-string">navigation-download-firefox-string</p>{% endif %}
+{% if ftl_has_messages('navigation-browser') %}<p data-test="navigation-browser-string">navigation-browser-string</p>{% endif %}
+{% if ftl_has_messages('navigation-does-not-exist') %}<p data-test="navigation-does-not-exist-string">navigation-does-not-exist-string</p>{% endif %}
+{% if ftl_has_messages('navigation-en-only') %}<p data-test="navigation-en-only-string">navigation-en-only-string</p>{% endif %}

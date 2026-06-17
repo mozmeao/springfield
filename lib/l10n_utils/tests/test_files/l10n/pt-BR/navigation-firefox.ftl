@@ -8,4 +8,7 @@
 #
 # navigation-browser is the inverse: present in the fallback locale but absent
 # from the alias locale.
+#
+# navigation-features is defined in BOTH pt-PT and pt-BR (with different values):
 navigation-browser = TEST-ptBR-browser
+navigation-features = TEST-ptBR-features

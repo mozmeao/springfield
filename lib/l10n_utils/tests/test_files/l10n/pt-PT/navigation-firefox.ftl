@@ -8,4 +8,7 @@
 # navigation-browser is deliberately ABSENT here: it is the "present in the
 # fallback locale (pt-BR), missing in the alias locale (pt-PT)" key used to test
 # that fallback-locale strings still win once the alias joins the chain.
+#
+# navigation-features is defined in BOTH pt-PT and pt-BR (with different values):
 navigation-download-firefox = TEST-ptPT-download
+navigation-features = TEST-ptPT-features
