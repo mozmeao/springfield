@@ -161,11 +161,17 @@
         }
 
         .fl-docs-accordion {
+            border-block-end: none;
             border-block-start: var(--fl-theme-divider);
+
+            &:last-child {
+                border-block-end: var(--fl-theme-divider);
+            }
 
             summary {
                 cursor: pointer;
                 font-weight: var(--token-font-weight-semibold);
+                gap: var(--token-spacing-sm);
                 list-style: none;
                 padding-block: var(--token-spacing-sm);
                 user-select: none;
@@ -176,7 +182,7 @@
 
                 &::after {
                     content: '+';
-                    float: inline-end;
+                    margin-inline-start: auto;
                 }
             }
 

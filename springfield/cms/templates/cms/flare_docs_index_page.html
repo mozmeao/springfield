@@ -41,7 +41,12 @@
 
           {% for section in sections if section.children %}
             <details class="fl-docs-accordion">
-              <summary>{{ section.page.title.split(' - ', 1)[-1] }}</summary>
+              <summary>
+                {{ section.page.title.split(' - ', 1)[-1] }}
+                <a href="{{ section.page.get_url(request) }}" title="Open detail page">
+                  <include:icon icon_name="external-link"/>
+                </a>
+              </summary>
               <ul>
                 {% for child in section.children %}
                   <li><a href="#{{ child.slug }}" data-url="{{ child.get_url(request) }}">{{ child.title }}</a></li>
