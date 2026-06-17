@@ -14,10 +14,20 @@
 
   <include:roadmap-list-section>
     <content:heading>
-      <h2 class="fl-heading">{{ section.headline }}</h2>
-      {% if section.subheadline %}
-        <p class="fl-subheading">{{ section.subheadline }}</p>
-      {% endif %}
+      <button
+        type="button"
+        class="fl-roadmap-section-toggle"
+        aria-expanded="true"
+      >
+        <h2 class="fl-heading">
+          {{ section.headline }}
+          <span class="fl-icon fl-icon-add fl-roadmap-section-toggle-icon fl-roadmap-section-toggle-icon--add"></span>
+          <span class="fl-icon fl-icon-subtract fl-roadmap-section-toggle-icon fl-roadmap-section-toggle-icon--subtract"></span>
+        </h2>
+        {% if section.subheadline %}
+          <p class="fl-subheading">{{ section.subheadline }}</p>
+        {% endif %}
+      </button>
     </content:heading>
     <content:list_items>
       {% for item in section.list_items %}

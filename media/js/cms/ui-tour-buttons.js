@@ -186,6 +186,53 @@ function init() {
             }
         });
 
+        // Find any buttons that should pin Firefox to the taskbar.
+        const pinToTaskbarButtons = document.querySelectorAll(
+            '.ui-tour-pin-to-taskbar'
+        );
+        if (pinToTaskbarButtons.length) {
+            Mozilla.UITour.getConfiguration('appinfo', (data) => {
+                if (!data.needsPin) {
+                    pinToTaskbarButtons.forEach((button) => {
+                        const wrapper = button.closest('.ui-tour');
+                        if (wrapper) {
+                            wrapper.classList.add('is-hidden');
+                        }
+                    });
+                    return;
+                }
+
+                pinToTaskbarButtons.forEach((button) => {
+                    button.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            Mozilla.UITour.pinToTaskbar();
+                        },
+                        false
+                    );
+
+                    let card = button.closest('.fl-card.expand-link');
+                    if (!card) {
+                        card = button.closest('.fl-card-expand-link');
+                    }
+                    if (card) {
+                        card.addEventListener(
+                            'click',
+                            (e) => {
+                                e.preventDefault();
+
+                                Mozilla.UITour.pinToTaskbar();
+                            },
+                            false
+                        );
+                    }
+                });
+            });
+        }
+
         // Find any openSmartWindowButtons that should open the  Firefox Accounts sign-in flow for the AI Window feature.
         const openSmartWindowButtons = document.querySelectorAll(
             '.ui-tour-open-smart-window'

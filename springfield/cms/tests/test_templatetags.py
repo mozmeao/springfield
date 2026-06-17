@@ -5,15 +5,12 @@ from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.snippets import DownloadFirefoxCallToActionSnippet
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
-    get_download_firefox_cta_snippet,
     remove_p_tag,
     remove_tags,
     richtext,
@@ -92,6 +89,22 @@ def test_remove_tags():
         (
             "example.firefox.com/page",
             "example.firefox.com/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.mozilla.ai/page",
+            "https://example.mozilla.ai/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.mozilla.vc/page",
+            "https://example.mozilla.vc/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.thunderbird.net/page",
+            "https://example.thunderbird.net/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
+        ),
+        (
+            "https://example.mozilla.com/page",
+            "https://example.mozilla.com/page?utm_source=test_source&utm_medium=test_medium&utm_campaign=test_campaign",
         ),
         ("https://www.firefox.com/page", "https://www.firefox.com/page"),
         ("www.firefox.com/page", "www.firefox.com/page"),
@@ -182,6 +195,22 @@ def test_richtext_parses_fxa_tag():
             True,
         ),
         (
+            "example.mozilla.ai/page",
+            True,
+        ),
+        (
+            "example.mozilla.vc/page",
+            True,
+        ),
+        (
+            "example.thunderbird.net/page",
+            True,
+        ),
+        (
+            "example.mozilla.com/page",
+            True,
+        ),
+        (
             "https://www.firefox.com/page",
             False,
         ),
@@ -207,58 +236,3 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
         expected_url = original_url
     expected_html = f'<p>Check out <a href="{expected_url}">this page</a>.</p>'
     assert BeautifulSoup(output_html, "html.parser") == BeautifulSoup(expected_html, "html.parser")
-
-
-@pytest.mark.django_db
-def test_get_download_firefox_cta_snippet_returns_live_snippet():
-    locale = Locale.objects.get(language_code="en-US")
-    snippet = DownloadFirefoxCallToActionSnippet.objects.create(
-        locale=locale,
-        heading="<p>Live Heading</p>",
-        description="<p>Live Description</p>",
-        live=True,
-    )
-    context = {"page": type("Page", (), {"locale": locale})()}
-    result = get_download_firefox_cta_snippet(context)
-    assert result == snippet
-
-
-@pytest.mark.django_db
-def test_get_download_firefox_cta_snippet_excludes_draft_snippet():
-    locale = Locale.objects.get(language_code="en-US")
-    DownloadFirefoxCallToActionSnippet.objects.create(
-        locale=locale,
-        heading="<p>Draft Heading</p>",
-        description="<p>Draft Description</p>",
-        live=False,
-    )
-    context = {"page": type("Page", (), {"locale": locale})()}
-    result = get_download_firefox_cta_snippet(context)
-    assert result is None
-
-
-@pytest.mark.django_db
-def test_get_download_firefox_cta_snippet_prefers_live_over_draft():
-    locale = Locale.objects.get(language_code="en-US")
-    DownloadFirefoxCallToActionSnippet.objects.create(
-        locale=locale,
-        heading="<p>Draft Heading</p>",
-        description="<p>Draft Description</p>",
-        live=False,
-    )
-    live_snippet = DownloadFirefoxCallToActionSnippet.objects.create(
-        locale=locale,
-        heading="<p>Live Heading</p>",
-        description="<p>Live Description</p>",
-        live=True,
-    )
-    context = {"page": type("Page", (), {"locale": locale})()}
-    result = get_download_firefox_cta_snippet(context)
-    assert result == live_snippet
-
-
-@pytest.mark.django_db
-def test_get_download_firefox_cta_snippet_returns_none_without_locale():
-    context = {}
-    result = get_download_firefox_cta_snippet(context)
-    assert result is None

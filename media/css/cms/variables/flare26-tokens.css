@@ -57,6 +57,8 @@ Static values extracted from Figma that do not change based on context.
     --token-color-secondary-red-2: rgba(85, 3, 28, 1);
     --token-color-secondary-red-3: rgba(49, 0, 14, 1);
     --token-color-soft-red: rgba(255, 234, 233, 1);
+    --token-color-error-red: rgb(180, 6, 0);
+    --token-color-error-red-2: rgb(255, 118, 113);
     --token-color-secondary-orange: rgba(255, 109, 0, 1);
     --token-color-secondary-orange-2: rgba(102, 28, 25, 1);
     --token-color-secondary-orange-3: rgba(51, 5, 5, 1);

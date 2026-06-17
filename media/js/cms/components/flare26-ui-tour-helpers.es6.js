@@ -7,6 +7,12 @@
 export const isUITourEnabled = function (timeout) {
     const delay = timeout || 500;
     return new window.Promise(function (resolve, reject) {
+        if (
+            !Mozilla ||
+            !Mozilla.UITour ||
+            typeof Mozilla.UITour.ping !== 'function'
+        )
+            return reject();
         const timer = window.setTimeout(reject, delay);
         Mozilla.UITour.ping(function () {
             window.clearTimeout(timer);

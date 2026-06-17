@@ -103,7 +103,8 @@ def remove_tags(value: str) -> str:
 def add_utm_parameters(context: dict, value: str) -> str:
     """
     Appends UTM parameters to URLs that point to *.mozilla.org, *.mozillafoundation.org,
-    and *.firefox.com domains, except for www.firefox.com.
+    *.firefox.com, *.mozilla.ai, *.mozilla.vc, *.thunderbird.net, and *.mozilla.com
+    domains, except for www.firefox.com and firefox.com.
     """
 
     utm_parameters = context.get("utm_parameters", {})
@@ -116,9 +117,10 @@ def add_utm_parameters(context: dict, value: str) -> str:
         elif parsed_url.path:
             host = parsed_url.path.split("/")[0]
         pattern = re.compile(
-            r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))",
+            r"^(\w+\.)?((mozilla\.org)|(mozillafoundation\.org)|(firefox\.com)|(mozilla\.ai)|(mozilla\.vc)|(thunderbird\.net)|(mozilla\.com))\Z",
             re.IGNORECASE,
         )
+        host = host.lower().rstrip(".")
         if host and host not in ["www.firefox.com", "firefox.com"] and pattern.match(host):
             query_string = parsed_url.query
             query = parse_qs(query_string)
@@ -324,34 +326,6 @@ def get_pre_footer_cta_form_snippet(context):
 
     if locale:
         return PreFooterCTAFormSnippet.objects.filter(locale=locale).live().first()
-
-    return None
-
-
-@pass_context
-@library.global_function
-def get_download_firefox_cta_snippet(context):
-    """
-    Retrieves the DownloadFirefoxCallToActionSnippet for the current locale.
-    Returns the first available snippet for the locale, or None if not found.
-
-    Usage in templates:
-        {% set download_firefox_cta = get_download_firefox_cta_snippet() %}
-        {% if download_firefox_cta %}
-            {% set value = download_firefox_cta %}
-            {% include "cms/snippets/download-firefox-cta.html" %}
-        {% endif %}
-    """
-    from springfield.cms.models.snippets import DownloadFirefoxCallToActionSnippet
-
-    locale = None
-    if "page" in context and hasattr(context["page"], "locale"):
-        locale = context["page"].locale
-    elif "self" in context and hasattr(context["self"], "locale"):
-        locale = context["self"].locale
-
-    if locale:
-        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).live().first()
 
     return None
 

@@ -138,6 +138,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
 register_snippet(PreFooterCTAFormSnippet)
 
 
+# TODO: This snippet is not used and will be deleted on a following PR
 class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 
@@ -172,9 +173,6 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTransl
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/download-firefox-cta-snippet-preview.html"
-
-
-register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
 class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):

@@ -1,0 +1,95 @@
+/*
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-form-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+}
+
+.fl-field-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+}
+
+.fl-field-wrap .fl-legend {
+    margin-block-end: var(--token-spacing-md);
+}
+
+.fl-field-wrap .fl-field {
+    background-color: var(--theme-form-field-background);
+    border: 1px solid var(--theme-form-field-border-color);
+    border-radius: var(--token-border-radius-3xs);
+    color: var(--theme-form-color);
+    display: block;
+    inline-size: 100%;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+}
+
+.fl-field-wrap .fl-field:focus {
+    background-color: var(--theme-form-field-background-focus);
+    border-color: var(--theme-form-field-border-color-focus);
+    outline: 2px solid var(--theme-form-focus-outline-color);
+}
+
+.fl-field-wrap select {
+    appearance: none;
+    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/arrows-and-chevrons/chevron-down-small-16.svg');
+    background-position: right var(--token-spacing-sm) center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    padding-inline-end: calc(var(--token-spacing-sm) * 2 + 20px);
+}
+
+.fl-checkbox {
+    -webkit-appearance: none;
+    block-size: 19px;
+    border: 1px solid var(--theme-checkbox-border-color);
+    border-radius: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    inline-size: 19px;
+    inset-block-start: 2px;
+    margin: 0;
+    position: relative;
+}
+
+.fl-label,
+.fl-checkbox-label,
+.fl-legend {
+    display: block;
+    font-size: var(--fl-theme-label-sm);
+    font-weight: var(--token-font-weight-medium);
+    inline-size: 100%;
+}
+
+.fl-checkbox-label {
+    align-items: start;
+    cursor: pointer;
+    display: flex;
+    font-size: var(--fl-theme-label-md);
+    gap: var(--token-spacing-sm);
+}
+
+fieldset.fl-field-wrap {
+    border: 0 none;
+}
+
+.fl-field-error {
+    --theme-form-field-background: var(--token-color-white);
+    --theme-form-field-border-color: var(--theme-form-field-border-color-error);
+    --theme-checkbox-border-color: var(--theme-form-field-border-color-error);
+}
+
+.fl-field-error-message {
+    color: var(--theme-form-error-message-color);
+    font-size: var(--fl-theme-label-sm);
+}

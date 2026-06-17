@@ -5,10 +5,10 @@
 
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_test_document, get_test_index_page
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
-from springfield.cms.models import FreeFormPage, FreeFormPage2026, PretranslatedPhrase
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
@@ -495,153 +495,6 @@ def get_button_blocks() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">External link Buttons with Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. '
-                    'Check the <i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5">'
-                    '</p><p data-block-key="a68ij"><b>*.mozilla.org</b>, <b>*.mozillafoundation.org</b>, and <b>*.firefox.com</b> '
-                    "(except <b>www.firefox.com</b>) domains automatically get UTM parameters added to the links. </p>",
-                },
-                "buttons": [buttons["external_mozilla"], buttons["external_mozilla_new_tab"]],
-            },
-            "id": "842aa17d-3dc9-450d-982e-3afe90f40472",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">External link buttons with non Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. Check the '
-                    '<i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5"></p>'
-                    '<p data-block-key="5inkg">Links to non Mozilla domain don\'t get the UTM parameters.</p>',
-                },
-                "buttons": [buttons["external_other"], buttons["external_other_new_tab"]],
-            },
-            "id": "3fa1b0a0-b990-4468-a3d7-39ab3a68b477",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Internal link button</p>',
-                    "subheading_text": "",
-                },
-                "buttons": [buttons["page"], buttons["page_new_tab"]],
-            },
-            "id": "961cf2a3-6b87-439a-8588-85b18d136781",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Mozilla Account Button</p>',
-                    "subheading_text": '<p data-block-key="6u373">If opened in Firefox, the button takes the user to the browser login. '
-                    "In other browsers it's a link to log in to the Mozilla Account.</p>",
-                },
-                "buttons": [buttons["fxa"]],
-            },
-            "id": "6662346e-f897-45a6-95c6-b68e239e465b",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "media": [],
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="dkgdn">Download Firefox Button</p>',
-                    "subheading_text": '<p data-block-key="dkgdn">A special link to /thanks with the required attributes for the download flow.</p>'
-                    '<p data-block-key="5inkg">Optional "Set as default browser" checkbox. The checkbox is only shown to Windows users.</p>',
-                },
-                "buttons": [buttons["download"], buttons["download_default_browser"]],
-            },
-            "id": "79f53077-d740-4332-b9ab-6f9dd95c326a",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Document link</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose from any document uploaded to the CMS.</p>',
-                },
-                "buttons": [buttons["document"]],
-            },
-            "id": "52a2b31d-7f05-4376-af75-52cf666e4365",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="j8nhz">Email and phone links</p>',
-                    "subheading_text": "",
-                },
-                "buttons": [buttons["email"], buttons["phone"]],
-            },
-            "id": "706155ae-f993-4582-b2eb-21de4efa660e",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="sbh01">Store Buttons</p>',
-                    "subheading_text": '<p data-block-key="sbsub1">Display the Google Play or App Store button.</p>',
-                },
-                "buttons": [buttons["store_android"], buttons["store_ios"]],
-            },
-            "id": "storeintr-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="fbh01">Firefox Focus Buttons</p>',
-                    "subheading_text": '<p data-block-key="fbsub1">Display a link to Firefox Focus on Google Play or App Store.</p>',
-                },
-                "buttons": [buttons["focus_android"], buttons["focus_ios"]],
-            },
-            "id": "focusintr-0000-0000-0000-000000000001",
-        },
-    ]
-
-
-def get_button_blocks_2026() -> list[dict]:
-    buttons = get_button_variants(full=True)
-    return [
-        {
-            "type": "intro",
-            "value": {
                 "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
                 "media": [],
                 "heading": {
@@ -802,37 +655,355 @@ def get_button_blocks_2026() -> list[dict]:
             },
             "id": "focusintr-0000-0000-0000-000000000001",
         },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour01h">UI Tour: Open New Tab</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour01-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox. '
+                        "Only works in Firefox Desktop — the button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour01-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "open-tabs",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour01-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_new_tab",
+                                    "label": "Open New Tab",
+                                },
+                                "id": "uitour01-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour01-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour02h">UI Tour: Open Preferences</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour02-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour02t">Calls <code>Mozilla.UITour.openPreferences(pane)</code> to open '
+                        "<code>about:preferences</code> in Firefox, scrolled to a specific pane. The button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "settings",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_about_preferences",
+                                    "label": "Preferences (default)",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000010",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "settings",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000011",
+                                    },
+                                    "button_type": "open_about_preferences_general",
+                                    "label": "Preferences: General",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000011",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "home",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000012",
+                                    },
+                                    "button_type": "open_about_preferences_home",
+                                    "label": "Preferences: Home",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000012",
+                            },
+                        ],
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000003",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "search",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000013",
+                                    },
+                                    "button_type": "open_about_preferences_search",
+                                    "label": "Preferences: Search",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000013",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "lock",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000014",
+                                    },
+                                    "button_type": "open_about_preferences_privacy",
+                                    "label": "Preferences: Privacy",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000014",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkles",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000015",
+                                    },
+                                    "button_type": "open_about_preferences_ai",
+                                    "label": "Preferences: AI Controls",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000015",
+                            },
+                        ],
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000004",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkle-single",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000016",
+                                    },
+                                    "button_type": "open_about_preferences_experimental",
+                                    "label": "Preferences: Experimental",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000016",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sync",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000017",
+                                    },
+                                    "button_type": "open_about_preferences_sync",
+                                    "label": "Preferences: Sync",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000017",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000018",
+                                    },
+                                    "button_type": "open_about_preferences_more_from_mozilla",
+                                    "label": "Preferences: More From Mozilla",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000018",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour02-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour03h">UI Tour: Open Protections Report</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour03-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour03t">Calls <code>Mozilla.UITour.showProtectionReport()</code> to open the Firefox '
+                        "Privacy Protections dashboard. The button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour03-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "shield-checkmark",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour03-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_protections_report",
+                                    "label": "View Protections Report",
+                                },
+                                "id": "uitour03-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour03-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour04h">UI Tour: Open Smart Window</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour04-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour04t">Calls <code>Mozilla.UITour.showFirefoxAccountsForAIWindow()</code> to open the '
+                        "Firefox Accounts sign-in flow for the AI Smart Window feature. "
+                        "The button is hidden on other browsers. Requires AI Controls to be available "
+                        "(requires class <code>.ai-controls-available</code> on <code>&lt;html&gt;</code>). "
+                        "Add a <code>data-next-url</code> attribute to the button element to redirect the user to a specific URL after sign-in.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour04-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "sparkles",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour04-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_smart_window",
+                                    "label": "Open Smart Window",
+                                },
+                                "id": "uitour04-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour04-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour05h">UI Tour: Pin to Taskbar</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour05-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour05t">Calls <code>Mozilla.UITour.pinToTaskbar()</code> '
+                        "to pin Firefox to the taskbar (Windows) or Dock (macOS). Only available on Windows and macOS. "
+                        "The button is hidden on non-Firefox-Desktop browsers. "
+                        "JS also hides it when Firefox is already pinned or pinning is not supported, "
+                        "by checking <code>getConfiguration('appinfo').needsPin</code>.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour05-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour05-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "pin_to_taskbar",
+                                    "label": "Pin Firefox to Taskbar",
+                                },
+                                "id": "uitour05-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour05-0000-0000-0000-000000000000",
+        },
     ]
 
 
-def get_buttons_2026_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+def get_buttons_test_page() -> FreeFormPage2026:
+    index_page = get_test_index_page()
 
-    slug = "test-buttons-2026"
+    slug = "test-buttons"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
         index_page.add_child(instance=page)
 
-    blocks = get_button_blocks_2026()
+    blocks = get_button_blocks()
     page.upper_content = blocks
     page.content = blocks
-    page.save_revision().publish()
-    return page
-
-
-def get_buttons_test_page() -> FreeFormPage:
-    content = get_button_blocks()
-    index_page = get_test_index_page()
-
-    page = FreeFormPage.objects.filter(slug="test-buttons-page").first()
-    if not page:
-        page = FreeFormPage(
-            slug="test-buttons-page",
-            title="Test Buttons Page",
-        )
-        index_page.add_child(instance=page)
-
-    page.content = content
     page.save_revision().publish()
     return page

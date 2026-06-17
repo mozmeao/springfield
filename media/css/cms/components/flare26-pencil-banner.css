@@ -60,7 +60,10 @@
     font-style: normal;
     font-weight: var(--fl-theme-font-weight-headline);
     padding: var(--token-spacing-xs) var(--token-spacing-xs);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-pencil-banner-description {

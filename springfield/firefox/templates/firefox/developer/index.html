@@ -4,8 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "cms/base-flare26.html" %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=developer' %}
 
@@ -17,41 +16,15 @@
 {% block page_ios_icon %}{{ static('img/favicons/firefox/browser/developer/apple-touch-icon.png') }}{% endblock %}
 
 {% block page_css %}
-  {% if switch("flare26_enabled") %}
-    {{ css_bundle('flare26-developer-edition') }}
-  {% else %}
-    {{ css_bundle('protocol-split') }}
-    {{ css_bundle('protocol-picto') }}
-    {{ css_bundle('protocol-newsletter') }}
-    {{ css_bundle('firefox_developer') }}
-  {% endif %}
+  {{ css_bundle('flare26-developer-edition') }}
 {% endblock %}
 
 {% block body_id %}firefox-developer{% endblock %}
 {% block body_class %}firefox-developer firefox-developer-home mzp-t-firefox{% endblock %}
 
-{% if not switch("flare26_enabled") %}
-{% block site_header %}
-  {% with hide_nav_download_button=True %}
-    {% include 'includes/navigation/navigation.html' %}
-  {% endwith %}
-{% endblock %}
-{% endif %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% if switch("flare26_enabled") %}
-    {% include "firefox/developer/index-flare26.html" %}
-  {% else %}
-    {% include "firefox/developer/index-protocol.html" %}
-  {% endif %}
-{% endblock %}
-
-{% block email_form %}{% endblock %}
-
-{% block js %}
-  {% if not switch("flare26_enabled") %}
-    {{ js_bundle('newsletter') }}
-  {% endif %}
+  {% include "firefox/developer/index-flare26.html" %}
 {% endblock %}
