@@ -22,7 +22,7 @@ def migrate_labels(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0103_migrate_download_button_labels"),
+        ("cms", "0107_migrate_download_button_labels"),
     ]
 
     operations = [
