@@ -439,9 +439,9 @@
     },
     {
       "files": [
-        "css/cms/pages/flare26-docs.css"
+        "css/cms/pages/flare-docs.css"
       ],
-      "name": "flare26-docs"
+      "name": "flare-docs"
     },
     {
       "files": [
@@ -992,9 +992,9 @@
     },
     {
       "files": [
-        "js/cms/flare26-docs.js"
+        "js/cms/flare-docs.js"
       ],
-      "name": "flare26-docs"
+      "name": "flare-docs"
     }
   ]
 }

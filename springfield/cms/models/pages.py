@@ -124,7 +124,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
 
 class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
     """
-    A page containing an index of all docs pages for Flare26.
+    A page containing an index of all docs pages for Flare.
     It shows links to other docs pages.
     """
 
