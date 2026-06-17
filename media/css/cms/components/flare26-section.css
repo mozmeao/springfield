@@ -41,6 +41,7 @@
 }
 
 .fl-heading,
+.fl-subheading,
 .fl-heading-group {
     color: var(--fl-theme-color-text);
 }
