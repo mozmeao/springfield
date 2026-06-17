@@ -78,6 +78,31 @@ Be particularly aware of CMS-backed content that is not richtext. Ensure it's es
 
 * If a Django view is being decorated for the first time with the `prefer_cms()` decorator and there is no `fallback_ftl_files=` parameter being passed in to `prefer_cms()`, add a non-blocking comment questioning whether it should be present, because without it, the page will only show the locales available in the CMS in the footer links on the page
 
+* When a block is added to a page's Stream Field or as a child to another block, make sure that the key used to identify the block type is always the same. For example:
+
+```
+class ChildBlock(blocks.StructBlock):
+    ...
+
+# Right
+class ParentBlock(block.StructBlock):
+    child_block = ChildBlock()
+
+# Wrong
+class AnotherParentBlock(block.StructBlock):
+    another_key = ChildBlock()
+
+# Right
+class SomePAge(Page):
+    field = StreamField([("child_block", ChildBlock())], use_json_field=True)
+
+# Wrong
+class OtherPage(Page):
+    field = StreamField([("different_key", ChildBlock())], use_json_field=True)
+```
+
+* When a block has its data structure changed, make sure that a data migration is created to handle the new format.
+
 ## 10. Database schema changes
 
 * We use Django migrations to manage database schema state and also sometimes to adjust data. Django migrations are the ONLY permissible way to change database schema.
