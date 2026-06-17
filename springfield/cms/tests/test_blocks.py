@@ -730,6 +730,26 @@ class TestLabelSourceMixin:
         # Analytics-safe English source is unchanged.
         assert context["button_label_en_us"] == "Get Firefox"
 
+    def test_get_context_button_label_en_us_resolves_english_when_stored_fk_is_localized(
+        self, download_firefox_button_block, pretranslated_phrase_snippet
+    ):
+        """
+        When a translated button has pretranslated text, the button_label_en_us is in English.
+        """
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        es_mx_snippet = PretranslatedPhrase.objects.create(
+            locale=es_mx_locale,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            # The stored FK is the locale-specific phrase, as the migration produces.
+            value = {"pretranslated_label": es_mx_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Obtén Firefox"
+        assert context["button_label_en_us"] == "Get Firefox"
+
     def test_get_context_button_label_en_us_falls_back_to_custom_label(self, download_firefox_button_block):
         """For the custom_label path, button_label_en_us is the custom text as-is."""
         value = {"pretranslated_label": None, "custom_label": "Custom text", "settings": {}}

@@ -20,7 +20,7 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -625,12 +625,15 @@ class LabelSourceMixin(blocks.StructBlock):
         context = super().get_context(value, parent_context)
         pretranslated = value.get("pretranslated_label")
         if pretranslated:
-            # English-only source for analytics: the source row's label, which is
-            # the en-US text regardless of active locale.
-            context["button_label_en_us"] = pretranslated.label
-            # User-visible label: locale-resolved with fallback to source row.
+            # User-visible label: locale-resolved with fallback to the stored row.
             localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
             context["button_label"] = (localized or pretranslated).label
+            # Stable English source for analytics. On a translated page, the
+            # stored FK is the locale-specific phrase, so its own label is
+            # localized — resolve the en-US sibling through the phrase's translation
+            # group instead of reading the stored row's label.
+            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
+            context["button_label_en_us"] = (en_us or pretranslated).label
         elif value.get("custom_label"):
             context["button_label"] = value["custom_label"]
             context["button_label_en_us"] = value["custom_label"]
