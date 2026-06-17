@@ -8,9 +8,11 @@
 import { createFocusTrap } from 'focus-trap';
 
 (function () {
-    const desktopMediaQuery = window.matchMedia('(min-width: 900px)');
+    /* Custom media: --viewport-md-up */
+    const viewportMdUpQuery = window.matchMedia('(min-width: 900px)');
 
     const headerEl = document.querySelector('.fl-header.enable-sticky');
+    const nav = document.querySelector('.fl-nav');
 
     if (headerEl) {
         const sentinel = document.createElement('div');
@@ -29,15 +31,14 @@ import { createFocusTrap } from 'focus-trap';
 
     // Hamburger menu
     const buttonEl = document.querySelector('.fl-show-mobile-menu');
-    const mobileNavEl = document.querySelector('.fl-nav');
     const trap = createFocusTrap(headerEl);
 
-    if (buttonEl && mobileNavEl) {
+    if (buttonEl && nav) {
         buttonEl.addEventListener('click', function (e) {
             e.preventDefault();
             const mobileNavIsOpen =
                 e.currentTarget.classList.contains('is-open');
-            const elements = [e.currentTarget, mobileNavEl];
+            const elements = [e.currentTarget, nav];
 
             if (mobileNavIsOpen) {
                 elements.forEach(function (el) {
@@ -55,55 +56,31 @@ import { createFocusTrap } from 'focus-trap';
         });
     }
 
-    const nav = document.querySelector('.fl-nav');
-
     // Menu panels
     const menuCategories = document.querySelectorAll('.fl-menu-category');
 
     for (const category of menuCategories) {
         const title = category.querySelector('.fl-menu-title');
-        const panel = category.querySelector('.fl-menu-panel');
 
-        /* ESSENTIAL SEMANTICS: Convert link menu titles to buttons */
-        if (title.matches('a') && desktopMediaQuery.matches) {
-            if (title.hasAttribute('href')) {
-                title.dataset.href = title.getAttribute('href');
-                title.removeAttribute('href');
-            }
-            title.setAttribute('tabindex', 0);
-            title.setAttribute('role', 'button');
-            title.setAttribute('aria-expanded', 'false');
-            title.setAttribute('aria-controls', panel.id);
+        /* ESSENTIAL SEMANTICS: Convert anchor menu titles to buttons */
+        if (title.matches('a') && viewportMdUpQuery.matches) {
+            applyButtonSemanticsToAnchor(title);
         }
     }
 
     // Perform initial event listener setup
     setupEventListeners();
 
-    desktopMediaQuery.addEventListener('change', (event) => {
-        const isDesktop = event.matches;
-        const titleButtons = document.querySelectorAll(
+    viewportMdUpQuery.addEventListener('change', (event) => {
+        const menuTitles = document.querySelectorAll(
             '.fl-menu-category .fl-menu-title'
         );
 
-        for (const titleButton of titleButtons) {
-            if (isDesktop) {
-                titleButton.removeAttribute('href');
-                titleButton.setAttribute('tabindex', 0);
-                titleButton.setAttribute('role', 'button');
-                titleButton.setAttribute('aria-expanded', 'false');
-                titleButton.setAttribute(
-                    'aria-controls',
-                    getPanelForCategory(getCategory(titleButton)).id
-                );
+        for (const title of menuTitles) {
+            if (event.matches) {
+                applyButtonSemanticsToAnchor(title);
             } else {
-                if (titleButton.dataset.href) {
-                    titleButton.setAttribute('href', titleButton.dataset.href);
-                }
-                titleButton.removeAttribute('tabindex');
-                titleButton.removeAttribute('role');
-                titleButton.removeAttribute('aria-expanded');
-                titleButton.removeAttribute('aria-controls');
+                removeButtonSemanticsFromAnchor(title);
             }
         }
 
@@ -112,7 +89,7 @@ import { createFocusTrap } from 'focus-trap';
 
     /* Sets up and tears down delegated event listeners based on desktop media query */
     function setupEventListeners() {
-        if (desktopMediaQuery.matches) {
+        if (viewportMdUpQuery.matches) {
             nav.addEventListener('click', handleCategoryToggle);
             nav.addEventListener('keydown', handleNonLinkAnchorClick);
             nav.addEventListener('keyup', handleNonLinkAnchorClick);
@@ -218,6 +195,38 @@ import { createFocusTrap } from 'focus-trap';
         const title = getTitleForCategory(category);
         category.classList.toggle('is-active', force);
         title.setAttribute('aria-expanded', force ? 'true' : 'false');
+    }
+
+    /* SEMANTIC SETUP */
+
+    /* Applies button semantics to menu title (anchor) */
+    function applyButtonSemanticsToAnchor(anchor) {
+        if (anchor.hasAttribute('href')) {
+            anchor.dataset.href = anchor.getAttribute('href');
+            // Remove the link semantics
+            anchor.removeAttribute('href');
+        }
+        // Remove button semantics (apply link semantics)
+        anchor.setAttribute('tabindex', 0);
+        anchor.setAttribute('role', 'button');
+        anchor.setAttribute('aria-expanded', 'false');
+        anchor.setAttribute(
+            'aria-controls',
+            getPanelForCategory(getCategory(anchor)).id
+        );
+    }
+
+    /* Removes button semantics from the menu title (anchor) */
+    function removeButtonSemanticsFromAnchor(anchor) {
+        // Restore the href if the title was originally a link
+        if (anchor.dataset.href) {
+            anchor.setAttribute('href', anchor.dataset.href);
+        }
+        // Remove button semantics
+        anchor.removeAttribute('tabindex');
+        anchor.removeAttribute('role');
+        anchor.removeAttribute('aria-expanded');
+        anchor.removeAttribute('aria-controls');
     }
 
     /* RELATIVE QUERY HELPERS */
