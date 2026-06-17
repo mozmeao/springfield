@@ -9,8 +9,8 @@ from springfield.cms.fixtures.article_page_fixtures import get_article_pages, ge
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import (
     get_article_index_test_page,
+    get_flare_docs_index_page,
     get_placeholder_images,
-    get_test_index_page,
 )
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
@@ -73,7 +73,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         no_refresh = options["no_refresh"]
 
-        index_page = get_test_index_page()
+        index_page = get_flare_docs_index_page()
         if not no_refresh:
             index_page.get_children().delete()
             self.stdout.write(self.style.SUCCESS("Existing index page children deleted."))

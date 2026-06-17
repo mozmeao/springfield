@@ -439,6 +439,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare26-docs.css"
+      ],
+      "name": "flare26-docs"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-channels.css"
       ],
       "name": "flare-channels"
@@ -983,6 +989,12 @@
         "js/cms/wagtailadmin-locale-badges.js"
       ],
       "name": "wagtailadmin-locale-badges"
+    },
+    {
+      "files": [
+        "js/cms/flare26-docs.js"
+      ],
+      "name": "flare26-docs"
     }
   ]
 }
