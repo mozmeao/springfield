@@ -5,7 +5,7 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from springfield.cms.fixtures.freeformpage_2026 import get_freeform_page_2026_with_set_as_default_button
+from springfield.cms.fixtures.freeformpage import get_freeform_page_with_set_as_default_button
 from springfield.cms.fixtures.snippet_fixtures import get_set_as_default_snippet
 
 pytestmark = [pytest.mark.django_db]
@@ -16,7 +16,7 @@ def _get_set_as_default_dialog(soup):
 
 
 def test_page_with_set_as_default_button_renders_dialog(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -29,7 +29,7 @@ def test_page_with_set_as_default_button_renders_dialog(minimal_site, rf):
 
 
 def test_page_with_set_as_default_button_renders_trigger_button(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -43,7 +43,7 @@ def test_page_with_set_as_default_button_renders_trigger_button(minimal_site, rf
 
 
 def test_set_as_default_dialog_contains_heading(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -55,7 +55,7 @@ def test_set_as_default_dialog_contains_heading(minimal_site, rf):
 
 
 def test_set_as_default_dialog_contains_all_content_sections(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -70,7 +70,7 @@ def test_set_as_default_dialog_contains_all_content_sections(minimal_site, rf):
 
 
 def test_set_as_default_dialog_contains_platform_content(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -85,7 +85,7 @@ def test_set_as_default_dialog_contains_platform_content(minimal_site, rf):
 
 
 def test_set_as_default_dialog_renders_snippet_text(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -114,7 +114,7 @@ def test_set_as_default_snippet_is_live(minimal_site):
 
 
 def test_updated_snippet_content_is_reflected_on_page(minimal_site, rf):
-    page = get_freeform_page_2026_with_set_as_default_button()
+    page = get_freeform_page_with_set_as_default_button()
     snippet = get_set_as_default_snippet()
     snippet.success_content = '<p data-block-key="sc002">Success! Your default browser is set to Firefox.</p>'
     snippet.save()

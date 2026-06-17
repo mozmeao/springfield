@@ -38,6 +38,9 @@ function updateLastVisibleBanner(section) {
 }
 
 function setupLastVisibleBanner() {
+    // Skip if `:has()` is not supported
+    if (!CSS.supports('selector(:has(+ *))')) return;
+
     const sections = document.querySelectorAll(
         '.fl-split-page-lower, .fl-main:not(:has(.fl-split-page-lower))'
     );

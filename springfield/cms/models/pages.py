@@ -6,19 +6,24 @@ from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Count
-from django.db.models.expressions import Case, F, Value, When
+from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
 
+import requests
 from modelcluster.fields import ParentalKey
+from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
@@ -26,7 +31,8 @@ from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
-from lib.l10n_utils.fluent import ftl
+from lib.l10n_utils.fluent import ftl, ftl_lazy
+from springfield.base import waffle
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -38,16 +44,19 @@ from springfield.cms.blocks import (
     BlogCardsListBlock,
     ButtonRowBlock,
     CardGalleryBlock,
-    CardsListBlock2026,
+    CardsListBlock,
     CarouselBlock,
+    CheckboxFieldBlock,
+    CheckboxGroupFieldBlock,
     CodeBlock,
+    CountrySelectFieldBlock,
     DownloadSupportBlock,
+    EmailFieldBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
+    HiddenFieldBlock,
     HomeKitBannerBlock,
-    InlineNotificationBlock,
     IntroBlock,
-    IntroBlock2026,
     KitBannerBlock,
     KitIntroBlock,
     LineCardsBlock,
@@ -56,16 +65,17 @@ from springfield.cms.blocks import (
     MediaContentBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
+    PhoneFieldBlock,
     QuoteBlock,
     RelatedArticlesListBlock,
     RoadmapListSectionBlock,
     SectionBlock,
-    SectionBlock2026,
+    SelectFieldBlock,
     ShowcaseBlock,
     SlidingCarouselBlock,
-    SubscriptionBlock,
+    TextAreaFieldBlock,
+    TextFieldBlock,
     TopicListBlock,
-    TwoColumnCardsBlock,
     VideoBlock,
     validate_animation_url,
 )
@@ -293,7 +303,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
-            ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html")),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],
         use_json_field=True,
@@ -312,6 +322,7 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     class Meta:
@@ -320,6 +331,13 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"HomePage: {self.title} - {self.locale}"
+
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
@@ -392,7 +410,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
     content = StreamField(
         [
-            ("section", SectionBlock2026()),
+            ("section", SectionBlock()),
             (
                 "banner_snippet",
                 LocalizedLiveSnippetChooserBlock(
@@ -461,7 +479,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     content = StreamField(
         [
-            ("section", SectionBlock2026(allow_uitour=False)),
+            ("section", SectionBlock(allow_uitour=False)),
             ("download_support", DownloadSupportBlock()),
             (
                 "banner_snippet",
@@ -508,7 +526,10 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
-            return "cms/thanks_page__direct.html"
+            if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                return "firefox/download/rtamo.html"
+            else:
+                return "cms/thanks_page__direct.html"
 
         return "cms/thanks_page.html"
 
@@ -801,6 +822,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
         FieldPanel("content"),
         FieldPanel("related_articles"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     if TYPE_CHECKING:
@@ -814,13 +836,20 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             return self.tag.get_localized()
         return None
 
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
+
 
 class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
 
     upper_content = StreamField(
         [
-            ("intro", IntroBlock2026()),
+            ("intro", IntroBlock()),
         ],
         use_json_field=True,
         blank=True,
@@ -829,8 +858,8 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     content = StreamField(
         [
-            ("intro", IntroBlock2026()),
-            ("section", SectionBlock2026(require_heading=False)),
+            ("intro", IntroBlock()),
+            ("section", SectionBlock(require_heading=False)),
         ],
         use_json_field=True,
         default=list(),
@@ -839,34 +868,37 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
     def __str__(self):
         return f"ArticleThemePage: {self.title} - {self.locale}"
 
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
 
-def _get_freeform_page_blocks(allow_uitour=False):
-    """Factory function to create block list with appropriate button types.
 
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
-                      If False, only allows regular buttons.
+# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
+class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """A flexible page type that allows a variety of content blocks to be added."""
 
-    Returns:
-        List of tuples containing block names and instances configured
-        with the appropriate button types.
-    """
-    return [
-        ("inline_notification", InlineNotificationBlock(group="Notifications")),
-        ("intro", IntroBlock(allow_uitour=allow_uitour)),
-        ("section", SectionBlock(allow_uitour=allow_uitour)),
-        ("subscription", SubscriptionBlock(group="Banners")),
-        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
-        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
+    parent_page_types = []
+
+    content = StreamField([], use_json_field=True)
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
     ]
 
+    def __str__(self):
+        return f"FreeFormPage: {self.title} - {self.locale}"
 
-def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
+
+def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
     Args:
@@ -879,19 +911,18 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     """
     base_blocks = [
         ("notification", NotificationBlock(group="Notification")),
-        ("intro", IntroBlock2026(allow_uitour=allow_uitour, group="Intro")),
-        ("section", SectionBlock2026(allow_uitour=allow_uitour, group="Main")),
+        ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("showcase", ShowcaseBlock(group="Media")),
         ("carousel", CarouselBlock(group="Media")),
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
-        ("media_content", MediaContentBlock(group="Media", is_2026=True, template="cms/blocks/sections/media-content-section.html")),
-        ("cards_list", CardsListBlock2026(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
-        ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
@@ -912,23 +943,8 @@ def _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False):
     return base_blocks
 
 
-FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=False)
-WHATS_NEW_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True)
-UPPER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=True)
-LOWER_FREEFORM_PAGE_BLOCKS_2026 = _get_freeform_page_blocks_2026(allow_uitour=True, allow_kit_intro=False)
-
-
-class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A flexible page type that allows a variety of content blocks to be added."""
-
-    content = StreamField(FREEFORM_PAGE_BLOCKS, use_json_field=True)
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
-
-    def __str__(self):
-        return f"FreeFormPage: {self.title} - {self.locale}"
+UPPER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=True)
+LOWER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False)
 
 
 class PencilBannerPlacement(Orderable):
@@ -947,18 +963,66 @@ class PencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
+class HomePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.HomePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Home Page Pencil Banner Placement"
+        verbose_name_plural = "Home Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleThemePagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleThemePage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Theme Page Pencil Banner Placement"
+        verbose_name_plural = "Article Theme Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
+class ArticleDetailPagePencilBannerPlacement(Orderable):
+    page = ParentalKey("cms.ArticleDetailPage", on_delete=models.CASCADE, related_name="pencil_banner_placements")
+    snippet = models.ForeignKey("cms.PencilBannerSnippet", on_delete=models.CASCADE, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Article Detail Page Pencil Banner Placement"
+        verbose_name_plural = "Article Detail Page Pencil Banner Placements"
+
+    panels = [
+        FieldPanel("snippet"),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.snippet.title
+
+
 class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
-        UPPER_FREEFORM_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
@@ -988,6 +1052,12 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
             "The page will also inject <this>.css, so ensure that exists before using this field."
         ),
     )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -1000,6 +1070,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
                 FieldPanel("body_class"),
+                FieldPanel("extra_js"),
             ],
             heading="Page Options",
         ),
@@ -1020,6 +1091,13 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     def noindex(self):
         return self.enable_marketing_attribution
 
+    @property
+    def pencil_banners(self):
+        placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
+        snippets = [placement.snippet.get_localized() for placement in placements]
+        # get_localized() can return None if the snippet isn't translated and published
+        return [snippet for snippet in snippets if snippet]
+
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
@@ -1028,7 +1106,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     # Only one instance of this page should exist
     # When a HomePage is implemented, this page should be moved to be a child of HomePage
     # parent_page_types = []
-    subpage_types = ["cms.WhatsNewPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     class Meta:
         verbose_name = "What's New Index Page"
@@ -1043,14 +1121,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .exclude(slug="general")
-            .annotate(
-                version=Case(
-                    When(whatsnewpage__version__isnull=False, then=F("whatsnewpage__version")),
-                    When(whatsnewpage2026__version__isnull=False, then=F("whatsnewpage2026__version")),
-                    default=Value(None),
-                    output_field=models.CharField(),
-                )
-            )
+            .annotate(version=F("whatsnewpage2026__version"))
             .order_by("-version")
             .specific()
             .first()
@@ -1060,10 +1131,11 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
+# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
 class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the latest Firefox updates and changes."""
 
-    parent_page_types = ["cms.WhatsNewIndexPage"]
+    parent_page_types = []
     subpage_types = []
 
     ftl_files = ["firefox/whatsnew/evergreen"]
@@ -1072,7 +1144,7 @@ class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_length=10,
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
-    content = StreamField(WHATS_NEW_PAGE_BLOCKS, use_json_field=True)
+    content = StreamField([], use_json_field=True)
     show_qr_code_snippet = models.BooleanField(
         default=False,
         help_text="If true, a floating QR code snippet will be displayed on the page.",
@@ -1116,22 +1188,46 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
     )
     upper_content = StreamField(
-        UPPER_FREEFORM_PAGE_BLOCKS_2026,
+        UPPER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
+
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
+    )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
+
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        *QRCodeFloatingSnippetMixin.floating_qr_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Page Settings",
+        ),
     ]
 
     class Meta:
@@ -1193,7 +1289,7 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
 
@@ -1371,11 +1467,11 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A Smart Window themed page"""
 
     upper_content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS_2026,
+        LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
     )
 
@@ -1715,7 +1811,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ftl_files = ["cms/roadmap"]
 
     intro = StreamField(
-        [("intro", IntroBlock2026())],
+        [("intro", IntroBlock())],
         max_num=1,
         use_json_field=True,
         null=True,
@@ -1741,3 +1837,293 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"RoadmapPage: {self.title} - {self.locale}"
+
+
+class ContactPage(AbstractSpringfieldCMSPage):
+    """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    template = "cms/contact_page.html"
+    ftl_files = ["cms/contact"]
+
+    intro = StreamField(
+        [("intro", IntroBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    form_fields = StreamField(
+        [
+            ("text_field", TextFieldBlock()),
+            ("textarea_field", TextAreaFieldBlock()),
+            ("email_field", EmailFieldBlock()),
+            ("phone_field", PhoneFieldBlock()),
+            ("select_field", SelectFieldBlock()),
+            ("checkbox_field", CheckboxFieldBlock()),
+            ("checkbox_group_field", CheckboxGroupFieldBlock()),
+            ("hidden_field", HiddenFieldBlock()),
+            ("country_select_field", CountrySelectFieldBlock()),
+        ],
+        blank=True,
+        null=True,
+        use_json_field=True,
+        help_text="Define the form fields that will appear on the contact page.",
+    )
+
+    to_email_address = models.EmailField(
+        blank=True,
+        help_text="Email address where form submissions will be sent.",
+    )
+
+    basket_api_path = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=(
+            "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
+        ),
+    )
+
+    redirect_to = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text="Page to redirect to after a successful form submission (e.g. a thank-you page).",
+    )
+
+    thank_you_message = RichTextField(
+        blank=True,
+        help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("intro"),
+        FieldPanel("form_fields"),
+        FieldPanel("thank_you_message"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("to_email_address"),
+                FieldPanel("basket_api_path"),
+                FieldPanel("redirect_to"),
+            ],
+            heading="Form Submission Settings",
+        ),
+    ]
+
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        has_email = bool(self.to_email_address)
+        has_basket = bool(self.basket_api_path)
+
+        if not has_email and not has_basket:
+            msg = "Set either an email address or a basket API path."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+        elif has_email and has_basket:
+            msg = "Set either an email address or a basket API path, not both."
+            errors["to_email_address"] = msg
+            errors["basket_api_path"] = msg
+
+        if has_basket and not has_email:
+            parsed = urlparse(self.basket_api_path)
+            if parsed.scheme or parsed.netloc:
+                errors["basket_api_path"] = "Enter a path (e.g. /api/v1/contact/), not a full URL."
+            elif not parsed.path.startswith("/"):
+                errors["basket_api_path"] = "Path must start with /."
+
+        if not self.redirect_to and not self.thank_you_message:
+            msg = "Set either a redirect page or a thank you message."
+            errors["redirect_to"] = msg
+            errors["thank_you_message"] = msg
+
+        if errors:
+            raise ValidationError(errors)
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["form_errors"] = getattr(request, "form_errors", {})
+        if getattr(request, "form_success", False):
+            context["form_success"] = True
+        context["form_data"] = getattr(request, "form_data", {})
+        return context
+
+    def serve(self, request, *args, **kwargs):
+        if request.method == "POST":
+            form_errors = self.validate_form_data(request.POST)
+            if form_errors:
+                request.form_errors = form_errors
+                request.form_data = self._get_form_data_for_context(request.POST)
+                response = super().serve(request, *args, **kwargs)
+                add_never_cache_headers(response)
+                return response
+
+            if self.basket_api_path:
+                form_data = self._collect_form_data(request)
+                try:
+                    api_response = requests.post(
+                        f"{settings.BASKET_URL}{self.basket_api_path}",
+                        json=form_data,
+                        timeout=settings.BASKET_TIMEOUT,
+                    )
+                    if not api_response.ok:
+                        if 400 <= api_response.status_code < 500:
+                            with new_scope() as scope:
+                                scope.set_extra("post_data", form_data)
+                                scope.set_extra("basket_path", self.basket_api_path)
+                                scope.set_extra("status_code", api_response.status_code)
+                                capture_message(
+                                    f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
+                                    level="error",
+                                )
+                        request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
+                        request.form_data = self._get_form_data_for_context(request.POST)
+                        response = super().serve(request, *args, **kwargs)
+                        add_never_cache_headers(response)
+                        return response
+                except requests.RequestException as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            f"Basket API request failed for path {self.basket_api_path}",
+                            level="error",
+                        )
+                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
+                    request.form_data = self._get_form_data_for_context(request.POST)
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
+
+            if self.to_email_address:
+                try:
+                    self.send_form_email(request)
+                except Exception as exc:
+                    with new_scope() as scope:
+                        scope.set_extra("exception", str(exc))
+                        capture_message(
+                            "Failed to send contact form email",
+                            level="error",
+                        )
+                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
+                    request.form_data = self._get_form_data_for_context(request.POST)
+                    response = super().serve(request, *args, **kwargs)
+                    add_never_cache_headers(response)
+                    return response
+
+            if self.redirect_to:
+                return redirect(self.redirect_to.localized.url)
+
+            request.form_success = True
+            response = super().serve(request, *args, **kwargs)
+            add_never_cache_headers(response)
+            return response
+
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
+
+    def _collect_form_data(self, request):
+        """Return submitted form data as a plain dict (lists joined for checkboxes)."""
+        data = {}
+        for field in self.form_fields:
+            value = field.value
+            identifier = value["internal_identifier"]
+            if field.block_type == "hidden_field":
+                data[identifier] = value.get("default_value", "")
+            elif field.block_type == "checkbox_group_field":
+                data[identifier] = ", ".join(request.POST.getlist(identifier))
+            else:
+                data[identifier] = request.POST.get(identifier, "")
+        return data
+
+    def _get_form_data_for_context(self, post_data):
+        """Return submitted form values keyed by internal_identifier for template use.
+
+        Returns a dict with string values for text-like fields and lists for
+        checkbox_group_field. Hidden fields are excluded — they always render
+        their default_value regardless of POST data.
+        """
+        form_data = {}
+        for field in self.form_fields:
+            if field.block_type == "hidden_field":
+                continue
+            identifier = field.value["internal_identifier"]
+            if field.block_type == "checkbox_group_field":
+                form_data[identifier] = post_data.getlist(identifier)
+            else:
+                form_data[identifier] = post_data.get(identifier, "")
+        return form_data
+
+    def validate_form_data(self, post_data):
+        """Validate submitted form data against the field configuration.
+
+        Returns a dict matching Django's ErrorDict shape:
+          {identifier: [msg], ..., "__all__": [global_msg]}
+        An empty dict means the data is valid.
+        """
+        if post_data.get("office_fax", ""):
+            return {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
+
+        errors = {}
+        has_any_data = False
+
+        for field in self.form_fields:
+            if field.block_type == "hidden_field":
+                continue
+
+            value = field.value
+            identifier = value["internal_identifier"]
+            is_required = value.get("required", False)
+
+            if field.block_type == "checkbox_group_field":
+                submitted = post_data.getlist(identifier)
+            else:
+                submitted = post_data.get(identifier, "").strip()
+
+            if submitted:
+                has_any_data = True
+
+            if is_required and not submitted:
+                errors[identifier] = [ftl_lazy("contact-form-error-required", ftl_files=self.ftl_files)]
+
+        if not has_any_data and not errors:
+            errors.setdefault("__all__", []).append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+
+        return errors
+
+    def send_form_email(self, request):
+        """Collect form data and send it as an email."""
+        fields = []
+        for field in self.form_fields:
+            block_type = field.block_type
+            value = field.value
+            identifier = value["internal_identifier"]
+            label = value["label"]
+
+            if block_type == "hidden_field":
+                submitted = value.get("default_value", "")
+            elif block_type == "checkbox_group_field":
+                submitted = ", ".join(request.POST.getlist(identifier))
+            else:
+                submitted = request.POST.get(identifier, "")
+
+            fields.append({"label": label, "value": submitted})
+
+        msg = render_to_string("cms/emails/contact-form.txt", {"fields": fields})
+        subject = f"Contact form submission: {self.title}"
+        email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
+        email.send()
+
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
+    def __str__(self):
+        return f"ContactPage: {self.title} - {self.locale}"

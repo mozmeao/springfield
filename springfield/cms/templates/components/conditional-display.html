@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", condition_settings={} #}
+{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", ai_controls_condition="", condition_settings={} #}
 
 {% set condition_settings = condition_settings or {} %}
 {% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
@@ -12,6 +12,7 @@
 {% set auth_state_condition = auth_state_condition or condition_settings.get("auth_state") %}
 {% set default_browser_condition = default_browser_condition or condition_settings.get("default_browser") %}
 {% set geo_conditions = geo_conditions or condition_settings.get("geo") %}
+{% set ai_controls_condition = ai_controls_condition or condition_settings.get("ai_controls") %}
 {% set min_version = min_version or condition_settings.get("min_version") %}
 {% set max_version = max_version or condition_settings.get("max_version") %}
 
@@ -51,6 +52,13 @@
     {% endif %}
 {% endif %}
 
+{% if ai_controls_condition %}
+  <div class="conditional-display condition-ai-controls-{{ ai_controls_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: AI Controls {{ ai_controls_condition }}</span>
+    {% endif %}
+{% endif %}
+
 {% if min_version or max_version %}
   <div class="conditional-display condition-fx-version {% if is_preview %}is-preview{% endif %}"
     {% if min_version %}data-min-version="{{ min_version }}"{% endif %}
@@ -64,13 +72,16 @@
 
 {{ contents }}
 
+{% if min_version or max_version %}
+  </div>
+{% endif %}
+{% if ai_controls_condition %}
+  </div>
+{% endif %}
 {% if geo_conditions %}
   </div>
 {% endif %}
 {% if default_browser_condition  %}
-  </div>
-{% endif %}
-{% if min_version or max_version %}
   </div>
 {% endif %}
 {% if auth_state_condition  %}

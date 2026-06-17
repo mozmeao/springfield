@@ -144,6 +144,7 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
         return "cms/snippets/pre-footer-cta-form-snippet-preview.html"
 
 
+# TODO: This snippet is not used and will be deleted on a following PR
 class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render an image with a Call to Action for downloading Firefox."""
 

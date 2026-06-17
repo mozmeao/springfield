@@ -3,6 +3,33 @@
 {%- for path in paths %}
   <url>
     <loc>{{ path.get_absolute_url() }}</loc>
+    {%- set path_locales = alternates.get(path.path, []) %}
+    {%- if path_locales|length > 1 %}
+    {%- for alt_locale in path_locales %}
+    <xhtml:link rel="alternate" hreflang="{{ alt_locale }}" href="{{ settings.CANONICAL_URL }}/{{ alt_locale }}{{ path.path }}"/>
+    {%- if alt_locale == 'pt-BR' %}
+    <xhtml:link rel="alternate" hreflang="pt" href="{{ settings.CANONICAL_URL }}/pt-BR{{ path.path }}"/>
+    {%- elif alt_locale == 'en-US' %}
+    <xhtml:link rel="alternate" hreflang="en" href="{{ settings.CANONICAL_URL }}/en-US{{ path.path }}"/>
+    {%- elif alt_locale == 'es-ES' %}
+    <xhtml:link rel="alternate" hreflang="es" href="{{ settings.CANONICAL_URL }}/es-ES{{ path.path }}"/>
+    {%- elif alt_locale == 'fy-NL' %}
+    <xhtml:link rel="alternate" hreflang="fy" href="{{ settings.CANONICAL_URL }}/fy-NL{{ path.path }}"/>
+    {%- elif alt_locale == 'gu-IN' %}
+    <xhtml:link rel="alternate" hreflang="gu" href="{{ settings.CANONICAL_URL }}/gu-IN{{ path.path }}"/>
+    {%- elif alt_locale == 'hi-IN' %}
+    <xhtml:link rel="alternate" hreflang="hi" href="{{ settings.CANONICAL_URL }}/hi-IN{{ path.path }}"/>
+    {%- elif alt_locale == 'hy-AM' %}
+    <xhtml:link rel="alternate" hreflang="hy" href="{{ settings.CANONICAL_URL }}/hy-AM{{ path.path }}"/>
+    {%- elif alt_locale == 'pa-IN' %}
+    <xhtml:link rel="alternate" hreflang="pa" href="{{ settings.CANONICAL_URL }}/pa-IN{{ path.path }}"/>
+    {%- elif alt_locale == 'sv-SE' %}
+    <xhtml:link rel="alternate" hreflang="sv" href="{{ settings.CANONICAL_URL }}/sv-SE{{ path.path }}"/>
+    {%- elif alt_locale == 'zh-CN' %}
+    <xhtml:link rel="alternate" hreflang="zh" href="{{ settings.CANONICAL_URL }}/zh-CN{{ path.path }}"/>
+    {%- endif %}
+    {%- endfor %}
+    {%- endif %}
   </url>
 {%- endfor %}
 </urlset>

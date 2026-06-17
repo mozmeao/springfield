@@ -93,21 +93,18 @@
     gap: var(--token-spacing-2xl);
 }
 
-.fl-two-column-card-content .fl-heading-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-lg);
-}
-
 .fl-card-tag {
     --notification-bg: var(--token-color-light-purple);
     --notification-stacked-color: var(--token-color-white);
     inset-block-start: calc(var(--token-spacing-md) * -1);
     inset-inline-start: 50%;
     position: absolute;
-    text-transform: uppercase;
     transform: translateX(-50%);
     z-index: 1;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-two-column-card[class*='image-is-stuck'] {

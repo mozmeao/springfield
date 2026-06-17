@@ -6,4 +6,9 @@ from django.urls import re_path
 
 from springfield.sitemaps.views import SitemapView
 
-urlpatterns = (re_path(r"all-urls(?P<is_global>-global)?.xml", SitemapView.as_view()),)
+urlpatterns = (
+    # Backward-compatible alias: Google has indexed /all-urls.xml; keep working.
+    re_path(r"all-urls(?P<is_global>-global)?.xml", SitemapView.as_view()),
+    # Canonical sitemap path; referenced from robots.txt and sitemap_index.xml.
+    re_path(r"sitemap(?P<is_global>-global)?.xml", SitemapView.as_view()),
+)

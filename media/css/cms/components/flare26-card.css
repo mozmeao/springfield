@@ -109,7 +109,10 @@ Card Grid - Flare 2026 Design System Cards
     color: var(--fl-theme-card-superheading-color);
     font-size: var(--fl-theme-font-size-body-2xs);
     margin: 0;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-card-expand-link {
@@ -344,9 +347,12 @@ Sticker Card
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
-    letter-spacing: 0.02em;
     margin: 0 0 var(--token-spacing-xl);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
 }
 
 .fl-sticker-card .fl-body > * {
