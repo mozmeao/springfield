@@ -117,6 +117,7 @@ import { createFocusTrap } from 'focus-trap';
 
     function handleNonLinkAnchorClick(event) {
         if (event.type === 'keydown' && event.key === ' ') {
+            event.preventDefault();
             event.target.closest('[role="button"]').click();
         }
         if (event.type === 'keyup' && event.key === 'Enter') {
