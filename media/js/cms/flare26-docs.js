@@ -6,31 +6,43 @@
 
 (function () {
     'use strict';
-    var toggle = document.getElementById('fl-docs-inline-switch');
-    var indexEl = document.querySelector('.fl-docs-index');
-    var contentEl = document.querySelector('.fl-docs-index-content');
-    var savedContent = contentEl.innerHTML;
-    var iframe = null;
+    const toggle = document.getElementById('fl-docs-inline-switch');
+    const indexEl = document.querySelector('.fl-docs-index');
+    const sidebarLinks = indexEl.querySelectorAll(
+        '.fl-docs-index-sidebar a[data-url]'
+    );
+    const contentEl = document.querySelector('.fl-docs-index-content');
+    const savedContent = contentEl.innerHTML;
+    let iframe = null;
 
-    function enableInlineMode() {
+    function getUrlForInlineMode(forcedUrl) {
+        if (forcedUrl) return forcedUrl;
+
+        const currentHash = window.location.hash;
+        const hashLink = document.querySelector(`a[href="${currentHash}"]`);
+        if (hashLink) return hashLink.dataset.url;
+
+        return sidebarLinks[0].dataset.url;
+    }
+
+    function enableInlineMode(forcedUrl) {
+        const url = getUrlForInlineMode(forcedUrl);
+
         indexEl.classList.add('fl-docs-inline-mode');
         indexEl.classList.remove('max-width-wide-banner');
-        var firstLink = indexEl.querySelector(
-            '.fl-docs-index-sidebar a[data-url]'
-        );
-        if (firstLink) {
-            iframe = document.createElement('iframe');
-            iframe.className = 'fl-docs-inline-frame';
-            contentEl.innerHTML = '';
-            contentEl.appendChild(iframe);
-            iframe.src = firstLink.dataset.url;
-            contentEl.scrollIntoView({ behavior: 'smooth' });
-        }
+
+        iframe = document.createElement('iframe');
+        iframe.className = 'fl-docs-inline-frame';
+        contentEl.innerHTML = '';
+        contentEl.appendChild(iframe);
+        iframe.src = url;
+        contentEl.scrollIntoView({ behavior: 'smooth' });
     }
 
     toggle.addEventListener('change', function () {
         indexEl.classList.toggle('fl-docs-inline-mode', this.checked);
         indexEl.classList.toggle('max-width-wide-banner', !this.checked);
+
         if (this.checked) {
             enableInlineMode();
         } else {
@@ -40,28 +52,15 @@
         }
     });
 
+    sidebarLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            if (toggle.checked) {
+                enableInlineMode(link.dataset.url);
+            }
+        });
+    });
+
     if (toggle.checked) {
         window.setTimeout(enableInlineMode, 500);
     }
-
-    indexEl.addEventListener('click', function (e) {
-        if (!toggle.checked) return;
-        var link = e.target.closest('a');
-        if (!link) return;
-        var url = link.dataset.url;
-        if (!url) {
-            var href = link.getAttribute('href');
-            if (!href || href.startsWith('#')) return;
-            url = link.href;
-        }
-        e.preventDefault();
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.className = 'fl-docs-inline-frame';
-            contentEl.innerHTML = '';
-            contentEl.appendChild(iframe);
-        }
-        iframe.src = url;
-        indexEl.scrollIntoView({ behavior: 'smooth' });
-    });
 })();
