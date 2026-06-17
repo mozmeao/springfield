@@ -16,7 +16,7 @@ from wagtail.models import Locale, Page, Site
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
-from springfield.cms.models import FreeFormPage, PretranslatedPhrase
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 from springfield.cms.tests.factories import (
     LocaleFactory,
     SimpleRichTextPageFactory,
@@ -857,7 +857,7 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
         live=True,
     )
 
-    es_mx_page = FreeFormPage(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
+    es_mx_page = FreeFormPage2026(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
     es_mx_root.add_child(instance=es_mx_page)
     es_mx_page.content = [
         {
