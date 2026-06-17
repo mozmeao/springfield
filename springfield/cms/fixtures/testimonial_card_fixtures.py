@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -160,12 +160,12 @@ def get_testimonial_cards_sections() -> list[dict]:
 
 def get_testimonial_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-testimonial-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Testimonial Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Testimonial Cards")
         index_page.add_child(instance=page)
 
     sections = get_testimonial_cards_sections()

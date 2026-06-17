@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
@@ -220,7 +220,7 @@ def get_intro_variants() -> list[dict]:
 
 def get_intro_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-intro"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

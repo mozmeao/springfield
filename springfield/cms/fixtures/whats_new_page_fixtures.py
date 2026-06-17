@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage2026
 
@@ -10,12 +10,12 @@ SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browse
 
 
 def get_whatsnew_index_page() -> WhatsNewIndexPage:
-    index_page = get_test_index_page()
+    index_page = get_flare_pages_docs_page()
     wnp_index = WhatsNewIndexPage.objects.filter(slug="test-whatsnew").first()
     if not wnp_index:
         wnp_index = WhatsNewIndexPage(
             slug="test-whatsnew",
-            title="Test What's New Index",
+            title="What's New Index Page",
         )
         index_page.add_child(instance=wnp_index)
         wnp_index.save_revision().publish()
