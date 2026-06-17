@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
     await removeDownloadAsDefault(page);
 });
 
-test.describe.skip('analytics download attribution', () => {
+test.describe('analytics download attribution', () => {
     test.describe(
         'essential data added',
         {
@@ -211,7 +211,7 @@ test.describe.skip('analytics download attribution', () => {
     );
 });
 
-test.describe.skip('essential download attribution', () => {
+test.describe('essential download attribution', () => {
     test.describe(
         'analytics data added',
         {
@@ -346,7 +346,7 @@ test.describe.skip('essential download attribution', () => {
                 // Navigate to new page with different essential campaign
                 await page.addInitScript(
                     forceEssentialCampaign,
-                    'SET_AS_DEFAULT'
+                    'SET_DEFAULT_BROWSER'
                 );
 
                 await openPage(`/fr/?geo=fr`, page, browserName);
@@ -372,7 +372,9 @@ test.describe.skip('essential download attribution', () => {
                 const essentialCookieData = JSON.parse(
                     decodeURIComponent(essentialCookie.value)
                 );
-                expect(essentialCookieData.utm_campaign).toBe('SET_AS_DEFAULT');
+                expect(essentialCookieData.utm_campaign).toBe(
+                    'SET_DEFAULT_BROWSER'
+                );
 
                 // Confirm new essential data was sent to stub attribution service
                 expect(capture.params.utm_campaign).toBe(
@@ -383,7 +385,7 @@ test.describe.skip('essential download attribution', () => {
     );
 });
 
-test.describe.skip('conflict management', () => {
+test.describe('conflict management', () => {
     const url =
         '/en-US/?geo=us&utm_source=newsletter&utm_campaign=test&utm_medium=email';
 

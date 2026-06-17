@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
     await removeDownloadAsDefault(page);
 });
 
-test.describe.skip('attribution cookies exist', () => {
+test.describe('attribution cookies exist', () => {
     test('add to links', async ({ page, browserName }) => {
         await page.addInitScript(mockGetGtagClientID);
 
@@ -58,7 +58,7 @@ test.describe.skip('attribution cookies exist', () => {
     });
 });
 
-test.describe.skip('attribution cookies do not exist', () => {
+test.describe('attribution cookies do not exist', () => {
     test('download links unchanged', async ({ page, browserName }) => {
         await page.addInitScript(mockGetGtagClientID);
 

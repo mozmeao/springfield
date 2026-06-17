@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
     await removeDownloadAsDefault(page);
 });
 
-test.describe.skip('analytics download attribution', () => {
+test.describe('analytics download attribution', () => {
     test.describe(
         'user action denies consent',
         {
@@ -155,7 +155,7 @@ test.describe.skip('analytics download attribution', () => {
     );
 });
 
-test.describe.skip('essential download attribution', () => {
+test.describe('essential download attribution', () => {
     test.describe('new page with no essential data', () => {
         test('cookie removed', async ({ page, browserName }) => {
             const capture = { params: null };

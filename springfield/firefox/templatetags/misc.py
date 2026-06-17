@@ -21,6 +21,7 @@ from product_details import product_details
 
 from springfield.base.sanitization import strip_all_tags
 from springfield.base.templatetags.helpers import static, urlparams
+from springfield.base.waffle import switch
 
 ALL_FX_PLATFORMS = ("windows", "linux", "mac", "android", "ios")
 
@@ -33,6 +34,16 @@ def needs_data_consent(country_code):
     """
     country_list = settings.DATA_CONSENT_COUNTRIES
     return country_code in country_list
+
+
+@library.global_function
+def plausible_enabled(country_code):
+    """
+    Global helper that determines whether the Plausible analytics script
+    should be injected. Plausible is loaded only for EU/consent countries
+    when the `plausible` switch is on and a domain is configured.
+    """
+    return bool(settings.PLAUSIBLE_DOMAIN and needs_data_consent(country_code) and switch("plausible"))
 
 
 def _strip_img_prefix(url):

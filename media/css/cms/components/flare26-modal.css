@@ -22,6 +22,13 @@
     display: flex;
 }
 
+.fl-dialog .fl-heading {
+    font-variation-settings:
+        'wght' var(--token-font-weight-semibold),
+        'wdth' var(--token-font-condensed-width);
+    line-height: 0.9;
+}
+
 .fl-dialog::backdrop {
     background: var(--token-color-black-4-72);
 }

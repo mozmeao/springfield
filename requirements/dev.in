@@ -23,7 +23,7 @@ translate-toolkit==3.19.8
 # unicode-segmentation-rs 0.2.2+ doesn't have the pre-built wheel we need,
 # so it tries to build from source and fails without a C compiler in the devapp Docker image.
 unicode-segmentation-rs==0.2.4
-uv==0.11.11
+uv==0.11.15
 wagtail-factories==4.4.0
 # Related to moz-l10n-lint, used in CI
 cl-ext.lang==0.1.0

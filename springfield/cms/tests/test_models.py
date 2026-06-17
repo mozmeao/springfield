@@ -9,7 +9,6 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from waffle.testutils import override_switch
 from wagtail.models import Locale, Page, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -27,13 +26,11 @@ from springfield.cms.tests.factories import (
     DownloadIndexPageFactory,
     DownloadPageFactory,
     FreeFormPage2026Factory,
-    FreeFormPageFactory,
     LocaleFactory,
     SimpleRichTextPageFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
-    WhatsNewPageFactory,
 )
 
 pytestmark = [
@@ -318,9 +315,9 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     _relative_url = index_page.relative_url(minimal_site)
     assert _relative_url == "/en-US/whatsnew/"
 
-    v123_page = WhatsNewPageFactory(parent=index_page, slug="123", version="123")
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
     v123_page.save()
-    v124_page = WhatsNewPageFactory(parent=index_page, slug="124", version="124")
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
     v124_page.save()
 
     request = rf.get(_relative_url)
@@ -410,9 +407,9 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
     assert _pt_br_relative_url == "/pt-BR/whatsnew/"
 
-    en_us_v123_page = WhatsNewPageFactory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="123", version="123")
     en_us_v123_page.save()
-    en_us_v124_page = WhatsNewPageFactory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="124", version="124")
     en_us_v124_page.save()
 
     pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
@@ -439,19 +436,6 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
 
 def test_freeform_page(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
-    page = FreeFormPageFactory(parent=root_page, slug="freeform-page")
-    page.save()
-
-    _relative_url = page.relative_url(minimal_site)
-    assert _relative_url == "/en-US/freeform-page/"
-
-    request = rf.get(_relative_url)
-    response = page.specific.serve(request)
-    assert response.status_code == 200
-
-
-def test_freeform_page_2026(minimal_site, rf):
-    root_page = SimpleRichTextPage.objects.first()
     page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
     page.save()
 
@@ -463,8 +447,7 @@ def test_freeform_page_2026(minimal_site, rf):
     assert response.status_code == 200
 
 
-@override_switch("FLARE26_ENABLED", active=True)
-def test_article_index_and_detail_pages_2026(minimal_site, rf):
+def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
         parent=root_page,
@@ -1064,7 +1047,6 @@ _IMAGE_VARIANT_PARAMS = pytest.mark.parametrize(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_detail_page_image_variants(
     minimal_site,
     rf,
@@ -1114,7 +1096,6 @@ def test_article_detail_page_image_variants(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_index_page_sticker_variants_flare26(
     minimal_site,
     rf,
@@ -1171,70 +1152,6 @@ def test_article_index_page_sticker_variants_flare26(
 
     container = featured_card.find("div", class_="image-variants-display")
     assert container is not None, "Expected image-variants-display in sticker card"
-
-    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
-    assert len(container.find_all("img")) == expected_img_count
-
-    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
-
-
-@_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=False)
-def test_article_index_page_featured_image_variants(
-    minimal_site,
-    rf,
-    has_dark,
-    has_mobile,
-    has_dark_mobile,
-    primary_classes,
-    dark_classes,
-    mobile_classes,
-    dark_mobile_classes,
-):
-    """ArticleDetailPage featured_image variants are rendered with correct CSS classes on the index page (non-flare26)."""
-    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-
-    root_page = SimpleRichTextPage.objects.first()
-    index_page = ArticleIndexPageFactory(
-        parent=root_page,
-        slug="articles",
-        title="Articles",
-        other_articles_heading="<p>Other Articles</p>",
-    )
-    index_page.save()
-
-    featured_image_kwargs = dict(featured_image=image)
-    if has_dark:
-        featured_image_kwargs["featured_image_dark_mode"] = dark_image
-    if has_mobile:
-        featured_image_kwargs["featured_image_mobile"] = mobile_image
-    if has_dark_mobile:
-        featured_image_kwargs["featured_image_dark_mode_mobile"] = dark_mobile_image
-
-    featured_page = ArticleDetailPageFactory(
-        parent=index_page,
-        title="Featured Article",
-        slug="featured-article",
-        featured=True,
-        image=image,
-        **featured_image_kwargs,
-    )
-    featured_page.save()
-
-    index_page.refresh_from_db()
-    request = rf.get(index_page.relative_url(minimal_site))
-    response = index_page.specific.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    featured_grid = soup.find("div", class_="fl-card-grid")
-    assert featured_grid is not None
-
-    featured_card = featured_grid.find(class_="fl-illustration-card")
-    assert featured_card is not None, "Expected a fl-illustration-card in the featured grid"
-
-    container = featured_card.find("div", class_="image-variants-display")
-    assert container is not None, "Expected image-variants-display in illustration card"
 
     expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
     assert len(container.find_all("img")) == expected_img_count

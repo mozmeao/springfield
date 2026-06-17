@@ -11,14 +11,19 @@
     {% if theme == 'light' %}fl-force-light-theme{% endif %}
 ">
   <div class="fl-header-inner">
-    <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
-      <img
-        src="/media/img/logos/firefox/logo-word-hor-2026.svg"
-        alt="Firefox"
-        width="120"
-        height="40"
-      />
-    </a>
+    {% if contents.custom_logo %}
+      {{ contents.custom_logo }}
+    {% else %}
+      <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
+        <img
+          src="/media/img/logos/firefox/logo-word-hor-2026.svg"
+          alt="Firefox"
+          width="120"
+          height="40"
+        />
+      </a>
+    {% endif %}
+
     {% if not no_menu %}
     <nav class="fl-nav" data-testid="navigation-menu-items">
       {% if not no_menu_dropdowns %}

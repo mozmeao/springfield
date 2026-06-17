@@ -5,7 +5,7 @@
  */
 
 const DownloadAsDefault = {};
-DownloadAsDefault.CAMPAIGN = 'SET_AS_DEFAULT';
+DownloadAsDefault.CAMPAIGN = 'SET_DEFAULT_BROWSER';
 
 window.Mozilla.DownloadAsDefault = DownloadAsDefault;
 

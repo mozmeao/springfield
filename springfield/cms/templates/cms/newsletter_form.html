@@ -4,12 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# NOTE: This file uses mzp classes from Mozilla Protocol, even though this page is not using Protocol. The newsletter JS depends on these classes.#}
-
 {% from "newsletter/includes/macros.html" import email_form_thankyou with context %}
 
 {% if not success %}
-  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate>
+  <form id="newsletter-form" class="fl-newsletterform" action="{{ action }}" method="post" novalidate data-testid="newsletter-form">
     {% if not is_multi_newsletter_form %}
       <div hidden>
         {{ form.newsletters|safe }}
@@ -17,13 +15,15 @@
     {% endif %}
     <input type="hidden" name="source_url" value="{{ request.build_absolute_uri() }}">
 
-    <label class="visually-hidden" for="newsletter-email">{{ email_label|d(ftl('newsletter-form-your-email-address'), true) }}</label>
-    {% if email_placeholder %}
-      {% set placeholder = email_placeholder %}
-    {% else %}
-      {% set placeholder = ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') %}
-    {% endif %}
-    <input id="newsletter-email" class="fl-newsletterform-input mzp-js-email-field" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" />
+    <div class="fl-newsletterform-field">
+      <label class="fl-newsletterform-label" for="newsletter-email">{{ email_label|d(ftl('newsletter-form-your-email-address'), true) }}</label>
+      {% if email_placeholder %}
+        {% set placeholder = email_placeholder %}
+      {% else %}
+        {% set placeholder = ftl('newsletter-form-yournameexamplecom', fallback='newsletter-form-your-email-here') %}
+      {% endif %}
+      <input id="newsletter-email" class="fl-newsletterform-input" type="email" name="email" placeholder="{{ placeholder }}" autocomplete="email" data-testid="newsletter-email-input" />
+    </div>
 
     {% if not include_language %}
       <input type="hidden" name="lang" id="id_lang" value="en">
@@ -32,8 +32,8 @@
     <div id="newsletter-details" class="fl-newsletterform-details fl-newsletterform-row-hidden">
       {% if include_country %}
         <div class="fl-newsletterform-field">
-          <label for="{{ form.country.id_for_label }}" class="visually-hidden">{{ form.country.label }}</label>
-          <select class="fl-newsletterform-select" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}">
+          <label for="{{ form.country.id_for_label }}" class="fl-newsletterform-label">{{ form.country.label }}</label>
+          <select class="fl-newsletterform-select" name="{{ form.country.name }}" id="{{ form.country.id_for_label }}" data-testid="newsletter-country-select">
             <option value="" disabled selected>{{ ftl('newsletter-form-please-select-country') }}</option>
             {% for choice in form.country.field.choices %}
             {% if choice.0 %}
@@ -49,7 +49,7 @@
 
       {% if include_language %}
       <div class="fl-newsletterform-field">
-        <label for="{{ form.lang.id_for_label }}" class="visually-hidden">{{ form.lang.label }}</label>
+        <label for="{{ form.lang.id_for_label }}" class="fl-newsletterform-label">{{ form.lang.label }}</label>
         {% if LANG.startswith('en-') %}
           {% set lang_default = 'en' %}
         {% else %}
@@ -77,12 +77,23 @@
       {% endif %}
       <div class="fl-newsletterform-consent">
         <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
-          <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true">
+          <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
           <span class="fl-newsletterform-checkbox-text">{{ legal_links | safe }} {{ ftl('newsletter-form-we-will-only-send-firefox-v2') }}</span>
         </label>
       </div>
     </div>
-    <button id="newsletter-submit" class="fl-button" type="submit" disabled>{{ ftl('newsletter-form-button-cta') }}</button>
+    <button
+     id="newsletter-submit"
+     data-testid="newsletter-submit-button"
+     class="fl-button"
+     type="submit"
+     disabled
+     {% if analytics_id %}
+      data-cta-position="{{ analytics_position }}"
+      data-cta-text="{{ analytics_text }}"
+      data-cta-uid="{{ analytics_id }}"
+     {% endif %}
+    >{{ ftl('newsletter-form-button-cta') }}</button>
     <div class="fl-body fl-newsletterform-feedback fl-newsletterform-error mzp-c-form-errors hidden" id="newsletter-errors" data-testid="newsletter-error-message">
       <ul class="fl-newsletterform-error-list mzp-u-list-styled">
         <li class="error-email-invalid hidden">{{ ftl('newsletter-form-please-enter-a-valid') }}</li>

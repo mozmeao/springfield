@@ -15,10 +15,20 @@
 
 <include:roadmap-list-section>
   <content:heading>
-    <{{ heading_level }} class="fl-heading">{{ value.headline }}</{{ heading_level }}>
-    {% if value.subheadline %}
-      <p class="fl-subheading">{{ value.subheadline }}</p>
-    {% endif %}
+    <button
+      type="button"
+      class="fl-roadmap-section-toggle"
+      aria-expanded="true"
+    >
+      <{{ heading_level }} class="fl-heading">
+        {{ value.headline }}
+        <span class="fl-icon fl-icon-add"></span>
+        <span class="fl-icon fl-icon-subtract"></span>
+      </{{ heading_level }}>
+      {% if value.subheadline %}
+        <p class="fl-subheading">{{ value.subheadline }}</p>
+      {% endif %}
+    </button>
   </content:heading>
 
   <content:list_items>
@@ -65,26 +75,28 @@
 
         {% if learn_more_url or secondary_url %}
           <content:buttons>
-            {% if learn_more_url %}
-              {% set button_position = item_block_position ~ ".learn-more" %}
-              <include:button
-                link="{{ learn_more_url|add_utm_parameters }}"
-                label="{{ ftl('ui-learn-more') }}"
-                analytics_id="{{ item.learn_more_analytics_id }}"
-                analytics_text="{{ item_block_text ~ ' - ' ~ ftl('ui-learn-more') }}"
-                analytics_position="{{ button_position }}"
-              />
-            {% endif %}
             {% if secondary_url and item.secondary_button_label %}
               {% set button_position = item_block_position ~ ".secondary-button" %}
               <include:button
                 link="{{ secondary_url|add_utm_parameters }}"
                 label="{{ item.secondary_button_label }}"
-                theme_class="button-ghost"
                 icon_name="{{ item.secondary_button_icon }}"
                 icon_position="{{ item.secondary_button_icon_position }}"
                 analytics_id="{{ item.secondary_button_analytics_id }}"
                 analytics_text="{{ item_block_text ~ ' - ' ~ item.secondary_button_label }}"
+                analytics_position="{{ button_position }}"
+              />
+            {% endif %}
+            {% if learn_more_url %}
+              {% set button_position = item_block_position ~ ".learn-more" %}
+              <include:button
+                link="{{ learn_more_url|add_utm_parameters }}"
+                label="{{ ftl('ui-learn-more') }}"
+                theme_class="button-ghost"
+                icon_name="forward"
+                icon_position="after"
+                analytics_id="{{ item.learn_more_analytics_id }}"
+                analytics_text="{{ item_block_text ~ ' - ' ~ ftl('ui-learn-more') }}"
                 analytics_position="{{ button_position }}"
               />
             {% endif %}

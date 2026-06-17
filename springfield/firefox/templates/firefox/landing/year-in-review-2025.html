@@ -4,8 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "cms/base-flare26.html" %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
@@ -13,11 +12,7 @@
 {% block page_desc %}A look back at what your Firefox did this year.{% endblock %}
 
 {% block page_css %}
-  {% if switch("flare26_enabled") %}
-    {{ css_bundle('flare26-year-in-review') }}
-  {% else %}
-    {{ css_bundle('eoy_2025') }}
-  {% endif %}
+  {{ css_bundle('flare26-year-in-review') }}
 {% endblock %}
 
 {% block body_class %}yir-2025{% endblock %}
@@ -25,11 +20,7 @@
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% if switch("flare26_enabled") %}
-    {% include "firefox/landing/year-in-review-2025-flare26.html" %}
-  {% else %}
-    {% include "firefox/landing/year-in-review-2025-protocol.html" %}
-  {% endif %}
+  {% include "firefox/landing/year-in-review-2025-flare26.html" %}
 {% endblock %}
 
 {% block js %}
