@@ -79,8 +79,10 @@
             {% if secondary_url and item.secondary_button_label %}
               {% set button_position = item_block_position ~ ".secondary-button" %}
               <include:button
+                id="{{ item.secondary_button_analytics_id }}"
                 link="{{ secondary_url|add_utm_parameters }}"
                 label="{{ item.secondary_button_label }}"
+                aria_labelledby="{{ item.secondary_button_analytics_id ~ ' ' ~ item_heading_id }}"
                 icon_name="{{ item.secondary_button_icon }}"
                 icon_position="{{ item.secondary_button_icon_position }}"
                 analytics_id="{{ item.secondary_button_analytics_id }}"
