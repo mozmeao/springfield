@@ -34,7 +34,10 @@
 .fl-mediacontent-content .fl-superheading {
     color: var(--fl-theme-color-brand-text);
     font-size: var(--fl-theme-label-caps-sm);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-mediacontent.is-narrow .fl-video {

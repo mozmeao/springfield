@@ -38,6 +38,14 @@
     position: relative;
 }
 
+[lang='de'] .flare26-kick-page .fl-featured-image-section-media .fl-video {
+    background-image: url('/media/img/firefox/world-cup/world-cup-hero-bg-de.png');
+}
+
+[lang='fr'] .flare26-kick-page .fl-featured-image-section-media .fl-video {
+    background-image: url('/media/img/firefox/world-cup/world-cup-hero-bg-fr.png');
+}
+
 .flare26-kick-page .fl-featured-image-section-media .fl-video video,
 .flare26-kick-page .fl-featured-image-section-media .fl-video .fl-video-poster {
     block-size: 228%;

@@ -116,6 +116,7 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
+    fallback_fields = ["medium", "source"]
     stub_value_names = _STUB_VALUE_NAMES if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR") else _STUB_VALUE_NAMES_LEGACY
     for name, default_value in stub_value_names:
         val = data.get(name, "")
@@ -125,19 +126,21 @@ def stub_attribution_code(request):
 
         if val and STUB_VALUE_RE.match(val):
             codes[name] = val
-            has_value = True
+            if name in fallback_fields:
+                # we don't need the fallbacks
+                has_value = True
         else:
             codes[name] = default_value
 
     # Only provide default analytics data if analytics data is allowed
-    # (as indicated by set ga4 client value)
+    # (as indicated by set session_id value)
     if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-        if not codes["client_id_ga4"] == "(not set)":
-            # set basic defaults
+        if not codes["session_id"] == "(not set)":
+            # set basic fallbacks
             if codes["medium"] == "(not set)":
                 codes["medium"] = "(direct)"
 
-            # try more advanced defaults
+            # try more advanced fallbacks
             if codes["source"] == "(not set)" and "referrer" in data:
                 try:
                     domain = urlparse(data["referrer"]).netloc
@@ -317,14 +320,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     download_url = None
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        if waffle.switch("FLARE26_ENABLED"):
-            template_name = "firefox/all/includes/main-flare26.html"
-        else:
-            template_name = "firefox/all/includes/main.html"
-    elif waffle.switch("FLARE26_ENABLED"):
-        template_name = "firefox/all/base-flare26.html"
+        template_name = "firefox/all/includes/main-flare26.html"
     else:
-        template_name = "firefox/all/base.html"
+        template_name = "firefox/all/base-flare26.html"
 
     lang_multi = ftl("firefox-all-lang-multi", ftl_files=ftl_files)
 
@@ -452,6 +450,7 @@ class DownloadThanksView(L10nTemplateView):
         "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
         "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
+        "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
@@ -479,7 +478,10 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                template = "firefox/download/desktop/thanks_direct.html"
+                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
+                    template = "firefox/download/rtamo.html"
+                else:
+                    template = "firefox/download/desktop/thanks_direct.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:

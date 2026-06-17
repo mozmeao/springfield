@@ -12,5 +12,8 @@
 
 .fl-pricing-heading .fl-superheading {
     margin: 0;
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }

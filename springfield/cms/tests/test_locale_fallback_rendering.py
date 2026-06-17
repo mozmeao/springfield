@@ -16,13 +16,12 @@ from wagtail.models import Locale, Page, Site
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
-from springfield.cms.models import FreeFormPage, PretranslatedPhrase
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 from springfield.cms.tests.factories import (
     LocaleFactory,
     SimpleRichTextPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
-    WhatsNewPageFactory,
 )
 from springfield.urls import urlpatterns as springfield_urlpatterns
 
@@ -743,7 +742,7 @@ def test_whatsnew_page_direct_request_has_canonical(client):
     en_us_root = site.root_page
 
     en_us_wnp_index = WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
-    en_us_wnp = WhatsNewPageFactory(parent=en_us_wnp_index, slug="149", version="149")
+    en_us_wnp = WhatsNewPage2026Factory(parent=en_us_wnp_index, slug="149", version="149")
     en_us_wnp.refresh_from_db()
     assert en_us_wnp.noindex is True
 
@@ -776,10 +775,10 @@ def test_whatsnew_page_alias_request_gets_canonical(client):
     es_ar_root.save_revision().publish()
 
     WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
-    WhatsNewPageFactory(parent=en_us_root.get_children().get(slug="whatsnew"), slug="149", version="149")
+    WhatsNewPage2026Factory(parent=en_us_root.get_children().get(slug="whatsnew"), slug="149", version="149")
 
     es_mx_wnp_index = WhatsNewIndexPageFactory(parent=es_mx_root, slug="whatsnew", live=True, locale=es_mx_locale)
-    es_mx_wnp = WhatsNewPageFactory(parent=es_mx_wnp_index, slug="149", version="149", locale=es_mx_locale)
+    es_mx_wnp = WhatsNewPage2026Factory(parent=es_mx_wnp_index, slug="149", version="149", locale=es_mx_locale)
     assert es_mx_wnp.noindex is True
 
     page_path = "/whatsnew/149/"
@@ -817,7 +816,7 @@ def test_alias_to_nonexistent_whatsnew_fallback_page_uses_django_view(client):
     # WNP exists only in en-US; es-MX has no CMS equivalent.
     # Since the URL is wrapped in prefer_cms(), it falls through to the Django WhatsnewView.
     en_us_wnp_index = WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
-    WhatsNewPageFactory(parent=en_us_wnp_index, slug="149", version="149")
+    WhatsNewPage2026Factory(parent=en_us_wnp_index, slug="149", version="149")
 
     response = client.get("/es-AR/whatsnew/149/")
 
@@ -858,7 +857,7 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
         live=True,
     )
 
-    es_mx_page = FreeFormPage(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
+    es_mx_page = FreeFormPage2026(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
     es_mx_root.add_child(instance=es_mx_page)
     es_mx_page.content = [
         {
