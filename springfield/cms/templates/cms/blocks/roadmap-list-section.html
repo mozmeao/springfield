@@ -35,6 +35,7 @@
     {% for item in value.list_items %}
       {% set item_block_position = block_position ~ ".item-" ~ loop.index %}
       {% set item_block_text = item.title %}
+      {% set item_heading_id = item.title.lower().replace(" ", "_") %}
 
       <include:roadmap-item data_tags="{{ ','.join(item.tags) }}">
         {% if item.icon %}
@@ -45,7 +46,7 @@
 
         <content:header>
           {% set item_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-          <{{ item_heading_level }} class="fl-heading">
+          <{{ item_heading_level }} class="fl-heading" id="{{ item_heading_id }}">
             {{ item.title }}
             {% if item.status %}
               <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.get_status_label() }}</span>
@@ -78,8 +79,10 @@
             {% if secondary_url and item.secondary_button_label %}
               {% set button_position = item_block_position ~ ".secondary-button" %}
               <include:button
+                id="{{ item.secondary_button_analytics_id }}"
                 link="{{ secondary_url|add_utm_parameters }}"
                 label="{{ item.secondary_button_label }}"
+                aria_labelledby="{{ item.secondary_button_analytics_id ~ ' ' ~ item_heading_id }}"
                 icon_name="{{ item.secondary_button_icon }}"
                 icon_position="{{ item.secondary_button_icon_position }}"
                 analytics_id="{{ item.secondary_button_analytics_id }}"
@@ -90,8 +93,10 @@
             {% if learn_more_url %}
               {% set button_position = item_block_position ~ ".learn-more" %}
               <include:button
+                id="{{ item.learn_more_analytics_id }}"
                 link="{{ learn_more_url|add_utm_parameters }}"
                 label="{{ ftl('ui-learn-more') }}"
+                aria_labelledby="{{ item.learn_more_analytics_id ~ ' ' ~ item_heading_id }}"
                 theme_class="button-ghost"
                 icon_name="forward"
                 icon_position="after"
