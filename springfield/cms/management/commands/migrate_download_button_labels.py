@@ -36,9 +36,7 @@ PAGE_MODELS_AND_FIELDS = [
     ("DownloadPage", ["content"]),
     ("ThanksPage", ["content"]),
     ("ArticleThemePage", ["upper_content", "content"]),
-    ("FreeFormPage", ["content"]),
     ("FreeFormPage2026", ["upper_content", "content"]),
-    ("WhatsNewPage", ["content"]),
     ("WhatsNewPage2026", ["upper_content", "content"]),
 ]
 
