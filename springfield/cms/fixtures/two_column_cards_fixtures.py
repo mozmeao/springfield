@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -379,12 +379,12 @@ def get_two_column_cards_variants() -> list[dict]:
 
 
 def get_two_column_cards_test_page() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-two-column-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Two Column Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Two Column Cards")
         index_page.add_child(instance=page)
 
     variants = get_two_column_cards_variants()

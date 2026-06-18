@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -192,12 +192,12 @@ def get_sticker_cards_sections() -> list[dict]:
 
 def get_sticker_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-sticker-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Sticker Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Sticker Cards")
         index_page.add_child(instance=page)
 
     sections = get_sticker_cards_sections()
@@ -315,12 +315,12 @@ def get_illustration_cards_sections() -> list[dict]:
 
 def get_illustration_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-illustration-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Illustration Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Illustration Cards")
         index_page.add_child(instance=page)
 
     sections = get_illustration_cards_sections()
@@ -421,12 +421,12 @@ def get_step_cards_sections() -> list[dict]:
 
 def get_step_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-step-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Step Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Step Cards")
         index_page.add_child(instance=page)
 
     sections = get_step_cards_sections()
@@ -539,12 +539,12 @@ def get_outlined_cards_sections() -> list[dict]:
 
 def get_outlined_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-outlined-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Outlined Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Outlined Cards")
         index_page.add_child(instance=page)
 
     sections = get_outlined_cards_sections()

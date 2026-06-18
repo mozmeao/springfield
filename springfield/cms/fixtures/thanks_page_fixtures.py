@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
@@ -225,7 +225,7 @@ def get_download_support():
 
 
 def get_thanks_page() -> ThanksPage:
-    index_page = get_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     image, _, _, _ = get_placeholder_images()
 
@@ -246,7 +246,7 @@ def get_thanks_page() -> ThanksPage:
     if not page:
         page = ThanksPage(
             slug="test-thanks-page",
-            title="Thanks Page Test",
+            title="Thanks Page",
             content=content,
         )
         index_page.add_child(instance=page)
