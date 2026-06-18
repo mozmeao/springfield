@@ -1778,6 +1778,12 @@ def test_intro_block(index_page, placeholder_images, rf):
             else:
                 assert "is-slim" not in intro_classes
 
+            # Settings: horizontal_slim — only emitted on non-vertical layouts
+            if value["settings"]["horizontal_slim"] and value["settings"]["layout"] != "vertical":
+                assert "is-horizontal-slim" in intro_classes
+            else:
+                assert "is-horizontal-slim" not in intro_classes
+
             # Settings: anchor_id
             anchor_id = value["settings"]["anchor_id"]
             if anchor_id:
