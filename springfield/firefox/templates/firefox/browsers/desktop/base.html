@@ -4,14 +4,14 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {# This template can render with EITHER 'firefox/download/download.ftl' OR 'firefox/download/platform.ftl' active
  # download.ftl contains strings for the hero and small-links for the platform pages
  # platform.ftl contains strings for the hero, small-links, and features sections for the platform pages
  # the view for the platform pages will activate the locale if either language file is active  #}
 
-{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
 
 {% block body_class %}fl-download-page{% endblock %}
 
@@ -51,7 +51,7 @@
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header theme="dark" />
+  <include:flare-header theme="dark" />
 {% endblock %}
 
 {% block content %}

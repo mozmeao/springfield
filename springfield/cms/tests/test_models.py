@@ -995,7 +995,7 @@ def test_article_detail_page_image_variants(
 
 
 @_IMAGE_VARIANT_PARAMS
-def test_article_index_page_sticker_variants_flare26(
+def test_article_index_page_sticker_variants_flare(
     minimal_site,
     rf,
     has_dark,
@@ -1006,7 +1006,7 @@ def test_article_index_page_sticker_variants_flare26(
     mobile_classes,
     dark_mobile_classes,
 ):
-    """ArticleDetailPage sticker variants are rendered with correct CSS classes on the index page (flare26)."""
+    """ArticleDetailPage sticker variants are rendered with correct CSS classes on the index page (flare)."""
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
 
     root_page = SimpleRichTextPage.objects.first()

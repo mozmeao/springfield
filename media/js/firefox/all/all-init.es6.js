@@ -79,11 +79,11 @@ import MzpModal from '@mozilla-protocol/core/protocol/js/modal';
 
         if (
             window.cms &&
-            window.cms.Flare26 &&
-            window.cms.Flare26.initDialogs &&
+            window.cms.Flare &&
+            window.cms.Flare.initDialogs &&
             (installerHelpIcon || browserHelpIcon)
         ) {
-            window.cms.Flare26.initDialogs();
+            window.cms.Flare.initDialogs();
         }
 
         // init stub attribution & event tracking for GA4
