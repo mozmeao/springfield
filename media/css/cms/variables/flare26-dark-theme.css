@@ -50,15 +50,14 @@
 --fl-theme-card-outline-superheading-color-active: var(
     --token-color-soft-purple-3
 );
+--display-light-mode-only: none;
 
 /* Two column and gallery cards */
 --two-column-accent-color: var(--token-color-soft-purple-4);
 
 /* light-dark theme */
---two-column-light-dark-second-card-bg: var(--fl-theme-background);
---two-column-light-dark-second-card-border-color: var(
-    --token-color-light-purple
-);
+--two-column-light-dark-first-card-bg: var(--token-color-medium-purple);
+--two-column-light-dark-second-card-bg: var(--token-color-purple);
 
 /* light-light theme */
 --two-column-light-light-first-card-bg: var(--token-color-purple);
@@ -105,6 +104,26 @@
 --notification-green-color: var(--token-color-white);
 --notification-green-border-color: var(--token-color-secondary-green);
 --notification-green-icon-bg: var(--token-color-soft-green);
+
+/* white */
+--notification-white-bg: var(--token-color-black-4);
+--notification-white-color: var(--token-color-white);
+--notification-white-border-color: var(--token-color-black-1);
+--notification-white-icon-bg: var(--token-color-white);
+
+/* selected state (inverted) */
+--notification-selected-bg: var(--notification-stacked-color);
+--notification-selected-color: var(--notification-bg);
+--notification-red-selected-bg: var(--notification-red-color);
+--notification-red-selected-color: var(--notification-red-bg);
+--notification-orange-selected-bg: var(--notification-orange-color);
+--notification-orange-selected-color: var(--notification-orange-bg);
+--notification-green-selected-bg: var(--notification-green-color);
+--notification-green-selected-color: var(--notification-green-bg);
+--notification-white-selected-bg: var(--token-color-white);
+--notification-white-selected-color: var(--notification-white-bg);
+--notification-light-purple-selected-bg: var(--notification-light-purple-color);
+--notification-light-purple-selected-color: var(--notification-light-purple-bg);
 
 /* form fields. */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);
@@ -170,3 +189,16 @@
 --theme-numbered-list-background: transparent;
 --theme-numbered-list-border-color: var(--token-color-light-purple);
 --theme-numbered-list-counter-color: var(--token-color-soft-purple-4);
+
+/* Roadmap list section */
+--theme-roadmap-list-background: var(--token-color-dark-purple-2-40);
+--theme-roadmap-list-border-color: var(--token-color-soft-purple-6);
+
+/* Form fields */
+--theme-form-field-background: var(--token-color-white);
+--theme-form-field-background-focus: var(--token-color-white);
+--theme-form-field-border-color: transparent;
+--theme-form-field-border-color-error: var(--token-color-error-red-2);
+--theme-form-field-border-color-focus: var(--token-color-light-purple);
+--theme-form-focus-outline-color: var(--token-color-light-purple-60);
+--theme-form-error-message-color: var(--token-color-error-red-2);

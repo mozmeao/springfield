@@ -5,12 +5,13 @@
 #}
 
 {% for variant in variants %}
-  <div style="margin-bottom: 2em;">
+  <div data-testid="banner-{{ variant.testid }}" style="margin-bottom: 2em;">
     <h2>{{ variant.title }}</h2>
     <include:banner
       theme="{{ variant.theme }}"
       media_after="{{ variant.media_after }}"
       qr_code="{{ variant.qr_code }}"
+      centralize_content="{{ variant.centralize_content }}"
     >
 
       <content:heading>
@@ -18,10 +19,8 @@
           level="{{ variant.heading.level }}"
           heading_text="{{ variant.heading.heading_text }}"
           heading_size="{{ variant.heading.heading_size }}"
-          alignment_class=""
           superheading_text="{{ variant.heading.superheading_text }}"
           subheading_text="{{ variant.heading.subheading_text }}"
-          subheading_size="fl-subheading-4"
         />
       </content:heading>
 
@@ -39,19 +38,37 @@
         </content:media>
       {% endif %}
 
-      {% if variant.buttons %}
-        <content:actions>
-        {% for button in variant.buttons %}
-          <include:button
-            label="{{ button.label }}"
-            link="{{ button.link }}"
-            theme_class="{{ button.theme_class }}"
-            external="{{ button.external }}"
-            icon_name="{{ button.icon_name }}"
-            icon_position="{{ button.icon_position }}"
-          />
-        {% endfor %}
-        </content:actions>
+      {% if variant.tags or variant.body or variant.buttons %}
+        <content:content>
+          {% if variant.tags %}
+            <div class="fl-tags">
+              {% for tag in variant.tags %}
+                <include:tag
+                  text="{{ tag.text }}"
+                  color="{{ tag.color }}"
+                  corners="{{ tag.corners }}"
+                  before_icon="{{ tag.before_icon }}"
+                  after_icon="{{ tag.after_icon }}"
+                />
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if variant.body %}<p>{{ variant.body }}</p>{% endif %}
+          {% if variant.buttons %}
+            <div class="fl-buttons">
+            {% for button in variant.buttons %}
+              <include:button
+                label="{{ button.label }}"
+                link="{{ button.link }}"
+                theme_class="{{ button.theme_class }}"
+                external="{{ button.external }}"
+                icon_name="{{ button.icon_name }}"
+                icon_position="{{ button.icon_position }}"
+              />
+            {% endfor %}
+            </div>
+          {% endif %}
+        </content:content>
       {% endif %}
     </include:banner>
   </div>

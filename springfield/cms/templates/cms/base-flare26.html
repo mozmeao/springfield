@@ -9,12 +9,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   class="windows no-js"
   lang="{{ LANG|replace('en-US', 'en') }}"
   dir="{{ DIR }}"
+  data-attribution-refactor-enabled="{{ switch('enable_attribution_refactor') }}"
   data-country-code="{{ country_code }}"
   data-needs-consent="{{ needs_data_consent(country_code) }}"
   data-latest-firefox="{{ latest_firefox_version }}"
   data-esr-versions="{{ esr_firefox_versions|join(' ') }}"
   {% if settings.GTM_CONTAINER_ID %}
   data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}"
+  {% endif %}
+  {% if plausible_enabled(country_code) %}
+  data-plausible-domain="{{ settings.PLAUSIBLE_DOMAIN }}"
+  data-plausible-src="{{ settings.PLAUSIBLE_SCRIPT_URL }}"
   {% endif %}
   {% if settings.STUB_ATTRIBUTION_RATE %}
   data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"
@@ -44,14 +49,22 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {% block shared_meta %}
     <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox' }}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox.com{% endblock %}{% endfilter %}</title>
-    <meta name="description" content="{% filter striptags %}{% block page_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
+    {% set page_desc_content %}{% block page_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endset %}
+    {% set page_desc_content = page_desc_content|striptags|trim %}
+    {%- if page_desc_content %}
+    <meta name="description" content="{{ page_desc_content }}">
+    {%- endif %}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Firefox">
     <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
     <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
     <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{% if page and page.og_image %}{% set img = image(page.og_image, "width-1200") %}{{ img.url }}{% else %}{{ static('img/firefox/flare/og.png') }}{% endif %}{% endblock %}{% endfilter %}">
     <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ (page.og_title or page.title) if page is defined and page.title is defined else 'Firefox'  }}{% endblock %}{% endfilter %}">
-    <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endfilter %}">
+    {% set page_og_desc_content %}{% block page_og_desc %}{{ page.og_description if page is defined and page.og_description is defined }}{% endblock %}{% endset %}
+    {% set page_og_desc_content = page_og_desc_content|striptags|trim %}
+    {%- if page_og_desc_content %}
+    <meta property="og:description" content="{{ page_og_desc_content }}">
+    {%- endif %}
     <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
     <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
     <meta name="twitter:site" content="@{% block twitter_id %}firefox{% endblock %}">
@@ -67,6 +80,35 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <link rel="shortcut icon" href="{% block page_favicon %}{{ static('img/favicons/firefox/browser/favicon.ico') }}{% endblock %}">
     {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
     {% endblock shared_meta %}
+
+    {% block structured_data %}
+      {% if page is defined %}
+        {% set breadcrumb_ancestors = page.get_ancestors().live().filter(depth__gt=1) %}
+        {% if breadcrumb_ancestors %}
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {% for ancestor in breadcrumb_ancestors %}
+            {
+              "@type": "ListItem",
+              "position": {{ loop.index }},
+              "name": {{ ancestor.title|tojson }},
+              "item": {{ ancestor.full_url|tojson }}
+            },
+            {% endfor %}
+            {
+              "@type": "ListItem",
+              "position": {{ breadcrumb_ancestors|length + 1 }},
+              "name": {{ page.title|tojson }}
+            }
+          ]
+        }
+        </script>
+        {% endif %}
+      {% endif %}
+    {% endblock %}
 
     {% block site_css %}
     {% if settings.FLARECSS_LEGACY_MODE %}
@@ -93,6 +135,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('gtm-snippet') }}
     {% endif %}
     {% endblock %}
+    {% block plausible %}
+    {% if plausible_enabled(country_code) %}
+    {{ js_bundle('plausible') }}
+    {% endif %}
+    {% endblock %}
   </head>
 
   <body
@@ -101,6 +148,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block body_attrs %}{% endblock %}
   >
     {{ wagtailuserbar() }}
+
+    {% block pencil_banners %}
+      {% if page is defined and page.pencil_banners is defined %}
+        {% for value in page.pencil_banners %}
+          {% include "cms/snippets/pencil-banner.html" %}
+        {% endfor %}
+      {% endif %}
+    {% endblock %}
 
     {% block flare_header %}
     <include:flare26-header />
@@ -205,12 +260,25 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if settings.STUB_ATTRIBUTION_RATE %}
         <!--[if IE 9]><!-->
           {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
-          {{ js_bundle('stub-attribution') }}
+          {% if switch('enable_attribution_refactor') %}
+            {{ js_bundle('download-attribution-init-essential') }}
+          {% else %}
+            {{ js_bundle('stub-attribution') }}
+          {% endif %}
         <!--<![endif]-->
       {% endif %}
 
       {# Download as default needs to come after stub attribution #}
-      {{ js_bundle('download_as_default') }}
+      {% if switch('enable_attribution_refactor') %}
+        {{ js_bundle('download_as_default-v2') }}
+      {% else %}
+        {{ js_bundle('download_as_default') }}
+      {% endif %}
+
+      {# Rewrites /thanks/-bound download buttons to attributed store URLs on
+         mobile UAs so page-level campaign survives the click. Self-gates on
+         campaign data attrs or URL utm_campaign; no-op otherwise. #}
+      {{ js_bundle('mobile-attribution') }}
 
       {% if page is defined and page.enable_marketing_attribution %}
         <!--[if IE 9]><!-->

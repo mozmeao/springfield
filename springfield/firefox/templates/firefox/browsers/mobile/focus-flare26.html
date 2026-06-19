@@ -9,27 +9,29 @@
   <div class="fl-split-page-upper end-of-page has-gradient-bottom">
     <div class="fl-section">
       <div class="fl-section-container">
-        <include:intro slim vertical media_position="right">
+        <include:intro slim media_position="right">
           <content:heading>
             <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/{% if LANG=='de' %}klar{% else %}focus{% endif %}/logo-word-hor-white.svg" aria-hidden />
             <include:heading
               level="h1"
-              heading_size="fl-heading-size-1"
+              heading_size="fl-heading-xl"
               heading_text="{{ ftl('mobile-focus-simply-private-mobile') }}"
               subheading_text="{{ ftl('mobile-focus-firefox-focus-dedicated-with-v2') }}"
             />
           </content:heading>
 
-          <content:actions>
-            <ul class="fl-mobile-download-buttons">
-              <li class="android">
-                {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
-              </li>
-              <li class="ios">
-                {{ apple_app_store_button(href=ios_url, id='appStoreLink-primary') }}
-              </li>
-            </ul>
-          </content:actions>
+          <content:content>
+            <div class="fl-intro-actions">
+              <ul class="fl-mobile-download-buttons">
+                <li class="android">
+                  {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+                </li>
+                <li class="ios">
+                  {{ apple_app_store_button(href=ios_url, id='appStoreLink-primary') }}
+                </li>
+              </ul>
+            </div>
+          </content:content>
 
           <content:media>
             <div class="fl-card fl-mobile-download-form">
@@ -48,6 +50,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-focus-delete-your-history') }}"
               subheading_text="{{ ftl('mobile-focus-easily-erase-your') }}"
             />
@@ -66,6 +69,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-focus-take-private-mode') }}"
               subheading_text="{{ ftl('mobile-focus-private-browsing-on-v2') }}"
             />
@@ -84,6 +88,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-focus-tracking-protection') }}"
               subheading_text="{{ ftl('mobile-focus-firefox-focus-blocks') }}"
             />
@@ -102,6 +107,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-focus-see-it-all') }}"
               subheading_text="{{ ftl('mobile-focus-focus-removes-trackers-v3') }}"
             />
@@ -120,6 +126,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-focus-made-by-mozilla') }}"
               subheading_text="{{ ftl('mobile-focus-we-believe-everyone') }}"
             />

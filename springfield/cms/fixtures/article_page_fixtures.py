@@ -6,8 +6,9 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_download_firefox_cta_snippet, get_tags
+from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_tags
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
+from springfield.cms.models.pages import ArticleDetailPagePencilBannerPlacement, ArticleThemePagePencilBannerPlacement
 
 LOREM_IPSUM = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
@@ -32,7 +33,6 @@ def create_article(
     tag: Tag,
     link_text: str,
     featured_image: SpringfieldImage,
-    cta_field: list,
 ) -> ArticleDetailPage:
     index_page = get_article_index_test_page()
 
@@ -50,7 +50,6 @@ def create_article(
     article.link_text = link_text
     article.description = description
     article.content = [{"type": "text", "value": "".join(content_blocks)}]
-    article.call_to_action = cta_field
     article.save_revision().publish()
 
     return article
@@ -58,14 +57,7 @@ def create_article(
 
 def get_article_pages():
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-    cta_snippet = get_download_firefox_cta_snippet()
     tags = get_tags()
-    cta_field = [
-        {
-            "type": "download_firefox",
-            "value": cta_snippet.id,
-        }
-    ]
     p_keys = ["c1bc4d7eadf0", "0b474f02", "d3fd4d86", "83cdc1bc", "4d7eadf0"]
 
     featured_article_1 = create_article(
@@ -82,8 +74,10 @@ def get_article_pages():
         sticker=dark_image,
         tag=tags["security"],
         link_text="See Featured 1",
-        cta_field=cta_field,
     )
+
+    snippet = get_pencil_banner_snippet()
+    ArticleDetailPagePencilBannerPlacement.objects.get_or_create(page=featured_article_1, snippet=snippet)
 
     featured_article_2 = create_article(
         title="Test Featured Article 2",
@@ -99,7 +93,6 @@ def get_article_pages():
         sticker=image,
         tag=tags["privacy"],
         link_text="See Featured 2",
-        cta_field=cta_field,
     )
 
     regular_article_1 = create_article(
@@ -116,7 +109,6 @@ def get_article_pages():
         sticker=dark_image,
         tag=tags["performance"],
         link_text="See Regular 1",
-        cta_field=cta_field,
     )
 
     regular_article_2 = create_article(
@@ -133,7 +125,6 @@ def get_article_pages():
         sticker=image,
         tag=tags["tips"],
         link_text="See Regular 2",
-        cta_field=cta_field,
     )
 
     return [
@@ -148,6 +139,7 @@ def get_theme_page_intro():
     return {
         "type": "intro",
         "value": {
+            "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
             "media": [
                 {
                     "type": "image",
@@ -169,7 +161,7 @@ def get_theme_page_intro():
                 "We block trackers automatically, protect your privacy by default, and give you clear visibility into what’s "
                 "happening behind the scenes.</p>",
             },
-            "buttons": [],
+            "content": [],
         },
         "id": "3af11135-d051-4819-951e-16d534362260",
     }
@@ -509,6 +501,7 @@ def get_theme_hub_page_upper_content():
         {
             "type": "intro",
             "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
                 "media": [],
                 "heading": {
                     "superheading_text": "",
@@ -516,7 +509,7 @@ def get_theme_hub_page_upper_content():
                     "subheading_text": '<p data-block-key="ffk5g">Most browsers were built to capture your attention and monetize your data. '
                     "Firefox was built to give you control.</p>",
                 },
-                "buttons": [],
+                "content": [],
             },
             "id": "929f73bf-d056-42d5-8214-0f6f4a7390aa",
         }
@@ -748,6 +741,8 @@ def get_article_theme_page():
         get_theme_page_icon_cards_section(),
         get_theme_page_sticker_row_section(),
     ]
+    snippet = get_pencil_banner_snippet()
+    ArticleThemePagePencilBannerPlacement.objects.get_or_create(page=theme_page, snippet=snippet)
     theme_page.save_revision().publish()
     return theme_page
 

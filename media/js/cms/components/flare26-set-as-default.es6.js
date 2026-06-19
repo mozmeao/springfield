@@ -26,15 +26,15 @@ class SetAsDefaultComponent {
     }
 
     trySetDefaultBrowser() {
-        Mozilla.UITour.setConfiguration('defaultBrowser');
-        this.checkForDefaultSwitch();
+        isUITourEnabled().then(() => {
+            Mozilla.UITour.setConfiguration('defaultBrowser');
+            this.checkForDefaultSwitch();
+        });
     }
 
     onDefaultSwitch() {
-        document
-            .querySelector('html')
-            .classList.remove('firefox-is-not-default');
-        document.querySelector('html').classList.add('firefox-is-default');
+        document.documentElement.classList.remove('firefox-is-not-default');
+        document.documentElement.classList.add('firefox-is-default');
         window.dataLayer.push({ event: 'default_browser_set' });
         window.dataLayer.push({
             event: 'dimension_set',
@@ -64,38 +64,13 @@ class SetAsDefaultComponent {
         const buttons = document.querySelectorAll('.fl-set-as-default-button');
         if (!buttons.length) return;
 
-        let hasValidTrigger = false;
-
         buttons.forEach((btn) => {
             const targetId = btn.getAttribute('data-target-id');
             const dialog = targetId ? document.getElementById(targetId) : null;
             if (!dialog) return;
 
-            hasValidTrigger = true;
             btn.addEventListener('click', () => this.trySetDefaultBrowser());
         });
-
-        if (!hasValidTrigger) return;
-
-        this.isDefaultBrowser()
-            .then(() => {
-                document
-                    .querySelector('html')
-                    .classList.add('firefox-is-default');
-                window.dataLayer.push({
-                    event: 'dimension_set',
-                    firefox_is_default: true
-                });
-            })
-            .catch(() => {
-                document
-                    .querySelector('html')
-                    .classList.add('firefox-is-not-default');
-                window.dataLayer.push({
-                    event: 'dimension_set',
-                    firefox_is_default: false
-                });
-            });
     }
 }
 

@@ -8,22 +8,24 @@
 
   <div class="fl-split-page-upper end-of-page has-gradient-bottom">
     <div class="fl-section-container">
-      <include:intro slim vertical media_position="right">
+      <include:intro slim media_position="right">
         <content:heading>
           <img class="heading-logo" src="/media/protocol/img/logos/firefox/browser/logo-word-hor-white.svg" aria-hidden />
           <include:heading
             level="h1"
-            heading_size="fl-heading-size-1"
+            heading_size="fl-heading-xl"
             heading_text="{{ ftl('mobile-android-short-cut-the-internet') }}"
             subheading_text="{{ ftl('mobile-android-see-all-your-open-tabs') }}"
           />
         </content:heading>
 
-        <content:actions>
-          <div class="fl-mobile-download-buttons">
-            {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+        <content:content>
+          <div class="fl-intro-actions">
+            <div class="fl-mobile-download-buttons">
+              {{ google_play_button(href=android_url, id='playStoreLink-primary') }}
+            </div>
           </div>
-        </content:actions>
+        </content:content>
 
         <content:media>
           <div class="fl-card fl-mobile-download-form">
@@ -41,6 +43,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-fast-and-private') }}"
               subheading_text="{{ ftl('mobile-android-firefox-for-android') }}"
             />
@@ -59,6 +62,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-one-tap-to') }}"
               subheading_text="{{ ftl('mobile-android-get-to-private') }}"
             />
@@ -77,6 +81,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-search-your-own') }}"
               subheading_text="{{ ftl('mobile-android-got-a-big') }}"
             />
@@ -95,6 +100,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-save-power-with') }}"
               subheading_text="{{ ftl('mobile-android-switch-to-dark') }}"
             />
@@ -113,6 +119,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-own-your-home', fallback='mobile-android-easily-organize-your') }}"
               subheading_text="{{ ftl('mobile-android-get-to-the-parts', fallback='mobile-android-got-lots-of') }}"
             />
@@ -131,6 +138,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-supercharge-firefox-with') }}"
               subheading_text="{{ ftl('mobile-android-addons-are-like') }}"
             />
@@ -149,6 +157,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-pick-up-where') }}"
               subheading_text="{{ ftl('mobile-android-go-from-your') }}"
             />
@@ -167,6 +176,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-search-from-your') }}"
               subheading_text="{{ ftl('mobile-android-no-need-to') }}"
             />
@@ -185,6 +195,7 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-pin-videos-to') }}"
               subheading_text="{{ ftl('mobile-android-pop-videos-out') }}"
             />
@@ -203,16 +214,19 @@
           <content:heading>
             <include:heading
               level="h2"
+              heading_size="fl-heading-md"
               heading_text="{{ ftl('mobile-android-about-mozilla') }}"
               subheading_text="{{ ftl('mobile-android-mozilla-exists-to-v2', 'mobile-android-mozilla-exists-to') }}"
             />
           </content:heading>
 
-          <content:actions>
-            <div class="fl-mobile-download-buttons">
-              {{ google_play_button(href=android_url, id='playStoreLink-footer') }}
+          <content:content>
+            <div class="fl-intro-actions">
+              <div class="fl-mobile-download-buttons">
+                {{ google_play_button(href=android_url, id='playStoreLink-footer') }}
+              </div>
             </div>
-          </content:actions>
+          </content:content>
         </include:intro>
       </div>
     </div>

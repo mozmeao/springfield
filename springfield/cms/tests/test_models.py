@@ -9,7 +9,6 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from waffle.testutils import override_switch
 from wagtail.models import Locale, Page, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -26,14 +25,13 @@ from springfield.cms.tests.factories import (
     ArticleThemePageFactory,
     DownloadIndexPageFactory,
     DownloadPageFactory,
+    FlareDocsIndexPageFactory,
     FreeFormPage2026Factory,
-    FreeFormPageFactory,
     LocaleFactory,
     SimpleRichTextPageFactory,
     StructuralPageFactory,
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
-    WhatsNewPageFactory,
 )
 
 pytestmark = [
@@ -216,9 +214,9 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
     _relative_url = index_page.relative_url(minimal_site)
     assert _relative_url == "/en-US/whatsnew/"
 
-    v123_page = WhatsNewPageFactory(parent=index_page, slug="123", version="123")
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
     v123_page.save()
-    v124_page = WhatsNewPageFactory(parent=index_page, slug="124", version="124")
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
     v124_page.save()
 
     request = rf.get(_relative_url)
@@ -308,9 +306,9 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
     assert _pt_br_relative_url == "/pt-BR/whatsnew/"
 
-    en_us_v123_page = WhatsNewPageFactory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="123", version="123")
     en_us_v123_page.save()
-    en_us_v124_page = WhatsNewPageFactory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="124", version="124")
     en_us_v124_page.save()
 
     pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
@@ -337,19 +335,6 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
 
 def test_freeform_page(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
-    page = FreeFormPageFactory(parent=root_page, slug="freeform-page")
-    page.save()
-
-    _relative_url = page.relative_url(minimal_site)
-    assert _relative_url == "/en-US/freeform-page/"
-
-    request = rf.get(_relative_url)
-    response = page.specific.serve(request)
-    assert response.status_code == 200
-
-
-def test_freeform_page_2026(minimal_site, rf):
-    root_page = SimpleRichTextPage.objects.first()
     page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
     page.save()
 
@@ -361,8 +346,7 @@ def test_freeform_page_2026(minimal_site, rf):
     assert response.status_code == 200
 
 
-@override_switch("FLARE26_ENABLED", active=True)
-def test_article_index_and_detail_pages_2026(minimal_site, rf):
+def test_article_index_and_detail_pages(minimal_site, rf):
     root_page = SimpleRichTextPage.objects.first()
     index_page = ArticleIndexPageFactory(
         parent=root_page,
@@ -962,7 +946,6 @@ _IMAGE_VARIANT_PARAMS = pytest.mark.parametrize(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_detail_page_image_variants(
     minimal_site,
     rf,
@@ -1012,7 +995,6 @@ def test_article_detail_page_image_variants(
 
 
 @_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=True)
 def test_article_index_page_sticker_variants_flare26(
     minimal_site,
     rf,
@@ -1069,70 +1051,6 @@ def test_article_index_page_sticker_variants_flare26(
 
     container = featured_card.find("div", class_="image-variants-display")
     assert container is not None, "Expected image-variants-display in sticker card"
-
-    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
-    assert len(container.find_all("img")) == expected_img_count
-
-    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
-
-
-@_IMAGE_VARIANT_PARAMS
-@override_switch("FLARE26_ENABLED", active=False)
-def test_article_index_page_featured_image_variants(
-    minimal_site,
-    rf,
-    has_dark,
-    has_mobile,
-    has_dark_mobile,
-    primary_classes,
-    dark_classes,
-    mobile_classes,
-    dark_mobile_classes,
-):
-    """ArticleDetailPage featured_image variants are rendered with correct CSS classes on the index page (non-flare26)."""
-    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
-
-    root_page = SimpleRichTextPage.objects.first()
-    index_page = ArticleIndexPageFactory(
-        parent=root_page,
-        slug="articles",
-        title="Articles",
-        other_articles_heading="<p>Other Articles</p>",
-    )
-    index_page.save()
-
-    featured_image_kwargs = dict(featured_image=image)
-    if has_dark:
-        featured_image_kwargs["featured_image_dark_mode"] = dark_image
-    if has_mobile:
-        featured_image_kwargs["featured_image_mobile"] = mobile_image
-    if has_dark_mobile:
-        featured_image_kwargs["featured_image_dark_mode_mobile"] = dark_mobile_image
-
-    featured_page = ArticleDetailPageFactory(
-        parent=index_page,
-        title="Featured Article",
-        slug="featured-article",
-        featured=True,
-        image=image,
-        **featured_image_kwargs,
-    )
-    featured_page.save()
-
-    index_page.refresh_from_db()
-    request = rf.get(index_page.relative_url(minimal_site))
-    response = index_page.specific.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    featured_grid = soup.find("div", class_="fl-card-grid")
-    assert featured_grid is not None
-
-    featured_card = featured_grid.find(class_="fl-illustration-card")
-    assert featured_card is not None, "Expected a fl-illustration-card in the featured grid"
-
-    container = featured_card.find("div", class_="image-variants-display")
-    assert container is not None, "Expected image-variants-display in illustration card"
 
     expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
     assert len(container.find_all("img")) == expected_img_count
@@ -1264,3 +1182,231 @@ def test_get_localized_snippet_returns_translation_translated_instance_despite_f
         localized_snippet = original_snippet.get_localized()
         assert localized_snippet.id == pt_pt_snippet.id
         assert localized_snippet.name == "Trecho traduzido"
+
+
+# ---------------------------------------------------------------------------
+# FlareDocsIndexPage
+# ---------------------------------------------------------------------------
+
+
+def test_flare_docs_index_page_serves_200(minimal_site, rf):
+    """FlareDocsIndexPage should render successfully."""
+    root_page = SimpleRichTextPage.objects.first()
+    page = FlareDocsIndexPageFactory(parent=root_page, slug="docs-index")
+    page.save()
+
+    request = rf.get(page.relative_url(minimal_site))
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_flare_docs_index_page_get_context_sections_with_children(minimal_site, rf):
+    """Sections should group child pages and their grandchildren correctly."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Create a child FlareDocsIndexPage (acts as a section)
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Create grandchildren under the blocks page
+    gc1 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="intro-block",
+        title="Intro Block",
+    )
+    gc1.save()
+    gc2 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="section-block",
+        title="Section Block",
+    )
+    gc2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    assert len(sections[0]["children"]) == 2
+
+    child_titles = [c.title for c in sections[0]["children"]]
+    # Should be ordered by title
+    assert child_titles == ["Intro Block", "Section Block"]
+
+
+def test_flare_docs_index_page_get_context_leaf_sections(minimal_site, rf):
+    """Child pages without grandchildren should appear as leaf sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Two children with no grandchildren
+    child1 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="alpha",
+        title="Alpha Page",
+    )
+    child1.save()
+
+    child2 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="beta",
+        title="Beta Page",
+    )
+    child2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 2
+    assert sections[0]["page"].title == "Alpha Page"
+    assert sections[0]["children"] == []
+    assert sections[1]["page"].title == "Beta Page"
+    assert sections[1]["children"] == []
+
+
+def test_flare_docs_index_page_excludes_unpublished_children(minimal_site, rf):
+    """Only live, public children and grandchildren appear in sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Live grandchild
+    live_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="live-page",
+        title="Live Page",
+    )
+    live_gc.save()
+
+    # Unlive grandchild
+    unlive_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="unlive-page",
+        title="Unlive Page",
+        live=False,
+    )
+    unlive_gc.save()
+
+    # Unlive child
+    unlive_child = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="unlive-section",
+        title="Unlive Section",
+        live=False,
+    )
+    unlive_child.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    # Only the live child should appear
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    # Only the live grandchild should appear
+    assert len(sections[0]["children"]) == 1
+    assert sections[0]["children"][0].title == "Live Page"
+
+
+def test_flare_docs_index_page_empty_sections(minimal_site, rf):
+    """A docs index with no children should return an empty sections list."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert context["sections"] == []
+
+
+def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
+    """Serving the page should render child titles in the sidebar and content."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="carousel-block",
+        title="Carousel Block",
+    )
+    gc.save()
+
+    standalone = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="standalone",
+        title="Standalone Page",
+    )
+    standalone.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Sidebar should contain the section title
+    sidebar = soup.find("nav", class_="fl-docs-index-sidebar")
+    assert sidebar is not None
+    assert "Blocks" in sidebar.text
+
+    # Content area should contain the grandchild
+    content = soup.find("div", class_="fl-docs-index-content")
+    assert content is not None
+    assert "Carousel Block" in content.text
+
+    # Leaf section (standalone) should appear in the other section
+    assert "Standalone Page" in content.text

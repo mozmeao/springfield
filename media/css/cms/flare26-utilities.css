@@ -44,7 +44,9 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 }
 
 .fl-u-text-uppercase {
-    text-transform: uppercase;
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .hidden {
@@ -68,6 +70,10 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     margin-inline: auto;
 }
 
+.mb-0 {
+    margin-block-end: 0;
+}
+
 /* Mobile/dark mode image display utilities. We keep the CSS selectors
    simple here by ensuring these classes only exist when they're needed.
    See the image-variants.html template for conditionals that say
@@ -86,6 +92,14 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 
 .image-variants-display {
     display: contents;
+}
+
+.remove-border-radius-from-media .fl-mediacontent-media,
+.remove-border-radius-from-media .fl-banner-media,
+.remove-border-radius-from-media iframe,
+.remove-border-radius-from-media img,
+.remove-border-radius-from-media video {
+    border-radius: 0;
 }
 
 .display-sm-up,
@@ -303,6 +317,22 @@ html.other .conditional-display.condition-other-os {
 }
 
 .conditional-display.condition-fx-version.version-match {
+    display: block;
+    display: revert;
+}
+
+.conditional-display.condition-geo.geo-match {
+    display: block;
+    display: revert;
+}
+
+.ai-controls-available .conditional-display.condition-ai-controls-available {
+    display: block;
+    display: revert;
+}
+
+.ai-controls-unavailable
+    .conditional-display.condition-ai-controls-unavailable {
     display: block;
     display: revert;
 }

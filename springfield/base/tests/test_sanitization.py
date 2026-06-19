@@ -36,6 +36,10 @@ class TestStripAllTags:
             # Attributes are ignored
             ('<a href="https://example.com">link</a>', "link"),
             ('<div class="test" id="foo">content</div>', "content"),
+            # HTML comments are dropped
+            ("<!-- hidden -->", ""),
+            ("before<!-- mid -->after", "beforeafter"),
+            ("<p>visible<!-- note --></p>", "visible"),
         ],
     )
     def test_strip_all_tags(self, html, expected):
@@ -113,6 +117,30 @@ class TestSanitizeHtml:
         """Test that HTML entities are preserved."""
         assert sanitize_html("text &amp; more", {"a"}, {}) == "text &amp; more"
         assert sanitize_html("<b>&lt;escaped&gt;</b>", {"b"}, {}) == "<b>&lt;escaped&gt;</b>"
+
+    @pytest.mark.parametrize(
+        "html, expected",
+        [
+            # Comment-only input is dropped to empty string
+            ("<!-- only -->", ""),
+            ("<!-- Keep this note until 156 -->", ""),
+            # Comments adjacent to text disappear
+            ("<!-- hidden -->visible", "visible"),
+            # Comments interleaved with allowed tags
+            ("<p>before<!-- mid -->after</p>", "<p>beforeafter</p>"),
+            # Multi-line / multi-word comment content
+            ("<p>x<!-- a\nb\nc -->y</p>", "<p>xy</p>"),
+            # Comments are dropped while unknown tags continue to be escaped
+            (
+                "<!-- drop me --><custom>x</custom>",
+                "&lt;custom&gt;x&lt;/custom&gt;",
+            ),
+        ],
+    )
+    def test_comments_are_dropped(self, html, expected):
+        allowed_tags = {"p"}
+        allowed_attributes = {}
+        assert sanitize_html(html, allowed_tags, allowed_attributes) == expected
 
 
 class TestUrlSchemeValidation:

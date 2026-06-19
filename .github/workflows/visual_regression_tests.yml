@@ -1,0 +1,83 @@
+# Workflows that run visual regression tests on Flare26 components
+
+name: Visual regression tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+run-name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'springfield/cms/templates/components/**'
+      - 'springfield/cms/templates/pattern-library/components/flare-26/**'
+      - 'media/css/cms/**'
+      - 'tests/playwright/specs/visual-regression/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-regression-tests:
+    name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
+    if: always() && github.repository == 'mozmeao/springfield'
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            tests/playwright/package-lock.json
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('tests/playwright/package-lock.json') }}
+      - name: Install Playwright dependencies
+        run: cd tests/playwright && npm ci && npx playwright install --with-deps chromium
+      - name: Build frontend assets
+        run: npm ci && npm run build
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build Docker image
+        run: |
+          docker buildx build \
+            --target devapp \
+            --tag mozmeao/springfield_test:latest \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            --load \
+            .
+      - name: Start Django server
+        run: |
+          docker run -d \
+            --name django-server \
+            -p 8000:8000 \
+            -e DEBUG=true \
+            -e ENABLE_DJANGO_PATTERN_LIBRARY=true \
+            -e ALLOWED_HOSTS='*' \
+            -e WAGTAIL_ENABLE_ADMIN=True \
+            -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
+            mozmeao/springfield_test:latest \
+            python manage.py runserver 0.0.0.0:8000
+      - name: Wait for Django server
+        run: timeout 60 bash -c 'until curl -sf http://localhost:8000/healthz/; do sleep 2; done'
+      - name: Run Playwright tests
+        run: cd tests/playwright && npm run local:visual-regression-tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:8000
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results-${{ github.sha }}-${{ github.run_id }}
+          path: tests/playwright/test-results/
+          if-no-files-found: ignore # this avoids a false "Warning" if there were no issues
+          retention-days: 30

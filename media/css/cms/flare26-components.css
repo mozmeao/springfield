@@ -40,9 +40,13 @@
 @import 'components/flare26-breadcrumb.css';
 @import 'components/flare26-consent-banner.css';
 @import 'components/flare26-qr-overlay.css';
+@import 'components/flare26-scroll-to-see-more.css';
 @import 'components/flare26-set-as-default.css';
 @import 'components/flare26-floating-qr-overlay.css';
 @import 'components/flare26-typewriter.css';
 @import 'components/flare26-smart-window-instructions.css';
 @import 'components/flare26-pricing-heading.css';
 @import 'components/flare26-featured-image-section.css';
+@import 'components/flare26-roadmap-list-section.css';
+@import 'components/flare26-pencil-banner.css';
+@import 'components/flare26-form-fields.css';

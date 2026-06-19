@@ -50,6 +50,8 @@
     vertical-align: middle;
 }
 
+/* --- Generated icon rules (python manage.py generate_flare_icon_css) --- */
+
 .fl-icon-activity {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/activity/activity-16.svg');
 }
@@ -412,6 +414,10 @@
 
 .fl-icon-delete {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/delete/delete-16.svg');
+}
+
+.fl-icon-device-desktop {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/devices/device-desktop-24.svg');
 }
 
 .fl-icon-device-desktop-fill {
@@ -1434,6 +1440,10 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-checkmark-24.svg');
 }
 
+.fl-icon-shield-checkmark-fill {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-16/shield/shield-checkmark-fill-16.svg');
+}
+
 .fl-icon-shield-cross {
     --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/shield/shield-cross-24.svg');
 }
@@ -1544,6 +1554,10 @@
 
 .fl-icon-split-view-right {
     --icon-src: url('/media/img/firefox/flare/2026/icons/desktop-16/split-view/split-view-right-16.svg');
+}
+
+.fl-icon-sponsored-star {
+    --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-16/star/sponsored-star-16.svg');
 }
 
 .fl-icon-storage {
@@ -1774,7 +1788,8 @@
     --icon-src: url('/media/img/firefox/flare/2026/icons/mobile-24/zoom/zoom-24.svg');
 }
 
-/* Extra Icon Rules */
+/* --- Hand-maintained overrides & aliases (not generated) --- */
+
 [dir='rtl'] .fl-icon-forward {
     transform: scaleX(-1);
 }

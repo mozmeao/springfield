@@ -4,7 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# platform_conditions=[], firefox_condition="", auth_state_condition="" #}
+{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", ai_controls_condition="", condition_settings={} #}
+
+{% set condition_settings = condition_settings or {} %}
+{% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
+{% set firefox_condition = firefox_condition or condition_settings.get("firefox") %}
+{% set auth_state_condition = auth_state_condition or condition_settings.get("auth_state") %}
+{% set default_browser_condition = default_browser_condition or condition_settings.get("default_browser") %}
+{% set geo_conditions = geo_conditions or condition_settings.get("geo") %}
+{% set ai_controls_condition = ai_controls_condition or condition_settings.get("ai_controls") %}
+{% set min_version = min_version or condition_settings.get("min_version") %}
+{% set max_version = max_version or condition_settings.get("max_version") %}
 
 {% if platform_conditions %}
   <div class="conditional-display {% for condition in platform_conditions %}condition-{{ condition }} {% endfor %} {% if is_preview %}is-preview{% endif %}">
@@ -34,6 +44,21 @@
     {% endif %}
 {% endif %}
 
+{% if geo_conditions %}
+  <div class="conditional-display condition-geo {% if is_preview %}is-preview{% endif %}"
+    data-geo-conditions="{{ ','.join(geo_conditions) }}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ geo_conditions }}</span>
+    {% endif %}
+{% endif %}
+
+{% if ai_controls_condition %}
+  <div class="conditional-display condition-ai-controls-{{ ai_controls_condition }} {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: AI Controls {{ ai_controls_condition }}</span>
+    {% endif %}
+{% endif %}
+
 {% if min_version or max_version %}
   <div class="conditional-display condition-fx-version {% if is_preview %}is-preview{% endif %}"
     {% if min_version %}data-min-version="{{ min_version }}"{% endif %}
@@ -47,10 +72,16 @@
 
 {{ contents }}
 
-{% if default_browser_condition  %}
+{% if min_version or max_version %}
   </div>
 {% endif %}
-{% if min_version or max_version %}
+{% if ai_controls_condition %}
+  </div>
+{% endif %}
+{% if geo_conditions %}
+  </div>
+{% endif %}
+{% if default_browser_condition  %}
   </div>
 {% endif %}
 {% if auth_state_condition  %}

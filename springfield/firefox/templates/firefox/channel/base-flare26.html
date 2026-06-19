@@ -46,6 +46,7 @@
           <content:heading>
             <include:heading
               level="h1"
+              heading_size="fl-heading-xl"
               heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
               subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
             />
@@ -68,26 +69,29 @@
         <i class="fl-icon fl-icon-warning-fill fl-channel-warning-icon"></i>
       <include:heading
         level="h2"
+        heading_size="fl-heading-md"
         heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
         subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
       />
       </content:heading>
 
-      <content:body>
-        <div class="fl-buttons">
-        <include:button
-          label="{{ ftl('firefox-channel-file-a-bug-now') }}"
-          theme_class="button-ghost"
-          link="https://bugzilla.mozilla.org/enter_bug.cgi"
-        />
+      <content:content>
+        <div class="fl-intro-body">
+          <div class="fl-buttons">
+            <include:button
+              label="{{ ftl('firefox-channel-file-a-bug-now') }}"
+              theme_class="button-ghost"
+              link="https://bugzilla.mozilla.org/enter_bug.cgi"
+            />
 
-        <include:button
-          label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
-          theme_class="button-ghost"
-          link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
-        />
+            <include:button
+              label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
+              theme_class="button-ghost"
+              link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
+            />
+          </div>
         </div>
-      </content:body>
+      </content:content>
     </include:intro>
   </section>
 </div>
@@ -98,7 +102,7 @@
       <include:newsletter-form theme="dark">
         <include:heading
           level="h2"
-          heading_size="fl-heading-size-3"
+          heading_size="fl-heading-sm"
           heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
           subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
           id="fl-newsletter"

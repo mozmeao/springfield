@@ -62,7 +62,7 @@ FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="fals
 # the redirects from temporary (302) to permanent (301); defaults to false so we can
 # verify the rollout and later make redirects permanent or remove them as part of cleanup.
 ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
@@ -474,7 +474,7 @@ SUPPORTED_NONLOCALES = [
     "robots.txt",
     ".well-known",
     "healthz",  # Needed for k8s
-    "healthz-cdn",  # Needed for Fastly CDN health checks
+    # "healthz-cdn",  # Needed for Fastly CDN health checks
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
     "revision.txt",  # from root_files
@@ -491,8 +491,10 @@ if DEBUG:
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
-    "/all-urls-global.xml",  # in sitemap urls
-    "/all-urls.xml",  # in sitemap urls
+    "/all-urls-global.xml",  # in sitemap urls (legacy alias)
+    "/all-urls.xml",  # in sitemap urls (legacy alias)
+    "/sitemap-global.xml",  # in sitemap urls
+    "/sitemap.xml",  # in sitemap urls
 ]
 
 # Pages that we don't want to be indexed by search engines.
@@ -870,7 +872,6 @@ PATTERN_LIBRARY = {
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
         ("Components", ["pattern-library/components/flare-26/"]),
-        ("Components - Flare 25", ["pattern-library/components/flare-25/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -879,7 +880,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare.html", "base-flare26.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare26.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1041,6 +1042,9 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
 ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
+
+PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
 
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
@@ -1482,10 +1486,8 @@ WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)(
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
     "cms.SmartWindowPage",
     "cms.SmartWindowExplainerPage",
@@ -1498,6 +1500,8 @@ _allowed_page_models = [
     "cms.ThanksPage",
     "cms.BlogIndexPage",
     "cms.BlogArticlePage",
+    "cms.RoadmapPage",
+    "cms.ContactPage",
 ]
 
 if DEV is True:
@@ -1534,10 +1538,4 @@ PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", 
 PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
-
-BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
-DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
-QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)
-SET_AS_DEFAULT_SNIPPET_ID = config("SET_AS_DEFAULT_SNIPPET_ID", default="1000", parser=int)
+PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)

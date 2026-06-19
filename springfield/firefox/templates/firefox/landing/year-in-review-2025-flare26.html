@@ -11,7 +11,7 @@
         <content:heading>
           <include:heading
             level="h1"
-            heading_size="fl-heading-size-1"
+            heading_size="fl-heading-xl"
             heading_text="We don't keep tabs on what you do"
           />
         </content:heading>
@@ -20,33 +20,33 @@
           <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" aria-hidden />
         </content:media>
 
-        <content:body>
-          <p>A year in review needs personal data.</p>
-          <p>Firefox is designed to protect your privacy instead.</p>
-          <p>So, there's no personalized recap here &mdash; just a thank you for choosing a browser that puts
-            people first and treats privacy as a principle, not a perk. 🫶
-          </p>
-          <div class="is-firefox-show is-firefox-not-default-show">
+        <content:content>
+          <div class="fl-intro-body">
+            <p>A year in review needs personal data.</p>
+            <p>Firefox is designed to protect your privacy instead.</p>
+            <p>So, there's no personalized recap here &mdash; just a thank you for choosing a browser that puts
+              people first and treats privacy as a principle, not a perk. 🫶
+            </p>
             <div class="fl-buttons is-horizontal">
-              <a
-                id="set-as-default-button"
-                class="fl-button"
-                href="{{ url('firefox.default.thanks') }}"
-                data-cta-text="Make Firefox my default browser"
-                data-cta-position="primary"
-                role="button"
-                aria-label="Make Firefox my default browser"
-              >
-                Make Firefox my default browser
-              </a>
+              <div class="is-firefox-show is-firefox-not-default-show">
+                <a
+                  id="set-as-default-button"
+                  class="fl-button"
+                  href="{{ url('firefox.default.thanks') }}"
+                  data-cta-text="Make Firefox my default browser"
+                  data-cta-position="primary"
+                  role="button"
+                  aria-label="Make Firefox my default browser"
+                >
+                  Make Firefox my default browser
+                </a>
+              </div>
+              <div class="is-not-firefox-show">
+                {{ download_firefox_thanks(flare_styles=True) }}
+              </div>
             </div>
           </div>
-          <div class="is-not-firefox-show">
-            <div class="fl-buttons is-horizontal">
-              {{ download_firefox_thanks(flare_styles=True) }}
-            </div>
-          </div>
-        </content:body>
+        </content:content>
       </include:intro>
     </div>
   </div>
@@ -61,7 +61,7 @@
       />
 
       <include:cards-list>
-        <include:illustration-card-2026 variant="sticker">
+        <include:illustration-card variant="sticker">
           <content:media>
             <img
               src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
@@ -73,6 +73,7 @@
           <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-sm"
               heading_text="1+ trillion trackers blocked"
             />
           </content:heading>
@@ -84,9 +85,9 @@
               {{ ftl('ui-learn-more') }}
             </a>
           </content:buttons>
-        </include:illustration-card-2026>
+        </include:illustration-card>
 
-        <include:illustration-card-2026 variant="sticker">
+        <include:illustration-card variant="sticker">
           <content:media>
             <img
               src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
@@ -98,6 +99,7 @@
           <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-sm"
               heading_text="200+ million people protected"
             />
           </content:heading>
@@ -109,9 +111,9 @@
               {{ ftl('ui-learn-more') }}
             </a>
           </content:buttons>
-        </include:illustration-card-2026>
+        </include:illustration-card>
 
-        <include:illustration-card-2026 variant="sticker">
+        <include:illustration-card variant="sticker">
           <content:media>
             <img
               src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
@@ -123,6 +125,7 @@
           <content:heading>
             <include:heading
               level="h3"
+              heading_size="fl-heading-sm"
               heading_text="110 new features"
             />
           </content:heading>
@@ -135,7 +138,7 @@
               {{ ftl('ui-learn-more') }}
             </a>
           </content:buttons>
-        </include:illustration-card-2026>
+        </include:illustration-card>
       </include:cards-list>
     </div>
   </div>
@@ -152,11 +155,11 @@
             />
           </content:heading>
 
-          <content:actions>
+          <content:content>
             <div class="fl-buttons is-horizontal">
-            {{ download_firefox_thanks(flare_styles=True) }}
-          </div>
-          </content:actions>
+              {{ download_firefox_thanks(flare_styles=True) }}
+            </div>
+          </content:content>
         </include:banner>
       </div>
     </div>

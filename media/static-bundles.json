@@ -464,6 +464,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare26-docs.css"
+      ],
+      "name": "flare26-docs"
+    },
+    {
+      "files": [
         "css/cms/pages/flare26-channels.css"
       ],
       "name": "flare26-channels"
@@ -559,6 +565,12 @@
         "css/cms/pages/flare26-year-in-review.css"
       ],
       "name": "flare26-year-in-review"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare26-kick-page.css"
+      ],
+      "name": "flare26-kick-page"
     }
   ],
   "js": [
@@ -572,6 +584,7 @@
       "files": [
         "js/base/site.js",
         "js/base/consent/privacy-helpers.js",
+        "js/base/search-params.js",
         "js/base/mozilla-cookie-helper.js",
         "js/base/banners/m24-pencil-banner-check.js"
       ],
@@ -604,6 +617,12 @@
     },
     {
       "files": [
+        "js/cms/contact-form.js"
+      ],
+      "name": "contact-page"
+    },
+    {
+      "files": [
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"
@@ -626,6 +645,13 @@
         "js/firefox/download/desktop/download-as-default-init.es6.js"
       ],
       "name": "download_as_default"
+    },
+    {
+      "files": [
+        "js/firefox/download/desktop/download-as-default-v2.es6.js",
+        "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
+      ],
+      "name": "download_as_default-v2"
     },
     {
       "files": [
@@ -653,6 +679,25 @@
         "js/base/stub-attribution/stub-attribution-init.es6.js"
       ],
       "name": "stub-attribution"
+    },
+    {
+      "files": [
+        "js/base/download-attribution/download-attribution-init-essential.es6.js"
+      ],
+      "name": "download-attribution-init-essential"
+    },
+    {
+      "files": [
+        "js/base/download-attribution/download-attribution.es6.js",
+        "js/firefox/download/auto-download.es6.js"
+      ],
+      "name": "auto-download"
+    },
+    {
+      "files": [
+        "js/base/mobile-attribution.js"
+      ],
+      "name": "mobile-attribution"
     },
     {
       "files": [
@@ -735,9 +780,14 @@
     },
     {
       "files": [
+        "js/firefox/all/all-init-v2.es6.js"
+      ],
+      "name": "firefox_all-v2"
+    },
+    {
+      "files": [
         "js/libs/classlist.js",
         "js/libs/array-from.js",
-        "js/base/search-params.js",
         "js/base/uitour-lib.js",
         "js/base/mozilla-run.js",
         "js/base/mozilla-utils.js",
@@ -831,6 +881,12 @@
     },
     {
       "files": [
+        "js/base/plausible/plausible-init.es6.js"
+      ],
+      "name": "plausible"
+    },
+    {
+      "files": [
         "js/base/datalayer-videoengagement-init.es6.js"
       ],
       "name": "data_videoengagement"
@@ -892,6 +948,12 @@
       "name": "firefox-cms-flare26"
     },
     {
+      "files":[
+        "js/cms/pages/flare26-kick-page.es6.js"
+      ],
+      "name": "flare26-kick-page"
+    },
+    {
       "files": [
         "js/firefox/landing/init.es6.js"
       ],
@@ -950,6 +1012,12 @@
         "js/cms/wagtailadmin-locale-badges.js"
       ],
       "name": "wagtailadmin-locale-badges"
+    },
+    {
+      "files": [
+        "js/cms/flare26-docs.js"
+      ],
+      "name": "flare26-docs"
     }
   ]
 }

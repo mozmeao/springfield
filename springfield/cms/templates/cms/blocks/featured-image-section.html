@@ -23,4 +23,12 @@
       {% include_block value.media %}
     {% endwith %}
   </content:media>
+
+  {% if value.scroll_to_see_more_snippet %}
+    <content:scroll_to_see_more_snippet>
+      {% with object = value.scroll_to_see_more_snippet %}
+        {% include "cms/snippets/scroll-to-see-more-snippet.html" %}
+      {% endwith %}
+    </content:scroll_to_see_more_snippet>
+  {% endif %}
 </include:featured-image-section>

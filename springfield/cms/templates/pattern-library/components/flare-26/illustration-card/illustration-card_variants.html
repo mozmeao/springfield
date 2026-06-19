@@ -11,12 +11,16 @@
     {% for card in cards %}
       <div data-testid="{{ card.testid }}">
         <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
-        <include:illustration-card-2026
+        <include:illustration-card
           variant="{{ card.variant }}"
           expand_link="{{ card.expand_link }}"
         >
           <content:media>
-            <img src="{{ card.image }}" alt="" loading="lazy" />
+            {% if card.icon %}
+              <include:icon icon_name="{{ card.icon }}" hidden=true />
+            {% else %}
+              <img src="{{ card.image }}" alt="" loading="lazy" />
+            {% endif %}
           </content:media>
           <content:heading>
             <include:heading
@@ -39,7 +43,7 @@
               {% endfor %}
             </content:buttons>
           {% endif %}
-        </include:illustration-card-2026>
+        </include:illustration-card>
       </div>
     {% endfor %}
   </include:cards-list>

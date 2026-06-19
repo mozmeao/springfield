@@ -11,7 +11,6 @@
     inline-size: 100%;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-wide-banner);
-    padding: var(--fl-section-h-padding);
 }
 
 .fl-two-column-card-wrapper {
@@ -53,7 +52,7 @@
     .fl-two-column-card-wrapper:first-child
     .fl-two-column-card {
     --current-card-bg-color: var(--theme-purple-card-bg-color);
-    background-color: var(--theme-purple-card-bg-color);
+    background-color: var(--two-column-light-dark-first-card-bg);
 }
 
 .fl-two-column-cards-light-dark
@@ -61,7 +60,6 @@
     .fl-two-column-card {
     --current-card-bg-color: var(--two-column-light-dark-second-card-bg);
     background-color: var(--two-column-light-dark-second-card-bg);
-    border-color: var(--two-column-light-dark-second-card-border-color);
 }
 
 .fl-two-column-cards-light-light
@@ -101,9 +99,12 @@
     inset-block-start: calc(var(--token-spacing-md) * -1);
     inset-inline-start: 50%;
     position: absolute;
-    text-transform: uppercase;
     transform: translateX(-50%);
     z-index: 1;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-two-column-card[class*='image-is-stuck'] {

@@ -44,6 +44,10 @@
         max-inline-size: 100%;
     }
 
+    .fl-2026-enterprise .fl-banner-container {
+        padding-inline: var(--fl-section-h-padding);
+    }
+
     .fl-2026-enterprise .fl-banner-kit .fl-heading,
     .fl-2026-enterprise .fl-banner-kit .fl-subheading {
         max-inline-size: 840px;
@@ -79,14 +83,6 @@
         text-align: center;
     }
 
-    .fl-2026-enterprise-documentation {
-        color: var(--fl-theme-color-brand-text);
-
-        .fl-heading {
-            color: var(--fl-theme-color-brand-text);
-        }
-    }
-
     .fl-2026-enterprise .fl-card-grid {
         padding: 0 var(--fl-section-h-padding);
     }
@@ -100,6 +96,10 @@
     .fl-section-download h2.fl-heading {
         margin: 60px auto;
         text-align: center;
+    }
+
+    .fl-card-grid + .fl-banner-container {
+        margin-block-start: var(--token-layout-md);
     }
 
     .fl-section-download .fl-body {

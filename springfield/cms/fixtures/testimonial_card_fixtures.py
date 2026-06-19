@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -48,7 +48,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_testimonial_card_2026_variants() -> list[dict]:
+def get_testimonial_card_variants() -> list[dict]:
     return [
         {
             "type": "testimonial_card",
@@ -112,8 +112,8 @@ def _cards_list(cards, settings=None, block_id=""):
     }
 
 
-def get_testimonial_cards_2026_sections() -> list[dict]:
-    cards = get_testimonial_card_2026_variants()
+def get_testimonial_cards_sections() -> list[dict]:
+    cards = get_testimonial_card_variants()
     return [
         _section(
             heading_text="Testimonial Cards - 3 Columns",
@@ -158,17 +158,17 @@ def get_testimonial_cards_2026_sections() -> list[dict]:
     ]
 
 
-def get_testimonial_cards_2026_test_page() -> FreeFormPage2026:
+def get_testimonial_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
-    slug = "test-testimonial-cards-2026"
+    slug = "test-testimonial-cards"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Testimonial Cards 2026")
+        page = FreeFormPage2026(slug=slug, title="Testimonial Cards")
         index_page.add_child(instance=page)
 
-    sections = get_testimonial_cards_2026_sections()
+    sections = get_testimonial_cards_sections()
     page.upper_content = sections
     page.content = sections
     page.save_revision().publish()

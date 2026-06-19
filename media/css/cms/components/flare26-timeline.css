@@ -61,7 +61,10 @@
     color: var(--theme-numbered-list-counter-color);
     font-size: var(--fl-theme-font-size-subheading-xs);
     margin-block-end: var(--token-spacing-lg);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-two-column-card .fl-timeline-item .fl-heading-group {
