@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0093_alter_blogarticlepage_description_and_more"),
+        ("cms", "0105_merge_20260616_1133"),
     ]
 
     operations = [
