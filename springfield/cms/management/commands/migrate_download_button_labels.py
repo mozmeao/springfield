@@ -124,7 +124,7 @@ class Command(BaseCommand):
 
         for model_name, field_names in PAGE_MODELS_AND_FIELDS:
             Model = apps.get_model("cms", model_name)
-            for page in Model.objects.all():
+            for page in Model.objects.iterator():
                 changed_fields = []
                 for field_name in field_names:
                     stream_value = getattr(page, field_name)
