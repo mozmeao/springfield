@@ -5,7 +5,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set template = template or "cms/newsletter_form.html" %}
+{% set form_template = form_template or "cms/newsletter_form.html" %}
 
 <div class="fl-newsletterform-cta {% if theme %}fl-force-{{ theme }}-theme{% endif %}" data-state="default">
   <div class="fl-newsletterform-illustration">
@@ -17,7 +17,7 @@
 
     {{ email_newsletter_form(
       newsletters=newsletters,
-      template=template,
+      template=form_template,
       include_country=true,
       include_language=true,
       footer=false,
