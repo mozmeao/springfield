@@ -82,8 +82,8 @@
     "IE 8"
   ],
   "overrides": {
-    "jasmine-browser-runner": {
-      "path-to-regexp": "^8.4.0"
+    "sockjs": {
+      "uuid": "^11.1.1"
     }
   }
 }
