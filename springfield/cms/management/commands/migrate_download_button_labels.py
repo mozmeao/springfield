@@ -176,9 +176,8 @@ class Command(BaseCommand):
         Only updates the source's serialized content — does NOT call
         create_or_update_translation(), which would re-materialize all translated pages
         and can silently drop blocks whose segments don't match the updated schema.
-        Translated pages still render correctly via the old-format fallback in
-        DownloadFirefoxButtonBlock.get_context(); they'll be re-synced through the
-        normal Smartling workflow on next publish.
+        Translated pages should continue to render correctly after this command's label
+        conversion; they'll be re-synced through the normal Smartling workflow on next publish.
         """
         from wagtail_localize.models import TranslationSource
 
