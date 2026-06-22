@@ -13,4 +13,9 @@ urlpatterns = (
         ),
         name="newsletter",
     ),
+    path(
+        "newsletter/enterprise/",
+        VariationTemplateView.as_view(template_name="newsletter/enterprise.html", ftl_files=["newsletter/newsletters"]),
+        name="newsletter-enterprise",
+    ),
 )

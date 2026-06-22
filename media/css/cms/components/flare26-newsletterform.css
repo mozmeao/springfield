@@ -324,3 +324,7 @@
 .newsletter-page .fl-newsletterform-cta {
     padding-block-start: var(--token-layout-xl);
 }
+
+.fl-newsletter-enterprise .fl-newsletterform-consent {
+    text-align: start;
+}
