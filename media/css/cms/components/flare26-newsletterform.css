@@ -37,6 +37,16 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
+
+    .enterprise-newsletter-page
+        .fl-newsletterform-cta:has(.fl-newsletterform-illustration) {
+        align-items: start;
+        grid-template-columns: 1fr 2fr;
+    }
+
+    .enterprise-newsletter-page .fl-newsletterform-content {
+        max-inline-size: 600px;
+    }
 }
 
 .fl-newsletterform-illustration {
