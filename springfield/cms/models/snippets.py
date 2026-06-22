@@ -483,3 +483,18 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
 
 
 register_snippet(PencilBannerSnippet)
+
+
+class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A reusable, translatable text label."""
+
+    label = models.CharField(max_length=255)
+
+    panels = [FieldPanel("label")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pretranslated Phrase"
+        verbose_name_plural = "Pretranslated Phrases"
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"
