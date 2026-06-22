@@ -93,6 +93,32 @@ def locale_selection(request, available_locales=None):
     return response
 
 
+def _build_fluent_locale_chain(locale, locale_in_url, content_locale):
+    """
+    Build the locale list passed to ``fluent_l10n``.
+
+    Normally this returns ``[locale, "en"]``.
+    However, when we are serving content from a fallback locale on an alias
+    locale's URL, the alias locale is prepended so that FTL strings are
+    resolved against the alias locale first, then the fallback locale, then
+    English.
+
+    For example, if we're serving pt-BR (fallback locale) content at the
+    pt-PT (alias locale) URL, we return ["pt-PT", "pt-BR", "en"].
+    """
+    # content_locale is only set when serving fallback content at an alias URL
+    # (see springfield/cms/views.py:_serve_fallback_page and render()'s own
+    # alias branch below). locale_in_url is the alias being served. Both
+    # conditions together identify the alias-fallback case; everything else
+    # gets the unchanged two-element chain.
+    if not (content_locale and locale_in_url and locale_in_url != locale):
+        return [locale, "en"]
+    alias = normalize_language(locale_in_url)
+    if not alias or alias == locale:
+        return [locale, "en"]
+    return [alias, locale, "en"]
+
+
 def render(request, template, context=None, ftl_files=None, activation_files=None, **kwargs):
     """
     Same as django's render() shortcut, but with l10n template support.
@@ -131,6 +157,11 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
     if isinstance(template, list):
         template = template[0]
 
+    # When serving an alias locale's URL from its fallback locale's content,
+    # use the alias locale's fluent files and the fallback locale's fluent files
+    # before "en".
+    fluent_locales = _build_fluent_locale_chain(locale, locale_in_url, getattr(request, "content_locale", None))
+
     if ftl_files:
         if isinstance(ftl_files, str):
             ftl_files = [ftl_files]
@@ -139,9 +170,9 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
         # the original list passed to the function
         ftl_files = ftl_files + settings.FLUENT_DEFAULT_FILES
 
-        context["fluent_l10n"] = l10n = fluent_l10n([locale, "en"], ftl_files)
+        context["fluent_l10n"] = l10n = fluent_l10n(fluent_locales, ftl_files)
     else:
-        context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
+        context["fluent_l10n"] = fluent_l10n(fluent_locales, settings.FLUENT_DEFAULT_FILES)
 
     context["fluent_files"] = ftl_files or settings.FLUENT_DEFAULT_FILES
     context["template"] = template
@@ -217,9 +248,11 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
             if fallback_locale and fallback_locale in translations and not is_root_path_with_no_language_clues(request):
                 request.content_locale = fallback_locale
                 locale = normalize_language(fallback_locale)
-                # Reload Fluent with the fallback locale so templates render the
+                # Reload Fluent with the alias locale's fluent files and the
+                # fallback locale's fluent files so templates render the
                 # correct translations instead of falling back to en-US.
-                context["fluent_l10n"] = fluent_l10n([locale, "en"], ftl_files or settings.FLUENT_DEFAULT_FILES)
+                fluent_locales = _build_fluent_locale_chain(locale, locale_in_url, request.content_locale)
+                context["fluent_l10n"] = fluent_l10n(fluent_locales, ftl_files or settings.FLUENT_DEFAULT_FILES)
             else:
                 return redirect_to_best_locale(request, translations)
 
