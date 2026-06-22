@@ -18,8 +18,9 @@ from django.utils.translation import gettext_lazy as _
 
 from product_details import product_details
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -572,6 +573,84 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
         return super().clean(value)
 
 
+class LabelSourceMixin(blocks.StructBlock):
+    """
+    Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
+
+    This mixin adds two render-time context keys:
+      - button_label:        rendered, locale-resolved label (visible to users)
+      - button_label_en_us:  stable English source for analytics / campaign slugs
+
+    When using this mixin,
+      1. declare an explicit `Meta.form_layout` to set the admin field order, and
+      2. `label_format = "{custom_label}{pretranslated_label}"` to set the value for the StreamField preview
+    """
+
+    pretranslated_label = LocalizedLiveSnippetChooserBlock(
+        "cms.PretranslatedPhrase",
+        required=False,
+        label="Pre-translated Text",
+        help_text="Select a pre-translated label. Takes precedence over Custom Text.",
+    )
+    custom_label = blocks.CharBlock(
+        required=False,
+        label="Custom Text",
+        help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
+    )
+
+    def clean(self, value):
+        # 1. Mixin's own checks.
+        errors = {}
+        has_pretranslated = bool(value.get("pretranslated_label"))
+        has_custom = bool((value.get("custom_label") or "").strip())
+        if not has_pretranslated and not has_custom:
+            errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
+        if has_pretranslated and has_custom:
+            errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
+
+        # 2. Call super().clean() and merge any subclass/child errors.
+        try:
+            cleaned = super().clean(value)
+        except StructBlockValidationError as exc:
+            for k, v in exc.block_errors.items():
+                # Don't shadow a mixin error with a child error for the same key.
+                errors.setdefault(k, v)
+            cleaned = value  # fall through; we're going to raise anyway
+
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            # User-visible label: locale-resolved with fallback to the stored row.
+            localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
+            context["button_label"] = (localized or pretranslated).label
+            # Stable English source for analytics. On a translated page, the
+            # stored FK is the locale-specific phrase, so its own label is
+            # localized — resolve the en-US sibling through the phrase's translation
+            # group instead of reading the stored row's label.
+            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
+            context["button_label_en_us"] = (en_us or pretranslated).label
+        elif value.get("custom_label"):
+            context["button_label"] = value["custom_label"]
+            context["button_label_en_us"] = value["custom_label"]
+        return context
+
+    def get_searchable_content(self, value):
+        # Match against both the snippet's label (which may be localized), and
+        # any custom_label so editor search hits both forms.
+        items = list(super().get_searchable_content(value) or [])
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            items.append(pretranslated.label)
+        if value.get("custom_label"):
+            items.append(value["custom_label"])
+        return items
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(
         self,
@@ -1081,13 +1160,12 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
+            label_format = "{custom_label}{pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
