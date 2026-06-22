@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare26.html" %}
+
+{% set page_title_copy = ftl('newsletter-enterprise-title') %}
+{% set page_desc_copy = ftl('newsletter-enterprise-description') %}
+
+{% block page_title %}{{ page_title_copy }}{% endblock page_title %}
+{% block page_desc %}{{ page_desc_copy }}{% endblock %}
+
+{% block body_class %}{{ super() }} newsletter-mozilla{% endblock %}
+
+{% block content %}
+<div class="fl-main has-gradient-bottom newsletter-page enterprise-newsletter-page">
+  {% set newsletters="firefox-enterprise-news" %}
+  {% set form_template="cms/newsletter_enterprise_form.html" %}
+
+  <include:newsletter-form>
+    <include:heading
+      level="h2"
+      heading_size="fl-heading-size-3"
+      heading_text="{{ page_title_copy }}"
+    />
+    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description') }}</p>
+    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-consent') }}</p>
+    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-note') }}</p>
+  </include:newsletter-form>
+</div>
+{% endblock %}
