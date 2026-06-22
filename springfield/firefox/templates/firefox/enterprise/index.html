@@ -4,9 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-
-{% from "macros-protocol.html" import picto, split with context %}
+{% extends "cms/base-flare26.html" %}
 
 {% block page_title %}{{ ftl('firefox-enterprise-use-firefox-esr-enterprise-browser') }}{% endblock %}
 {% block page_desc %}{{ ftl('firefox-enterprise-open-source-browser-with-enterprise-security') }}{% endblock %}
@@ -24,18 +22,11 @@
 
 {% block body_id %}firefox{% endblock %}
 
-{% block site_header %}
-  {% with hide_nav_download_button=True %}
-    {% include 'includes/navigation/navigation.html' %}
-  {% endwith %}
-{% endblock %}
-
 {% block main_class %}{% endblock %}
 
 {% block content %}
-<div class="{% if switch("flare26_enabled") %}fl-main has-gradient-bottom fl-2026-enterprise{% endif %}">
-  {% if switch("flare26_enabled") %}
-    <div class="fl-section-container">
+<div class="fl-main has-gradient-bottom fl-2026-enterprise">
+  <div class="fl-section-container">
     <include:intro media_position="right">
       <content:heading>
         <include:heading
@@ -53,7 +44,7 @@
             label="{{ ftl('download-button-download') }}"
             link="#download"
             theme_class=""
-            external="false"
+            external="{{ False }}"
             icon_name="downloads"
             icon_position="right"
           />
@@ -85,7 +76,7 @@
           label="{{ ftl('firefox-enterprise-contact-sales') }}"
           link="https://qsurvey.mozilla.com/s3/firefox-support-plan?src=firefox-enterprise-cta"
           theme_class="button-tertiary"
-          external="false"
+          external="{{ False }}"
           alignment_class="fl-2026-enterprise-support"
         />
       </div>
@@ -175,127 +166,16 @@
             label="{{ ftl('firefox-enterprise-support-plan') }}"
             link="https://assets.mozilla.net/pdf/Firefox_Enterprise_Support_Plan.pdf"
             theme_class=""
-            external="false"
+            external="{{ False }}"
             icon_name="downloads"
             icon_position="right"
           />
         </div>
       </content:content>
     </include:banner>
-{% else %}
-  {% call split(
-    image=resp_img('img/firefox/enterprise/fx-browser-img.svg', optional_attributes={ 'class': 'mzp-c-split-media-asset'}),
-    block_class='mzp-t-dark t-enterprise mzp-t-split-nospace mzp-l-split-hide-media-on-sm-md mzp-l-split-center-on-sm-md',
-    media_class='mzp-l-split-v-start mzp-l-split-h-start',
-    media_after=True
-  ) %}
-    <div class="mzp-c-wordmark mzp-t-wordmark-md mzp-t-product-firefox"></div>
-    <h1 class="mzp-c-split-title">{{ftl('firefox-enterprise-use-as-your-enterprise-browser')}}</h1>
-    <p class="mzp-c-split-desc">
-      {{ ftl('firefox-enterprise-secure-at-scale') }}
-    </p>
-    <div class="cta-container">
-      <div class="mzp-c-button-download-container">
-        <a id="primary-download-button" href="#download" class="mzp-c-button mzp-t-product mzp-t-xl">
-          {{ ftl('download-button-download') }}
-          <span class="mzp-c-button-icon-end">
-            <!-- TODO: replace with new protocol-assets version -->
-            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
-          </span>
-        </a>
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}" class="mzp-c-button-download-privacy-link">{{ ftl('download-button-firefox-privacy-notice') }}</a>
-      </div>
-    </div>
-  {% endcall %}
-
-  <section class="mzp-c-callout enterprise-callout">
-    <div class="mzp-l-content mzp-t-content-md callout-wrapper">
-      <div class="mzp-c-callout-content">
-        <h2 class="mzp-c-callout-title">{{ ftl('firefox-enterprise-support-for-organizations') }}</h2>
-        <div class="mzp-c-callout-desc">
-          <p>{{ ftl('firefox-enterprise-early-access-is-v2', fallback='firefox-enterprise-early-access-is') }}</p>
-        </div>
-        <a class="callout-cta mzp-c-button mzp-t-product" href="https://qsurvey.mozilla.com/s3/firefox-support-plan?src=firefox-enterprise-cta" data-cta-text="Contact Sales">
-          {{ ftl('firefox-enterprise-contact-sales') }}
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <div class="mzp-l-content mzp-t-content-lg">
-    <section id="overview" class="enterprise-section">
-      <h2 class="enterprise-section-title">{{ ftl('firefox-enterprise-protection-powered-by') }}</h2>
-
-      <ul class="mzp-l-columns mzp-t-columns-three">
-        {% call picto(
-          base_el='li',
-          title=ftl('firefox-enterprise-your-browser-your-business'),
-          image=resp_img(
-            url='img/firefox/enterprise/icon-data-privacy.svg',
-            optional_attributes={
-              'class': 'mzp-c-picto-image',
-              'width': '44',
-              'loading': 'lazy'
-            }
-          ),
-          body=True,
-        ) %}
-          <p>{{ ftl('firefox-enterprise-open-source-transparency') }}</p>
-        {% endcall %}
-
-        {% call picto(
-          base_el='li',
-          title=ftl('firefox-enterprise-deploy-when-and-how-you-want'),
-          image=resp_img(
-            url='img/firefox/enterprise/icon-deploy.svg',
-            optional_attributes={
-              'class': 'mzp-c-picto-image',
-              'width': '53',
-              'loading': 'lazy'
-            }
-          ),
-          body=True,
-        ) %}
-          <p>{{ ftl('firefox-enterprise-install-packages-policies') }}</p>
-        {% endcall %}
-
-        {% call picto(
-          base_el='li',
-          title=ftl('firefox-enterprise-release-cycles'),
-          image=resp_img(
-            url='img/firefox/enterprise/icon-release.svg',
-            optional_attributes={
-              'class': 'mzp-c-picto-image',
-              'width': '49',
-              'loading': 'lazy'
-            }
-          ),
-          body=True,
-        ) %}
-          <p>{{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}</p>
-        {% endcall %}
-      </ul>
-    </section>
-  </div>
-
-  <div class="mzp-l-content">
-    <section class="mzp-c-callout support-callout">
-      <div class="mzp-c-callout-content">
-        <h2 class="mzp-c-callout-title">{{ ftl('firefox-enterprise-support-for-organizations-documentation') }}</h2>
-        <div class="mzp-c-callout-desc">
-          <p>{{ ftl('firefox-enterprise-support-for-organizations-is') }}</p>
-        </div>
-        <a class="support-cta" href="https://assets.mozilla.net/pdf/Firefox_Enterprise_Support_Plan.pdf" data-cta-text="Support Plan">
-          {{ ftl('firefox-enterprise-support-plan') }}
-          <span class="button-icon button-icon-arrow" aria-hidden="true"></span>
-        </a>
-      </div>
-    </section>
-  </div>
-{% endif %}
 <div class="mzp-l-content">
-    <section id="download" class="{% if switch("flare26_enabled") %}fl-section fl-section-download{% else %}enterprise-section enterprise-download{% endif %}">
-      <h2 class="{% if switch("flare26_enabled") %}fl-heading{% else %}enterprise-section-title{% endif %}">{{ ftl('firefox-enterprise-enterprise-downloads') }}</h2>
+    <section id="download" class="fl-section fl-section-download">
+      <h2 class="fl-heading">{{ ftl('firefox-enterprise-enterprise-downloads') }}</h2>
 
       <div class="enterprise-download-lists">
 
@@ -418,7 +298,7 @@
         </section>
       </div>
 
-      <p class="{% if switch("flare26_enabled") %}fl-body text-center fl-body-md{% else %}enterprise-languages{% endif %}">
+      <p class="fl-body text-center fl-body-md">
         {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all = 'href="' ~ firefox_url('desktop', 'all', 'esr') ~ '"') }}
       </p>
     </section>

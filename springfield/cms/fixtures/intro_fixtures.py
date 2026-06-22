@@ -4,41 +4,53 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
-from springfield.cms.models import FreeFormPage
+from springfield.cms.models import FreeFormPage2026
 
 
 def get_intro_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
+    tags = get_tag_variants()
     return [
+        # Vertical layout (default), no media
         {
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "after",
-                    "anchor_id": "simple-intro-with-text-and-button",
+                    "layout": "vertical",
+                    "slim": False,
+                    "anchor_id": "",
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Simple Intro with text and button</p>',
-                    "subheading_text": '<p data-block-key="png3s">When no image is provided, the Intro component gets a centralized layout.</p>',
+                    "superheading_text": '<p data-block-key="i26s1">Firefox 2026</p>',
+                    "heading_text": '<p data-block-key="i26h1">Intro without media</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [
-                    buttons["primary"],
+                "content": [
+                    {"type": "tags", "id": "cc260001-0000-0000-0000-000000000001", "value": [tags["purple"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cc260001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b1">Media isn\'t required on the intro block.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260001-0000-0000-0000-000000000003", "value": [buttons["primary"]]},
                 ],
             },
-            "id": "a95b0d6d-861a-4a93-826b-f5db992e766e",
+            "id": "2026int1-0000-0000-0000-000000000001",
         },
+        # Media right layout, with image, anchor_id
         {
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "after",
-                    "anchor_id": "intro-with-image",
+                    "layout": "right",
+                    "slim": False,
+                    "anchor_id": "intro-image-right",
                 },
                 "media": [
                     {
@@ -51,26 +63,38 @@ def get_intro_variants() -> list[dict]:
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                        "id": "2026int1-0000-0000-0000-000000000002",
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with image</p>',
-                    "subheading_text": '<p data-block-key="png3s">Switch your browser to Dark Mode to see the alternative image.</p>',
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h2">Intro with image (right)</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [
-                    buttons["secondary"],
+                "content": [
+                    {"type": "tags", "id": "cc260002-0000-0000-0000-000000000001", "value": [tags["red"], tags["orange"]]},
+                    {
+                        "type": "rich_text",
+                        "id": "cc260002-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b2">Switch to Dark Mode to see the alternative image.</p>',
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "cc260002-0000-0000-0000-000000000003",
+                        "value": [buttons["secondary"], buttons["ghost"]],
+                    },
                 ],
             },
-            "id": "6e8994ca-1437-4f97-80e0-7e82d40e64d9",
+            "id": "2026int1-0000-0000-0000-000000000003",
         },
+        # Media left layout, with image, slim
         {
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "before",
-                    "anchor_id": "intro-with-image-before",
+                    "layout": "left",
+                    "slim": True,
+                    "anchor_id": "",
                 },
                 "media": [
                     {
@@ -83,120 +107,129 @@ def get_intro_variants() -> list[dict]:
                                 "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
                             },
                         },
-                        "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
+                        "id": "2026int1-0000-0000-0000-000000000005",
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with image before</p>',
-                    "subheading_text": '<p data-block-key="png3s">Change the Intro layout in the settings field to position '
-                    "the image before the content.</p>",
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h3">Intro with image (left, slim)</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [
-                    buttons["tertiary"],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260003-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b3">Media is positioned to the left in slim layout.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260003-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
             },
-            "id": "92d2e6a1-6116-4416-a449-e02cda310afb",
+            "id": "2026int1-0000-0000-0000-000000000006",
         },
+        # Vertical layout with YouTube video and anchor_id
         {
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "after",
-                    "anchor_id": "intro-with-youtube-video",
+                    "layout": "vertical",
+                    "slim": False,
+                    "anchor_id": "intro-video",
                 },
                 "media": [videos["youtube"]],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with YouTube Video</p>',
-                    "subheading_text": '<p data-block-key="png3s">Add a Video instead of the image. '
-                    "Use a YouTube video URL or a link to assets.mozilla.net.</p>",
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h4">Intro with YouTube video</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["ghost"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260004-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b4">Add a YouTube video by pasting the URL in the media block.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260004-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
+                ],
             },
-            "id": "98b08efa-ddd2-4feb-b070-6a50781fc253",
+            "id": "2026int1-0000-0000-0000-000000000004",
         },
+        # Right layout with animation
         {
             "type": "intro",
             "value": {
                 "settings": {
-                    "media_position": "before",
-                    "anchor_id": "intro-with-cdn-video",
+                    "layout": "right",
+                    "slim": False,
+                    "anchor_id": "",
                 },
-                "media": [videos["cdn"]],
-                "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with CDN Video</p>',
-                    "subheading_text": '<p data-block-key="png3s">Add a Video instead of the image. '
-                    "Use a YouTube video URL or a link to assets.mozilla.net.</p>",
-                },
-                "buttons": [buttons["primary"]],
-            },
-            "id": "98856064-26db-45eb-862f-e0e87a9c9736",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "after"},
                 "media": [videos["animation"]],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with Animation (Autoplay loop)</p>',
-                    "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h5">Intro with animation</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["primary"]],
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260005-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b5">Use an animation instead of a static image.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260005-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
+                ],
             },
-            "id": "gbjweiof-26db-45eb-862f-e0e87a9c9736",
+            "id": "2026int1-0000-0000-0000-000000000007",
         },
+        # Left layout with QR code
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "media": [videos["animation_autoplay_once"]],
-                "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with Animation (Autoplay once)</p>',
-                    "subheading_text": '<p data-block-key="png3s">Add an animation instead of the image. Use a link to assets.mozilla.net.</p>',
+                "settings": {
+                    "layout": "left",
+                    "slim": False,
+                    "anchor_id": "intro-qr-code",
                 },
-                "buttons": [buttons["primary"]],
-            },
-            "id": "gbjweiof-26db-45eb-862f-e0e87a9c9736",
-        },
-        {
-            "type": "intro",
-            "value": {
-                "settings": {"media_position": "before"},
                 "media": [
                     {
                         "type": "qr_code",
                         "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
-                        "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
-                    },
+                        "id": "2026int1-0000-0000-0000-000000000009",
+                    }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="ybdoh">Superheading text</p>',
-                    "heading_text": '<p data-block-key="uzief">Intro with QR Code</p>',
-                    "subheading_text": '<p data-block-key="png3s">Add a QR Code instead of the image.</p>',
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h6">Intro with QR code</p>',
+                    "subheading_text": "",
                 },
-                "buttons": [buttons["secondary"]],
+                "content": [
+                    {
+                        "type": "tags",
+                        "id": "cc260006-0000-0000-0000-000000000001",
+                        "value": [tags["green"], tags["purple"], tags["red"]],
+                    },
+                    {
+                        "type": "rich_text",
+                        "id": "cc260006-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="i26b6">Scan the QR code to get started.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260006-0000-0000-0000-000000000003", "value": [buttons["secondary"]]},
+                ],
             },
-            "id": "5484df65-86c5-4fa4-b835-5870f6ca05ee",
+            "id": "2026int1-0000-0000-0000-000000000008",
         },
     ]
 
 
-def get_intro_test_page():
+def get_intro_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage.objects.filter(slug="test-intro-page").first()
+    slug = "test-intro"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage(
-            slug="test-intro-page",
-            title="Test Intro Page",
-        )
+        page = FreeFormPage2026(slug=slug, title="Test Intro 2026")
         index_page.add_child(instance=page)
 
-    page.content = get_intro_variants()
+    variants = get_intro_variants()
+    page.upper_content = variants
+    page.content = variants
     page.save_revision().publish()
     return page

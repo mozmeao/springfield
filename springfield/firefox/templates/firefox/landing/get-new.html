@@ -48,6 +48,7 @@
             <content:heading>
               <include:heading
                 level="h1"
+                heading_size="fl-heading-xl"
                 superheading_text="{{ ftl('firefox-desktop-download-firefox') }}"
                 heading_text="{{ ftl('firefox-desktop-download-get-the-browser') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-fast-reliable-private') }}"
@@ -82,7 +83,8 @@
         <div class="fl-section-container fl-firefox-has-got-you">
           <include:heading
             level="h2"
-            alignment_class="fl-heading-size-2 text-center"
+            heading_size="fl-heading-md"
+            alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-do-what-you-do-v2') }}"
           />
 
@@ -90,6 +92,7 @@
             <content:heading>
               <include:heading
                 level="h3"
+                heading_size="fl-heading-sm"
                 heading_text="{{ ftl('firefox-desktop-download-we-block-the-ad') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-ads-are-distracting') }}"
               />
@@ -105,6 +108,7 @@
             <content:heading>
               <include:heading
                 level="h3"
+                heading_size="fl-heading-sm"
                 heading_text="{{ ftl('firefox-desktop-download-for-everyone') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-available-in-over') }}"
               />
@@ -120,6 +124,7 @@
             <content:heading>
               <include:heading
                 level="h3"
+                heading_size="fl-heading-sm"
                 heading_text="{{ ftl('firefox-desktop-download-all-your-devices') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-take-your-privacy') }}"
               />
@@ -138,7 +143,8 @@
         <div class="fl-section-container fl-do-it-all">
           <include:heading
             level="h2"
-            alignment_class="fl-heading-size-2 text-center"
+            heading_size="fl-heading-md"
+            alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-do-it-all') }}"
           />
 
@@ -247,7 +253,8 @@
 
           <include:heading
             level="h2"
-            alignment_class="fl-heading-size-2 text-center"
+            heading_size="fl-heading-md"
+            alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-make-firefox-your') }}"
           />
 
@@ -292,7 +299,8 @@
             <content:heading>
               <include:heading
                 level="h2"
-                alignment_class="fl-heading-size-2 text-center"
+                heading_size="fl-heading-md"
+                alignment_class="text-center"
                 heading_text="{{ ftl('firefox-desktop-download-backed-by-the') }}"
               />
             </content:heading>
@@ -333,35 +341,38 @@
         <div class="fl-section-container fl-favorite-browser">
           <include:heading
             level="h2"
-            alignment_class="fl-heading-size-2 text-center"
+            heading_size="fl-heading-md"
+            alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-keep-all-your') }}"
           />
 
 
           <include:cards-list>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/kit-with-google.png" srcset="/media/img/firefox/landing/get/kit-with-google-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-works-with-google') }}"
                 />
               </content:heading>
               <content:body>
                 <p>{{ ftl('firefox-desktop-download-all-your-favourite') }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/etp.png" srcset="/media/img/firefox/landing/get/etp-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-enhanced-tracking-protection') }}"
                 />
               </content:heading>
@@ -369,15 +380,16 @@
                 {% set block_attrs = 'href="https://addons.mozilla.org/firefox/extensions%s" target="_blank" rel="noopener" data-cta-text="blocks many third party trackers"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-firefox-automatically', attrs=block_attrs ) }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/kit-running.png" srcset="/media/img/firefox/landing/get/kit-running-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-sync-your-devices') }}"
                 />
               </content:heading>
@@ -385,15 +397,16 @@
                 {% set device_attrs = 'href="https://accounts.firefox.com/signin%s" target="_blank" rel="noopener" data-cta-text="Mozilla account"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-firefox-is-available-v2', attrs=device_attrs) }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/screenshot.png" srcset="/media/img/firefox/landing/get/screenshot.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-screenshots') }}"
                 />
               </content:heading>
@@ -401,15 +414,16 @@
                 {% set screenshots_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" target="_blank" rel="noopener" data-cta-text="screenshot"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-grab-a-high', attrs=screenshots_attrs) }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/kit-plant.png" srcset="/media/img/firefox/landing/get/kit-plant-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-facebook-container') }}"
                 />
               </content:heading>
@@ -417,22 +431,23 @@
                 {% set container_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container%s" target="_blank" rel="noopener" data-cta-text="Download this browser extension"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-download-this-browser', attrs=container_attrs) }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
-            <include:illustration-card-2026>
+            <include:illustration-card>
               <content:media>
                   <img src="/media/img/firefox/landing/get/picture-in-picture.png" srcset="/media/img/firefox/landing/get/picture-in-picture-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
               </content:media>
               <content:heading>
                 <include:heading
                   level="h3"
+                  heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-picture-in-picture') }}"
                 />
               </content:heading>
               <content:body>
                 <p>{{ ftl('firefox-desktop-download-from-watching-a') }}</p>
               </content:body>
-            </include:illustration-card-2026>
+            </include:illustration-card>
 
           </include:cards-list>
 
@@ -456,6 +471,7 @@
         <content:heading>
           <include:heading
             level="h2"
+            heading_size="fl-heading-md"
             heading_text="{{ ftl('firefox-desktop-download-get-help', attrs=support_attrs) }}"
           />
         </content:heading>

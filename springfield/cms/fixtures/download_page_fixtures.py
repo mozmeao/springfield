@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
@@ -118,14 +118,14 @@ def get_pre_footer():
 
 
 def get_download_index_page() -> DownloadIndexPage:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "test-download-index-page"
     page = DownloadIndexPage.objects.filter(slug=slug).first()
     if not page:
         page = DownloadIndexPage(
             slug=slug,
-            title="Download Index Page Test",
+            title="Download Index",
         )
         index_page.add_child(instance=page)
 

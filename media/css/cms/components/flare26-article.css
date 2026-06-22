@@ -134,7 +134,10 @@ Stacked article list
 .fl-article-item .fl-superheading {
     color: var(--fl-theme-color-brand-text);
     font-size: var(--fl-theme-label-xs);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 /* =====================================================================
@@ -179,7 +182,10 @@ Related articles
 
 .fl-related-articles-header-link {
     font-size: var(--fl-theme-font-size-body-2xs);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 @media (--viewport-md-up) {

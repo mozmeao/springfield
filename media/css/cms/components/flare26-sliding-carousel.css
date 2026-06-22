@@ -66,7 +66,10 @@
     color: var(--fl-theme-card-outline-superheading-color);
     font-size: var(--fl-theme-font-size-body-2xs);
     margin-block-end: var(--token-spacing-lg);
-    text-transform: uppercase;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-sliding-carousel-control.is-active
