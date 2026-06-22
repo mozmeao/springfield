@@ -27,6 +27,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from wagtail.models import Revision
+from wagtail_localize.models import TranslationSource
 
 logger = logging.getLogger(__name__)
 
@@ -179,8 +180,6 @@ class Command(BaseCommand):
         Translated pages should continue to render correctly after this command's label
         conversion; they'll be re-synced through the normal Smartling workflow on next publish.
         """
-        from wagtail_localize.models import TranslationSource
-
         self.stdout.write("Updating TranslationSource records...\n")
 
         if dry_run:
