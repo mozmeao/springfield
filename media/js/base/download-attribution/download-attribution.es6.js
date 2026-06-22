@@ -761,7 +761,6 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             return;
         }
 
-        DownloadAttribution.requestComplete = false;
         DownloadAttribution.requestAuthentication(combined);
     },
 

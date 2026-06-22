@@ -11,11 +11,10 @@
 
 /* eslint new-cap: [2, {"capIsNewExceptions": ["Deferred"]}] */
 
-describe('stub-attribution.js', function () {
+describe('download-attribution.js', function () {
     const GA4_CLIENT_ID = '4442748357.1686074738';
     const GA_SESSION_ID = '1668161374';
     const STUB_SESSION_ID = '1234567890';
-    const DLSOURCE = 'fxdotcom';
 
     beforeEach(function () {
         // stub out google tag manager
@@ -23,373 +22,45 @@ describe('stub-attribution.js', function () {
         window.dataLayer.push = sinon.stub();
     });
 
-    describe('init', function () {
-        let data = {};
-
-        beforeEach(function () {
-            data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: STUB_SESSION_ID
-            };
-
-            spyOn(
-                Mozilla.StubAttribution,
-                'checkDataAndRequestAuth'
-            ).and.callThrough();
-            spyOn(Mozilla.StubAttribution, 'requestAuthentication');
-            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
-            spyOn(window.dataLayer, 'push');
-
-            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
-                GA4_CLIENT_ID
-            );
-        });
-
-        it('should update download links if session cookie exists', function () {
-            const cookieData = {
-                attribution_code: 'foo',
-                attribution_sig: 'bar'
-            };
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'getCookie').and.returnValue(
-                cookieData
-            );
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).toHaveBeenCalledWith(cookieData);
-        });
-
-        it('should invalidate cookie and re-request when data-stub-attribution-campaign-force is set', function () {
-            const html = document.documentElement;
-            html.setAttribute(
-                'data-stub-attribution-campaign-force',
-                'forced_campaign'
-            );
-
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValues(
-                true,
-                false
-            );
-            spyOn(Mozilla.StubAttribution, 'removeCookie');
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-
-            Mozilla.StubAttribution.init();
-
-            expect(Mozilla.StubAttribution.removeCookie).toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.checkDataAndRequestAuth
-            ).toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-
-            html.removeAttribute('data-stub-attribution-campaign-force');
-        });
-
-        it('should authenticate attribution data if no session cookie exists', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-
-            Mozilla.StubAttribution.init();
-
-            expect(
-                Mozilla.StubAttribution.checkDataAndRequestAuth
-            ).toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).toHaveBeenCalledWith(data);
-            expect(window.dataLayer.push).toHaveBeenCalledWith({
-                event: 'stub_session_set',
-                id: STUB_SESSION_ID
-            });
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-
-        it('should do nothing if stub attribution requirements are not satisfied', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            expect(
-                Mozilla.StubAttribution.checkDataAndRequestAuth
-            ).not.toHaveBeenCalled();
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                false
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-
-        it('should do nothing if page is /thanks', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            expect(
-                Mozilla.StubAttribution.checkDataAndRequestAuth
-            ).not.toHaveBeenCalled();
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(true);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-
-        it('should not waitForGoogleAnalytics when `omitNonEssentialFields=true` is passed', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            spyOn(
-                Mozilla.StubAttribution,
-                'waitForGoogleAnalyticsThen'
-            ).and.callThrough();
-
-            Mozilla.StubAttribution.init(null, null, true);
-
-            expect(
-                Mozilla.StubAttribution.waitForGoogleAnalyticsThen
-            ).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.checkDataAndRequestAuth
-            ).toHaveBeenCalledWith(true);
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).toHaveBeenCalledWith(data);
-            expect(window.dataLayer.push).not.toHaveBeenCalledWith({
-                event: 'stub_session_set',
-                id: STUB_SESSION_ID
-            });
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('checkDataAndRequestAuth', function () {
-        let data = {};
-
-        beforeEach(function () {
-            data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: STUB_SESSION_ID
-            };
-
-            spyOn(
-                Mozilla.StubAttribution,
-                'checkDataAndRequestAuth'
-            ).and.callThrough();
-            spyOn(Mozilla.StubAttribution, 'requestAuthentication');
-            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
-            spyOn(window.dataLayer, 'push');
-
-            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
-                GA4_CLIENT_ID
-            );
-        });
-
-        it('should do nothing if session is not within sample rate', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(false);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-
-        it('should do nothing attribution data is invalid', function () {
-            spyOn(
-                Mozilla.StubAttribution,
-                'withinAttributionRate'
-            ).and.returnValue(true);
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'hasValidData').and.returnValue(
-                false
-            );
-            spyOn(Mozilla.StubAttribution, 'hasCookie').and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'isFirefoxDownloadThanks'
-            ).and.returnValue(false);
-            spyOn(
-                Mozilla.StubAttribution,
-                'getAttributionData'
-            ).and.returnValue(data);
-            Mozilla.StubAttribution.init();
-            expect(
-                Mozilla.StubAttribution.requestAuthentication
-            ).not.toHaveBeenCalled();
-            expect(window.dataLayer.push).not.toHaveBeenCalled();
-            expect(
-                Mozilla.StubAttribution.updateBouncerLinks
-            ).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('meetsRequirements', function () {
+    describe('meetsFunctionalRequirements', function () {
         afterEach(function () {
             window.site.platform = 'other';
         });
 
         it('should return false if cookies are not enabled', function () {
             spyOn(Mozilla.Cookies, 'enabled').and.returnValue(false);
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeFalsy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeFalsy();
         });
 
         it('should return false if platform is not windows or macOS', function () {
             window.site.platform = 'linux';
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeFalsy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeFalsy();
             window.site.platform = 'ios';
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeFalsy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeFalsy();
             window.site.platform = 'android';
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeFalsy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeFalsy();
         });
 
         it('should return true for windows users who satisfy all other requirements', function () {
             window.site.platform = 'windows';
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeTruthy();
         });
 
         it('should return true for macOS users who satisfy all other requirements', function () {
             window.site.platform = 'osx';
-            expect(Mozilla.StubAttribution.meetsRequirements()).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.meetsFunctionalRequirements()
+            ).toBeTruthy();
         });
     });
 
@@ -406,7 +77,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data)).toBeTruthy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data)).toBeTruthy();
         });
 
         it('should return true for valid RTAMO data', function () {
@@ -421,7 +92,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data)).toBeTruthy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data)).toBeTruthy();
 
             const data2 = {
                 utm_source: 'addons.mozilla.org',
@@ -434,7 +105,9 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data2)).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.hasValidData(data2)
+            ).toBeTruthy();
 
             const data3 = {
                 utm_source: 'addons.mozilla.org',
@@ -447,7 +120,9 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data3)).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.hasValidData(data3)
+            ).toBeTruthy();
 
             const data4 = {
                 utm_source: 'addons.mozilla.org',
@@ -460,7 +135,9 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data4)).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.hasValidData(data4)
+            ).toBeTruthy();
         });
 
         it('should return false for RTAMO data that does not have AMO as the referrer', function () {
@@ -475,7 +152,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data)).toBeFalsy();
 
             const data2 = {
                 utm_source: 'addons.mozilla.org',
@@ -488,7 +165,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data2)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data2)).toBeFalsy();
 
             const data3 = {
                 utm_source: 'addons.mozilla.org',
@@ -501,7 +178,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data3)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data3)).toBeFalsy();
 
             const data4 = {
                 utm_source: 'addons.mozilla.org',
@@ -514,7 +191,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data4)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data4)).toBeFalsy();
         });
 
         it('should return false if utm_content is too long', function () {
@@ -531,7 +208,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data1)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data1)).toBeFalsy();
 
             const data2 = {
                 utm_source: 'addons.mozilla.org',
@@ -546,7 +223,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data2)).toBeFalsy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data2)).toBeFalsy();
         });
 
         it('should return false for RTAMO data if referrer is not set', function () {
@@ -561,21 +238,7 @@ describe('stub-attribution.js', function () {
                 session_id: STUB_SESSION_ID
             };
 
-            expect(Mozilla.StubAttribution.hasValidData(data)).toBeFalsy();
-        });
-    });
-
-    describe('isFirefoxDownloadThanks', function () {
-        it('should return true if the page is thanks/', function () {
-            const url = 'https://www.firefox.com/en-US/thanks/';
-            expect(
-                Mozilla.StubAttribution.isFirefoxDownloadThanks(url)
-            ).toBeTruthy();
-
-            const url2 = 'https://www.firefox.com/en-US/thanks/?foo=bar';
-            expect(
-                Mozilla.StubAttribution.isFirefoxDownloadThanks(url2)
-            ).toBeTruthy();
+            expect(Mozilla.DownloadAttribution.hasValidData(data)).toBeFalsy();
         });
     });
 
@@ -598,25 +261,33 @@ describe('stub-attribution.js', function () {
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14931';
 
         it('should identify Internet Explorer', function () {
-            expect(Mozilla.StubAttribution.getUserAgent(ie8)).toEqual('ie');
-            expect(Mozilla.StubAttribution.getUserAgent(ie9)).toEqual('ie');
-            expect(Mozilla.StubAttribution.getUserAgent(ie10)).toEqual('ie');
-            expect(Mozilla.StubAttribution.getUserAgent(ie11)).toEqual('ie');
+            expect(Mozilla.DownloadAttribution.getUserAgent(ie8)).toEqual('ie');
+            expect(Mozilla.DownloadAttribution.getUserAgent(ie9)).toEqual('ie');
+            expect(Mozilla.DownloadAttribution.getUserAgent(ie10)).toEqual(
+                'ie'
+            );
+            expect(Mozilla.DownloadAttribution.getUserAgent(ie11)).toEqual(
+                'ie'
+            );
         });
 
         it('should identify Edge', function () {
-            expect(Mozilla.StubAttribution.getUserAgent(edge)).toEqual('edge');
-            expect(Mozilla.StubAttribution.getUserAgent(edgeium)).toEqual(
+            expect(Mozilla.DownloadAttribution.getUserAgent(edge)).toEqual(
+                'edge'
+            );
+            expect(Mozilla.DownloadAttribution.getUserAgent(edgeium)).toEqual(
                 'edge'
             );
         });
 
         it('should identify Firefox', function () {
-            expect(Mozilla.StubAttribution.getUserAgent(ff)).toEqual('firefox');
+            expect(Mozilla.DownloadAttribution.getUserAgent(ff)).toEqual(
+                'firefox'
+            );
         });
 
         it('should identify Chrome', function () {
-            expect(Mozilla.StubAttribution.getUserAgent(chrome)).toEqual(
+            expect(Mozilla.DownloadAttribution.getUserAgent(chrome)).toEqual(
                 'chrome'
             );
         });
@@ -632,495 +303,27 @@ describe('stub-attribution.js', function () {
         });
         it('should fire a callback when GA4 client ID and session ID are found', function () {
             // stub out GA4 client ID
-            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
-                GA4_CLIENT_ID
-            );
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'getGtagClientID'
+            ).and.returnValue(GA4_CLIENT_ID);
             const callback = jasmine.createSpy('callback');
 
-            Mozilla.StubAttribution.waitForGoogleAnalyticsThen(callback);
+            Mozilla.DownloadAttribution.waitForGoogleAnalyticsThen(callback);
             expect(callback).toHaveBeenCalledWith(true);
         });
 
         it('should fire a callback when it times out looking for GA4 ids', function () {
             // stub out GA4 client ID
-            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
-                null
-            );
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'getGtagClientID'
+            ).and.returnValue(null);
             const callback = jasmine.createSpy('callback');
 
-            Mozilla.StubAttribution.waitForGoogleAnalyticsThen(callback);
+            Mozilla.DownloadAttribution.waitForGoogleAnalyticsThen(callback);
             jasmine.clock().tick(2100);
             expect(callback).toHaveBeenCalledWith(false);
-        });
-    });
-
-    describe('getAttributionData', function () {
-        beforeEach(function () {
-            spyOn(Mozilla.StubAttribution, 'getGtagClientID').and.returnValue(
-                GA4_CLIENT_ID
-            );
-        });
-
-        it('should return attribution data if utm params are present', function () {
-            const referrer = '';
-
-            const utms = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr'
-            };
-
-            const data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should return attribution data if referrer is present', function () {
-            const referrer = 'https://www.firefox.com/en-US/';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                referrer: 'https://www.firefox.com/en-US/',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should return only generic data if neither utm params and referrer are present', function () {
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should return optional experimental parameters if present', function () {
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                referrer: '',
-                ua: 'chrome',
-                experiment: 'firefox-download',
-                variation: 1,
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(window._SearchParams.prototype, 'get').and.callFake(
-                function (key) {
-                    return key === 'experiment' ? 'firefox-download' : 1;
-                }
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should omit non-essential attribution data when `omitNonEssentialFields=true` is passed', function () {
-            const referrer = 'https://addons.mozilla.org/';
-
-            const utms = {
-                utm_source: 'addons.mozilla.org',
-                utm_medium: 'referral',
-                utm_campaign: 'non-fx-button',
-                utm_content: 'rta%3Acm9uaW4td2FsbGV0QGF4aWVpbmZpbml0eS5jb20'
-            };
-
-            const data = {
-                utm_source: 'addons.mozilla.org',
-                utm_medium: 'referral',
-                utm_campaign: 'non-fx-button',
-                utm_content: 'rta%3Acm9uaW4td2FsbGV0QGF4aWVpbmZpbml0eS5jb20',
-                referrer: 'https://addons.mozilla.org/',
-                ua: 'other',
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(window._SearchParams.prototype, 'get').and.callFake(
-                function (key) {
-                    return key === 'experiment' ? 'firefox-download' : 1;
-                }
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(
-                referrer,
-                true
-            );
-            expect(result).toEqual(data);
-        });
-
-        afterEach(function () {
-            document.documentElement.removeAttribute(
-                'data-stub-attribution-campaign'
-            );
-            document.documentElement.removeAttribute(
-                'data-stub-attribution-campaign-override'
-            );
-            document.documentElement.removeAttribute(
-                'data-stub-attribution-campaign-force'
-            );
-        });
-
-        it('should use data-stub-attribution-campaign as fallback when utm_campaign is not in URL params', function () {
-            const html = document.documentElement;
-            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                utm_campaign: 'smart_window',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should use data-stub-attribution-campaign fallback while preserving other UTM params from URL', function () {
-            const html = document.documentElement;
-            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: undefined,
-                utm_content: 'rel-esr'
-            };
-
-            const data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'smart_window',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should prefer utm_campaign from URL params over data-stub-attribution-campaign', function () {
-            const html = document.documentElement;
-            html.setAttribute('data-stub-attribution-campaign', 'smart_window');
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr'
-            };
-
-            const data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should use data-stub-attribution-campaign-override over utm_campaign from URL params', function () {
-            const html = document.documentElement;
-            html.setAttribute(
-                'data-stub-attribution-campaign-override',
-                'smart_window'
-            );
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr'
-            };
-
-            const data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'smart_window',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-
-            html.removeAttribute('data-stub-attribution-campaign-override');
-        });
-
-        it('should use data-stub-attribution-campaign-override over data-stub-attribution-campaign', function () {
-            const html = document.documentElement;
-            html.setAttribute(
-                'data-stub-attribution-campaign-override',
-                'smart_window'
-            );
-            html.setAttribute(
-                'data-stub-attribution-campaign',
-                'other_campaign'
-            );
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                utm_campaign: 'smart_window',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-
-            html.removeAttribute('data-stub-attribution-campaign-override');
-            html.removeAttribute('data-stub-attribution-campaign');
-        });
-
-        it('should use data-stub-attribution-campaign-force over utm_campaign from URL params', function () {
-            const html = document.documentElement;
-            html.setAttribute(
-                'data-stub-attribution-campaign-force',
-                'forced_campaign'
-            );
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'F100_4242_otherstuff_in_here',
-                utm_content: 'rel-esr'
-            };
-
-            const data = {
-                utm_source: 'desktop-snippet',
-                utm_medium: 'referral',
-                utm_campaign: 'forced_campaign',
-                utm_content: 'rel-esr',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should use data-stub-attribution-campaign-force over data-stub-attribution-campaign-override', function () {
-            const html = document.documentElement;
-            html.setAttribute(
-                'data-stub-attribution-campaign-force',
-                'forced_campaign'
-            );
-            html.setAttribute(
-                'data-stub-attribution-campaign-override',
-                'override_campaign'
-            );
-
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                utm_campaign: 'forced_campaign',
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
-        });
-
-        it('should not include campaign when neither URL param nor data attribute is set', function () {
-            const referrer = '';
-
-            const utms = {
-                utm_source: undefined,
-                utm_medium: undefined,
-                utm_campaign: undefined,
-                utm_content: undefined
-            };
-
-            const data = {
-                referrer: '',
-                ua: 'chrome',
-                client_id_ga4: GA4_CLIENT_ID,
-                session_id: jasmine.any(String),
-                dlsource: DLSOURCE
-            };
-
-            spyOn(window._SearchParams.prototype, 'utmParams').and.returnValue(
-                utms
-            );
-            spyOn(Mozilla.StubAttribution, 'getUserAgent').and.returnValue(
-                'chrome'
-            );
-            const result = Mozilla.StubAttribution.getAttributionData(referrer);
-            expect(result).toEqual(data);
         });
     });
 
@@ -1150,13 +353,13 @@ describe('stub-attribution.js', function () {
                 return new FakeXHR();
             });
             jasmine.clock().install();
-            Mozilla.StubAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.requestComplete = false;
         });
 
         afterEach(function () {
             xhrRequests = [];
             jasmine.clock().uninstall();
-            Mozilla.StubAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.requestComplete = false;
         });
 
         it('should handle a request successfully', function () {
@@ -1166,16 +369,16 @@ describe('stub-attribution.js', function () {
             };
 
             const callback = function () {}; // eslint-disable-line no-empty-function
-            Mozilla.StubAttribution.successCallback = callback;
+            Mozilla.DownloadAttribution.successCallback = callback;
 
             spyOn(
-                Mozilla.StubAttribution,
+                Mozilla.DownloadAttribution,
                 'onRequestSuccess'
             ).and.callThrough();
-            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
-            spyOn(Mozilla.StubAttribution, 'setCookie');
-            spyOn(Mozilla.StubAttribution, 'successCallback');
-            Mozilla.StubAttribution.requestAuthentication();
+            spyOn(Mozilla.DownloadAttribution, 'updateBouncerLinks');
+            spyOn(Mozilla.DownloadAttribution, 'setSignedCookie');
+            spyOn(Mozilla.DownloadAttribution, 'successCallback');
+            Mozilla.DownloadAttribution.requestAuthentication();
 
             const req = xhrRequests[0];
             req.status = 200;
@@ -1184,41 +387,47 @@ describe('stub-attribution.js', function () {
             req.onreadystatechange();
 
             expect(
-                Mozilla.StubAttribution.onRequestSuccess
+                Mozilla.DownloadAttribution.onRequestSuccess
             ).toHaveBeenCalledWith(data);
             expect(
-                Mozilla.StubAttribution.updateBouncerLinks
+                Mozilla.DownloadAttribution.updateBouncerLinks
             ).toHaveBeenCalledWith(data);
-            expect(Mozilla.StubAttribution.setCookie).toHaveBeenCalledWith(
-                data
-            );
-            expect(Mozilla.StubAttribution.successCallback).toHaveBeenCalled();
-            expect(Mozilla.StubAttribution.requestComplete).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.setSignedCookie
+            ).toHaveBeenCalledWith(data);
+            expect(
+                Mozilla.DownloadAttribution.successCallback
+            ).toHaveBeenCalled();
+            expect(Mozilla.DownloadAttribution.requestComplete).toBeTruthy();
         });
 
         it('should handle a timeout as expected', function () {
             const callback = function () {}; // eslint-disable-line no-empty-function
-            Mozilla.StubAttribution.timeoutCallback = callback;
+            Mozilla.DownloadAttribution.timeoutCallback = callback;
             spyOn(
-                Mozilla.StubAttribution,
+                Mozilla.DownloadAttribution,
                 'onRequestTimeout'
             ).and.callThrough();
-            spyOn(Mozilla.StubAttribution, 'timeoutCallback');
-            Mozilla.StubAttribution.requestAuthentication();
+            spyOn(Mozilla.DownloadAttribution, 'timeoutCallback');
+            Mozilla.DownloadAttribution.requestAuthentication();
             jasmine.clock().tick(10100);
-            expect(Mozilla.StubAttribution.onRequestTimeout).toHaveBeenCalled();
-            expect(Mozilla.StubAttribution.timeoutCallback).toHaveBeenCalled();
-            expect(Mozilla.StubAttribution.requestComplete).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.onRequestTimeout
+            ).toHaveBeenCalled();
+            expect(
+                Mozilla.DownloadAttribution.timeoutCallback
+            ).toHaveBeenCalled();
+            expect(Mozilla.DownloadAttribution.requestComplete).toBeTruthy();
         });
     });
 
     describe('onRequestSuccess', function () {
         beforeEach(function () {
-            Mozilla.StubAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.requestComplete = false;
         });
 
         afterEach(function () {
-            Mozilla.StubAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.requestComplete = false;
         });
 
         it('should handle the data as expected', function () {
@@ -1227,16 +436,16 @@ describe('stub-attribution.js', function () {
                 attribution_sig: 'bar'
             };
 
-            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
-            spyOn(Mozilla.StubAttribution, 'setCookie');
-            Mozilla.StubAttribution.onRequestSuccess(data);
+            spyOn(Mozilla.DownloadAttribution, 'updateBouncerLinks');
+            spyOn(Mozilla.DownloadAttribution, 'setSignedCookie');
+            Mozilla.DownloadAttribution.onRequestSuccess(data);
             expect(
-                Mozilla.StubAttribution.updateBouncerLinks
+                Mozilla.DownloadAttribution.updateBouncerLinks
             ).toHaveBeenCalledWith(data);
-            expect(Mozilla.StubAttribution.setCookie).toHaveBeenCalledWith(
-                data
-            );
-            expect(Mozilla.StubAttribution.requestComplete).toBeTruthy();
+            expect(
+                Mozilla.DownloadAttribution.setSignedCookie
+            ).toHaveBeenCalledWith(data);
+            expect(Mozilla.DownloadAttribution.requestComplete).toBeTruthy();
         });
 
         it('should only handle the request once', function () {
@@ -1245,14 +454,17 @@ describe('stub-attribution.js', function () {
                 attribution_sig: 'bar'
             };
 
-            spyOn(Mozilla.StubAttribution, 'updateBouncerLinks');
-            spyOn(Mozilla.StubAttribution, 'setCookie');
-            Mozilla.StubAttribution.requestComplete = true;
-            Mozilla.StubAttribution.onRequestSuccess(data);
+            spyOn(Mozilla.DownloadAttribution, 'updateBouncerLinks');
+            spyOn(Mozilla.DownloadAttribution, 'setSignedCookie');
+            spyOn(Mozilla.DownloadAttribution, 'onRequestSuccess');
+            Mozilla.DownloadAttribution.requestComplete = true;
+            Mozilla.DownloadAttribution.onRequestSuccess(data);
             expect(
-                Mozilla.StubAttribution.updateBouncerLinks
+                Mozilla.DownloadAttribution.updateBouncerLinks
             ).not.toHaveBeenCalled();
-            expect(Mozilla.StubAttribution.setCookie).not.toHaveBeenCalled();
+            expect(
+                Mozilla.DownloadAttribution.setSignedCookie
+            ).not.toHaveBeenCalled();
         });
     });
 
@@ -1316,10 +528,11 @@ describe('stub-attribution.js', function () {
         });
 
         it('should update download links with attribution data as expected', function () {
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            Mozilla.StubAttribution.updateBouncerLinks(data);
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'meetsFunctionalRequirements'
+            ).and.returnValue(true);
+            Mozilla.DownloadAttribution.updateBouncerLinks(data);
             expect(document.getElementById('link-transitional').href).toEqual(
                 'https://www.firefox.com/thanks/'
             );
@@ -1401,25 +614,27 @@ describe('stub-attribution.js', function () {
             );
         });
 
-        it('should do nothing if stub attribution requirements are not satisfied', function () {
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                false
-            );
-            spyOn(Mozilla.StubAttribution, 'appendToDownloadURL');
-            Mozilla.StubAttribution.updateBouncerLinks(data);
+        it('should do nothing if download attribution requirements are not satisfied', function () {
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'meetsFunctionalRequirements'
+            ).and.returnValue(false);
+            spyOn(Mozilla.DownloadAttribution, 'appendToDownloadURL');
+            Mozilla.DownloadAttribution.updateBouncerLinks(data);
             expect(
-                Mozilla.StubAttribution.appendToDownloadURL
+                Mozilla.DownloadAttribution.appendToDownloadURL
             ).not.toHaveBeenCalled();
         });
 
         it('should do nothing if attribution data is not as expected', function () {
-            spyOn(Mozilla.StubAttribution, 'meetsRequirements').and.returnValue(
-                true
-            );
-            spyOn(Mozilla.StubAttribution, 'appendToDownloadURL');
-            Mozilla.StubAttribution.updateBouncerLinks({});
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'meetsFunctionalRequirements'
+            ).and.returnValue(true);
+            spyOn(Mozilla.DownloadAttribution, 'appendToDownloadURL');
+            Mozilla.DownloadAttribution.updateBouncerLinks({});
             expect(
-                Mozilla.StubAttribution.appendToDownloadURL
+                Mozilla.DownloadAttribution.appendToDownloadURL
             ).not.toHaveBeenCalled();
         });
     });
@@ -1443,35 +658,44 @@ describe('stub-attribution.js', function () {
                 'https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US&attribution_code=source%3Dbrandt%26medium%3Daether%26campaign%3D%28not+set%29%26content%3D%28not+set%29%26timestamp%3D1478181983&attribution_sig=241c4ef87bd2554154c5658d99230660d4c242abbe1ac87b89ac0e9dd56b2f4e';
         });
 
-        it('should append stub attribution data to url', function () {
+        it('should append download attribution data to url', function () {
             expect(
-                Mozilla.StubAttribution.appendToDownloadURL(originalUrl, params)
+                Mozilla.DownloadAttribution.appendToDownloadURL(
+                    originalUrl,
+                    params
+                )
             ).toEqual(expectedUrl);
         });
 
-        it('should return original url if stub attribution data is missing', function () {
+        it('should return original url if download attribution data is missing', function () {
             params = {};
             expect(
-                Mozilla.StubAttribution.appendToDownloadURL(originalUrl, params)
+                Mozilla.DownloadAttribution.appendToDownloadURL(
+                    originalUrl,
+                    params
+                )
             ).toEqual(originalUrl);
         });
 
         it('should ignore any other parameters', function () {
             params['foo'] = 'bar';
             expect(
-                Mozilla.StubAttribution.appendToDownloadURL(originalUrl, params)
+                Mozilla.DownloadAttribution.appendToDownloadURL(
+                    originalUrl,
+                    params
+                )
             ).toEqual(expectedUrl);
         });
     });
 
-    describe('getCookie', function () {
+    describe('getSignedCookie', function () {
         it('should return an object as expected', function () {
             spyOn(Mozilla.Cookies, 'getItem').and.callFake((id) => {
-                return id === Mozilla.StubAttribution.COOKIE_CODE_ID
+                return id === Mozilla.DownloadAttribution.COOKIE_CODE_ID
                     ? 'foo'
                     : 'bar';
             });
-            expect(Mozilla.StubAttribution.getCookie()).toEqual({
+            expect(Mozilla.DownloadAttribution.getSignedCookie()).toEqual({
                 attribution_code: 'foo',
                 attribution_sig: 'bar'
             });
@@ -1479,7 +703,7 @@ describe('stub-attribution.js', function () {
         });
     });
 
-    describe('setCookie', function () {
+    describe('setSignedCookie', function () {
         beforeEach(function () {
             spyOn(Mozilla.Cookies, 'setItem');
         });
@@ -1490,10 +714,10 @@ describe('stub-attribution.js', function () {
                 attribution_sig: 'bar'
             };
 
-            Mozilla.StubAttribution.setCookie(data);
+            Mozilla.DownloadAttribution.setSignedCookie(data);
             expect(Mozilla.Cookies.setItem.calls.count()).toEqual(2);
             expect(Mozilla.Cookies.setItem).toHaveBeenCalledWith(
-                Mozilla.StubAttribution.COOKIE_CODE_ID,
+                Mozilla.DownloadAttribution.COOKIE_CODE_ID,
                 data.attribution_code,
                 jasmine.any(String),
                 '/',
@@ -1502,7 +726,7 @@ describe('stub-attribution.js', function () {
                 'lax'
             );
             expect(Mozilla.Cookies.setItem).toHaveBeenCalledWith(
-                Mozilla.StubAttribution.COOKIE_SIGNATURE_ID,
+                Mozilla.DownloadAttribution.COOKIE_SIGNATURE_ID,
                 data.attribution_sig,
                 jasmine.any(String),
                 '/',
@@ -1513,32 +737,32 @@ describe('stub-attribution.js', function () {
         });
 
         it('should not set session cookies if data is not passed', function () {
-            Mozilla.StubAttribution.setCookie({});
+            Mozilla.DownloadAttribution.setSignedCookie({});
             expect(Mozilla.Cookies.setItem).not.toHaveBeenCalled();
         });
     });
 
-    describe('hasCookie', function () {
+    describe('hasSignedCookie', function () {
         it('should return true if both session cookies exists', function () {
             spyOn(Mozilla.Cookies, 'hasItem').and.returnValue(true);
-            const result = Mozilla.StubAttribution.hasCookie();
+            const result = Mozilla.DownloadAttribution.hasSignedCookie();
             expect(Mozilla.Cookies.hasItem.calls.count()).toEqual(2);
             expect(Mozilla.Cookies.hasItem).toHaveBeenCalledWith(
-                Mozilla.StubAttribution.COOKIE_CODE_ID
+                Mozilla.DownloadAttribution.COOKIE_CODE_ID
             );
             expect(Mozilla.Cookies.hasItem).toHaveBeenCalledWith(
-                Mozilla.StubAttribution.COOKIE_SIGNATURE_ID
+                Mozilla.DownloadAttribution.COOKIE_SIGNATURE_ID
             );
             expect(result).toBeTruthy();
         });
 
         it('should return false if one or more session cookies do not exist', function () {
             spyOn(Mozilla.Cookies, 'hasItem').and.callFake((id) => {
-                return id === Mozilla.StubAttribution.COOKIE_CODE_ID
+                return id === Mozilla.DownloadAttribution.COOKIE_CODE_ID
                     ? true
                     : false;
             });
-            const result = Mozilla.StubAttribution.hasCookie();
+            const result = Mozilla.DownloadAttribution.hasSignedCookie();
             expect(Mozilla.Cookies.hasItem.calls.count()).toEqual(2);
             expect(result).toBeFalsy();
         });
@@ -1552,39 +776,41 @@ describe('stub-attribution.js', function () {
             html.removeAttribute(attr);
         });
 
-        it('should return the stub attribution rate as expected', function () {
+        it('should return the download attribution rate as expected', function () {
             html.setAttribute(attr, '0.5');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(0.5);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(
+                0.5
+            );
         });
 
         it('should return 0 if data attribute is not present', function () {
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(0);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(0);
         });
 
         it('should not return negative values', function () {
             html.setAttribute(attr, '-0.5');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(0);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(0);
             html.setAttribute(attr, '-1');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(0);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(0);
         });
 
         it('should not return values greater than 1', function () {
             html.setAttribute(attr, '1.5');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(1);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(1);
             html.setAttribute(attr, '2');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(1);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(1);
         });
 
         it('should not return other values', function () {
             html.setAttribute(attr, 'foo');
-            expect(Mozilla.StubAttribution.getAttributionRate()).toEqual(0);
+            expect(Mozilla.DownloadAttribution.getAttributionRate()).toEqual(0);
         });
     });
 
     describe('withinAttributionRate', function () {
         beforeEach(function () {
             spyOn(
-                Mozilla.StubAttribution,
+                Mozilla.DownloadAttribution,
                 'getAttributionRate'
             ).and.returnValue(0.5);
         });
@@ -1592,19 +818,21 @@ describe('stub-attribution.js', function () {
         it('should return true if within sample rate', function () {
             spyOn(window.Math, 'random').and.returnValue(0.3);
             expect(
-                Mozilla.StubAttribution.withinAttributionRate()
+                Mozilla.DownloadAttribution.withinAttributionRate()
             ).toBeTruthy();
         });
 
         it('should return false if exceeds sample rate', function () {
             spyOn(window.Math, 'random').and.returnValue(0.6);
-            expect(Mozilla.StubAttribution.withinAttributionRate()).toBeFalsy();
+            expect(
+                Mozilla.DownloadAttribution.withinAttributionRate()
+            ).toBeFalsy();
         });
     });
 
     describe('createSessionID', function () {
         it('should return a 10 digit randomly generated number as a string', function () {
-            const result = Mozilla.StubAttribution.createSessionID();
+            const result = Mozilla.DownloadAttribution.createSessionID();
 
             expect(typeof result).toEqual('string');
             expect(/^\d{10}$/.test(result)).toBeTruthy();
@@ -1658,9 +886,9 @@ describe('stub-attribution.js', function () {
                 }
             ];
 
-            expect(Mozilla.StubAttribution.getGtagClientID(dataLayer)).toEqual(
-                GA4_CLIENT_ID
-            );
+            expect(
+                Mozilla.DownloadAttribution.getGtagClientID(dataLayer)
+            ).toEqual(GA4_CLIENT_ID);
         });
 
         it('should return null if GA4 client ID is not found', function () {
@@ -1686,7 +914,7 @@ describe('stub-attribution.js', function () {
             ];
 
             expect(
-                Mozilla.StubAttribution.getGtagClientID(dataLayer)
+                Mozilla.DownloadAttribution.getGtagClientID(dataLayer)
             ).toBeNull();
         });
 
@@ -1694,7 +922,7 @@ describe('stub-attribution.js', function () {
             window.dataLayer = sinon.stub().throws(function () {
                 return new Error();
             });
-            expect(Mozilla.StubAttribution.getGtagClientID()).toBeNull();
+            expect(Mozilla.DownloadAttribution.getGtagClientID()).toBeNull();
         });
     });
 
@@ -1754,13 +982,13 @@ describe('stub-attribution.js', function () {
                 attribution_sig: 'bar'
             };
 
-            Mozilla.StubAttribution.setCookie(data);
-            expect(Mozilla.StubAttribution.hasCookie()).toBeTrue();
+            Mozilla.DownloadAttribution.setSignedCookie(data);
+            expect(Mozilla.DownloadAttribution.hasSignedCookie()).toBeTrue();
 
-            Mozilla.StubAttribution.removeAttributionData();
+            Mozilla.DownloadAttribution.removeAttributionData();
 
             // attribution cookies should be removed
-            expect(Mozilla.StubAttribution.hasCookie()).toBeFalse();
+            expect(Mozilla.DownloadAttribution.hasSignedCookie()).toBeFalse();
 
             // prod download links cleaned
             expect(
