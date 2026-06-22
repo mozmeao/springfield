@@ -296,6 +296,7 @@ $color-charcoal: #333336;
 
     ul {
         list-style: none;
+        margin-block-end: var(--token-spacing-3xl);
         margin-inline: 0;
         padding-inline: 0;
     }
