@@ -288,8 +288,21 @@ $color-charcoal: #333336;
     margin-bottom: $spacing-md;
 }
 
-.enterprise-download-resources li {
-    margin-bottom: $spacing-sm;
+// The resources list is a single shared block beneath all three platform
+// columns. Center it so it reads as intentional rather than a lone first
+// column with two others missing.
+.enterprise-download-resources {
+    text-align: center;
+
+    ul {
+        list-style: none;
+        margin-inline: 0;
+        padding-inline: 0;
+    }
+
+    li {
+        margin-bottom: $spacing-sm;
+    }
 }
 
 .mzp-c-menu-list.is-details .mzp-c-menu-list-title.is-summary button,
