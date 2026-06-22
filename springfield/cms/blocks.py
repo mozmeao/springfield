@@ -1160,7 +1160,7 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _DownloadFirefoxButtonBlock(LabelSourceMixin, blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin):
         settings = DownloadFirefoxButtonSettings(themes=themes)
 
         class Meta:
