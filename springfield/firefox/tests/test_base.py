@@ -186,4 +186,5 @@ class TestInstallerHelp(TestCase):
             force_full_installer=True,
             locale=None,
             platform="desktop",
+            force_arch=None,
         )

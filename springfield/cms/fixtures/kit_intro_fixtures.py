@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -47,12 +47,12 @@ def get_bottom_section() -> list[dict]:
 
 
 def get_kit_intro_test_page() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-kit-intro"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Kit Intro 2026")
+        page = FreeFormPage2026(slug=slug, title="Kit Intro")
         index_page.add_child(instance=page)
 
     content = [*get_kit_intro_variants(), get_bottom_section()]

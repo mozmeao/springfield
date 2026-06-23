@@ -296,9 +296,16 @@ def get_ftl_translations_at_subpath(locale: str, ftl_relative_path: str) -> dict
 
 
 def get_english_ftl_strings_at_subpath(ftl_relative_path: str) -> dict[str, str]:
-    """Get English source strings using a full relative FTL path."""
-    en_path = settings.FLUENT_LOCAL_PATH / "en" / ftl_relative_path
-    return parse_ftl_file(en_path)
+    """Get English source strings using a full relative FTL path.
+
+    Checks FLUENT_REPO_PATH first (production bundle), then falls back to
+    FLUENT_LOCAL_PATH (local overrides), mirroring get_ftl_path_for_locale_at_subpath.
+    """
+    repo_path = settings.FLUENT_REPO_PATH / "en" / ftl_relative_path
+    if repo_path.exists():
+        return parse_ftl_file(repo_path)
+    local_path = settings.FLUENT_LOCAL_PATH / "en" / ftl_relative_path
+    return parse_ftl_file(local_path)
 
 
 def get_ui_ftl_path_for_locale(locale: str) -> Path | None:

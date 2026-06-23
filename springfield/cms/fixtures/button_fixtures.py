@@ -3,11 +3,20 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage2026
+from wagtail.models import Locale
+
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_test_document
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
+    get_pretranslated_phrase_snippets()
+    get_firefox_pk = PretranslatedPhrase.objects.get(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+    ).pk
     buttons = {
         "primary": {
             "type": "button",
@@ -260,7 +269,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "",
                     "icon": "downloads",
@@ -274,7 +284,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "secondary",
                     "icon": "downloads",
@@ -325,7 +336,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
         },
     }
     if full:
-        index_page = get_test_index_page()
+        index_page = get_flare_blocks_docs_page()
         test_document = get_test_document()
         buttons.update(
             {
@@ -983,12 +994,12 @@ def get_button_blocks() -> list[dict]:
 
 
 def get_buttons_test_page() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-buttons"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
+        page = FreeFormPage2026(slug=slug, title="Buttons")
         index_page.add_child(instance=page)
 
     blocks = get_button_blocks()

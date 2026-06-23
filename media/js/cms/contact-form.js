@@ -23,8 +23,20 @@
         }
     }
 
+    function setCorrectLeadSource() {
+        var leadSourceQueryParam = new URLSearchParams(
+            window.location.search
+        ).get('ls');
+        var leadSourceInput = document.querySelector('input[name=lead_source]');
+        if (!leadSourceInput || !leadSourceQueryParam) {
+            return;
+        }
+        leadSourceInput.value = leadSourceQueryParam;
+    }
+
     function init() {
         window.setTimeout(setCorrectFormAction, 3000);
+        window.setTimeout(setCorrectLeadSource, 3000);
     }
 
     if (document.readyState !== 'loading') {
