@@ -246,8 +246,8 @@ TrackProductDownload.sendEventFromURL = (downloadURL) => {
 };
 
 /**
- * Sends the formatted download event to Plausible as a 'product_download' custom event
- * @param {Object} - product details formatted into a product_download event
+ * Sends the formatted download event to Plausible as a 'product_download' custom event.
+ * @param {Object} eventObject - product details formatted into a product_download event
  */
 TrackProductDownload.sendPlausibleEvent = (eventObject) => {
     try {
