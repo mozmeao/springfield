@@ -33,32 +33,45 @@ const setupKickPage = () => {
     source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
     source.type = 'video/webm';
 
+    let playPromise;
+
     video.appendChild(source);
     wrapper.appendChild(video);
     logoLink.appendChild(wrapper);
 
     video.addEventListener('mouseover', () => {
-        const playPromise = video.play();
+        playPromise = video.play();
         if (playPromise !== undefined) {
             playPromise.catch(() => {
                 // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
             });
         }
     });
+
     video.addEventListener('mouseout', () => {
-        video.pause();
-        video.currentTime = 0;
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    video.pause();
+                    video.currentTime = 0;
+                })
+                .catch(() => {
+                    // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
+                });
+        }
     });
 
-    // play and pause to trigger the first frame to be loaded
-    const playPromise = video.play();
+    // Play and pause to trigger the first frame to be loaded
+    playPromise = video.play();
     if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
-        });
+        playPromise
+            .then(() => {
+                video.pause();
+            })
+            .catch(() => {
+                // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
+            });
     }
-
-    video.pause();
 };
 
 if (document.readyState === 'loading') {
