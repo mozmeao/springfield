@@ -38,7 +38,12 @@ const setupKickPage = () => {
     logoLink.appendChild(wrapper);
 
     video.addEventListener('mouseover', () => {
-        video.play();
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
+            });
+        }
     });
     video.addEventListener('mouseout', () => {
         video.pause();
