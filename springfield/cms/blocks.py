@@ -1027,7 +1027,7 @@ def ButtonBlock(themes=BUTTON_THEMES, **kwargs):
         class Meta:
             template = "cms/blocks/button.html"
             label = "Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
             form_layout = blocks.BlockGroup(
                 children=["pretranslated_label", "custom_label", "link"],
@@ -1060,7 +1060,7 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
         class Meta:
             template = "cms/blocks/uitour_button.html"
             label = "UI Tour Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
                 children=["pretranslated_label", "custom_label", "button_type"],
@@ -1077,7 +1077,7 @@ def FXAccountButtonBlock(themes=BUTTON_THEMES, **kwargs):
         class Meta:
             template = "cms/blocks/fxa_button.html"
             label = "Firefox Account Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
             form_layout = blocks.BlockGroup(
                 children=["pretranslated_label", "custom_label"],
@@ -1095,7 +1095,7 @@ def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
         class Meta:
             template = "cms/blocks/set_as_default_button.html"
             label = "Set As Default Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
             form_layout = blocks.BlockGroup(
                 children=["pretranslated_label", "custom_label", "snippet"],
@@ -1177,7 +1177,7 @@ def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "{custom_label}{pretranslated_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
@@ -1212,7 +1212,7 @@ def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
         class Meta:
             label = "Firefox Focus Button"
-            label_format = "{custom_label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/firefox-focus-button.html"
             value_class = BaseButtonValue
             form_layout = blocks.BlockGroup(
