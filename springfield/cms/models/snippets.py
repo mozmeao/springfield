@@ -124,8 +124,6 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
         verbose_name_plural = "Pre Footer Call To Action Forms"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def heading_plain(self):
@@ -173,8 +171,6 @@ class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTransl
         verbose_name_plural = "Download Firefox Call To Action Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def heading_plain(self):
@@ -226,8 +222,6 @@ class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         verbose_name_plural = "Banner Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def heading_plain(self):
@@ -296,8 +290,6 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         verbose_name_plural = "QR Code Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def heading_plain(self):
@@ -418,8 +410,6 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         verbose_name_plural = "QR Code Floating Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
 
     def heading_plain(self):
@@ -507,8 +497,6 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         verbose_name_plural = "Pencil Banner Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.title))} – {self.locale}"
 
     def title_plain(self):
