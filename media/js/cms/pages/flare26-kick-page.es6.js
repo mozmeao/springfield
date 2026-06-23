@@ -37,23 +37,31 @@ const setupKickPage = () => {
     wrapper.appendChild(video);
     logoLink.appendChild(wrapper);
 
-    video.addEventListener('mouseover', () => {
-        video.play();
-    });
-    video.addEventListener('mouseout', () => {
-        video.pause();
-        video.currentTime = 0;
-    });
+    video.addEventListener(
+        'canplaythrough',
+        () => {
+            video.addEventListener('mouseover', () => {
+                video.play();
+            });
+            video.addEventListener('mouseout', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        },
+        { once: true }
+    );
 
-    // play and pause to trigger the first frame to be loaded
+    // Play and pause to trigger the first frame to be loaded
     const playPromise = video.play();
     if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
-        });
+        playPromise
+            .then(() => {
+                video.pause();
+            })
+            .catch(() => {
+                // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
+            });
     }
-
-    video.pause();
 };
 
 if (document.readyState === 'loading') {
