@@ -274,8 +274,7 @@ def test_firefox_esr(client, os, lang):
 
 @pytest.mark.parametrize("os, lang", [("win64", "en-US"), ("win64", "de"), ("osx", "en-US"), ("linux64", "en-US")])
 def test_firefox_esr_next(client, os, lang):
-    # Note: Only testing a few os/lang pairs to avoid mocking too much. We're mostly checking that 2 buttons show up.
-
+    # Note: Only testing a few os/lang pairs to avoid mocking too much. We're mostly checking that all button and link types show up.
     # Set an esr_next version.
     orig_latest_version = firefox_desktop.latest_version
     orig_get_filtered_full_builds = firefox_desktop.get_filtered_full_builds
