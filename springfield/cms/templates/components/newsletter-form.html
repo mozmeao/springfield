@@ -5,6 +5,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set form_template = form_template or "cms/newsletter_form.html" %}
+
 <div class="fl-newsletterform-cta {% if theme %}fl-force-{{ theme }}-theme{% endif %}" data-state="default">
   <div class="fl-newsletterform-illustration">
     <img alt="" loading="lazy" src="/media/img/firefox/flare/kit-on-rock.png" />
@@ -15,11 +17,12 @@
 
     {{ email_newsletter_form(
       newsletters=newsletters,
-      template="cms/newsletter_form.html",
+      template=form_template,
       include_country=true,
       include_language=true,
       footer=false,
       include_title=false
     ) }}
+
   </div>
 </div>

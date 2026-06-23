@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# This Source Code Form is subject to the terms of the { -brand-name-mozilla } Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 ### URL: https://www-dev.springfield.moz.works/newsletter/
 
 # Headline for /newsletter/
@@ -9,3 +13,20 @@ newsletters-make-the-most = Make the most out of { -brand-name-firefox }
 
 # Subtitle for /newsletter/
 newsletters-sign-up-to-receive-monthly = Sign up to receive monthly updates from { -brand-name-firefox } and internet trends that shape your life online.
+
+# Enterprise
+
+newsletter-enterprise-title = Subscribe to { -brand-name-mozilla } Enterprise Updates
+newsletter-enterprise-description = Stay informed about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
+newsletter-enterprise-description-consent = You decide which topics { -brand-name-mozilla } Enterprise may contact you about by email. After submitting this form, you will receive a confirmation email. You will only be added to the mailing list after confirming your email address.
+newsletter-enterprise-description-note = Note: Your subscription is voluntary and can be withdrawn at any time.
+
+# Consent checkbox label in the enterprise newsletter form
+newsletter-enterprise-form-consent = I would like to receive emails from { -brand-name-mozilla } Enterprise about the topics I selected above.
+newsletter-enterprise-form-consent-details = These emails may include information about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, webinars, events, product updates, and feature updates for IT, security, and compliance topics. I can withdraw my consent at any time with effect for the future.
+
+# Privacy notice section below the enterprise newsletter form
+newsletter-enterprise-privacy-statement = { -brand-name-mozilla } will process the information you provide in order to send you the selected email communications and to document your consent. Further information is available in { -brand-name-mozilla }'s privacy notice.
+newsletter-enterprise-privacy-link = Privacy Notice
+newsletter-enterprise-legal-link = Legal Notice
+newsletter-enterprise-contact-link = Contact

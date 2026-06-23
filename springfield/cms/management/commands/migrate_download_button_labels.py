@@ -27,6 +27,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from wagtail.models import Revision
+from wagtail_localize.models import TranslationSource
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,7 @@ PAGE_MODELS_AND_FIELDS = [
     ("DownloadPage", ["content"]),
     ("ThanksPage", ["content"]),
     ("ArticleThemePage", ["upper_content", "content"]),
-    ("FreeFormPage", ["content"]),
     ("FreeFormPage2026", ["upper_content", "content"]),
-    ("WhatsNewPage", ["content"]),
     ("WhatsNewPage2026", ["upper_content", "content"]),
 ]
 
@@ -126,7 +125,7 @@ class Command(BaseCommand):
 
         for model_name, field_names in PAGE_MODELS_AND_FIELDS:
             Model = apps.get_model("cms", model_name)
-            for page in Model.objects.all():
+            for page in Model.objects.iterator():
                 changed_fields = []
                 for field_name in field_names:
                     stream_value = getattr(page, field_name)
@@ -178,12 +177,9 @@ class Command(BaseCommand):
         Only updates the source's serialized content — does NOT call
         create_or_update_translation(), which would re-materialize all translated pages
         and can silently drop blocks whose segments don't match the updated schema.
-        Translated pages still render correctly via the old-format fallback in
-        DownloadFirefoxButtonBlock.get_context(); they'll be re-synced through the
-        normal Smartling workflow on next publish.
+        Translated pages should continue to render correctly after this command's label
+        conversion; they'll be re-synced through the normal Smartling workflow on next publish.
         """
-        from wagtail_localize.models import TranslationSource
-
         self.stdout.write("Updating TranslationSource records...\n")
 
         if dry_run:

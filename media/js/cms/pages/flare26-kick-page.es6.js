@@ -46,7 +46,13 @@ const setupKickPage = () => {
     });
 
     // play and pause to trigger the first frame to be loaded
-    video.play();
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
+        });
+    }
+
     video.pause();
 };
 
