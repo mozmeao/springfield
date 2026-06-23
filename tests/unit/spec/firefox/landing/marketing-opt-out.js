@@ -9,7 +9,7 @@
  * Sinon docs: http://sinonjs.org/docs/
  */
 
-import MarketingOptOut from '../../../../../media/js/firefox/landing/get/marketing-opt-out.es6';
+import MarketingOptOut from '../../../../../media/js/firefox/landing/get/marketing-opt-out-v2.es6';
 
 const labelSelector = '.marketing-opt-out-checkbox-label.hidden';
 const checkboxSelector = '.marketing-opt-out-checkbox-input:checked';

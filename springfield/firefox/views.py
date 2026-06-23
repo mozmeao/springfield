@@ -423,9 +423,7 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 class DownloadThanksView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/thanks.html": ["firefox/download/download"],
-        "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
-        "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
         "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
