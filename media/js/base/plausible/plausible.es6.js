@@ -42,4 +42,25 @@ Plausible.init = () => {
     Plausible.loadScript();
 };
 
+/**
+ * Send a custom event to Plausible. No-ops when Plausible isn't loaded or the visitor has opted out.
+ * @param {String} name - the custom event name (e.g. 'product_download')
+ * @param {Object} [props] - optional custom properties
+ */
+Plausible.trackEvent = (name, props) => {
+    if (typeof window.plausible !== 'function') {
+        return;
+    }
+
+    if (gpcEnabled() || dntEnabled()) {
+        return;
+    }
+
+    if (props) {
+        window.plausible(name, { props: props });
+    } else {
+        window.plausible(name);
+    }
+};
+
 export default Plausible;

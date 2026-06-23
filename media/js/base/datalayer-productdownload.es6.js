@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import Plausible from './plausible/plausible.es6';
+
 const TrackProductDownload = {};
 const prodURL = /^https:\/\/download.mozilla.org/;
 const stageURL =
@@ -236,7 +238,26 @@ TrackProductDownload.sendEventFromURL = (downloadURL) => {
 
     if (eventObject) {
         // only send event for tracking if eventObject is valid (issue 14177)
+        // GA4
         TrackProductDownload.sendEvent(eventObject);
+        // Plausible
+        TrackProductDownload.sendPlausibleEvent(eventObject);
+    }
+};
+
+/**
+ * Sends the formatted download event to Plausible as a 'product_download' custom event
+ * @param {Object} - product details formatted into a product_download event
+ */
+TrackProductDownload.sendPlausibleEvent = (eventObject) => {
+    try {
+        // Forward every field except the GA4 event name as Plausible props.
+        const props = Object.assign({}, eventObject);
+        delete props.event;
+
+        Plausible.trackEvent('product_download', props);
+    } catch (error) {
+        // Don't let analytics break the download flow
     }
 };
 
