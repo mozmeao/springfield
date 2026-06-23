@@ -640,8 +640,8 @@ class LabelSourceMixin(blocks.StructBlock):
         return context
 
     def get_searchable_content(self, value):
-        # Match against both the snippet's en-US label and any custom_label so
-        # editor search hits both forms.
+        # Match against both the snippet's label (which may be localized), and
+        # any custom_label so editor search hits both forms.
         items = list(super().get_searchable_content(value) or [])
         pretranslated = value.get("pretranslated_label")
         if pretranslated:
@@ -1172,7 +1172,7 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _DownloadFirefoxButtonBlock(LabelSourceMixin, blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin):
         settings = DownloadFirefoxButtonSettings(themes=themes)
 
         class Meta:

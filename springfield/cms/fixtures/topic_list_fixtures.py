@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -93,13 +93,13 @@ def get_topic_list_lower_variants():
 
 def get_topic_list_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     page = FreeFormPage2026.objects.filter(slug="test-topic-list-page").first()
     if not page:
         page = FreeFormPage2026(
             slug="test-topic-list-page",
-            title="Test Topic List Page",
+            title="Topic List",
         )
         index_page.add_child(instance=page)
 

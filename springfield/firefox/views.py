@@ -81,8 +81,13 @@ class InstallerHelpView(L10nTemplateView):
         ctx = super().get_context_data(**kwargs)
         installer_lang = self.request.GET.get("installer_lang", None)
         installer_channel = self.request.GET.get("channel", None)
+        installer_arch = self.request.GET.get("installer_arch", None)
         ctx["installer_lang"] = None
         ctx["installer_channel"] = None
+        ctx["installer_arch"] = None
+
+        if installer_arch is not None:
+            ctx["installer_arch"] = {"1": "win", "2": "win64", "3": "win64-aarch64"}[installer_arch]
 
         if installer_lang and installer_lang in firefox_desktop.languages:
             ctx["installer_lang"] = installer_lang
@@ -391,8 +396,8 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
                 # ESR115 builds do not exist for "sat" and "skr" languages (issue: mozilla/bedrock#15437)
                 if locale in ["sat", "skr"]:
                     download_esr_115_url = None
-                # ESR115 builds do not exist for "linux64-aarch64" platform (see issue #467)
-                if platform == "linux64-aarch64":
+                # ESR115 builds do not exist for "linux64-aarch64" (springfield#467); "linux" (i686) and "win64-aarch64" no longer ship (bug 2040496)
+                if platform in ["linux64-aarch64", "linux", "win64-aarch64"]:
                     download_esr_115_url = None
                 context.update(
                     download_esr_115_url=download_esr_115_url,

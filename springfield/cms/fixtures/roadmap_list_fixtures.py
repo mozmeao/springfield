@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_variants
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.models.pages import RoadmapPage
@@ -248,11 +248,11 @@ def get_roadmap_page_intro() -> list[dict]:
 
 
 def get_roadmap_list_test_page() -> RoadmapPage:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
     slug = "test-roadmap-list"
     page = RoadmapPage.objects.filter(slug=slug).first()
     if not page:
-        page = RoadmapPage(slug=slug, title="Test Roadmap List")
+        page = RoadmapPage(slug=slug, title="Roadmap List")
         index_page.add_child(instance=page)
 
     sections = get_roadmap_list_section_variants()

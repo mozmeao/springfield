@@ -253,16 +253,22 @@ $color-charcoal: #333336;
             grid-column-gap: $layout-md;
             grid-template-columns: repeat(3, 1fr);
             grid-template-areas:
-                'title-col1    title-col2    title-col3'
-                'list-col1     list-col2     list-col3'
-                'support-col1  support-col2  support-col3';
-            margin-bottom: $layout-md;
+                'title-col1  title-col2  title-col3'
+                'list-col1   list-col2   list-col3';
+            margin-bottom: 0;
         }
     }
 }
 
 .enterprise-download-block {
     margin-bottom: $layout-lg;
+
+    // On wide viewports the platform columns share a single resources block
+    // below the grid, so the large per-column bottom spacing is only needed
+    // when the columns stack on narrow viewports.
+    @media #{$mq-md} {
+        margin-bottom: 0;
+    }
 }
 
 .enterprise-download-title {
@@ -279,6 +285,24 @@ $color-charcoal: #333336;
 
 .enterprise-download-subtitle {
     @include text-title-2xs;
+    margin-bottom: $spacing-md;
+}
+
+// The resources list is a single shared block beneath all three platform
+// columns. Center it so it reads as intentional rather than a lone first
+// column with two others missing.
+.enterprise-download-resources {
+    text-align: center;
+
+    ul {
+        list-style: none;
+        margin-inline: 0;
+        padding-inline: 0;
+    }
+
+    li {
+        margin-bottom: $spacing-sm;
+    }
 }
 
 .mzp-c-menu-list.is-details .mzp-c-menu-list-title.is-summary button,

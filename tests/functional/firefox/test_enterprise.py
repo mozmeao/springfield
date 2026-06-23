@@ -15,7 +15,7 @@ def test_primary_download_links_are_displayed(base_url, selenium):
     assert page.is_primary_download_button_displayed
     page.win64_download_list.click()
     assert page.win64_download_list.list_is_open
-    page.win32_download_list.click()
-    assert page.win32_download_list.list_is_open
     page.mac_download_list.click()
     assert page.mac_download_list.list_is_open
+    page.linux_download_list.click()
+    assert page.linux_download_list.list_is_open
