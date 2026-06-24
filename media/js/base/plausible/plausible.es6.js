@@ -66,7 +66,7 @@ Plausible.trackEvent = (name, props) => {
         return;
     }
 
-    if (gpcEnabled() || dntEnabled()) {
+    if (Plausible.analyticsDenied()) {
         return;
     }
 

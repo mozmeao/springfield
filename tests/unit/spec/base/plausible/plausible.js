@@ -160,6 +160,16 @@ describe('plausible.es6.js', function () {
             expect(window.plausible.called).toBe(false);
         });
 
+        it('should not send an event when analytics consent was explicitly declined', function () {
+            window.plausible = sinon.stub();
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: false })
+            );
+
+            Plausible.trackEvent('product_download');
+            expect(window.plausible.called).toBe(false);
+        });
+
         it('should send the event name with no props', function () {
             window.plausible = sinon.stub();
 
