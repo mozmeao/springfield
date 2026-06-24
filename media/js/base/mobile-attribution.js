@@ -98,7 +98,7 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Click handler: fire the GA4 + legacy download events and navigate to
      * the closure-captured https:// URL. We navigate via JS (mirroring
-     * thanks-init.js) because mozilla-utils.js mutates Android Play Store
+     * auto-download.js) because mozilla-utils.js mutates Android Play Store
      * hrefs to `market://details?...` on DOM ready — that scheme works on
      * real Android but fails in desktop browsers, breaking dev testing.
      * The https:// URL works in both contexts (Android App Links open the
