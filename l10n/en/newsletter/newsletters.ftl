@@ -18,7 +18,6 @@ newsletters-sign-up-to-receive-monthly = Sign up to receive monthly updates from
 
 newsletter-enterprise-title = Subscribe to { -brand-name-mozilla } Enterprise Updates
 newsletter-enterprise-description = Stay informed about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
-newsletter-enterprise-description-consent = You decide which topics { -brand-name-mozilla } Enterprise may contact you about by email. After submitting this form, you will receive a confirmation email. You will only be added to the mailing list after confirming your email address.
 newsletter-enterprise-description-note = Note: Your subscription is voluntary and can be withdrawn at any time.
 
 # Consent checkbox label in the enterprise newsletter form
@@ -29,4 +28,3 @@ newsletter-enterprise-form-consent-details = These emails may include informatio
 newsletter-enterprise-privacy-statement = { -brand-name-mozilla } will process the information you provide in order to send you the selected email communications and to document your consent. Further information is available in { -brand-name-mozilla }'s privacy notice.
 newsletter-enterprise-privacy-link = Privacy Notice
 newsletter-enterprise-legal-link = Legal Notice
-newsletter-enterprise-contact-link = Contact
