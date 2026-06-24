@@ -31,6 +31,10 @@ body.fl-modal-open {
     padding-block: 0 var(--fl-theme-main-border-radius);
 }
 
+.fl-docs-inline .fl-main {
+    padding-block-start: var(--token-layout-xs);
+}
+
 .fl-body {
     color: var(--fl-theme-color-text);
 }

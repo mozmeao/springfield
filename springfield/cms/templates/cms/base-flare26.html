@@ -142,9 +142,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
+  {% set is_inline_frame = request.GET.fl_docs_inline and request.META.get('HTTP_SEC_FETCH_DEST') == 'iframe' %}
+
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
-    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
+    class="html-{{ DIR }} {% if is_inline_frame %}fl-docs-inline{% endif %} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
     {% block body_attrs %}{% endblock %}
   >
     {{ wagtailuserbar() }}
@@ -157,9 +159,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endif %}
     {% endblock %}
 
+    {% if not is_inline_frame %}
     {% block flare_header %}
     <include:flare26-header />
     {% endblock %}
+    {% endif %}
 
     {% block sub_navigation %}
     {% endblock %}
@@ -171,6 +175,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       </div>
     {% endblock %}
 
+    {% if not is_inline_frame %}
     {% block pre_footer %}
 
       {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
@@ -206,11 +211,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endif %}
 
     {% endblock pre_footer %}
+    {% endif %}
     </main>
 
+    {% if not is_inline_frame %}
     {% block flare_footer %}
       <include:flare26-footer />
     {% endblock %}
+    {% endif %}
 
     {% block consent_banner %}
       {% include 'includes/banners/consent-banner-flare26.html' %}
