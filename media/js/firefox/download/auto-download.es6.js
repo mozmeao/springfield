@@ -179,3 +179,5 @@ if (
 
 // Bug 1354334 - add a hint for test automation that page has loaded.
 document.getElementsByTagName('html')[0].classList.add('download-ready');
+
+export { shouldAutoDownload, getDownloadURL };

@@ -50,9 +50,5 @@
 {% endblock %}
 
 {% block js %}
-  {% if switch('enable_attribution_refactor') %}
-    {{ js_bundle('firefox_all-v2') }}
-  {% else %}
-    {{ js_bundle('firefox_all') }}
-  {% endif %}
+  {{ js_bundle('firefox_all-v2') }}
 {% endblock %}
