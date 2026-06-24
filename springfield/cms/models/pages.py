@@ -122,25 +122,6 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         return redirect(self.get_parent().get_full_url())
 
 
-class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
-    """
-    A page containing an index of all docs pages for Flare26.
-    It shows links to other docs pages.
-    """
-
-    template = "cms/flare_docs_index_page.html"
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        children = list(self.get_children().live().public().specific().order_by("title"))
-        steplen = WagtailBasePage.steplen
-        grandchildren_by_parent = {}
-        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().order_by("title"):
-            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
-        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
-        return context
-
-
 class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     """Simple page that renders a rich-text field, using our broadest set of
     allowed rich-text features.
@@ -1077,6 +1058,14 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         verbose_name="Extra JS",
         help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
     )
+    docs = RichTextField(
+        blank=True,
+        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
+        help_text=(
+            "Optional documentation about this page. Only used by Flare Docs demo pages "
+            "to describe the block(s) or snippet(s) being demonstrated — leave blank on production pages."
+        ),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -1092,6 +1081,10 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
                 FieldPanel("extra_js"),
             ],
             heading="Page Options",
+        ),
+        MultiFieldPanel(
+            [FieldPanel("docs")],
+            heading="Documentation (Flare Docs only)",
         ),
     ]
 
@@ -2146,3 +2139,22 @@ class ContactPage(AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"ContactPage: {self.title} - {self.locale}"
+
+
+class FlareDocsIndexPage(FreeFormPage2026):
+    """
+    A page containing an index of all docs pages for Flare26.
+    It shows links to other docs pages.
+    """
+
+    template = "cms/flare_docs_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        children = list(self.get_children().live().public().specific().order_by("title"))
+        steplen = WagtailBasePage.steplen
+        grandchildren_by_parent = {}
+        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().specific().order_by("title"):
+            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
+        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
+        return context
