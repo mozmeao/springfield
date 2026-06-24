@@ -10,9 +10,7 @@ const Plausible = {};
 
 /**
  * Determines if the visitor has opted out of analytics, via GPC, DNT, or by
- * explicitly declining analytics in the consent banner. A missing cookie is
- * NOT a denial: Plausible runs cookieless by default (e.g. for EU visitors who
- * haven't made a choice yet), so only an explicit `analytics: false` opts out.
+ * explicitly declining analytics in the consent banner.
  * @returns {Boolean}
  */
 Plausible.analyticsDenied = () => {
