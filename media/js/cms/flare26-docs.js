@@ -48,7 +48,14 @@
         } else {
             contentEl.innerHTML = savedContent;
             iframe = null;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const target = window.location.hash
+                ? document.getElementById(window.location.hash.slice(1))
+                : null;
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     });
 
@@ -57,6 +64,16 @@
             if (toggle.checked) {
                 enableInlineMode(link.dataset.url);
             }
+        });
+    });
+
+    document.querySelectorAll('.fl-docs-inline-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const article = btn.closest('article');
+            const url = article.querySelector('h3 a').href;
+            history.replaceState(null, '', '#' + article.id);
+            toggle.checked = true;
+            enableInlineMode(url);
         });
     });
 
