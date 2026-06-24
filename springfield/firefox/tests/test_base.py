@@ -13,13 +13,14 @@ from springfield.base.urlresolvers import reverse
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 PROD_DETAILS_DIR = os.path.join(TEST_DATA_DIR, "product_details_json")
 GOOD_PLATS = {"Windows": {}, "OS X": {}, "Linux": {}}
-jinja_env = Jinja2.get_default().env
 
 
 class TestInstallerHelp(TestCase):
     def setUp(self):
         self.button_mock = Mock()
-        self.patcher = patch.dict(jinja_env.globals, download_firefox=self.button_mock)
+        # Get a fresh reference in setUp: override_settings(DEBUG=...) in other tests
+        # triggers Django to recreate the Jinja2 engine, making a module-level reference stale.
+        self.patcher = patch.dict(Jinja2.get_default().env.globals, download_firefox=self.button_mock)
         self.patcher.start()
         self.view_name = "firefox.installer-help"
         with self.activate_locale("en-US"):
