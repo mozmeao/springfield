@@ -126,7 +126,7 @@ def stub_attribution_code(request):
 
     # Only provide default analytics data if analytics data is allowed
     # (as indicated by set session_id value)
-    if not codes["session_id"] == "(not set)":
+    if codes["session_id"] != "(not set)":
         # set basic fallbacks
         if codes["medium"] == "(not set)":
             codes["medium"] = "(direct)"
