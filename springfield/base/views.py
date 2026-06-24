@@ -9,13 +9,11 @@ from datetime import datetime
 from os import getenv
 from time import time
 
-from django.apps import apps
 from django.conf import settings
-from django.db import connections
-from django.db.migrations.exceptions import InconsistentMigrationHistory
-from django.db.migrations.executor import MigrationExecutor
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.test import Client
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
 from django.views.generic import TemplateView
@@ -119,61 +117,94 @@ def get_extra_server_info():
 logger = logging.getLogger(__name__)
 
 
+# How long the page-check result is cached per process. Production runs Granian
+# with 1 worker + 1 blocking thread per pod (see bin/run-prod.sh and the
+# webservices-infra Helm chart), so each pod renders the critical pages at most
+# once per this interval. Kept short enough that a freshly-broken site shows up
+# quickly via Fastly probes, but long enough to bound the steady-state load and
+# the slow-page blocking window — every cache miss ties up the pod's single
+# blocking thread for the duration of the renders.
+HEALTHZ_CDN_CACHE_KEY = "healthz-cdn:page-check"
+HEALTHZ_CDN_CACHE_TIMEOUT = 30
+
+# A small set of representative pages we expect to always serve. Anything other
+# than a sub-400 status from any of them flips the healthcheck to 500 and lets
+# Fastly fall back to its static page. Together these cover the download page,
+# a CMS-served whatsnew page (Wagtail page-lookup path), a version-specific
+# whatsnew, and a non-en-US locale — most causes of a real user-facing outage
+# (schema drift, template errors, broken context processors, DB outage) show
+# up in at least one of them.
+HEALTHZ_CDN_CRITICAL_PATHS = (
+    f"/{settings.LANGUAGE_CODE}/",
+    "/en-US/whatsnew/general/",
+    "/de/whatsnew/150/",
+)
+
+
+def _check_critical_pages():
+    """Return (status_code, body) by issuing internal GETs against critical pages.
+
+    Symptom-based rather than cause-based: if old code can still render a page
+    against a newer DB (benign migration), we pass; if it can't (destructive
+    schema change), we fail. This sidesteps the false-positive problem of
+    cause-based reverse-skew detection — where any rollout containing any
+    migration would have flipped Fastly to fallback during the brief window
+    before old pods were replaced.
+
+    The earlier per-model `get_table_description` approach was both expensive
+    (~200 DB queries per check, the cause of the original overload) and unable
+    to distinguish benign from destructive schema change. This is cheaper per
+    check (one page render against an in-process cache) and more accurate.
+    """
+    if settings.WATCHMAN_DISABLE_APM:
+        try:
+            from watchman.views import _disable_apm  # inline: _disable_apm is a private watchman API; guard defensively against upstream rename
+
+            _disable_apm()
+        except (ImportError, AttributeError):
+            logger.warning("healthz_cdn: watchman _disable_apm unavailable; continuing without disabling APM")
+
+    # raise_request_exception=False so a 500 from the view comes back as a normal
+    # response with status_code=500 rather than propagating — we want to handle
+    # both the same way (page broken → fail healthcheck).
+    client = Client(raise_request_exception=False)
+    for path in HEALTHZ_CDN_CRITICAL_PATHS:
+        try:
+            response = client.get(path, follow=False)
+        except Exception:
+            logger.exception("healthz_cdn: critical page %s raised", path)
+            return 500, "critical page failed"
+        if response.status_code >= 400:
+            logger.warning("healthz_cdn: critical page %s returned %s", path, response.status_code)
+            return 500, "critical page failed"
+    return 200, "pong"
+
+
 @require_safe
 @never_cache
 def healthz_cdn(request):
-    try:
-        if settings.WATCHMAN_DISABLE_APM:
-            try:
-                from watchman.views import _disable_apm
+    # Feature toggle: when the switch is off, behave like the simple ping. Lets us
+    # dial back the page-rendering behaviour without a deploy if it ever proves
+    # too costly again. Propagation is not instantaneous — each pod caches the
+    # switch state in its own LocMemCache (django-waffle default MAX_AGE is 30
+    # days), so if a flip needs to take effect on every pod immediately, restart
+    # the rollout. The switch helper defaults to settings.DEV when undefined, so
+    # local dev sees real page renders while a fresh prod deploy is safe by default.
+    if not switch("healthz-cdn-db-checks-enabled"):
+        return HttpResponse("pong", content_type="text/plain")
 
-                _disable_apm()
-            except (ImportError, AttributeError):
-                logger.warning("healthz_cdn: watchman _disable_apm unavailable; continuing without disabling APM")
-
-        connection = connections["default"]
-
-        # Check 1: migration records — catches new code deployed before migrations run,
-        # and applied migrations whose dependencies are missing (InconsistentMigrationHistory).
-        executor = MigrationExecutor(connection)
+    cached = cache.get(HEALTHZ_CDN_CACHE_KEY)
+    if cached is not None:
+        status, body = cached
+    else:
         try:
-            executor.loader.check_consistent_history(connection)
-        except InconsistentMigrationHistory as e:
-            logger.warning("healthz_cdn: inconsistent migration history: %s", e)
-            return HttpResponse("migration history inconsistent", content_type="text/plain", status=500)
-        plan = executor.migration_plan(executor.loader.graph.leaf_nodes())
-        if plan:
-            unapplied = ", ".join(f"{m.app_label}.{m.name}" for m, _backwards in plan)
-            logger.warning("healthz_cdn: unapplied migrations: %s", unapplied)
-            return HttpResponse("migrations pending", content_type="text/plain", status=500)
+            status, body = _check_critical_pages()
+        except Exception:
+            logger.exception("healthz_cdn: check failed")
+            status, body = 500, "check error"
+        cache.set(HEALTHZ_CDN_CACHE_KEY, (status, body), HEALTHZ_CDN_CACHE_TIMEOUT)
 
-        # Check 2: schema introspection — catches old code running after a column-dropping
-        # migration. Compares each managed model's expected columns (_meta.local_fields,
-        # which reflects what the running code expects) against the actual DB schema.
-        # This correctly handles Wagtail MTI subclasses, which each have their own table.
-        with connection.cursor() as cursor:
-            for model in apps.get_models():
-                if not model._meta.managed or model._meta.proxy or model._meta.app_label == "wagtailsearch":
-                    continue
-                expected_cols = {f.column for f in model._meta.local_fields}
-                if not expected_cols:
-                    continue
-                actual_cols = {col.name for col in connection.introspection.get_table_description(cursor, model._meta.db_table)}
-                # SQLite's implicit rowid is never listed by PRAGMA table_info() but is
-                # always accessible on every table. Not needed in production (PostgreSQL)
-                # but allows local SQLite testing.
-                if connection.vendor == "sqlite":
-                    actual_cols.add("rowid")
-                missing = expected_cols - actual_cols
-                if missing:
-                    logger.warning("healthz_cdn: missing columns in %s: %s", model._meta.db_table, missing)
-                    return HttpResponse("schema mismatch", content_type="text/plain", status=500)
-
-    except Exception:
-        logger.exception("healthz_cdn: check failed")
-        return HttpResponse("check error", content_type="text/plain", status=500)
-
-    return HttpResponse("pong", content_type="text/plain")
+    return HttpResponse(body, content_type="text/plain", status=status)
 
 
 @require_safe
