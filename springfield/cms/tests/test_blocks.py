@@ -221,9 +221,9 @@ def _fxa_utm_campaign(html):
 
 
 def _get_cta_text(html):
-    """Return the data-cta-text attribute from a rendered button."""
-    a = BeautifulSoup(html, "html.parser").find("a")
-    return a.get("data-cta-text")
+    """Return the data-cta-text attribute from a rendered button (any element type)."""
+    el = BeautifulSoup(html, "html.parser").find(attrs={"data-cta-text": True})
+    return el["data-cta-text"] if el else None
 
 
 def resolve_button_label(button_data: dict) -> str:
@@ -993,6 +993,55 @@ class TestFXAButtonUtmCampaign:
         html_b = block_b.render(block_b.to_python(raw_b), context=dict(ctx))
         assert _fxa_utm_campaign(html_b) == "sign_up"
         assert _get_cta_text(html_b) == "Heading - Sign up"
+
+
+class TestButtonCtaText:
+    """
+    Test data-cta-text for ButtonBlock and UITourButtonBlock.
+
+    All LabelSourceMixin buttons set analytics_text to the stable English label
+    (button_label_en_us) so analytics aggregate across locales. The visible label
+    still localizes; only the analytics attribute uses the English source.
+
+    FirefoxFocusButtonBlock is the exception: it uses only block_text in
+    analytics_text (no button label), so the CTA text is locale-invariant by
+    default regardless of the label.
+    """
+
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
+    def test_cta_text_is_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet, btn_type):
+        """Pretranslated label: data-cta-text uses the en-US source label regardless of active locale."""
+        es_mx = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        block, raw = _button_block_and_value(btn_type, pretranslated_label=pretranslated_phrase_snippet.pk)
+        ctx = _render_context(rf.get("/"))
+
+        with translation.override("en-US"):
+            html_en = block.render(block.to_python(raw), context=dict(ctx))
+        with translation.override("es-mx"):
+            html_es = block.render(block.to_python(raw), context=dict(ctx))
+
+        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
+
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
+    def test_cta_text_derives_from_custom_label(self, rf, btn_type):
+        """Custom label: data-cta-text tracks the editor-typed text."""
+        ctx = _render_context(rf.get("/"))
+        block, raw = _button_block_and_value(btn_type, custom_label="Learn more")
+        html = block.render(block.to_python(raw), context=dict(ctx))
+        assert _get_cta_text(html) == "Heading - Learn more"
+
+    def test_focus_button_cta_text_is_block_heading_only(self, rf):
+        """FirefoxFocusButtonBlock: analytics_text is block_text only — button label is excluded."""
+        ctx = _render_context(rf.get("/"))
+        block, raw = _button_block_and_value("focus_button", custom_label="Download Focus")
+        html = block.render(block.to_python(raw), context=dict(ctx))
+        assert _get_cta_text(html) == "Heading"
 
 
 def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):
