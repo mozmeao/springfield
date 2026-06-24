@@ -4,7 +4,8 @@
 import os
 from unittest.mock import Mock, call, patch
 
-from django_jinja.backend import Jinja2
+from django.template import engines
+
 from markupsafe import Markup
 
 from springfield.base.tests import TestCase
@@ -18,9 +19,11 @@ GOOD_PLATS = {"Windows": {}, "OS X": {}, "Linux": {}}
 class TestInstallerHelp(TestCase):
     def setUp(self):
         self.button_mock = Mock()
-        # Get a fresh reference in setUp: override_settings(DEBUG=...) in other tests
-        # triggers Django to recreate the Jinja2 engine, making a module-level reference stale.
-        self.patcher = patch.dict(Jinja2.get_default().env.globals, download_firefox=self.button_mock)
+        # Use engines['jinja2'] rather than Jinja2.get_default(): the latter is
+        # decorated with @lru_cache and returns a stale backend after any
+        # reset_template_engines() call (triggered by override_settings(...)
+        # in other tests). engines['jinja2'] always resolves the live backend.
+        self.patcher = patch.dict(engines["jinja2"].env.globals, download_firefox=self.button_mock)
         self.patcher.start()
         self.view_name = "firefox.installer-help"
         with self.activate_locale("en-US"):
