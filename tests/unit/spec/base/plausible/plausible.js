@@ -54,6 +54,56 @@ describe('plausible.es6.js', function () {
             expect(Plausible.defineQueueStub).toHaveBeenCalled();
             expect(Plausible.loadScript).toHaveBeenCalled();
         });
+
+        it('should define the queue stub but not load the script if analytics consent was explicitly declined', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: false })
+            );
+
+            Plausible.init();
+            expect(Plausible.defineQueueStub).toHaveBeenCalled();
+            expect(Plausible.loadScript).not.toHaveBeenCalled();
+        });
+
+        it('should load the script when analytics consent was granted', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: true })
+            );
+
+            Plausible.init();
+            expect(Plausible.loadScript).toHaveBeenCalled();
+        });
+    });
+
+    describe('analyticsDenied', function () {
+        it('should return true when GPC is enabled', function () {
+            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
+            expect(Plausible.analyticsDenied()).toBe(true);
+        });
+
+        it('should return true when DNT is enabled', function () {
+            window.Mozilla.dntEnabled = sinon.stub().returns(true);
+            expect(Plausible.analyticsDenied()).toBe(true);
+        });
+
+        it('should return true when the consent cookie explicitly declines analytics', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: false })
+            );
+            expect(Plausible.analyticsDenied()).toBe(true);
+        });
+
+        it('should return false when the consent cookie grants analytics', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: true })
+            );
+            expect(Plausible.analyticsDenied()).toBe(false);
+        });
+
+        it('should return false when no consent cookie is set (cookieless default)', function () {
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(null);
+            expect(Plausible.analyticsDenied()).toBe(false);
+        });
     });
 
     describe('loadScript', function () {

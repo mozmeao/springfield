@@ -4,9 +4,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { dntEnabled, gpcEnabled } from '../consent/utils.es6';
+import { dntEnabled, getConsentCookie, gpcEnabled } from '../consent/utils.es6';
 
 const Plausible = {};
+
+/**
+ * Determines if the visitor has opted out of analytics, via GPC, DNT, or by
+ * explicitly declining analytics in the consent banner. A missing cookie is
+ * NOT a denial: Plausible runs cookieless by default (e.g. for EU visitors who
+ * haven't made a choice yet), so only an explicit `analytics: false` opts out.
+ * @returns {Boolean}
+ */
+Plausible.analyticsDenied = () => {
+    if (gpcEnabled() || dntEnabled()) {
+        return true;
+    }
+
+    const consent = getConsentCookie();
+    return !!consent && consent.analytics === false;
+};
 
 Plausible.defineQueueStub = () => {
     window.plausible =
@@ -35,7 +51,7 @@ Plausible.loadScript = () => {
 Plausible.init = () => {
     Plausible.defineQueueStub();
 
-    if (gpcEnabled() || dntEnabled()) {
+    if (Plausible.analyticsDenied()) {
         return;
     }
 
