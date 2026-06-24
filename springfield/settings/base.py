@@ -108,6 +108,30 @@ CACHES = {
             "CULL_FREQUENCY": 4,  # 1/4 entries deleted if max reached
         },
     },
+    # Shared cache for cross-pod coordination. Used by /healthz-cdn/ so that
+    # all pods share one fleet-wide check result instead of each pod
+    # independently rendering the critical pages every TTL. When REDIS_URL is
+    # not set (local dev, CI), this falls back to the in-process LocMemCache
+    # so behaviour matches the default cache.
+    "healthz": (
+        {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            # DB 1 to keep healthcheck keys separate from the RQ queues on DB 0.
+            "LOCATION": f"{REDIS_URL}/1",
+            "KEY_PREFIX": "springfield-healthz",
+            "TIMEOUT": 30,
+        }
+        if REDIS_URL
+        else {
+            "BACKEND": "springfield.base.cache.SimpleDictCache",
+            "LOCATION": "healthz",
+            "TIMEOUT": 30,
+            "OPTIONS": {
+                "MAX_ENTRIES": 16,
+                "CULL_FREQUENCY": 4,
+            },
+        }
+    ),
 }
 
 # Logging

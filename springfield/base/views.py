@@ -10,7 +10,7 @@ from os import getenv
 from time import time
 
 from django.conf import settings
-from django.core.cache import cache
+from django.core.cache import caches
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.test import Client
@@ -117,15 +117,18 @@ def get_extra_server_info():
 logger = logging.getLogger(__name__)
 
 
-# How long the page-check result is cached per process. Production runs Granian
-# with 1 worker + 1 blocking thread per pod (see bin/run-prod.sh and the
-# webservices-infra Helm chart), so each pod renders the critical pages at most
-# once per this interval. Kept short enough that a freshly-broken site shows up
-# quickly via Fastly probes, but long enough to bound the steady-state load and
-# the slow-page blocking window — every cache miss ties up the pod's single
-# blocking thread for the duration of the renders.
+# The page-check result is cached in the `healthz` Django cache, which in prod
+# is a Redis backend shared across all pods (see settings.CACHES). This means
+# the fleet runs ~one critical-page render per TTL instead of one per pod per
+# TTL, decoupling healthcheck cost from pod count. When REDIS_URL is unset
+# (local dev, CI), the `healthz` cache falls back to a per-process LocMemCache.
 HEALTHZ_CDN_CACHE_KEY = "healthz-cdn:page-check"
+HEALTHZ_CDN_LOCK_KEY = "healthz-cdn:page-check:lock"
 HEALTHZ_CDN_CACHE_TIMEOUT = 30
+# Lock TTL bounds how long a stuck check can hog the single-flight slot. Slightly
+# longer than the longest expected render so a healthy check always releases the
+# lock explicitly; the TTL is the backstop for a crashed/killed worker.
+HEALTHZ_CDN_LOCK_TIMEOUT = 15
 
 # A small set of representative pages we expect to always serve. Anything other
 # than a sub-400 status from any of them flips the healthcheck to 500 and lets
@@ -180,6 +183,43 @@ def _check_critical_pages():
     return 200, "pong"
 
 
+def _safe_cache_get(cache_obj, key):
+    """Wrap cache.get() so a Redis hiccup doesn't take down the healthcheck."""
+    try:
+        return cache_obj.get(key)
+    except Exception:
+        logger.exception("healthz_cdn: cache get failed")
+        return None
+
+
+def _safe_cache_add(cache_obj, key, value, timeout):
+    """Wrap cache.add() so a Redis hiccup doesn't take down the healthcheck.
+
+    Returns True when we claimed the slot (or couldn't tell because of an error
+    and chose to proceed anyway). False only when the slot is genuinely held by
+    another caller.
+    """
+    try:
+        return bool(cache_obj.add(key, value, timeout))
+    except Exception:
+        logger.exception("healthz_cdn: cache add failed; running check uncoordinated")
+        return True
+
+
+def _safe_cache_set(cache_obj, key, value, timeout):
+    try:
+        cache_obj.set(key, value, timeout)
+    except Exception:
+        logger.exception("healthz_cdn: cache set failed")
+
+
+def _safe_cache_delete(cache_obj, key):
+    try:
+        cache_obj.delete(key)
+    except Exception:
+        logger.exception("healthz_cdn: cache delete failed")
+
+
 @require_safe
 @never_cache
 def healthz_cdn(request):
@@ -193,16 +233,31 @@ def healthz_cdn(request):
     if not switch("healthz-cdn-db-checks-enabled"):
         return HttpResponse("pong", content_type="text/plain")
 
-    cached = cache.get(HEALTHZ_CDN_CACHE_KEY)
+    healthz_cache = caches["healthz"]
+
+    cached = _safe_cache_get(healthz_cache, HEALTHZ_CDN_CACHE_KEY)
     if cached is not None:
         status, body = cached
-    else:
+        return HttpResponse(body, content_type="text/plain", status=status)
+
+    # Cache miss. Single-flight via cache.add(): only the caller that claims the
+    # lock runs the render. Other concurrent cache-missers return 200 pong as a
+    # best-effort; the next probe after the winner populates the cache will see
+    # the real result. With a Redis-backed `healthz` cache this dedupes across
+    # the whole fleet, so a cold cache or simultaneous TTL expiry doesn't fan
+    # out into N renders against the DB.
+    if not _safe_cache_add(healthz_cache, HEALTHZ_CDN_LOCK_KEY, 1, HEALTHZ_CDN_LOCK_TIMEOUT):
+        return HttpResponse("pong", content_type="text/plain")
+
+    try:
         try:
             status, body = _check_critical_pages()
         except Exception:
             logger.exception("healthz_cdn: check failed")
             status, body = 500, "check error"
-        cache.set(HEALTHZ_CDN_CACHE_KEY, (status, body), HEALTHZ_CDN_CACHE_TIMEOUT)
+        _safe_cache_set(healthz_cache, HEALTHZ_CDN_CACHE_KEY, (status, body), HEALTHZ_CDN_CACHE_TIMEOUT)
+    finally:
+        _safe_cache_delete(healthz_cache, HEALTHZ_CDN_LOCK_KEY)
 
     return HttpResponse(body, content_type="text/plain", status=status)
 

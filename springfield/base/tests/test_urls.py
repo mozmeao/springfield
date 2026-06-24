@@ -4,7 +4,7 @@
 
 from unittest.mock import patch
 
-from django.core.cache import cache
+from django.core.cache import caches
 
 import pytest
 from waffle.testutils import override_switch
@@ -27,13 +27,17 @@ def _test(
 
 @pytest.fixture(autouse=True)
 def _clear_healthz_cdn_cache():
-    # The view caches its page-check result per-process; clear between tests so
-    # one test's success doesn't mask another's failure (or vice-versa).
-    from springfield.base.views import HEALTHZ_CDN_CACHE_KEY
+    # The view caches its page-check result in the `healthz` cache; clear
+    # between tests so one test's success doesn't mask another's failure (or
+    # vice-versa). Also clear the lock key so single-flight starts fresh.
+    from springfield.base.views import HEALTHZ_CDN_CACHE_KEY, HEALTHZ_CDN_LOCK_KEY
 
-    cache.delete(HEALTHZ_CDN_CACHE_KEY)
+    healthz_cache = caches["healthz"]
+    healthz_cache.delete(HEALTHZ_CDN_CACHE_KEY)
+    healthz_cache.delete(HEALTHZ_CDN_LOCK_KEY)
     yield
-    cache.delete(HEALTHZ_CDN_CACHE_KEY)
+    healthz_cache.delete(HEALTHZ_CDN_CACHE_KEY)
+    healthz_cache.delete(HEALTHZ_CDN_LOCK_KEY)
 
 
 @pytest.fixture
@@ -176,12 +180,74 @@ def test_healthz_cdn_fails_when_critical_page_raises(client):
 
 @override_switch("HEALTHZ_CDN_DB_CHECKS_ENABLED", active=True)
 def test_healthz_cdn_caches_result(client):
-    # The page-check result is cached per-process to absorb a Fastly burst into a
-    # single render. Verify it runs once across two back-to-back requests.
+    # The page-check result is cached in the shared `healthz` cache, so a Fastly
+    # burst collapses into a single render. Verify it runs once across two
+    # back-to-back requests.
     with patch("springfield.base.views._check_critical_pages", return_value=(200, "pong")) as mocked:
         _test(url="/healthz-cdn/", client=client, expected_content="pong")
         _test(url="/healthz-cdn/", client=client, expected_content="pong")
         assert mocked.call_count == 1
+
+
+@override_switch("HEALTHZ_CDN_DB_CHECKS_ENABLED", active=True)
+def test_healthz_cdn_single_flight_lock_skips_render(client):
+    # When another caller holds the single-flight lock, this request returns
+    # 200 pong without invoking _check_critical_pages. With a shared (Redis)
+    # cache, this dedupes across all pods so a cold cache doesn't fan out into
+    # N concurrent renders.
+    from springfield.base.views import HEALTHZ_CDN_LOCK_KEY
+
+    caches["healthz"].set(HEALTHZ_CDN_LOCK_KEY, 1, 15)
+    with patch("springfield.base.views._check_critical_pages", side_effect=AssertionError("should not run")):
+        _test(url="/healthz-cdn/", client=client, expected_content="pong")
+
+
+@override_switch("HEALTHZ_CDN_DB_CHECKS_ENABLED", active=True)
+def test_healthz_cdn_lock_released_after_check(client):
+    # After a successful check, the single-flight lock is released so the next
+    # cache-miss can run a fresh check rather than being permanently locked out
+    # until the lock TTL expires.
+    from springfield.base.views import HEALTHZ_CDN_CACHE_KEY, HEALTHZ_CDN_LOCK_KEY
+
+    healthz_cache = caches["healthz"]
+    with patch("springfield.base.views._check_critical_pages", return_value=(200, "pong")):
+        _test(url="/healthz-cdn/", client=client, expected_content="pong")
+
+    assert healthz_cache.get(HEALTHZ_CDN_LOCK_KEY) is None
+    assert healthz_cache.get(HEALTHZ_CDN_CACHE_KEY) == (200, "pong")
+
+
+@override_switch("HEALTHZ_CDN_DB_CHECKS_ENABLED", active=True)
+def test_healthz_cdn_lock_released_even_when_check_raises(client):
+    # The check itself may raise (caught by the outer try). Even then the lock
+    # must be released so the next probe isn't blocked from re-trying.
+    from springfield.base.views import HEALTHZ_CDN_LOCK_KEY
+
+    healthz_cache = caches["healthz"]
+    with patch("springfield.base.views._check_critical_pages", side_effect=RuntimeError("kaboom")):
+        _test(
+            url="/healthz-cdn/",
+            client=client,
+            expected_status=500,
+            expected_content="check error",
+        )
+    assert healthz_cache.get(HEALTHZ_CDN_LOCK_KEY) is None
+
+
+@override_switch("HEALTHZ_CDN_DB_CHECKS_ENABLED", active=True)
+def test_healthz_cdn_survives_cache_failure(client):
+    # If the shared cache is unreachable (e.g. Redis hiccup), the view should
+    # still run the check and return its result rather than 500ing on the
+    # cache error. We patch cache.get to raise to simulate a Redis outage.
+    healthz_cache = caches["healthz"]
+    with (
+        patch.object(healthz_cache, "get", side_effect=ConnectionError("redis down")),
+        patch.object(healthz_cache, "add", side_effect=ConnectionError("redis down")),
+        patch.object(healthz_cache, "set", side_effect=ConnectionError("redis down")),
+        patch.object(healthz_cache, "delete", side_effect=ConnectionError("redis down")),
+        patch("springfield.base.views._check_critical_pages", return_value=(200, "pong")),
+    ):
+        _test(url="/healthz-cdn/", client=client, expected_content="pong")
 
 
 def test_healthz_cron(client):
