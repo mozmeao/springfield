@@ -133,10 +133,10 @@ def get_flare_blocks_docs_page():
 
 def get_flare_pages_docs_page():
     index_page = get_flare_docs_index_page()
-    pages_docs_page = index_page.get_children().filter(slug="pages").first()
+    pages_docs_page = index_page.get_children().filter(slug="sample-pages").first()
     if not pages_docs_page:
         pages_docs_page = FlareDocsIndexPage(
-            slug="pages", title="Flare Docs - Pages", search_description="This is the base page for Flare 26's CMS page samples."
+            slug="sample-pages", title="Flare Docs - Sample Pages", search_description="This is the base page for Flare 26's CMS page samples."
         )
         index_page.add_child(instance=pages_docs_page)
         pages_docs_page.save_revision().publish()
