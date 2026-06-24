@@ -271,5 +271,11 @@ def get_media_content_test_page() -> FreeFormPage2026:
     sections = get_media_content_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>The Media Content block places a media element (image or video) alongside a content column (heading, body, buttons). "
+        "It&rsquo;s the building block for alternating media-text sections that make up product feature pages.</p>"
+        "<p>Alternate the media position (left / right) across consecutive blocks to keep the page rhythm engaging. Provide alt "
+        "text on every image; for video, set the autoplay variant only when sound is not required.</p>"
+    )
     page.save_revision().publish()
     return page

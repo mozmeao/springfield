@@ -246,5 +246,11 @@ def get_kit_banner_test_page() -> FreeFormPage2026:
     variants = get_kit_banner_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Kit Banner block is a brand-styled banner variant matching Mozilla&rsquo;s marketing-kit visual language. It pairs "
+        "a strong heading with kit-themed surface treatment and is used to introduce kit-branded sections of a page.</p>"
+        "<p>Prefer Kit Banner over the standard Banner when the surrounding page is using kit theming; mixing the two on one page "
+        "creates visual conflict. Keep the body copy short &mdash; kit treatments favor headline-first scanning.</p>"
+    )
     page.save_revision().publish()
     return page

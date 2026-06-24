@@ -149,5 +149,11 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
     sections = get_icon_cards_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>Icon Cards present a small icon, a headline, and a short description. They&rsquo;re ideal for feature roundups, "
+        "value-prop lists, and at-a-glance sections where you have many short items to surface.</p>"
+        "<p>Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences so "
+        "cards align visually in a grid.</p>"
+    )
     page.save_revision().publish()
     return page

@@ -827,5 +827,13 @@ def get_banner_test_page() -> FreeFormPage2026:
     variants = get_banner_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Banner block is a hero-style headline section designed for the top of a page or to introduce a major topic. "
+        "It supports an eyebrow superheading, a primary heading, optional subheading, body content (rich text, tags, buttons), "
+        "and optional media (image or video) positioned before or after the text.</p>"
+        "<p>Use it sparingly &mdash; typically once per page near the top. Choose the &lsquo;default&rsquo; or &lsquo;outlined&rsquo; "
+        "theme to suit the page&rsquo;s visual weight, and prefer media that fully illustrates the message rather than decorative imagery. "
+        "Always include at least one call-to-action button when the banner introduces a downloadable product or sign-up flow.</p>"
+    )
     page.save_revision().publish()
     return page
