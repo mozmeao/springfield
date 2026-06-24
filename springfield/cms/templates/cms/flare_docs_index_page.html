@@ -76,22 +76,48 @@
                 <include:icon icon_name="external-link"/>
                 </a>
               </h2>
-              <ul>
-                {% for child in section.children %}
-                  <li id="{{ child.slug }}"><a href="{{ child.get_url(request) }}">{{ child.title }}</a></li>
-                {% endfor %}
-              </ul>
+              {% for child in section.children %}
+                <article id="{{ child.slug }}" class="fl-docs-entry">
+                  <h3>
+                    <a href="{{ child.get_url(request) }}">
+                      {{ child.title }}
+                      <include:icon icon_name="external-link"/>
+                    </a>
+                    <include:button
+                      label="See page inline"
+                      theme_class="button-tertiary"
+                      extra_classes="fl-docs-inline-btn"
+                    />
+                  </h3>
+                  {% if child.docs %}
+                    <div class="fl-docs-entry-body">{{ child.docs|richtext }}</div>
+                  {% endif %}
+                </article>
+              {% endfor %}
             </section>
           {% endfor %}
 
           {% if leaf_sections %}
             <section id="{{ page.slug }}-other">
               <h2>{{ group_title }}</h2>
-              <ul>
-                {% for section in leaf_sections %}
-                  <li id="{{ section.page.slug }}"><a href="{{ section.page.get_url(request) }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
-                {% endfor %}
-              </ul>
+              {% for section in leaf_sections %}
+                <article id="{{ section.page.slug }}" class="fl-docs-entry">
+                  <h3>
+                    <a href="{{ section.page.get_url(request) }}">
+                      {{ section.page.title.split(' - ', 1)[-1] }}
+                      <include:icon icon_name="external-link"/>
+                    </a>
+                    <include:button
+                      label="See page inline"
+                      theme_class="button-tertiary"
+                      extra_classes="fl-docs-inline-btn"
+                    />
+                  </h3>
+                  {% if section.page.docs %}
+                    <div class="fl-docs-entry-body">{{ section.page.docs|richtext }}</div>
+                  {% endif %}
+                </article>
+              {% endfor %}
             </section>
           {% endif %}
         </div>
