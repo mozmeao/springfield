@@ -4,7 +4,8 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_text = block_text ~ " - " ~ (button_label or "") %}
+{# analytics_text uses the stable English label so analytics aggregate across locales #}
+{% set block_text = block_text ~ " - " ~ (button_label_en_us or "") %}
 
 <include:uitour_button
   theme_class="{{ value.theme_class() }}"
