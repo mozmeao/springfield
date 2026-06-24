@@ -4,11 +4,20 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    get_flare_blocks_docs_page,
+    get_flare_pages_docs_page,
+    get_flare_snippets_docs_page,
+    get_placeholder_images,
+)
 from springfield.cms.fixtures.snippet_fixtures import (
+    get_banner_snippet,
     get_floating_qr_code_snippet,
     get_pencil_banner_snippet,
+    get_pre_footer_cta_form_snippet,
+    get_pre_footer_cta_snippet,
     get_qr_code_snippet,
+    get_scroll_to_see_more_snippet,
     get_set_as_default_snippet,
 )
 from springfield.cms.models import FreeFormPage2026
@@ -258,7 +267,7 @@ def get_set_as_default_button_block() -> dict:
 
 
 def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
-    index_page = get_flare_blocks_docs_page()
+    index_page = get_flare_snippets_docs_page()
 
     slug = "freeform-with-set-as-default"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -276,7 +285,7 @@ def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
 
 def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
     get_qr_code_snippet()
-    index_page = get_flare_blocks_docs_page()
+    index_page = get_flare_snippets_docs_page()
 
     slug = "freeform-with-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -295,7 +304,7 @@ def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
 
 def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
     get_floating_qr_code_snippet()
-    index_page = get_flare_blocks_docs_page()
+    index_page = get_flare_snippets_docs_page()
 
     slug = "freeform-with-floating-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -308,5 +317,111 @@ def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
 
     page.content = [get_mobile_store_qr_code()]
     page.show_floating_qr_code_snippet = True
+    page.save_revision().publish()
+    return page
+
+
+def get_banner_snippet_test_page() -> FreeFormPage2026:
+    snippet = get_banner_snippet()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "banner-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Banner Snippet")
+        index_page.add_child(instance=page)
+
+    banner_snippet_block = {
+        "type": "banner_snippet",
+        "value": snippet.id,
+        "id": "bs000001-0000-0000-0000-000000000001",
+    }
+    page.content = [banner_snippet_block]
+    page.save_revision().publish()
+    return page
+
+
+def get_pencil_banner_snippet_test_page() -> FreeFormPage2026:
+    snippet = get_pencil_banner_snippet()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "pencil-banner-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Pencil Banner Snippet")
+        index_page.add_child(instance=page)
+
+    PencilBannerPlacement.objects.get_or_create(page=page, snippet=snippet)
+    page.save_revision().publish()
+    return page
+
+
+def get_pre_footer_cta_snippet_test_page() -> FreeFormPage2026:
+    get_pre_footer_cta_snippet()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "pre-footer-cta-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Pre-Footer CTA Snippet")
+        index_page.add_child(instance=page)
+
+    page.show_pre_footer = True
+    page.save_revision().publish()
+    return page
+
+
+def get_pre_footer_cta_form_snippet_test_page() -> FreeFormPage2026:
+    get_pre_footer_cta_form_snippet()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "pre-footer-cta-form-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Pre-Footer CTA Form Snippet")
+        index_page.add_child(instance=page)
+
+    page.show_pre_footer = True
+    page.save_revision().publish()
+    return page
+
+
+def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
+    snippet = get_scroll_to_see_more_snippet()
+    get_placeholder_images()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "scroll-to-see-more-snippet"
+    page = FreeFormPage2026.objects.filter(slug=slug).first()
+    if not page:
+        page = FreeFormPage2026(slug=slug, title="Scroll To See More Snippet")
+        index_page.add_child(instance=page)
+
+    featured_image_block = {
+        "type": "featured_image_section",
+        "value": {
+            "scroll_to_see_more_snippet": snippet.id,
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="ssm-h">Scroll-to-see-more demo</p>',
+                "subheading_text": "",
+            },
+            "media": [
+                {
+                    "type": "image",
+                    "value": {
+                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
+                    },
+                    "id": "ssm00001-0000-0000-0000-000000000001",
+                }
+            ],
+            "content": [],
+            "cta": [],
+        },
+        "id": "ssm00002-0000-0000-0000-000000000001",
+    }
+    page.upper_content = [featured_image_block]
     page.save_revision().publish()
     return page

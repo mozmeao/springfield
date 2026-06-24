@@ -27,11 +27,16 @@ from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
+    get_banner_snippet_test_page,
     get_freeform_page_test_page,
     get_freeform_page_with_floating_qr_snippet,
     get_freeform_page_with_qr_snippet,
     get_freeform_page_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
+    get_pencil_banner_snippet_test_page,
+    get_pre_footer_cta_form_snippet_test_page,
+    get_pre_footer_cta_snippet_test_page,
+    get_scroll_to_see_more_snippet_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_cards_test_page
@@ -224,5 +229,20 @@ class Command(BaseCommand):
 
         media_content_page = get_media_content_test_page()
         self.stdout.write(self.style.SUCCESS(f"Media Content test page loaded: {media_content_page.slug}"))
+
+        banner_snippet_page = get_banner_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Banner Snippet test page loaded: {banner_snippet_page.slug}"))
+
+        pencil_banner_snippet_page = get_pencil_banner_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Pencil Banner Snippet test page loaded: {pencil_banner_snippet_page.slug}"))
+
+        pre_footer_cta_snippet_page = get_pre_footer_cta_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Pre-Footer CTA Snippet test page loaded: {pre_footer_cta_snippet_page.slug}"))
+
+        pre_footer_cta_form_snippet_page = get_pre_footer_cta_form_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Pre-Footer CTA Form Snippet test page loaded: {pre_footer_cta_form_snippet_page.slug}"))
+
+        scroll_to_see_more_snippet_page = get_scroll_to_see_more_snippet_test_page()
+        self.stdout.write(self.style.SUCCESS(f"Scroll To See More Snippet test page loaded: {scroll_to_see_more_snippet_page.slug}"))
 
         self.stdout.write(self.style.SUCCESS("Successfully loaded page fixtures."))

@@ -143,6 +143,20 @@ def get_flare_pages_docs_page():
     return pages_docs_page
 
 
+def get_flare_snippets_docs_page():
+    index_page = get_flare_docs_index_page()
+    snippets_docs_page = index_page.get_children().filter(slug="snippets").first()
+    if not snippets_docs_page:
+        snippets_docs_page = FlareDocsIndexPage(
+            slug="snippets",
+            title="Flare Docs - Snippets",
+            search_description="This is the base page for Flare 26's CMS snippet samples and docs.",
+        )
+        index_page.add_child(instance=snippets_docs_page)
+        snippets_docs_page.save_revision().publish()
+    return snippets_docs_page
+
+
 def get_article_index_test_page():
     root_page = get_flare_pages_docs_page()
     index_page = ArticleIndexPage.objects.filter(slug="tests-article-index").first()
