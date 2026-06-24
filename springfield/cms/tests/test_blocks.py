@@ -220,6 +220,27 @@ def _fxa_utm_campaign(html):
     return parse_qs(urlparse(a["href"]).query).get("utm_campaign", [None])[0]
 
 
+def _get_cta_text(html):
+    """Return the data-cta-text attribute from a rendered button."""
+    a = BeautifulSoup(html, "html.parser").find("a")
+    return a.get("data-cta-text")
+
+
+def resolve_button_label(button_data: dict) -> str:
+    """
+    Resolve the rendered label for a non-download LabelSourceMixin button.
+
+    Return either the pretranslated_label (snippet FK) or the custom_label.
+    """
+    value = button_data["value"]
+    snippet_id = value.get("pretranslated_label")
+    if snippet_id:
+        snippet = PretranslatedPhrase.objects.filter(pk=snippet_id).first()
+        if snippet:
+            return snippet.label
+    return value.get("custom_label", "") or ""
+
+
 def strip_host(url):
     return urlunparse(urlparse(url)._replace(scheme="", netloc=""))
 
@@ -237,7 +258,7 @@ def assert_button_attributes(
     The cta_position and cta_text are built by the parent component
     and passed down to the button.
     """
-    label = button_data["value"]["custom_label"]
+    label = resolve_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -926,9 +947,15 @@ class TestButtonBlockCleanComposition:
 
 
 class TestFXAButtonUtmCampaign:
-    """Test FXAButton's clean() method."""
+    """
+    Test the FXAButton.
 
-    def test_per_locale_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet):
+    fxa_button derives utm_campaign from the stable English label
+    (button_label_en_us), so the campaign slug is locale-invariant. The visible
+    label still localizes; only the analytics slug is the same across locales.
+    """
+
+    def test_analytics_attributes_are_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet):
         es_mx = LocaleFactory(language_code="es-MX")
         PretranslatedPhrase.objects.create(
             locale=es_mx,
@@ -941,26 +968,31 @@ class TestFXAButtonUtmCampaign:
 
         # Build a fresh value inside each locale: the snippet's localized lookup
         # caches on the instance, so reusing one bound value across locales would
-        # leak the first locale's result into the second. (A real request renders
-        # under a single locale, so this only matters for this two-locale test.)
+        # leak the first locale's result into the second.
         with translation.override("en-US"):
-            en = _fxa_utm_campaign(block.render(block.to_python(raw), context=dict(ctx)))
+            html_en = block.render(block.to_python(raw), context=dict(ctx))
         with translation.override("es-mx"):
-            es = _fxa_utm_campaign(block.render(block.to_python(raw), context=dict(ctx)))
+            html_es = block.render(block.to_python(raw), context=dict(ctx))
 
-        assert en and es and en != es
+        # button_label_en_us is the en-US source label regardless of active locale,
+        # so both utm_campaign and data-cta-text are identical across locales.
+        assert _fxa_utm_campaign(html_en) == _fxa_utm_campaign(html_es) == "get_firefox"
+        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
 
-    def test_per_locale_when_custom_label_used(self, rf):
+    def test_analytics_attributes_derive_from_custom_label(self, rf):
+        # For the custom_label path button_label_en_us == custom_label, so both
+        # utm_campaign and data-cta-text follow the editor-typed text.
         ctx = _render_context(rf.get("/"))
 
-        block_en, raw_en = _button_block_and_value("fxa_button", custom_label="Log in")
-        en = _fxa_utm_campaign(block_en.render(block_en.to_python(raw_en), context=dict(ctx)))
+        block_a, raw_a = _button_block_and_value("fxa_button", custom_label="Log in")
+        html_a = block_a.render(block_a.to_python(raw_a), context=dict(ctx))
+        assert _fxa_utm_campaign(html_a) == "log_in"
+        assert _get_cta_text(html_a) == "Heading - Log in"
 
-        block_fr, raw_fr = _button_block_and_value("fxa_button", custom_label="Se connecter")
-        fr = _fxa_utm_campaign(block_fr.render(block_fr.to_python(raw_fr), context=dict(ctx)))
-
-        assert en == "log_in"
-        assert fr == "se_connecter"
+        block_b, raw_b = _button_block_and_value("fxa_button", custom_label="Sign up")
+        html_b = block_b.render(block_b.to_python(raw_b), context=dict(ctx))
+        assert _fxa_utm_campaign(html_b) == "sign_up"
+        assert _get_cta_text(html_b) == "Heading - Sign up"
 
 
 def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):

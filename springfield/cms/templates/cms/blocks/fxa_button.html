@@ -5,7 +5,7 @@
 #}
 
 {# analytics_text / utm_campaign use the stable English label so analytics aggregate across locales #}
-{% set block_text = block_text ~ " - " ~ (button_label_en_us or "") %}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label_en_us or "") %}
 
 {% set utm_parameters = utm_parameters or {
   "utm_source": "www.firefox.com",
@@ -19,7 +19,7 @@
   size_class="{{ value.size_class() }}"
   icon_name="{{ value.settings.icon }}"
   icon_position="{{ value.settings.icon_position }}"
-  analytics_text="{{ block_text }}"
+  analytics_text="{{ cta_text }}"
   analytics_position="{{ block_position }}"
   analytics_id="{{ value.settings.analytics_id }}"
   utm_parameters="{{ utm_parameters }}"

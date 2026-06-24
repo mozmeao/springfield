@@ -4,7 +4,8 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_text = block_text ~ " - " ~ (button_label or "") %}
+{# analytics_text uses the stable English label so analytics aggregate across locales #}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label_en_us or "") %}
 
 <include:button
   theme_class="{{ value.theme_class() }}"
@@ -14,7 +15,7 @@
   external="{{ value.link.new_window }}"
   icon_name="{{ value.settings.icon }}"
   icon_position="{{ value.settings.icon_position }}"
-  analytics_text="{{ block_text }}"
+  analytics_text="{{ cta_text }}"
   analytics_position="{{ block_position }}"
   analytics_id="{{ value.settings.analytics_id }}"
 />
