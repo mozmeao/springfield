@@ -7,7 +7,7 @@
 {% extends "cms/base-flare26.html" %}
 
 {% set page_title_copy = ftl('newsletter-enterprise-title') %}
-{% set page_desc_copy = ftl('newsletter-enterprise-description') %}
+{% set page_desc_copy = ftl('newsletter-enterprise-description-v2') %}
 
 {% block page_title %}{{ page_title_copy }}{% endblock page_title %}
 {% block page_desc %}{{ page_desc_copy }}{% endblock %}
@@ -31,7 +31,7 @@
       heading_size="fl-heading-size-3"
       heading_text="{{ page_title_copy }}"
     />
-    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description') }}</p>
+    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-v2') }}</p>
     <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-note') }}</p>
   </include:newsletter-form>
 </div>

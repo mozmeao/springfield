@@ -17,12 +17,13 @@ newsletters-sign-up-to-receive-monthly = Sign up to receive monthly updates from
 # Enterprise
 
 newsletter-enterprise-title = Subscribe to { -brand-name-mozilla } Enterprise Updates
-newsletter-enterprise-description = Stay informed about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
+newsletter-enterprise-description-v2 = Stay informed about { -brand-name-firefox-enterprise }, { -brand-name-firefox-for-organizations-support }, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
 newsletter-enterprise-description-note = Note: Your subscription is voluntary and can be withdrawn at any time.
 
 # Consent checkbox label in the enterprise newsletter form
-newsletter-enterprise-form-consent = I would like to receive emails from { -brand-name-mozilla } Enterprise about the topics I selected above.
-newsletter-enterprise-form-consent-details = These emails may include information about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, webinars, events, product updates, and feature updates for IT, security, and compliance topics. I can withdraw my consent at any time with effect for the future.
+newsletter-enterprise-form-consent-v2 = I would like to receive emails from { -brand-name-mozilla } about Enterprise products, events, product updates, and related IT, security, and compliance topics.
+
+newsletter-enterprise-form-consent-details-v2 = These emails may include information about { -brand-name-firefox-enterprise }, { -brand-name-firefox-for-organizations-support }, webinars, events, product updates, and feature updates for IT, security, and compliance topics. I can withdraw my consent at any time with effect for the future.
 
 # Privacy notice section below the enterprise newsletter form
 newsletter-enterprise-privacy-statement = { -brand-name-mozilla } will process the information you provide in order to send you the selected email communications and to document your consent. Further information is available in { -brand-name-mozilla }'s privacy notice.
