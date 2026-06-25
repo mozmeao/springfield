@@ -25,6 +25,16 @@ ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
 
 
 urlpatterns = (
+    path(
+        "products/vpn/",
+        prefer_cms(L10nTemplateView.as_view(template_name="firefox/products/vpn/landing.html")),
+        name="products.vpn.landing",
+    ),
+    path(
+        "products/vpn/pricing/",
+        prefer_cms(L10nTemplateView.as_view(template_name="firefox/products/vpn/pricing.html")),
+        name="products.vpn.pricing",
+    ),
     path("", prefer_cms(views.DownloadView.as_view()), name="firefox"),
     path("download/", views.download_redirect, name="firefox.download"),
     path("download/all/", views.firefox_all, name="firefox.all"),
