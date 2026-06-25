@@ -501,7 +501,7 @@ NOINDEX_URLS = [
     r"^django-rq/",
     r"^oidc/",
     r"^\.well-known/",
-    r"^browsers/unsupported-systems/",
+    r"^download/unsupported-systems/",
     r"^download/installer-help/",
     r"^firefox/nightly/notes/feed/$",
     r"^landing/",
