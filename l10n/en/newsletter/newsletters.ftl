@@ -21,7 +21,8 @@ newsletter-enterprise-description = Stay informed about { -brand-name-firefox } 
 newsletter-enterprise-description-note = Note: Your subscription is voluntary and can be withdrawn at any time.
 
 # Consent checkbox label in the enterprise newsletter form
-newsletter-enterprise-form-consent = I would like to receive emails from { -brand-name-mozilla } Enterprise about the topics I selected above.
+newsletter-enterprise-form-consent = I would like to receive emails from { -brand-name-mozilla } about Enterprise products, events, product updates, and related IT, security, and compliance topics.
+
 newsletter-enterprise-form-consent-details = These emails may include information about { -brand-name-firefox } Enterprise, { -brand-name-firefox } for Organizations Support, webinars, events, product updates, and feature updates for IT, security, and compliance topics. I can withdraw my consent at any time with effect for the future.
 
 # Privacy notice section below the enterprise newsletter form
