@@ -329,6 +329,14 @@
 .fl-newsletterform-success svg {
     display: block;
     margin: 0 auto;
+
+    path {
+        stroke: var(--fl-theme-color-text-inverse);
+    }
+
+    circle {
+        fill: var(--fl-theme-color-text);
+    }
 }
 
 .newsletter-page .fl-newsletterform-cta {
