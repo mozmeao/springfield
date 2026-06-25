@@ -136,6 +136,62 @@ describe('plausible.es6.js', function () {
         });
     });
 
+    describe('trackEvent', function () {
+        it('should not call window.plausible when the queue is undefined', function () {
+            delete window.plausible;
+            // Should not throw.
+            Plausible.trackEvent('product_download');
+            expect(window.plausible).toBeUndefined();
+        });
+
+        it('should not send an event when GPC is enabled', function () {
+            window.plausible = sinon.stub();
+            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
+
+            Plausible.trackEvent('product_download');
+            expect(window.plausible.called).toBe(false);
+        });
+
+        it('should not send an event when DNT is enabled', function () {
+            window.plausible = sinon.stub();
+            window.Mozilla.dntEnabled = sinon.stub().returns(true);
+
+            Plausible.trackEvent('product_download');
+            expect(window.plausible.called).toBe(false);
+        });
+
+        it('should not send an event when analytics consent was explicitly declined', function () {
+            window.plausible = sinon.stub();
+            spyOn(window.Mozilla.Cookies, 'getItem').and.returnValue(
+                JSON.stringify({ analytics: false })
+            );
+
+            Plausible.trackEvent('product_download');
+            expect(window.plausible.called).toBe(false);
+        });
+
+        it('should send the event name with no props', function () {
+            window.plausible = sinon.stub();
+
+            Plausible.trackEvent('product_download');
+            expect(window.plausible.calledOnce).toBe(true);
+            expect(window.plausible.calledWith('product_download')).toBe(true);
+        });
+
+        it('should send the event name with props when provided', function () {
+            window.plausible = sinon.stub();
+            const props = { product: 'firefox', platform: 'win' };
+
+            Plausible.trackEvent('product_download', props);
+            expect(window.plausible.calledOnce).toBe(true);
+            expect(
+                window.plausible.calledWith('product_download', {
+                    props: props
+                })
+            ).toBe(true);
+        });
+    });
+
     describe('defineQueueStub', function () {
         it('should create a window.plausible queue function', function () {
             Plausible.defineQueueStub();
