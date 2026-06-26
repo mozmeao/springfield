@@ -315,6 +315,7 @@
     .fl-docs-content-accordion-summary::after {
         content: '+';
         flex-shrink: 0;
+        margin: 0;
     }
 
     .fl-docs-content-accordion[open]
@@ -332,6 +333,10 @@
 
     .fl-docs-content-accordion-body {
         padding: 0 var(--token-spacing-md) var(--token-spacing-md);
+    }
+
+    .fl-docs-content-accordion-body .fl-docs-entry {
+        padding-inline-end: var(--token-spacing-xl);
     }
 
     .fl-docs-no-results {
