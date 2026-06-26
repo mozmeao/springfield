@@ -32,6 +32,7 @@ def get_bottom_section() -> list[dict]:
             "settings": {
                 "layout": "vertical",
                 "slim": False,
+                "horizontal_slim": False,
                 "anchor_id": "",
             },
             "media": [],
