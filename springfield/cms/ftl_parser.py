@@ -115,7 +115,7 @@ BRAND_TERMS = {
     "-brand-name-google-play": "Google Play",
     "-brand-name-youtube": "YouTube",
     # Enterprise
-    "-brand-name-support-for-organizations": "Support for Organizations",
+    "-brand-name-firefox-professional-support": "Firefox Professional Support",
 }
 
 

@@ -127,5 +127,4 @@
 -brand-name-chromebook = Chromebook
 
 # Enterprise program name
--brand-name-support-for-organizations = Support for Organizations
--brand-name-firefox-for-organizations-support = Firefox for Organizations Support
+-brand-name-firefox-professional-support = Firefox Professional Support
