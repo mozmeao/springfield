@@ -29,8 +29,8 @@ function meetsExperimentCriteria() {
         // Don't enter into experiment if consent required and not explicitly given by cookie
         return false;
     } else if (
-        (Mozilla.Cookies.hasItem('moz-stub-attribution-code') ||
-            Mozilla.Cookies.hasItem('moz-stub-attribution-sig')) &&
+        (Mozilla.Cookies.hasItem('moz-download-attribution-code') ||
+            Mozilla.Cookies.hasItem('moz-download-attribution-sig')) &&
         !Mozilla.Cookies.hasItem(experimentCookieID)
     ) {
         // Don't enter into experiment if we already have an attribution cookie
