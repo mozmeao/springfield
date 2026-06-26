@@ -360,7 +360,16 @@
 
     // === Initialisation ===
 
-    focusSidebarAccordionForHash(window.location.hash);
+    const initHash = window.location.hash;
+    focusSidebarAccordionForHash(initHash);
+    reopenContentAccordionForHash(initHash);
+
+    if (initHash) {
+        const initTarget = document.getElementById(initHash.slice(1));
+        if (initTarget) {
+            initTarget.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 
     if (inlineToggle.checked) {
         window.setTimeout(enableInlineMode, 500);
