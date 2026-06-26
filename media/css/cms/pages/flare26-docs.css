@@ -90,7 +90,6 @@
     .fl-docs-index-content {
         display: flex;
         flex-direction: column;
-        padding-block-start: var(--token-layout-sm);
     }
 
     @media (--viewport-md-up) {
@@ -137,8 +136,14 @@
 
     .fl-docs-content-section {
         margin-block: 0 var(--token-spacing-xl);
-        padding-block-end: var(--token-spacing-xl);
+        padding-block: var(--token-layout-sm) var(--token-spacing-xl);
         scroll-margin-block-start: var(--token-spacing-lg);
+    }
+
+    @media (--viewport-md-up) {
+        .fl-docs-content-section:first-child {
+            padding-block-start: 0;
+        }
     }
 
     .fl-docs-content-section:not(:last-child) {
