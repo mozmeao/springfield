@@ -61,7 +61,6 @@ firefox-enterprise-download-firefox-or-esr = Download { -brand-name-firefox } or
 
 firefox-enterprise-support-for-organizations-v2 = { -brand-name-firefox-professional-support }
 
-# Obsolete string (expires: 2026-06-10)
 firefox-enterprise-early-access-is = Early access is now open for our new support program. Built for organizations that use { -brand-name-firefox } to ensure security, resilience, and data sovereignty, it provides private, reliable, and custom support for large-scale deployments.
 firefox-enterprise-contact-sales = Contact Sales
 firefox-enterprise-support-for-organizations-documentation-v2 = { -brand-name-firefox-professional-support } documentation
