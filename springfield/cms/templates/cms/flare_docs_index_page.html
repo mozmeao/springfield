@@ -11,6 +11,113 @@
 {% endblock %}
 
 {% block content %}
+
+{% macro sidebar_nodes(nodes, req) %}
+  {% set groups = nodes | selectattr('children') | list %}
+  {% set leaves = nodes | rejectattr('children') | list %}
+  {% for node in groups %}
+    <li class="fl-docs-sidebar-group">
+      <details class="fl-docs-sidebar-group-details">
+        <summary class="fl-docs-sidebar-group-label">{{ node.page.title }}</summary>
+        <ul>
+          {{ sidebar_nodes(node.children, req) }}
+        </ul>
+      </details>
+    </li>
+  {% endfor %}
+  {% if leaves and groups %}
+    <li class="fl-docs-sidebar-group">
+      <details class="fl-docs-sidebar-group-details">
+        <summary class="fl-docs-sidebar-group-label">Other</summary>
+        <ul>
+          {% for node in leaves %}
+            <li><a href="#{{ node.page.slug }}" data-url="{{ node.page.get_url(req) }}">{{ node.page.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </details>
+    </li>
+  {% else %}
+    {% for node in leaves %}
+      <li><a href="#{{ node.page.slug }}" data-url="{{ node.page.get_url(req) }}">{{ node.page.title }}</a></li>
+    {% endfor %}
+  {% endif %}
+{% endmacro %}
+
+{% macro render_leaf(node, req, hlevel) %}
+  <article id="{{ node.page.slug }}" class="fl-docs-entry">
+    <h{{ hlevel }}>
+      <a href="{{ node.page.get_url(req) }}">
+        {{ node.page.title }}
+        <include:icon icon_name="external-link"/>
+      </a>
+      <include:button
+        label="See page inline"
+        theme_class="button-tertiary"
+        extra_classes="fl-docs-inline-btn fl-button-small"
+      />
+    </h{{ hlevel }}>
+    {% if node.page.docs %}
+      <div class="fl-docs-entry-body">{{ node.page.docs|richtext }}</div>
+    {% endif %}
+  </article>
+{% endmacro %}
+
+{% macro content_nodes(nodes, req, hlevel, use_accordions=false) %}
+  {% set groups = nodes | selectattr('children') | list %}
+  {% set leaves = nodes | rejectattr('children') | list %}
+  {% for node in groups %}
+    {% if use_accordions %}
+      <details class="fl-docs-content-accordion" id="{{ node.page.slug }}">
+        <summary class="fl-docs-content-accordion-summary">
+          <h{{ hlevel }}>
+            <a href="{{ node.page.get_url(req) }}">
+              {{ node.page.title }}
+              <include:icon icon_name="external-link"/>
+            </a>
+          </h{{ hlevel }}>
+          <include:button
+            label="See page inline"
+            theme_class="button-tertiary"
+            extra_classes="fl-docs-inline-btn fl-button-small"
+          />
+        </summary>
+        <div class="fl-docs-content-accordion-body">
+          {{ content_nodes(node.children, req, hlevel + 1, true) }}
+        </div>
+      </details>
+    {% else %}
+      <section id="{{ node.page.slug }}" class="fl-docs-content-subsection">
+        <h{{ hlevel }}>
+          <a href="{{ node.page.get_url(req) }}">
+            {{ node.page.title }}
+            <include:icon icon_name="external-link"/>
+          </a>
+        </h{{ hlevel }}>
+        {{ content_nodes(node.children, req, hlevel + 1) }}
+      </section>
+    {% endif %}
+  {% endfor %}
+  {% if leaves and groups %}
+    {% if use_accordions %}
+      <details class="fl-docs-content-accordion">
+        <summary class="fl-docs-content-accordion-summary">
+          <h{{ hlevel }}>Other</h{{ hlevel }}>
+        </summary>
+        <div class="fl-docs-content-accordion-body">
+          {% for node in leaves %}{{ render_leaf(node, req, hlevel + 1) }}{% endfor %}
+        </div>
+      </details>
+    {% else %}
+      <section class="fl-docs-content-subsection">
+        <h{{ hlevel }}>Other</h{{ hlevel }}>
+        {% for node in leaves %}{{ render_leaf(node, req, hlevel + 1) }}{% endfor %}
+      </section>
+    {% endif %}
+  {% else %}
+    {% for node in leaves %}{{ render_leaf(node, req, hlevel) }}{% endfor %}
+  {% endif %}
+{% endmacro %}
+
 <div class="fl-page fl-docs-page">
   <main class="fl-main">
     <include:intro slim>
@@ -39,29 +146,34 @@
             </span>
           </label>
 
+          <input
+            type="search"
+            id="fl-docs-search"
+            class="fl-docs-search"
+            placeholder="Filter pages by title"
+            aria-label="Filter pages by title"
+          />
+          <p id="fl-docs-no-results" class="fl-docs-no-results" hidden>No pages found.</p>
+
           {% for section in sections if section.children %}
             <details class="fl-docs-accordion">
-              <summary>
+              <summary class="fl-docs-accordion-summary">
                 {{ section.page.title.split(' - ', 1)[-1] }}
                 <a href="{{ section.page.get_url(request) }}" title="Open detail page">
                   <include:icon icon_name="external-link"/>
                 </a>
               </summary>
               <ul>
-                {% for child in section.children %}
-                  <li><a href="#{{ child.slug }}" data-url="{{ child.get_url(request) }}">{{ child.title }}</a></li>
-                {% endfor %}
+                {{ sidebar_nodes(section.children, request) }}
               </ul>
             </details>
           {% endfor %}
 
           {% if leaf_sections %}
             <details class="fl-docs-accordion">
-              <summary>{{ group_title }}</summary>
+              <summary class="fl-docs-accordion-summary">{{ group_title }}</summary>
               <ul>
-                {% for section in leaf_sections %}
-                  <li><a href="#{{ section.page.slug }}" data-url="{{ section.page.get_url(request) }}">{{ section.page.title.split(' - ', 1)[-1] }}</a></li>
-                {% endfor %}
+                {{ sidebar_nodes(leaf_sections, request) }}
               </ul>
             </details>
           {% endif %}
@@ -69,55 +181,21 @@
 
         <div class="fl-docs-index-content">
           {% for section in sections if section.children %}
-            <section id="{{ section.page.slug }}">
+            <section id="{{ section.page.slug }}" class="fl-docs-content-section">
               <h2>
                 <a href="{{ section.page.get_url(request) }}">
                 {{ section.page.title.split(' - ', 1)[-1] }}
                 <include:icon icon_name="external-link"/>
                 </a>
               </h2>
-              {% for child in section.children %}
-                <article id="{{ child.slug }}" class="fl-docs-entry">
-                  <h3>
-                    <a href="{{ child.get_url(request) }}">
-                      {{ child.title }}
-                      <include:icon icon_name="external-link"/>
-                    </a>
-                    <include:button
-                      label="See page inline"
-                      theme_class="button-tertiary"
-                      extra_classes="fl-docs-inline-btn"
-                    />
-                  </h3>
-                  {% if child.docs %}
-                    <div class="fl-docs-entry-body">{{ child.docs|richtext }}</div>
-                  {% endif %}
-                </article>
-              {% endfor %}
+              {{ content_nodes(section.children, request, 3, section.page.slug == 'sample-pages') }}
             </section>
           {% endfor %}
 
           {% if leaf_sections %}
-            <section id="{{ page.slug }}-other">
+            <section id="{{ page.slug }}-other" class="fl-docs-content-section">
               <h2>{{ group_title }}</h2>
-              {% for section in leaf_sections %}
-                <article id="{{ section.page.slug }}" class="fl-docs-entry">
-                  <h3>
-                    <a href="{{ section.page.get_url(request) }}">
-                      {{ section.page.title.split(' - ', 1)[-1] }}
-                      <include:icon icon_name="external-link"/>
-                    </a>
-                    <include:button
-                      label="See page inline"
-                      theme_class="button-tertiary"
-                      extra_classes="fl-docs-inline-btn"
-                    />
-                  </h3>
-                  {% if section.page.docs %}
-                    <div class="fl-docs-entry-body">{{ section.page.docs|richtext }}</div>
-                  {% endif %}
-                </article>
-              {% endfor %}
+              {{ content_nodes(leaf_sections, request, 3) }}
             </section>
           {% endif %}
         </div>

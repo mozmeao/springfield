@@ -1243,7 +1243,7 @@ def test_flare_docs_index_page_get_context_sections_with_children(minimal_site, 
     assert sections[0]["page"].title == "Flare Docs - Blocks"
     assert len(sections[0]["children"]) == 2
 
-    child_titles = [c.title for c in sections[0]["children"]]
+    child_titles = [c["page"].title for c in sections[0]["children"]]
     # Should be ordered by title
     assert child_titles == ["Intro Block", "Section Block"]
 
@@ -1340,7 +1340,7 @@ def test_flare_docs_index_page_excludes_unpublished_children(minimal_site, rf):
     assert sections[0]["page"].title == "Flare Docs - Blocks"
     # Only the live grandchild should appear
     assert len(sections[0]["children"]) == 1
-    assert sections[0]["children"][0].title == "Live Page"
+    assert sections[0]["children"][0]["page"].title == "Live Page"
 
 
 def test_flare_docs_index_page_empty_sections(minimal_site, rf):
@@ -1475,7 +1475,7 @@ def test_flare_docs_index_page_get_context_returns_specific_grandchildren(minima
     request = rf.get(index_page.relative_url(minimal_site))
     context = index_page.specific.get_context(request)
 
-    grandchild = context["sections"][0]["children"][0]
+    grandchild = context["sections"][0]["children"][0]["page"]
     # Specific resolution means the FreeFormPage2026 subclass is returned, not the base Page,
     # so subclass-only fields like ``docs`` are accessible without an extra .specific lookup.
     assert grandchild.__class__ is FreeFormPage2026

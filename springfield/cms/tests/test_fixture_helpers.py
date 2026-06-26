@@ -39,11 +39,11 @@ def test_get_flare_snippets_docs_page_is_idempotent(minimal_site):
 
 
 def test_flare_docs_index_has_three_sections(minimal_site):
-    """The /flare-docs/ root should host three sibling index pages: blocks, pages, snippets."""
+    """The /flare-docs/ root should host three sibling index pages: blocks, sample-pages, snippets."""
     get_flare_blocks_docs_page()
     get_flare_pages_docs_page()
     get_flare_snippets_docs_page()
 
     index = get_flare_docs_index_page()
     child_slugs = sorted(c.slug for c in index.get_children())
-    assert child_slugs == ["blocks", "pages", "snippets"]
+    assert child_slugs == ["blocks", "sample-pages", "snippets"]

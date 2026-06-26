@@ -2141,6 +2141,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
         return f"ContactPage: {self.title} - {self.locale}"
 
 
+_FLARE_SECTION_ORDER = ["blocks", "snippets", "sample-pages"]
+
+
 class FlareDocsIndexPage(FreeFormPage2026):
     """
     A page containing an index of all docs pages for Flare26.
@@ -2152,9 +2155,16 @@ class FlareDocsIndexPage(FreeFormPage2026):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         children = list(self.get_children().live().public().specific().order_by("title"))
+        children.sort(key=lambda p: (_FLARE_SECTION_ORDER.index(p.slug) if p.slug in _FLARE_SECTION_ORDER else len(_FLARE_SECTION_ORDER), p.title))
         steplen = WagtailBasePage.steplen
-        grandchildren_by_parent = {}
-        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().specific().order_by("title"):
-            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
-        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
+        pages_by_parent = {}
+        for desc in self.get_descendants().live().public().specific().order_by("title"):
+            pages_by_parent.setdefault(desc.path[:-steplen], []).append(desc)
+
+        def build_node(page):
+            children = [build_node(c) for c in pages_by_parent.get(page.path, [])]
+            children.sort(key=lambda n: (0 if n["children"] else 1, n["page"].title))
+            return {"page": page, "children": children}
+
+        context["sections"] = [build_node(child) for child in children]
         return context
