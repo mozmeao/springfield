@@ -136,7 +136,7 @@
 
     .fl-docs-content-section {
         margin-block: 0 var(--token-spacing-xl);
-        padding-block: var(--token-layout-sm) var(--token-spacing-xl);
+        padding-block-start: var(--token-layout-sm);
         scroll-margin-block-start: var(--token-spacing-lg);
     }
 
