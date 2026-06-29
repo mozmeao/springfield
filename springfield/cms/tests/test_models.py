@@ -819,7 +819,7 @@ def test_thanks_page_get_template_default(rf):
 def test_thanks_page_get_template_direct(rf):
     page = ThanksPage()
     request = rf.get("/thanks/?s=direct")
-    assert page.get_template(request) == "cms/thanks_page__direct.html"
+    assert page.get_template(request) == "firefox/download/rtamo.html"
 
 
 @pytest.mark.parametrize(

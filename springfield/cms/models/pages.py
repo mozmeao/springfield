@@ -32,7 +32,6 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
-from springfield.base import waffle
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -526,10 +525,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
-            if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-                return "firefox/download/rtamo.html"
-            else:
-                return "cms/thanks_page__direct.html"
+            return "firefox/download/rtamo.html"
 
         return "cms/thanks_page.html"
 
@@ -2048,7 +2044,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             value = field.value
             identifier = value["internal_identifier"]
             if field.block_type == "hidden_field":
-                data[identifier] = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                data[identifier] = post_value if post_value else value.get("default_value", "")
             elif field.block_type == "checkbox_group_field":
                 data[identifier] = ", ".join(request.POST.getlist(identifier))
             else:
@@ -2120,7 +2117,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             label = value["label"]
 
             if block_type == "hidden_field":
-                submitted = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                submitted = post_value if post_value else value.get("default_value", "")
             elif block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))
             else:

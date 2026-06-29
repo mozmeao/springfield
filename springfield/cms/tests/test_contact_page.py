@@ -514,6 +514,170 @@ def test_contact_page_hidden_field_not_visible(
     assert 'value="contact-page"' in content
 
 
+@responses.activate
+def test_contact_page_hidden_field_post_value_overrides_default(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """When JS sets a hidden field to a non-empty value, that POST value is forwarded to the basket API instead of default_value."""
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=200)
+
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Override Test",
+        slug="hidden-field-override-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "source",
+                    "default_value": "default-source",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"name": "Jane", "source": "overridden-source"})
+    page.serve(request)
+
+    body = json.loads(responses.calls[0].request.body)
+    assert body["source"] == "overridden-source"
+
+
+@responses.activate
+def test_contact_page_hidden_field_falls_back_to_default_when_post_empty(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """When a hidden field is absent from POST, default_value is forwarded to the basket API."""
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=200)
+
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Fallback Test",
+        slug="hidden-field-fallback-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "source",
+                    "default_value": "fallback-source",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # POST the visible field but omit the hidden field — simulates a field stripped from the request
+    request = rf.post(page.relative_url(minimal_site), {"name": "Jane"})
+    page.serve(request)
+
+    body = json.loads(responses.calls[0].request.body)
+    assert body["source"] == "fallback-source"
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_hidden_field_post_value_in_email(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """When a hidden field has a non-empty POST value, it appears in the email body instead of default_value."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Email Override Test",
+        slug="hidden-field-email-override-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {"internal_identifier": "source", "default_value": "default-source"},
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"name": "Jane", "source": "overridden-source"})
+    page.serve(request)
+
+    email_body = mock_email_class.call_args[0][1]
+    assert "overridden-source" in email_body
+    assert "default-source" not in email_body
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_hidden_field_email_falls_back_to_default(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """When a hidden field is absent from POST, default_value appears in the email body."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Email Fallback Test",
+        slug="hidden-field-email-fallback-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {"internal_identifier": "source", "default_value": "fallback-source"},
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"name": "Jane"})
+    page.serve(request)
+
+    email_body = mock_email_class.call_args[0][1]
+    assert "fallback-source" in email_body
+
+
 def test_contact_page_post_requires_csrf_token(
     minimal_site: Site,
 ) -> None:

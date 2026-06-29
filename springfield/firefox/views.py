@@ -57,19 +57,6 @@ _STUB_VALUE_NAMES = [
     ("session_id", "(not set)"),
     ("dlsource", "fxdotcom"),
 ]
-_STUB_VALUE_NAMES_LEGACY = [
-    # name, default value
-    ("utm_source", "(not set)"),
-    ("utm_medium", "(direct)"),
-    ("utm_campaign", "(not set)"),
-    ("utm_content", "(not set)"),
-    ("experiment", "(not set)"),
-    ("variation", "(not set)"),
-    ("ua", "(not set)"),
-    ("client_id_ga4", "(not set)"),
-    ("session_id", "(not set)"),
-    ("dlsource", "fxdotcom"),
-]
 STUB_VALUE_RE = re.compile(r"^[a-z0-9-.%():_]+$", flags=re.IGNORECASE)
 
 
@@ -122,7 +109,7 @@ def stub_attribution_code(request):
     codes = OrderedDict()
     has_value = False
     fallback_fields = ["medium", "source"]
-    stub_value_names = _STUB_VALUE_NAMES if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR") else _STUB_VALUE_NAMES_LEGACY
+    stub_value_names = _STUB_VALUE_NAMES
     for name, default_value in stub_value_names:
         val = data.get(name, "")
         # remove utm_
@@ -139,28 +126,12 @@ def stub_attribution_code(request):
 
     # Only provide default analytics data if analytics data is allowed
     # (as indicated by set session_id value)
-    if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-        if not codes["session_id"] == "(not set)":
-            # set basic fallbacks
-            if codes["medium"] == "(not set)":
-                codes["medium"] = "(direct)"
+    if codes["session_id"] != "(not set)":
+        # set basic fallbacks
+        if codes["medium"] == "(not set)":
+            codes["medium"] = "(direct)"
 
-            # try more advanced fallbacks
-            if codes["source"] == "(not set)" and "referrer" in data:
-                try:
-                    domain = urlparse(data["referrer"]).netloc
-                    if domain and STUB_VALUE_RE.match(domain):
-                        codes["source"] = domain
-                        codes["medium"] = "referral"
-                        has_value = True
-                except Exception:
-                    # any problems and we should just ignore it
-                    pass
-
-            if not has_value:
-                codes["source"] = "www.firefox.com"
-                codes["medium"] = "(none)"
-    else:
+        # try more advanced fallbacks
         if codes["source"] == "(not set)" and "referrer" in data:
             try:
                 domain = urlparse(data["referrer"]).netloc
@@ -452,9 +423,7 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 class DownloadThanksView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/thanks.html": ["firefox/download/download"],
-        "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
-        "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
         "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
@@ -483,18 +452,12 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-                    template = "firefox/download/rtamo.html"
-                else:
-                    template = "firefox/download/desktop/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:
             if source == "direct":
-                if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-                    template = "firefox/download/rtamo.html"
-                else:
-                    template = "firefox/download/basic/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/basic/thanks.html"
 
@@ -784,6 +747,7 @@ def firefox_features_translate(request):
     translate_langs = [
         "ar",
         "az",
+        "eu",
         "bg",
         "bn",
         "bs",
@@ -798,6 +762,7 @@ def firefox_features_translate(request):
         "fa",
         "fi",
         "fr",
+        "gl",
         "de",
         "el",
         "gu",

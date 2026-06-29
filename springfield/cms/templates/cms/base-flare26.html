@@ -9,7 +9,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   class="windows no-js"
   lang="{{ LANG|replace('en-US', 'en') }}"
   dir="{{ DIR }}"
-  data-attribution-refactor-enabled="{{ switch('enable_attribution_refactor') }}"
   data-country-code="{{ country_code }}"
   data-needs-consent="{{ needs_data_consent(country_code) }}"
   data-latest-firefox="{{ latest_firefox_version }}"
@@ -268,20 +267,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if settings.STUB_ATTRIBUTION_RATE %}
         <!--[if IE 9]><!-->
           {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
-          {% if switch('enable_attribution_refactor') %}
-            {{ js_bundle('download-attribution-init-essential') }}
-          {% else %}
-            {{ js_bundle('stub-attribution') }}
-          {% endif %}
+          {{ js_bundle('download-attribution-init-essential') }}
         <!--<![endif]-->
       {% endif %}
 
       {# Download as default needs to come after stub attribution #}
-      {% if switch('enable_attribution_refactor') %}
-        {{ js_bundle('download_as_default-v2') }}
-      {% else %}
-        {{ js_bundle('download_as_default') }}
-      {% endif %}
+      {{ js_bundle('download_as_default-v2') }}
 
       {# Rewrites /thanks/-bound download buttons to attributed store URLs on
          mobile UAs so page-level campaign survives the click. Self-gates on
