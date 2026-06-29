@@ -7,10 +7,12 @@ from django.utils.text import slugify
 
 from wagtail.models import Locale
 
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import (
     BannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
+    PretranslatedPhrase,
     QRCodeSnippet,
     SetAsDefaultSnippet,
     Tag,
@@ -108,6 +110,21 @@ def get_set_as_default_snippet() -> SetAsDefaultSnippet:
     snippet.refresh_from_db()
 
     return snippet
+
+
+def get_pretranslated_phrase_snippets() -> tuple[PretranslatedPhrase, PretranslatedPhrase]:
+    locale = Locale.get_default()
+    get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=locale,
+        defaults={"label": PHRASES["get_firefox"]["label"], "live": True},
+    )
+    download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+        translation_key=PHRASES["download_firefox"]["translation_key"],
+        locale=locale,
+        defaults={"label": PHRASES["download_firefox"]["label"], "live": True},
+    )
+    return get_firefox, download_firefox
 
 
 def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:

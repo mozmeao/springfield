@@ -37,6 +37,16 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
+
+    .enterprise-newsletter-page
+        .fl-newsletterform-cta:has(.fl-newsletterform-illustration) {
+        align-items: start;
+        grid-template-columns: 1fr 2fr;
+    }
+
+    .enterprise-newsletter-page .fl-newsletterform-content {
+        max-inline-size: 600px;
+    }
 }
 
 .fl-newsletterform-illustration {
@@ -319,8 +329,20 @@
 .fl-newsletterform-success svg {
     display: block;
     margin: 0 auto;
+
+    path {
+        stroke: var(--fl-theme-color-text-inverse);
+    }
+
+    circle {
+        fill: var(--fl-theme-color-text);
+    }
 }
 
 .newsletter-page .fl-newsletterform-cta {
     padding-block-start: var(--token-layout-xl);
+}
+
+.fl-newsletter-enterprise .fl-newsletterform-consent {
+    text-align: start;
 }

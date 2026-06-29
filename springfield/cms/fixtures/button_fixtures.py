@@ -3,11 +3,20 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+from wagtail.models import Locale
+
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_test_document
-from springfield.cms.models import FreeFormPage2026
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
+    get_pretranslated_phrase_snippets()
+    get_firefox_pk = PretranslatedPhrase.objects.get(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+    ).pk
     buttons = {
         "primary": {
             "type": "button",
@@ -18,7 +27,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "c4c4c73d-a612-452d-b1af-f4c0810fb441",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -42,7 +52,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "cfdf0d2c-7eee-49c2-8747-80450e22dbdd",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -66,7 +77,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -90,7 +102,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -114,7 +127,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -138,7 +152,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Learn more",
+                "pretranslated_label": None,
+                "custom_label": "Learn more",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -157,7 +172,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "button",
             "value": {
                 "settings": {"theme": "", "icon": "", "icon_position": "right", "analytics_id": "5383592c-13c2-407a-82fe-f099617c05d9"},
-                "label": "Mozilla",
+                "pretranslated_label": None,
+                "custom_label": "Mozilla",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -181,7 +197,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "b4adffda-872a-4f2b-b45a-63ac7cb71e91",
                 },
-                "label": "Relay new Tab",
+                "pretranslated_label": None,
+                "custom_label": "Relay new Tab",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -205,7 +222,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
                 },
-                "label": "Wikipedia",
+                "pretranslated_label": None,
+                "custom_label": "Wikipedia",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -229,7 +247,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "4c411613-ef35-46c0-9eff-3a1bef76dabd",
                 },
-                "label": "Wikipedia new Tab",
+                "pretranslated_label": None,
+                "custom_label": "Wikipedia new Tab",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -253,14 +272,16 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
                 },
-                "label": "Log in to Mozilla Account",
+                "pretranslated_label": None,
+                "custom_label": "Log in to Mozilla Account",
             },
             "id": "bc17ead3-29c7-44d5-b8b8-0b0aaaee3e56",
         },
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "",
                     "icon": "downloads",
@@ -274,7 +295,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "secondary",
                     "icon": "downloads",
@@ -304,7 +326,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000001",
                 },
-                "label": "Get Firefox Focus for Android",
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox Focus for Android",
                 "store": "android",
             },
             "id": "fb000001-0000-0000-0000-000000000002",
@@ -318,7 +341,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000003",
                 },
-                "label": "Get Firefox Focus for iOS",
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox Focus for iOS",
                 "store": "ios",
             },
             "id": "fb000001-0000-0000-0000-000000000004",
@@ -338,7 +362,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
                         },
-                        "label": "Test Index Page",
+                        "pretranslated_label": None,
+                        "custom_label": "Test Index Page",
                         "link": {
                             "link_to": "page",
                             "page": index_page.id,
@@ -362,7 +387,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "151a5822-63b4-4621-b146-4135044f21b8",
                         },
-                        "label": "Test Index in new tab",
+                        "pretranslated_label": None,
+                        "custom_label": "Test Index in new tab",
                         "link": {
                             "link_to": "page",
                             "page": index_page.id,
@@ -386,7 +412,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "2ce75501-5dc6-44cf-8609-61ee89c914b0",
                         },
-                        "label": "Open document",
+                        "pretranslated_label": None,
+                        "custom_label": "Open document",
                         "link": {
                             "link_to": "file",
                             "page": None,
@@ -410,7 +437,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "569de137-625d-48f7-bbfb-0fe87b43da83",
                         },
-                        "label": "Email",
+                        "pretranslated_label": None,
+                        "custom_label": "Email",
                         "link": {
                             "link_to": "email",
                             "page": None,
@@ -434,7 +462,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "db29813f-1941-4e78-83ac-856943e34490",
                         },
-                        "label": "Phone",
+                        "pretranslated_label": None,
+                        "custom_label": "Phone",
                         "link": {
                             "link_to": "phone",
                             "page": None,
@@ -675,7 +704,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour01-0000-0000-0000-000000000010",
                                     },
                                     "button_type": "open_new_tab",
-                                    "label": "Open New Tab",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open New Tab",
                                 },
                                 "id": "uitour01-0000-0000-0000-000000000010",
                             },
@@ -716,7 +746,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000010",
                                     },
                                     "button_type": "open_about_preferences",
-                                    "label": "Preferences (default)",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences (default)",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000010",
                             },
@@ -730,7 +761,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000011",
                                     },
                                     "button_type": "open_about_preferences_general",
-                                    "label": "Preferences: General",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: General",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000011",
                             },
@@ -744,7 +776,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000012",
                                     },
                                     "button_type": "open_about_preferences_home",
-                                    "label": "Preferences: Home",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Home",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000012",
                             },
@@ -764,7 +797,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000013",
                                     },
                                     "button_type": "open_about_preferences_search",
-                                    "label": "Preferences: Search",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Search",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000013",
                             },
@@ -778,7 +812,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000014",
                                     },
                                     "button_type": "open_about_preferences_privacy",
-                                    "label": "Preferences: Privacy",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Privacy",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000014",
                             },
@@ -792,7 +827,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000015",
                                     },
                                     "button_type": "open_about_preferences_ai",
-                                    "label": "Preferences: AI Controls",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: AI Controls",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000015",
                             },
@@ -812,7 +848,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000016",
                                     },
                                     "button_type": "open_about_preferences_experimental",
-                                    "label": "Preferences: Experimental",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Experimental",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000016",
                             },
@@ -826,7 +863,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000017",
                                     },
                                     "button_type": "open_about_preferences_sync",
-                                    "label": "Preferences: Sync",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Sync",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000017",
                             },
@@ -840,7 +878,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour02-0000-0000-0000-000000000018",
                                     },
                                     "button_type": "open_about_preferences_more_from_mozilla",
-                                    "label": "Preferences: More From Mozilla",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: More From Mozilla",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000018",
                             },
@@ -881,7 +920,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour03-0000-0000-0000-000000000010",
                                     },
                                     "button_type": "open_protections_report",
-                                    "label": "View Protections Report",
+                                    "pretranslated_label": None,
+                                    "custom_label": "View Protections Report",
                                 },
                                 "id": "uitour03-0000-0000-0000-000000000010",
                             },
@@ -925,7 +965,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour04-0000-0000-0000-000000000010",
                                     },
                                     "button_type": "open_smart_window",
-                                    "label": "Open Smart Window",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open Smart Window",
                                 },
                                 "id": "uitour04-0000-0000-0000-000000000010",
                             },
@@ -969,7 +1010,8 @@ def get_button_blocks() -> list[dict]:
                                         "analytics_id": "uitour05-0000-0000-0000-000000000010",
                                     },
                                     "button_type": "pin_to_taskbar",
-                                    "label": "Pin Firefox to Taskbar",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Pin Firefox to Taskbar",
                                 },
                                 "id": "uitour05-0000-0000-0000-000000000010",
                             },
