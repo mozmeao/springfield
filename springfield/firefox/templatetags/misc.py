@@ -13,6 +13,8 @@ from django.contrib.staticfiles.finders import find as find_static
 from django.template.defaultfilters import slugify as django_slugify
 from django.template.defaulttags import CsrfTokenNode
 from django.utils.encoding import smart_str
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 
 import jinja2
 from django_jinja import library
@@ -610,14 +612,10 @@ def _fxa_product_button(
     include_metrics=True,
     optional_parameters=None,
     optional_attributes=None,
-    inner_html=None,  # override button_text with custom inner HTML
+    inner_html=None,  # override button_text with trusted, component-generated inner HTML
 ):
     href = _fxa_product_url(product_url, entrypoint, optional_parameters)
     css_class = "js-fxa-cta-link"
-    attrs = ""
-
-    if optional_attributes:
-        attrs += " ".join(f'{attr}="{val}"' for attr, val in optional_attributes.items())
 
     if include_metrics:
         css_class += " js-fxa-product-button"
@@ -628,7 +626,23 @@ def _fxa_product_button(
     if class_name:
         css_class += f" {class_name}"
 
-    markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{inner_html if inner_html else button_text}</a>'
+    # Build the anchor with contextual escaping. `button_text`, the optional
+    # attribute values and the href can all carry CMS- or caller-supplied data
+    # (e.g. a Firefox Account button label that flows into the body, into
+    # data-cta-* attributes and into the entrypoint/utm_campaign of the href),
+    # so every interpolated value must be escaped to prevent stored XSS.
+    # `inner_html` is the explicit opt-in slot for trusted, component-generated
+    # markup (an icon plus an already-escaped label) and is rendered as-is.
+    attrs = format_html_join(" ", '{}="{}"', (optional_attributes or {}).items())
+    body = mark_safe(inner_html) if inner_html else button_text
+    markup = format_html(
+        '<a href="{}" data-action="{}" class="{}" {}>{}</a>',
+        href,
+        settings.FXA_ENDPOINT,
+        css_class,
+        attrs,
+        body,
+    )
 
     return Markup(markup)
 
