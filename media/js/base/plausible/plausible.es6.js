@@ -4,9 +4,23 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { dntEnabled, gpcEnabled } from '../consent/utils.es6';
+import { dntEnabled, getConsentCookie, gpcEnabled } from '../consent/utils.es6';
 
 const Plausible = {};
+
+/**
+ * Determines if the visitor has opted out of analytics, via GPC, DNT, or by
+ * explicitly declining analytics in the consent banner.
+ * @returns {Boolean}
+ */
+Plausible.analyticsDenied = () => {
+    if (gpcEnabled() || dntEnabled()) {
+        return true;
+    }
+
+    const consent = getConsentCookie();
+    return !!consent && consent.analytics === false;
+};
 
 Plausible.defineQueueStub = () => {
     window.plausible =
@@ -35,11 +49,32 @@ Plausible.loadScript = () => {
 Plausible.init = () => {
     Plausible.defineQueueStub();
 
-    if (gpcEnabled() || dntEnabled()) {
+    if (Plausible.analyticsDenied()) {
         return;
     }
 
     Plausible.loadScript();
+};
+
+/**
+ * Send a custom event to Plausible. No-ops when Plausible isn't loaded or the visitor has opted out.
+ * @param {String} name - the custom event name (e.g. 'product_download')
+ * @param {Object} [props] - optional custom properties
+ */
+Plausible.trackEvent = (name, props) => {
+    if (typeof window.plausible !== 'function') {
+        return;
+    }
+
+    if (Plausible.analyticsDenied()) {
+        return;
+    }
+
+    if (props) {
+        window.plausible(name, { props: props });
+    } else {
+        window.plausible(name);
+    }
 };
 
 export default Plausible;

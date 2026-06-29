@@ -27,7 +27,6 @@ const setupKickPage = () => {
 
     const video = document.createElement('video');
     video.muted = true;
-    video.poster = '/media/img/logos/firefox/logo-word-hor-white-2026.svg';
 
     const source = document.createElement('source');
     source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
@@ -50,18 +49,6 @@ const setupKickPage = () => {
         },
         { once: true }
     );
-
-    // Play and pause to trigger the first frame to be loaded
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-        playPromise
-            .then(() => {
-                video.pause();
-            })
-            .catch(() => {
-                // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
-            });
-    }
 };
 
 if (document.readyState === 'loading') {
