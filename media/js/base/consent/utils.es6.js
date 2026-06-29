@@ -45,12 +45,10 @@ function setGtagAdsConsentMode(hasConsent, type = 'update') {
  * @returns {Boolean}
  */
 function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
-    if (attributionRefactorEnabled()) {
-        // This must run before the gtag check to ensure we always update
-        // download analytics regardless of whether GTM has loaded on the page
-        // i.e. cookie settings page
-        setDownloadAttribution(hasConsent);
-    }
+    // This must run before the gtag check to ensure we always update
+    // download analytics regardless of whether GTM has loaded on the page
+    // i.e. cookie settings page
+    setDownloadAttribution(hasConsent);
 
     // bail out if GTAG has not been created with GTMSnippet.loadSnippet
     // this needs to run before GTM snippet loads to set proper defaults
@@ -78,18 +76,6 @@ function setDownloadAttribution(hasConsent) {
     DownloadAttribution.initAnalytics(hasConsent);
 
     return true;
-}
-
-/**
- * Determines if the download attribution refactor is active.
- * Looks for a data attribute on the <html> tag.
- */
-function attributionRefactorEnabled() {
-    const attr = document
-        .getElementsByTagName('html')[0]
-        .getAttribute('data-attribution-refactor-enabled');
-
-    return attr ? attr.toLowerCase() === 'true' : false;
 }
 
 /**
@@ -323,7 +309,6 @@ function getConsentState(obj) {
 }
 
 export {
-    attributionRefactorEnabled,
     consentRequired,
     dntEnabled,
     getConsentCookie,

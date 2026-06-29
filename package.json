@@ -28,7 +28,7 @@
     "swiper": "^12.2.0",
     "terser-webpack-plugin": "^5.6.1",
     "webpack": "^5.107.2",
-    "webpack-cli": "^7.0.3"
+    "webpack-cli": "^6.0.1"
   },
   "repository": {
     "type": "git",
@@ -82,8 +82,8 @@
     "IE 8"
   ],
   "overrides": {
-    "jasmine-browser-runner": {
-      "path-to-regexp": "^8.4.0"
+    "sockjs": {
+      "uuid": "^11.1.1"
     }
   }
 }
