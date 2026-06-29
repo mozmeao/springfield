@@ -2051,7 +2051,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             value = field.value
             identifier = value["internal_identifier"]
             if field.block_type == "hidden_field":
-                data[identifier] = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                data[identifier] = post_value if post_value else value.get("default_value", "")
             elif field.block_type == "checkbox_group_field":
                 data[identifier] = ", ".join(request.POST.getlist(identifier))
             else:
@@ -2123,7 +2124,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             label = value["label"]
 
             if block_type == "hidden_field":
-                submitted = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                submitted = post_value if post_value else value.get("default_value", "")
             elif block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))
             else:
