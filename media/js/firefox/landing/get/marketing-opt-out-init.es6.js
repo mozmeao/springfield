@@ -4,12 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { attributionRefactorEnabled } from '../../../base/consent/utils.es6';
-import MarketingOptOut from './marketing-opt-out.es6.js';
 import MarketingOptOutV2 from './marketing-opt-out-v2.es6.js';
 
-if (attributionRefactorEnabled()) {
-    MarketingOptOutV2.init();
-} else {
-    MarketingOptOut.init();
-}
+MarketingOptOutV2.init();

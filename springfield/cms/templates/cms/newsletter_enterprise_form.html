@@ -71,15 +71,14 @@
       <div class="fl-newsletterform-consent">
         <label for="newsletter-privacy" class="fl-body fl-newsletterform-checkbox-label">
           <input type="checkbox" id="newsletter-privacy" name="privacy" required aria-required="true" data-testid="newsletter-privacy-checkbox">
-          <span class="fl-newsletterform-checkbox-text">{{ ftl('newsletter-enterprise-form-consent') }}</span>
+          <span class="fl-newsletterform-checkbox-text">{{ ftl('newsletter-enterprise-form-consent-v3') }}</span>
         </label>
-        <p class="fl-body">{{ ftl('newsletter-enterprise-form-consent-details') }}</p>
+        <p class="fl-body">{{ ftl('newsletter-enterprise-form-consent-details-v3') }}</p>
         <div class="fl-newsletterform-privacy-notice">
           <p class="fl-body">{{ ftl('newsletter-enterprise-privacy-statement') }}</p>
           <p class="fl-body">
             <a href="https://www.mozilla.org/privacy/websites/">{{ ftl('newsletter-enterprise-privacy-link') }}</a> |
-            <a href="https://www.mozilla.org/about/legal/terms/firefox/">{{ ftl('newsletter-enterprise-legal-link') }}</a> |
-            <a href="https://connect.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-enterprise-news">{{ ftl('newsletter-enterprise-contact-link') }}</a>
+            <a href="https://www.mozilla.org/about/legal/terms/firefox/">{{ ftl('newsletter-enterprise-legal-link') }}</a>
           </p>
         </div>
       </div>
@@ -107,8 +106,8 @@
        {% if thankyou_head %}aria-label="{{ thankyou_head }}" {% endif %}
        {% if thankyou_content %}aria-description="{{ thankyou_content }}" {% endif %}>
     <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="40" cy="40" r="40" fill="white" />
-      <path d="M28 40L36 48L52 32" stroke="black" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" />
+      <circle cx="40" cy="40" r="40" fill="black" />
+      <path d="M28 40L36 48L52 32" stroke="white" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" />
     </svg>
   </div>
 

@@ -25,7 +25,6 @@ from springfield.firefox.views import detect_download_platform, download_redirec
     STUB_ATTRIBUTION_RATE=1,
     STUB_ATTRIBUTION_MAX_LEN=600,
 )
-@override_switch("ENABLE_ATTRIBUTION_REFACTOR", active=True)
 class TestStubAttributionCode(TestCase):
     def _get_request(self, params):
         rf = RequestFactory()
@@ -357,7 +356,6 @@ class TestStubAttributionCode(TestCase):
 
 
 @override_settings(DEV=False)
-@override_switch("ENABLE_ATTRIBUTION_REFACTOR", active=True)
 @patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
 class TestFirefoxDownload(TestCase):
     def test_post(self, render_mock):

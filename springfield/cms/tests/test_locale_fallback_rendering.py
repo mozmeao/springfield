@@ -11,6 +11,7 @@ from django.test import override_settings
 from django.urls import path
 
 import pytest
+from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
@@ -905,4 +906,5 @@ def test_alias_locale_request_renders_fallback_locale_download_button_label(clie
     assert en_us_get_firefox.label == "Get Firefox"  # confirm the en-US snippet exists — "Get Firefox" was available but should not be used
     assert "ES-MX Page" in html  # the es-MX page is being served at the es-CL URL
     assert "Obtener Firefox" in html
-    assert "Get Firefox" not in html
+    # "Get Firefox" is intentionally in data-cta-text (analytics); check it's absent from visible text only
+    assert "Get Firefox" not in BeautifulSoup(html, "html.parser").get_text()

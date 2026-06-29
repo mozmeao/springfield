@@ -9,45 +9,34 @@
  * Sinon docs: http://sinonjs.org/docs/
  */
 
-describe('thanks.js', function () {
+import {
+    shouldAutoDownload,
+    getDownloadURL
+} from '../../../../../media/js/firefox/download/auto-download.es6';
+
+describe('auto-download.es6.js', function () {
     describe('shouldAutoDownload', function () {
         it('should return true for supported platforms', function () {
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('windows', true)
-            ).toBeTruthy();
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('osx', true)
-            ).toBeTruthy();
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('android', true)
-            ).toBeTruthy();
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('ios', true)
-            ).toBeTruthy();
+            expect(shouldAutoDownload('windows', true)).toBeTruthy();
+            expect(shouldAutoDownload('osx', true)).toBeTruthy();
+            expect(shouldAutoDownload('android', true)).toBeTruthy();
+            expect(shouldAutoDownload('ios', true)).toBeTruthy();
         });
 
         it('should return false for linux platforms', function () {
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('linux', true)
-            ).toBeFalsy();
+            expect(shouldAutoDownload('linux', true)).toBeFalsy();
         });
 
         it('should return false for unknown platforms', function () {
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('other', true)
-            ).toBeFalsy();
+            expect(shouldAutoDownload('other', true)).toBeFalsy();
         });
 
         it('should return false for non-supported Windows versions', function () {
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('windows', false)
-            ).toBeFalsy();
+            expect(shouldAutoDownload('windows', false)).toBeFalsy();
         });
 
         it('should return false for non-supported macOS versions', function () {
-            expect(
-                Mozilla.DownloadThanks.shouldAutoDownload('osx', false)
-            ).toBeFalsy();
+            expect(shouldAutoDownload('osx', false)).toBeFalsy();
         });
     });
 
@@ -79,7 +68,7 @@ describe('thanks.js', function () {
             const site = {
                 platform: 'windows'
             };
-            const result = Mozilla.DownloadThanks.getDownloadURL(site);
+            const result = getDownloadURL(site);
             expect(result).toEqual(
                 'https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-US'
             );
@@ -89,7 +78,7 @@ describe('thanks.js', function () {
             const site = {
                 platform: 'osx'
             };
-            const result = Mozilla.DownloadThanks.getDownloadURL(site);
+            const result = getDownloadURL(site);
             expect(result).toEqual(
                 'https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US'
             );
@@ -100,7 +89,7 @@ describe('thanks.js', function () {
                 platform: 'linux',
                 archSize: 32
             };
-            const result = Mozilla.DownloadThanks.getDownloadURL(site);
+            const result = getDownloadURL(site);
             expect(result).toBeFalsy();
         });
 
@@ -108,7 +97,7 @@ describe('thanks.js', function () {
             const site = {
                 platform: 'android'
             };
-            const result = Mozilla.DownloadThanks.getDownloadURL(site);
+            const result = getDownloadURL(site);
             expect(result).toEqual(
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox'
             );
@@ -118,7 +107,7 @@ describe('thanks.js', function () {
             const site = {
                 platform: 'ios'
             };
-            const result = Mozilla.DownloadThanks.getDownloadURL(site);
+            const result = getDownloadURL(site);
             expect(result).toEqual(
                 'https://itunes.apple.com/us/app/firefox-private-safe-browser/id989804926'
             );

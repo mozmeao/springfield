@@ -34,7 +34,8 @@ const options = {
         'NS_ERROR_FAILURE', // https://mozilla.sentry.io/share/issue/6361b063ea0d4528ac0ef07e181fbb96/
         'NetworkError when attempting to fetch resource',
         'Non-Error promise rejection captured',
-        "Unexpected token '<'"
+        "Unexpected token '<'",
+        'The fetching process for the media resource was aborted by the user agent'
     ]
 };
 

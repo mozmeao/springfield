@@ -9,7 +9,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0104_articledetailpagepencilbannerplacement_and_more"),
+        ("cms", "0109_migrate_all_button_labels"),
     ]
 
     operations = [

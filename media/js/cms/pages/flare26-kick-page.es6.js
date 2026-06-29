@@ -27,7 +27,6 @@ const setupKickPage = () => {
 
     const video = document.createElement('video');
     video.muted = true;
-    video.poster = '/media/img/logos/firefox/logo-word-hor-white-2026.svg';
 
     const source = document.createElement('source');
     source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
@@ -37,23 +36,19 @@ const setupKickPage = () => {
     wrapper.appendChild(video);
     logoLink.appendChild(wrapper);
 
-    video.addEventListener('mouseover', () => {
-        video.play();
-    });
-    video.addEventListener('mouseout', () => {
-        video.pause();
-        video.currentTime = 0;
-    });
-
-    // play and pause to trigger the first frame to be loaded
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // Ignore `play()` rejections (e.g. `AbortError` when paused before playback begins)
-        });
-    }
-
-    video.pause();
+    video.addEventListener(
+        'canplaythrough',
+        () => {
+            video.addEventListener('mouseover', () => {
+                video.play();
+            });
+            video.addEventListener('mouseout', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        },
+        { once: true }
+    );
 };
 
 if (document.readyState === 'loading') {
