@@ -31,7 +31,19 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.models import PretranslatedPhrase
+from springfield.cms.models import (
+    BannerSnippet,
+    DownloadFirefoxCallToActionSnippet,
+    PencilBannerSnippet,
+    PreFooterCTAFormSnippet,
+    PreFooterCTASnippet,
+    PretranslatedPhrase,
+    QRCodeFloatingSnippet,
+    QRCodeSnippet,
+    ScrollToSeeMoreSnippet,
+    SetAsDefaultSnippet,
+    Tag,
+)
 
 
 @hooks.register("register_admin_menu_item")
@@ -498,4 +510,79 @@ class PretranslatedPhraseViewSet(LocaleDefaultingSnippetViewSet):
     search_fields = ["label"]
 
 
-register_snippet(PretranslatedPhraseViewSet)
+class PreFooterCTASnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PreFooterCTASnippet
+    list_display = ["label", "locale", "live"]
+
+
+class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PreFooterCTAFormSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class DownloadFirefoxCallToActionSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = DownloadFirefoxCallToActionSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = BannerSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class TagViewSet(LocaleDefaultingSnippetViewSet):
+    model = Tag
+    list_display = ["name", "locale", "live"]
+
+
+class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = QRCodeSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = SetAsDefaultSnippet
+    list_display = ["heading_text", "locale", "live"]
+
+
+class QRCodeFloatingSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = QRCodeFloatingSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = ScrollToSeeMoreSnippet
+    list_display = ["text", "locale", "live"]
+
+
+class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PencilBannerSnippet
+    # `title` is a RichTextField — use the `title_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["title_plain", "locale", "live"]
+
+
+for _viewset in (
+    PretranslatedPhraseViewSet,
+    PreFooterCTASnippetViewSet,
+    PreFooterCTAFormSnippetViewSet,
+    DownloadFirefoxCallToActionSnippetViewSet,
+    BannerSnippetViewSet,
+    TagViewSet,
+    QRCodeSnippetViewSet,
+    SetAsDefaultSnippetViewSet,
+    QRCodeFloatingSnippetViewSet,
+    ScrollToSeeMoreSnippetViewSet,
+    PencilBannerSnippetViewSet,
+):
+    register_snippet(_viewset)

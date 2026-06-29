@@ -1962,15 +1962,18 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = getattr(request, "form_data", {})
         return context
 
+    def _redirect_with_errors(self, request, form_errors):
+        """Store form errors/data in session and redirect back, preserving query params."""
+        request.session["contact_form_errors"] = {k: [str(e) for e in v] for k, v in form_errors.items()}
+        request.session["contact_form_data"] = self._get_form_data_for_context(request.POST)
+        qs = request.POST.get("_qs", "")
+        return redirect(request.path + ("?" + qs if qs else ""))
+
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
             form_errors = self.validate_form_data(request.POST)
             if form_errors:
-                request.form_errors = form_errors
-                request.form_data = self._get_form_data_for_context(request.POST)
-                response = super().serve(request, *args, **kwargs)
-                add_never_cache_headers(response)
-                return response
+                return self._redirect_with_errors(request, form_errors)
 
             if self.basket_api_path:
                 form_data = self._collect_form_data(request)
@@ -1990,11 +1993,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                        request.form_data = self._get_form_data_for_context(request.POST)
-                        response = super().serve(request, *args, **kwargs)
-                        add_never_cache_headers(response)
-                        return response
+                        return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
                 except requests.RequestException as exc:
                     with new_scope() as scope:
                         scope.set_extra("basket_path", self.basket_api_path)
@@ -2003,11 +2002,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
 
             if self.to_email_address:
                 try:
@@ -2019,11 +2014,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             "Failed to send contact form email",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
 
             if self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
@@ -2032,6 +2023,13 @@ class ContactPage(AbstractSpringfieldCMSPage):
             response = super().serve(request, *args, **kwargs)
             add_never_cache_headers(response)
             return response
+
+        session = getattr(request, "session", None)
+        if session:
+            form_errors = session.pop("contact_form_errors", {})
+            if form_errors:
+                request.form_errors = form_errors
+                request.form_data = session.pop("contact_form_data", {})
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)

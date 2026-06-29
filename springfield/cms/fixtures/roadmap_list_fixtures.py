@@ -222,7 +222,8 @@ def get_roadmap_page_intro() -> list[dict]:
                                         "icon_position": "right",
                                         "analytics_id": "rm0000-0000-0000-0000-000000000002",
                                     },
-                                    "label": "What's New",
+                                    "pretranslated_label": None,
+                                    "custom_label": "What's New",
                                     "link": {
                                         "link_to": "page",
                                         "page": get_whatsnew_index_page().id,
