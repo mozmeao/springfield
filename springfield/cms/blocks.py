@@ -3306,7 +3306,7 @@ class HiddenFieldBlock(BaseField):
         required=False,
         label="Query param override for default value",
         help_text="If this query param is sent on the request, its value will be used instead of the default value. "
-        'Ex: ?my_param=custom_value will render <input value="custom_value" name="{internal_identifier}" type="hidden"',
+        'Ex: ?my_param=custom_value will render <input value="custom_value" name="{internal_identifier}" type="hidden"/>',
     )
 
     class Meta:
