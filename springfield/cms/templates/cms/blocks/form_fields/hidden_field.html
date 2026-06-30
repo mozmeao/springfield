@@ -4,4 +4,5 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<input type="hidden" name="{{ value.internal_identifier }}" value="{{ value.default_value }}">
+{% set override = value.query_param_override %}
+<input type="hidden" name="{{ value.internal_identifier }}" value="{{ request.POST.get(value.internal_identifier) or (request.GET.get(override) if override else '') or value.default_value }}">
