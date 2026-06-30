@@ -33,7 +33,6 @@ from wagtail.whitelist import check_url
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.models import (
     BannerSnippet,
-    DownloadFirefoxCallToActionSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -522,13 +521,6 @@ class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading_plain", "locale", "live"]
 
 
-class DownloadFirefoxCallToActionSnippetViewSet(LocaleDefaultingSnippetViewSet):
-    model = DownloadFirefoxCallToActionSnippet
-    # `heading` is a RichTextField — use the `heading_plain` method on the model
-    # to strip HTML tags so the listing column is readable.
-    list_display = ["heading_plain", "locale", "live"]
-
-
 class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = BannerSnippet
     # `heading` is a RichTextField — use the `heading_plain` method on the model
@@ -576,7 +568,6 @@ for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
     PreFooterCTAFormSnippetViewSet,
-    DownloadFirefoxCallToActionSnippetViewSet,
     BannerSnippetViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
