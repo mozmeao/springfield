@@ -1316,7 +1316,7 @@ def test_get_form_data_for_context_text_and_checkbox(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """_get_form_data_for_context returns strings for text-like fields, lists for
+    """get_form_data_for_context returns strings for text-like fields, lists for
     checkbox groups, and excludes hidden fields."""
     index_page = minimal_site.root_page
     page = ContactPage(
@@ -1350,7 +1350,7 @@ def test_get_form_data_for_context_text_and_checkbox(
     page.save_revision().publish()
 
     post_data = QueryDict("name=Jane+Doe&services=a&services=b")
-    form_data = page._get_form_data_for_context(post_data)
+    form_data = page.get_form_data_for_context(post_data)
 
     assert form_data["name"] == "Jane Doe"
     assert form_data["services"] == ["a", "b"]
