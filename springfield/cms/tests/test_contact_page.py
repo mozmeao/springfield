@@ -24,17 +24,6 @@ pytestmark = [
 ]
 
 
-def _post_and_follow(page, rf, url, data):
-    """POST to a ContactPage and follow the error redirect (PRG pattern), returning the GET response."""
-    session = {}
-    post_req = rf.post(url, data)
-    post_req.session = session
-    redirect_resp = page.serve(post_req)
-    get_req = rf.get(redirect_resp["Location"])
-    get_req.session = session
-    return page.serve(get_req)
-
-
 def _create_thank_you_page(index_page):
     """Create a simple thank-you page as the redirect target for contact form tests."""
     thank_you = SimpleRichTextPage(
@@ -171,8 +160,9 @@ def test_contact_page_post_errors_is_never_cached(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {})
+    request = rf.post(page.relative_url(minimal_site), {})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "This field is required." in resp.text
     assert "no-store" in resp.get("Cache-Control", "")
@@ -251,9 +241,7 @@ def test_contact_page_post_email_send_failure(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(
-        page,
-        rf,
+    request = rf.post(
         page.relative_url(minimal_site),
         {
             "first_name": "Jane",
@@ -266,6 +254,7 @@ def test_contact_page_post_email_send_failure(
             "country": "US",
         },
     )
+    resp = page.serve(request)
 
     assert resp.status_code == 200
     assert "There was an error sending your message. Please try again." in resp.content.decode()
@@ -296,8 +285,8 @@ def test_contact_page_post_missing_required(
     page.save_revision().publish()
 
     # POST with only optional fields so all required fields are missing
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"message": "Hello"})
-
+    request = rf.post(page.relative_url(minimal_site), {"message": "Hello"})
+    resp = page.serve(request)
     assert resp.status_code == 200
     # Error text appears inline multiple times (once per missing required field)
     assert resp.text.count("This field is required.") >= 3
@@ -380,8 +369,9 @@ def test_contact_page_post_empty_submission(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {})
+    request = rf.post(page.relative_url(minimal_site), {})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "Please fill out the form." in resp.text
     mock_email_class.assert_not_called()
@@ -408,9 +398,7 @@ def test_contact_page_post_honeypot(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(
-        page,
-        rf,
+    request = rf.post(
         page.relative_url(minimal_site),
         {
             "full_name": "Bot Name",
@@ -419,6 +407,7 @@ def test_contact_page_post_honeypot(
             "office_fax": "I am a bot",
         },
     )
+    resp = page.serve(request)
 
     assert resp.status_code == 200
     assert "There was an error sending your message. Please try again." in resp.text
@@ -518,7 +507,7 @@ def test_contact_page_hidden_field_post_value_overrides_default(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """When JS sets a hidden field to a non-empty value, that POST value is forwarded to the basket API instead of default_value."""
+    """When a hidden field is submitted with a non-empty value, that POST value is forwarded to the basket API instead of default_value."""
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=200)
 
@@ -675,6 +664,158 @@ def test_contact_page_hidden_field_email_falls_back_to_default(
 
     email_body = mock_email_class.call_args[0][1]
     assert "fallback-source" in email_body
+
+
+def test_contact_page_hidden_field_query_param_overrides_default_on_get(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """On GET, a hidden field renders the value of its query_param_override param when present in the URL."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Query Param Test",
+        slug="hidden-field-query-param-test",
+        form_fields=[
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "lead_source",
+                    "default_value": "website",
+                    "query_param_override": "ls",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site), {"ls": "partner"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert 'name="lead_source"' in content
+    assert 'value="partner"' in content
+    assert 'value="website"' not in content
+
+
+def test_contact_page_hidden_field_query_param_absent_uses_default_on_get(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """On GET without the query_param_override param, the hidden field renders its default_value."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Query Param Default Test",
+        slug="hidden-field-query-param-default-test",
+        form_fields=[
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "lead_source",
+                    "default_value": "website",
+                    "query_param_override": "ls",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert 'value="website"' in content
+
+
+def test_contact_page_hidden_field_query_param_value_is_escaped(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A user-controlled query param value is HTML-escaped when rendered into the hidden field."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Query Param Escape Test",
+        slug="hidden-field-query-param-escape-test",
+        form_fields=[
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "lead_source",
+                    "default_value": "website",
+                    "query_param_override": "ls",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site), {"ls": '"><script>alert(1)</script>'})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert "<script>alert(1)</script>" not in content
+    assert "&lt;script&gt;" in content
+
+
+def test_contact_page_hidden_field_value_preserved_on_validation_error(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """On a validation-error re-render the hidden field keeps its submitted POST value."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Hidden Field Error Persistence Test",
+        slug="hidden-field-error-persistence-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {
+                    "internal_identifier": "lead_source",
+                    "default_value": "website",
+                    "query_param_override": "ls",
+                },
+                "id": "hidden-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # name is required and missing → validation error → form re-renders in place
+    request = rf.post(page.relative_url(minimal_site), {"lead_source": "partner"})
+    resp = page.serve(request)
+    content = resp.content.decode()
+
+    assert resp.status_code == 200
+    assert "This field is required." in content
+    assert 'name="lead_source"' in content
+    assert 'value="partner"' in content
 
 
 def test_contact_page_post_requires_csrf_token(
@@ -861,8 +1002,8 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
         "company_size": "1 - 10",
         "country": "US",
     }
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), valid_data)
-
+    request = rf.post(page.relative_url(minimal_site), valid_data)
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "There was an error sending your message. Please try again." in resp.content.decode()
     mock_capture_message.assert_not_called()
@@ -903,8 +1044,8 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
         "company_size": "1 - 10",
         "country": "US",
     }
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), valid_data)
-
+    request = rf.post(page.relative_url(minimal_site), valid_data)
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "There was an error sending your message. Please try again." in resp.content.decode()
     mock_capture_message.assert_called_once()
@@ -1029,8 +1170,9 @@ def test_textarea_field_required_validates(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"message": ""})
+    request = rf.post(page.relative_url(minimal_site), {"message": ""})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "This field is required." in resp.content.decode()
 
@@ -1174,7 +1316,7 @@ def test_get_form_data_for_context_text_and_checkbox(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """_get_form_data_for_context returns strings for text-like fields, lists for
+    """get_form_data_for_context returns strings for text-like fields, lists for
     checkbox groups, and excludes hidden fields."""
     index_page = minimal_site.root_page
     page = ContactPage(
@@ -1208,7 +1350,7 @@ def test_get_form_data_for_context_text_and_checkbox(
     page.save_revision().publish()
 
     post_data = QueryDict("name=Jane+Doe&services=a&services=b")
-    form_data = page._get_form_data_for_context(post_data)
+    form_data = page.get_form_data_for_context(post_data)
 
     assert form_data["name"] == "Jane Doe"
     assert form_data["services"] == ["a", "b"]
@@ -1289,8 +1431,8 @@ def test_form_persistence_text_field(
     page.save_revision().publish()
 
     # company filled, full_name empty (required) → validation error → redirect → GET re-renders
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"company": "Acme Corp"})
-
+    request = rf.post(page.relative_url(minimal_site), {"company": "Acme Corp"})
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="Acme Corp"' in resp.content.decode()
 
@@ -1323,8 +1465,9 @@ def test_form_persistence_email_field(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"contact_email": "jane@example.com"})
+    request = rf.post(page.relative_url(minimal_site), {"contact_email": "jane@example.com"})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="jane@example.com"' in resp.content.decode()
 
@@ -1357,8 +1500,9 @@ def test_form_persistence_phone_field(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"phone": "555-1234"})
+    request = rf.post(page.relative_url(minimal_site), {"phone": "555-1234"})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="555-1234"' in resp.content.decode()
 
@@ -1391,8 +1535,9 @@ def test_form_persistence_textarea_field(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"message": "Hello world"})
+    request = rf.post(page.relative_url(minimal_site), {"message": "Hello world"})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert ">Hello world<" in resp.content.decode()
 
@@ -1433,8 +1578,9 @@ def test_form_persistence_select_field(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"interest": "privacy"})
+    request = rf.post(page.relative_url(minimal_site), {"interest": "privacy"})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="privacy" selected' in resp.content.decode()
     assert 'value="security" selected' not in resp.content.decode()
@@ -1476,8 +1622,9 @@ def test_form_persistence_checkbox_group(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"services": ["consulting", "support"]})
+    request = rf.post(page.relative_url(minimal_site), {"services": ["consulting", "support"]})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="consulting" checked' in resp.content.decode()
     assert 'value="support" checked' in resp.content.decode()
@@ -1513,8 +1660,8 @@ def test_form_persistence_checkbox_field(
     page.save_revision().publish()
 
     # agree is checked ("on"), full_name is required and missing → validation error
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {"agree": "on"})
-
+    request = rf.post(page.relative_url(minimal_site), {"agree": "on"})
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert 'value="on" checked' in resp.content.decode()
 
@@ -1539,8 +1686,9 @@ def test_inline_field_error_html(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = _post_and_follow(page, rf, page.relative_url(minimal_site), {})
+    request = rf.post(page.relative_url(minimal_site), {})
 
+    resp = page.serve(request)
     assert resp.status_code == 200
     assert "fl-field-wrap fl-field-error" in resp.text
     assert "fl-field-error-message" in resp.text
@@ -1645,134 +1793,8 @@ def test_country_select_field_persistence(
     page.save_revision().publish()
 
     # POST with country but missing required name — triggers validation error
-    response = _post_and_follow(page, rf, page.relative_url(minimal_site), {"country": "DE"})
-
+    request = rf.post(page.relative_url(minimal_site), {"country": "DE"})
+    response = page.serve(request)
     assert response.status_code == 200
     assert 'value="DE" selected' in response.text
     mock_email_class.assert_not_called()
-
-
-# ============================================================================
-# Query Param Preservation Tests
-# ============================================================================
-
-
-def test_contact_page_form_errors_redirect_preserves_query_params(
-    minimal_site: Site,
-    rf: RequestFactory,
-) -> None:
-    """The _qs hidden field carries the original query string through the POST so that
-    the error redirect lands back on the correct URL with all params intact."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-
-    page = ContactPage(
-        title="Query Param Test",
-        slug="query-param-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": True},
-                "id": "f1",
-            },
-        ],
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    page_url = page.relative_url(minimal_site)
-    session = {}
-    post_req = rf.post(page_url, {"_qs": "ls=partner&utm_source=email"})
-    post_req.session = session
-    resp = page.serve(post_req)
-
-    assert resp.status_code == 302
-    assert resp["Location"] == f"{page_url}?ls=partner&utm_source=email"
-
-    # Follow the redirect — errors should be shown at the preserved URL
-    get_req = rf.get(resp["Location"])
-    get_req.session = session
-    get_resp = page.serve(get_req)
-
-    assert get_resp.status_code == 200
-    assert "This field is required." in get_resp.text
-
-
-def test_contact_page_form_errors_redirect_no_qs_when_empty(
-    minimal_site: Site,
-    rf: RequestFactory,
-) -> None:
-    """When _qs is absent the redirect goes to the bare page path with no query string."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-
-    page = ContactPage(
-        title="No QS Test",
-        slug="no-qs-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": True},
-                "id": "f1",
-            },
-        ],
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    page_url = page.relative_url(minimal_site)
-    session = {}
-    post_req = rf.post(page_url, {})
-    post_req.session = session
-    resp = page.serve(post_req)
-
-    assert resp.status_code == 302
-    assert resp["Location"] == page_url
-    assert "?" not in resp["Location"]
-
-
-def test_contact_page_form_errors_not_repeated_on_second_get(
-    minimal_site: Site,
-    rf: RequestFactory,
-) -> None:
-    """Session errors are consumed on the first GET and not shown again on a second GET."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-
-    page = ContactPage(
-        title="Session Clear Test",
-        slug="session-clear-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": True},
-                "id": "f1",
-            },
-        ],
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    page_url = page.relative_url(minimal_site)
-    session = {}
-    post_req = rf.post(page_url, {})
-    post_req.session = session
-    redirect_resp = page.serve(post_req)
-
-    # First GET: errors shown
-    get_req = rf.get(redirect_resp["Location"])
-    get_req.session = session
-    first_get = page.serve(get_req)
-    assert "This field is required." in first_get.text
-
-    # Second GET with same session: errors are gone (popped)
-    get_req2 = rf.get(page_url)
-    get_req2.session = session
-    second_get = page.serve(get_req2)
-    assert "This field is required." not in second_get.text

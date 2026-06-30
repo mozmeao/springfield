@@ -129,6 +129,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {# site bundle must load in head before analytics #}
     {{ js_bundle('site') }}
+    {% block experiments %}{% endblock %}
     {% block google_analytics %}
     {% if settings.GTM_CONTAINER_ID %}
     {{ js_bundle('gtm-snippet') }}

@@ -878,22 +878,6 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return [snippet for snippet in snippets if snippet]
 
 
-# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
-class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A flexible page type that allows a variety of content blocks to be added."""
-
-    parent_page_types = []
-
-    content = StreamField([], use_json_field=True)
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
-
-    def __str__(self):
-        return f"FreeFormPage: {self.title} - {self.locale}"
-
-
 def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
@@ -1137,50 +1121,6 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
         return redirect("/")
-
-
-# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
-class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A page that displays the latest Firefox updates and changes."""
-
-    parent_page_types = []
-    subpage_types = []
-
-    ftl_files = ["firefox/whatsnew/evergreen"]
-
-    version = models.CharField(
-        max_length=10,
-        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
-    )
-    content = StreamField([], use_json_field=True)
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
-    )
-
-    content_panels = [
-        FieldPanel("title"),
-        TitleFieldPanel("version", placeholder="123"),
-        FieldPanel("content"),
-        FieldPanel("show_qr_code_snippet"),
-    ]
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["version"]),
-        ]
-        verbose_name = "What's New Page"
-        verbose_name_plural = "What's New Pages"
-
-    def __str__(self):
-        return f"WhatsNewPage: {self.title} - {self.locale}"
-
-    def get_utm_campaign(self):
-        return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
-
-    @property
-    def noindex(self):
-        return True
 
 
 class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1962,18 +1902,19 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = getattr(request, "form_data", {})
         return context
 
-    def _redirect_with_errors(self, request, form_errors):
-        """Store form errors/data in session and redirect back, preserving query params."""
-        request.session["contact_form_errors"] = {k: [str(e) for e in v] for k, v in form_errors.items()}
-        request.session["contact_form_data"] = self._get_form_data_for_context(request.POST)
-        qs = request.POST.get("_qs", "")
-        return redirect(request.path + ("?" + qs if qs else ""))
+    def render_with_errors(self, request, form_errors, *args, **kwargs):
+        """Re-render the form in place with the given errors and the submitted values."""
+        request.form_errors = form_errors
+        request.form_data = self.get_form_data_for_context(request.POST)
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
 
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
             form_errors = self.validate_form_data(request.POST)
             if form_errors:
-                return self._redirect_with_errors(request, form_errors)
+                return self.render_with_errors(request, form_errors, *args, **kwargs)
 
             if self.basket_api_path:
                 form_data = self._collect_form_data(request)
@@ -1993,7 +1934,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
+                        return self.render_with_errors(
+                            request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
+                        )
                 except requests.RequestException as exc:
                     with new_scope() as scope:
                         scope.set_extra("basket_path", self.basket_api_path)
@@ -2002,7 +1945,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
+                    return self.render_with_errors(
+                        request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
+                    )
 
             if self.to_email_address:
                 try:
@@ -2014,7 +1959,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             "Failed to send contact form email",
                             level="error",
                         )
-                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
+                    return self.render_with_errors(
+                        request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
+                    )
 
             if self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
@@ -2023,13 +1970,6 @@ class ContactPage(AbstractSpringfieldCMSPage):
             response = super().serve(request, *args, **kwargs)
             add_never_cache_headers(response)
             return response
-
-        session = getattr(request, "session", None)
-        if session:
-            form_errors = session.pop("contact_form_errors", {})
-            if form_errors:
-                request.form_errors = form_errors
-                request.form_data = session.pop("contact_form_data", {})
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
@@ -2050,7 +1990,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 data[identifier] = request.POST.get(identifier, "")
         return data
 
-    def _get_form_data_for_context(self, post_data):
+    def get_form_data_for_context(self, post_data):
         """Return submitted form values keyed by internal_identifier for template use.
 
         Returns a dict with string values for text-like fields and lists for

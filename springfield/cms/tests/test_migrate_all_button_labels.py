@@ -32,7 +32,7 @@ from springfield.cms.management.commands.migrate_all_button_labels import (
     BUTTON_TYPES_WITH_LABEL,
     convert_button_label,
 )
-from springfield.cms.models import BannerSnippet, FreeFormPage
+from springfield.cms.models import BannerSnippet, FreeFormPage2026
 from springfield.cms.tests.factories import LocaleFactory
 
 # ---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ def _intro_with_buttons(*button_blocks, intro_id="cc000000-0000-0000-0000-000000
 def _make_page(content, locale=None, slug="all-buttons-migration-test"):
     """Create a FreeFormPage under the site home with the given StreamField content."""
     parent = Page.objects.get(slug="home")
-    page = FreeFormPage(slug=slug, title="All Buttons Migration Test")
+    page = FreeFormPage2026(slug=slug, title="All Buttons Migration Test")
     if locale is not None:
         page.locale = locale
     parent.add_child(instance=page)
@@ -279,7 +279,7 @@ class TestMigratePageRevisionButtons:
         page = _make_page([_intro_with_buttons(_old_button(BUTTON_TYPE, "Learn more"))], slug="conv-rev")
         _call_migrate_all_button_labels()
 
-        ct = ContentType.objects.get_for_model(FreeFormPage)
+        ct = ContentType.objects.get_for_model(FreeFormPage2026)
         revision = Revision.objects.filter(content_type=ct, object_id=str(page.pk)).order_by("created_at").first()
         assert revision is not None
 
