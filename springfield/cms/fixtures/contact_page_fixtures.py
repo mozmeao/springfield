@@ -127,6 +127,7 @@ def get_form_field_variants() -> list[dict]:
                 "label": "Lead Source",
                 "required": False,
                 "default_value": "techrider.de",
+                "query_param_override": "ls",
             },
             "id": "hidden-field-lead-source",
         },
