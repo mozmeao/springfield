@@ -3180,9 +3180,18 @@ class DownloadSupportBlock(blocks.StaticBlock):
 # Contact Page Form Field Blocks
 
 
+class UntranslatableCharBlock(blocks.CharBlock):
+    def get_translatable_segments(self, value):
+        # Not user-facing content — exclude from translation.
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
+
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
-    internal_identifier = blocks.CharBlock(
+    internal_identifier = UntranslatableCharBlock(
         label="Internal Identifier",
         help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",
     )
@@ -3236,7 +3245,7 @@ class PhoneFieldBlock(BaseField):
 
 
 class SelectOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.CharBlock(label="Option Label")
 
     class Meta:
@@ -3258,7 +3267,7 @@ class SelectFieldBlock(BaseField):
 
 
 class CheckboxOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.RichTextBlock(label="Option Label", features=HEADING_TEXT_FEATURES)
 
     class Meta:
@@ -3289,11 +3298,11 @@ class CheckboxFieldBlock(BaseField):
 
 
 class HiddenFieldBlock(BaseField):
-    default_value = blocks.CharBlock(
+    default_value = UntranslatableCharBlock(
         label="Default value",
         help_text="Value submitted with the form for this hidden field.",
     )
-    query_param_override = blocks.CharBlock(
+    query_param_override = UntranslatableCharBlock(
         required=False,
         label="Query param override for default value",
         help_text="If this query param is sent on the request, its value will be used instead of the default value. "
