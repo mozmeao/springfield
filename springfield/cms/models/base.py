@@ -15,6 +15,7 @@ from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
+from springfield.cms.middleware import is_wagtail_admin_request
 from springfield.cms.utils import compute_cms_page_locales
 
 
@@ -171,6 +172,30 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
                 pass
 
         return localized
+
+    def get_url_parts(self, request=None):
+        """
+        While handling a Wagtail-admin request, build a page's URL from the
+        page's *own* locale rather than the editor's active UI language.
+
+        Avoids this bug:
+            1. an editor sets their Wagtail admin language to Portuguese, so
+               Wagtail activates 'pt-pt' for admin responses
+               (get_localized_response)
+            2. they open a published pt-BR page in the editor
+            3. the "PUBLISHED" ("PUBLICADA") badge links to /pt-PT/, because
+               core promotes the pt-BR prefix to the active 'pt-pt'.
+
+        The logic here can't depend on the request parameter, because the
+        edit-page badge renders ``<a href="{{ page.url }}">``, and Page.url`
+        calls get_url_parts() with request=None by construction.
+        Instead, we use the is_wagtail_admin_request() helper to ensure that
+        our logic only runs for requests for Wagtail admin pages.
+        """
+        if is_wagtail_admin_request() and normalize_language(translation.get_language()) != self.locale.language_code:
+            with translation.override(self.locale.language_code):
+                return super().get_url_parts(request=request)
+        return super().get_url_parts(request=request)
 
     def get_active_locale_url(self, request=None):
         """

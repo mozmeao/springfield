@@ -705,6 +705,7 @@ MIDDLEWARE = [
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
+    "springfield.cms.middleware.WagtailAdminRequestMiddleware",
 ]
 
 ENABLE_CSP_MIDDLEWARE = config("ENABLE_CSP_MIDDLEWARE", default="true", parser=bool)
@@ -1273,6 +1274,10 @@ WAGTAIL_ENABLE_UPDATE_CHECK = False
 
 # Custom setting (not a Wagtail core one) that we use to plug in/unplug the admin UI entirely
 WAGTAIL_ENABLE_ADMIN = config("WAGTAIL_ENABLE_ADMIN", default="false", parser=bool)
+
+# URL path under which the Wagtail admin is mounted (see springfield/urls.py).
+# Defined here as the single source of truth between different logic that uses it.
+WAGTAIL_ADMIN_URL_PREFIX = "cms-admin"
 
 if WAGTAIL_ENABLE_ADMIN:
     # Enable Middleware essential for admin
