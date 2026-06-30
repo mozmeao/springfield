@@ -2531,7 +2531,14 @@ class IntroBlockSettings(blocks.StructBlock):
         default=False,
         label="Slim Layout",
         inline_form=True,
-        help_text="Use a more compact layout with reduced spacing.",
+        help_text="Reduce vertical spacing around the section.",
+    )
+    horizontal_slim = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Horizontal Slim",
+        inline_form=True,
+        help_text="Narrow the section to a more compact horizontal width. Only applies to Media Left / Media Right layouts.",
     )
     anchor_id = blocks.CharBlock(
         required=False,
@@ -2543,7 +2550,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        label_format = "Layout: {layout} - Slim: {slim} - H-Slim: {horizontal_slim} - Anchor ID: {anchor_id}"
         form_classname = "compact-form struct-block"
 
 

@@ -23,6 +23,7 @@ def get_intro_variants() -> list[dict]:
                 "settings": {
                     "layout": "vertical",
                     "slim": False,
+                    "horizontal_slim": False,
                     "anchor_id": "",
                 },
                 "media": [],
@@ -43,13 +44,14 @@ def get_intro_variants() -> list[dict]:
             },
             "id": "2026int1-0000-0000-0000-000000000001",
         },
-        # Media right layout, with image, anchor_id
+        # Media right layout, with image, anchor_id, horizontal_slim
         {
             "type": "intro",
             "value": {
                 "settings": {
                     "layout": "right",
                     "slim": False,
+                    "horizontal_slim": True,
                     "anchor_id": "intro-image-right",
                 },
                 "media": [
@@ -94,6 +96,7 @@ def get_intro_variants() -> list[dict]:
                 "settings": {
                     "layout": "left",
                     "slim": True,
+                    "horizontal_slim": False,
                     "anchor_id": "",
                 },
                 "media": [
@@ -133,6 +136,7 @@ def get_intro_variants() -> list[dict]:
                 "settings": {
                     "layout": "vertical",
                     "slim": False,
+                    "horizontal_slim": False,
                     "anchor_id": "intro-video",
                 },
                 "media": [videos["youtube"]],
@@ -159,6 +163,7 @@ def get_intro_variants() -> list[dict]:
                 "settings": {
                     "layout": "right",
                     "slim": False,
+                    "horizontal_slim": False,
                     "anchor_id": "",
                 },
                 "media": [videos["animation"]],
@@ -185,6 +190,7 @@ def get_intro_variants() -> list[dict]:
                 "settings": {
                     "layout": "left",
                     "slim": False,
+                    "horizontal_slim": False,
                     "anchor_id": "intro-qr-code",
                 },
                 "media": [
