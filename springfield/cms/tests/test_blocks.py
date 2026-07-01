@@ -4,31 +4,39 @@
 
 import re
 from unittest import mock
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qs, urlparse, urlunparse
 
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.test import override_settings
+from django.utils import translation
 from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.blocks import StreamBlockValidationError, StructBlockValidationError
+from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
-from lib.l10n_utils import get_locale
+from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import (
     ROADMAP_STATUS_LABELS,
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
+    ButtonBlock,
     ButtonRowBlock,
+    FirefoxFocusButtonBlock,
+    FXAccountButtonBlock,
     SectionBlock,
+    SetAsDefaultButtonBlock,
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
+    UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
 )
@@ -113,14 +121,14 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_set_as_default_snippet
 from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_sections,
     get_testimonial_cards_test_page,
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_variants, get_topic_list_test_page, get_topic_list_upper_variants
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
-from springfield.cms.models import ArticleDetailPage, SpringfieldImage
+from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
@@ -132,6 +140,107 @@ pytestmark = [
 ]
 
 _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+_BTN_SETTINGS = {
+    "theme": "",
+    "icon": "",
+    "icon_position": "right",
+    "analytics_id": "00000000-0000-0000-0000-000000000001",
+}
+
+_BTN_LINK = {
+    "link_to": "custom_url",
+    "page": None,
+    "file": None,
+    "custom_url": "https://mozilla.org",
+    "anchor": "",
+    "email": "",
+    "phone": "",
+    "new_window": False,
+    "relative_url": "",
+}
+
+# The non-download button blocks
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button"]
+
+
+def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
+    """Return (block_instance, raw_value_dict) for a given button type."""
+    value = {"settings": dict(_BTN_SETTINGS)}
+    if custom_label is not None:
+        value["custom_label"] = custom_label
+    if pretranslated_label is not None:
+        value["pretranslated_label"] = pretranslated_label
+
+    if btn_type == "button":
+        block = ButtonBlock()
+        value["link"] = dict(_BTN_LINK)
+    elif btn_type == "uitour_button":
+        block = UITourButtonBlock()
+        value["button_type"] = UITOUR_BUTTON_NEW_TAB
+    elif btn_type == "fxa_button":
+        block = FXAccountButtonBlock()
+    elif btn_type == "set_as_default_button":
+        block = SetAsDefaultButtonBlock()
+        value["snippet"] = snippet_pk
+    elif btn_type == "focus_button":
+        block = FirefoxFocusButtonBlock()
+        value["store"] = "android"
+    else:  # pragma: no cover
+        raise ValueError(btn_type)
+    return block, value
+
+
+def _render_context(request):
+    """
+    Minimal parent context a button block needs to render in isolation.
+
+    `fluent_l10n` is normally injected by the page/snippet context (see
+    `springfield.cms.pattern_contexts`); we supply it here so set_as_default
+    (whose snippet uses Fluent) renders without a context KeyError.
+    """
+    return {
+        "block_text": "Heading",
+        "block_position": "1",
+        "request": request,
+        "fluent_l10n": fluent_l10n(["en"], settings.FLUENT_DEFAULT_FILES),
+    }
+
+
+def _render_button(btn_type, request, **label_kwargs):
+    snippet_pk = get_set_as_default_snippet().id if btn_type == "set_as_default_button" else None
+    block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
+    bound = block.to_python(raw)
+    return block.render(bound, context=_render_context(request))
+
+
+def _fxa_utm_campaign(html):
+    """
+    Return the ``utm_campaign`` query-param value from a rendered FXA button.
+    """
+    a = BeautifulSoup(html, "html.parser").find("a")
+    return parse_qs(urlparse(a["href"]).query).get("utm_campaign", [None])[0]
+
+
+def _get_cta_text(html):
+    """Return the data-cta-text attribute from a rendered button (any element type)."""
+    el = BeautifulSoup(html, "html.parser").find(attrs={"data-cta-text": True})
+    return el["data-cta-text"] if el else None
+
+
+def resolve_button_label(button_data: dict) -> str:
+    """
+    Resolve the rendered label for a non-download LabelSourceMixin button.
+
+    Return either the pretranslated_label (snippet FK) or the custom_label.
+    """
+    value = button_data["value"]
+    snippet_id = value.get("pretranslated_label")
+    if snippet_id:
+        snippet = PretranslatedPhrase.objects.filter(pk=snippet_id).first()
+        if snippet:
+            return snippet.label
+    return value.get("custom_label", "") or ""
 
 
 def strip_host(url):
@@ -151,7 +260,7 @@ def assert_button_attributes(
     The cta_position and cta_text are built by the parent component
     and passed down to the button.
     """
-    label = button_data["value"]["label"]
+    label = resolve_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -201,10 +310,21 @@ def assert_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
 
+def resolve_download_button_label(button_data: dict) -> str:
+    """Resolve the rendered button label from pretranslated_label (snippet) or custom_label."""
+    value = button_data["value"]
+    snippet_id = value.get("pretranslated_label")
+    if snippet_id:
+        snippet = PretranslatedPhrase.objects.filter(pk=snippet_id).first()
+        if snippet:
+            return snippet.label
+    return value.get("custom_label", "")
+
+
 def assert_download_button_attributes(
     button_element: BeautifulSoup, button_data: dict, context: dict, cta_position: str | None = None, cta_text: str | None = None
 ):
-    label = button_data["value"]["label"]
+    label = resolve_download_button_label(button_data)
     settings = button_data["value"]["settings"]
     theme = settings["theme"]
     icon = settings["icon"]
@@ -410,7 +530,7 @@ def assert_card_attributes(
     # TODO: Fix icon card buttons
     buttons = card_data["value"].get("button") or card_data["value"].get("buttons")
     if buttons:
-        cta_text = f"{headline_text.strip()} - {buttons[0]['value']['label'].strip()}"
+        cta_text = f"{headline_text.strip()} - {buttons[0]['value']['custom_label'].strip()}"
 
         assert_button_attributes(
             button_element=card_element.find("a", class_="fl-button"),
@@ -607,6 +727,325 @@ def assert_media_block(element: BeautifulSoup, block_data: dict):
         assert_image_variants_attributes(images_element=images_el, images_value=first_item["value"])
 
 
+class TestDownloadFirefoxButtonBlock:
+    """Unit tests for DownloadFirefoxButtonBlock.clean() and get_context()."""
+
+    def test_clean_pretranslated_label_only_is_valid(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        download_firefox_button_block.clean({"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}})
+
+    def test_clean_custom_label_only_is_valid(self, download_firefox_button_block):
+        download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "Try Firefox", "settings": {}})
+
+    def test_clean_neither_pretranslated_label_nor_custom_label_raises(self, download_firefox_button_block):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "", "settings": {}})
+        assert "pretranslated_label" in exc_info.value.block_errors
+
+    def test_clean_whitespace_only_custom_label_treated_as_empty(self, download_firefox_button_block):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": None, "custom_label": "   ", "settings": {}})
+        assert "pretranslated_label" in exc_info.value.block_errors
+
+    def test_clean_both_pretranslated_label_and_custom_label_raises(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            download_firefox_button_block.clean({"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "Also this", "settings": {}})
+        assert "custom_label" in exc_info.value.block_errors
+
+    def test_get_context_uses_pretranslated_label(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Get Firefox"
+
+    def test_get_context_uses_localized_snippet(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """get_localized() returns the locale-specific label for the active locale."""
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        es_mx_snippet = PretranslatedPhrase.objects.create(
+            locale=es_mx_locale,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == es_mx_snippet.label
+
+    def test_get_context_falls_back_to_snippet_when_get_localized_returns_none(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """When get_localized() returns None (no translation, no fallback), falls back to the snippet's own label."""
+        # Create a FR locale so Locale.get_active() resolves, but don't create a FR snippet.
+        # get_localized() will find no FR translation and no configured fallback → returns None.
+        LocaleFactory(language_code="fr")
+        with translation.override("fr"):
+            value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == pretranslated_phrase_snippet.label
+
+    def test_get_context_uses_custom_label(self, download_firefox_button_block):
+        value = {"pretranslated_label": None, "custom_label": "Download Now", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Download Now"
+
+    def test_get_context_pretranslated_takes_priority_over_custom_label(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        value = {
+            "pretranslated_label": pretranslated_phrase_snippet,
+            "custom_label": "This gets ignored because pretranslated_label is set",
+            "settings": {},
+        }
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Get Firefox"
+
+    def test_get_context_no_label_set(self, download_firefox_button_block):
+        value = {"pretranslated_label": None, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert "button_label" not in context
+
+
+class TestLabelSourceMixin:
+    """Test the LabelSourceMixin."""
+
+    def test_clean_rejects_non_live_snippet(self, download_firefox_button_block):
+        """LocalizedLiveSnippetChooserBlock.clean rejects live=False snippets."""
+        draft_snippet = PretranslatedPhrase.objects.create(
+            translation_key="11111111-1111-1111-1111-111111111111",
+            locale=Locale.get_default(),
+            label="Draft Phrase",
+            live=False,
+        )
+        value = {"pretranslated_label": draft_snippet, "custom_label": "", "settings": {}}
+        with pytest.raises(StructBlockValidationError):
+            download_firefox_button_block.clean(value)
+
+    def test_get_context_exposes_button_label_en_us_from_pretranslated_label(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """Test the context's button_label_en_us."""
+        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label_en_us"] == "Get Firefox"
+
+    def test_get_context_button_label_en_us_stays_english_when_active_locale_differs(
+        self, download_firefox_button_block, pretranslated_phrase_snippet
+    ):
+        """Test the context's button_label and button_label_en_us for a non-en-US translation."""
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx_locale,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        # User-visible label is localized.
+        assert context["button_label"] == "Obtén Firefox"
+        # Analytics-safe English source is unchanged.
+        assert context["button_label_en_us"] == "Get Firefox"
+
+    def test_get_context_button_label_en_us_resolves_english_when_stored_fk_is_localized(
+        self, download_firefox_button_block, pretranslated_phrase_snippet
+    ):
+        """
+        When a translated button has pretranslated text, the button_label_en_us is in English.
+        """
+        es_mx_locale = LocaleFactory(language_code="es-MX")
+        es_mx_snippet = PretranslatedPhrase.objects.create(
+            locale=es_mx_locale,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        with translation.override("es-mx"):
+            # The stored FK is the locale-specific phrase, as the migration produces.
+            value = {"pretranslated_label": es_mx_snippet, "custom_label": "", "settings": {}}
+            context = download_firefox_button_block.get_context(value)
+        assert context["button_label"] == "Obtén Firefox"
+        assert context["button_label_en_us"] == "Get Firefox"
+
+    def test_get_context_button_label_en_us_falls_back_to_custom_label(self, download_firefox_button_block):
+        """For the custom_label path, button_label_en_us is the custom text as-is."""
+        value = {"pretranslated_label": None, "custom_label": "Custom text", "settings": {}}
+        context = download_firefox_button_block.get_context(value)
+        assert context["button_label_en_us"] == "Custom text"
+
+    def test_get_searchable_content_includes_both_label_sources(self, download_firefox_button_block, pretranslated_phrase_snippet):
+        """Test the get_searchable_content value."""
+        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
+        content = download_firefox_button_block.get_searchable_content(value)
+        assert "Get Firefox" in content
+
+        value = {"pretranslated_label": None, "custom_label": "Click me", "settings": {}}
+        content = download_firefox_button_block.get_searchable_content(value)
+        assert "Click me" in content
+
+
+class TestButtonBlockLabelRendering:
+    """Tests that every button template renders the locale-resolved `button_label`."""
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_render_uses_button_label(self, btn_type, rf):
+        html = _render_button(btn_type, rf.get("/"), custom_label="Zqxlabel123")
+        assert "Zqxlabel123" in html, f"{btn_type} did not render the custom_label via button_label"
+        assert "None" not in html
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_render_with_no_label_set_emits_no_none(self, btn_type, rf):
+        """
+        Test a block with neither pretranslated_label nor custom_label.
+
+        Such a block must render without raising an error, and without emitting
+        a literal 'None'.
+        """
+        html = _render_button(btn_type, rf.get("/"))
+        assert "None" not in html
+
+
+class TestButtonBlockCleanComposition:
+    """Test ButtonBlock's clean() method."""
+
+    def test_label_missing_and_link_invalid_surfaces_both_errors(self):
+        block = ButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "link": {**_BTN_LINK, "custom_url": ""},  # custom_url type with blank url -> link error
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors  # mixin's missing-label error
+        assert "link" in exc.value.block_errors  # child block's own error
+
+    def test_label_missing_and_link_valid_surfaces_only_label_error(self):
+        block = ButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "link": dict(_BTN_LINK),  # valid
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors
+        assert "link" not in exc.value.block_errors  # no cross-pollination
+
+    def test_set_as_default_label_missing_and_snippet_missing_surfaces_both_errors(self):
+        """Verify that SetAsDefault.clean() raises errors as expected."""
+        block = SetAsDefaultButtonBlock()
+        value = block.to_python(
+            {
+                "settings": dict(_BTN_SETTINGS),
+                "pretranslated_label": None,
+                "custom_label": "",
+                "snippet": None,  # required chooser left empty -> snippet error
+            }
+        )
+        with pytest.raises(StructBlockValidationError) as exc:
+            block.clean(value)
+        assert "pretranslated_label" in exc.value.block_errors  # mixin's missing-label error
+        assert "snippet" in exc.value.block_errors  # child chooser's own error
+
+
+class TestFXAButtonUtmCampaign:
+    """
+    Test the FXAButton.
+
+    fxa_button derives utm_campaign from the stable English label
+    (button_label_en_us), so the campaign slug is locale-invariant. The visible
+    label still localizes; only the analytics slug is the same across locales.
+    """
+
+    def test_analytics_attributes_are_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet):
+        es_mx = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        block, raw = _button_block_and_value("fxa_button", pretranslated_label=pretranslated_phrase_snippet.pk)
+        ctx = _render_context(rf.get("/"))
+
+        # Build a fresh value inside each locale: the snippet's localized lookup
+        # caches on the instance, so reusing one bound value across locales would
+        # leak the first locale's result into the second.
+        with translation.override("en-US"):
+            html_en = block.render(block.to_python(raw), context=dict(ctx))
+        with translation.override("es-mx"):
+            html_es = block.render(block.to_python(raw), context=dict(ctx))
+
+        # button_label_en_us is the en-US source label regardless of active locale,
+        # so both utm_campaign and data-cta-text are identical across locales.
+        assert _fxa_utm_campaign(html_en) == _fxa_utm_campaign(html_es) == "get_firefox"
+        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
+
+    def test_analytics_attributes_derive_from_custom_label(self, rf):
+        # For the custom_label path button_label_en_us == custom_label, so both
+        # utm_campaign and data-cta-text follow the editor-typed text.
+        ctx = _render_context(rf.get("/"))
+
+        block_a, raw_a = _button_block_and_value("fxa_button", custom_label="Log in")
+        html_a = block_a.render(block_a.to_python(raw_a), context=dict(ctx))
+        assert _fxa_utm_campaign(html_a) == "log_in"
+        assert _get_cta_text(html_a) == "Heading - Log in"
+
+        block_b, raw_b = _button_block_and_value("fxa_button", custom_label="Sign up")
+        html_b = block_b.render(block_b.to_python(raw_b), context=dict(ctx))
+        assert _fxa_utm_campaign(html_b) == "sign_up"
+        assert _get_cta_text(html_b) == "Heading - Sign up"
+
+
+class TestButtonCtaText:
+    """
+    Test data-cta-text for ButtonBlock and UITourButtonBlock.
+
+    All LabelSourceMixin buttons set analytics_text to the stable English label
+    (button_label_en_us) so analytics aggregate across locales. The visible label
+    still localizes; only the analytics attribute uses the English source.
+
+    FirefoxFocusButtonBlock is the exception: it uses only block_text in
+    analytics_text (no button label), so the CTA text is locale-invariant by
+    default regardless of the label.
+    """
+
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
+    def test_cta_text_is_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet, btn_type):
+        """Pretranslated label: data-cta-text uses the en-US source label regardless of active locale."""
+        es_mx = LocaleFactory(language_code="es-MX")
+        PretranslatedPhrase.objects.create(
+            locale=es_mx,
+            translation_key=pretranslated_phrase_snippet.translation_key,
+            label="Obtén Firefox",
+            live=True,
+        )
+        block, raw = _button_block_and_value(btn_type, pretranslated_label=pretranslated_phrase_snippet.pk)
+        ctx = _render_context(rf.get("/"))
+
+        with translation.override("en-US"):
+            html_en = block.render(block.to_python(raw), context=dict(ctx))
+        with translation.override("es-mx"):
+            html_es = block.render(block.to_python(raw), context=dict(ctx))
+
+        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
+
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
+    def test_cta_text_derives_from_custom_label(self, rf, btn_type):
+        """Custom label: data-cta-text tracks the editor-typed text."""
+        ctx = _render_context(rf.get("/"))
+        block, raw = _button_block_and_value(btn_type, custom_label="Learn more")
+        html = block.render(block.to_python(raw), context=dict(ctx))
+        assert _get_cta_text(html) == "Heading - Learn more"
+
+    def test_focus_button_cta_text_is_block_heading_only(self, rf):
+        """FirefoxFocusButtonBlock: analytics_text is block_text only — button label is excluded."""
+        ctx = _render_context(rf.get("/"))
+        block, raw = _button_block_and_value("focus_button", custom_label="Download Focus")
+        html = block.render(block.to_python(raw), context=dict(ctx))
+        assert _get_cta_text(html) == "Heading"
+
+
 def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):
     tags_element = rendered_element.find("div", class_="fl-tags")
     assert tags_element
@@ -653,7 +1092,7 @@ def assert_buttons_content_item(
     for button_index, button in enumerate(buttons_value):
         button_element = button_elements[button_index]
         cta_position = f"{cta_position_prefix}.button-{button_index + 1}"
-        cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+        cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
         assert_button_attributes(
             button_element=button_element,
             button_data=button,
@@ -785,7 +1224,7 @@ def test_buttons(index_page, rf):
             for btn_index, (button_data, button_element) in enumerate(zip(non_store_data, button_elements)):
                 if button_data["type"] == "button":
                     cta_position = f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}"
-                    cta_text = f"{heading_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_element,
                         button_data=button_data,
@@ -806,16 +1245,16 @@ def test_buttons(index_page, rf):
                             "hidden": True,
                         }
                         icon_html = render_to_string("components/icon.html", icon_context)
-                        inner_html = f"{icon_html}{button_data['value']['label']}"
+                        inner_html = f"{icon_html}{button_data['value']['custom_label']}"
                     rendered_fxa_button = fxa_button(
                         ctx=context,
                         entrypoint=entrypoint,
-                        button_text=button_data["value"]["label"],
+                        button_text=button_data["value"]["custom_label"],
                         optional_parameters={
                             "utm_campaign": utm_parameters["utm_campaign"],
                         },
                         optional_attributes={
-                            "data-cta-text": f"{heading_text.strip()} - {button_data['value']['label'].strip()}",
+                            "data-cta-text": f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
                             "data-cta-position": f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
                             "data-cta-uid": button_data["value"]["settings"]["analytics_id"],
                         },
@@ -831,7 +1270,7 @@ def test_buttons(index_page, rf):
                         context=context,
                     )
                 elif button_data["type"] == "focus_button":
-                    assert button_data["value"]["label"] in button_element.get_text()
+                    assert button_data["value"]["custom_label"] in button_element.get_text()
                     theme = button_data["value"]["settings"]["theme"]
                     if theme:
                         assert f"button-{theme}" in button_element["class"]
@@ -895,7 +1334,7 @@ def test_uitour_buttons_2026(index_page, rf):
         expected_class = UI_TOUR_CLASSES[button_type]
         assert expected_class in button_el["class"], f"{analytics_id}: expected class '{expected_class}' on button, got {button_el['class']}"
 
-        assert btn_value["label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['label']}' in button text"
+        assert btn_value["custom_label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['custom_label']}' in button text"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -1023,7 +1462,7 @@ def test_topic_list_block(index_page, placeholder_images, rf):
                 for button_index, button in enumerate(buttons):
                     button_element = button_elements[button_index]
                     cta_position = f"{region_name}-block-{block_index + 1}-topic_list.topic-{topic_index + 1}.button-{button_index + 1}"
-                    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                    cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_element,
                         button_data=button,
@@ -1113,7 +1552,7 @@ def test_home_intro_block(index_page, rf):
     button = home_intro["value"]["buttons"][0]
     button_element = intro_div.find("a", class_="fl-button")
     cta_position = "upper-block-1-intro.button-1"
-    cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+    cta_text = f"{heading_text.strip()} - {resolve_download_button_label(button).strip()}"
     assert_download_button_attributes(
         button_element=button_element,
         button_data=button,
@@ -1244,7 +1683,7 @@ def test_home_kit_banner_block(index_page, rf):
         button_data=button,
         context=test_page.get_context(request),
         cta_position="lower-block-4-kit_banner.button-1",
-        cta_text=f"{heading_text} - {button['value']['label'].strip()}",
+        cta_text=f"{heading_text} - {button['value']['custom_label'].strip()}",
     )
 
 
@@ -1868,7 +2307,7 @@ def assert_sticker_card(card_el, variant, context, region_name, heading_tag, blo
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -1909,7 +2348,7 @@ def assert_illustration_card(card_el, variant, context, region_name, heading_tag
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -1943,7 +2382,7 @@ def assert_outlined_card(card_el, variant, context, region_name, heading_tag, bl
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -1975,7 +2414,7 @@ def assert_icon_card(card_el, variant, context, region_name, heading_tag, block_
     for button_data in value["buttons"]:
         if button_data["type"] == "button":
             button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
             cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
             assert_button_attributes(
                 button_element=button_el,
@@ -2135,7 +2574,7 @@ def test_step_cards_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
-                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-2-section.item-1-step_cards.card-{i + 1}.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -2267,7 +2706,7 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
                 if button_data["type"] == "button":
                     button_el = card_el.find("a", class_="fl-button")
                     cta_position = f"{block_position_prefix}.card-{card_index + 1}.button-1"
-                    cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     assert_button_attributes(
                         button_element=button_el,
                         button_data=button_data,
@@ -2372,7 +2811,7 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                     if button_data["type"] == "button":
                         button_els = card_el.find_all("a", class_="fl-button")
                         button_el = button_els[button_index]
-                        cta_text = f"{headline_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                         cta_position = f"{position_prefix}.button-{button_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
@@ -2522,7 +2961,7 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["main_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = main_card.find("a", class_="fl-button")
-                    cta_text = f"{main_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{main_headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.main-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -2560,7 +2999,7 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
             for button_data in variant["value"]["secondary_card"]["buttons"]:
                 if button_data["type"] == "button":
                     button_el = secondary_card.find("a", class_="fl-button")
-                    cta_text = f"{secondary_headline_text.strip()} - {button_data['value']['label'].strip()}"
+                    cta_text = f"{secondary_headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
                     cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.secondary-card.button-1"
                     assert_button_attributes(
                         button_element=button_el,
@@ -2598,7 +3037,7 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
                 for button_data in variant["value"]["cta"]:
                     if button_data["type"] == "button":
                         button_el = cta_wrap.find("a", class_="fl-button")
-                        cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
                         cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
                         assert_button_attributes(
                             button_element=button_el,
@@ -2667,7 +3106,7 @@ def test_kit_intro_block(index_page, rf):
         assert len(button_elements) == len(buttons)
         for button_index, button in enumerate(buttons):
             cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
-            cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+            cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
                 button_element=button_elements[button_index],
                 button_data=button,
@@ -2730,7 +3169,7 @@ def test_carousel_block(index_page, placeholder_images, rf):
             assert len(button_elements) == len(buttons)
             for button_index, button in enumerate(buttons):
                 cta_position = f"{region_name}-block-{index + 1}-carousel.button-{button_index + 1}"
-                cta_text = f"{heading_text.strip()} - {button['value']['label'].strip()}"
+                cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
                 assert_button_attributes(
                     button_element=button_elements[button_index],
                     button_data=button,
@@ -3279,7 +3718,7 @@ def test_two_column_cards_block(index_page, rf):
                         heading_text = BeautifulSoup(block_data["value"]["heading_text"], "html.parser").get_text()
                     elif block_type == "button_row":
                         button_data = block_data["value"]["buttons"][0]
-                        cta_text = f"{heading_text} - {button_data['value']['label'].strip()}"
+                        cta_text = f"{heading_text} - {button_data['value']['custom_label'].strip()}"
                         assert_button_attributes(
                             button_element=card_el.find("a", class_="fl-button"),
                             button_data=button_data,
@@ -3359,10 +3798,27 @@ def test_uuid_block_is_not_translatable():
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
 
 
-def test_untranslatable_char_block_is_not_translatable():
-    """UntranslatableCharBlock content must not be sent to translators."""
+def test_untranslatable_char_block_excludes_content_from_translation():
+    """
+    UntranslatableCharBlock holds internal/config values (field identifiers, hidden
+    field defaults), not user-facing copy — its content must never be sent to translators.
 
-    assert UntranslatableCharBlock().get_translatable_segments("English text") == []
+    A plain CharBlock has no get_translatable_segments method, so wagtail_localize's
+    extractor treats its value as a translatable string (the isinstance branch); defining
+    the method to return [] is what opts this value out of extraction.
+    """
+    assert not hasattr(CharBlock(), "get_translatable_segments")
+    assert UntranslatableCharBlock().get_translatable_segments("office_phone") == []
+
+
+def test_untranslatable_char_block_restore_returns_value_unchanged():
+    """
+    Because nothing is extracted for translation, ingesting translated segments must
+    return the original value untouched — even if segments are somehow supplied.
+    """
+    block = UntranslatableCharBlock()
+    assert block.restore_translated_segments("name", []) == "name"
+    assert block.restore_translated_segments("name", ["ignored"]) == "name"
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
@@ -3566,8 +4022,8 @@ def test_roadmap_list_section_block(index_page, rf):
     # Intro button links to what's new index page with correct analytics
     whatsnew_index = Page.objects.get(id=intro_button_data["link"]["page"]).specific
     intro_button = soup.find("a", href=whatsnew_index.get_url())
-    assert intro_button and intro_button_data["label"] in intro_button.get_text()
-    assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['label']}"
+    assert intro_button and intro_button_data["custom_label"] in intro_button.get_text()
+    assert intro_button["data-cta-text"] == f"{expected_heading_text} - {intro_button_data['custom_label']}"
     assert intro_button["data-cta-uid"] == intro_button_data["settings"]["analytics_id"]
     assert intro_button["data-cta-position"] == "intro.button-1"
 

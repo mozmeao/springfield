@@ -155,3 +155,12 @@ class FreeFormPage2026Factory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.FreeFormPage2026
+
+
+class FlareDocsIndexPageFactory(wagtail_factories.PageFactory):
+    title = "Flare Docs - Test"
+    live = True
+    slug = "flare-docs-test"
+
+    class Meta:
+        model = models.FlareDocsIndexPage

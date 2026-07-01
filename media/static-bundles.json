@@ -464,6 +464,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare26-docs.css"
+      ],
+      "name": "flare26-docs"
+    },
+    {
+      "files": [
         "css/cms/pages/flare26-channels.css"
       ],
       "name": "flare26-channels"
@@ -635,13 +641,6 @@
     },
     {
       "files": [
-        "js/firefox/download/desktop/download-as-default.es6.js",
-        "js/firefox/download/desktop/download-as-default-init.es6.js"
-      ],
-      "name": "download_as_default"
-    },
-    {
-      "files": [
         "js/firefox/download/desktop/download-as-default-v2.es6.js",
         "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
       ],
@@ -652,27 +651,6 @@
         "js/firefox/browsers/desktop/chromebook.js"
       ],
       "name": "chromebook"
-    },
-    {
-      "files": [
-        "js/firefox/download/common/thanks.js",
-        "js/firefox/download/common/thanks-init.js"
-      ],
-      "name": "firefox_download_thanks"
-    },
-    {
-      "files": [
-        "js/firefox/download/common/thanks.js",
-        "js/firefox/download/common/thanks-direct.es6.js"
-      ],
-      "name": "firefox_download_thanks_direct"
-    },
-    {
-      "files": [
-        "js/base/stub-attribution/stub-attribution.js",
-        "js/base/stub-attribution/stub-attribution-init.es6.js"
-      ],
-      "name": "stub-attribution"
     },
     {
       "files": [
@@ -765,12 +743,6 @@
         "js/base/fxa-product-button-init.es6.js"
       ],
       "name": "fxa_product_button"
-    },
-    {
-      "files": [
-        "js/firefox/all/all-init.es6.js"
-      ],
-      "name": "firefox_all"
     },
     {
       "files": [
@@ -1006,6 +978,12 @@
         "js/cms/wagtailadmin-locale-badges.js"
       ],
       "name": "wagtailadmin-locale-badges"
+    },
+    {
+      "files": [
+        "js/cms/flare26-docs.js"
+      ],
+      "name": "flare26-docs"
     }
   ]
 }

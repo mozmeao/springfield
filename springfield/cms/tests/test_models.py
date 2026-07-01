@@ -25,6 +25,7 @@ from springfield.cms.tests.factories import (
     ArticleThemePageFactory,
     DownloadIndexPageFactory,
     DownloadPageFactory,
+    FlareDocsIndexPageFactory,
     FreeFormPage2026Factory,
     LocaleFactory,
     SimpleRichTextPageFactory,
@@ -817,7 +818,7 @@ def test_thanks_page_get_template_default(rf):
 def test_thanks_page_get_template_direct(rf):
     page = ThanksPage()
     request = rf.get("/thanks/?s=direct")
-    assert page.get_template(request) == "cms/thanks_page__direct.html"
+    assert page.get_template(request) == "firefox/download/rtamo.html"
 
 
 @pytest.mark.parametrize(
@@ -1181,3 +1182,231 @@ def test_get_localized_snippet_returns_translation_translated_instance_despite_f
         localized_snippet = original_snippet.get_localized()
         assert localized_snippet.id == pt_pt_snippet.id
         assert localized_snippet.name == "Trecho traduzido"
+
+
+# ---------------------------------------------------------------------------
+# FlareDocsIndexPage
+# ---------------------------------------------------------------------------
+
+
+def test_flare_docs_index_page_serves_200(minimal_site, rf):
+    """FlareDocsIndexPage should render successfully."""
+    root_page = SimpleRichTextPage.objects.first()
+    page = FlareDocsIndexPageFactory(parent=root_page, slug="docs-index")
+    page.save()
+
+    request = rf.get(page.relative_url(minimal_site))
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_flare_docs_index_page_get_context_sections_with_children(minimal_site, rf):
+    """Sections should group child pages and their grandchildren correctly."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Create a child FlareDocsIndexPage (acts as a section)
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Create grandchildren under the blocks page
+    gc1 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="intro-block",
+        title="Intro Block",
+    )
+    gc1.save()
+    gc2 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="section-block",
+        title="Section Block",
+    )
+    gc2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    assert len(sections[0]["children"]) == 2
+
+    child_titles = [c.title for c in sections[0]["children"]]
+    # Should be ordered by title
+    assert child_titles == ["Intro Block", "Section Block"]
+
+
+def test_flare_docs_index_page_get_context_leaf_sections(minimal_site, rf):
+    """Child pages without grandchildren should appear as leaf sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Two children with no grandchildren
+    child1 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="alpha",
+        title="Alpha Page",
+    )
+    child1.save()
+
+    child2 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="beta",
+        title="Beta Page",
+    )
+    child2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 2
+    assert sections[0]["page"].title == "Alpha Page"
+    assert sections[0]["children"] == []
+    assert sections[1]["page"].title == "Beta Page"
+    assert sections[1]["children"] == []
+
+
+def test_flare_docs_index_page_excludes_unpublished_children(minimal_site, rf):
+    """Only live, public children and grandchildren appear in sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Live grandchild
+    live_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="live-page",
+        title="Live Page",
+    )
+    live_gc.save()
+
+    # Unlive grandchild
+    unlive_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="unlive-page",
+        title="Unlive Page",
+        live=False,
+    )
+    unlive_gc.save()
+
+    # Unlive child
+    unlive_child = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="unlive-section",
+        title="Unlive Section",
+        live=False,
+    )
+    unlive_child.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    # Only the live child should appear
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    # Only the live grandchild should appear
+    assert len(sections[0]["children"]) == 1
+    assert sections[0]["children"][0].title == "Live Page"
+
+
+def test_flare_docs_index_page_empty_sections(minimal_site, rf):
+    """A docs index with no children should return an empty sections list."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert context["sections"] == []
+
+
+def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
+    """Serving the page should render child titles in the sidebar and content."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="carousel-block",
+        title="Carousel Block",
+    )
+    gc.save()
+
+    standalone = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="standalone",
+        title="Standalone Page",
+    )
+    standalone.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Sidebar should contain the section title
+    sidebar = soup.find("nav", class_="fl-docs-index-sidebar")
+    assert sidebar is not None
+    assert "Blocks" in sidebar.text
+
+    # Content area should contain the grandchild
+    content = soup.find("div", class_="fl-docs-index-content")
+    assert content is not None
+    assert "Carousel Block" in content.text
+
+    # Leaf section (standalone) should appear in the other section
+    assert "Standalone Page" in content.text

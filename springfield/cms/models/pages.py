@@ -122,6 +122,25 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         return redirect(self.get_parent().get_full_url())
 
 
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
+    """
+    A page containing an index of all docs pages for Flare26.
+    It shows links to other docs pages.
+    """
+
+    template = "cms/flare_docs_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        children = list(self.get_children().live().public().specific().order_by("title"))
+        steplen = WagtailBasePage.steplen
+        grandchildren_by_parent = {}
+        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().order_by("title"):
+            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
+        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
+        return context
+
+
 class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     """Simple page that renders a rich-text field, using our broadest set of
     allowed rich-text features.
@@ -526,7 +545,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
-            return "cms/thanks_page__direct.html"
+            return "firefox/download/rtamo.html"
 
         return "cms/thanks_page.html"
 
@@ -879,22 +898,6 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return [snippet for snippet in snippets if snippet]
 
 
-# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
-class FreeFormPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A flexible page type that allows a variety of content blocks to be added."""
-
-    parent_page_types = []
-
-    content = StreamField([], use_json_field=True)
-
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("content"),
-    ]
-
-    def __str__(self):
-        return f"FreeFormPage: {self.title} - {self.locale}"
-
-
 def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
     """Factory function to create block list for FreeFormPage2026 with appropriate button types.
 
@@ -1126,50 +1129,6 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         if latest_whats_new:
             return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
         return redirect("/")
-
-
-# TODO: This page will be deleted on a following PR. It's currently not available anywhere.
-class WhatsNewPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    """A page that displays the latest Firefox updates and changes."""
-
-    parent_page_types = []
-    subpage_types = []
-
-    ftl_files = ["firefox/whatsnew/evergreen"]
-
-    version = models.CharField(
-        max_length=10,
-        help_text="The version of Firefox this What's New page refers to, or 'general' for a non-version-specific page.",
-    )
-    content = StreamField([], use_json_field=True)
-    show_qr_code_snippet = models.BooleanField(
-        default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
-    )
-
-    content_panels = [
-        FieldPanel("title"),
-        TitleFieldPanel("version", placeholder="123"),
-        FieldPanel("content"),
-        FieldPanel("show_qr_code_snippet"),
-    ]
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["version"]),
-        ]
-        verbose_name = "What's New Page"
-        verbose_name_plural = "What's New Pages"
-
-    def __str__(self):
-        return f"WhatsNewPage: {self.title} - {self.locale}"
-
-    def get_utm_campaign(self):
-        return self.get_stub_attribution_utm_campaign() or f"whatsnew-{self.version}"
-
-    @property
-    def noindex(self):
-        return True
 
 
 class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1951,6 +1910,14 @@ class ContactPage(AbstractSpringfieldCMSPage):
             context["form_success"] = True
         context["form_data"] = self._get_display_data(form)
         return context
+
+    def render_with_errors(self, request, form_errors, *args, **kwargs):
+        """Re-render the form in place with the given errors and the submitted values."""
+        request.form_errors = form_errors
+        request.form_data = self.get_form_data_for_context(request.POST)
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
 
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)

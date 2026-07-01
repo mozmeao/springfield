@@ -19,8 +19,9 @@ from django.utils.translation import gettext_lazy as _
 
 from product_details import product_details
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -583,6 +584,84 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
         return super().clean(value)
 
 
+class LabelSourceMixin(blocks.StructBlock):
+    """
+    Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
+
+    This mixin adds two render-time context keys:
+      - button_label:        rendered, locale-resolved label (visible to users)
+      - button_label_en_us:  stable English source for analytics / campaign slugs
+
+    When using this mixin,
+      1. declare an explicit `Meta.form_layout` to set the admin field order, and
+      2. `label_format = "{custom_label}{pretranslated_label}"` to set the value for the StreamField preview
+    """
+
+    pretranslated_label = LocalizedLiveSnippetChooserBlock(
+        "cms.PretranslatedPhrase",
+        required=False,
+        label="Pre-translated Text",
+        help_text="Select a pre-translated label. Takes precedence over Custom Text.",
+    )
+    custom_label = blocks.CharBlock(
+        required=False,
+        label="Custom Text",
+        help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
+    )
+
+    def clean(self, value):
+        # 1. Mixin's own checks.
+        errors = {}
+        has_pretranslated = bool(value.get("pretranslated_label"))
+        has_custom = bool((value.get("custom_label") or "").strip())
+        if not has_pretranslated and not has_custom:
+            errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
+        if has_pretranslated and has_custom:
+            errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
+
+        # 2. Call super().clean() and merge any subclass/child errors.
+        try:
+            cleaned = super().clean(value)
+        except StructBlockValidationError as exc:
+            for k, v in exc.block_errors.items():
+                # Don't shadow a mixin error with a child error for the same key.
+                errors.setdefault(k, v)
+            cleaned = value  # fall through; we're going to raise anyway
+
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            # User-visible label: locale-resolved with fallback to the stored row.
+            localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
+            context["button_label"] = (localized or pretranslated).label
+            # Stable English source for analytics. On a translated page, the
+            # stored FK is the locale-specific phrase, so its own label is
+            # localized — resolve the en-US sibling through the phrase's translation
+            # group instead of reading the stored row's label.
+            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
+            context["button_label_en_us"] = (en_us or pretranslated).label
+        elif value.get("custom_label"):
+            context["button_label"] = value["custom_label"]
+            context["button_label_en_us"] = value["custom_label"]
+        return context
+
+    def get_searchable_content(self, value):
+        # Match against both the snippet's label (which may be localized), and
+        # any custom_label so editor search hits both forms.
+        items = list(super().get_searchable_content(value) or [])
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            items.append(pretranslated.label)
+        if value.get("custom_label"):
+            items.append(value["custom_label"])
+        return items
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(
         self,
@@ -951,16 +1030,19 @@ def ButtonBlock(themes=BUTTON_THEMES, **kwargs):
         themes: List of theme strings to include in the button settings.
     """
 
-    class _ButtonBlock(blocks.StructBlock):
+    class _ButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         link = SpringfieldLinkBlock()
 
         class Meta:
             template = "cms/blocks/button.html"
             label = "Button"
-            label_format = "Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "link"],
+                settings=["settings"],
+            )
 
     return _ButtonBlock(**kwargs)
 
@@ -977,49 +1059,58 @@ class UITourButtonValue(BaseButtonValue):
 
 
 def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _UITourButtonBlock(blocks.StructBlock):
+    class _UITourButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         button_type = blocks.ChoiceBlock(
             default=UITOUR_BUTTON_NEW_TAB,
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
             label = "UI Tour Button"
-            label_format = "UI Tour Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "button_type"],
+                settings=["settings"],
+            )
 
     return _UITourButtonBlock(**kwargs)
 
 
 def FXAccountButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _FXAccountButtonBlock(blocks.StructBlock):
+    class _FXAccountButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/fxa_button.html"
             label = "Firefox Account Button"
-            label_format = "Firefox Account Button"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label"],
+                settings=["settings"],
+            )
 
     return _FXAccountButtonBlock(**kwargs)
 
 
 def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+    class _SetAsDefaultButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
 
         class Meta:
             template = "cms/blocks/set_as_default_button.html"
             label = "Set As Default Button"
-            label_format = "Set As Default Button"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "snippet"],
+                settings=["settings"],
+            )
 
     return _SetAsDefaultButtonBlock(**kwargs)
 
@@ -1091,13 +1182,12 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
@@ -1120,9 +1210,8 @@ class StoreButtonBlock(blocks.StructBlock):
 
 
 def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+    class _FirefoxFocusButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
         store = blocks.ChoiceBlock(
             choices=[
                 ("android", "Android (Google Play)"),
@@ -1133,9 +1222,13 @@ def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
         class Meta:
             label = "Firefox Focus Button"
-            label_format = "Firefox Focus Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/firefox-focus-button.html"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "store"],
+                settings=["settings"],
+            )
 
     return _FirefoxFocusButtonBlock(**kwargs)
 
@@ -3210,7 +3303,7 @@ class PhoneFieldBlock(BaseField):
 
 
 class SelectOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.CharBlock(label="Option Label")
 
     class Meta:
@@ -3242,7 +3335,7 @@ class SelectFieldBlock(BaseField):
 
 
 class CheckboxOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.RichTextBlock(label="Option Label", features=HEADING_TEXT_FEATURES)
 
     class Meta:
@@ -3304,9 +3397,15 @@ class HiddenFieldValue(BaseFieldValue):
 
 
 class HiddenFieldBlock(BaseField):
-    default_value = blocks.CharBlock(
+    default_value = UntranslatableCharBlock(
         label="Default value",
         help_text="Value submitted with the form for this hidden field.",
+    )
+    query_param_override = UntranslatableCharBlock(
+        required=False,
+        label="Query param override for default value",
+        help_text="If this query param is sent on the request, its value will be used instead of the default value. "
+        'Ex: ?my_param=custom_value will render <input value="custom_value" name="{internal_identifier}" type="hidden"/>',
     )
 
     class Meta:

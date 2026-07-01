@@ -54,6 +54,35 @@
 
         <span class="fl-nav-separator"></span>
 
+        {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
+          <ul>
+            <li>
+              <a
+                class="fl-nav-link"
+                href="/{{ LANG }}/whatsnew/"
+                data-link-text="What's New"
+                data-link-position="topnav - whats-new"
+              >
+                <span class="fl-icon fl-icon-bookmark-fill"></span>
+                {{ ftl('navigation-whats-new') }}
+              </a>
+            </li>
+            <li>
+              <a
+                class="fl-nav-link"
+                href="/{{ LANG }}/whatsnext/"
+                data-link-text="What's Next"
+                data-link-position="topnav - whats-next"
+              >
+                <span class="fl-icon fl-icon-calendar"></span>
+                {{ ftl('navigation-whats-next') }}
+              </a>
+            </li>
+          </ul>
+
+          <span class="fl-nav-separator"></span>
+        {% endif %}
+
         <ul>
           <li>
             <a

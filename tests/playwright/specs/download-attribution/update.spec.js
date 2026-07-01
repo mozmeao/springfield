@@ -21,7 +21,7 @@ test.beforeEach(async ({ page }) => {
     await removeDownloadAsDefault(page);
 });
 
-test.describe.skip('analytics download attribution', () => {
+test.describe('analytics download attribution', () => {
     test.describe(
         'essential data added',
         {
@@ -211,7 +211,7 @@ test.describe.skip('analytics download attribution', () => {
     );
 });
 
-test.describe.skip('essential download attribution', () => {
+test.describe('essential download attribution', () => {
     test.describe(
         'analytics data added',
         {
@@ -385,7 +385,7 @@ test.describe.skip('essential download attribution', () => {
     );
 });
 
-test.describe.skip('conflict management', () => {
+test.describe('conflict management', () => {
     const url =
         '/en-US/?geo=us&utm_source=newsletter&utm_campaign=test&utm_medium=email';
 

@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _IMAGE_MEDIA = [
@@ -65,12 +65,12 @@ def get_showcase_variants() -> list[dict]:
 
 def get_showcase_test_page() -> FreeFormPage2026:
     get_placeholder_images()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "test-showcase"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Showcase 2026")
+        page = FreeFormPage2026(slug=slug, title="Showcase")
         index_page.add_child(instance=page)
 
     variants = get_showcase_variants()

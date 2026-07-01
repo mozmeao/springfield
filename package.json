@@ -28,7 +28,7 @@
     "swiper": "^12.2.0",
     "terser-webpack-plugin": "^5.6.1",
     "webpack": "^5.107.2",
-    "webpack-cli": "^7.0.3"
+    "webpack-cli": "^6.0.1"
   },
   "repository": {
     "type": "git",
@@ -48,7 +48,7 @@
     "globals": "^17.6.0",
     "jasmine-browser-runner": "^4.0.0",
     "jasmine-core": "^6.3.0",
-    "prettier": "^3.7.4",
+    "prettier": "^3.9.3",
     "prettier-plugin-css-order": "^2.2.0",
     "sinon": "^22.0.0",
     "stylelint": "^16.26.1",
@@ -82,8 +82,8 @@
     "IE 8"
   ],
   "overrides": {
-    "jasmine-browser-runner": {
-      "path-to-regexp": "^8.4.0"
+    "sockjs": {
+      "uuid": "^11.1.1"
     }
   }
 }

@@ -63,6 +63,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     timeoutCallback: undefined,
     requestComplete: false,
     inFlightXHR: null,
+    gettingAnalyticsData: false,
 
     /**
      * Determines if session falls within the predefined download attribution sample rate.
@@ -413,6 +414,10 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
      * @param {Object} data - utm params and referrer.
      */
     requestAuthentication: (data) => {
+        // Avoid unnecessary essential-only request if imminent essential + analytics request
+        if (DownloadAttribution.gettingAnalyticsData) {
+            return;
+        }
         // Cancel any prior in-flight request so a later trigger with a more
         // complete payload always wins
         if (DownloadAttribution.inFlightXHR) {
@@ -639,6 +644,19 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             pageCampaign &&
             DownloadAttribution.ESSENTIAL_CAMPAIGNS.includes(pageCampaign)
         ) {
+            // Return to AMO requires extra fields for special validation
+            if (pageCampaign === 'rtamo') {
+                const params = new window._SearchParams();
+                const utms = params.utmParams();
+
+                return {
+                    utm_campaign: utms.utm_campaign,
+                    utm_source: utms.utm_source,
+                    utm_content: utms.utm_content,
+                    referrer: document.referrer
+                };
+            }
+
             return {
                 utm_campaign: pageCampaign
             };
@@ -733,9 +751,18 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
         }
 
         if (!DownloadAttribution.hasValidData(combined)) {
+            // clean out raw cookies and do nothing
+            DownloadAttribution.removeRawCookie(
+                DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
+            );
+            DownloadAttribution.removeRawCookie(
+                DownloadAttribution.COOKIE_ANALYTICS_RAW_ID
+            );
             return;
         }
 
+        // This is required for checkbox-based attribution updates
+        // to run multiple times on a page
         DownloadAttribution.requestComplete = false;
         DownloadAttribution.requestAuthentication(combined);
     },
@@ -881,6 +908,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
                 return;
             }
 
+            DownloadAttribution.gettingAnalyticsData = true;
             DownloadAttribution.waitForGoogleAnalyticsThen(() => {
                 const params = new window._SearchParams();
                 const analytics = DownloadAttribution.getAnalyticsData(
@@ -897,6 +925,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
                     DownloadAttribution.COOKIE_ESSENTIAL_RAW_ID
                 );
 
+                DownloadAttribution.gettingAnalyticsData = false;
                 DownloadAttribution.requestCombinedAuth(essential, analytics);
 
                 if (analytics.client_id_ga4) {

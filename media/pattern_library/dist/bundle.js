@@ -281,7 +281,7 @@
                 e.exports = function (e, t) {
                     if (t.styleSheet) t.styleSheet.cssText = e;
                     else {
-                        for (; t.firstChild; ) t.removeChild(t.firstChild);
+                        for (; t.firstChild;) t.removeChild(t.firstChild);
                         t.appendChild(document.createTextNode(e));
                     }
                 };
@@ -404,7 +404,7 @@
                         if (this.stack.length > 1) return this.stack.pop();
                     }
                     closeAllNodes() {
-                        for (; this.closeNode(); );
+                        for (; this.closeNode(););
                     }
                     toJSON() {
                         return JSON.stringify(this.rootNode, null, 4);
@@ -498,7 +498,7 @@
                             const t = n;
                             let i = u(e),
                                 r = '';
-                            for (; i.length > 0; ) {
+                            for (; i.length > 0;) {
                                 const e = x.exec(i);
                                 if (!e) {
                                     r += i;
@@ -1112,7 +1112,7 @@
                             j.keywordPatternRe.lastIndex = 0;
                             let t = j.keywordPatternRe.exec(L),
                                 n = '';
-                            for (; t; ) {
+                            for (; t;) {
                                 n += L.substring(e, t.index);
                                 const r = _.case_insensitive
                                         ? t[0].toLowerCase()
@@ -1173,7 +1173,7 @@
                         function g(e, t) {
                             let n = 1;
                             const i = t.length - 1;
-                            for (; n <= i; ) {
+                            for (; n <= i;) {
                                 if (!e._emit[n]) {
                                     n++;
                                     continue;
@@ -1222,7 +1222,7 @@
                                         n.isMatchIgnored && (i = !1));
                                 }
                                 if (i) {
-                                    for (; e.endsParent && e.parent; )
+                                    for (; e.endsParent && e.parent;)
                                         e = e.parent;
                                     return e;
                                 }
@@ -1350,7 +1350,7 @@
                             A = 0,
                             R = !1;
                         try {
-                            for (j.matcher.considerAll(); ; ) {
+                            for (j.matcher.considerAll(); ;) {
                                 (A++,
                                     R ? (R = !1) : j.matcher.considerAll(),
                                     (j.matcher.lastIndex = O));

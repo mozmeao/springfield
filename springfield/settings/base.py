@@ -140,8 +140,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-USE_ETAGS = config("USE_ETAGS", default=str(not DEBUG), parser=bool)
-
 # Use the "X-Forwarded-Host" header from the CDN to set the Hostname
 # https://mozilla-hub.atlassian.net/browse/SE-4263
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default="False", parser=bool)
@@ -474,7 +472,6 @@ SUPPORTED_NONLOCALES = [
     "robots.txt",
     ".well-known",
     "healthz",  # Needed for k8s
-    # "healthz-cdn",  # Needed for Fastly CDN health checks
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
     "revision.txt",  # from root_files
@@ -516,7 +513,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -789,7 +786,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -1471,6 +1468,7 @@ def _localize_dashboard_column_filter_options():
 # Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
 WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.PretranslatedPhrase"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.

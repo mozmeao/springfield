@@ -4,9 +4,9 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet, get_pretranslated_phrase_snippets
 from springfield.cms.models import HomePage
 from springfield.cms.models.pages import HomePagePencilBannerPlacement
 
@@ -316,16 +316,17 @@ def get_kit_banner():
 
 
 def get_home_test_page() -> HomePage:
-    index_page = get_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
-    # Make sure the Pre-Footer CTA Snippet is created
+    # Make sure required snippets exist
     get_pre_footer_cta_snippet()
+    get_pretranslated_phrase_snippets()
 
     page = HomePage.objects.filter(slug="test-home-page").first()
     if not page:
         page = HomePage(
             slug="test-home-page",
-            title="Test Home Page",
+            title="Home Page",
         )
         index_page.add_child(instance=page)
 

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
 from springfield.cms.models import ContactPage
 
 
@@ -127,6 +127,7 @@ def get_form_field_variants() -> list[dict]:
                 "label": "Lead Source",
                 "required": False,
                 "default_value": "techrider.de",
+                "query_param_override": "ls",
             },
             "id": "hidden-field-lead-source",
         },
@@ -144,7 +145,7 @@ def get_form_field_variants() -> list[dict]:
 
 
 def get_contact_test_page() -> ContactPage:
-    index_page = get_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "test-contact-page"
     page = ContactPage.objects.filter(slug=slug).first()
