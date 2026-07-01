@@ -571,6 +571,12 @@
         "css/cms/pages/flare26-kick-page.css"
       ],
       "name": "flare26-kick-page"
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise.css"
+      ],
+      "name": "flare-theme-enterprise"
     }
   ],
   "js": [

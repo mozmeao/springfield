@@ -125,6 +125,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if page is defined and page.body_class %}
         {{ css_bundle(page.body_class) }}
       {% endif %}
+      {% if page is defined and page.theme %}
+        {{ css_bundle("flare-theme-" ~ page.theme) }}
+      {% endif %}
     {% endblock %}
 
     {# site bundle must load in head before analytics #}
@@ -144,7 +147,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
-    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
+    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %} {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}"
     {% block body_attrs %}{% endblock %}
   >
     {{ wagtailuserbar() }}

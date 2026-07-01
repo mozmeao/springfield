@@ -8,9 +8,10 @@
 
 
 {% block flare_header %}
-  {% set theme = "dark" if page.upper_content else None %}
+  {% set theme = "dark" if page.upper_content and not page.theme == "enterprise" else None %}
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
+
 
   <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
 {% endblock %}
