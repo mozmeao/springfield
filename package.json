@@ -4,7 +4,7 @@
   "description": "You can have all the money in the world, but there’s one thing you will never have — a dinosaur.",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.29.7",
+    "@babel/core": "^8.0.1",
     "@babel/preset-env": "^7.29.7",
     "@mozilla-protocol/core": "^21.1.0",
     "@mozmeao/consent-banner": "^1.1.1",
