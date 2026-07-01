@@ -1075,8 +1075,8 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         ),
     ]
 
-    promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+    promote_panels = AbstractSpringfieldCMSPage.promote_panels + [
+        FieldPanel("marketing_attribution_mode"),
     ]
 
     class Meta:
@@ -1088,7 +1088,10 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
 
     @property
     def noindex(self):
-        return self.enable_marketing_attribution
+        # Only "always promoted" pages noindex. "Param" mode pages keep the base URL
+        # indexable for organic traffic — Googlebot crawls without query params and
+        # sees the organic version of the page.
+        return self.marketing_attribution_mode == "enabled"
 
     @property
     def pencil_banners(self):
