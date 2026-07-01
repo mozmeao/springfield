@@ -23,6 +23,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
+from wagtail.fields import StreamField
 from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -31,7 +32,9 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
+    AbstractSpringfieldCMSPage,
     BannerSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
@@ -577,3 +580,39 @@ for _viewset in (
     PencilBannerSnippetViewSet,
 ):
     register_snippet(_viewset)
+
+
+@hooks.register("after_copy_page")
+def regenerate_analytics_ids_on_copy(request, page, new_page):
+    """Give freshly copied pages their own analytics IDs so duplicated pages don't
+    share tracking UUIDs with their source.
+
+    Runs for every admin "Copy page" action (the admin view uses ``CopyPageAction``
+    directly, so overriding ``Page.copy()`` would not catch it). Skipped when:
+
+    * the editor ticked "Keep analytics IDs" on the copy form (opt-out), or
+    * the copy is an alias, which must mirror its original exactly.
+
+    Applies to the copied page and every copied descendant, since recursive copies
+    build subpages without calling ``Page.copy()`` either.
+    """
+    if request.POST.get("keep_analytics_ids"):
+        return
+    if new_page.alias_of_id:
+        return
+
+    for copied_page in new_page.get_descendants(inclusive=True).specific():
+        if not isinstance(copied_page, AbstractSpringfieldCMSPage):
+            continue
+
+        stream_fields = [field for field in copied_page._meta.get_fields() if isinstance(field, StreamField)]
+        if not stream_fields:
+            continue
+
+        for field in stream_fields:
+            setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
+
+        copied_page.save()
+        revision = copied_page.save_revision(user=request.user)
+        if copied_page.live:
+            revision.publish(user=request.user)
