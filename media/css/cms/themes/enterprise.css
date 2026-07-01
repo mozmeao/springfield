@@ -5,7 +5,9 @@
 */
 
 /* Enterprise theme styles */
-:root {
+:root,
+.fl-split-page-upper .fl-force-light-theme,
+.fl-force-light-theme {
     --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise.svg");
     --upper-page-theme-color: white;
 
@@ -13,6 +15,8 @@
     --token-color-enterprise-blue: #1474C1;
     --token-color-enterprise-blue-hover: #0F5A9C;
     --token-color-enterprise-blue-dark: #202F59;
+    --token-color-enterprise-blue-light: #EAF4FD;
+    --theme-purple-card-bg-color: var(--token-color-enterprise-blue-light);
 
     /* typography overrides */
     --fl-theme-font-family-headline: var(--fl-theme-font-family-body);
@@ -22,10 +26,20 @@
     /* button overrides */
     --button-bg-color: var(--token-color-enterprise-blue);
     --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+    --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
+    --button-text-color-disabled: var(--token-color-enterprise-blue);
 
     /* tame border radius */
     --token-border-radius-md: 1rem;
     --fl-theme-main-border-radius: 0;
+
+    /* card overrides */
+    --sticker-card-border-color: var(--token-color-enterprise-blue-light);
+
+    /* misc overrides. Todo: cleanup, or find/replace token primitives */
+    --icon-text-list-icon-bg: var(--token-color-enterprise-blue-light);
+    --theme-numbered-list-counter-color: var(--token-color-enterprise-blue);
+    --two-column-light-dark-second-card-bg: var(--token-color-enterprise-blue);
 }
 
 .fl-force-dark-theme {
@@ -40,6 +54,13 @@
     --fl-theme-color-link: var(--token-color-link-purple);
     --fl-theme-color-link-hover: var(--token-color-link-purple);
     --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+
+    /* button overrides */
+    --button-bg-color: var(--token-color-enterprise-blue);
+    --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+    --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
+    --button-text-color-disabled: var(--token-color-enterprise-blue);
+    --fl-theme-form-field-border-color: var(--token-color-grey-3);
 
 }
 
@@ -65,4 +86,15 @@ body {
 
 .fl-footer a:link:not(.fl-button), .fl-footer a:visited:not(.fl-button) {
     color: var(--token-color-black-4);
+}
+
+.fl-language-switcher::before,
+.fl-language-switcher-select-wrapper {
+   color: var(--token-color-black-4);
+}
+
+.fl-language-switcher-select {
+    background: var(--token-color-white);
+    color: var(--token-color-black-4);
+    border-color: var(--token-color-black-4);
 }
