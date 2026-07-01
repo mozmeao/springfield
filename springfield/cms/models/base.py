@@ -10,11 +10,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import StreamField
 from wagtail.models import Locale, Page as WagtailBasePage
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
+from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.utils import compute_cms_page_locales
 
 
@@ -205,3 +207,21 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     def noindex(self):
         """By default, don't add the robots meta tag to CMS pages, but allow child classes to override this if needed."""
         return False
+
+    def copy(self, *args, update_attrs=None, log_action="wagtail.copy", **kwargs):
+        """Regenerate analytics IDs when duplicating a page so the copy gets its
+        own unique tracking IDs.
+
+        Wagtail's translation flow (``copy_for_translation``) also routes through
+        ``copy()``, but a translation must keep the source page's analytics IDs so
+        tracking stays consistent across locales. That flow sets
+        ``log_action="wagtail.copy_for_translation"``, which we use to skip
+        regeneration and preserve the IDs.
+        """
+        if log_action != "wagtail.copy_for_translation":
+            update_attrs = dict(update_attrs or {})
+            for field in self._meta.get_fields():
+                if isinstance(field, StreamField):
+                    update_attrs[field.name] = regenerate_analytics_ids(getattr(self, field.name))
+
+        return super().copy(*args, update_attrs=update_attrs, log_action=log_action, **kwargs)
