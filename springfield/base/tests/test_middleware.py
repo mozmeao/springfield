@@ -633,3 +633,32 @@ def test_synthetic_500_middleware_rejects_prefix_of_token(rf):
     response = middleware(request)
     assert response.status_code == 200
     assert response.content == b"real response"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_emits_metric_on_match(rf):
+    # Every successful token match increments synthetic5xx.triggered so we can
+    # alert on unusual volume (legit tests are a handful of hits; a leaked-token
+    # abuser would look very different). Tagged with path but never the token.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    with MetricsMock() as mm:
+        request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+        response = middleware(request)
+    assert response.status_code == 500
+    mm.assert_incr_once("synthetic5xx.triggered", tags=["path:/en-US/"])
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_no_metric_on_passthrough(rf):
+    # Non-matching (or no) header must NOT emit the metric.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    with MetricsMock() as mm:
+        request = rf.get("/en-US/")
+        middleware(request)
+        request2 = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="wrong")
+        middleware(request2)
+    mm.assert_not_incr("synthetic5xx.triggered")

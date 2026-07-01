@@ -242,6 +242,11 @@ class SyntheticServerErrorMiddleware:
 
         provided = request.headers.get(self.HEADER_NAME, "")
         if provided and hmac.compare_digest(provided, self._token):
+            # Emit a metric on every successful match so we can alert on unusual
+            # volume - a legitimate test is a handful of hits, a leaked-token
+            # abuser would look very different. Tag with path only (never the
+            # token) so per-URL patterns are queryable without leaking secrets.
+            metrics.incr("synthetic5xx.triggered", tags=[f"path:{request.path}"])
             return HttpResponse(
                 "synthetic 500 for cascade test",
                 content_type="text/plain",
