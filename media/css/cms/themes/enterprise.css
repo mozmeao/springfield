@@ -5,5 +5,64 @@
 */
 
 /* Enterprise theme styles */
+:root {
+    --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise.svg");
+    --upper-page-theme-color: white;
 
-/* .fl-theme-enterprise {} */
+    /* colors */
+    --token-color-enterprise-blue: #1474C1;
+    --token-color-enterprise-blue-hover: #0F5A9C;
+    --token-color-enterprise-blue-dark: #202F59;
+
+    /* typography overrides */
+    --fl-theme-font-family-headline: var(--fl-theme-font-family-body);
+    --fl-theme-font-size-heading-xl: 4rem;
+    --fl-theme-font-size-heading-sm: 1.75rem;
+
+    /* button overrides */
+    --button-bg-color: var(--token-color-enterprise-blue);
+    --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+
+    /* tame border radius */
+    --token-border-radius-md: 1rem;
+    --fl-theme-main-border-radius: 0;
+}
+
+.fl-force-dark-theme {
+    --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise-dark.svg");
+}
+
+/* disabling oreo backgrounds */
+.fl-split-page-upper, .fl-force-dark-theme {
+    --fl-theme-color-text: var(--token-color-black-4);
+    --fl-theme-color-text-inverse: var(--token-color-white);
+    --fl-theme-color-brand-text: var(--token-color-link-purple);
+    --fl-theme-color-link: var(--token-color-link-purple);
+    --fl-theme-color-link-hover: var(--token-color-link-purple);
+    --fl-theme-color-link-alt-hover: var(--token-color-black-4);
+
+}
+
+
+.has-gradient-bottom::before {
+    background-image: linear-gradient(0deg,rgba(86, 167, 240, 0.57) 0%, rgba(86, 167, 240, 0) 64%);
+}
+
+
+.fl-logo-fx {
+    inline-size: 200px;
+    background-size: 200px 40px;
+}
+
+/* footer overrides  */
+
+.fl-newsletterform-cta.fl-force-dark-theme,
+.fl-footer,
+body {
+    background: white;
+    color: var(--token-color-black-4);
+}
+
+.fl-footer a:link:not(.fl-button), .fl-footer a:visited:not(.fl-button) {
+    color: var(--token-color-black-4);
+}
