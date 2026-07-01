@@ -596,7 +596,10 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
     Applies to the copied page and every copied descendant, since recursive copies
     build subpages without calling ``Page.copy()`` either.
     """
-    if request.POST.get("keep_analytics_ids"):
+    post = getattr(request, "POST", {})
+    user = getattr(request, "user", None)
+
+    if post.get("keep_analytics_ids"):
         return
     if new_page.alias_of_id:
         return
@@ -613,6 +616,9 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
             setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
 
         copied_page.save()
-        revision = copied_page.save_revision(user=request.user)
+        revision = copied_page.save_revision(user=user) if user else copied_page.save_revision()
         if copied_page.live:
-            revision.publish(user=request.user)
+            if user:
+                revision.publish(user=user)
+            else:
+                revision.publish()
