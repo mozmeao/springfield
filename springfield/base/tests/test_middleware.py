@@ -540,3 +540,82 @@ def test_catch_disallowed_redirect_defaults_to_root_and_logs_full_path(rf, caplo
     assert response["location"] == "/"
     assert caplog.records
     assert caplog.records[0].message == f"Caught and silenced DisallowedRedirect for {request.get_full_path()}"
+
+
+# --- SyntheticServerErrorMiddleware ---------------------------------------
+
+
+def _passthrough_response(request):
+    return HttpResponse("real response", status=200)
+
+
+def test_synthetic_500_middleware_no_op_when_token_unset(rf):
+    from django.core.exceptions import MiddlewareNotUsed
+
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    with override_settings(SYNTHETIC_5XX_TOKEN=""):
+        with pytest.raises(MiddlewareNotUsed):
+            SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_fires_on_matching_header(rf):
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+    response = middleware(request)
+    assert response.status_code == 500
+    assert b"synthetic 500" in response.content
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_passthrough_without_header(rf):
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/")
+    response = middleware(request)
+    assert response.status_code == 200
+    assert response.content == b"real response"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_passthrough_with_wrong_header(rf):
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="wrong")
+    response = middleware(request)
+    assert response.status_code == 200
+    assert response.content == b"real response"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+@pytest.mark.parametrize("path", ["/healthz/", "/readiness/", "/healthz-cron/"])
+def test_synthetic_500_middleware_skips_healthcheck_paths(rf, path):
+    # Even with the matching token, healthcheck paths pass through untouched
+    # so Fastly's probe stays green during a cascade test.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get(path, HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+    response = middleware(request)
+    assert response.status_code == 200
+    assert response.content == b"real response"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_uses_constant_time_compare(rf):
+    # Sanity check that comparison is via hmac.compare_digest (not ==) to
+    # avoid leaking token characters via response timing. Assertion is
+    # behavioural: mismatched-length tokens still return passthrough,
+    # not some other error.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    # Prefix collides with token but longer; must NOT match
+    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cretlonger")
+    response = middleware(request)
+    assert response.status_code == 200

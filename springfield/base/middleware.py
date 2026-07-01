@@ -11,6 +11,7 @@ the locale codes.
 
 import base64
 import contextlib
+import hmac
 import inspect
 import logging
 import time
@@ -200,6 +201,54 @@ def simplified_check_for_language():
         yield
     finally:
         trans_real.check_for_language = check_for_language
+
+
+class SyntheticServerErrorMiddleware:
+    """Returns a synthetic 500 when a request carries a matching magic header.
+
+    Purpose is to test failure paths (specifically Fastly's origin failover
+    cascade) by producing a controlled 5xx from Springfield without breaking
+    anything real.
+
+    The middleware is a no-op when the SYNTHETIC_5XX_TOKEN env var is unset
+    (raises MiddlewareNotUsed so Django drops it from the chain). When set,
+    a request carrying the token in the X-Springfield-Cascade-Test header
+    receives HTTP 500 with a synthetic body; other requests pass through.
+
+    Healthcheck paths (/healthz/, /readiness/, /healthz-cron/) are always
+    passed through so Fastly's probe stays green during a cascade test,
+    which is precisely the scenario the cascade is designed to catch
+    (site broken but /healthz/ says 200).
+
+    Token comparison uses constant-time comparison to avoid timing leaks.
+
+    Trigger by curling with:
+
+        curl -H "X-Springfield-Cascade-Test: <token>" https://<host>/some-path
+    """
+
+    HEADER_NAME = "X-Springfield-Cascade-Test"
+    HEALTHCHECK_PATHS = ("/healthz/", "/readiness/", "/healthz-cron/")
+
+    def __init__(self, get_response):
+        if not settings.SYNTHETIC_5XX_TOKEN:
+            raise MiddlewareNotUsed
+        self.get_response = get_response
+        self._token = settings.SYNTHETIC_5XX_TOKEN
+
+    def __call__(self, request):
+        if request.path in self.HEALTHCHECK_PATHS:
+            return self.get_response(request)
+
+        provided = request.headers.get(self.HEADER_NAME, "")
+        if provided and hmac.compare_digest(provided, self._token):
+            return HttpResponse(
+                "synthetic 500 for cascade test",
+                content_type="text/plain",
+                status=500,
+            )
+
+        return self.get_response(request)
 
 
 class BasicAuthMiddleware:
