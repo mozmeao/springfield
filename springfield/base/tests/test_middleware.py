@@ -608,14 +608,28 @@ def test_synthetic_500_middleware_skips_healthcheck_paths(rf, path):
 
 @override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
 def test_synthetic_500_middleware_uses_constant_time_compare(rf):
-    # Sanity check that comparison is via hmac.compare_digest (not ==) to
-    # avoid leaking token characters via response timing. Assertion is
-    # behavioural: mismatched-length tokens still return passthrough,
-    # not some other error.
+    # Verify that hmac.compare_digest is actually used for token comparison,
+    # not a plain == comparison. Timing-safe compare avoids leaking token
+    # characters via response timing.
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
-    # Prefix collides with token but longer; must NOT match
-    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cretlonger")
+    with mock.patch("springfield.base.middleware.hmac.compare_digest", return_value=True) as m:
+        request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="any-value")
+        response = middleware(request)
+    m.assert_called_once_with("any-value", "s3cret")
+    # And the response is the synthetic 500 because we forced the compare to True
+    assert response.status_code == 500
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_rejects_prefix_of_token(rf):
+    # A header value that is a strict prefix of the token must not match,
+    # regardless of what comparison function is used underneath.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3c")
     response = middleware(request)
     assert response.status_code == 200
+    assert response.content == b"real response"
