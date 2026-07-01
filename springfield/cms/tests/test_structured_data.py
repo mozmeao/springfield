@@ -146,15 +146,15 @@ def test_homepage_software_application_has_dynamic_version(index_page, rf):
 # BreadcrumbList on nested CMS pages
 #
 # BreadcrumbList rendering lives in the `{% block structured_data %}` default
-# in `cms/base-flare26.html`. It fires for any CMS page whose template extends
-# base-flare26.html and which has ancestors above the Wagtail root.
+# in `cms/base-flare.html`. It fires for any CMS page whose template extends
+# base-flare.html and which has ancestors above the Wagtail root.
 #
 # The straightforward `tiny_localized_site` fixture (used in
 # test_locale_fallback_rendering.py) creates `SimpleRichTextPage` instances
 # which extend `base-protocol.html` — a legacy base that does NOT have the
 # structured_data block. Adding live-render coverage for BreadcrumbList would
 # require building a nested fixture with a page type that extends
-# base-flare26.html (e.g. ArticleDetailPage), which is more setup than this
+# base-flare.html (e.g. ArticleDetailPage), which is more setup than this
 # behavior warrants.
 #
 # Manual verification path: visit any nested CMS page in dev and view source —

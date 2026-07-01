@@ -4,13 +4,13 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block body_class %}fl-article-body{% endblock %}
 
 {% block flare_header %}
   {% set header_theme = "dark" if page.upper_content|length %}
-  <include:flare26-header theme="{{ header_theme }}" />
+  <include:flare-header theme="{{ header_theme }}" />
 {% endblock %}
 
 {% block main_class %}{% endblock %}
