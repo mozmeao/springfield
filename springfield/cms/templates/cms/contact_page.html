@@ -44,9 +44,9 @@
           {{ page.thank_you_message | richtext }}
         </include:notification>
       {% else %}
-        <form method="post" action="/page-not-found/" data-actn="{{ page.url or '' }}" class="fl-form-page contact-form">
+        {% set action = page.url ~ '?' ~ request.GET.urlencode() if request.GET else page.url %}
+        <form method="post" action="/page-not-found/" data-actn="{{ action or '' }}" class="fl-form-page contact-form">
           {% csrf_token %}
-          <input type="hidden" name="_qs" value="{{ request.META.QUERY_STRING }}">
 
           {% if form_errors.get("__all__") %}
             <include:notification color="red" icon="warning">

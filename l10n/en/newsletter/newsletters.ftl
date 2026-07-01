@@ -17,7 +17,7 @@ newsletters-sign-up-to-receive-monthly = Sign up to receive monthly updates from
 # Enterprise
 newsletter-enterprise-title-v2 = Subscribe for { -brand-name-mozilla } Enterprise Updates
 
-newsletter-enterprise-description-v2 = Stay informed about { -brand-name-firefox-enterprise }, { -brand-name-firefox-professional-support }, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
+newsletter-enterprise-description-v3 = Stay informed about { -brand-name-firefox-enterprise }, { -brand-name-firefox-professional-support }, as well as relevant webinars, events, and product updates for IT, security, and compliance professionals.
 newsletter-enterprise-description-note = Note: Your subscription is voluntary and can be withdrawn at any time.
 
 # Consent checkbox label in the enterprise newsletter form

@@ -14,7 +14,7 @@ from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.blocks import StreamBlockValidationError, StructBlockValidationError
+from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
@@ -37,6 +37,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
+    UntranslatableCharBlock,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -3795,6 +3796,29 @@ def test_uuid_block_is_not_translatable():
     from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+def test_untranslatable_char_block_excludes_content_from_translation():
+    """
+    UntranslatableCharBlock holds internal/config values (field identifiers, hidden
+    field defaults), not user-facing copy — its content must never be sent to translators.
+
+    A plain CharBlock has no get_translatable_segments method, so wagtail_localize's
+    extractor treats its value as a translatable string (the isinstance branch); defining
+    the method to return [] is what opts this value out of extraction.
+    """
+    assert not hasattr(CharBlock(), "get_translatable_segments")
+    assert UntranslatableCharBlock().get_translatable_segments("office_phone") == []
+
+
+def test_untranslatable_char_block_restore_returns_value_unchanged():
+    """
+    Because nothing is extracted for translation, ingesting translated segments must
+    return the original value untouched — even if segments are somehow supplied.
+    """
+    block = UntranslatableCharBlock()
+    assert block.restore_translated_segments("name", []) == "name"
+    assert block.restore_translated_segments("name", ["ignored"]) == "name"
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
