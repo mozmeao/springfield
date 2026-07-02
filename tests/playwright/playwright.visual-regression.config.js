@@ -13,7 +13,7 @@ module.exports = defineConfig({
     ...baseConfig,
     fullyParallel: false,
     grepInvert: undefined,
-    grep: /@visual-regression|@flare26-components/,
+    grep: /@visual-regression|@flare-components/,
     workers: 1,
     projects: [baseConfig.projects.find((p) => p.name === 'chromium')]
 });

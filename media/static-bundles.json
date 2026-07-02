@@ -294,37 +294,12 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/components/flare26-icon.css",
-        "css/cms/flare-button.css",
-        "css/cms/flare-download-utils.css",
-        "css/cms/flare-download-link.css",
+        "css/cms/components/flare-download-utils.css",
+        "css/cms/components/flare-download-link.css",
         "css/cms/flare-fallback-nav.css",
         "css/cms/flare-utilities.css"
-
       ],
       "name": "flare_base"
-    },
-    {
-      "files": [
-        "css/cms/flare-utilities.css"
-      ],
-      "name": "flare_utilities"
-    },
-    {
-      "files": [
-        "css/cms/flare26.css"
-      ],
-      "name": "flare26"
-    },
-    {
-      "files": [
-        "css/cms/flare26-base.css",
-        "css/cms/components/flare26-download-utils.css",
-        "css/cms/components/flare26-download-link.css",
-        "css/cms/flare26-fallback-nav.css",
-        "css/cms/flare26-utilities.css"
-      ],
-      "name": "flare26_base"
     },
     {
       "files": [
@@ -458,119 +433,120 @@
     },
     {
       "files": [
-        "css/cms/pages/flare26-blog.css"
+        "css/cms/pages/flare-blog.css"
       ],
-      "name": "flare26-blog"
+      "name": "flare-blog"
     },
     {
       "files": [
-        "css/cms/pages/flare26-docs.css"
+        "css/cms/pages/flare-docs.css"
       ],
-      "name": "flare26-docs"
+      "name": "flare-docs"
     },
     {
       "files": [
-        "css/cms/pages/flare26-channels.css"
+        "css/cms/pages/flare-channels.css"
       ],
-      "name": "flare26-channels"
+      "name": "flare-channels"
     },
     {
       "files": [
-        "css/cms/pages/flare26-cookie-settings.css"
+        "css/cms/pages/flare-cookie-settings.css"
       ],
-      "name": "flare26-cookie-settings"
+      "name": "flare-cookie-settings"
     },
     {
       "files": [
-        "css/cms/pages/flare26-channels.css",
-        "css/cms/pages/flare26-developer-edition.css"
+        "css/cms/pages/flare-channels.css",
+        "css/cms/pages/flare-developer-edition.css"
       ],
-      "name": "flare26-developer-edition"
+      "name": "flare-developer-edition"
     },
     {
       "files": [
-        "css/cms/pages/flare26-download.css"
+        "css/cms/pages/flare-download.css"
       ],
-      "name": "flare26-download"
+      "name": "flare-download"
     },
     {
       "files": [
-        "css/cms/pages/flare26-download_all.css"
+        "css/cms/pages/flare-download_all.css"
       ],
-      "name": "flare26-download-all"
+      "name": "flare-download-all"
     },
     {
       "files": [
-        "css/cms/pages/flare26-enterprise.css"
+        "css/cms/pages/flare-enterprise.css"
       ],
-      "name": "flare26-enterprise"
+      "name": "flare-enterprise"
     },
     {
       "files": [
-        "css/cms/pages/flare26-homepage.css"
+        "css/cms/pages/flare-homepage.css"
       ],
-      "name": "flare26-homepage"
+      "name": "flare-homepage"
     },
     {
       "files": [
-        "css/cms/pages/flare26-landing-get-page.css"
+        "css/cms/pages/flare-landing-get-page.css"
       ],
-      "name": "flare26-landing-get-page"
+      "name": "flare-landing-get-page"
     },
     {
       "files": [
-        "css/cms/pages/flare26-mobile-pages.css"
+        "css/cms/pages/flare-mobile-pages.css"
       ],
-      "name": "flare26-mobile-pages"
+      "name": "flare-mobile-pages"
     },
     {
       "files": [
-        "css/cms/pages/flare26-channels.css",
-        "css/cms/pages/flare26-release-notes.css"
+        "css/cms/pages/flare-channels.css",
+        "css/cms/pages/flare-release-notes.css"
       ],
-      "name": "flare26-release-notes"
+      "name": "flare-release-notes"
     },
     {
       "files": [
-        "css/cms/pages/flare26-releases.css"
+        "css/cms/pages/flare-releases.css"
       ],
-      "name": "flare26-releases"
+      "name": "flare-releases"
     },
     {
       "files": [
-        "css/cms/pages/flare26-smart-window.css"
+        "css/cms/pages/flare-smart-window.css"
       ],
-      "name": "flare26-smart-window"
+      "name": "flare-smart-window"
     },
     {
       "files": [
-        "css/cms/pages/flare26-system-requirements.css"
+        "css/cms/pages/flare-system-requirements.css"
       ],
-      "name": "flare26-system-requirements"
+      "name": "flare-system-requirements"
     },
     {
       "files": [
-        "css/cms/pages/flare26-thanks.css"
+        "css/cms/pages/flare-thanks.css"
       ],
-      "name": "flare26-thanks"
+      "name": "flare-thanks"
     },
     {
       "files": [
-        "css/cms/pages/flare26-user-privacy.css"
+        "css/cms/pages/flare-user-privacy.css"
       ],
-      "name": "flare26-user-privacy"
+      "name": "flare-user-privacy"
     },
     {
       "files": [
-        "css/cms/pages/flare26-year-in-review.css"
+        "css/cms/pages/flare-year-in-review.css"
       ],
-      "name": "flare26-year-in-review"
+      "name": "flare-year-in-review"
     },
     {
       "files": [
-        "css/cms/pages/flare26-kick-page.css"
+        "css/cms/pages/flare-kick-page.css"
       ],
-      "name": "flare26-kick-page"
+      "name": "flare26-kick-page",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-kick-page' and you have an up-to-date database backup."
     }
   ],
   "js": [
@@ -908,16 +884,17 @@
         "js/base/mozilla-client.js",
         "js/base/mozilla-fxa.js",
         "js/base/mozilla-fxa-init.js",
-        "js/cms/flare26.es6.js",
+        "js/cms/flare.es6.js",
         "js/base/base-page-init.js"
       ],
-      "name": "firefox-cms-flare26"
+      "name": "firefox-cms-flare"
     },
     {
       "files":[
-        "js/cms/pages/flare26-kick-page.es6.js"
+        "js/cms/pages/flare-kick-page.es6.js"
       ],
-      "name": "flare26-kick-page"
+      "name": "flare26-kick-page",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare26-kick-page' and you have an up-to-date database backup."
     },
     {
       "files": [
@@ -981,9 +958,9 @@
     },
     {
       "files": [
-        "js/cms/flare26-docs.js"
+        "js/cms/flare-docs.js"
       ],
-      "name": "flare26-docs"
+      "name": "flare-docs"
     }
   ]
 }
