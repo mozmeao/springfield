@@ -1928,7 +1928,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 return response
 
             if self.basket_api_path:
-                form_data = dict(request.form.cleaned_data)
+                form_data = self._collect_field_values(request.form)
                 try:
                     api_response = requests.post(
                         f"{settings.BASKET_URL}{self.basket_api_path}",
@@ -2047,18 +2047,27 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 result[identifier] = data.get(identifier, "")
         return result
 
+    def _collect_field_values(self, form):
+        """Return submitted values keyed by internal_identifier, normalised to the
+        string shapes the basket API and email template expect (lists joined,
+        booleans as 'on'/'')."""
+        values = {}
+        for field in self.form_fields:
+            identifier = field.value["internal_identifier"]
+            value = form.cleaned_data.get(identifier)
+            if isinstance(value, list):
+                value = ", ".join(value)
+            elif isinstance(value, bool):
+                value = "on" if value else ""
+            elif value is None:
+                value = ""
+            values[identifier] = value
+        return values
+
     def send_form_email(self, request):
         """Collect form data and send it as an email."""
-        field_data = []
-        for field in self.form_fields:
-            value = field.value
-            identifier = value["internal_identifier"]
-            label = value["label"]
-            submitted = request.form.cleaned_data.get(identifier, "")
-            if isinstance(submitted, list):
-                submitted = ", ".join(submitted)
-
-            field_data.append({"label": label, "value": submitted})
+        values = self._collect_field_values(request.form)
+        field_data = [{"label": field.value["label"], "value": values.get(field.value["internal_identifier"], "")} for field in self.form_fields]
 
         msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
         subject = f"Contact form submission: {self.title}"

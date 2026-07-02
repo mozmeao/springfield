@@ -1735,3 +1735,85 @@ def test_country_select_field_persistence(
     assert response.status_code == 200
     assert 'value="DE" selected' in response.text
     mock_email_class.assert_not_called()
+
+
+@responses.activate
+def test_basket_payload_uses_string_format(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Basket receives checkbox groups joined into a string and checkboxes as 'on'."""
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=200)
+
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Basket String Format",
+        slug="basket-string-format",
+        form_fields=[
+            {
+                "type": "checkbox_group_field",
+                "value": {
+                    "internal_identifier": "services",
+                    "label": "Services",
+                    "options": [{"value": "a", "label": "A"}, {"value": "b", "label": "B"}],
+                },
+                "id": "f1",
+            },
+            {
+                "type": "checkbox_field",
+                "value": {"internal_identifier": "agree", "label": "Agree", "required": False},
+                "id": "f2",
+            },
+        ],
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"services": ["a", "b"], "agree": "on"})
+    page.serve(request)
+
+    body = json.loads(responses.calls[0].request.body)
+    assert body["services"] == "a, b"
+    assert body["agree"] == "on"
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_email_single_checkbox_renders_on_not_bool(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A checked single checkbox appears as 'on' in the email, never as 'True'."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Email Checkbox Format",
+        slug="email-checkbox-format",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "name", "label": "Name", "required": True},
+                "id": "f1",
+            },
+            {
+                "type": "checkbox_field",
+                "value": {"internal_identifier": "agree", "label": "Agree", "required": False},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"name": "Jane", "agree": "on"})
+    page.serve(request)
+
+    email_body = mock_email_class.call_args[0][1]
+    assert "on" in email_body
+    assert "True" not in email_body
