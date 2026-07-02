@@ -1911,13 +1911,17 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = self._get_display_data(form)
         return context
 
+    def _serve_uncached(self, request, *args, **kwargs):
+        """Render the page via the normal Wagtail path and mark it never-cache."""
+        response = super().serve(request, *args, **kwargs)
+        add_never_cache_headers(response)
+        return response
+
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)
         if request.method == "POST":
             if not request.form.is_valid():
-                response = super().serve(request, *args, **kwargs)
-                add_never_cache_headers(response)
-                return response
+                return self._serve_uncached(request, *args, **kwargs)
 
             if self.basket_api_path:
                 form_data = self._collect_field_values(request.form)
@@ -1938,9 +1942,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     level="error",
                                 )
                         request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                        response = super().serve(request, *args, **kwargs)
-                        add_never_cache_headers(response)
-                        return response
+                        return self._serve_uncached(request, *args, **kwargs)
                 except requests.RequestException as exc:
                     with new_scope() as scope:
                         scope.set_extra("basket_path", self.basket_api_path)
@@ -1950,9 +1952,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             level="error",
                         )
                     request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._serve_uncached(request, *args, **kwargs)
 
             if self.to_email_address:
                 try:
@@ -1965,21 +1965,15 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             level="error",
                         )
                     request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._serve_uncached(request, *args, **kwargs)
 
             if self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
 
             request.form_success = True
-            response = super().serve(request, *args, **kwargs)
-            add_never_cache_headers(response)
-            return response
+            return self._serve_uncached(request, *args, **kwargs)
 
-        response = super().serve(request, *args, **kwargs)
-        add_never_cache_headers(response)
-        return response
+        return self._serve_uncached(request, *args, **kwargs)
 
     def get_form(self, request):
         """Return a Django Form instance generated from the form_fields StreamField.
