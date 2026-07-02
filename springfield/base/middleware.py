@@ -11,6 +11,7 @@ the locale codes.
 
 import base64
 import contextlib
+import hmac
 import inspect
 import logging
 import time
@@ -200,6 +201,108 @@ def simplified_check_for_language():
         yield
     finally:
         trans_real.check_for_language = check_for_language
+
+
+class SyntheticServerErrorMiddleware:
+    """Returns a synthetic 500 when a request carries a matching magic header.
+
+    Purpose is to test failure paths (specifically Fastly's origin failover
+    cascade) by producing a controlled 5xx from Springfield without breaking
+    anything real.
+
+    The middleware is a no-op when the SYNTHETIC_5XX_TOKEN env var is unset
+    (raises MiddlewareNotUsed so Django drops it from the chain). It also
+    refuses to arm if the configured token is not exactly TOKEN_LENGTH chars
+    (see below for why length is pinned).
+
+    When armed, a request carrying the token in the X-Mozilla-Ops-Canary
+    header receives HTTP 500 with a synthetic body; other requests pass
+    through.
+
+    Healthcheck paths (/healthz/, /readiness/, /healthz-cron/) are always
+    passed through so Fastly's probe stays green during a cascade test,
+    which is precisely the scenario the cascade is designed to catch
+    (site broken but /healthz/ says 200).
+
+    Token comparison uses hmac.compare_digest for constant-time content
+    comparison, gated by a strict length check. Python's docs note that
+    compare_digest can leak string lengths via timing when the operands
+    differ in length; by requiring provided == TOKEN_LENGTH before calling
+    compare_digest, we ensure both operands are always the same length when
+    the comparison runs. The pinned length (64 chars = openssl rand -hex 32
+    = 256 bits of entropy) is public info by design, so any timing signal
+    from the length check itself leaks nothing an attacker doesn't already
+    know.
+
+    Two metrics are emitted for observability:
+    - synthetic5xx.triggered (with path tag) on every successful match.
+      Legit tests = a few hits. Leaked-token abuse = many.
+    - synthetic5xx.header_present_no_match on every request that carries
+      the header with a wrong value or wrong length. A spike here is the
+      early-warning signal for token probing before a guesser succeeds.
+
+    The synthetic 500 response carries Cache-Control and Surrogate-Control
+    headers that instruct all downstream caches (Fastly edge, browser,
+    intermediates) to never store the response. This is belt-and-braces
+    against any misconfigured cache policy that might otherwise poison the
+    URL with a 500 that gets served to legitimate users later.
+
+    Trigger by curling with:
+
+        curl -H "X-Mozilla-Ops-Canary: <64-char-token>" https://<host>/some-path
+    """
+
+    HEADER_NAME = "X-Mozilla-Ops-Canary"
+    HEALTHCHECK_PATHS = ("/healthz/", "/readiness/", "/healthz-cron/")
+    # openssl rand -hex 32 → 64 hex chars, 256 bits of entropy.
+    TOKEN_LENGTH = 64
+
+    def __init__(self, get_response):
+        token = settings.SYNTHETIC_5XX_TOKEN
+        if not token:
+            raise MiddlewareNotUsed
+        if len(token) != self.TOKEN_LENGTH:
+            # Fail loud at startup rather than silently accept a weak/misconfigured
+            # token. `openssl rand -hex 32` is the intended generator.
+            logger.warning(
+                "SyntheticServerErrorMiddleware disabled: SYNTHETIC_5XX_TOKEN must be exactly %d chars, got %d",
+                self.TOKEN_LENGTH,
+                len(token),
+            )
+            raise MiddlewareNotUsed
+        self.get_response = get_response
+        self._token = token
+
+    def __call__(self, request):
+        if request.path in self.HEALTHCHECK_PATHS:
+            return self.get_response(request)
+
+        provided = request.headers.get(self.HEADER_NAME, "")
+        if not provided:
+            return self.get_response(request)
+
+        # Length short-circuit ensures compare_digest is only ever called with
+        # equal-length operands (see docstring). Any header value present but
+        # not matching (wrong length OR wrong value) counts as a probe attempt
+        # so we get observability on token-guessing BEFORE anyone succeeds.
+        if len(provided) != self.TOKEN_LENGTH or not hmac.compare_digest(provided, self._token):
+            metrics.incr("synthetic5xx.header_present_no_match")
+            return self.get_response(request)
+
+        # Successful match.
+        metrics.incr("synthetic5xx.triggered", tags=[f"path:{request.path}"])
+        response = HttpResponse(
+            "synthetic 500 for cascade test",
+            content_type="text/plain",
+            status=500,
+        )
+        # Prevent any middlebox from caching this synthetic 500 and serving it
+        # to legitimate users of the URL later. Fastly's default already avoids
+        # caching 5xx, but Cache-Control + Surrogate-Control together cover
+        # any surrogate/edge policy that might override the default.
+        response["Cache-Control"] = "no-store, private"
+        response["Surrogate-Control"] = "no-store"
+        return response
 
 
 class BasicAuthMiddleware:
