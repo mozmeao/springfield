@@ -597,18 +597,20 @@ def test_synthetic_500_middleware_fires_on_matching_header(rf):
 
 
 @override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
-def test_synthetic_500_middleware_synthetic_response_is_not_cacheable(rf):
-    # Cache-Control and Surrogate-Control headers instruct all downstream
-    # caches to never store the response, so a synthetic 500 can't poison the
-    # URL for legitimate users later.
+def test_synthetic_500_middleware_synthetic_response_has_no_cache_override(rf):
+    # We deliberately do NOT set Cache-Control: no-store or Surrogate-Control on
+    # the synthetic response, even as belt-and-braces against caching a 500.
+    # In Dev testing, those headers caused Fastly to enter pass state before
+    # our failover cascade in vcl_fetch got a look, suppressing the restart.
+    # Fastly's default behaviour already avoids caching 5xx.
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
     request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN)
     response = middleware(request)
     assert response.status_code == 500
-    assert response["Cache-Control"] == "no-store, private"
-    assert response["Surrogate-Control"] == "no-store"
+    assert "Cache-Control" not in response
+    assert "Surrogate-Control" not in response
 
 
 @override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
@@ -774,7 +776,6 @@ def test_synthetic_500_middleware_fires_before_locale_redirect(rf):
     # 500, not 302: our middleware short-circuited before LangCodeFixup could redirect
     assert response.status_code == 500
     assert b"synthetic 500" in response.content
-    assert response["Cache-Control"] == "no-store, private"
 
 
 def test_lang_code_fixup_would_redirect_root_without_our_middleware(rf):

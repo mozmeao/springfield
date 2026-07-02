@@ -241,11 +241,13 @@ class SyntheticServerErrorMiddleware:
       the header with a wrong value or wrong length. A spike here is the
       early-warning signal for token probing before a guesser succeeds.
 
-    The synthetic 500 response carries Cache-Control and Surrogate-Control
-    headers that instruct all downstream caches (Fastly edge, browser,
-    intermediates) to never store the response. This is belt-and-braces
-    against any misconfigured cache policy that might otherwise poison the
-    URL with a 500 that gets served to legitimate users later.
+    The synthetic 500 response is a plain text body with no Cache-Control or
+    Surrogate-Control override. Setting `Cache-Control: no-store` (which was
+    tempting as belt-and-braces against caching a 500) empirically caused
+    Fastly to enter pass state BEFORE our failover cascade in vcl_fetch got
+    a look, suppressing the restart. Fastly's default behaviour already
+    avoids caching 5xx, so the belt-and-braces was low-value and worth
+    dropping for the cascade to fire correctly.
 
     Trigger by curling with:
 
@@ -291,18 +293,19 @@ class SyntheticServerErrorMiddleware:
 
         # Successful match.
         metrics.incr("synthetic5xx.triggered", tags=[f"path:{request.path}"])
-        response = HttpResponse(
+        # Note: we deliberately do NOT set Cache-Control: no-store or
+        # Surrogate-Control here, even as belt-and-braces against a synthetic
+        # 500 getting cached. Empirically, Fastly reacts to those headers by
+        # switching the response into pass state BEFORE our cascade block in
+        # vcl_fetch gets a look, which suppresses the failover restart we
+        # want to trigger. Fastly's default behaviour already avoids caching
+        # 5xx responses, so the belt-and-braces was low-value; the cascade
+        # firing correctly is not. See PR #1567 discussion (2026-07-02).
+        return HttpResponse(
             "synthetic 500 for cascade test",
             content_type="text/plain",
             status=500,
         )
-        # Prevent any middlebox from caching this synthetic 500 and serving it
-        # to legitimate users of the URL later. Fastly's default already avoids
-        # caching 5xx, but Cache-Control + Surrogate-Control together cover
-        # any surrogate/edge policy that might override the default.
-        response["Cache-Control"] = "no-store, private"
-        response["Surrogate-Control"] = "no-store"
-        return response
 
 
 class BasicAuthMiddleware:
