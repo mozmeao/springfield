@@ -1,22 +1,28 @@
+/* stylelint-disable csstools/use-logical, declaration-no-important */
+
 .fl-section {
-    padding-top: 48px;
-    padding-bottom: 48px;
+    padding: 48px 0;
 }
 
-.fl-card {
-    padding-top: 16px;
-    padding-bottom: 16px;
+.fl-card,
+.fl-card-gallery-card,
+.fl-buttons {
+    padding: 16px 0;
 }
 
-.fl-logo-light {
+.fl-logo-fx img {
+    height: 40px;
+    margin: 0;
     max-height: none;
+    max-width: none;
 }
 
 .fl-logo-dark,
 .fl-menu-close-button,
-.fl-menu-title .fl-icon,
+.fl-icon,
 .fl-nav-mobile-download-link,
-.fl-footer-logo {
+.fl-footer-logo,
+.fl-carousel-fade-overlay {
     display: none;
 }
 
@@ -31,77 +37,81 @@
 }
 
 .fl-menu-subtitle {
-    font-size: 20px;
     color: #666669;
+    font-size: 20px;
     margin-bottom: 8px;
     margin-top: 0;
 }
 
 .fl-header-inner {
     display: flex;
-    gap: 8px;
-    padding-top: 16px;
     margin-bottom: 32px;
+    padding-top: 16px;
     position: relative;
 }
 
+.fl-ie-only.fl-nav {
+    display: flex !important;
+}
+
 .fl-nav-menu {
-    display: flex;
+    background-color: #fff;
+    border: 2px solid #eee;
+    display: none;
+    flex-wrap: wrap;
     gap: 8px;
+    left: 0;
     list-style: none;
     margin: 0;
-    padding: 0;
-    width: 100%;
-    flex-wrap: wrap;
+    padding: 24px;
+    position: absolute;
+    right: 0;
+    top: 100%;
+}
+
+.fl-ie-only.fl-nav:hover .fl-nav-menu {
+    display: flex !important;
+}
+
+.fl-ie-only.fl-nav:focus-within .fl-nav-menu {
+    display: flex !important;
 }
 
 .fl-menu-category {
-    width: 44%;
+    width: 32%;
 }
 
 .fl-menu-category + .fl-menu-category {
-    width: 52%;
+    width: 40%;
 }
 
-#fl-menu-panel-resources .fl-menu-panel-content {
-    display: flex;
-    gap: 8px;
+.fl-menu-category + .fl-menu-category + .fl-menu-category {
+    width: 25%;
 }
 
-#fl-menu-panel-resources .fl-menu-panel-content-column {
-    width: 49%;
-}
-
-.fl-nav {
+.fl-nav,
+.fl-show-mobile-menu {
     display: none;
-}
-
-.fl-nav.is-open {
-    display: flex;
-    position: absolute;
-    padding: 24px;
-    border: 2px solid #eee;
-    background: #fff;
-    top: 100%;
-    width: 100%;
 }
 
 .fl-menu-category-link a:link,
 .fl-menu-category-link a:visited {
-    background: #FAF0E6;
-    color: #333336;
-    text-decoration: none;
-    display: inline-flex;
     align-items: center;
+    border: 2px solid #7543e3;
+    border-radius: 24px;
+    color: #333336;
+    display: inline-flex;
+    gap: 4px;
     margin-top: 8px;
     padding: 8px 16px;
-    gap: 4px;
-
+    text-decoration: none;
 }
 
-.fl-menu-category-link svg {
-    width: 12px;
-    height: 12px;
+.fl-menu-category-link a:hover,
+.fl-menu-category-link a:focus,
+.fl-menu-category-link a:active {
+    background-color: transparent;
+    border-color: #6132bc;
 }
 
 .fl-menu-panel-content-column ul {
@@ -113,9 +123,9 @@
 .fl-nav-link:link,
 .fl-nav-link:visited {
     color: #333336;
-    text-decoration: none;
     display: block;
     padding: 4px 0;
+    text-decoration: none;
 }
 
 .fl-nav-link:hover,
@@ -125,63 +135,82 @@
     text-decoration: underline;
 }
 
-.fl-show-mobile-menu {
-    background-color: transparent;
+.fl-nav .fl-button.button-ghost {
+    background: transparent;
+    border: 2px solid #333336;
     color: #333336;
-    text-decoration: underline;
-    font-weight: bold;
-    width: 70px;
-    height: 40px;
+    margin: 16px 0 0;
+}
+
+.fl-nav .fl-button.button-ghost:hover,
+.fl-nav .fl-button.button-ghost:focus,
+.fl-nav .fl-button.button-ghost:active {
+    background-color: #333336;
+    color: #fff;
+}
+
+.fl-show-mobile-menu-content {
+    align-items: center;
     display: flex;
 }
 
-.fl-show-mobile-menu:hover,
-.fl-show-mobile-menu:focus,
-.fl-show-mobile-menu:active {
-    background-color: transparent;
-    text-decoration: none;
-    color: #333336;
-
-}
-
-.fl-show-mobile-menu .fl-show-mobile-menu-content.is-open {
-    font-size: 0;
-    line-height: 0;
-    width: 32px;
-    height: 32px;
-    background-image: url('/media/img/firefox/flare/2026/icons/desktop-16/close-cancel-dismiss/close-16.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 16px auto;
-    display: block;
-    margin: auto;
-}
-
-.fl-header .download-link {
-    background: #0360df;
+.fl-header .download-link,
+.ie-menu-button {
+    background-color: #7543e3;
+    border-radius: 40px;
     color: white;
-    margin-top: auto;
-    margin-bottom: auto;
-    border-radius: 8px;
+    display: inline-block;
+    margin: auto 0;
+    padding: 8px 12px;
     text-decoration: none;
+}
+
+.ie-menu-button {
+    margin: 0 0 0 16px;
 }
 
 .fl-header .download-link:hover,
 .fl-header .download-link:focus,
-.fl-header .download-link:active {
-    background-color: #003c6e;
+.fl-header .download-link:active,
+.ie-menu-button:hover,
+.ie-menu-button:focus,
+.ie-menu-button:active {
+    background-color: #6132bc;
     color: white;
 }
 
-.nav-cta-wrap {
+.fl-header-buttons {
+    display: flex;
     margin-left: auto;
-    margin-right: 16px;
 }
 
+.fl-split-page-upper,
+.fl-split-page-lower {
+    border: 0 none;
+    margin: 0;
+    padding: 0;
+}
 
+.fl-footer-sections-list.fl-footer-sections-list-mobile {
+    display: none;
+}
 
 .fl-footer {
     margin-top: 72px;
+}
+
+.fl-footer a:link,
+.fl-footer a:visited {
+    color: #333336;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.fl-footer a:hover,
+.fl-footer a:focus,
+.fl-footer a:active {
+    color: #333336;
+    text-decoration: underline;
 }
 
 .fl-footer-sections-list {
@@ -191,43 +220,92 @@
 }
 
 .fl-footer-section {
-    flex-basis: calc(25% - 12px);
     border: 0 none;
+    flex-basis: calc(33% - 12px);
+}
+
+.fl-footer-section.fl-footer-section-lang-select {
+    display: flex;
+    flex-basis: 100%;
+    flex-direction: row-reverse;
+    justify-content: space-between;
 }
 
 .fl-footer-heading {
-    font-size: 20px;
-}
-
-.fl-footer-subheading {
     font-size: 16px;
-    margin-top: 32px;
     margin-bottom: 0;
+    margin-top: 32px;
 }
 
 .fl-footer-list {
-    font-size: 14px;
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
 }
 
 .fl-footer-terms {
-    font-size: 14px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
     display: flex;
-    gap: 8px 16px;
     flex-wrap: wrap;
+    gap: 8px 16px;
+    list-style: none;
+    margin: 0;
     margin-bottom: 32px;
+    margin-top: 32px;
+    padding: 0;
 }
 
-.fl-footer-title {
-    margin-bottom: 0;
+.fl-language-switcher-link {
+    display: none;
 }
 
-.fl-footer-subtitle {
-    margin-bottom: 72px;
-    font-size: 14px;
+.fl-language-switcher {
+    display: block;
+    padding-top: 32px;
+}
+
+.fl-language-switcher label {
+    display: block;
+}
+
+.fl-language-switcher button {
+    padding: 4px 8px;
+}
+
+.fl-show-auto-download-notification {
+    display: none;
+}
+
+/* other fallback styles */
+.fl-card-sticker img {
+    height: auto;
+    width: 100px;
+}
+
+.fl-newsletterform-illustration {
+    width: 200px;
+}
+
+/* hiding mobile and dark mode variants. Only display defaults. */
+.display-sm-up,
+.display-md-up,
+.display-light {
+    display: block !important;
+}
+
+.display-xs,
+.display-xs-and-sm,
+.display-dark,
+.fl-consent-banner-content {
+    display: none !important;
+}
+
+/* overriding carousel styles for older browsers that still apply the JS */
+.fl-carousel-slide {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* hiding webp images as a fallback for browsers that don't support webp, instead of showing broken image icons */
+img[src*='.webp'] {
+    display: none !important;
 }
