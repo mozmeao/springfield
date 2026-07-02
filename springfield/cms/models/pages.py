@@ -1911,14 +1911,6 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = self._get_display_data(form)
         return context
 
-    def render_with_errors(self, request, form_errors, *args, **kwargs):
-        """Re-render the form in place with the given errors and the submitted values."""
-        request.form_errors = form_errors
-        request.form_data = self.get_form_data_for_context(request.POST)
-        response = super().serve(request, *args, **kwargs)
-        add_never_cache_headers(response)
-        return response
-
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)
         if request.method == "POST":
