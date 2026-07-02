@@ -3,16 +3,51 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from io import BytesIO
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 
 from PIL import Image, ImageDraw, ImageFont
 from wagtail.documents.models import Document
-from wagtail.models import Site
+from wagtail.models import Locale, Site
 
 from springfield.cms.models import ArticleIndexPage, SpringfieldImage
 from springfield.cms.models.pages import FlareDocsIndexPage
+
+
+def with_fresh_ids(blocks):
+    """Return a rebuilt copy of StreamField fixture data with every block ``id``
+    replaced by a freshly generated UUID.
+
+    Fixture block data uses hardcoded ids. Embedding the same generated block
+    more than once in a page (e.g. ``cards * 2`` or reusing a shared button dict
+    across cards) produces duplicate ids, which collapse wagtail-localize segment
+    paths and break translation. Wrapping reused block data in this helper keeps
+    every id unique within the page.
+
+    The structure is rebuilt node-by-node (rather than ``deepcopy``d) so that
+    aliased objects — e.g. the repeated entries created by ``list * 2`` — become
+    independent and each occurrence gets its own id."""
+    if isinstance(blocks, dict):
+        return {key: (str(uuid4()) if key == "id" else with_fresh_ids(value)) for key, value in blocks.items()}
+    if isinstance(blocks, list):
+        return [with_fresh_ids(item) for item in blocks]
+    return blocks
+
+
+def get_or_create_page(model, *, slug, parent, defaults=None, **lookup):
+    """Fetch or create the en-US page of ``model`` with ``slug`` under ``parent``.
+
+    Always scopes the lookup and creation to the en-US locale so fixtures operate
+    on the source-locale page and never accidentally pick up a translated variant
+    with the same slug."""
+    en_us = Locale.objects.get(language_code="en-US")
+    page = model.objects.filter(slug=slug, locale=en_us, **lookup).first()
+    if page is None:
+        page = model(slug=slug, locale=en_us, **lookup, **(defaults or {}))
+        parent.add_child(instance=page)
+    return page
 
 
 def _draw_numbered_grid(image, cols, rows):

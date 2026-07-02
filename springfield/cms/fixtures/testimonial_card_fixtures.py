@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -169,7 +169,7 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     sections = get_testimonial_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.save_revision().publish()
     return page

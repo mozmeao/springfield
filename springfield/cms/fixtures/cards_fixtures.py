@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -201,8 +201,8 @@ def get_sticker_cards_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     sections = get_sticker_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.save_revision().publish()
     return page
 
@@ -324,8 +324,8 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     sections = get_illustration_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.save_revision().publish()
     return page
 
@@ -548,7 +548,7 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     sections = get_outlined_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.save_revision().publish()
     return page

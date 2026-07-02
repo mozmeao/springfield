@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
@@ -258,6 +258,6 @@ def get_thanks_page() -> ThanksPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
-    page.content = content
+    page.content = with_fresh_ids(content)
     page.save_revision().publish()
     return page
