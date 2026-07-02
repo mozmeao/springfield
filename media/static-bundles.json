@@ -545,7 +545,8 @@
       "files": [
         "css/cms/pages/flare-kick-page.css"
       ],
-      "name": "flare-kick-page"
+      "name": "flare26-kick-page",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-kick-page' and you have an up-to-date database backup."
     },
     {
       "files": [

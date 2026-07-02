@@ -161,7 +161,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block flare_header %}
-    <include:flare26-header />
+    <include:flare-header />
     {% endblock %}
 
     {% block sub_navigation %}
@@ -212,11 +212,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     </main>
 
     {% block flare_footer %}
-      <include:flare26-footer />
+      <include:flare-footer />
     {% endblock %}
 
     {% block consent_banner %}
-      {% include 'includes/banners/consent-banner-flare26.html' %}
+      {% include 'includes/banners/consent-banner-flare.html' %}
     {% endblock %}
 
     {% block qr_code_snippet %}
@@ -246,7 +246,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% block site_js %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
-    {{ js_bundle('firefox-cms-flare26') }}
+    {{ js_bundle('firefox-cms-flare') }}
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
