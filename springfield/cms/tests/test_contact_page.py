@@ -732,6 +732,36 @@ def test_empty_submission_with_required_field_shows_only_field_errors(
     assert "Please fill out the form." not in content
 
 
+def test_invalid_email_shows_localized_message(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """A malformed email produces the localized invalid-email message, not Django's default."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Invalid Email Message",
+        slug="invalid-email-message",
+        form_fields=[
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "business_email", "label": "Email", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    response = client.post(page.full_url, {"business_email": "not-an-email"})
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "Please enter a valid email address." in content
+    assert "Enter a valid email address." not in content  # Django's default must not leak
+
+
 def test_contact_page_hidden_field_query_param_overrides_default_on_get(
     minimal_site: Site,
     rf: RequestFactory,

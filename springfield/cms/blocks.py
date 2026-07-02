@@ -3195,12 +3195,16 @@ class BaseFieldValue(blocks.StructValue):
         """Override in subclasses to return the appropriate Django form field class."""
         return forms.CharField
 
+    def get_error_messages(self):
+        """Localised validation messages. Subclasses extend for field-specific keys."""
+        return {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])}
+
     def get_form_field(self):
         Field = self.get_field()
         kwargs = {
             "label": self.get("label"),
             "required": self.get("required", False),
-            "error_messages": {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])},
+            "error_messages": self.get_error_messages(),
         }
         if initial := self.get_initial_value():
             kwargs["initial"] = initial
@@ -3280,6 +3284,11 @@ class EmailFieldValue(BaseFieldValue):
     def get_field(self):
         return forms.EmailField
 
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid"] = ftl_lazy("contact-form-error-email", ftl_files=["cms/contact"])
+        return messages
+
 
 class EmailFieldBlock(BaseField):
     class Meta:
@@ -3319,6 +3328,11 @@ class SelectFieldValue(BaseFieldValue):
         options = self.get("options", [])
         return [(option["value"], option["label"]) for option in options]
 
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid_choice"] = ftl_lazy("contact-form-error-choice", ftl_files=["cms/contact"])
+        return messages
+
 
 class SelectFieldBlock(BaseField):
     options = blocks.ListBlock(
@@ -3357,6 +3371,11 @@ class CheckboxGroupFieldValue(BaseFieldValue):
 
     def get_widget(self):
         return forms.CheckboxSelectMultiple()
+
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid_choice"] = ftl_lazy("contact-form-error-choice", ftl_files=["cms/contact"])
+        return messages
 
 
 class CheckboxGroupFieldBlock(BaseField):
