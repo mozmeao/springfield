@@ -4,16 +4,16 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
-{% block page_css %}{{ css_bundle('flare26-download') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header theme="dark" />
+  <include:flare-header theme="dark" />
 {% endblock %}
 
 {% block main_class %}{% endblock %}
