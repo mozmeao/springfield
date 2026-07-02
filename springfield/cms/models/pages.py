@@ -1911,69 +1911,29 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = self._get_display_data(form)
         return context
 
-    def _serve_uncached(self, request, *args, **kwargs):
-        """Render the page via the normal Wagtail path and mark it never-cache."""
+    def serve(self, request, *args, **kwargs):
+        request.form = self.get_form(request)
+        success = None
+
+        if request.method == "POST":
+            if request.form.is_valid():
+                if self.basket_api_path:
+                    success = self.send_to_basket(request)
+                elif self.to_email_address:
+                    success = self.send_form_email(request)
+                if not success:
+                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+            else:
+                success = False
+
+            request.form_success = success
+
+            if success and self.redirect_to:
+                return redirect(self.redirect_to.localized.url)
+
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
         return response
-
-    def serve(self, request, *args, **kwargs):
-        request.form = self.get_form(request)
-        if request.method == "POST":
-            if not request.form.is_valid():
-                return self._serve_uncached(request, *args, **kwargs)
-
-            if self.basket_api_path:
-                form_data = self._collect_field_values(request.form)
-                try:
-                    api_response = requests.post(
-                        f"{settings.BASKET_URL}{self.basket_api_path}",
-                        json=form_data,
-                        timeout=settings.BASKET_TIMEOUT,
-                    )
-                    if not api_response.ok:
-                        if 400 <= api_response.status_code < 500:
-                            with new_scope() as scope:
-                                scope.set_extra("post_data", form_data)
-                                scope.set_extra("basket_path", self.basket_api_path)
-                                scope.set_extra("status_code", api_response.status_code)
-                                capture_message(
-                                    f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
-                                    level="error",
-                                )
-                        request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                        return self._serve_uncached(request, *args, **kwargs)
-                except requests.RequestException as exc:
-                    with new_scope() as scope:
-                        scope.set_extra("basket_path", self.basket_api_path)
-                        scope.set_extra("exception", str(exc))
-                        capture_message(
-                            f"Basket API request failed for path {self.basket_api_path}",
-                            level="error",
-                        )
-                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                    return self._serve_uncached(request, *args, **kwargs)
-
-            if self.to_email_address:
-                try:
-                    self.send_form_email(request)
-                except Exception as exc:
-                    with new_scope() as scope:
-                        scope.set_extra("exception", str(exc))
-                        capture_message(
-                            "Failed to send contact form email",
-                            level="error",
-                        )
-                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-                    return self._serve_uncached(request, *args, **kwargs)
-
-            if self.redirect_to:
-                return redirect(self.redirect_to.localized.url)
-
-            request.form_success = True
-            return self._serve_uncached(request, *args, **kwargs)
-
-        return self._serve_uncached(request, *args, **kwargs)
 
     def get_form(self, request):
         """Return a Django Form instance generated from the form_fields StreamField.
@@ -1987,24 +1947,19 @@ class ContactPage(AbstractSpringfieldCMSPage):
 
         ContactForm = type("ContactForm", (forms.Form,), form_fields)
 
+        # Hidden fields always arrive in POST, they must not be considered when checking for an empty submission.
         hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
-        # Hidden fields always arrive in POST (the template renders their value into
-        # the input), so they carry machine values, not user input — they must not
-        # count toward the "did the user fill anything in?" check.
         visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
 
-        def clean_form(form_self):
-            # The honeypot must stay empty, and every hidden field must arrive with a
-            # value — a filled honeypot or a missing/empty hidden field means the
-            # submission was tampered with.
-            if form_self.data.get("office_fax"):
+        def clean_form(_self):
+            # The honeypot must stay empty, and every hidden field must have a value
+            honeypot = _self.data.get("office_fax")
+            empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
+            if honeypot or empty_hidden_fields:
                 raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-            if any(not form_self.data.get(identifier) for identifier in hidden_identifiers):
-                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-            # Only flag an empty submission when no per-field error already explains
-            # what's missing — avoids stacking a global message on top of field errors.
-            has_any_data = any(form_self.data.get(identifier) for identifier in visible_identifiers)
-            if not has_any_data and not form_self.errors:
+            # Only flag an empty submission when no per-field error already exists
+            has_any_data = any(_self.data.get(identifier) for identifier in visible_identifiers)
+            if not has_any_data and not _self.errors:
                 raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
 
         ContactForm.clean = clean_form
@@ -2014,11 +1969,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
         return ContactForm()
 
     def _get_display_data(self, form):
-        """Build a display dict from raw form data for template persistence.
+        """Build a display dict from raw form data for template persistence"""
 
-        Returns lists for multivalue fields (e.g. checkbox groups), plain
-        strings for everything else.
-        """
         if form is None:
             return {}
         data = form.data
@@ -2034,9 +1986,9 @@ class ContactPage(AbstractSpringfieldCMSPage):
         return result
 
     def _collect_field_values(self, form):
-        """Return submitted values keyed by internal_identifier, normalised to the
-        string shapes the basket API and email template expect (lists joined,
-        booleans as 'on'/'')."""
+        """Return submitted values keyed by internal_identifier, normalized to the
+        string types the basket API and email template expect."""
+
         values = {}
         for field in self.form_fields:
             identifier = field.value["internal_identifier"]
@@ -2050,15 +2002,63 @@ class ContactPage(AbstractSpringfieldCMSPage):
             values[identifier] = value
         return values
 
-    def send_form_email(self, request):
+    def send_form_email(self, request) -> bool:
         """Collect form data and send it as an email."""
-        values = self._collect_field_values(request.form)
-        field_data = [{"label": field.value["label"], "value": values.get(field.value["internal_identifier"], "")} for field in self.form_fields]
 
-        msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
-        subject = f"Contact form submission: {self.title}"
-        email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
-        email.send()
+        success = None
+        try:
+            values = self._collect_field_values(request.form)
+            field_data = [{"label": field.value["label"], "value": values.get(field.value["internal_identifier"], "")} for field in self.form_fields]
+
+            msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
+            subject = f"Contact form submission: {self.title}"
+            email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
+            email.send()
+            success = True
+        except Exception as exc:
+            with new_scope() as scope:
+                scope.set_extra("exception", str(exc))
+                capture_message(
+                    "Failed to send contact form email",
+                    level="error",
+                )
+            success = False
+        return success
+
+    def send_to_basket(self, request) -> bool:
+        """Collect form data and send it to the basket API."""
+
+        success = None
+        form_data = self._collect_field_values(request.form)
+        try:
+            api_response = requests.post(
+                f"{settings.BASKET_URL}{self.basket_api_path}",
+                json=form_data,
+                timeout=settings.BASKET_TIMEOUT,
+            )
+            if api_response.ok:
+                success = True
+            else:
+                if 400 <= api_response.status_code < 500:
+                    with new_scope() as scope:
+                        scope.set_extra("post_data", form_data)
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        scope.set_extra("status_code", api_response.status_code)
+                        capture_message(
+                            f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
+                            level="error",
+                        )
+                success = False
+        except requests.RequestException as exc:
+            with new_scope() as scope:
+                scope.set_extra("basket_path", self.basket_api_path)
+                scope.set_extra("exception", str(exc))
+                capture_message(
+                    f"Basket API request failed for path {self.basket_api_path}",
+                    level="error",
+                )
+            success = False
+        return success
 
     class Meta:
         verbose_name = "Contact Page"
