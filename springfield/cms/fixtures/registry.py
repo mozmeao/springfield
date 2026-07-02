@@ -5,9 +5,8 @@
 """Central registry of the fixture functions that create CMS pages.
 
 Each entry is a zero-argument callable that returns the page (or a list/dict of
-pages) it creates. Used by the translate-all regression test; may also be
-consumed by the ``load_page_fixtures`` command in future to avoid a duplicated
-call list.
+pages) it creates. Used by the translate-all regression test and the
+``load_page_fixtures`` command to avoid a duplicated call list.
 """
 
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page

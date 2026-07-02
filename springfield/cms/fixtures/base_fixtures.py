@@ -43,7 +43,7 @@ def get_or_create_page(model, *, slug, parent, defaults=None, **lookup):
     on the source-locale page and never accidentally pick up a translated variant
     with the same slug."""
     en_us = Locale.objects.get(language_code="en-US")
-    page = model.objects.filter(slug=slug, locale=en_us, **lookup).first()
+    page = model.objects.child_of(parent).filter(slug=slug, locale=en_us, **lookup).first()
     if page is None:
         page = model(slug=slug, locale=en_us, **lookup, **(defaults or {}))
         parent.add_child(instance=page)
