@@ -363,3 +363,52 @@ def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_
     it_translation = fr_page.copy_for_translation(it_locale)
     it_translation.title = "Italian Translation"
     it_translation.save_revision().publish()
+
+
+@pytest.fixture
+def prod_shape_site():
+    """Site tree mirroring production's 3-level shape (see migration 0060).
+
+    - depth 1: Wagtail system root
+    - depth 2: 'Welcome to your new Wagtail site!' — the seeded default page,
+      demoted so it is NOT Site.root_page (mirrors production's per-locale
+      roots that sit above Site.root_page and have full_url=None)
+    - depth 3: Site.root_page — the localized homepage
+    - depth 4+: content pages
+
+    Use this to exercise regressions that only reproduce when a non-routable
+    ancestor sits above Site.root_page. The `tiny_localized_site` fixture
+    has Site.root_page at depth 2 and cannot catch such regressions.
+    """
+    default_seed_page = Page.objects.get(depth=2, slug="home")
+
+    homepage = SimpleRichTextPageFactory(
+        title="Firefox Home",
+        slug="firefox-home",
+        parent=default_seed_page,
+        live=True,
+    )
+
+    site = Site.objects.get(is_default_site=True)
+    site.root_page = homepage
+    site.save()
+
+    features = SimpleRichTextPageFactory(
+        title="Features",
+        slug="features",
+        parent=homepage,
+        live=True,
+    )
+    article = SimpleRichTextPageFactory(
+        title="Private Browsing",
+        slug="private-browsing",
+        parent=features,
+        live=True,
+    )
+
+    return {
+        "default_seed": default_seed_page,
+        "homepage": homepage,
+        "features": features,
+        "article": article,
+    }

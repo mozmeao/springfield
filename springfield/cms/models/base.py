@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.models import Locale, Page as WagtailBasePage
+from wagtail.models import Locale, Page as WagtailBasePage, Site
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
@@ -205,3 +205,26 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     def noindex(self):
         """By default, don't add the robots meta tag to CMS pages, but allow child classes to override this if needed."""
         return False
+
+    def get_breadcrumb_ancestors(self):
+        """Live, publicly-visible ancestors of this page for a BreadcrumbList.
+
+        Restricts the ancestor chain to pages within the current Site's
+        routable subtree by matching `url_path` prefixes against the cached
+        `Site.get_site_root_paths()`. Pages above the routable subtree — the
+        Wagtail system root (depth 1) and per-locale root pages (depth 2 in
+        production, see migration 0060_create_alias_locale_records) — have
+        `url_path`s outside every SiteRootPath prefix and are excluded.
+
+        Applies `.public()` so ancestors with a `PageViewRestriction`
+        (password-required, group-restricted, login-required) never leak
+        into public JSON-LD.
+
+        Filters on `url_path` rather than calling `get_site()` / iterating
+        `full_url` on each ancestor — both would fire extra queries per
+        page render. Don't refactor to `full_url is not None` in Python.
+        """
+        for site_root_path in Site.get_site_root_paths():
+            if self.url_path.startswith(site_root_path.root_path):
+                return self.get_ancestors().live().public().filter(url_path__startswith=site_root_path.root_path)
+        return WagtailBasePage.objects.none()
