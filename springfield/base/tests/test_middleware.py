@@ -736,3 +736,64 @@ def test_synthetic_500_middleware_no_metric_on_missing_header(rf):
         middleware(request)
     mm.assert_not_incr("synthetic5xx.triggered")
     mm.assert_not_incr("synthetic5xx.header_present_no_match")
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_fires_before_locale_redirect(rf):
+    # Positioning proof: our middleware sits BEFORE
+    # SpringfieldLangCodeFixupMiddleware in the MIDDLEWARE list, so a matching
+    # request to `/` returns the synthetic 500 rather than the 302 to /en-US/
+    # (or wherever) that LangCodeFixup would normally issue.
+    #
+    # This matters because the whole point of the middleware is to force
+    # user-facing 5xx on Springfield's actual pages. If LangCodeFixup ran
+    # first, `/` (and any other pre-locale path) would 302 before the
+    # synthetic 500 got a chance to fire, and we couldn't test the cascade
+    # on those paths.
+    from springfield.base.middleware import (
+        SpringfieldLangCodeFixupMiddleware,
+        SyntheticServerErrorMiddleware,
+    )
+
+    # Build the chain in the same order as settings.MIDDLEWARE:
+    # SyntheticServerErrorMiddleware wraps SpringfieldLangCodeFixupMiddleware
+    # wraps a passthrough.
+    inner = SpringfieldLangCodeFixupMiddleware(get_response=_passthrough_response)
+    outer = SyntheticServerErrorMiddleware(get_response=inner)
+
+    # `/` with an Accept-Language header WOULD normally trigger LangCodeFixup
+    # to 302 to /en-GB/ (or /en-US/ etc). With our middleware in front and the
+    # canary token present, we should see 500 instead.
+    request = rf.get(
+        "/",
+        HTTP_ACCEPT_LANGUAGE="en-GB,en;q=0.9",
+        HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN,
+    )
+    response = outer(request)
+
+    # 500, not 302: our middleware short-circuited before LangCodeFixup could redirect
+    assert response.status_code == 500
+    assert b"synthetic 500" in response.content
+    assert response["Cache-Control"] == "no-store, private"
+
+
+def test_lang_code_fixup_would_redirect_root_without_our_middleware(rf):
+    # Baseline / control: without our middleware in front, LangCodeFixup
+    # DOES 302-redirect `/` on requests carrying an Accept-Language header.
+    # Together with the test above, this proves that the 500 we get is
+    # coming from our middleware pre-empting the redirect - not from `/`
+    # simply not redirecting in this test setup.
+    from springfield.base.middleware import SpringfieldLangCodeFixupMiddleware
+
+    inner = SpringfieldLangCodeFixupMiddleware(get_response=_passthrough_response)
+
+    request = rf.get(
+        "/",
+        HTTP_ACCEPT_LANGUAGE="en-GB,en;q=0.9",
+    )
+    response = inner.process_request(request)
+
+    # 302 to a locale-prefixed URL
+    assert response is not None
+    assert response.status_code == 302
+    assert response["Location"].startswith("/en-GB")
