@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage2026
 
@@ -11,14 +11,13 @@ SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browse
 
 def get_whatsnew_index_page() -> WhatsNewIndexPage:
     index_page = get_flare_pages_docs_page()
-    wnp_index = WhatsNewIndexPage.objects.filter(slug="test-whatsnew").first()
-    if not wnp_index:
-        wnp_index = WhatsNewIndexPage(
-            slug="test-whatsnew",
-            title="What's New Index Page",
-        )
-        index_page.add_child(instance=wnp_index)
-        wnp_index.save_revision().publish()
+    wnp_index = get_or_create_page(
+        WhatsNewIndexPage,
+        slug="test-whatsnew",
+        parent=index_page,
+        defaults={"title": "What's New Index Page"},
+    )
+    wnp_index.save_revision().publish()
     return wnp_index
 
 
@@ -27,14 +26,15 @@ def get_whats_new_page_with_qr_snippet() -> WhatsNewPage2026:
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-qr"
-    page = WhatsNewPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = WhatsNewPage2026(
-            slug=slug,
-            title="What's New — QR Snippet Test",
-            version="131",
-        )
-        wnp_index.add_child(instance=page)
+    page = get_or_create_page(
+        WhatsNewPage2026,
+        slug=slug,
+        parent=wnp_index,
+        defaults={
+            "title": "What's New — QR Snippet Test",
+            "version": "131",
+        },
+    )
 
     page.content = [
         {
@@ -62,14 +62,15 @@ def get_whats_new_page_with_floating_qr_snippet() -> WhatsNewPage2026:
     wnp_index = get_whatsnew_index_page()
 
     slug = "test-wnp-floating-qr"
-    page = WhatsNewPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = WhatsNewPage2026(
-            slug=slug,
-            title="What's New — Floating QR Snippet Test",
-            version="131",
-        )
-        wnp_index.add_child(instance=page)
+    page = get_or_create_page(
+        WhatsNewPage2026,
+        slug=slug,
+        parent=wnp_index,
+        defaults={
+            "title": "What's New — Floating QR Snippet Test",
+            "version": "131",
+        },
+    )
 
     page.content = [
         {

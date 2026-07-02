@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_card_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
@@ -59,10 +59,14 @@ def get_featured_image_section_with_scroll_snippet_test_page() -> FreeFormPage20
     snippet = get_scroll_to_see_more_snippet()
 
     slug = "test-featured-image-section-with-scroll-snippet"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Featured Image Section with Scroll Snippet")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Test Featured Image Section with Scroll Snippet",
+        },
+    )
 
     variants = [
         {
@@ -85,10 +89,14 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-featured-image-section"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Featured Image Section")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Featured Image Section",
+        },
+    )
 
     variants = get_featured_image_section_variants()
     page.upper_content = variants

@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
@@ -242,14 +242,15 @@ def get_thanks_page() -> ThanksPage:
         get_banner(),
     ]
 
-    page = ThanksPage.objects.filter(slug="test-thanks-page").first()
-    if not page:
-        page = ThanksPage(
-            slug="test-thanks-page",
-            title="Thanks Page",
-            content=content,
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        ThanksPage,
+        slug="test-thanks-page",
+        parent=index_page,
+        defaults={
+            "title": "Thanks Page",
+            "content": content,
+        },
+    )
 
     page.show_floating_qr_code_snippet = True
     page.platform = "linux"

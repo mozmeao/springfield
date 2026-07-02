@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet, get_pretranslated_phrase_snippets
 from springfield.cms.models import HomePage
@@ -322,13 +322,14 @@ def get_home_test_page() -> HomePage:
     get_pre_footer_cta_snippet()
     get_pretranslated_phrase_snippets()
 
-    page = HomePage.objects.filter(slug="test-home-page").first()
-    if not page:
-        page = HomePage(
-            slug="test-home-page",
-            title="Home Page",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        HomePage,
+        slug="test-home-page",
+        parent=index_page,
+        defaults={
+            "title": "Home Page",
+        },
+    )
 
     page.upper_content = [get_home_intro(), get_cards_list(), get_home_carousel()]
     page.lower_content = [*get_showcase_variants().values(), get_card_gallery(), get_kit_banner()]

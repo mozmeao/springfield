@@ -144,13 +144,16 @@ def get_placeholder_images():
 def get_flare_docs_index_page():
     site = Site.objects.get(is_default_site=True)
     root_page = site.root_page
-    index_page = FlareDocsIndexPage.objects.filter(slug="flare-docs").first()
-    if not index_page:
-        index_page = FlareDocsIndexPage(
-            slug="flare-docs", title="Flare Docs - Index", search_description="This is the base page for Flare 26's samples and docs."
-        )
-        root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
+    index_page = get_or_create_page(
+        FlareDocsIndexPage,
+        slug="flare-docs",
+        parent=root_page,
+        defaults={
+            "title": "Flare Docs - Index",
+            "search_description": "This is the base page for Flare 26's samples and docs.",
+        },
+    )
+    index_page.save_revision().publish()
     return index_page
 
 
@@ -180,20 +183,20 @@ def get_flare_pages_docs_page():
 
 def get_article_index_test_page():
     root_page = get_flare_pages_docs_page()
-    index_page = ArticleIndexPage.objects.filter(slug="tests-article-index").first()
-    if not index_page:
-        index_page = ArticleIndexPage(
-            slug="tests-article-index",
-            title="Article Index Page",
-            sub_title="An index page for testing articles.",
-            other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
-            other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
-        )
-        root_page.add_child(instance=index_page)
-    else:
-        index_page.sub_title = "An index page for testing articles."
-        index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
-        index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
+    index_page = get_or_create_page(
+        ArticleIndexPage,
+        slug="tests-article-index",
+        parent=root_page,
+        defaults={
+            "title": "Article Index Page",
+            "sub_title": "An index page for testing articles.",
+            "other_articles_heading": "<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+            "other_articles_subheading": "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+        },
+    )
+    index_page.sub_title = "An index page for testing articles."
+    index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
+    index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
     index_page.save_revision().publish()
     return index_page
 

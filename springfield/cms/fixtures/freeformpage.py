@@ -7,6 +7,7 @@ from django.conf import settings
 from springfield.cms.fixtures.base_fixtures import (
     get_flare_blocks_docs_page,
     get_flare_pages_docs_page,
+    get_or_create_page,
     get_placeholder_images,
     with_fresh_ids,
 )
@@ -167,13 +168,14 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "mobile-store-qr-code"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Mobile Store QR Code",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Mobile Store QR Code",
+        },
+    )
 
     page.upper_content = [get_mobile_store_qr_code()]
     page.content = [get_mobile_store_qr_code()]
@@ -185,13 +187,14 @@ def get_freeform_page_test_page() -> FreeFormPage2026:
     index_page = get_flare_pages_docs_page()
 
     slug = "freeform"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form Page",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form Page",
+        },
+    )
 
     page.upper_content = [get_mobile_store_qr_code()]
     page.content = with_fresh_ids(
@@ -275,13 +278,14 @@ def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-set-as-default"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — Set as Default Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — Set as Default Test",
+        },
+    )
 
     page.content = [get_set_as_default_button_block()]
     page.save_revision().publish()
@@ -293,13 +297,14 @@ def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-qr"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — QR Snippet Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — QR Snippet Test",
+        },
+    )
 
     page.content = [get_mobile_store_qr_code()]
     page.show_qr_code_snippet = True
@@ -312,13 +317,14 @@ def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-floating-qr"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — Floating QR Snippet Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — Floating QR Snippet Test",
+        },
+    )
 
     page.content = [get_mobile_store_qr_code()]
     page.show_floating_qr_code_snippet = True

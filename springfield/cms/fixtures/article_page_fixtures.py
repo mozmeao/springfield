@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_tags
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
@@ -36,10 +36,15 @@ def create_article(
 ) -> ArticleDetailPage:
     index_page = get_article_index_test_page()
 
-    article = ArticleDetailPage.objects.filter(slug=slug).first()
-    if not article:
-        article = ArticleDetailPage(title=title, slug=slug, image=image)
-        index_page.add_child(instance=article)
+    article = get_or_create_page(
+        ArticleDetailPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": title,
+            "image": image,
+        },
+    )
 
     article.featured = featured
     article.image = image
@@ -738,13 +743,14 @@ def get_theme_hub_page_sticker_row_section():
 
 def get_article_theme_page():
     index_page = get_article_index_test_page()
-    theme_page = ArticleThemePage.objects.filter(slug="test-article-theme-page").first()
-    if not theme_page:
-        theme_page = ArticleThemePage(
-            title="Test Article Theme Page",
-            slug="test-article-theme-page",
-        )
-        index_page.add_child(instance=theme_page)
+    theme_page = get_or_create_page(
+        ArticleThemePage,
+        slug="test-article-theme-page",
+        parent=index_page,
+        defaults={
+            "title": "Test Article Theme Page",
+        },
+    )
     theme_page.content = with_fresh_ids(
         [
             get_theme_page_intro(),
@@ -761,13 +767,14 @@ def get_article_theme_page():
 
 def get_article_theme_hub_page():
     index_page = get_article_index_test_page()
-    theme_page = ArticleThemePage.objects.filter(slug="test-article-theme-hub-page").first()
-    if not theme_page:
-        theme_page = ArticleThemePage(
-            title="Test Article Theme Hub Page",
-            slug="test-article-theme-hub-page",
-        )
-        index_page.add_child(instance=theme_page)
+    theme_page = get_or_create_page(
+        ArticleThemePage,
+        slug="test-article-theme-hub-page",
+        parent=index_page,
+        defaults={
+            "title": "Test Article Theme Hub Page",
+        },
+    )
     theme_page.upper_content = get_theme_hub_page_upper_content()
     theme_page.content = [
         get_theme_hub_illustration_cards_section(),
