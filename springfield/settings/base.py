@@ -1091,9 +1091,9 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
-    # X-Springfield-Cascade-Test carries the SYNTHETIC_5XX_TOKEN value on cascade-test
+    # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
     # requests; keep it out of Sentry events so the token cannot leak via error reports.
-    "X-Springfield-Cascade-Test",
+    "X-Mozilla-Ops-Canary",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,

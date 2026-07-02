@@ -544,6 +544,10 @@ def test_catch_disallowed_redirect_defaults_to_root_and_logs_full_path(rf, caplo
 
 # --- SyntheticServerErrorMiddleware ---------------------------------------
 
+# A valid 64-char token for use in tests. Value itself is not sensitive; it's
+# just something the length check will accept.
+_VALID_TOKEN = "a" * 64
+
 
 def _passthrough_response(request):
     return HttpResponse("real response", status=200)
@@ -559,18 +563,55 @@ def test_synthetic_500_middleware_no_op_when_token_unset(rf):
             SyntheticServerErrorMiddleware(get_response=_passthrough_response)
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+def test_synthetic_500_middleware_refuses_short_configured_token(rf):
+    # If the configured token isn't exactly 64 chars, the middleware refuses to
+    # arm itself. Prevents accidental weak-token config from silently working.
+    from django.core.exceptions import MiddlewareNotUsed
+
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    with override_settings(SYNTHETIC_5XX_TOKEN="short"):
+        with pytest.raises(MiddlewareNotUsed):
+            SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+
+
+def test_synthetic_500_middleware_refuses_long_configured_token(rf):
+    from django.core.exceptions import MiddlewareNotUsed
+
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    with override_settings(SYNTHETIC_5XX_TOKEN="a" * 65):
+        with pytest.raises(MiddlewareNotUsed):
+            SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
 def test_synthetic_500_middleware_fires_on_matching_header(rf):
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
-    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+    request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN)
     response = middleware(request)
     assert response.status_code == 500
     assert b"synthetic 500" in response.content
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_synthetic_response_is_not_cacheable(rf):
+    # Cache-Control and Surrogate-Control headers instruct all downstream
+    # caches to never store the response, so a synthetic 500 can't poison the
+    # URL for legitimate users later.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN)
+    response = middleware(request)
+    assert response.status_code == 500
+    assert response["Cache-Control"] == "no-store, private"
+    assert response["Surrogate-Control"] == "no-store"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
 def test_synthetic_500_middleware_passthrough_without_header(rf):
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
@@ -581,18 +622,32 @@ def test_synthetic_500_middleware_passthrough_without_header(rf):
     assert response.content == b"real response"
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
-def test_synthetic_500_middleware_passthrough_with_wrong_header(rf):
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_passthrough_with_wrong_value_header(rf):
+    # Wrong value, correct length - passes through, no 500.
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
-    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="wrong")
+    request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY="b" * 64)
     response = middleware(request)
     assert response.status_code == 200
     assert response.content == b"real response"
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_passthrough_with_wrong_length_header(rf):
+    # Wrong length - shortcircuits before compare_digest is called and
+    # passes through.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY="short")
+    response = middleware(request)
+    assert response.status_code == 200
+    assert response.content == b"real response"
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
 @pytest.mark.parametrize("path", ["/healthz/", "/readiness/", "/healthz-cron/"])
 def test_synthetic_500_middleware_skips_healthcheck_paths(rf, path):
     # Even with the matching token, healthcheck paths pass through untouched
@@ -600,13 +655,13 @@ def test_synthetic_500_middleware_skips_healthcheck_paths(rf, path):
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
-    request = rf.get(path, HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+    request = rf.get(path, HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN)
     response = middleware(request)
     assert response.status_code == 200
     assert response.content == b"real response"
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
 def test_synthetic_500_middleware_uses_constant_time_compare(rf):
     # Verify that hmac.compare_digest is actually used for token comparison,
     # not a plain == comparison. Timing-safe compare avoids leaking token
@@ -614,28 +669,17 @@ def test_synthetic_500_middleware_uses_constant_time_compare(rf):
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    # Use a 64-char header so we pass the length gate and reach compare_digest.
+    provided = "c" * 64
     with mock.patch("springfield.base.middleware.hmac.compare_digest", return_value=True) as m:
-        request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="any-value")
+        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=provided)
         response = middleware(request)
-    m.assert_called_once_with("any-value", "s3cret")
-    # And the response is the synthetic 500 because we forced the compare to True
+    m.assert_called_once_with(provided, _VALID_TOKEN)
+    # Response is the synthetic 500 because we forced the compare to True.
     assert response.status_code == 500
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
-def test_synthetic_500_middleware_rejects_prefix_of_token(rf):
-    # A header value that is a strict prefix of the token must not match,
-    # regardless of what comparison function is used underneath.
-    from springfield.base.middleware import SyntheticServerErrorMiddleware
-
-    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
-    request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3c")
-    response = middleware(request)
-    assert response.status_code == 200
-    assert response.content == b"real response"
-
-
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
 def test_synthetic_500_middleware_emits_metric_on_match(rf):
     # Every successful token match increments synthetic5xx.triggered so we can
     # alert on unusual volume (legit tests are a handful of hits; a leaked-token
@@ -644,21 +688,51 @@ def test_synthetic_500_middleware_emits_metric_on_match(rf):
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
     with MetricsMock() as mm:
-        request = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="s3cret")
+        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=_VALID_TOKEN)
         response = middleware(request)
     assert response.status_code == 500
     mm.assert_incr_once("synthetic5xx.triggered", tags=["path:/en-US/"])
 
 
-@override_settings(SYNTHETIC_5XX_TOKEN="s3cret")
-def test_synthetic_500_middleware_no_metric_on_passthrough(rf):
-    # Non-matching (or no) header must NOT emit the metric.
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_emits_probe_metric_on_wrong_value(rf):
+    # Header present but wrong value = suspicious. Increments
+    # synthetic5xx.header_present_no_match so we get visibility on probing
+    # BEFORE anyone succeeds guessing the token.
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    with MetricsMock() as mm:
+        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY="b" * 64)
+        response = middleware(request)
+    assert response.status_code == 200
+    mm.assert_incr_once("synthetic5xx.header_present_no_match")
+    mm.assert_not_incr("synthetic5xx.triggered")
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_emits_probe_metric_on_wrong_length(rf):
+    # Same probe metric fires when length is wrong (e.g. attacker sending a
+    # prefix or guessing at a different length).
+    from springfield.base.middleware import SyntheticServerErrorMiddleware
+
+    middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
+    with MetricsMock() as mm:
+        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY="short")
+        response = middleware(request)
+    assert response.status_code == 200
+    mm.assert_incr_once("synthetic5xx.header_present_no_match")
+    mm.assert_not_incr("synthetic5xx.triggered")
+
+
+@override_settings(SYNTHETIC_5XX_TOKEN=_VALID_TOKEN)
+def test_synthetic_500_middleware_no_metric_on_missing_header(rf):
+    # No header at all = normal traffic, no metrics.
     from springfield.base.middleware import SyntheticServerErrorMiddleware
 
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
     with MetricsMock() as mm:
         request = rf.get("/en-US/")
         middleware(request)
-        request2 = rf.get("/en-US/", HTTP_X_SPRINGFIELD_CASCADE_TEST="wrong")
-        middleware(request2)
     mm.assert_not_incr("synthetic5xx.triggered")
+    mm.assert_not_incr("synthetic5xx.header_present_no_match")
