@@ -200,6 +200,8 @@ def test_contact_page_post_valid(
             "company_size": "1 - 10",
             "country": "US",
             "services": ["consulting", "support"],
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
 
@@ -250,6 +252,8 @@ def test_contact_page_post_email_send_failure(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
     resp = page.serve(request)
@@ -324,6 +328,8 @@ def test_contact_page_post_checkbox_group(
             "company_size": "1 - 10",
             "country": "US",
             "services": ["consulting", "implementation"],
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
 
@@ -453,6 +459,8 @@ def test_contact_page_post_valid_redirects_to_localised_page(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
     # Simulate an active fr locale for this request
@@ -544,20 +552,19 @@ def test_contact_page_hidden_field_post_value_overrides_default(
 
 
 @responses.activate
-def test_contact_page_hidden_field_falls_back_to_default_when_post_empty(
+def test_contact_page_hidden_field_missing_from_post_rejects_submission(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """When a hidden field is absent from POST, default_value is forwarded to the basket API."""
+    """A hidden field stripped from POST signals tampering: reject, never call basket."""
     basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
-
     page = ContactPage(
-        title="Hidden Field Fallback Test",
-        slug="hidden-field-fallback-test",
+        title="Hidden Field Tamper Test",
+        slug="hidden-field-tamper-test",
         form_fields=[
             {
                 "type": "text_field",
@@ -566,10 +573,7 @@ def test_contact_page_hidden_field_falls_back_to_default_when_post_empty(
             },
             {
                 "type": "hidden_field",
-                "value": {
-                    "internal_identifier": "source",
-                    "default_value": "fallback-source",
-                },
+                "value": {"internal_identifier": "source", "label": "Source", "default_value": "fallback-source"},
                 "id": "hidden-field",
             },
         ],
@@ -579,12 +583,12 @@ def test_contact_page_hidden_field_falls_back_to_default_when_post_empty(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    # POST the visible field but omit the hidden field — simulates a field stripped from the request
+    # POST the visible field but omit the hidden field — simulates tampering
     request = rf.post(page.relative_url(minimal_site), {"name": "Jane"})
-    page.serve(request)
+    response = page.serve(request)
 
-    body = json.loads(responses.calls[0].request.body)
-    assert body["source"] == "fallback-source"
+    assert response.status_code == 200  # re-rendered with error, not redirected
+    assert len(responses.calls) == 0  # basket never called
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -627,18 +631,17 @@ def test_contact_page_hidden_field_post_value_in_email(
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
-def test_contact_page_hidden_field_email_falls_back_to_default(
+def test_contact_page_hidden_field_missing_from_post_not_emailed(
     mock_email_class,
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """When a hidden field is absent from POST, default_value appears in the email body."""
+    """A hidden field stripped from POST signals tampering: reject, never send email."""
     index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
-
     page = ContactPage(
-        title="Hidden Field Email Fallback Test",
-        slug="hidden-field-email-fallback-test",
+        title="Hidden Field Tamper Email Test",
+        slug="hidden-field-tamper-email-test",
         form_fields=[
             {
                 "type": "text_field",
@@ -647,7 +650,7 @@ def test_contact_page_hidden_field_email_falls_back_to_default(
             },
             {
                 "type": "hidden_field",
-                "value": {"internal_identifier": "source", "default_value": "fallback-source"},
+                "value": {"internal_identifier": "source", "label": "Source", "default_value": "fallback-source"},
                 "id": "hidden-field",
             },
         ],
@@ -658,10 +661,75 @@ def test_contact_page_hidden_field_email_falls_back_to_default(
     page.save_revision().publish()
 
     request = rf.post(page.relative_url(minimal_site), {"name": "Jane"})
-    page.serve(request)
+    response = page.serve(request)
 
-    email_body = mock_email_class.call_args[0][1]
-    assert "fallback-source" in email_body
+    assert response.status_code == 200
+    mock_email_class.assert_not_called()
+
+
+def test_empty_submission_ignores_hidden_field_data(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """A submission where only hidden fields carry values counts as empty."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Empty Ignores Hidden",
+        slug="empty-ignores-hidden",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "message", "label": "Message", "required": False},
+                "id": "f1",
+            },
+            {
+                "type": "hidden_field",
+                "value": {"internal_identifier": "source", "label": "Source", "default_value": "web"},
+                "id": "f2",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    # Hidden fields always arrive in POST — include it, and leave the visible field empty.
+    # Without the #2 fix, the present hidden value would make has_any_data true and suppress the error.
+    response = client.post(page.full_url, {"source": "web"})
+    assert response.status_code == 200
+    assert "Please fill out the form." in response.content.decode()
+
+
+def test_empty_submission_with_required_field_shows_only_field_errors(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """When required fields are missing, show per-field errors only, not the global empty error."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Required Only Field Errors",
+        slug="required-only-field-errors",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "first_name", "label": "First name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    response = client.post(page.full_url, {})
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert "This field is required." in content
+    assert "Please fill out the form." not in content
 
 
 def test_contact_page_hidden_field_query_param_overrides_default_on_get(
@@ -954,6 +1022,8 @@ def test_contact_page_post_basket_api_called(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
     resp = page.serve(request)
@@ -999,6 +1069,8 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
         "business_phone": "555-1234",
         "company_size": "1 - 10",
         "country": "US",
+        "lead_source": "techrider.de",
+        "cta": "Request Private Briefing",
     }
     request = rf.post(page.relative_url(minimal_site), valid_data)
     resp = page.serve(request)
@@ -1041,6 +1113,8 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
         "business_phone": "555-1234",
         "company_size": "1 - 10",
         "country": "US",
+        "lead_source": "techrider.de",
+        "cta": "Request Private Briefing",
     }
     request = rf.post(page.relative_url(minimal_site), valid_data)
     resp = page.serve(request)
@@ -1088,6 +1162,8 @@ def test_contact_page_post_valid_shows_thank_you_message(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
         },
     )
     resp = page.serve(request)

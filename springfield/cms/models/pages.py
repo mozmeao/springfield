@@ -1990,29 +1990,42 @@ class ContactPage(AbstractSpringfieldCMSPage):
         return response
 
     def get_form(self, request):
-        """Return a Django Form class generated from the form_fields StreamField."""
+        """Return a Django Form instance generated from the form_fields StreamField.
+
+        Bound to ``request.POST`` for POST requests, unbound otherwise.
+        """
         form_fields = {}
         for field in self.form_fields:
             value = field.value
-            form_fields[value["internal_identifier"]] = field.value.get_form_field()
+            form_fields[value["internal_identifier"]] = value.get_form_field()
 
         ContactForm = type("ContactForm", (forms.Form,), form_fields)
 
-        field_identifiers = {f.value["internal_identifier"] for f in self.form_fields}
+        hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
+        # Hidden fields always arrive in POST (the template renders their value into
+        # the input), so they carry machine values, not user input — they must not
+        # count toward the "did the user fill anything in?" check.
+        visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
 
         def clean_form(form_self):
+            # The honeypot must stay empty, and every hidden field must arrive with a
+            # value — a filled honeypot or a missing/empty hidden field means the
+            # submission was tampered with.
             if form_self.data.get("office_fax"):
                 raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-            has_any_data = any(form_self.data.get(identifier) for identifier in field_identifiers)
-            if not has_any_data:
+            if any(not form_self.data.get(identifier) for identifier in hidden_identifiers):
+                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+            # Only flag an empty submission when no per-field error already explains
+            # what's missing — avoids stacking a global message on top of field errors.
+            has_any_data = any(form_self.data.get(identifier) for identifier in visible_identifiers)
+            if not has_any_data and not form_self.errors:
                 raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
 
         ContactForm.clean = clean_form
 
         if request.method == "POST":
             return ContactForm(request.POST)
-        else:
-            return ContactForm()
+        return ContactForm()
 
     def _get_display_data(self, form):
         """Build a display dict from raw form data for template persistence.
