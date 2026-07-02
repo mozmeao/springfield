@@ -202,6 +202,7 @@ def test_contact_page_post_valid(
             "services": ["consulting", "support"],
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
 
@@ -254,6 +255,7 @@ def test_contact_page_post_email_send_failure(
             "country": "US",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
     resp = page.serve(request)
@@ -330,6 +332,7 @@ def test_contact_page_post_checkbox_group(
             "services": ["consulting", "implementation"],
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
 
@@ -461,6 +464,7 @@ def test_contact_page_post_valid_redirects_to_localised_page(
             "country": "US",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
     # Simulate an active fr locale for this request
@@ -1053,6 +1057,7 @@ def test_contact_page_post_basket_api_called(
             "country": "US",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
     resp = page.serve(request)
@@ -1100,6 +1105,7 @@ def test_contact_page_post_basket_api_5xx_rejects_submission(
         "country": "US",
         "lead_source": "techrider.de",
         "cta": "Request Private Briefing",
+        "opt_in": True,
     }
     request = rf.post(page.relative_url(minimal_site), valid_data)
     resp = page.serve(request)
@@ -1144,6 +1150,7 @@ def test_contact_page_post_basket_api_4xx_reports_to_sentry(
         "country": "US",
         "lead_source": "techrider.de",
         "cta": "Request Private Briefing",
+        "opt_in": True,
     }
     request = rf.post(page.relative_url(minimal_site), valid_data)
     resp = page.serve(request)
@@ -1193,6 +1200,7 @@ def test_contact_page_post_valid_shows_thank_you_message(
             "country": "US",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
+            "opt_in": True,
         },
     )
     resp = page.serve(request)
@@ -1846,3 +1854,41 @@ def test_email_single_checkbox_renders_on_not_bool(
     email_body = mock_email_class.call_args[0][1]
     assert "on" in email_body
     assert "True" not in email_body
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_email_strips_rich_text_from_checkbox_label(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A checkbox field's rich-text label is rendered as plain text (HTML tags stripped) in the email."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    page = ContactPage(
+        title="Rich Text Label Email",
+        slug="rich-text-label-email",
+        form_fields=[
+            {
+                "type": "checkbox_field",
+                "value": {
+                    "internal_identifier": "agree",
+                    "label": "<p>I <strong>agree</strong> to the terms</p>",
+                    "required": False,
+                },
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"agree": "on"})
+    page.serve(request)
+
+    email_body = mock_email_class.call_args[0][1]
+    assert "I agree to the terms" in email_body
+    assert "<strong>" not in email_body
+    assert "<p>" not in email_body

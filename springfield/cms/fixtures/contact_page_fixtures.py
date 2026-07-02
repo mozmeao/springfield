@@ -116,7 +116,7 @@ def get_form_field_variants() -> list[dict]:
                 "internal_identifier": "opt_in",
                 "label": '<p data-block-key="ctpoptin1">By checking this box, you agree to the '
                 '<a href="/terms-and-conditions/">terms and conditions</a>.</p>',
-                "required": False,
+                "required": True,
             },
             "id": "checkbox-field",
         },

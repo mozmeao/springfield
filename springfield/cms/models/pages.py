@@ -28,6 +28,8 @@ from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
+from wagtail.rich_text import RichText
+from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
@@ -2005,10 +2007,17 @@ class ContactPage(AbstractSpringfieldCMSPage):
     def send_form_email(self, request) -> bool:
         """Collect form data and send it as an email."""
 
+        from springfield.cms.templatetags.cms_tags import remove_tags
+
         success = None
         try:
             values = self._collect_field_values(request.form)
-            field_data = [{"label": field.value["label"], "value": values.get(field.value["internal_identifier"], "")} for field in self.form_fields]
+            field_data = []
+            for field in self.form_fields:
+                label = field.value["label"]
+                if isinstance(label, RichText):
+                    label = remove_tags(richtext(label))
+                field_data.append({"label": label, "value": values.get(field.value["internal_identifier"], "")})
 
             msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
             subject = f"Contact form submission: {self.title}"
