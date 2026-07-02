@@ -696,7 +696,6 @@ def test_empty_submission_ignores_hidden_field_data(
     page.save_revision().publish()
 
     # Hidden fields always arrive in POST — include it, and leave the visible field empty.
-    # Without the #2 fix, the present hidden value would make has_any_data true and suppress the error.
     response = client.post(page.full_url, {"source": "web"})
     assert response.status_code == 200
     assert "Please fill out the form." in response.content.decode()
