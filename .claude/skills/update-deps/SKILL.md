@@ -81,7 +81,7 @@ Check version alignment across these files:
 | **prettier** | `package.json` (devDependencies), `.pre-commit-config.yaml` (mirrors-prettier additional_dependencies) |
 | **stylelint** | `package.json` (devDependencies), `.pre-commit-config.yaml` (both stylelint hook entries' additional_dependencies) |
 | **stylelint-config-standard-scss** | `package.json` (devDependencies), `.pre-commit-config.yaml` (both stylelint hook entries) |
-| **stylelint-use-logical** | `package.json` (devDependencies), `.pre-commit-config.yaml` (flare26 stylelint hook entry) |
+| **stylelint-use-logical** | `package.json` (devDependencies), `.pre-commit-config.yaml` (flare stylelint hook entry) |
 | **postcss** | `package.json` (dependencies), `.pre-commit-config.yaml` (both stylelint hook entries) |
 | **eslint-config-prettier** | `package.json` (devDependencies), `.pre-commit-config.yaml` (eslint hook additional_dependencies) |
 

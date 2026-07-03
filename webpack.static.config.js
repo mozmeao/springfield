@@ -31,7 +31,7 @@ module.exports = {
                         ignore: [
                             '**/*.scss',
                             '**/*.js',
-                            // These are webpack entry points compiled to assets/css/flare26-*.css.
+                            // These are webpack entry points compiled to assets/css/flare-*.css.
                             // Copying them raw would expose @import paths that are resolved by
                             // the custom webpack loader (relative to media/css/cms/) but are
                             // invalid when Django's ManifestStaticFilesStorage post-processes

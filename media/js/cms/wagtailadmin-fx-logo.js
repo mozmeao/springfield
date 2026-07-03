@@ -52,7 +52,7 @@ function FXLogo(props) {
 
     // The decorator displays the Firefox logo in the editor
     // It wraps the non-breaking space with a styled span
-    // The styles need to match those from media/css/cms/flare26-typography.css
+    // The styles need to match those from media/css/cms/flare-typography.css
     return window.React.createElement(
         'span',
         {

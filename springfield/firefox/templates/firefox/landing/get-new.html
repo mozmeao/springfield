@@ -4,13 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block html_attrs %}data-promoted-page="true"{% endblock %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
-{% block page_css %}{{ css_bundle('flare26-landing-get-page') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-landing-get-page') }}{% endblock %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-landing-get-refresh' %}
 

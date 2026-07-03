@@ -4,16 +4,11 @@
 
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import TemplateView
 
 from wagtail.models import Locale as WagtailLocale, Site
 from wagtail.views import serve as wagtail_serve
 
 from springfield.cms.utils import find_fallback_page_for_locale
-
-
-class FlareTestView(TemplateView):
-    template_name = "cms/flare-test.html"
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
