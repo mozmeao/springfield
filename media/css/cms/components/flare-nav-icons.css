@@ -1,0 +1,47 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-nav-icon-up-right-arrow {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/append-up-right-24.svg');
+}
+
+.fl-nav-icon-avatar-info-circle {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/avatar-info-circle-fill-24.svg');
+}
+
+.fl-nav-icon-extensions {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/extension-fill-24.svg');
+}
+
+.fl-nav-icon-lock {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/lock-fill-24.svg');
+}
+
+.fl-nav-icon-reader-view-customize {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/reader-view-customize-24.svg');
+}
+
+.fl-nav-icon-reader-view {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/reader-view-fill-24.svg');
+}
+
+.fl-nav-icon-more-grid {
+    color: var(--token-color-nav-icon-purple);
+
+    --icon-src: url('/media/img/firefox/flare/nav/more-grid-24.svg');
+}

@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 
 {% block flare_header %}
@@ -12,13 +12,13 @@
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
 
-  <include:flare26-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
+  <include:flare-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-<div class="fl-page fl-freeform-2026-page">
+<div class="fl-page fl-freeform-page">
   {% if page.upper_content %}
     <div class="fl-main has-gradient-bottom">
       {% set ns = namespace(headings=0) %}
