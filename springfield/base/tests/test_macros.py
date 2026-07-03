@@ -73,7 +73,7 @@ EXPECTED_NAV_HTML = {
         ),
     ],
 )
-@pytest.mark.skip("Sharing Flare26 markup for now, need to separate to Flare26 tests")
+@pytest.mark.skip("Sharing Flare markup for now, need to separate to Flare tests")
 def test_sub_nav_markup(test_input, expected):
     mock_request = {"request": {"path": "/current"}, "fluent_l10n": fluent_l10n(["en-US", "en"], settings.FLUENT_DEFAULT_FILES)}
     # need to import with context for the request key to pass along the path value

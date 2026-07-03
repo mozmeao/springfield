@@ -296,9 +296,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     download_url = None
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        template_name = "firefox/all/includes/main-flare26.html"
+        template_name = "firefox/all/includes/main-flare.html"
     else:
-        template_name = "firefox/all/base-flare26.html"
+        template_name = "firefox/all/base-flare.html"
 
     lang_multi = ftl("firefox-all-lang-multi", ftl_files=ftl_files)
 
