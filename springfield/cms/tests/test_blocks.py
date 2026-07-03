@@ -1217,8 +1217,8 @@ def test_buttons(index_page, rf):
 
         for block_index, (intro, block) in enumerate(zip(intros, blocks)):
             buttons_data = next(b for b in block["value"]["content"] if b["type"] == "buttons")["value"]
-            # Store buttons render as fl-store-button; all others render as fl-button
-            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button"]]
+            # Store/uitour/qr_code_modal buttons don't render as <a class="fl-button">
+            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button", "qr_code_modal_button"]]
             store_data = [b for b in buttons_data if b["type"] == "store_button"]
 
             button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]
