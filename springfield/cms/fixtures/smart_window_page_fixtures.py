@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
 from springfield.cms.models.pages import SmartWindowPage
 
@@ -314,16 +314,17 @@ def get_smart_window_test_page() -> SmartWindowPage:
     index_page = get_flare_pages_docs_page()
 
     slug = "test-smart-window"
-    page = SmartWindowPage.objects.filter(slug=slug).first()
-    if not page:
-        page = SmartWindowPage(
-            slug=slug,
-            title="Smart Window Page",
-            heading_text='<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
-            subheading_text='<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
-            image=image,
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        SmartWindowPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Smart Window Page",
+            "heading_text": '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
+            "subheading_text": '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
+            "image": image,
+        },
+    )
 
     page.heading_text = '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>'
     page.subheading_text = '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>'

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -141,14 +141,18 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-icon-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Icon Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Icon Cards",
+        },
+    )
 
     sections = get_icon_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.docs = (
         "<p>Icon Cards present a small icon, a headline, and a short description. They&rsquo;re ideal for feature roundups, "
         "value-prop lists, and at-a-glance sections where you have many short items to surface.</p>"

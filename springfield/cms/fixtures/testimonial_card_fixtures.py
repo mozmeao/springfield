@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -163,14 +163,18 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-testimonial-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Testimonial Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Testimonial Cards",
+        },
+    )
 
     sections = get_testimonial_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.docs = (
         "<p>Testimonial Cards display user or critic quotes with attribution, optional avatars, and optional star ratings. Use them "
         "to surface social proof on product pages, plans pages, or the homepage.</p>"

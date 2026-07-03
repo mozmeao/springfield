@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.models import ContactPage
 
 
@@ -148,15 +148,16 @@ def get_contact_test_page() -> ContactPage:
     index_page = get_flare_pages_docs_page()
 
     slug = "test-contact-page"
-    page = ContactPage.objects.filter(slug=slug).first()
-    if not page:
-        page = ContactPage(
-            slug=slug,
-            title="Test Contact Page",
-            basket_api_path="/api/v1/contact/enterprise/",
-            thank_you_message='<p data-block-key="ctpty1">Thanks for reaching out!</p>',
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        ContactPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Test Contact Page",
+            "basket_api_path": "/api/v1/contact/enterprise/",
+            "thank_you_message": '<p data-block-key="ctpty1">Thanks for reaching out!</p>',
+        },
+    )
 
     page.intro = [
         {

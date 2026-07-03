@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
@@ -816,17 +816,18 @@ def get_banner_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage2026.objects.filter(slug="test-banner-page").first()
-    if not page:
-        page = FreeFormPage2026(
-            slug="test-banner-page",
-            title="Banner",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug="test-banner-page",
+        parent=index_page,
+        defaults={
+            "title": "Banner",
+        },
+    )
 
     variants = get_banner_variants()
-    page.upper_content = variants
-    page.content = variants
+    page.upper_content = with_fresh_ids(variants)
+    page.content = with_fresh_ids(variants)
     page.docs = (
         "<p>The Banner block is a hero-style headline section designed for the top of a page or to introduce a major topic. "
         "It supports an eyebrow superheading, a primary heading, optional subheading, body content (rich text, tags, buttons), "

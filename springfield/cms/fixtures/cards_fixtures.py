@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -195,14 +195,18 @@ def get_sticker_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-sticker-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Sticker Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Sticker Cards",
+        },
+    )
 
     sections = get_sticker_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.docs = (
         "<p>Sticker Cards display a compact, square-format image card with a short caption. They work well for thumbnail-style "
         "listings (e.g. quick links, theme galleries) where the image is the primary content.</p>"
@@ -324,14 +328,18 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-illustration-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Illustration Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Illustration Cards",
+        },
+    )
 
     sections = get_illustration_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.docs = (
         "<p>Illustration Cards combine a generous illustration with a headline, description, and one or more buttons. They&rsquo;re "
         "the workhorse card for product and feature roundups where each item needs equal visual prominence.</p>"
@@ -436,10 +444,14 @@ def get_step_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-step-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Step Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Step Cards",
+        },
+    )
 
     sections = get_step_cards_sections()
     page.upper_content = sections
@@ -560,14 +572,18 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-outlined-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Outlined Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Outlined Cards",
+        },
+    )
 
     sections = get_outlined_cards_sections()
-    page.upper_content = sections
-    page.content = sections
+    page.upper_content = with_fresh_ids(sections)
+    page.content = with_fresh_ids(sections)
     page.docs = (
         "<p>Outlined Cards present text-heavy content (descriptions, comparisons, FAQs) within a bordered container. They "
         "de-emphasize imagery in favor of typography.</p>"
