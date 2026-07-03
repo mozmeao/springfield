@@ -3434,6 +3434,17 @@ class HiddenFieldBlock(BaseField):
         value_class = HiddenFieldValue
 
 
+class CountrySelectFieldValue(SelectFieldValue):
+    def get_choices(self):
+        # The choices displayed to the user are localized and built by the block's get_context
+        # method. The choices built here are used for validation only.
+        countries = sorted(
+            ((code.upper(), name) for code, name in product_details.get_regions(settings.LANGUAGE_CODE).items()),
+            key=lambda item: item[1],
+        )
+        return countries
+
+
 class CountrySelectFieldBlock(BaseField):
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
@@ -3450,4 +3461,4 @@ class CountrySelectFieldBlock(BaseField):
         template = "cms/blocks/form_fields/country_select_field.html"
         label = "Country Select Field"
         label_format = "Country Select - {label}"
-        value_class = BaseFieldValue
+        value_class = CountrySelectFieldValue

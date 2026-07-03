@@ -325,6 +325,46 @@ def test_contact_page_country_select_field_renders_countries(
     assert 'value="US"' in content or 'value="GB"' in content
 
 
+def test_contact_page_country_select_field_renders_localized_countries(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """CountrySelectField renders a <select> populated with localized labels for country options."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    page = ContactPage(
+        title="Test de sélection de pays",
+        slug="test-select-pays",
+        form_fields=[
+            {
+                "type": "country_select_field",
+                "value": {
+                    "internal_identifier": "pays",
+                    "label": "Pays",
+                    "required": True,
+                },
+                "id": "pays-select-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    fr_page = page.copy_for_translation(fr_locale)
+    fr_page.save_revision().publish()
+
+    request = rf.get(fr_page.relative_url(minimal_site))
+    response = fr_page.serve(request)
+    content = response.text
+
+    assert response.status_code == 200
+    assert 'option value="FR">France' in content
+
+
 def test_contact_page_textarea_field_renders_correctly(
     minimal_site: Site,
     rf: RequestFactory,
@@ -364,6 +404,27 @@ def test_contact_page_textarea_field_renders_correctly(
 
 
 # Form validation
+
+
+def test_contact_page_post_requires_csrf_token(
+    minimal_site: Site,
+) -> None:
+    """POST without a valid CSRF token is rejected with 403."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="CSRF Test",
+        slug="csrf-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    client = Client(enforce_csrf_checks=True)
+    resp = client.post(page.full_url, {"full_name": "Bot"})
+    assert resp.status_code == 403
 
 
 def test_contact_page_includes_form_data_in_context(
@@ -899,6 +960,43 @@ def test_contact_page_displays_country_select_field_value_after_validation_error
     mock_email_class.assert_not_called()
 
 
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_validates_country_select_field(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Validates the country select field."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Country Validation Test",
+        slug="country-validation-test",
+        form_fields=[
+            {
+                "type": "country_select_field",
+                "value": {
+                    "internal_identifier": "country",
+                    "label": "Country",
+                    "required": False,
+                },
+                "id": "country-select-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.post(page.relative_url(minimal_site), {"country": "not-an-option"})
+    response = page.serve(request)
+    assert response.status_code == 200
+    assert "Please select a valid option" in response.text
+    mock_email_class.assert_not_called()
+
+
 # Hidden field
 
 
@@ -1311,27 +1409,6 @@ def test_contact_page_hidden_field_value_preserved_on_validation_error(
     assert "This field is required." in content
     assert 'name="lead_source"' in content
     assert 'value="partner"' in content
-
-
-def test_contact_page_post_requires_csrf_token(
-    minimal_site: Site,
-) -> None:
-    """POST without a valid CSRF token is rejected with 403."""
-    index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
-
-    page = ContactPage(
-        title="CSRF Test",
-        slug="csrf-test",
-        to_email_address="test@example.com",
-        redirect_to=thank_you_page,
-    )
-    index_page.add_child(instance=page)
-    page.save_revision().publish()
-
-    client = Client(enforce_csrf_checks=True)
-    resp = client.post(page.full_url, {"full_name": "Bot"})
-    assert resp.status_code == 403
 
 
 # Valid form submission
