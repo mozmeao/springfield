@@ -109,9 +109,8 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     page.upper_content = variants
     page.content = variants
     page.docs = (
-        "<p>The Sliding Carousel block is a continuous-sliding variant of the Carousel: items scroll smoothly across the viewport "
-        "rather than snapping page-by-page. It&rsquo;s well suited for logo strips, screenshot galleries, and any visual collection "
-        "where continuous motion communicates &lsquo;more here&rsquo;.</p>"
+        "<p>The Sliding Carousel block is a continuous-sliding variant of the Carousel. It&rsquo;s well suited for screenshot "
+        "galleries, and any visual collection where continuous motion communicates &lsquo;more here&rsquo;.</p>"
         "<p>Keep slide content visually consistent (matching backgrounds, similar dimensions). Don&rsquo;t include CTAs inside "
         "sliding items &mdash; the motion makes them hard to click.</p>"
     )

@@ -64,12 +64,6 @@ def get_kit_intro_test_page() -> FreeFormPage2026:
     # Add the Kit Intro block data to the Content field despite the block not being allowed there
     # to test that it isn't rendered on the page
     page.content = content
-    page.docs = (
-        "<p>The Kit Intro block is the kit-themed counterpart to the standard Intro block. It introduces a kit-branded section "
-        "with brand-specific surface treatment and typography.</p>"
-        "<p>Use one Kit Intro per section maximum; pairing it with non-kit intros on the same page should be avoided. Like the "
-        "standard Intro, choose vertical or side layouts based on whether media should anchor the eye. The Kit Intro is only "
-        "allowed in the upper-content slot &mdash; placing it in the regular content slot has no effect.</p>"
-    )
+    page.docs = "<p>The Kit Intro block is the main component of our home page. We should avoid using it in other pages.</p>"
     page.save_revision().publish()
     return page

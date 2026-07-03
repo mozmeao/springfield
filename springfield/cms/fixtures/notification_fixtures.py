@@ -215,7 +215,7 @@ def get_notification_test_page() -> FreeFormPage2026:
         "<p>The Notification block displays a contextual alert &mdash; informational, success, warning, or error &mdash; with an "
         "optional icon, color, headline, and closability. Use it for time-sensitive messages, system status, or in-page guidance.</p>"
         "<p>Pick the color to match severity: purple for general info, green for success / confirmation, orange for warnings, red "
-        "for errors. Mark closable=True when the message is dismissable per session; leave it false when the user must act on it "
+        "for errors. Mark &ldquo;closable&rdquo; when the message is dismissible per session; leave it false when the user must act on it "
         "before continuing.</p>"
     )
     page.save_revision().publish()

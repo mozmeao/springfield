@@ -102,8 +102,9 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
     page.upper_content = variants
     page.content = variants
     page.docs = (
-        "<p>The Featured Image Section block pairs a prominent image with a heading and body copy. Compared with the Banner block, it "
-        "sits inline within a page rather than at the top, and emphasizes editorial storytelling over CTA-driven hero treatment.</p>"
+        "<p>The Featured Image Section block pairs a prominent image with a heading and body copy. "
+        "It is great for setting the mood and theme for a page, "
+        "and emphasizes editorial storytelling over CTA-driven hero treatment.</p>"
         "<p>Choose imagery that adds context to the surrounding copy. The image&rsquo;s aspect ratio drives the section&rsquo;s vertical "
         "rhythm, so test on mobile before publishing.</p>"
     )

@@ -386,7 +386,7 @@ def get_banner_snippet_test_page() -> FreeFormPage2026:
         "referenced from any page&rsquo;s content stream via the &lsquo;banner_snippet&rsquo; block. Editing the snippet updates "
         "every page that references it.</p>"
         "<p>Use the Banner Snippet when the same banner needs to appear (with the same copy and asset) on multiple pages. For "
-        "one-off banners, prefer the inline Banner block. The kit_theme flag on the snippet toggles brand-kit styling.</p>"
+        "one-off banners, prefer the inline Banner block. The kit_theme flag on the snippet toggles a Kit image.</p>"
     )
     page.save_revision().publish()
     return page

@@ -1041,13 +1041,8 @@ def get_buttons_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(blocks)
     page.content = with_fresh_ids(blocks)
     page.docs = (
-        "<p>The Buttons block renders one or more buttons inline. Available variants cover the standard themes (primary, secondary, "
-        "ghost, gold), the special download / get-Firefox buttons that resolve at render time to the correct platform, store buttons "
-        "for App Store / Play Store / etc., and the Set-as-Default and FxA/UITour buttons.</p>"
-        "<p>Pick the theme to match the action&rsquo;s importance: primary for the page&rsquo;s key CTA, secondary for alternatives, "
-        "ghost for tertiary or destructive actions. Always provide an analytics_id so events can be tracked. For Firefox downloads, "
-        "prefer the dedicated download button over a custom link &mdash; it handles platform detection and locale-aware URLs "
-        "automatically.</p>"
+        "<p>This page has one example for every single available button in the app. "
+        "If you need a button, open this page inline to see all button types.</p>"
     )
     page.save_revision().publish()
     return page
