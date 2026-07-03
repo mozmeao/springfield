@@ -71,7 +71,7 @@ def qrcode(data, box_size=20):
 
 @library.global_function
 def qrcode_rounded(data, box_size=20):
-    key = sha1(f"rounded11-{data}-{box_size}".encode()).hexdigest()
+    key = sha1(f"rounded-{data}-{box_size}".encode()).hexdigest()
     b64 = cache.get(key)
     if not b64:
         qr_obj = qr.QRCode(
