@@ -171,7 +171,7 @@ def test_releases_index__product_other_than_firefox(render_mock, rf):
     ],
 )
 @patch("springfield.releasenotes.views.latest_release")
-def test_latest_redirects_preserve_query_params(view_func, url_method, latest_release_mock, rf):
+def test_latest_redirects_preserve_query_params(latest_release_mock, view_func, url_method, rf):
     mock_release = latest_release_mock.return_value
     mock_release.get_sysreq_url.return_value = "/firefox/ios/152.0/system-requirements/"
     mock_release.get_absolute_url.return_value = "/en-US/firefox/ios/152.0/releasenotes/"
@@ -192,7 +192,7 @@ def test_latest_redirects_preserve_query_params(view_func, url_method, latest_re
     ],
 )
 @patch("springfield.releasenotes.views.latest_release")
-def test_latest_redirects_without_query_params(view_func, url_method, latest_release_mock, rf):
+def test_latest_redirects_without_query_params(latest_release_mock, view_func, url_method, rf):
     mock_release = latest_release_mock.return_value
     mock_release.get_sysreq_url.return_value = "/firefox/ios/152.0/system-requirements/"
     mock_release.get_absolute_url.return_value = "/en-US/firefox/ios/152.0/releasenotes/"
