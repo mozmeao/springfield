@@ -2007,7 +2007,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
     def send_form_email(self, request) -> bool:
         """Collect form data and send it as an email."""
 
-        from springfield.cms.templatetags.cms_tags import remove_tags
+        from springfield.cms.templatetags.cms_tags import remove_tags  # Circular import
 
         success = None
         try:
