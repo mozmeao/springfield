@@ -1960,7 +1960,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
             if honeypot or empty_hidden_fields:
                 raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
             # Only flag an empty submission when no per-field error already exists
-            has_any_data = any(_self.data.get(identifier) for identifier in visible_identifiers)
+            has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
             if not has_any_data and not _self.errors:
                 raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
 
