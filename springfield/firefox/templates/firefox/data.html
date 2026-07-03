@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block page_title_full %}How Firefox Protects Your Data{% endblock %}
 {% block page_title %}How Firefox Protects Your Data{% endblock %}
@@ -16,7 +16,7 @@
 {% block body_class %}mzp-t-mozilla format-none{% endblock%}
 
 {% block page_css %}
-  {{ css_bundle('flare26-user-privacy') }}
+  {{ css_bundle('flare-user-privacy') }}
 {% endblock %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral' %}
@@ -25,7 +25,7 @@
 {% block main_attrs %}{% endblock %}
 
 {% block content %}
-  {% include "firefox/data/data-flare26.html" %}
+  {% include "firefox/data/data-flare.html" %}
 {% endblock %}
 
 {% block js %}
