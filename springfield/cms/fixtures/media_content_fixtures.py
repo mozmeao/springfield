@@ -268,7 +268,7 @@ def get_media_content_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Test Media Content 2026",
+            "title": "Media Content",
         },
     )
 

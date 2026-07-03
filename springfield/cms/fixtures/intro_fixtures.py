@@ -228,7 +228,7 @@ def get_intro_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Test Intro 2026",
+            "title": "Intro",
         },
     )
 
