@@ -9,7 +9,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   class="windows no-js"
   lang="{{ LANG|replace('en-US', 'en') }}"
   dir="{{ DIR }}"
-  data-attribution-refactor-enabled="{{ switch('enable_attribution_refactor') }}"
   data-country-code="{{ country_code }}"
   data-needs-consent="{{ needs_data_consent(country_code) }}"
   data-latest-firefox="{{ latest_firefox_version }}"
@@ -126,29 +125,29 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% if page is defined and page.body_class %}
         {{ css_bundle(page.body_class) }}
       {% endif %}
+      {% if page is defined and page.theme %}
+        {{ css_bundle("flare-theme-" ~ page.theme) }}
+      {% endif %}
     {% endblock %}
 
     {# site bundle must load in head before analytics #}
     {{ js_bundle('site') }}
-
     {% block experiments %}{% endblock %}
-
     {% block google_analytics %}
-      {% if settings.GTM_CONTAINER_ID %}
-        {{ js_bundle('gtm-snippet') }}
-      {% endif %}
+    {% if settings.GTM_CONTAINER_ID %}
+    {{ js_bundle('gtm-snippet') }}
+    {% endif %}
     {% endblock %}
-
     {% block plausible %}
-      {% if plausible_enabled(country_code) %}
-        {{ js_bundle('plausible') }}
-      {% endif %}
+    {% if plausible_enabled(country_code) %}
+    {{ js_bundle('plausible') }}
+    {% endif %}
     {% endblock %}
   </head>
 
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
-    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}"
+    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %} {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}"
     {% block body_attrs %}{% endblock %}
   >
     {{ wagtailuserbar() }}

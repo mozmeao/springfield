@@ -97,6 +97,14 @@ BASE_UTM_PARAMETERS = {
 }
 
 
+FIREFOX_THEME = ""
+ENTERPRISE_THEME = "enterprise"
+THEME_CHOICES = (
+    (FIREFOX_THEME, "Firefox"),
+    (ENTERPRISE_THEME, "Enterprise"),
+)
+
+
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
     under/in which other pages live.
@@ -1029,6 +1037,15 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         blank=True,
         null=True,
     )
+
+    theme = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=THEME_CHOICES,
+        default=FIREFOX_THEME,
+        verbose_name="Theme",
+        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
+    )
     show_pre_footer = models.BooleanField(
         default=True,
         verbose_name="Show Pre-Footer",
@@ -1064,22 +1081,36 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        MultiFieldPanel(
-            [
-                FieldPanel("show_pre_footer"),
-                FieldPanel("show_navigation"),
-                FieldPanel("show_nav_cta"),
-                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
-                *QRCodeFloatingSnippetMixin.floating_qr_panels,
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
-            ],
-            heading="Page Options",
-        ),
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
         FieldPanel("enable_marketing_attribution"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("theme"),
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+            ],
+            heading="Appearance",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_navigation"),
+                FieldPanel("show_nav_cta"),
+            ],
+            heading="Navigation",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_pre_footer"),
+                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Snippets",
+        ),
     ]
 
     class Meta:
@@ -1157,6 +1188,14 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         use_json_field=True,
     )
 
+    theme = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=THEME_CHOICES,
+        default=FIREFOX_THEME,
+        verbose_name="Theme",
+        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
+    )
     body_class = models.CharField(
         max_length=255,
         blank=True,
@@ -1178,13 +1217,16 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
+                FieldPanel("theme"),
                 FieldPanel("body_class"),
                 FieldPanel("extra_js"),
-                *QRCodeFloatingSnippetMixin.floating_qr_panels,
             ],
-            heading="Page Settings",
+            heading="Appearance",
         ),
     ]
 

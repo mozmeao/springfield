@@ -181,3 +181,26 @@
         display: none;
     }
 }
+
+.fl-qr-code-dialog {
+    background: var(--token-color-white);
+    border-radius: var(--token-border-radius-sm);
+    color: var(--token-color-black-4);
+    margin: auto;
+    max-inline-size: 22.5rem;
+    padding: 0;
+}
+
+.fl-qr-code-dialog .fl-qr-code-floating-button {
+    inset-block-start: var(--token-spacing-md);
+    inset-inline-end: var(--token-spacing-xs);
+}
+
+.fl-qr-code-dialog .fl-qr-code-floating-content {
+    padding-block: var(--token-spacing-lg);
+}
+
+.fl-qr-code-dialog .fl-qr-code-image img {
+    block-size: 100%;
+    inline-size: 100%;
+}

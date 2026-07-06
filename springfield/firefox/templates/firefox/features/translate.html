@@ -25,8 +25,9 @@
 <ul class="c-lang-list c-translate-lang-list mzp-u-list-styled">
 {%- set display = 'English' if LANG.startswith('en-') else 'native' -%}
 {%- for lang in translate_langs -%}
-  {# Remove regional variants for the listing #}
-  {%- set name = (lang_names[lang][display] if lang_names[lang] else lang).split(' (')[0] %}
+  {# Remove regional variants save for zh #}
+  {%- set full_name = lang_names[lang][display] if lang_names[lang] else lang %}
+  {%- set name = full_name if lang in ['zh-CN', 'zh-TW'] else full_name.split(' (')[0] %}
   <li data-lang="{{ lang }}"{% if display == 'native' %} lang="{{ lang }}"{% endif %}>{{ name }}</li>
 {%- endfor %}
 </ul>

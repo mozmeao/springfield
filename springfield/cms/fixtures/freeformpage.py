@@ -4,7 +4,13 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    get_flare_blocks_docs_page,
+    get_flare_pages_docs_page,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
 from springfield.cms.fixtures.snippet_fixtures import (
     get_floating_qr_code_snippet,
     get_pencil_banner_snippet,
@@ -80,6 +86,7 @@ def get_mobile_browsers_cards():
                                 "email": "",
                                 "phone": "",
                                 "new_window": False,
+                                "relative_url": "",
                             },
                         },
                         "id": "11111111-1111-1111-1111-111111111112",
@@ -112,6 +119,7 @@ def get_mobile_browsers_cards():
                                 "email": "",
                                 "phone": "",
                                 "new_window": False,
+                                "relative_url": "",
                             },
                         },
                         "id": "22222222-2222-2222-2222-222222222222",
@@ -144,6 +152,7 @@ def get_mobile_browsers_cards():
                                 "email": "",
                                 "phone": "",
                                 "new_window": False,
+                                "relative_url": "",
                             },
                         },
                         "id": "33333333-3333-3333-3333-333333333332",
@@ -159,13 +168,14 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "mobile-store-qr-code"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Mobile Store QR Code",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Mobile Store QR Code",
+        },
+    )
 
     page.upper_content = [get_mobile_store_qr_code()]
     page.content = [get_mobile_store_qr_code()]
@@ -177,40 +187,43 @@ def get_freeform_page_test_page() -> FreeFormPage2026:
     index_page = get_flare_pages_docs_page()
 
     slug = "freeform"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form Page",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form Page",
+        },
+    )
 
     page.upper_content = [get_mobile_store_qr_code()]
-    page.content = [
-        {
-            "type": "section",
-            "value": {
-                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-                "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="sh1ff">Find the Firefox that fits you.</p>',
-                    "subheading_text": "",
+    page.content = with_fresh_ids(
+        [
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                    "heading": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="sh1ff">Find the Firefox that fits you.</p>',
+                        "subheading_text": "",
+                    },
+                    "content": [
+                        {
+                            "type": "cards_list",
+                            "value": {
+                                "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+                                "cards": get_mobile_browsers_cards(),
+                            },
+                            "id": "44444444-4444-4444-4444-444444444444",
+                        }
+                    ],
+                    "cta": [],
                 },
-                "content": [
-                    {
-                        "type": "cards_list",
-                        "value": {
-                            "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
-                            "cards": get_mobile_browsers_cards(),
-                        },
-                        "id": "44444444-4444-4444-4444-444444444444",
-                    }
-                ],
-                "cta": [],
+                "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
             },
-            "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
-        },
-    ]
+        ]
+    )
     snippet = get_pencil_banner_snippet()
     PencilBannerPlacement.objects.get_or_create(page=page, snippet=snippet)
     page.save_revision().publish()
@@ -265,13 +278,14 @@ def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-set-as-default"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — Set as Default Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — Set as Default Test",
+        },
+    )
 
     page.content = [get_set_as_default_button_block()]
     page.save_revision().publish()
@@ -283,13 +297,14 @@ def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-qr"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — QR Snippet Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — QR Snippet Test",
+        },
+    )
 
     page.content = [get_mobile_store_qr_code()]
     page.show_qr_code_snippet = True
@@ -302,13 +317,14 @@ def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-floating-qr"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(
-            slug=slug,
-            title="Free Form — Floating QR Snippet Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Free Form — Floating QR Snippet Test",
+        },
+    )
 
     page.content = [get_mobile_store_qr_code()]
     page.show_floating_qr_code_snippet = True

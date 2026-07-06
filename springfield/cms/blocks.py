@@ -527,6 +527,7 @@ SET_AS_DEFAULT_BUTTON = "set_as_default_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
+QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
 
 
 BUTTON_PRIMARY = ""
@@ -775,7 +776,7 @@ def get_button_types(allow_uitour=False):
     """
     base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON]
+        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
     return base_button_types
 
 
@@ -1115,6 +1116,26 @@ def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
     return _SetAsDefaultButtonBlock(**kwargs)
 
 
+def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
+    class _QRCodeModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        url = blocks.URLBlock(label="QR Code URL", help_text="URL to encode as a QR code")
+        heading = blocks.CharBlock(label="Modal heading")
+        content = blocks.CharBlock(label="Modal caption", required=False)
+
+        class Meta:
+            template = "cms/blocks/qr-code-modal-button.html"
+            label = "QR Code Modal Button"
+            label_format = "{custom_label} {pretranslated_label}"
+            value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "url", "heading", "content"],
+                settings=["settings"],
+            )
+
+    return _QRCodeModalButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -1258,6 +1279,7 @@ def MixedButtonsBlock(
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
+        QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],

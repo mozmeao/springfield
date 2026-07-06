@@ -547,6 +547,12 @@
       ],
       "name": "flare26-kick-page",
       "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-kick-page' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise.css"
+      ],
+      "name": "flare-theme-enterprise"
     }
   ],
   "js": [
