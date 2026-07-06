@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 from collections import defaultdict
+from contextvars import ContextVar
 from http import HTTPStatus
 
 from django.conf import settings
@@ -15,6 +16,8 @@ from springfield.base.i18n import normalize_language
 from springfield.cms.views import _serve_fallback_page
 
 logger = logging.getLogger(__name__)
+
+_is_admin_request = ContextVar("is_wagtail_admin_request", default=False)
 
 
 class CMSLocaleFallbackMiddleware:
@@ -164,3 +167,35 @@ class CMSLocaleFallbackMiddleware:
             # This gets called as a 404, so let's just treat it as Not Found
             return True
         return False
+
+
+def is_wagtail_admin_request():
+    """True while the current execution context is handling a Wagtail-admin request."""
+    return _is_admin_request.get()
+
+
+class WagtailAdminRequestMiddleware:
+    """
+    Set the admin-request flag for the duration of a Wagtail-admin request.
+
+    Backed by a ``ContextVar`` so it is correct under both sync (WSGI) and async
+    (ASGI) workers: the value is isolated per execution context and restored in a
+    ``finally``, so it cannot leak between requests sharing a worker thread.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Match the Wagtail admin mount exactly: the prefix followed by "/" (so a
+        # public path such as "/cms-administrator/" can't be mistaken for the
+        # admin), plus the bare prefix itself (which redirects to the
+        # trailing-slash URL).
+        admin_prefix = "/" + settings.WAGTAIL_ADMIN_URL_PREFIX.strip("/")
+        path = request.path
+        is_admin_request = path == admin_prefix or path.startswith(admin_prefix + "/")
+        token = _is_admin_request.set(is_admin_request)
+        try:
+            return self.get_response(request)
+        finally:
+            _is_admin_request.reset(token)

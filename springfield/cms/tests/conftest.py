@@ -11,6 +11,7 @@ from wagtail.models import Locale, Page, Site
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.middleware import _is_admin_request
 from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
@@ -363,3 +364,29 @@ def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_
     it_translation = fr_page.copy_for_translation(it_locale)
     it_translation.title = "Italian Translation"
     it_translation.save_revision().publish()
+
+
+@pytest.fixture
+def admin_request_middleware_admin_request():
+    """
+    Simulate the effects of WagtailAdminRequestMiddleware on a request.
+    """
+    token = _is_admin_request.set(True)
+    try:
+        yield
+    finally:
+        _is_admin_request.reset(token)
+
+
+@pytest.fixture
+def pt_pt_test_page(tiny_localized_site):
+    """
+    A pt-PT translation of the en-US test-page (with a live pt-PT root).
+    """
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    site.root_page.copy_for_translation(pt_pt_locale).save_revision().publish()
+    en_test_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    pt_pt_page = en_test_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.save_revision().publish()
+    return pt_pt_page.specific

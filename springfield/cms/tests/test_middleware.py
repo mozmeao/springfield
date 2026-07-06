@@ -9,7 +9,7 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.middleware import CMSLocaleFallbackMiddleware
+from springfield.cms.middleware import CMSLocaleFallbackMiddleware, WagtailAdminRequestMiddleware, is_wagtail_admin_request
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -614,3 +614,43 @@ def test_CMSLocaleFallbackMiddleware_alias_locale_view_restricted_page_redirects
     # Redirects to canonical URL so Wagtail's restriction enforcement fires there
     assert response.status_code == 302
     assert response.headers["Location"] == pt_br_child.url
+
+
+def test_wagtail_admin_request_middleware(rf):
+    """
+    WagtailAdminRequestMiddleware marks /cms-admin/ requests True, and others as False.
+
+    Also, it should always clears its mark after the request is processed.
+    """
+
+    flag_during_request = []
+
+    def get_response(request):
+        flag_during_request.append(is_wagtail_admin_request())
+        return HttpResponse("ok")
+
+    middleware = WagtailAdminRequestMiddleware(get_response)
+
+    prefix = settings.WAGTAIL_ADMIN_URL_PREFIX.strip("/")
+    cases = [
+        (f"/{prefix}/pages/1/edit/", True),  # a real admin path
+        (f"/{prefix}/", True),  # the admin root, with trailing slash
+        (f"/{prefix}", True),  # the bare prefix (redirects to trailing-slash URL)
+        ("/pt-BR/some-page/", False),  # an ordinary content path
+        (f"/{prefix}istrator/", False),  # a look-alike that must NOT match the prefix
+    ]
+
+    for path, _expected in cases:
+        middleware(rf.get(path))
+        assert is_wagtail_admin_request() is False  # cleared after each request
+
+    assert flag_during_request == [expected for _path, expected in cases]
+    assert is_wagtail_admin_request() is False  # cleared after each request
+
+    # The flag is cleared even if the inner handler raises.
+    def server_error(request):
+        raise ValueError("server error")
+
+    with pytest.raises(ValueError):
+        WagtailAdminRequestMiddleware(server_error)(rf.get(f"/{settings.WAGTAIL_ADMIN_URL_PREFIX}/someotherurl/"))
+    assert is_wagtail_admin_request() is False
