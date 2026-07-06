@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -105,10 +105,14 @@ def get_carousel_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-carousel"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Carousel")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Carousel",
+        },
+    )
 
     variants = get_carousel_variants()
     page.upper_content = variants

@@ -5,7 +5,7 @@
 
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_test_document
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_test_document, with_fresh_ids
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
@@ -1066,13 +1066,17 @@ def get_buttons_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-buttons"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Buttons")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Buttons",
+        },
+    )
 
     blocks = get_button_blocks()
-    page.upper_content = blocks
-    page.content = blocks
+    page.upper_content = with_fresh_ids(blocks)
+    page.content = with_fresh_ids(blocks)
     page.save_revision().publish()
     return page
