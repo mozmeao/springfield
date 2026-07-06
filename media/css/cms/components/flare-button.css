@@ -351,7 +351,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     margin-inline-end: auto;
 }
 
-.fl-buttons > *:not(.fl-set-as-default-dialog) {
+.fl-buttons > *:not(.fl-set-as-default-dialog, .fl-qr-code-modal-wrapper) {
     display: inline-flex;
 }
 

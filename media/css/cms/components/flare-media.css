@@ -91,12 +91,22 @@
     z-index: 1;
 }
 
+/* Center on non-animation videos */
 .fl-video:not(.fl-animation, .fl-video-is-animation) .fl-video-play-icon {
     block-size: 48px;
     inline-size: 48px;
     inset-block-start: 50%;
     inset-inline-start: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* illustration cards always bottom-right */
+.fl-illustration-card .fl-video .fl-video-play-icon {
+    block-size: 36px;
+    inline-size: 36px;
+    inset-block-start: auto;
+    inset-inline-start: auto;
+    transform: none;
 }
 
 .fl-video-play-icon svg {
