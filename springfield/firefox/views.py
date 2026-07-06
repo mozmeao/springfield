@@ -753,6 +753,7 @@ def firefox_features_translate(request):
         "bs",
         "ca",
         "zh-CN",
+        "zh-TW",
         "hr",
         "cs",
         "da",
