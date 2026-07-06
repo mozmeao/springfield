@@ -332,7 +332,7 @@
     }
 
     .fl-docs-content-accordion-body {
-        padding: 0 var(--token-spacing-md) var(--token-spacing-md);
+        padding: 0 var(--token-spacing-md);
     }
 
     .fl-docs-content-accordion-body .fl-docs-entry {
