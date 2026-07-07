@@ -207,6 +207,90 @@ urlpatterns = (
         "firefox/landing/year-in-review-2025.html",
         url_name="firefox.year_in_review_2025",
     ),
+    # bedrock Issue 8641
+    path(
+        "more/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/index.html",
+                ftl_files=["firefox/more/more", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/more", "firefox/more/shared"],
+        ),
+        name="firefox.more.index",
+    ),
+    path(
+        "more/best-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/best-browser.html",
+                ftl_files=["firefox/more/best-browser", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/best-browser", "firefox/more/shared"],
+        ),
+        name="firefox.more.best-browser",
+    ),
+    path(
+        "more/browser-history/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/browser-history.html",
+                ftl_files=["firefox/more/browser-history", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/browser-history", "firefox/more/shared"],
+        ),
+        name="firefox.more.browser-history",
+    ),
+    path(
+        "more/incognito-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/more/incognito-browser.html"),
+            fallback_lang_codes=["en-US"],
+        ),
+        name="firefox.more.incognito-browser",
+    ),
+    path(
+        "more/update-your-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/more/update-browser.html"),
+            fallback_lang_codes=["en-US"],
+        ),
+        name="firefox.more.update-browser",
+    ),
+    path(
+        "more/what-is-a-browser/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/what-is-a-browser.html",
+                ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"],
+        ),
+        name="firefox.more.what-is-a-browser",
+    ),
+    path(
+        "more/windows-64-bit/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/windows-64-bit.html",
+                ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"],
+            ),
+            fallback_ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"],
+        ),
+        name="firefox.more.windows-64-bit",
+    ),
+    # Bedrock Issue #9490 - Evergreen Content for SEO
+    path(
+        "more/faq/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/more/faq.html",
+                ftl_files=["firefox/more/faq"],
+            ),
+            fallback_ftl_files=["firefox/more/faq"],
+        ),
+        name="firefox.more.faq",
+    ),
     # START What's New Page (WNP) paths
     # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
     re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
