@@ -27,6 +27,7 @@ from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
+from wagtail.search import index
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
@@ -351,6 +352,11 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
     class Meta:
         verbose_name = "Home Page"
         verbose_name_plural = "Home Pages"
@@ -472,6 +478,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("subheading"),
+        index.SearchField("intro_footer_text"),
+    ]
+
     class Meta:
         verbose_name = "Download Page"
         verbose_name_plural = "Download Pages"
@@ -522,6 +533,10 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("content"),
     ]
 
     def __str__(self):
@@ -606,6 +621,12 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_sibling_detail_pages"),
         FieldPanel("index_card_type"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("sub_title"),
+        index.SearchField("other_articles_subheading"),
+        index.SearchField("other_articles_heading"),
     ]
 
     def __str__(self):
@@ -848,6 +869,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("description"),
+        index.SearchField("content"),
+    ]
+
     if TYPE_CHECKING:
         tag: Tag | None
 
@@ -892,6 +918,11 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("content"),
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
     ]
 
     def __str__(self):
@@ -1110,6 +1141,11 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         ),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1225,6 +1261,11 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
             ],
             heading="Appearance",
         ),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
     ]
 
     class Meta:
@@ -1418,6 +1459,18 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("heading_text"),
+        index.SearchField("subheading_text"),
+        index.SearchField("content"),
+        index.SearchField("mobile_message"),
+        index.SearchField("thank_you_heading"),
+        index.SearchField("thank_you_message"),
+        index.SearchField("privacy_notice"),
+        index.SearchField("update_instructions"),
+        index.SearchField("post_download_instructions"),
+    ]
+
     class Meta:
         verbose_name = "Smart Window Page"
         verbose_name_plural = "Smart Window Pages"
@@ -1477,6 +1530,11 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Smart Window Explainer Page"
         verbose_name_plural = "Smart Window Explainer Pages"
@@ -1528,6 +1586,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             ],
             heading="More Articles",
         ),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("page_heading"),
+        index.SearchField("more_articles_heading"),
+        index.SearchField("cards_lists"),
     ]
 
     class Meta:
@@ -1770,6 +1834,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("description"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Blog Article Page"
         verbose_name_plural = "Blog Article Pages"
@@ -1826,6 +1895,11 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("intro"),
         FieldPanel("content"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("intro"),
+        index.SearchField("content"),
     ]
 
     class Meta:
@@ -1911,6 +1985,19 @@ class ContactPage(AbstractSpringfieldCMSPage):
             heading="Form Submission Settings",
         ),
     ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("intro"),
+        index.SearchField("form_fields"),
+        index.SearchField("thank_you_message"),
+    ]
+
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
+    def __str__(self):
+        return f"ContactPage: {self.title} - {self.locale}"
 
     def clean(self):
         super().clean()
@@ -2117,10 +2204,3 @@ class ContactPage(AbstractSpringfieldCMSPage):
         subject = f"Contact form submission: {self.title}"
         email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
         email.send()
-
-    class Meta:
-        verbose_name = "Contact Page"
-        verbose_name_plural = "Contact Pages"
-
-    def __str__(self):
-        return f"ContactPage: {self.title} - {self.locale}"
