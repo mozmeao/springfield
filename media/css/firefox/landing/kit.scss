@@ -36,6 +36,7 @@ main {
     --purple-light-purple: #F1E7F8; // Figma Soft Purple
     --figma-link-purple: #6132BC;
     --figma-black-4: #15141A;
+    background: var(--fl-theme-background);
     display: grid;
     row-gap: 16px;
     padding: 16px 16px 0;
