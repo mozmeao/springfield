@@ -39,12 +39,14 @@ PAGE_FTL_MAPPING = {
 
 def create_feature_pages(apps, schema_editor):
     """Create feature pages using fixture data."""
-    # Import here to avoid issues with app registry not being ready
-    from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
+    # Commented out so the fixture can be deleted since this is no longer called in production
 
-    index_page, feature_pages = load_feature_page_fixtures(publish=False)
-    print(f"\n  Created feature index page: {index_page.slug}")
-    print(f"  Created {len(feature_pages)} feature pages")
+    # Import here to avoid issues with app registry not being ready
+    # from springfield.cms.fixtures.feature_page_fixtures import load_feature_page_fixtures
+
+    # index_page, feature_pages = load_feature_page_fixtures(publish=False)
+    # print(f"\n  Created feature index page: {index_page.slug}")
+    # print(f"  Created {len(feature_pages)} feature pages")
 
 
 def get_source_locale():
