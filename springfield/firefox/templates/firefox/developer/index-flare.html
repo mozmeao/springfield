@@ -153,9 +153,18 @@
         />
 
         <include:cards-list cards_per_row="3" container_width="wide">
+          <style>
+            @scope {
+              .fl-illustration-card.fl-illustration-sticker-card .fl-card-media { padding: 0; }
+              .fl-illustration-card.fl-illustration-sticker-card .fl-card-media picture { margin-block-end: 0; }
+            }
+          </style>
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-inspector.svg') }}" width="202" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-inspector-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-inspector-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-inspector') }}</h3>
@@ -172,7 +181,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-console.svg') }}" width="182" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-console-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-console-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-console') }}</h3>
@@ -189,7 +201,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-debugger.svg') }}" width="202" height="110" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-debugger-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-debugger-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-debugger') }}</h3>
@@ -206,7 +221,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-network.svg') }}" width="232" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-network-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-network-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-network') }}</h3>
@@ -223,7 +241,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-storage.svg') }}" width="134" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-storage-panel-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-storage-panel-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-storage-panel') }}</h3>
@@ -240,7 +261,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-responsive-mode.svg') }}" width="194" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-responsive-design-mode-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-responsive-design-mode-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-responsive-design-mode') }}</h3>
@@ -257,7 +281,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-visual-editing.svg') }}" width="112" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-visual-editing-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-visual-editing-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-visual-editing') }}</h3>
@@ -274,7 +301,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-performance.svg') }}" width="202" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-performance-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-performance-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-performance') }}</h3>
@@ -291,7 +321,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-memory.svg') }}" width="116" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-memory-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-memory-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-memory') }}</h3>
@@ -308,7 +341,10 @@
 
           <include:illustration-card variant="sticker" expand_link>
             <content:media>
-              <img src="{{ static('img/firefox/developer/feature-style-editor.svg') }}" width="116" height="124" loading="lazy" alt="" />
+              <picture>
+                <source srcset="{{ static('img/firefox/developer/feature-style-editor-dark.svg') }}" media="(prefers-color-scheme: dark)">
+                <img src="{{ static('img/firefox/developer/feature-style-editor-light.svg') }}" width="124" height="124" loading="lazy" alt="">
+              </picture>
             </content:media>
             <content:heading>
               <h3>{{ ftl('firefox-developer-style-editor') }}</h3>
