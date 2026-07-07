@@ -339,6 +339,10 @@
     }
 }
 
+.fl-newsletterform-success svg:not(:last-child) {
+    margin: 0 auto var(--token-spacing-2xl);
+}
+
 .newsletter-page .fl-newsletterform-cta {
     padding-block-start: var(--token-layout-xl);
 }

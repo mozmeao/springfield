@@ -61,7 +61,22 @@ const SentryConsent = {
                 globalHandlersIntegration(),
                 httpContextIntegration(),
                 eventFiltersIntegration(options)
-            ]
+            ],
+            beforeSend(event) {
+                const values =
+                    (event.exception && event.exception.values) || [];
+                const mediaAbortedPattern =
+                    /fetching process for the media resource was aborted/i;
+                if (
+                    values.some((text) =>
+                        mediaAbortedPattern.test(text.value || '')
+                    )
+                ) {
+                    return null;
+                }
+
+                return event;
+            }
         });
 
         getCurrentScope().setClient(client);
