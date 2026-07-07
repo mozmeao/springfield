@@ -94,12 +94,6 @@
     },
     {
       "files": [
-        "css/firefox/testflight.scss"
-      ],
-      "name": "firefox_ios_testflight"
-    },
-    {
-      "files": [
         "css/firefox/ios-summarizer.scss"
       ],
       "name": "firefox-ios-summarizer"
