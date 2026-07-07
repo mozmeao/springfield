@@ -160,18 +160,6 @@
     },
     {
       "files": [
-        "css/firefox/compare/index.scss"
-      ],
-      "name": "firefox-compare-index"
-    },
-    {
-      "files": [
-        "css/firefox/compare/article.scss"
-      ],
-      "name": "firefox-compare-article"
-    },
-    {
-      "files": [
         "css/firefox/unsupported-systems.scss"
       ],
       "name": "firefox_unsupported_systems"
