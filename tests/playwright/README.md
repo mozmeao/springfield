@@ -79,3 +79,37 @@ npm run local:update-screenshots
 ```
 
 The visual regression config (`playwright.visual-regression.config.js`) extends the base config but disables parallelism and restricts runs to Chromium.
+
+### Live page comparison tests
+
+Takes full-page screenshots of the same pages on two different hosts and fails if any pair differs. Useful for verifying a local or staging environment matches the live site before a deploy.
+
+The tests run on Chromium only. Both screenshots are saved to `test-results/compare-live/` for inspection, and a pixel diff image is generated there on failure. No baseline files are committed to the repo — the live site screenshot is always captured fresh as the reference.
+
+```sh
+# Compare localhost:8000 against www.firefox.com (defaults)
+npm run compare-live-pages
+
+# Compare a staging host against the live site
+HOST_A=https://staging.example.com npm run compare-live-pages
+
+# Open the interactive Playwright UI
+npm run compare-live-pages:ui
+```
+
+Override either host via environment variables:
+
+| Variable | Default |
+|---|---|
+| `HOST_A` | `http://localhost:8000` |
+| `HOST_B` | `https://www.firefox.com` |
+
+#### Authentication
+
+If the target host sits behind a login page (e.g. Google SSO), log in once to save a session:
+
+```sh
+npm run compare-live-pages:login
+```
+
+This opens a browser window. Navigate to the login page, complete sign-in, then close the browser. The session cookies are saved to `.auth/compare-live-auth.json` (gitignored) and loaded automatically on subsequent runs. They persist until you log in again.
