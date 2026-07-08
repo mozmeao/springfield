@@ -130,18 +130,6 @@
     },
     {
       "files": [
-        "css/firefox/compare/index.scss"
-      ],
-      "name": "firefox-compare-index"
-    },
-    {
-      "files": [
-        "css/firefox/compare/article.scss"
-      ],
-      "name": "firefox-compare-article"
-    },
-    {
-      "files": [
         "css/firefox/unsupported-systems.scss"
       ],
       "name": "firefox_unsupported_systems"
@@ -322,36 +310,6 @@
         "css/firefox/landing/index.scss"
       ],
       "name": "firefox_landing"
-    },
-    {
-      "files": [
-        "css/firefox/more/more.scss"
-      ],
-      "name": "more"
-    },
-    {
-      "files": [
-        "css/firefox/more/best-browser.scss"
-      ],
-      "name": "best-browser"
-    },
-    {
-      "files": [
-        "css/firefox/more/article.scss"
-      ],
-      "name": "more-article"
-    },
-    {
-      "files": [
-        "css/firefox/more/faq.scss"
-      ],
-      "name": "more-faq"
-    },
-    {
-      "files": [
-        "css/firefox/more/windows-64-bit.scss"
-      ],
-      "name": "windows-64-bit"
     },
     {
       "files": [
@@ -622,12 +580,6 @@
         "js/firefox/features/translate.es6.js"
       ],
       "name": "firefox_features_translate"
-    },
-    {
-      "files": [
-        "js/firefox/browsers/compare-article.es6.js"
-      ],
-      "name": "firefox_compare_article"
     },
     {
       "files": [
