@@ -1,0 +1,43 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+ Prototype 2 — the resolver page. Runs UITour, evaluates client-side rules,
+ navigates to a variant or falls back to canonical.
+#}
+
+{% extends "base-protocol.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block page_title %}Preparing your What's New page…{% endblock %}
+{% block body_id %}wnp-dispatch-proto-resolver{% endblock %}
+
+{% block site_header %}{% endblock %}
+
+{% block content %}
+<main class="mzp-l-content" style="max-width: 720px;">
+  <p style="color: #666; font-size: 12px;">PROTOTYPE 2 · RESOLVER PAGE</p>
+  <h1>Preparing your What's New page…</h1>
+  <p id="proto-resolver-status">Detecting your browser…</p>
+
+  <details style="margin-top: 2rem;">
+    <summary style="color: #666; cursor: pointer;">Debug info</summary>
+    <p style="color: #666; font-size: 13px;">Version: <code>{{ proto_version }}</code></p>
+    <p style="color: #666; font-size: 13px;">Canonical fallback: <code>{{ proto_canonical_url }}</code></p>
+    <p style="color: #666; font-size: 13px;">Rules needing client-side signals (embedded below):</p>
+    <pre id="proto-resolver-rules" style="background: #f4f4f4; padding: 1rem; font-size: 12px; overflow: auto;">{{ proto_rules_json }}</pre>
+  </details>
+</main>
+
+<script id="proto-rules-data" type="application/json">{{ proto_rules_json|safe }}</script>
+<script id="proto-canonical-url" type="text/plain">{{ proto_canonical_url }}</script>
+<script id="proto-version" type="text/plain">{{ proto_version }}</script>
+
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('wnp_dispatch_proto_resolver') }}
+{% endblock %}
+
+{% block stub_attribution %}{% endblock %}
