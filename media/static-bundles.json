@@ -14,27 +14,9 @@
     },
     {
       "files": [
-        "css/firefox/system-requirements.scss"
-      ],
-      "name": "firefox_system_requirements"
-    },
-    {
-      "files": [
         "css/firefox/installer-help.scss"
       ],
       "name": "installer_help"
-    },
-    {
-      "files": [
-        "css/firefox/releases-index.scss"
-      ],
-      "name": "firefox_releases_index"
-    },
-    {
-      "files": [
-        "css/firefox/developer/developer.scss"
-      ],
-      "name": "firefox_developer"
     },
     {
       "files": [
@@ -94,12 +76,6 @@
     },
     {
       "files": [
-        "css/firefox/testflight.scss"
-      ],
-      "name": "firefox_ios_testflight"
-    },
-    {
-      "files": [
         "css/firefox/ios-summarizer.scss"
       ],
       "name": "firefox-ios-summarizer"
@@ -109,12 +85,6 @@
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
-    },
-    {
-      "files": [
-        "css/base/banners/firefox-newsletter.scss"
-      ],
-      "name": "firefox-newsletter-banner"
     },
     {
       "files": [
@@ -175,18 +145,6 @@
         "css/firefox/enterprise/landing.scss"
       ],
       "name": "firefox-enterprise"
-    },
-    {
-      "files": [
-        "css/firefox/releasenotes.scss"
-      ],
-      "name": "firefox_releasenotes"
-    },
-    {
-      "files": [
-        "css/newsletter/newsletter-firefox.scss"
-      ],
-      "name": "newsletter-firefox"
     },
     {
       "files": [
@@ -337,12 +295,6 @@
     },
     {
       "files": [
-        "css/firefox/browsers/desktop/platform.scss"
-      ],
-      "name": "firefox_desktop_platform"
-    },
-    {
-      "files": [
         "css/firefox/landing/win10-eos.scss"
       ],
       "name": "firefox_win10_eos"
@@ -382,12 +334,6 @@
         "css/firefox/data.scss"
       ],
       "name": "data_protection"
-    },
-    {
-      "files": [
-        "css/firefox/landing/eoy-2025.scss"
-      ],
-      "name": "eoy_2025"
     },
     {
       "files": [
@@ -625,12 +571,6 @@
     },
     {
       "files": [
-        "js/newsletter/newsletter-firefox-experiment.es6.js"
-      ],
-      "name": "newsletter-firefox-experiment"
-    },
-    {
-      "files": [
         "js/firefox/features/features-article.es6.js"
       ],
       "name": "firefox_features_article"
@@ -658,13 +598,6 @@
         "js/base/banners/firefox-app-store-banner.es6.js"
       ],
       "name": "firefox-app-store-banner"
-    },
-    {
-      "files": [
-        "js/base/banners/firefox-newsletter-banner-init.es6.js",
-        "js/base/banners/firefox-newsletter-banner-check.js"
-      ],
-      "name": "firefox-newsletter-banner"
     },
     {
       "files": [
@@ -766,12 +699,6 @@
         "js/base/video-modal-embed.es6.js"
       ],
       "name": "video-modal-embed"
-    },
-    {
-      "files": [
-        "js/base/video-prefers-reduced-motion.es6.js"
-      ],
-      "name": "video-prefers-reduced-motion"
     },
     {
       "files": [
