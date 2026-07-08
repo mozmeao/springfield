@@ -32,6 +32,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
+    QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     SpringfieldLinkBlock,
@@ -160,7 +161,7 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -185,6 +186,11 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
     elif btn_type == "focus_button":
         block = FirefoxFocusButtonBlock()
         value["store"] = "android"
+    elif btn_type == "qr_code_modal_button":
+        block = QRCodeModalButtonBlock()
+        value["url"] = "https://www.mozilla.org/firefox/mobile/"
+        value["heading"] = "Get Firefox on your phone"
+        value["content"] = "Take Firefox with you."
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -1211,8 +1217,8 @@ def test_buttons(index_page, rf):
 
         for block_index, (intro, block) in enumerate(zip(intros, blocks)):
             buttons_data = next(b for b in block["value"]["content"] if b["type"] == "buttons")["value"]
-            # Store buttons render as fl-store-button; all others render as fl-button
-            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button"]]
+            # Store/uitour/qr_code_modal buttons don't render as <a class="fl-button">
+            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button", "qr_code_modal_button"]]
             store_data = [b for b in buttons_data if b["type"] == "store_button"]
 
             button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]

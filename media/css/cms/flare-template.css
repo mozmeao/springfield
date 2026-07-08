@@ -7,7 +7,7 @@
 /* =====================================================================
 Template - Layout styles for header, footer, and page structure
 
-This file contains template-level styles for the Flare design.
+This file contains template-level styles for the Flare 2026 design.
 ===================================================================== */
 
 body {
@@ -41,7 +41,7 @@ body.fl-modal-open {
 }
 
 .fl-split-page-upper {
-    background: var(--token-color-dark-purple);
+    background: var(--upper-page-theme-color, var(--token-color-dark-purple));
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     color: var(--fl-theme-color-text);
@@ -77,7 +77,7 @@ body.fl-modal-open {
     gap: 0;
 }
 
-.fl-freeform-page .fl-main:not(:has(.fl-split-page-lower)) {
+.fl-freeform-2026-page .fl-main:not(:has(.fl-split-page-lower)) {
     padding-block-end: 0;
 }
 

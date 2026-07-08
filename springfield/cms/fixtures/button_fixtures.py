@@ -141,7 +141,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "78d40d75-9303-41f3-82d9-097970dced8e",
         },
         "link": {
             "type": "button",
@@ -166,7 +166,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "aca0af22-515c-4357-a959-81eba0568a3b",
         },
         "external_mozilla": {
             "type": "button",
@@ -305,7 +305,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "show_default_browser_checkbox": True,
                 },
             },
-            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+            "id": "a5dfce3c-ff6b-4cd6-abf2-e88648c99150",
         },
         "store_android": {
             "type": "store_button",
@@ -346,6 +346,23 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 "store": "ios",
             },
             "id": "fb000001-0000-0000-0000-000000000004",
+        },
+        "qr_code_modal": {
+            "type": "qr_code_modal_button",
+            "value": {
+                "settings": {
+                    "theme": "",
+                    "icon": "device-mobile",
+                    "icon_position": "left",
+                    "analytics_id": "qrmodal1-0000-0000-0000-000000000001",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox on your phone",
+                "url": "https://www.mozilla.org/firefox/mobile/",
+                "heading": "Get Firefox on your phone",
+                "content": "Take Firefox with you.",
+            },
+            "id": "qrmodal1-0000-0000-0000-000000000002",
         },
     }
     if full:
@@ -672,6 +689,27 @@ def get_button_blocks() -> list[dict]:
                 ],
             },
             "id": "focusintr-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="qrmodal01h">QR Code Modal Button</p>',
+                    "subheading_text": '<p data-block-key="qrmodal01s">Opens a modal with a QR code and Firefox logo. '
+                    "Editors configure the URL to encode, the modal heading, and an optional caption.</p>",
+                },
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "qrmodal01-0000-0000-0000-000000000002",
+                        "value": [buttons["qr_code_modal"]],
+                    },
+                ],
+            },
+            "id": "qrmodal01-0000-0000-0000-000000000001",
         },
         {
             "type": "intro",

@@ -1,0 +1,44 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# analytics_text uses the stable English label so analytics aggregate across locales #}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label_en_us or "") %}
+{% set dialog_id = "qr-code-modal-" ~ value.settings.analytics_id %}
+
+<include:button
+  extra_classes="fl-dialog-trigger"
+  theme_class="{{ value.theme_class() }}"
+  label="{{ button_label or '' }}"
+  size_class="{{ value.size_class() }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ cta_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+  data_target_id="{{ dialog_id }}"
+/>
+
+<div class="fl-qr-code-modal-wrapper">
+<dialog id="{{ dialog_id }}" class="fl-dialog fl-qr-code-dialog">
+  <div class="fl-qr-code-floating-header">
+    <div class="fl-qr-code-prompt">
+      <span class="fl-icon fl-icon-device-mobile"></span>
+      {{ value.heading }}
+    </div>
+    <button class="fl-dialog-close-button fl-qr-code-floating-button" aria-label="{{ ftl('ui-close') }}">
+      <span class="fl-icon fl-icon-close"></span>
+    </button>
+  </div>
+  <div class="fl-qr-code-floating-content">
+    <div class="fl-qr-code-image">
+      {{ qrcode_rounded(value.url) }}
+    </div>
+    {% if value.content %}
+      <p>{{ value.content }}</p>
+    {% endif %}
+  </div>
+</dialog>
+</div>

@@ -15,6 +15,7 @@ from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
+from springfield.cms.forms import SpringfieldCopyForm
 from springfield.cms.utils import compute_cms_page_locales
 
 
@@ -76,6 +77,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     override_translatable_fields = [
         SynchronizedField("slug"),
     ]
+
+    # Add the "Keep analytics IDs" opt-out checkbox to the admin copy form.
+    copy_form_class = SpringfieldCopyForm
 
     class Meta:
         abstract = True

@@ -51,3 +51,5 @@ class Command(BaseCommand):
         for fixture in PAGE_FIXTURES:
             for page in _as_pages(fixture()):
                 self.stdout.write(self.style.SUCCESS(f"{fixture.__name__} loaded: {page.slug}"))
+
+        self.stdout.write(self.style.SUCCESS("Successfully loaded page fixtures."))
