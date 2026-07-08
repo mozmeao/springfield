@@ -128,9 +128,14 @@
 
 
 
-.fl-section-container > .fl-heading {
+.fl-section-container > .fl-heading,
+.fl-section-container > .fl-heading-group {
     max-width: var(--token-width-desktop-content-lg);
     margin-inline: auto;
+}
+
+.fl-section-container > .fl-heading-group .fl-subheading {
+    text-wrap: balance;
 }
 
 .fl-force-dark-theme {
