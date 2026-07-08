@@ -28,7 +28,7 @@ const PAGES = [
 
 const VIEWPORT = { width: 1280, height: 720 };
 const SCREENSHOT_OPTIONS = { fullPage: true, animations: 'disabled' };
-const AUTH_FILE = path.join(__dirname, '../../.auth/compare-live-auth.json');
+const AUTH_FILE = path.join(__dirname, '../.auth/compare-live-auth.json');
 const storageState = fs.existsSync(AUTH_FILE) ? AUTH_FILE : undefined;
 
 for (const { name, path: pagePath } of PAGES) {
