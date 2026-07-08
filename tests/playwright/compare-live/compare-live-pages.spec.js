@@ -23,7 +23,11 @@ const PAGES = [
     { name: 'article-hub', path: '/en-US/features/' },
     { name: 'article-detail', path: '/features/password-manager/' },
     { name: 'enterprise-landing', path: '/en-US/browsers/enterprise/' },
-    { name: 'mobile-landing', path: '/en-US/mobile/' }
+    { name: 'mobile-landing', path: '/en-US/mobile/' },
+    { name: 'user-privacy', path: '/en-US/user-privacy/' },
+    { name: 'newsletter', path: '/en-US/newsletter/' },
+    { name: 'release-notes', path: '/en-US/firefox/notes/' },
+    { name: 'download-all', path: '/en-US/download/all/' }
 ];
 
 const VIEWPORT = { width: 1280, height: 720 };
