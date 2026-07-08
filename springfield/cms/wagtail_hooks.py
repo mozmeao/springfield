@@ -44,6 +44,7 @@ from springfield.cms.models import (
     PretranslatedPhrase,
     QRCodeFloatingSnippet,
     QRCodeSnippet,
+    RoutingRule,
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     Tag,
@@ -593,6 +594,27 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class RoutingRuleViewSet(SnippetViewSet):
+    """Routing rules for CMS-driven conditional rendering.
+
+    Not locale-defaulting: rules attach to a specific canonical page and are
+    evaluated against per-request signals, not against a Wagtail locale.
+
+    Registered as a top-level menu entry (``add_to_admin_menu = True``) so
+    marketing can find it without hunting inside the Snippets sub-menu.
+    """
+
+    model = RoutingRule
+    menu_label = "Routing Rules"
+    menu_name = "routing_rules"
+    icon = "site"
+    add_to_admin_menu = True
+    menu_order = 250
+    list_display = ["name", "priority", "parent_page", "target_page", "status"]
+    list_filter = ["status", "parent_page"]
+    search_fields = ["name"]
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -605,6 +627,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    RoutingRuleViewSet,
 ):
     register_snippet(_viewset)
 
