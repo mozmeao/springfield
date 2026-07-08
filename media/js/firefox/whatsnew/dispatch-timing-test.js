@@ -106,8 +106,7 @@
                 keepalive: true
             })
                 .then(function () {
-                    var thanks =
-                        document.getElementById('timing-test-thanks');
+                    var thanks = document.getElementById('timing-test-thanks');
                     if (thanks) {
                         thanks.hidden = false;
                     }
@@ -219,26 +218,19 @@
         }
 
         try {
-            window.Mozilla.UITour.getConfiguration(
-                'sync',
-                function (data) {
-                    if (configReported) {
-                        return;
-                    }
-                    results.sync_ms = Math.round(
-                        performance.now() - syncStart
-                    );
-                    // sync may return an object even when the user is signed
-                    // out — that's a successful call, not a failure.
-                    results.sync_success = data !== undefined;
-                    pending -= 1;
-                    checkDone();
+            window.Mozilla.UITour.getConfiguration('sync', function (data) {
+                if (configReported) {
+                    return;
                 }
-            );
+                results.sync_ms = Math.round(performance.now() - syncStart);
+                // sync may return an object even when the user is signed
+                // out — that's a successful call, not a failure.
+                results.sync_success = data !== undefined;
+                pending -= 1;
+                checkDone();
+            });
         } catch (e) {
-            results.sync_ms = Math.round(
-                performance.now() - syncStart
-            );
+            results.sync_ms = Math.round(performance.now() - syncStart);
             results.sync_success = false;
             anyFailed = true;
             pending -= 1;

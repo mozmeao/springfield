@@ -133,11 +133,7 @@ def _evaluate_rules(rules, resolved_signals):
 
 def _client_side_rules(rules):
     """Return only rules whose required_signals include any client-side signal."""
-    return [
-        rule
-        for rule in rules
-        if any(sig not in PROTO_SERVER_SIDE_SIGNALS for sig in rule["required_signals"])
-    ]
+    return [rule for rule in rules if any(sig not in PROTO_SERVER_SIDE_SIGNALS for sig in rule["required_signals"])]
 
 
 def _proto_url(version, kind):
@@ -168,7 +164,8 @@ class WNPProtoDispatchView(L10nTemplateView):
             # Full match on server signals — direct 302 to variant.
             logger.info(
                 "wnp_proto dispatch=server-match version=%s rule=%s",
-                version, matched["name"],
+                version,
+                matched["name"],
             )
             return HttpResponseRedirect(_proto_url(version, matched["variant"]))
 
@@ -178,7 +175,8 @@ class WNPProtoDispatchView(L10nTemplateView):
         if client_rules and utm_source == "update":
             logger.info(
                 "wnp_proto dispatch=resolver-page version=%s rules=%s",
-                version, [r["name"] for r in client_rules],
+                version,
+                [r["name"] for r in client_rules],
             )
             self.extra_context = {
                 "proto_version": version,
