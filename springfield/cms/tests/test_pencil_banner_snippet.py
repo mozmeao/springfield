@@ -8,7 +8,7 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.feature_page_fixtures import get_features_theme_page
+from springfield.cms.fixtures.article_page_fixtures import get_article_theme_page
 from springfield.cms.fixtures.freeformpage import get_freeform_page_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet
@@ -109,11 +109,12 @@ def _make_home_page():
 
 
 def _make_article_theme_page():
-    return get_features_theme_page(), ArticleThemePagePencilBannerPlacement
+    page = get_article_theme_page()
+    return page, ArticleThemePagePencilBannerPlacement
 
 
 def _make_article_detail_page():
-    theme_page = get_features_theme_page()
+    theme_page = get_article_theme_page()
     page = ArticleDetailPage.objects.child_of(theme_page).filter(slug="test-pencil-detail").first()
     if not page:
         page = ArticleDetailPage(
