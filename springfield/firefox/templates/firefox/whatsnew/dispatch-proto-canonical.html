@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+ Prototype 2 stub — canonical page. Not a real WNP.
+#}
+
+{% extends "base-protocol.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,nofollow">{% endblock %}
+{% block page_title %}Proto {{ proto_version }} — Canonical{% endblock %}
+{% block body_id %}wnp-dispatch-proto-canonical{% endblock %}
+
+{% block content %}
+<main class="mzp-l-content" style="max-width: 720px;">
+  <p style="color: #666; font-size: 12px;">PROTOTYPE 2 · CANONICAL</p>
+  <h1>What's New in Firefox {{ proto_version }}</h1>
+  <p>You landed on the <strong>canonical</strong> page for version {{ proto_version }}.</p>
+  <p>You'd land here if either:</p>
+  <ul>
+    <li>You arrived organically (no <code>utm_source=update</code>), or</li>
+    <li>No routing rule matched your request.</li>
+  </ul>
+</main>
+{% endblock %}
