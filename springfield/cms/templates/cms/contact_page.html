@@ -1,0 +1,89 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block flare_header %}
+  <include:flare-header hide_nav_cta />
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="fl-main has-gradient-bottom">
+  <noscript>
+    <include:notification color="orange">
+      {{ ftl("ui-please-turn-on-javascript") }}
+    </include:notification>
+  </noscript>
+
+  {% if page.intro %}
+    {% for block in page.intro %}
+      {% set block_level = 1 %}
+      {% include_block block %}
+    {% endfor %}
+  {% else %}
+    <section class="fl-section">
+      <div class="fl-section-container">
+        <include:heading
+          heading_text="{{ page.title }}"
+          level="h1"
+          alignment_class="text-center"
+        />
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="fl-section zero-v-pad">
+    <div class="fl-section-container">
+      {% if form_success %}
+        <include:notification color="green" icon="checkmark">
+          {{ page.thank_you_message | richtext }}
+        </include:notification>
+      {% else %}
+        {% set action = page.url ~ '?' ~ request.GET.urlencode() if request.GET else page.url %}
+        <form method="post" action="/page-not-found/" data-actn="{{ action or '' }}" class="fl-form-page contact-form">
+          {% csrf_token %}
+
+          {% if form_errors.get("__all__") %}
+            <include:notification color="red" icon="warning">
+              {% for error in form_errors["__all__"] %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </include:notification>
+          {% elif form_errors %}
+            <include:notification color="red" icon="warning">
+              {{ ftl("contact-form-correct-errors") }}
+            </include:notification>
+          {% endif %}
+
+          {% for field in page.form_fields %}
+            {% include_block field %}
+          {% endfor %}
+
+          <div class="hidden">
+            <label for="office-fax">Leave this field empty</label>
+            <input type="text" name="office_fax" id="office-fax" autocomplete="off" tabindex="-1">
+          </div>
+
+          <div class="fl-buttons">
+            <button type="submit" class="fl-button">{{ ftl("contact-form-submit") }}</button>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block pre_footer %}
+{% endblock pre_footer %}
+
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('contact-page') }}
+{% endblock js %}

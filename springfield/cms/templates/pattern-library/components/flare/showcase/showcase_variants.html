@@ -1,0 +1,34 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-dash-border">
+  {% for variant in variants %}
+    <div data-testid="showcase-{{ variant.testid }}">
+    <include:showcase layout="{{ variant.layout }}">
+      <content:heading>
+        <include:heading
+          level="h2"
+          heading_size="fl-heading-md"
+          heading_text="{{ variant.headline }}"
+        />
+      </content:heading>
+      <content:image>
+        <div class="image-variants-display">
+          <img src="{{ variant.desktop_image.url }}" alt="{{ variant.desktop_image.alt }}" class="display-sm-up" />
+          <img src="{{ variant.mobile_image.url }}" alt="{{ variant.mobile_image.alt }}" class="display-xs" />
+        </div>
+      </content:image>
+      <content:caption>
+        {% if variant.caption_title %}
+          <h3 class="fl-subheading">{{ variant.caption_title }}</h3>
+        {% endif %}
+        <p>{{ variant.caption_description }}</p>
+      </content:caption>
+    </include:showcase>
+    </div>
+  {% endfor %}
+</div>

@@ -4,9 +4,9 @@
 
 from django.utils.text import slugify
 
-from wagtail.models import Locale, Site
+from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, Tag
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -117,10 +117,15 @@ def _create_blog_article(
     description: str,
     content: list,
 ) -> BlogArticlePage:
-    article = BlogArticlePage.objects.filter(slug=slug).first()
-    if not article:
-        article = BlogArticlePage(title=title, slug=slug, topic=topic)
-        index_page.add_child(instance=article)
+    article = get_or_create_page(
+        BlogArticlePage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": title,
+            "topic": topic,
+        },
+    )
 
     article.title = title
     article.display_image = display_image
@@ -135,13 +140,14 @@ def _create_blog_article(
 
 
 def get_blog_index_page() -> BlogIndexPage:
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
-    index_page = BlogIndexPage.objects.filter(slug="test-blog-index").first()
-    if not index_page:
-        index_page = BlogIndexPage(slug="test-blog-index", title="Blog Test Page")
-        root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
+    root_page = get_flare_pages_docs_page()
+    index_page = get_or_create_page(
+        BlogIndexPage,
+        slug="test-blog-index",
+        parent=root_page,
+        defaults={"title": "Blog"},
+    )
+    index_page.save_revision().publish()
     return index_page
 
 

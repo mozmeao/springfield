@@ -26,7 +26,7 @@ def smart_window_page(index_page, placeholder_images) -> SmartWindowPage:
 
 
 @pytest.fixture
-def free_form_2026_page(minimal_site) -> FreeFormPage2026:
+def free_form_page(minimal_site) -> FreeFormPage2026:
     root_page = minimal_site.root_page
     page = FreeFormPage2026(slug="test-stub-attribution", title="Test Stub Attribution Page")
     root_page.add_child(instance=page)
@@ -39,8 +39,8 @@ def free_form_2026_page(minimal_site) -> FreeFormPage2026:
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("show_navigation", [True, False])
-def test_show_navigation(free_form_2026_page: FreeFormPage2026, rf, show_navigation):
-    page = free_form_2026_page
+def test_show_navigation(free_form_page: FreeFormPage2026, rf, show_navigation):
+    page = free_form_page
     page.show_navigation = show_navigation
 
     response = page.serve(rf.get(page.get_full_url()))
@@ -56,8 +56,8 @@ def test_show_navigation(free_form_2026_page: FreeFormPage2026, rf, show_navigat
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("show_nav_cta", [True, False])
-def test_show_nav_cta(free_form_2026_page: FreeFormPage2026, rf, show_nav_cta):
-    page = free_form_2026_page
+def test_show_nav_cta(free_form_page: FreeFormPage2026, rf, show_nav_cta):
+    page = free_form_page
     page.show_nav_cta = show_nav_cta
 
     response = page.serve(rf.get(page.get_full_url()))
@@ -69,6 +69,61 @@ def test_show_nav_cta(free_form_2026_page: FreeFormPage2026, rf, show_nav_cta):
 
     for nav_cta_wrap in nav_cta_wraps:
         assert ("hide-cta-on-desktop" in nav_cta_wrap.get("class", [])) == (not show_nav_cta)
+
+
+# Page theme
+
+
+@pytest.mark.django_db
+def test_page_theme_sets_theme_to_body_class(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    page.theme = "enterprise"
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    body_el = soup.find("body")
+    assert body_el
+    assert "fl-theme-enterprise" in body_el.get("class", [])
+
+
+@pytest.mark.django_db
+def test_page_theme_adds_theme_css_bundle(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    page.theme = "enterprise"
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    head_el = soup.find("head")
+    assert head_el
+    links = head_el.find_all("link", rel="stylesheet")
+    assert any(link.get("href", "").endswith("/media/css/flare-theme-enterprise.css") for link in links)
+
+
+@pytest.mark.django_db
+def test_empty_page_theme_does_not_set_body_class(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    body_el = soup.find("body")
+    assert body_el
+    assert "fl-theme-" not in " ".join(body_el.get("class", []))
+
+
+@pytest.mark.django_db
+def test_page_theme_does_not_add_theme_css_bundle(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    head_el = soup.find("head")
+    assert head_el
+    links = head_el.find_all("link", rel="stylesheet")
+    assert not any("/media/css/flare-theme-" in link.get("href", "") for link in links)
 
 
 # Stub Attribution Campaign
@@ -83,9 +138,9 @@ def test_show_nav_cta(free_form_2026_page: FreeFormPage2026, rf, show_nav_cta):
         ("force", "my-campaign", "data-stub-attribution-campaign-force"),
     ],
 )
-def test_stub_attribution_html_attribute(free_form_2026_page: FreeFormPage2026, rf, mode, value, expected_attr):
+def test_stub_attribution_html_attribute(free_form_page: FreeFormPage2026, rf, mode, value, expected_attr):
     """Each mode renders exactly one data-stub-attribution-* attribute on <html>."""
-    page = free_form_2026_page
+    page = free_form_page
     page.stub_attr_utm_campaign_mode = mode
     page.stub_attr_utm_campaign_value = value
 
@@ -112,9 +167,9 @@ def test_stub_attribution_html_attribute(free_form_2026_page: FreeFormPage2026, 
         ("", ""),  # neither set
     ],
 )
-def test_stub_attribution_not_rendered_when_incomplete(free_form_2026_page: FreeFormPage2026, rf, mode, value):
+def test_stub_attribution_not_rendered_when_incomplete(free_form_page: FreeFormPage2026, rf, mode, value):
     """No stub-attribution attribute is added unless both mode and value are present."""
-    page = free_form_2026_page
+    page = free_form_page
     page.stub_attr_utm_campaign_mode = mode
     page.stub_attr_utm_campaign_value = value
 
@@ -126,16 +181,16 @@ def test_stub_attribution_not_rendered_when_incomplete(free_form_2026_page: Free
 
 
 @pytest.mark.django_db
-def test_get_utm_campaign_uses_stub_value(free_form_2026_page: FreeFormPage2026):
-    page = free_form_2026_page
+def test_get_utm_campaign_uses_stub_value(free_form_page: FreeFormPage2026):
+    page = free_form_page
     page.stub_attr_utm_campaign_mode = "override"
     page.stub_attr_utm_campaign_value = "my-campaign"
     assert page.get_utm_campaign() == "my-campaign"
 
 
 @pytest.mark.django_db
-def test_get_utm_campaign_falls_back_to_slug(free_form_2026_page: FreeFormPage2026):
-    page = free_form_2026_page
+def test_get_utm_campaign_falls_back_to_slug(free_form_page: FreeFormPage2026):
+    page = free_form_page
     assert page.get_utm_campaign() == page.slug
 
 

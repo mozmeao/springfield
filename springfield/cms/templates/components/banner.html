@@ -4,16 +4,30 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props theme="outlined" media_after=False qr_code=None anchor_id="" slim="" phone_qr_bg=False #}
+{# props
+  theme="outlined"
+  media_after=False
+  qr_code=None anchor_id=""
+  slim=""
+  remove_border_radius=False
+  centralize_content=False
+  phone_qr_bg=False
+#}
 
 <div
-  class="fl-banner-container {% if slim %}fl-banner-slim{% endif %} {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}"
+  class="
+    fl-banner-container
+    {% if slim %}fl-banner-slim{% endif %}
+    {% if phone_qr_bg %}fl-banner-phone-qr{% endif %}
+    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+  "
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   <div
     class="
       fl-banner
       fl-banner-{{ theme }}
+      {% if theme and "purple" in theme %}fl-force-dark-theme{% endif %}
       {% if media_after %}fl-banner-reverse{% endif %}"
     aria-labelledby="fl-banner-heading">
 
@@ -34,17 +48,14 @@
       {% endif %}
 
       <div class="fl-banner-content {% if contents.media or qr_code %}fl-banner-content-left{% endif %}">
-        <div class="fl-banner-content-inner">
+        <div
+          class="
+            fl-banner-content-inner
+            {% if centralize_content %}fl-banner-content-inner-centralize-content{% endif %}
+          "
+        >
           {{ contents.heading }}
-          {% if contents.body %}
-            <div class="fl-body">{{ contents.body }}</div>
-          {% endif %}
-
-          {% if contents.actions %}
-            <div class="fl-buttons">
-              {{ contents.actions }}
-            </div>
-          {% endif %}
+          {{ contents.content }}
         </div>
       </div>
     </div>

@@ -4,12 +4,28 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
+
+_IMAGE_MEDIA = [
+    {
+        "type": "image",
+        "value": {
+            "image": settings.PLACEHOLDER_IMAGE_ID,
+            "settings": {
+                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "mobile_image": None,
+                "dark_mode_mobile_image": None,
+            },
+        },
+        "id": "dlm00001-0000-0000-0000-000000000001",
+    }
+]
 
 
 def get_illustration_cards():
@@ -19,14 +35,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">AI</p>',
                 "headline": '<p data-block-key="9elvq">Your favorite AI chatbot in your sidebar. </p>',
                 "content": '<p data-block-key="hz26f">Conversations stay between you and your AI. </p>',
@@ -38,17 +47,10 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Privacy</p>',
                 "headline": '<p data-block-key="9elvq">Your data stays where it belongs — with you. </p>',
-                "content": '<p data-block-key="hz26f">Firefox doesn’t exploit your data and is backed by a people-first foundation. </p>',
+                "content": '<p data-block-key="hz26f">Firefox doesn\'t exploit your data and is backed by a people-first foundation. </p>',
                 "buttons": [buttons["link"]],
             },
             "id": "0d6a3510-a4ff-48b4-8c09-7c9d8bfb649e",
@@ -57,14 +59,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Independence</p>',
                 "headline": '<p data-block-key="9elvq">Billionaire-free and open source for over 20 years. </p>',
                 "content": '<p data-block-key="hz26f">Since 2004, Firefox has been the independent choice.</p>',
@@ -76,14 +71,7 @@ def get_illustration_cards():
             "type": "illustration_card",
             "value": {
                 "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
-                    "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
+                "media": _IMAGE_MEDIA,
                 "eyebrow": '<p data-block-key="4cj6k">Organization</p>',
                 "headline": '<p data-block-key="9elvq">Get organized. Stay organized.</p>',
                 "content": '<p data-block-key="hz26f">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing, and AI chat.</p>',
@@ -99,7 +87,7 @@ def get_cards_list_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": SHOW_TO_ALL},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="7tmxz">Work confidently. </p><p data-block-key="4tohn">Browse privately.</p>',
@@ -130,16 +118,17 @@ def get_pre_footer():
 
 
 def get_download_index_page() -> DownloadIndexPage:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "test-download-index-page"
-    page = DownloadIndexPage.objects.filter(slug=slug).first()
-    if not page:
-        page = DownloadIndexPage(
-            slug=slug,
-            title="Download Index Page Test",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        DownloadIndexPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Download Index",
+        },
+    )
 
     page.save_revision().publish()
     return page
@@ -151,13 +140,14 @@ def get_download_page(platform) -> DownloadPage:
     image, _, _, _ = get_placeholder_images()
 
     slug = f"test-download-page-{platform}"
-    page = DownloadPage.objects.filter(slug=slug).first()
-    if not page:
-        page = DownloadPage(
-            slug=slug,
-            title=f"Download Page Test - {platform.capitalize()}",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        DownloadPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": f"Download Page Test - {platform.capitalize()}",
+        },
+    )
 
     page.platform = platform
     page.subheading = (
@@ -165,7 +155,7 @@ def get_download_page(platform) -> DownloadPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
-    page.content = [get_cards_list_section()]
+    page.content = with_fresh_ids([get_cards_list_section()])
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page

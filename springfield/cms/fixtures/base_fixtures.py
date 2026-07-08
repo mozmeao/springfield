@@ -3,15 +3,51 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from io import BytesIO
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 
 from PIL import Image, ImageDraw, ImageFont
 from wagtail.documents.models import Document
-from wagtail.models import Site
+from wagtail.models import Locale, Site
 
-from springfield.cms.models import ArticleIndexPage, SpringfieldImage, StructuralPage
+from springfield.cms.models import ArticleIndexPage, SpringfieldImage
+from springfield.cms.models.pages import FlareDocsIndexPage
+
+
+def with_fresh_ids(blocks):
+    """Return a rebuilt copy of StreamField fixture data with every block ``id``
+    replaced by a freshly generated UUID.
+
+    Fixture block data uses hardcoded ids. Embedding the same generated block
+    more than once in a page (e.g. ``cards * 2`` or reusing a shared button dict
+    across cards) produces duplicate ids, which collapse wagtail-localize segment
+    paths and break translation. Wrapping reused block data in this helper keeps
+    every id unique within the page.
+
+    The structure is rebuilt node-by-node (rather than ``deepcopy``d) so that
+    aliased objects — e.g. the repeated entries created by ``list * 2`` — become
+    independent and each occurrence gets its own id."""
+    if isinstance(blocks, dict):
+        return {key: (str(uuid4()) if key == "id" else with_fresh_ids(value)) for key, value in blocks.items()}
+    if isinstance(blocks, list):
+        return [with_fresh_ids(item) for item in blocks]
+    return blocks
+
+
+def get_or_create_page(model, *, slug, parent, defaults=None, **lookup):
+    """Fetch or create the en-US page of ``model`` with ``slug`` under ``parent``.
+
+    Always scopes the lookup and creation to the en-US locale so fixtures operate
+    on the source-locale page and never accidentally pick up a translated variant
+    with the same slug."""
+    en_us = Locale.objects.get(language_code="en-US")
+    page = model.objects.child_of(parent).filter(slug=slug, locale=en_us, **lookup).first()
+    if page is None:
+        page = model(slug=slug, locale=en_us, **lookup, **(defaults or {}))
+        parent.add_child(instance=page)
+    return page
 
 
 def _draw_numbered_grid(image, cols, rows):
@@ -105,51 +141,62 @@ def get_placeholder_images():
     return image, dark_image, mobile_image, dark_mobile_image
 
 
-def get_test_index_page():
+def get_flare_docs_index_page():
     site = Site.objects.get(is_default_site=True)
     root_page = site.root_page
-    index_page = StructuralPage.objects.filter(slug="tests-index-page").first()
-    if not index_page:
-        index_page = StructuralPage(
-            slug="tests-index-page",
-            title="Tests Index Page",
-        )
-        root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
+    index_page = get_or_create_page(
+        FlareDocsIndexPage,
+        slug="flare-docs",
+        parent=root_page,
+        defaults={
+            "title": "Flare Docs - Index",
+            "search_description": "This is the base page for Flare 26's samples and docs.",
+        },
+    )
+    index_page.save_revision().publish()
     return index_page
 
 
-def get_2026_test_index_page():
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
-    index_page = StructuralPage.objects.filter(slug="tests-index-page-2026").first()
-    if not index_page:
-        index_page = StructuralPage(
-            slug="tests-index-page-2026",
-            title="Tests Index Page 2026",
+def get_flare_blocks_docs_page():
+    index_page = get_flare_docs_index_page()
+    blocks_docs_page = index_page.get_children().filter(slug="blocks").first()
+    if not blocks_docs_page:
+        blocks_docs_page = FlareDocsIndexPage(
+            slug="blocks", title="Flare Docs - Blocks", search_description="This is the base page for Flare 26's CMS block samples and docs."
         )
-        root_page.add_child(instance=index_page)
-        index_page.save_revision().publish()
-    return index_page
+        index_page.add_child(instance=blocks_docs_page)
+        blocks_docs_page.save_revision().publish()
+    return blocks_docs_page
+
+
+def get_flare_pages_docs_page():
+    index_page = get_flare_docs_index_page()
+    pages_docs_page = index_page.get_children().filter(slug="pages").first()
+    if not pages_docs_page:
+        pages_docs_page = FlareDocsIndexPage(
+            slug="pages", title="Flare Docs - Pages", search_description="This is the base page for Flare 26's CMS page samples."
+        )
+        index_page.add_child(instance=pages_docs_page)
+        pages_docs_page.save_revision().publish()
+    return pages_docs_page
 
 
 def get_article_index_test_page():
-    site = Site.objects.get(is_default_site=True)
-    root_page = site.root_page
-    index_page = ArticleIndexPage.objects.filter(slug="tests-article-index").first()
-    if not index_page:
-        index_page = ArticleIndexPage(
-            slug="tests-article-index",
-            title="Tests Article Index Page",
-            sub_title="An index page for testing articles.",
-            other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
-            other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
-        )
-        root_page.add_child(instance=index_page)
-    else:
-        index_page.sub_title = "An index page for testing articles."
-        index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
-        index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
+    root_page = get_flare_pages_docs_page()
+    index_page = get_or_create_page(
+        ArticleIndexPage,
+        slug="tests-article-index",
+        parent=root_page,
+        defaults={
+            "title": "Article Index Page",
+            "sub_title": "An index page for testing articles.",
+            "other_articles_heading": "<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+            "other_articles_subheading": "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+        },
+    )
+    index_page.sub_title = "An index page for testing articles."
+    index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
+    index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
     index_page.save_revision().publish()
     return index_page
 

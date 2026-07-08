@@ -4,6 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import MarketingOptOut from './marketing-opt-out.es6.js';
+import MarketingOptOutV2 from './marketing-opt-out-v2.es6.js';
 
-MarketingOptOut.init();
+MarketingOptOutV2.init();

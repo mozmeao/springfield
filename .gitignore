@@ -37,7 +37,6 @@ node_modules
 npm-debug.log
 pip-log.txt
 python_coverage/
-root_files/etags.json
 settings_local.py
 settings/local.py
 static
@@ -52,6 +51,7 @@ tests/unit/coverage
 tests/unit/dist/
 tests/playwright/test-results/
 tests/playwright/test-results-a11y/
+tests/playwright/.auth/
 Thumbs.db
 tmp/*
 venv

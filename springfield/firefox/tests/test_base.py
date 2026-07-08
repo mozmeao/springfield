@@ -4,7 +4,8 @@
 import os
 from unittest.mock import Mock, call, patch
 
-from django_jinja.backend import Jinja2
+from django.template import engines
+
 from markupsafe import Markup
 
 from springfield.base.tests import TestCase
@@ -13,13 +14,16 @@ from springfield.base.urlresolvers import reverse
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 PROD_DETAILS_DIR = os.path.join(TEST_DATA_DIR, "product_details_json")
 GOOD_PLATS = {"Windows": {}, "OS X": {}, "Linux": {}}
-jinja_env = Jinja2.get_default().env
 
 
 class TestInstallerHelp(TestCase):
     def setUp(self):
         self.button_mock = Mock()
-        self.patcher = patch.dict(jinja_env.globals, download_firefox=self.button_mock)
+        # Use engines['jinja2'] rather than Jinja2.get_default(): the latter is
+        # decorated with @lru_cache and returns a stale backend after any
+        # reset_template_engines() call (triggered by override_settings(...)
+        # in other tests). engines['jinja2'] always resolves the live backend.
+        self.patcher = patch.dict(engines["jinja2"].env.globals, download_firefox=self.button_mock)
         self.patcher.start()
         self.view_name = "firefox.installer-help"
         with self.activate_locale("en-US"):
@@ -186,4 +190,5 @@ class TestInstallerHelp(TestCase):
             force_full_installer=True,
             locale=None,
             platform="desktop",
+            force_arch=None,
         )

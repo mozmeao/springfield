@@ -62,7 +62,7 @@ FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="fals
 # the redirects from temporary (302) to permanent (301); defaults to false so we can
 # verify the rollout and later make redirects permanent or remove them as part of cleanup.
 ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
@@ -139,8 +139,6 @@ TIME_ZONE = config("TIME_ZONE", default="America/Los_Angeles")
 USE_I18N = True
 
 USE_TZ = True
-
-USE_ETAGS = config("USE_ETAGS", default=str(not DEBUG), parser=bool)
 
 # Use the "X-Forwarded-Host" header from the CDN to set the Hostname
 # https://mozilla-hub.atlassian.net/browse/SE-4263
@@ -474,7 +472,6 @@ SUPPORTED_NONLOCALES = [
     "robots.txt",
     ".well-known",
     "healthz",  # Needed for k8s
-    "healthz-cdn",  # Needed for Fastly CDN health checks
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
     "revision.txt",  # from root_files
@@ -484,15 +481,13 @@ SUPPORTED_NONLOCALES = [
     "_documents",
 ]
 
-# Ensure local debug-only test routes are not locale-prefixed
-if DEBUG:
-    SUPPORTED_NONLOCALES.append("flare-test")
-
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
-    "/all-urls-global.xml",  # in sitemap urls
-    "/all-urls.xml",  # in sitemap urls
+    "/all-urls-global.xml",  # in sitemap urls (legacy alias)
+    "/all-urls.xml",  # in sitemap urls (legacy alias)
+    "/sitemap-global.xml",  # in sitemap urls
+    "/sitemap.xml",  # in sitemap urls
 ]
 
 # Pages that we don't want to be indexed by search engines.
@@ -514,7 +509,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -684,6 +679,14 @@ ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bo
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
 ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool)
 
+# Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
+# Secret in webservices-infra), requests carrying the same token in the
+# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# 5xx for testing Fastly's failover cascade without breaking the /healthz/
+# probe. When unset (the default in every environment) the middleware is a
+# no-op and this setting has no effect.
+SYNTHETIC_5XX_TOKEN = config("SYNTHETIC_5XX_TOKEN", default="")
+
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
     "django.middleware.security.SecurityMiddleware",
@@ -692,6 +695,7 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.SyntheticServerErrorMiddleware",
     "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
@@ -787,7 +791,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -869,8 +873,7 @@ PATTERN_LIBRARY = {
     "SECTIONS": (
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
-        ("Components", ["pattern-library/components/flare-26/"]),
-        ("Components - Flare 25", ["pattern-library/components/flare-25/"]),
+        ("Components", ["pattern-library/components/flare/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -879,7 +882,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare.html", "base-flare26.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1042,6 +1045,9 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 
@@ -1081,6 +1087,9 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
+    # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
+    # requests; keep it out of Sentry events so the token cannot leak via error reports.
+    "X-Mozilla-Ops-Canary",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
@@ -1467,6 +1476,7 @@ def _localize_dashboard_column_filter_options():
 # Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
 WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.PretranslatedPhrase"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1482,10 +1492,8 @@ WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)(
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
     "cms.SmartWindowPage",
     "cms.SmartWindowExplainerPage",
@@ -1498,6 +1506,8 @@ _allowed_page_models = [
     "cms.ThanksPage",
     "cms.BlogIndexPage",
     "cms.BlogArticlePage",
+    "cms.RoadmapPage",
+    "cms.ContactPage",
 ]
 
 if DEV is True:
@@ -1534,10 +1544,4 @@ PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", 
 PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
-
-BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
-DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
-QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)
-SET_AS_DEFAULT_SNIPPET_ID = config("SET_AS_DEFAULT_SNIPPET_ID", default="1000", parser=int)
+PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)

@@ -160,5 +160,68 @@ test.describe(
             await expect(downloadButtonBeta).not.toBeVisible();
             await expect(downloadButtonDeveloper).not.toBeVisible();
         });
+
+        test('Download Firefox (Windows) forced win architecture', async ({
+            page,
+            browserName
+        }) => {
+            const downloadButtonRelease = page.getByTestId(
+                'download-button-desktop-release-win'
+            );
+
+            test.skip(
+                browserName === 'webkit',
+                'Safari not available on Windows'
+            );
+
+            await openPage(
+                url + '?channel=release&installer_arch=1',
+                page,
+                browserName
+            );
+            await expect(downloadButtonRelease).toBeVisible();
+        });
+
+        test('Download Firefox (Windows) forced win64 architecture', async ({
+            page,
+            browserName
+        }) => {
+            const downloadButtonRelease = page.getByTestId(
+                'download-button-desktop-release-win64'
+            );
+
+            test.skip(
+                browserName === 'webkit',
+                'Safari not available on Windows'
+            );
+
+            await openPage(
+                url + '?channel=release&installer_arch=2',
+                page,
+                browserName
+            );
+            await expect(downloadButtonRelease).toBeVisible();
+        });
+
+        test('Download Firefox (Windows) forced win64-aarch64 architecture', async ({
+            page,
+            browserName
+        }) => {
+            const downloadButtonRelease = page.getByTestId(
+                'download-button-desktop-release-win64-aarch64'
+            );
+
+            test.skip(
+                browserName === 'webkit',
+                'Safari not available on Windows'
+            );
+
+            await openPage(
+                url + '?channel=release&installer_arch=3',
+                page,
+                browserName
+            );
+            await expect(downloadButtonRelease).toBeVisible();
+        });
     }
 );

@@ -43,10 +43,11 @@ INSTALLER_CHANNElS = [
 ]
 SEND_TO_DEVICE_MESSAGE_SETS = settings.SEND_TO_DEVICE_MESSAGE_SETS
 
-STUB_VALUE_NAMES = [
+
+_STUB_VALUE_NAMES = [
     # name, default value
     ("utm_source", "(not set)"),
-    ("utm_medium", "(direct)"),
+    ("utm_medium", "(not set)"),
     ("utm_campaign", "(not set)"),
     ("utm_content", "(not set)"),
     ("experiment", "(not set)"),
@@ -67,8 +68,13 @@ class InstallerHelpView(L10nTemplateView):
         ctx = super().get_context_data(**kwargs)
         installer_lang = self.request.GET.get("installer_lang", None)
         installer_channel = self.request.GET.get("channel", None)
+        installer_arch = self.request.GET.get("installer_arch", None)
         ctx["installer_lang"] = None
         ctx["installer_channel"] = None
+        ctx["installer_arch"] = None
+
+        if installer_arch is not None:
+            ctx["installer_arch"] = {"1": "win", "2": "win64", "3": "win64-aarch64"}[installer_arch]
 
         if installer_lang and installer_lang in firefox_desktop.languages:
             ctx["installer_lang"] = installer_lang
@@ -102,7 +108,9 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
-    for name, default_value in STUB_VALUE_NAMES:
+    fallback_fields = ["medium", "source"]
+    stub_value_names = _STUB_VALUE_NAMES
+    for name, default_value in stub_value_names:
         val = data.get(name, "")
         # remove utm_
         if name.startswith("utm_"):
@@ -110,24 +118,34 @@ def stub_attribution_code(request):
 
         if val and STUB_VALUE_RE.match(val):
             codes[name] = val
-            has_value = True
+            if name in fallback_fields:
+                # we don't need the fallbacks
+                has_value = True
         else:
             codes[name] = default_value
 
-    if codes["source"] == "(not set)" and "referrer" in data:
-        try:
-            domain = urlparse(data["referrer"]).netloc
-            if domain and STUB_VALUE_RE.match(domain):
-                codes["source"] = domain
-                codes["medium"] = "referral"
-                has_value = True
-        except Exception:
-            # any problems and we should just ignore it
-            pass
+    # Only provide default analytics data if analytics data is allowed
+    # (as indicated by set session_id value)
+    if codes["session_id"] != "(not set)":
+        # set basic fallbacks
+        if codes["medium"] == "(not set)":
+            codes["medium"] = "(direct)"
 
-    if not has_value:
-        codes["source"] = "www.firefox.com"
-        codes["medium"] = "(none)"
+        # try more advanced fallbacks
+        if codes["source"] == "(not set)" and "referrer" in data:
+            try:
+                domain = urlparse(data["referrer"]).netloc
+                if domain and STUB_VALUE_RE.match(domain):
+                    codes["source"] = domain
+                    codes["medium"] = "referral"
+                    has_value = True
+            except Exception:
+                # any problems and we should just ignore it
+                pass
+
+        if not has_value:
+            codes["source"] = "www.firefox.com"
+            codes["medium"] = "(none)"
 
     code_data = sign_attribution_codes(codes)
     if code_data:
@@ -278,14 +296,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     download_url = None
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        if waffle.switch("FLARE26_ENABLED"):
-            template_name = "firefox/all/includes/main-flare26.html"
-        else:
-            template_name = "firefox/all/includes/main.html"
-    elif waffle.switch("FLARE26_ENABLED"):
-        template_name = "firefox/all/base-flare26.html"
+        template_name = "firefox/all/includes/main-flare.html"
     else:
-        template_name = "firefox/all/base.html"
+        template_name = "firefox/all/base-flare.html"
 
     lang_multi = ftl("firefox-all-lang-multi", ftl_files=ftl_files)
 
@@ -354,8 +367,8 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
                 # ESR115 builds do not exist for "sat" and "skr" languages (issue: mozilla/bedrock#15437)
                 if locale in ["sat", "skr"]:
                     download_esr_115_url = None
-                # ESR115 builds do not exist for "linux64-aarch64" platform (see issue #467)
-                if platform == "linux64-aarch64":
+                # ESR115 builds do not exist for "linux64-aarch64" (springfield#467); "linux" (i686) and "win64-aarch64" no longer ship (bug 2040496)
+                if platform in ["linux64-aarch64", "linux", "win64-aarch64"]:
                     download_esr_115_url = None
                 context.update(
                     download_esr_115_url=download_esr_115_url,
@@ -410,9 +423,8 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 class DownloadThanksView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/thanks.html": ["firefox/download/download"],
-        "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
-        "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
+        "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
@@ -440,12 +452,12 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                template = "firefox/download/desktop/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:
             if source == "direct":
-                template = "firefox/download/basic/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/basic/thanks.html"
 
@@ -735,11 +747,13 @@ def firefox_features_translate(request):
     translate_langs = [
         "ar",
         "az",
+        "eu",
         "bg",
         "bn",
         "bs",
         "ca",
         "zh-CN",
+        "zh-TW",
         "hr",
         "cs",
         "da",
@@ -749,6 +763,7 @@ def firefox_features_translate(request):
         "fa",
         "fi",
         "fr",
+        "gl",
         "de",
         "el",
         "gu",

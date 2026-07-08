@@ -5,6 +5,7 @@
  */
 
 import MozAllowList from './allow-list.es6';
+import DownloadAttribution from '../download-attribution/download-attribution.es6';
 
 const COOKIE_ID = 'moz-consent-pref'; // Cookie name
 const COOKIE_EXPIRY_DAYS = 182; // 6 months expiry
@@ -44,6 +45,11 @@ function setGtagAdsConsentMode(hasConsent, type = 'update') {
  * @returns {Boolean}
  */
 function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
+    // This must run before the gtag check to ensure we always update
+    // download analytics regardless of whether GTM has loaded on the page
+    // i.e. cookie settings page
+    setDownloadAttribution(hasConsent);
+
     // bail out if GTAG has not been created with GTMSnippet.loadSnippet
     // this needs to run before GTM snippet loads to set proper defaults
     if (typeof window.gtag === 'undefined') {
@@ -58,6 +64,17 @@ function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
             analytics_storage: 'denied'
         });
     }
+    return true;
+}
+
+/**
+ * Sets Mozilla Download Attribution analytics
+ * @param {Boolean} hasConsent - based on GTAG analytics consent
+ * @returns {Boolean}
+ */
+function setDownloadAttribution(hasConsent) {
+    DownloadAttribution.initAnalytics(hasConsent);
+
     return true;
 }
 

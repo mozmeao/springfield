@@ -19,15 +19,15 @@ from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
-from wagtail.snippets.models import register_snippet
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock
+from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock, ConditionalDisplayBlock
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
+from springfield.cms.templatetags.cms_tags import remove_tags
 
 
 class FluentPreviewableMixin(PreviewableMixin):
@@ -106,9 +106,6 @@ class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return "cms/snippets/pre-footer-cta-snippet-preview.html"
 
 
-register_snippet(PreFooterCTASnippet)
-
-
 class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet for the Newsletter sign-up form at the bottom of pages."""
 
@@ -127,54 +124,22 @@ class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnipp
         verbose_name_plural = "Pre Footer Call To Action Forms"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """
+        Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pre-footer-cta-form-snippet-preview.html"
-
-
-register_snippet(PreFooterCTAFormSnippet)
-
-
-class DownloadFirefoxCallToActionSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
-    """A snippet to render an image with a Call to Action for downloading Firefox."""
-
-    heading = RichTextField(
-        features=HEADING_TEXT_FEATURES,
-    )
-    description = RichTextField(
-        features=HEADING_TEXT_FEATURES,
-    )
-    image = models.ForeignKey(
-        "cms.SpringfieldImage",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
-
-    panels = [
-        FieldPanel("heading"),
-        FieldPanel("description"),
-        FieldPanel("image"),
-    ]
-
-    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
-        verbose_name = "Download Firefox Call To Action Snippet"
-        verbose_name_plural = "Download Firefox Call To Action Snippets"
-
-    def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
-        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
-
-    def get_preview_template(self, request, mode_name):
-        return "cms/snippets/download-firefox-cta-snippet-preview.html"
-
-
-register_snippet(DownloadFirefoxCallToActionSnippet)
 
 
 class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -210,15 +175,21 @@ class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         verbose_name_plural = "Banner Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/banner-snippet-preview.html"
-
-
-register_snippet(BannerSnippet)
 
 
 class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
@@ -239,9 +210,6 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
-
-
-register_snippet(Tag)
 
 
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -275,9 +243,18 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         verbose_name_plural = "QR Code Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/qr-code-snippet-preview.html"
@@ -289,7 +266,24 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         return response
 
 
-register_snippet(QRCodeSnippet)
+class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render the 'Scroll to see more' text."""
+
+    text = models.CharField(default="Scroll to see more")
+
+    panels = [
+        FieldPanel("text"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Scroll to see more Snippet"
+        verbose_name_plural = "Scroll to see more Snippets"
+
+    def __str__(self):
+        return f"{self.text} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/scroll-to-see-more-snippet-preview.html"
 
 
 class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -338,9 +332,6 @@ class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return "cms/snippets/set-as-default-snippet-preview.html"
 
 
-register_snippet(SetAsDefaultSnippet)
-
-
 class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a floating QR code."""
 
@@ -372,9 +363,18 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         verbose_name_plural = "QR Code Floating Snippets"
 
     def __str__(self):
-        from springfield.cms.templatetags.cms_tags import remove_tags
-
         return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
 
     @classmethod
     def get_live(cls, locale) -> QRCodeFloatingSnippet | None:
@@ -420,4 +420,64 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return super().clean()
 
 
-register_snippet(QRCodeFloatingSnippet)
+class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a banner above the header."""
+
+    title = RichTextField(features=HEADING_TEXT_FEATURES, help_text="Use italic text to insert a yellow pill.")
+    description = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+    )
+    link = models.URLField(blank=True)
+    dismissable = models.BooleanField(default=False, help_text="Whether the banner can be dismissed by the user.")
+    settings = StreamField(
+        [
+            ("show_to", ConditionalDisplayBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+
+    panels = [
+        FieldPanel("title"),
+        FieldPanel("description"),
+        FieldPanel("link"),
+        FieldPanel("dismissable"),
+        FieldPanel("settings"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pencil Banner Snippet"
+        verbose_name_plural = "Pencil Banner Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.title))} – {self.locale}"
+
+    def title_plain(self):
+        """
+        Plain-text rendering of `title` for the snippet listing column.
+
+        `title` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.title))
+
+    title_plain.short_description = "Title"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pencil-banner-snippet-preview.html"
+
+
+class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A reusable, translatable text label."""
+
+    label = models.CharField(max_length=255)
+
+    panels = [FieldPanel("label")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pretranslated Phrase"
+        verbose_name_plural = "Pretranslated Phrases"
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"

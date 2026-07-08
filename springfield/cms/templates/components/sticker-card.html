@@ -4,16 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<article class="fl-card {% if expand_link %}fl-card-expand-link{% endif %}">
-  {% if contents.sticker %}
-    {{ contents.sticker }}
-  {% endif %}
-  {% if contents.heading %}
+<article class="fl-sticker-card fl-force-light-theme {% if expand_link %}fl-card-expand-link{% endif %}">
+  <div class="fl-card-heading">
     {{ contents.heading }}
-  {% endif %}
-  {% if contents.body %}
-    <div class="fl-body">{{ contents.body }}</div>
-  {% endif %}
+  </div>
+  <div class="fl-card-sticker">
+    {{ contents.sticker }}
+  </div>
+
+  <div class="fl-body {% if not fill %}fl-body-medium{% endif %}">{{ contents.body }}</div>
   {% if contents.buttons %}
     <div class="fl-buttons">
       {{ contents.buttons }}

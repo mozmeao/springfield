@@ -4,8 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "cms/base-flare.html" %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=testflight' %}
 
@@ -15,27 +14,10 @@
 Sign up to test pre-release beta versions of Firefox for iOS via Apple's TestFlight program and help make our mobile browser for iPhone, iPad and iPod touch even better.
 {% endblock %}
 
-{% block page_css %}
-  {% if not switch("flare26_enabled") %}
-    {{ css_bundle('protocol-newsletter') }}
-    {{ css_bundle('protocol-callout')}}
-    {{ css_bundle('protocol-emphasis-box') }}
-    {{ css_bundle('firefox_ios_testflight') }}
-  {% endif %}
-{% endblock %}
+{% block page_css %}{% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% if switch("flare26_enabled") %}
-    {% include "firefox/testflight/testflight-flare26.html" %}
-  {% else %}
-    {% include "firefox/testflight/testflight-protocol.html" %}
-  {% endif %}
-{% endblock %}
-
-{% block js %}
-  {% if not switch("flare26_enabled") %}
-    {{ js_bundle('newsletter') }}
-  {% endif %}
+  {% include "firefox/testflight/testflight-flare.html" %}
 {% endblock %}

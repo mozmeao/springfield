@@ -4,30 +4,30 @@
   "description": "You can have all the money in the world, but there’s one thing you will never have — a dinosaur.",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.5",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
     "@mozilla-protocol/core": "^21.1.0",
     "@mozmeao/consent-banner": "^1.1.1",
     "@mozmeao/cookie-helper": "^1.1.0",
     "@mozmeao/dnt-helper": "^1.0.0",
     "@mozmeao/trafficcop": "^3.0.0",
-    "@sentry/browser": "^10.51.0",
+    "@sentry/browser": "^10.62.0",
     "babel-loader": "^10.1.1",
-    "caniuse-lite": "^1.0.30001792",
+    "caniuse-lite": "^1.0.30001800",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.4",
     "css-minimizer-webpack-plugin": "^8.0.0",
     "mini-css-extract-plugin": "^2.10.2",
-    "postcss": "^8.5.14",
+    "postcss": "^8.5.16",
     "postcss-custom-media": "^12.0.1",
     "postcss-loader": "^8.2.1",
     "sass": "1.91.0",
-    "sass-loader": "^16.0.7",
+    "sass-loader": "^17.0.0",
     "style-loader": "^4.0.0",
-    "swiper": "^12.1.4",
-    "terser-webpack-plugin": "^5.5.0",
-    "webpack": "^5.106.2",
+    "swiper": "^12.2.0",
+    "terser-webpack-plugin": "^5.6.1",
+    "webpack": "^5.108.3",
     "webpack-cli": "^6.0.1"
   },
   "repository": {
@@ -40,29 +40,29 @@
     "url": "https://bugzilla.mozilla.org/"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "dotenv-webpack": "^8.1.1",
+    "concurrently": "^10.0.3",
+    "dotenv-webpack": "^9.0.0",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
-    "focus-trap": "^8.1.0",
-    "globals": "^17.5.0",
+    "focus-trap": "^8.2.2",
+    "globals": "^17.7.0",
     "jasmine-browser-runner": "^4.0.0",
-    "jasmine-core": "^6.2.0",
-    "prettier": "^3.7.4",
+    "jasmine-core": "^6.3.0",
+    "prettier": "^3.9.3",
     "prettier-plugin-css-order": "^2.2.0",
-    "sinon": "^21.1.2",
+    "sinon": "^22.0.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^13.1.0",
     "stylelint-use-logical": "^2.1.3",
     "svgo": "^4.0.0",
-    "webpack-dev-server": "^5.2.2"
+    "webpack-dev-server": "^5.2.5"
   },
   "scripts": {
     "start": "concurrently --kill-others \"python manage.py runserver 0.0.0.0:8080\" \"npm run watch\"",
     "lint-js": "npx eslint .",
     "lint-css": "npx stylelint \"media/css/**/*.{css,scss}\"",
-    "lint-flare26-css": "npx stylelint \"media/css/**/flare26*.css\" -c .stylelintrc-flare26",
-    "lint": "npm run lint-js && npm run lint-css && npm run lint-flare26-css && npm run prettier-check",
+    "lint-flare-css": "npx stylelint \"media/css/**/flare*.css\" -c .stylelintrc-flare",
+    "lint": "npm run lint-js && npm run lint-css && npm run lint-flare-css && npm run prettier-check",
     "test-build": "webpack --config webpack.test.config.js --mode=development",
     "jasmine": "npm run test-build && npx jasmine-browser-runner runSpecs --config=tests/unit/jasmine-browser.json && npx jasmine-browser-runner runSpecs --browser=chrome --config=tests/unit/jasmine-browser.json",
     "jasmine-serve": "concurrently \"webpack --watch --config webpack.test.config.js --mode=development\" \"npx jasmine-browser-runner serve --config=tests/unit/jasmine-browser.json\"",
@@ -82,8 +82,8 @@
     "IE 8"
   ],
   "overrides": {
-    "jasmine-browser-runner": {
-      "path-to-regexp": "^8.4.0"
+    "sockjs": {
+      "uuid": "^11.1.1"
     }
   }
 }

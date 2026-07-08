@@ -3,11 +3,20 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page, get_test_document, get_test_index_page
-from springfield.cms.models import FreeFormPage, FreeFormPage2026
+from wagtail.models import Locale
+
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_test_document, with_fresh_ids
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 
 
 def get_button_variants(full=False) -> dict[str, dict]:
+    get_pretranslated_phrase_snippets()
+    get_firefox_pk = PretranslatedPhrase.objects.get(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+    ).pk
     buttons = {
         "primary": {
             "type": "button",
@@ -18,7 +27,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "c4c4c73d-a612-452d-b1af-f4c0810fb441",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -42,7 +52,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "cfdf0d2c-7eee-49c2-8747-80450e22dbdd",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -66,7 +77,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -90,7 +102,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Button",
+                "pretranslated_label": None,
+                "custom_label": "Button",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -104,6 +117,31 @@ def get_button_variants(full=False) -> dict[str, dict]:
                 },
             },
             "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+        },
+        "gold": {
+            "type": "button",
+            "value": {
+                "settings": {
+                    "theme": "gold",
+                    "icon": "competitiveness",
+                    "icon_position": "left",
+                    "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Button",
+                "link": {
+                    "link_to": "custom_url",
+                    "page": None,
+                    "file": None,
+                    "custom_url": "https://mozilla.org",
+                    "anchor": "",
+                    "email": "",
+                    "phone": "",
+                    "new_window": False,
+                    "relative_url": "",
+                },
+            },
+            "id": "78d40d75-9303-41f3-82d9-097970dced8e",
         },
         "link": {
             "type": "button",
@@ -114,7 +152,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
                 },
-                "label": "Learn more",
+                "pretranslated_label": None,
+                "custom_label": "Learn more",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -127,13 +166,14 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "aca0af22-515c-4357-a959-81eba0568a3b",
         },
         "external_mozilla": {
             "type": "button",
             "value": {
                 "settings": {"theme": "", "icon": "", "icon_position": "right", "analytics_id": "5383592c-13c2-407a-82fe-f099617c05d9"},
-                "label": "Mozilla",
+                "pretranslated_label": None,
+                "custom_label": "Mozilla",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -157,7 +197,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "b4adffda-872a-4f2b-b45a-63ac7cb71e91",
                 },
-                "label": "Relay new Tab",
+                "pretranslated_label": None,
+                "custom_label": "Relay new Tab",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -181,7 +222,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
                 },
-                "label": "Wikipedia",
+                "pretranslated_label": None,
+                "custom_label": "Wikipedia",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -205,7 +247,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "4c411613-ef35-46c0-9eff-3a1bef76dabd",
                 },
-                "label": "Wikipedia new Tab",
+                "pretranslated_label": None,
+                "custom_label": "Wikipedia new Tab",
                 "link": {
                     "link_to": "custom_url",
                     "page": None,
@@ -229,14 +272,16 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
                 },
-                "label": "Log in to Mozilla Account",
+                "pretranslated_label": None,
+                "custom_label": "Log in to Mozilla Account",
             },
             "id": "bc17ead3-29c7-44d5-b8b8-0b0aaaee3e56",
         },
         "download": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "",
                     "icon": "downloads",
@@ -250,7 +295,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
         "download_default_browser": {
             "type": "download_button",
             "value": {
-                "label": "Get Firefox",
+                "pretranslated_label": get_firefox_pk,
+                "custom_label": "",
                 "settings": {
                     "theme": "secondary",
                     "icon": "downloads",
@@ -259,7 +305,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "show_default_browser_checkbox": True,
                 },
             },
-            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+            "id": "a5dfce3c-ff6b-4cd6-abf2-e88648c99150",
         },
         "store_android": {
             "type": "store_button",
@@ -280,7 +326,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000001",
                 },
-                "label": "Get Firefox Focus for Android",
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox Focus for Android",
                 "store": "android",
             },
             "id": "fb000001-0000-0000-0000-000000000002",
@@ -294,14 +341,32 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "icon_position": "right",
                     "analytics_id": "fb000001-0000-0000-0000-000000000003",
                 },
-                "label": "Get Firefox Focus for iOS",
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox Focus for iOS",
                 "store": "ios",
             },
             "id": "fb000001-0000-0000-0000-000000000004",
         },
+        "qr_code_modal": {
+            "type": "qr_code_modal_button",
+            "value": {
+                "settings": {
+                    "theme": "",
+                    "icon": "device-mobile",
+                    "icon_position": "left",
+                    "analytics_id": "qrmodal1-0000-0000-0000-000000000001",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox on your phone",
+                "url": "https://www.mozilla.org/firefox/mobile/",
+                "heading": "Get Firefox on your phone",
+                "content": "Take Firefox with you.",
+            },
+            "id": "qrmodal1-0000-0000-0000-000000000002",
+        },
     }
     if full:
-        index_page = get_test_index_page()
+        index_page = get_flare_blocks_docs_page()
         test_document = get_test_document()
         buttons.update(
             {
@@ -314,7 +379,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
                         },
-                        "label": "Test Index Page",
+                        "pretranslated_label": None,
+                        "custom_label": "Test Index Page",
                         "link": {
                             "link_to": "page",
                             "page": index_page.id,
@@ -338,7 +404,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "151a5822-63b4-4621-b146-4135044f21b8",
                         },
-                        "label": "Test Index in new tab",
+                        "pretranslated_label": None,
+                        "custom_label": "Test Index in new tab",
                         "link": {
                             "link_to": "page",
                             "page": index_page.id,
@@ -362,7 +429,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "2ce75501-5dc6-44cf-8609-61ee89c914b0",
                         },
-                        "label": "Open document",
+                        "pretranslated_label": None,
+                        "custom_label": "Open document",
                         "link": {
                             "link_to": "file",
                             "page": None,
@@ -386,7 +454,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "569de137-625d-48f7-bbfb-0fe87b43da83",
                         },
-                        "label": "Email",
+                        "pretranslated_label": None,
+                        "custom_label": "Email",
                         "link": {
                             "link_to": "email",
                             "page": None,
@@ -410,7 +479,8 @@ def get_button_variants(full=False) -> dict[str, dict]:
                             "icon_position": "left",
                             "analytics_id": "db29813f-1941-4e78-83ac-856943e34490",
                         },
-                        "label": "Phone",
+                        "pretranslated_label": None,
+                        "custom_label": "Phone",
                         "link": {
                             "link_to": "phone",
                             "page": None,
@@ -460,9 +530,8 @@ def get_button_blocks() -> list[dict]:
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">External link Buttons with Mozilla domains</p>',
@@ -471,16 +540,21 @@ def get_button_blocks() -> list[dict]:
                     '</p><p data-block-key="a68ij"><b>*.mozilla.org</b>, <b>*.mozillafoundation.org</b>, and <b>*.firefox.com</b> '
                     "(except <b>www.firefox.com</b>) domains automatically get UTM parameters added to the links. </p>",
                 },
-                "buttons": [buttons["external_mozilla"], buttons["external_mozilla_new_tab"]],
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "842aa17d-0000-0000-0000-000000000001",
+                        "value": [buttons["external_mozilla"], buttons["external_mozilla_new_tab"]],
+                    },
+                ],
             },
             "id": "842aa17d-3dc9-450d-982e-3afe90f40472",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">External link buttons with non Mozilla domains</p>',
@@ -488,45 +562,53 @@ def get_button_blocks() -> list[dict]:
                     '<i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5"></p>'
                     '<p data-block-key="5inkg">Links to non Mozilla domain don\'t get the UTM parameters.</p>',
                 },
-                "buttons": [buttons["external_other"], buttons["external_other_new_tab"]],
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "3fa1b0a0-0000-0000-0000-000000000001",
+                        "value": [buttons["external_other"], buttons["external_other_new_tab"]],
+                    },
+                ],
             },
             "id": "3fa1b0a0-b990-4468-a3d7-39ab3a68b477",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Internal link button</p>',
                     "subheading_text": "",
                 },
-                "buttons": [buttons["page"], buttons["page_new_tab"]],
+                "content": [
+                    {"type": "buttons", "id": "961cf2a3-0000-0000-0000-000000000001", "value": [buttons["page"], buttons["page_new_tab"]]},
+                ],
             },
             "id": "961cf2a3-6b87-439a-8588-85b18d136781",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Mozilla Account Button</p>',
                     "subheading_text": '<p data-block-key="6u373">If opened in Firefox, the button takes the user to the browser login. '
                     "In other browsers it's a link to log in to the Mozilla Account.</p>",
                 },
-                "buttons": [buttons["fxa"]],
+                "content": [
+                    {"type": "buttons", "id": "6662346e-0000-0000-0000-000000000001", "value": [buttons["fxa"]]},
+                ],
             },
             "id": "6662346e-f897-45a6-95c6-b68e239e465b",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
                 "media": [],
                 "heading": {
                     "superheading_text": "",
@@ -534,101 +616,467 @@ def get_button_blocks() -> list[dict]:
                     "subheading_text": '<p data-block-key="dkgdn">A special link to /thanks with the required attributes for the download flow.</p>'
                     '<p data-block-key="5inkg">Optional "Set as default browser" checkbox. The checkbox is only shown to Windows users.</p>',
                 },
-                "buttons": [buttons["download"], buttons["download_default_browser"]],
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "79f53077-0000-0000-0000-000000000001",
+                        "value": [buttons["download"], buttons["download_default_browser"]],
+                    },
+                ],
             },
             "id": "79f53077-d740-4332-b9ab-6f9dd95c326a",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Document link</p>',
                     "subheading_text": '<p data-block-key="6u373">Choose from any document uploaded to the CMS.</p>',
                 },
-                "buttons": [buttons["document"]],
+                "content": [
+                    {"type": "buttons", "id": "52a2b31d-0000-0000-0000-000000000001", "value": [buttons["document"]]},
+                ],
             },
             "id": "52a2b31d-7f05-4376-af75-52cf666e4365",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Email and phone links</p>',
                     "subheading_text": "",
                 },
-                "buttons": [buttons["email"], buttons["phone"]],
+                "content": [
+                    {"type": "buttons", "id": "706155ae-0000-0000-0000-000000000001", "value": [buttons["email"], buttons["phone"]]},
+                ],
             },
             "id": "706155ae-f993-4582-b2eb-21de4efa660e",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="sbh01">Store Buttons</p>',
                     "subheading_text": '<p data-block-key="sbsub1">Display the Google Play or App Store button.</p>',
                 },
-                "buttons": [buttons["store_android"], buttons["store_ios"]],
+                "content": [
+                    {"type": "buttons", "id": "storeintr-0000-0000-0000-000000000002", "value": [buttons["store_android"], buttons["store_ios"]]},
+                ],
             },
             "id": "storeintr-0000-0000-0000-000000000001",
         },
         {
             "type": "intro",
             "value": {
-                "settings": {"media_position": "after"},
-                "image": None,
-                "dark_image": None,
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="fbh01">Firefox Focus Buttons</p>',
                     "subheading_text": '<p data-block-key="fbsub1">Display a link to Firefox Focus on Google Play or App Store.</p>',
                 },
-                "buttons": [buttons["focus_android"], buttons["focus_ios"]],
+                "content": [
+                    {"type": "buttons", "id": "focusintr-0000-0000-0000-000000000002", "value": [buttons["focus_android"], buttons["focus_ios"]]},
+                ],
             },
             "id": "focusintr-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="qrmodal01h">QR Code Modal Button</p>',
+                    "subheading_text": '<p data-block-key="qrmodal01s">Opens a modal with a QR code and Firefox logo. '
+                    "Editors configure the URL to encode, the modal heading, and an optional caption.</p>",
+                },
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "qrmodal01-0000-0000-0000-000000000002",
+                        "value": [buttons["qr_code_modal"]],
+                    },
+                ],
+            },
+            "id": "qrmodal01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour01h">UI Tour: Open New Tab</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour01-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox. '
+                        "Only works in Firefox Desktop — the button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour01-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "open-tabs",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour01-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_new_tab",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open New Tab",
+                                },
+                                "id": "uitour01-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour01-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour02h">UI Tour: Open Preferences</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour02-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour02t">Calls <code>Mozilla.UITour.openPreferences(pane)</code> to open '
+                        "<code>about:preferences</code> in Firefox, scrolled to a specific pane. The button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "settings",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_about_preferences",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences (default)",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000010",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "settings",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000011",
+                                    },
+                                    "button_type": "open_about_preferences_general",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: General",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000011",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "home",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000012",
+                                    },
+                                    "button_type": "open_about_preferences_home",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Home",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000012",
+                            },
+                        ],
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000003",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "search",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000013",
+                                    },
+                                    "button_type": "open_about_preferences_search",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Search",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000013",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "lock",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000014",
+                                    },
+                                    "button_type": "open_about_preferences_privacy",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Privacy",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000014",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkles",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000015",
+                                    },
+                                    "button_type": "open_about_preferences_ai",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: AI Controls",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000015",
+                            },
+                        ],
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000004",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkle-single",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000016",
+                                    },
+                                    "button_type": "open_about_preferences_experimental",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Experimental",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000016",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sync",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000017",
+                                    },
+                                    "button_type": "open_about_preferences_sync",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Sync",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000017",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000018",
+                                    },
+                                    "button_type": "open_about_preferences_more_from_mozilla",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: More From Mozilla",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000018",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour02-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour03h">UI Tour: Open Protections Report</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour03-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour03t">Calls <code>Mozilla.UITour.showProtectionReport()</code> to open the Firefox '
+                        "Privacy Protections dashboard. The button is hidden on other browsers.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour03-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "shield-checkmark",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour03-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_protections_report",
+                                    "pretranslated_label": None,
+                                    "custom_label": "View Protections Report",
+                                },
+                                "id": "uitour03-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour03-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour04h">UI Tour: Open Smart Window</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour04-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour04t">Calls <code>Mozilla.UITour.showFirefoxAccountsForAIWindow()</code> to open the '
+                        "Firefox Accounts sign-in flow for the AI Smart Window feature. "
+                        "The button is hidden on other browsers. Requires AI Controls to be available "
+                        "(requires class <code>.ai-controls-available</code> on <code>&lt;html&gt;</code>). "
+                        "Add a <code>data-next-url</code> attribute to the button element to redirect the user to a specific URL after sign-in.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour04-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "sparkles",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour04-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "open_smart_window",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open Smart Window",
+                                },
+                                "id": "uitour04-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour04-0000-0000-0000-000000000000",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="uitour05h">UI Tour: Pin to Taskbar</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "uitour05-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="uitour05t">Calls <code>Mozilla.UITour.pinToTaskbar()</code> '
+                        "to pin Firefox to the taskbar (Windows) or Dock (macOS). Only available on Windows and macOS. "
+                        "The button is hidden on non-Firefox-Desktop browsers. "
+                        "JS also hides it when Firefox is already pinned or pinning is not supported, "
+                        "by checking <code>getConfiguration('appinfo').needsPin</code>.</p>",
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour05-0000-0000-0000-000000000002",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour05-0000-0000-0000-000000000010",
+                                    },
+                                    "button_type": "pin_to_taskbar",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Pin Firefox to Taskbar",
+                                },
+                                "id": "uitour05-0000-0000-0000-000000000010",
+                            },
+                        ],
+                    },
+                ],
+            },
+            "id": "uitour05-0000-0000-0000-000000000000",
         },
     ]
 
 
-def get_buttons_2026_test_page() -> FreeFormPage2026:
-    index_page = get_2026_test_index_page()
+def get_buttons_test_page() -> FreeFormPage2026:
+    index_page = get_flare_blocks_docs_page()
 
-    slug = "test-buttons-2026"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Buttons 2026")
-        index_page.add_child(instance=page)
+    slug = "test-buttons"
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Buttons",
+        },
+    )
 
     blocks = get_button_blocks()
-    page.upper_content = blocks
-    page.content = blocks
-    page.save_revision().publish()
-    return page
-
-
-def get_buttons_test_page() -> FreeFormPage:
-    content = get_button_blocks()
-    index_page = get_test_index_page()
-
-    page = FreeFormPage.objects.filter(slug="test-buttons-page").first()
-    if not page:
-        page = FreeFormPage(
-            slug="test-buttons-page",
-            title="Test Buttons Page",
-        )
-        index_page.add_child(instance=page)
-
-    page.content = content
+    page.upper_content = with_fresh_ids(blocks)
+    page.content = with_fresh_ids(blocks)
     page.save_revision().publish()
     return page

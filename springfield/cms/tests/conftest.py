@@ -3,15 +3,40 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 
 import pytest
 import wagtail_factories
 from wagtail.models import Locale, Page, Site
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.blocks import DownloadFirefoxButtonBlock
+from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
+
+
+@pytest.fixture
+def admin_client(client, db):
+    """Force-login a superuser using the ModelBackend rather than the project's
+    default SSO backend. Without the override, mozilla_django_oidc's
+    SessionRefresh middleware sees an OIDC-authenticated user with no OIDC
+    token in the session and redirects every admin GET to the auth0 login URL
+    (302) — which would break the 302/200 assertions below.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        admin = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+        )
+        client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
 
 
 @pytest.fixture
@@ -21,7 +46,22 @@ def placeholder_images():
 
 @pytest.fixture
 def index_page(minimal_site):
-    return get_test_index_page()
+    return get_flare_docs_index_page()
+
+
+@pytest.fixture
+def download_firefox_button_block():
+    return DownloadFirefoxButtonBlock()
+
+
+@pytest.fixture
+def pretranslated_phrase_snippet():
+    snippet, _ = PretranslatedPhrase.objects.update_or_create(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+        defaults={"label": PHRASES["get_firefox"]["label"], "live": True},
+    )
+    return snippet
 
 
 @pytest.fixture(autouse=True)

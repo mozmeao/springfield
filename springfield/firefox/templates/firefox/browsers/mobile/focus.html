@@ -5,32 +5,20 @@
 #}
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
-{% from "macros-protocol.html" import split with context %}
 
-{% set base_template = "cms/base-flare26.html" if switch("flare26_enabled") else "base-protocol.html" %}
-{% extends base_template %}
+{% extends "cms/base-flare.html" %}
 
 {% block page_image %}{{ static('img/firefox/browsers/mobile/focus/page-image.png') }}{% endblock %}
 {% block page_favicon %}{{ static('img/favicons/firefox/browser/focus/favicon.ico') }}{% endblock %}
 {% block page_favicon_large %}{{ static('img/favicons/firefox/browser/focus/favicon-196x196.png') }}{% endblock %}
 {% block page_ios_icon %}{{ static('img/favicons/firefox/browser/focus/apple-touch-icon.png') }}{% endblock %}
 
-{% set show_firefox_app_store_banner = switch('firefox-app-store-banner') %}
 {% set show_send_to_device = LANG in settings.SEND_TO_DEVICE_LOCALES %}
 {% set android_url = play_store_url('focus', 'firefox-browsers-mobile-focus') %}
 {% set ios_url = app_store_url('focus', 'firefox-browsers-mobile-focus') %}
 
 {% block page_css %}
-  {% if switch("flare26_enabled") %}
-    {{ css_bundle('flare26-mobile-pages') }}
-  {% else %}
-    {{ css_bundle('protocol-split') }}
-    {{ css_bundle('firefox-browsers-mobile') }}
-  {% endif %}
-
-  {% if show_firefox_app_store_banner %}
-    {{ css_bundle('firefox-app-store-banner') }}
-  {% endif %}
+  {{ css_bundle('flare-mobile-pages') }}
 {% endblock %}
 
 {% block page_title %}{{ ftl('mobile-focus-firefox-focus-the-privacy') }}{% endblock %}
@@ -38,31 +26,17 @@
 
 {% block body_class %}{{ super() }} mobile-focus{% endblock %}
 
-{% block page_banner %}
-  {% if show_firefox_app_store_banner %}
-    {% include 'includes/banners/mobile/focus-app-store.html' %}
-  {% endif %}
-{% endblock %}
-
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header theme="dark" />
+  <include:flare-header theme="dark" />
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-  {% if switch("flare26_enabled") %}
-    {% include "firefox/browsers/mobile/focus-flare26.html" %}
-  {% else %}
-    {% include "firefox/browsers/mobile/focus-protocol.html" %}
-  {% endif %}
+  {% include "firefox/browsers/mobile/focus-flare.html" %}
 {% endblock %}
 
 {% block js %}
   {{ js_bundle('firefox-browsers-mobile') }}
-
-  {% if show_firefox_app_store_banner %}
-    {{ js_bundle('firefox-app-store-banner') }}
-  {% endif %}
 {% endblock %}

@@ -41,13 +41,13 @@ body.fl-modal-open {
 }
 
 .fl-split-page-upper {
-    background: var(--token-color-dark-purple);
+    background: var(--upper-page-theme-color, var(--token-color-dark-purple));
     border-end-end-radius: var(--fl-theme-main-border-radius);
     border-end-start-radius: var(--fl-theme-main-border-radius);
     color: var(--fl-theme-color-text);
     contain: paint;
     inline-size: 100%;
-    padding-block: var(--fl-section-v-padding);
+    padding-block-end: var(--fl-section-v-padding);
     position: relative;
     z-index: 1;
 }

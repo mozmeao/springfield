@@ -8,12 +8,7 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}"
-  default_browser_condition="{{ value.settings.show_to.default_browser }}"
-  min_version="{{ value.settings.show_to.min_version }}"
-  max_version="{{ value.settings.show_to.max_version }}">
+  condition_settings="{{ value.settings.show_to }}">
   <include:kit-banner
     theme="{{ 'with-qr' if value.qr_code else 'diving-in' }}"
     qr_code="{{ value.qr_code }}"
@@ -33,12 +28,14 @@
     </content:heading>
 
     {% if value.buttons %}
-      <content:actions>
-        {% for button in value.buttons %}
-          {% set block_position = block_position ~ ".button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      </content:actions>
+      <content:content>
+        <div class="fl-buttons">
+          {% for button in value.buttons %}
+            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {% include_block button %}
+          {% endfor %}
+        </div>
+      </content:content>
     {% endif %}
   </include:kit-banner>
 

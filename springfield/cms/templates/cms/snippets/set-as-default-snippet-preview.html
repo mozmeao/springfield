@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block content %}
   <div class="fl-main">
@@ -22,6 +22,7 @@
           <include:dialog id="{{ dialog_id }}">
             <content:heading>
               <include:heading
+                heading_size="fl-heading-md"
                 heading_text="{{ object.heading_text }}"
               />
             </content:heading>

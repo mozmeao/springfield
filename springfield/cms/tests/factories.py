@@ -49,16 +49,6 @@ class WhatsNewIndexPageFactory(wagtail_factories.PageFactory):
         model = models.WhatsNewIndexPage
 
 
-class WhatsNewPageFactory(wagtail_factories.PageFactory):
-    title = "What's New in Firefox 123"
-    live = True
-    slug = "123"
-    version = "123"
-
-    class Meta:
-        model = models.WhatsNewPage
-
-
 class WhatsNewPage2026Factory(wagtail_factories.PageFactory):
     title = "What's New in Firefox 145"
     live = True
@@ -107,15 +97,6 @@ class BetaWhatsNewPage2026Factory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.WhatsNewPage2026
-
-
-class FreeFormPageFactory(wagtail_factories.PageFactory):
-    title = "Test FreeFormPage"
-    live = True
-    slug = "freeform-page"
-
-    class Meta:
-        model = models.FreeFormPage
 
 
 class ArticleIndexPageFactory(wagtail_factories.PageFactory):
@@ -174,3 +155,12 @@ class FreeFormPage2026Factory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.FreeFormPage2026
+
+
+class FlareDocsIndexPageFactory(wagtail_factories.PageFactory):
+    title = "Flare Docs - Test"
+    live = True
+    slug = "flare-docs-test"
+
+    class Meta:
+        model = models.FlareDocsIndexPage

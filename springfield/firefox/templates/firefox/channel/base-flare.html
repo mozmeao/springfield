@@ -1,0 +1,117 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('flare-channels') }}{% endblock %}
+
+{% block page_title %}{{ self.page_title() }}{% endblock %}
+
+{% block flare_header %}
+  <include:flare-header theme="dark" />
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<include:subnav
+  heading_text="{{ ftl('sub-navigation-release-channels') }}"
+  heading_href="{{ url('firefox.channel.desktop') }}"
+  links="{{ [
+      {
+        'text': ftl('sub-navigation-nightly-and-beta', fallback='firefox-channel-desktop'),
+        'href': url('firefox.channel.desktop')
+      },
+      {
+        'text': ftl('sub-navigation-android-nightly-and-beta', fallback='firefox-channel-android'),
+        'href': url('firefox.channel.android')
+      },
+      {
+        'text': ftl('sub-navigation-ios-test-flight', fallback='firefox-channel-ios'),
+        'href': url('firefox.channel.ios')
+      }
+  ] }}"
+  theme="dark"
+>
+</include:subnav>
+
+<div class="fl-main has-gradient-bottom fl-channel-page">
+  <div class="fl-split-page-upper has-gradient-bottom">
+    <div class="fl-section zero-v-pad">
+      <div class="fl-section-container">
+        <include:intro media_position="before" vertical full_width>
+          <content:heading>
+            <include:heading
+              level="h1"
+              heading_size="fl-heading-xl"
+              heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
+              subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+            />
+          </content:heading>
+
+          <content:media>
+            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
+          </content:media>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+  <section class="fl-split-page-lower">
+
+  {% block channels %}{% endblock %}
+
+  <include:intro vertical full_width>
+      <content:heading>
+        <i class="fl-icon fl-icon-warning-fill fl-channel-warning-icon"></i>
+      <include:heading
+        level="h2"
+        heading_size="fl-heading-md"
+        heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
+        subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+      />
+      </content:heading>
+
+      <content:content>
+        <div class="fl-intro-body">
+          <div class="fl-buttons">
+            <include:button
+              label="{{ ftl('firefox-channel-file-a-bug-now') }}"
+              theme_class="button-ghost"
+              link="https://bugzilla.mozilla.org/enter_bug.cgi"
+            />
+
+            <include:button
+              label="{{ ftl('firefox-channel-tips-for-filing-a-bug') }}"
+              theme_class="button-ghost"
+              link="https://support.mozilla.org/kb/contributors-guide-writing-good-bug"
+            />
+          </div>
+        </div>
+      </content:content>
+    </include:intro>
+  </section>
+</div>
+
+
+<aside class="fl-section fl-force-dark-theme" aria-labelledby="fl-newsletter">
+    <div class="fl-section-container">
+      <include:newsletter-form theme="dark">
+        <include:heading
+          level="h2"
+          heading_size="fl-heading-sm"
+          heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
+          subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
+          id="fl-newsletter"
+        />
+      </include:newsletter-form>
+    </div>
+  </aside>
+{% endblock %}
+
+{% block js %}
+{{ js_bundle('flare-subnav') }}
+{% endblock js %}
