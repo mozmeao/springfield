@@ -434,47 +434,49 @@ def run_all_forward(apps, schema_editor):
 def reverse_migration(apps, schema_editor):
     """Reverse the migration by deleting created pages, translations, and unused images."""
 
-    from springfield.cms.fixtures.feature_page_fixtures import FEATURE_IMAGES
-    from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, SpringfieldImage
+    # Commented out since this already ran in production and the fixture can be deleted
 
-    try:
-        index_page = get_article_index_page_in_source_locale()
-    except ArticleIndexPage.DoesNotExist:
-        detail_count = 0
-        index_count = 0
-    else:
-        # Delete ALL feature detail pages (including translations in all locales)
-        deleted_detail = ArticleDetailPage.objects.filter(
-            slug__in=PAGE_FTL_MAPPING.keys(),
-            # Make sure to match only the ArticleDetailPages that are a child of index_page
-            path__contains=index_page.path,
-        ).delete()
-        detail_count = deleted_detail[0] if deleted_detail else 0
+    # from springfield.cms.fixtures.feature_page_fixtures import FEATURE_IMAGES
+    # from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, SpringfieldImage
 
-        # Delete ALL features index pages (including translations)
-        deleted_index = index_page.get_translations().count()
-        index_page.get_translations().delete()
-        index_page.delete()
-        deleted_index += 1
-        index_count = deleted_index
+    # try:
+    #     index_page = get_article_index_page_in_source_locale()
+    # except ArticleIndexPage.DoesNotExist:
+    #     detail_count = 0
+    #     index_count = 0
+    # else:
+    #     # Delete ALL feature detail pages (including translations in all locales)
+    #     deleted_detail = ArticleDetailPage.objects.filter(
+    #         slug__in=PAGE_FTL_MAPPING.keys(),
+    #         # Make sure to match only the ArticleDetailPages that are a child of index_page
+    #         path__contains=index_page.path,
+    #     ).delete()
+    #     detail_count = deleted_detail[0] if deleted_detail else 0
 
-    # Delete images created for feature pages (only if not in use elsewhere)
-    image_titles = [info["title"] for info in FEATURE_IMAGES.values()]
-    deleted_images_count = 0
-    for image in SpringfieldImage.objects.filter(title__in=image_titles):
-        # Check if image is in use (Wagtail tracks usage via ReferenceIndex)
-        # get_usage() returns a ReferenceGroups object - check if it has any items
-        # Wrap in try/except because usage check may fail if referenced objects were already deleted
-        try:
-            usage = image.get_usage()
-            if any(usage):
-                continue  # Image is in use elsewhere, don't delete
-        except Exception:
-            pass  # If usage check fails, assume safe to delete
-        image.delete()
-        deleted_images_count += 1
+    #     # Delete ALL features index pages (including translations)
+    #     deleted_index = index_page.get_translations().count()
+    #     index_page.get_translations().delete()
+    #     index_page.delete()
+    #     deleted_index += 1
+    #     index_count = deleted_index
 
-    print(f"\n  Deleted feature pages: {detail_count} detail pages, {index_count} index pages, {deleted_images_count} unused images")
+    # # Delete images created for feature pages (only if not in use elsewhere)
+    # image_titles = [info["title"] for info in FEATURE_IMAGES.values()]
+    # deleted_images_count = 0
+    # for image in SpringfieldImage.objects.filter(title__in=image_titles):
+    #     # Check if image is in use (Wagtail tracks usage via ReferenceIndex)
+    #     # get_usage() returns a ReferenceGroups object - check if it has any items
+    #     # Wrap in try/except because usage check may fail if referenced objects were already deleted
+    #     try:
+    #         usage = image.get_usage()
+    #         if any(usage):
+    #             continue  # Image is in use elsewhere, don't delete
+    #     except Exception:
+    #         pass  # If usage check fails, assume safe to delete
+    #     image.delete()
+    #     deleted_images_count += 1
+
+    # print(f"\n  Deleted feature pages: {detail_count} detail pages, {index_count} index pages, {deleted_images_count} unused images")
 
 
 class Migration(migrations.Migration):
