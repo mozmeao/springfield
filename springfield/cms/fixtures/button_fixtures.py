@@ -141,7 +141,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "78d40d75-9303-41f3-82d9-097970dced8e",
         },
         "link": {
             "type": "button",
@@ -166,7 +166,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "aca0af22-515c-4357-a959-81eba0568a3b",
         },
         "external_mozilla": {
             "type": "button",
@@ -305,7 +305,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "show_default_browser_checkbox": True,
                 },
             },
-            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+            "id": "a5dfce3c-ff6b-4cd6-abf2-e88648c99150",
         },
         "store_android": {
             "type": "store_button",

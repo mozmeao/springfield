@@ -46,7 +46,11 @@ const setupKickPage = () => {
         'canplaythrough',
         () => {
             video.addEventListener('mouseover', () => {
-                video.play();
+                video.play().catch((error) => {
+                    // Pause interrupted, ignore
+                    if (error && error.name === 'AbortError') return;
+                    throw error;
+                });
             });
             video.addEventListener('mouseout', () => {
                 video.pause();

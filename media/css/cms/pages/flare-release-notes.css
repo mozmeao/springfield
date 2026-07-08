@@ -210,15 +210,6 @@
 
     /* Copied from release-notes.scss */
 
-    /* supports js/base/video-prefers-reduced-motion.es6.js */
-    /* stylelint-disable block-no-empty  */
-    @keyframes js-check-autoplay {
-    }
-
-    video[autoplay] {
-        animation: js-check-autoplay 0s;
-    }
-
     .is-firefox .c-download-cta {
         display: none;
     }
