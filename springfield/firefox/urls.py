@@ -8,8 +8,7 @@ import springfield.releasenotes.views
 from lib.l10n_utils import L10nTemplateView
 from springfield.base.util import page
 from springfield.cms.decorators import prefer_cms
-from springfield.firefox import views
-from springfield.firefox import views_prototype_wnp
+from springfield.firefox import views, views_prototype_wnp
 from springfield.releasenotes import version_re
 from springfield.utils.views import VariationTemplateView
 
@@ -147,7 +146,6 @@ urlpatterns = (
     # 2. New version format, which should be served from the CMS, but falls back to evergreen page
     re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
-
     # START WNP Dynamic Rendering — Prototype 1 (UITour timing measurement).
     # Not integrated with the main WNP flow. Remove once findings are recorded.
     # See springfield/firefox/views_prototype_wnp.py and
@@ -163,7 +161,6 @@ urlpatterns = (
         name="firefox.whatsnew.dispatch_timing_report",
     ),
     # END WNP Dynamic Rendering — Prototype 1
-
     # START WNP Dynamic Rendering — Prototype 2 (end-to-end resolver flow).
     # Fake ruleset in views_prototype_wnp.PROTO_RULES. Not integrated with the
     # main WNP flow.

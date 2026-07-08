@@ -88,7 +88,7 @@
     // -----------------------------------------------------------------------
 
     var navigated = false;
-    function navigate(url, reason) {
+    function navigate(url) {
         if (navigated) return;
         navigated = true;
         setStatus('Redirecting…');
@@ -98,20 +98,16 @@
         } catch (e) {
             window.location.href = url;
         }
-        // Log the reason for debugging locally.
-        try {
-            console.debug('[wnp-proto] navigate', url, 'reason:', reason);
-        } catch (e) { /* ignore */ }
     }
 
     // Global fallback timer — if nothing else has fired by now, go canonical.
     var globalTimer = window.setTimeout(function () {
-        navigate(canonicalUrl, 'global_timeout');
+        navigate(canonicalUrl);
     }, GLOBAL_TIMEOUT_MS);
 
-    function done(url, reason) {
+    function done(url) {
         window.clearTimeout(globalTimer);
-        navigate(url, reason);
+        navigate(url);
     }
 
     // -----------------------------------------------------------------------
@@ -143,7 +139,9 @@
         var pending = false;
         // Sorted client-side by priority for determinism, though the server
         // already ordered rules on the way out.
-        rules.sort(function (a, b) { return a.priority - b.priority; });
+        rules.sort(function (a, b) {
+            return a.priority - b.priority;
+        });
         for (var i = 0; i < rules.length; i++) {
             var rule = rules[i];
             var m = ruleMatches(rule, resolved);
@@ -171,9 +169,9 @@
     function onSignalUpdate() {
         var result = evaluate(resolvedSignals);
         if (result.matched) {
-            done(targetForVariant(result.matched.variant), 'rule_match:' + result.matched.name);
+            done(targetForVariant(result.matched.variant));
         } else if (result.definitively_none) {
-            done(canonicalUrl, 'no_rules_matched');
+            done(canonicalUrl);
         }
         // Otherwise still pending — wait for more signals or the global timeout.
     }
@@ -262,7 +260,7 @@
     // -----------------------------------------------------------------------
 
     if (!rules.length) {
-        done(canonicalUrl, 'no_client_rules');
+        done(canonicalUrl);
         return;
     }
 
@@ -273,7 +271,7 @@
     ) {
         // UITour not available at all — every signal is unknown. Rules with
         // unknown signals fall through to canonical.
-        done(canonicalUrl, 'no_uitour');
+        done(canonicalUrl);
         return;
     }
 
@@ -284,7 +282,7 @@
         if (pingSettled) return;
         pingSettled = true;
         // Ping timed out — no getConfiguration can be trusted. Canonical.
-        done(canonicalUrl, 'ping_timeout');
+        done(canonicalUrl);
     }, PING_TIMEOUT_MS);
 
     window.Mozilla.UITour.ping(function () {
