@@ -902,6 +902,7 @@ class TestButtonCtaText:
     @pytest.mark.parametrize("btn_type", ["button", "uitour_button", "focus_button"])
     def test_cta_text_uses_localized_pretranslated_label(self, rf, pretranslated_phrase_snippet, btn_type):
         """Pretranslated label: data-cta-text uses the locale-resolved label for the active locale."""
+        es_mx = LocaleFactory(language_code="es-MX")
         PretranslatedPhrase.objects.create(
             locale=es_mx,
             translation_key=pretranslated_phrase_snippet.translation_key,
