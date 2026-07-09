@@ -145,7 +145,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
-  {% set is_inline_frame = request.GET.fl_docs_inline and request.META.get('HTTP_SEC_FETCH_DEST') == 'iframe' %}
+  {% set is_inline_frame = request.GET.fl_docs_inline and request.META.get('HTTP_SEC_FETCH_DEST') == 'iframe' and page and page.docs %}
 
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
