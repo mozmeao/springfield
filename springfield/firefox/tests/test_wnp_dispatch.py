@@ -4,13 +4,11 @@
 
 """Integration tests for wnp_dispatch.
 
-Verify the server-side routing layer at /whatsnew/{version}/:
-
-  1. No live rules → canonical serves as before (delegates to prefer_cms).
-  2. Live rule that server-side signals cannot resolve → canonical serves.
-  3. Live rule that fully matches server-side → 302 to variant.
-  4. Client-side-only rule → falls through to canonical for now
-     (Step 3b will serve the resolver page here).
+Verify the server-side routing layer at /whatsnew/{version}/. The WNP
+wrapper enforces "routing only in the Balrog post-update flow" by
+requiring ``utm_source=update`` on every routed request — organic
+visitors always see the canonical (per the plan doc's canonical-as-
+permanent-archive framing).
 """
 
 import pytest
@@ -72,9 +70,40 @@ class TestWnpDispatch:
             condition={"signal": "lapsed_user", "equals": True},
         )
         # gap = 156 - 149 = 7, well past LAPSED_MIN_GAP=5.
-        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         assert response.status_code in (301, 302)
         assert "/156-lapsed" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_variant_url_does_not_re_enter_dispatch(self, _canonical_and_variants):
+        # Regression: without the trailing `$` on the URL pattern, Django's
+        # URL resolver matched `whatsnew/120/welcomeback/` against
+        # wnp_dispatch, treating it as canonical 120 and re-running the
+        # rule engine → redirect loop. This test locks the URL resolution
+        # in so the two URLs go to different views.
+        from django.urls import resolve
+
+        canonical_match = resolve("/en-US/whatsnew/156/")
+        variant_match = resolve("/en-US/whatsnew/156/lapsed/")
+
+        assert canonical_match.url_name == "firefox.whatsnew"
+        # Variant must NOT re-enter wnp_dispatch — the view function and URL
+        # name are the giveaway. It should resolve to Wagtail's page-serving
+        # entry (`wagtail_serve`), not to our WNP handler.
+        assert variant_match.url_name != "firefox.whatsnew"
+        assert variant_match.url_name == "wagtail_serve"
+
+    @pytest.mark.django_db
+    def test_organic_request_never_routes(self, client, _canonical_and_variants):
+        # WNP wrapper policy: no utm_source=update means routing is skipped
+        # entirely — even for a rule that would otherwise match server-side.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149")  # no utm_source
+        assert self._did_not_route_to_variant(response)
 
     @pytest.mark.django_db
     def test_lapsed_rule_does_not_match_narrow_gap(self, client, _canonical_and_variants):
@@ -85,7 +114,7 @@ class TestWnpDispatch:
         )
         # gap = 1. Rule condition is `lapsed_user == True`; resolver returns
         # False definitively → rule fails, canonical serves.
-        response = client.get("/en-US/whatsnew/156/?oldversion=155")
+        response = client.get("/en-US/whatsnew/156/?oldversion=155&utm_source=update")
         assert self._did_not_route_to_variant(response)
 
     @pytest.mark.django_db
@@ -96,21 +125,47 @@ class TestWnpDispatch:
             condition={"signal": "lapsed_user", "equals": True},
             status=RULE_STATUS_DRAFT,
         )
-        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         # Draft rules are not evaluated — canonical still serves.
         assert self._did_not_route_to_variant(response)
 
     @pytest.mark.django_db
-    def test_client_side_rule_falls_through_to_canonical(self, client, _canonical_and_variants):
-        # ai_controls is a CLIENT_SIDE_STATE signal. Step 3b will serve the
-        # resolver page here; today wnp_dispatch just falls through.
+    def test_client_side_rule_serves_resolver_page(self, client, _canonical_and_variants):
+        # ai_controls is a CLIENT_SIDE_STATE signal. With utm_source=update
+        # (Balrog flow), the dispatcher renders the resolver page so the
+        # client can evaluate the rule via UITour.
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["signed_in"],
             condition={"signal": "ai_controls", "equals": "available"},
         )
         response = client.get("/en-US/whatsnew/156/?utm_source=update")
+        assert response.status_code == 200
+        body = response.content.decode("utf-8")
+        # Resolver page markers.
+        assert 'id="user-routing-rules"' in body
+        assert 'id="user-routing-signal-metadata"' in body
+        # Rule payload includes the condition and the target URL.
+        assert '"ai_controls"' in body
+        assert "/whatsnew/156-signed-in/" in body
+        # Signal metadata includes ai_controls → aiControls UITour key.
+        assert '"aiControls"' in body
+
+    @pytest.mark.django_db
+    def test_client_side_rule_without_utm_serves_canonical(self, client, _canonical_and_variants):
+        # No utm_source=update marker → dispatcher does NOT serve the
+        # resolver page even though a client-side rule exists. Organic
+        # visitors never see the resolver.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "ai_controls", "equals": "available"},
+        )
+        response = client.get("/en-US/whatsnew/156/")
         assert self._did_not_route_to_variant(response)
+        # And the resolver page markers should NOT be present.
+        body = response.content.decode("utf-8", errors="replace")
+        assert 'id="user-routing-rules"' not in body
 
     @pytest.mark.django_db
     def test_lower_priority_rule_wins(self, client, _canonical_and_variants):
@@ -130,7 +185,7 @@ class TestWnpDispatch:
             priority=50,
             name="low-priority",
         )
-        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         assert response.status_code in (301, 302)
         assert "/156-lapsed" in response["Location"]
 

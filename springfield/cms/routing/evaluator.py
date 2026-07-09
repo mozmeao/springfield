@@ -55,11 +55,23 @@ def _condition_signal(rule) -> str | None:
     return condition.get("signal")
 
 
-def _condition_expected(rule) -> Any:
+def _condition_operator(rule) -> str:
+    """Extract the operator (``is`` / ``is_not``), defaulting to ``is``."""
     condition = getattr(rule, "condition", None) or {}
     if not isinstance(condition, dict):
-        return None
-    return condition.get("equals")
+        return "is"
+    return condition.get("op") or "is"
+
+
+def _condition_values(rule) -> list:
+    """Extract the list of expected values."""
+    condition = getattr(rule, "condition", None) or {}
+    if not isinstance(condition, dict):
+        return []
+    values = condition.get("values")
+    if not isinstance(values, list):
+        return []
+    return values
 
 
 def _rule_matches(rule, resolved_signals: dict[str, Any]) -> bool | None:
@@ -73,11 +85,27 @@ def _rule_matches(rule, resolved_signals: dict[str, Any]) -> bool | None:
     signal_name = _condition_signal(rule)
     if not signal_name:
         # A rule with no signal condition can never match under this shape.
-        # Later composite conditions will need different handling.
         return False
     if signal_name not in resolved_signals:
         return None
-    return resolved_signals[signal_name] == _condition_expected(rule)
+
+    resolved_value = resolved_signals[signal_name]
+    values = _condition_values(rule)
+
+    if not values:
+        # No expected values means the rule can't ever match — a common
+        # "not fully filled in" state that should never publish, but is
+        # safe to treat as no-match if it slips through.
+        return False
+
+    is_in_list = resolved_value in values
+    operator = _condition_operator(rule)
+    if operator == "is":
+        return is_in_list
+    if operator == "is_not":
+        return not is_in_list
+    # Unknown operator (shouldn't happen with clean() validation).
+    return False
 
 
 def evaluate_rules(rules: Iterable, resolved_signals: dict[str, Any]) -> EvaluationResult:

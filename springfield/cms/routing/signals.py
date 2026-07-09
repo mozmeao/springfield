@@ -45,6 +45,19 @@ class ResolverType(str, Enum):
     CLIENT_SIDE_STATE = "client_side_state"
 
 
+class SignalValueType(str, Enum):
+    """The type a signal's value is expected to have.
+
+    Used by the admin form to render a value-appropriate widget (checkbox
+    for BOOL, dropdown for enum-like STRINGs, number input for INT) and by
+    the rule model to parse the operator's expected value from admin input.
+    """
+
+    BOOL = "bool"
+    STRING = "string"
+    INT = "int"
+
+
 @dataclass(frozen=True)
 class Signal:
     """A registered conditional signal.
@@ -74,6 +87,11 @@ class Signal:
     server_resolver: Callable[[Any, dict[str, Any]], Any] | None = None
     uitour_key: str | None = None
     uitour_extractor: str | None = None
+    value_type: SignalValueType = SignalValueType.STRING
+    # For STRING-typed signals with a bounded set of legal values (e.g.
+    # ``ai_controls`` returns one of "enabled" / "available" / "blocked").
+    # Used by the admin to render a dropdown instead of a free-text input.
+    enum_values: tuple[str, ...] | None = None
 
 
 class SignalRegistrationError(ValueError):

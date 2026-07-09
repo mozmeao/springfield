@@ -1,0 +1,72 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ User Routing resolver page.
+
+ Rendered by ``springfield.cms.routing.dispatcher._render_resolver_page``
+ when a request needs client-side signal resolution to decide which
+ variant to serve. Not directly linked from anywhere — reached only by
+ the dispatcher during Balrog-style update flows.
+
+ Deliberately standalone (no ``base-protocol.html`` extension): the page
+ is a transient loading screen — it must not carry site chrome, cookie
+ banners, analytics, or anything else that would delay the resolver or
+ push its own content in front of the reading surface. The bundle it
+ loads (`user_routing_resolver`) is the only thing on the page.
+
+ Embeds three data blobs the resolver JS reads by ID:
+   #user-routing-rules            — array of client-side rules
+   #user-routing-signal-metadata  — {signal: {uitour_key: ...}}
+   #user-routing-canonical-url    — fallback URL
+#}
+<!DOCTYPE html>
+<html lang="{{ LANG|default('en') }}" dir="{{ DIR|default('ltr') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Preparing your page…</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #333;
+      background: #fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { color: #eee; background: #1a1a1a; }
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-block: 6rem 4rem;
+      padding-inline: 1.5rem;
+      text-align: center;
+    }
+    #user-routing-status {
+      color: #666;
+      font-size: 0.9375rem;
+      margin: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      #user-routing-status { color: #aaa; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p id="user-routing-status">Preparing your page…</p>
+  </main>
+
+  <script id="user-routing-rules" type="application/json">{{ rules_json|safe }}</script>
+  <script id="user-routing-signal-metadata" type="application/json">{{ signal_metadata_json|safe }}</script>
+  <script id="user-routing-canonical-url" type="text/plain">{{ canonical_url }}</script>
+
+  {{ js_bundle('user_routing_resolver') }}
+</body>
+</html>

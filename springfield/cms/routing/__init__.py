@@ -12,12 +12,14 @@ trigger. See ``.research/wnp-dynamic-rendering-plan.md`` for the full design.
 """
 
 from . import server_resolvers as _sr
+from .dispatcher import dispatch_for_canonical
 from .evaluator import EvaluationResult, evaluate_rules, rule_needs_client_side
 from .signals import (
     ResolverType,
     Signal,
     SignalRegistrationError,
     SignalRegistry,
+    SignalValueType,
     registry,
 )
 
@@ -27,6 +29,8 @@ __all__ = [
     "Signal",
     "SignalRegistrationError",
     "SignalRegistry",
+    "SignalValueType",
+    "dispatch_for_canonical",
     "evaluate_rules",
     "registry",
     "rule_needs_client_side",
@@ -40,6 +44,13 @@ __all__ = [
 
 
 def _register_default_signals() -> None:
+    # Country enum matches the existing GEO_CHOICES allowlist so marketing
+    # sees exactly the same country set they know from other blocks.
+    # Local import avoids a circular reference at package init time.
+    from springfield.cms.blocks import GEO_CHOICES
+
+    country_enum = tuple(code for code, _label in GEO_CHOICES)
+
     # --- Server-side (resolvable at request time, no client involvement) ---
     registry.register(
         Signal(
@@ -49,6 +60,8 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_country,
+            value_type=SignalValueType.STRING,
+            enum_values=country_enum,
         )
     )
     registry.register(
@@ -59,6 +72,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_locale,
+            value_type=SignalValueType.STRING,
         )
     )
     registry.register(
@@ -69,6 +83,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_lapsed_user,
+            value_type=SignalValueType.BOOL,
         )
     )
     registry.register(
@@ -79,6 +94,8 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_platform,
+            value_type=SignalValueType.STRING,
+            enum_values=("osx", "linux", "windows", "android", "ios", "other-os"),
         )
     )
     registry.register(
@@ -89,6 +106,8 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_os_version,
+            value_type=SignalValueType.STRING,
+            enum_values=("windows-10-plus",),
         )
     )
     registry.register(
@@ -99,6 +118,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_is_firefox,
+            value_type=SignalValueType.BOOL,
         )
     )
     registry.register(
@@ -109,6 +129,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             server_resolver=_sr.resolve_firefox_version,
+            value_type=SignalValueType.INT,
         )
     )
 
@@ -125,6 +146,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             uitour_key="appinfo",
             uitour_extractor="default_browser",
+            value_type=SignalValueType.BOOL,
         )
     )
     registry.register(
@@ -136,6 +158,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             uitour_key="appinfo",
             uitour_extractor="firefox_pinned",
+            value_type=SignalValueType.BOOL,
         )
     )
     registry.register(
@@ -147,6 +170,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             uitour_key="appinfo",
             uitour_extractor="profile_age_days",
+            value_type=SignalValueType.INT,
         )
     )
     registry.register(
@@ -158,6 +182,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             uitour_key="fxa",
             uitour_extractor="fxa_signed_in",
+            value_type=SignalValueType.BOOL,
         )
     )
     registry.register(
@@ -169,6 +194,8 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             uitour_key="aiControls",
             uitour_extractor="ai_controls",
+            value_type=SignalValueType.STRING,
+            enum_values=("enabled", "available", "blocked"),
         )
     )
 

@@ -938,6 +938,12 @@ def detect_channel(version):
     return "unknown"
 
 
+#: Query-parameter marker that indicates a Balrog post-update redirect.
+#: See ``browser/config/whats_new_page.yml`` in mozilla-central — Balrog
+#: appends ``utm_source=update`` to every WNP URL it opens after an update.
+WNP_UPDATE_FLOW_MARKER = ("utm_source", "update")
+
+
 def wnp_dispatch(request, *args, **kwargs):
     """
     Front-of-flow dispatcher for /whatsnew/{version}/.
@@ -945,25 +951,24 @@ def wnp_dispatch(request, *args, **kwargs):
     Runs BEFORE prefer_cms so that routing decisions can 302 to a variant
     page without prefer_cms's response-code filter swallowing the redirect.
 
-    Behavior:
-      1. Look up the canonical ``WhatsNewPage2026`` for the requested locale
-         and version (slug == version).
-      2. If a canonical exists AND has ``status=live`` routing rules whose
-         signals are fully resolvable server-side, evaluate them and 302 to
-         the first matching target.
-      3. Otherwise delegate to the standard ``prefer_cms(WhatsnewView)``
-         flow — which will serve the canonical CMS page if present, or the
-         legacy Fluent evergreen fallback if not.
+    This is a thin, WNP-specific adapter around the generic User Routing
+    dispatcher in ``springfield.cms.routing.dispatcher``. The WNP-specific
+    bits enforced here (and NOT in the generic dispatcher, so other page
+    types remain free to route on every request):
 
-    Client-side (UITour-mediated) rules are not yet honored here — Step 3b
-    of the WNP dynamic-rendering plan will add the resolver-page pathway.
-    Rules requiring client-side signals currently fall through to canonical.
+    * **Locate the canonical** by ``(locale, slug=version)``.
+    * **Only route on Balrog-flow requests.** The plan doc's framing is
+      that WNP variants exist for the post-update window; organic
+      visitors to ``/whatsnew/151/`` see the canonical archive record.
+      Enforced by checking ``utm_source=update``.
+    * **Fall back** to ``prefer_cms(WhatsnewView)`` for the legacy Fluent
+      evergreen story when no CMS canonical exists.
+
+    Everything else (rule filtering, evaluation, resolver page rendering)
+    is generic and reused by any future page-type consumer.
     """
-    # Local imports keep this module cheap when the routing package is absent
-    # (e.g. during migrations) and avoid import cycles at module load.
     from springfield.cms.decorators import prefer_cms
-    from springfield.cms.models.routing import RULE_STATUS_LIVE
-    from springfield.cms.routing import evaluate_rules, registry, rule_needs_client_side
+    from springfield.cms.routing import dispatch_for_canonical
 
     version = kwargs.get("version") or ""
     lang_code = request.LANGUAGE_CODE
@@ -971,7 +976,6 @@ def wnp_dispatch(request, *args, **kwargs):
     def _fallback():
         return prefer_cms(WhatsnewView.as_view())(request, *args, **kwargs)
 
-    # Find the canonical WhatsNewPage2026 for this (locale, version).
     try:
         locale = WagtailLocale.objects.get(language_code=lang_code)
     except WagtailLocale.DoesNotExist:
@@ -981,26 +985,17 @@ def wnp_dispatch(request, *args, **kwargs):
     if canonical is None:
         return _fallback()
 
-    live_rules = list(canonical.routing_rules.filter(status=RULE_STATUS_LIVE).select_related("target_page"))
-    if not live_rules:
+    # WNP-specific policy: routing is scoped to the Balrog post-update flow.
+    # Organic visitors always see the canonical. If a future consumer of
+    # the generic dispatcher wants universal routing, they just skip this
+    # check in their own wrapper.
+    trigger_param, trigger_value = WNP_UPDATE_FLOW_MARKER
+    if request.GET.get(trigger_param) != trigger_value:
         return _fallback()
 
-    server_signals = registry.resolve_server_signals(request, context={"target_version": version})
-    result = evaluate_rules(live_rules, server_signals)
-
-    if result.matched is not None:
-        target_url = result.matched.target_page.get_url(request=request)
-        if target_url:
-            # Preserve the incoming querystring so downstream analytics /
-            # utm tracking still work on the variant.
-            querystring = request.META.get("QUERY_STRING", "")
-            if querystring:
-                target_url = f"{target_url}?{querystring}"
-            return HttpResponseRedirect(target_url)
-
-    # If any unresolved rules are client-side, Step 3b will serve a resolver
-    # page here. For now, fall through to canonical rendering — safe default.
-    _ = [r for r in result.unresolved if rule_needs_client_side(r)]
+    response = dispatch_for_canonical(request, canonical, target_version=version)
+    if response is not None:
+        return response
 
     return _fallback()
 
