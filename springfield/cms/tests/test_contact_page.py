@@ -68,8 +68,12 @@ def test_contact_page_clean_requires_email_or_basket(
         basket_api_path="",
         thank_you_message="<p>Thank you!</p>",
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         page.clean()
+    assert exc_info.value.message_dict == {
+        "basket_api_path": ["Set either an email address or a basket API path."],
+        "to_email_address": ["Set either an email address or a basket API path."],
+    }
 
 
 def test_contact_page_clean_rejects_both_email_and_basket(
@@ -83,8 +87,12 @@ def test_contact_page_clean_rejects_both_email_and_basket(
         basket_api_path="/news/subscribe/",
         thank_you_message="<p>Thank you!</p>",
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         page.clean()
+    assert exc_info.value.message_dict == {
+        "basket_api_path": ["Set either an email address or a basket API path, not both."],
+        "to_email_address": ["Set either an email address or a basket API path, not both."],
+    }
 
 
 def test_contact_page_clean_requires_redirect_or_thank_you(
@@ -98,8 +106,12 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
         redirect_to=None,
         thank_you_message="",
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         page.clean()
+    assert exc_info.value.message_dict == {
+        "redirect_to": ["Set either a redirect page or a thank you message."],
+        "thank_you_message": ["Set either a redirect page or a thank you message."],
+    }
 
 
 def test_contact_page_clean_validates_basket_path_format(
@@ -112,8 +124,9 @@ def test_contact_page_clean_validates_basket_path_format(
         basket_api_path="news/subscribe/",
         thank_you_message="<p>Thank you!</p>",
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         page.clean()
+    assert exc_info.value.message_dict == {"basket_api_path": ["Path must start with /."]}
 
 
 def test_contact_page_clean_rejects_full_url_as_basket_path(
@@ -126,8 +139,30 @@ def test_contact_page_clean_rejects_full_url_as_basket_path(
         basket_api_path="https://basket.mozilla.org/news/subscribe/",
         thank_you_message="<p>Thank you!</p>",
     )
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         page.clean()
+    assert exc_info.value.message_dict == {"basket_api_path": ["Enter a path (e.g. /api/v1/contact/), not a full URL."]}
+
+
+def test_contact_page_only_allows_authorized_paths(
+    minimal_site: Site,
+    settings,
+) -> None:
+    """ContactPage.clean() raises if the page's URL is not in the allowed paths."""
+    settings.PROD = True
+    settings.CONTACT_PAGE_ALLOWED_PATHS = [r"/contact/"]
+    page = ContactPage(
+        title="Unreachable Contact Page",
+        slug="invalid-slug",
+        basket_api_path="/contact/",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"slug": ["Slug must match one of the allowed paths: /contact/"]}
+
+    page.slug = "contact"
+    page.clean()
 
 
 @pytest.mark.parametrize("serving_method", ("serve", "serve_preview"))

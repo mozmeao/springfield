@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
@@ -1942,6 +1943,15 @@ class ContactPage(AbstractSpringfieldCMSPage):
             msg = "Set either a redirect page or a thank you message."
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
+
+        # On production, only certain paths are allowed to send POST requests
+        if settings.PROD:
+            parent = self.get_parent()
+            path = parent.url_path + self.slug + "/" if parent else "/" + self.slug + "/"
+            # Using .search() instead of .match() because paths will often start with /home/parent/child/
+            # We don't use .get_url() because it doesn't use the instance's current slug
+            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
+                errors["slug"] = f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}"
 
         if errors:
             raise ValidationError(errors)

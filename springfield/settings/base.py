@@ -1545,3 +1545,11 @@ PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", par
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
 PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
+
+# Contact Page
+# On PROD, only certain paths are allowed to send POST requests
+# This needs to be in sync with Fastly WAF configuration
+CONTACT_PAGE_ALLOWED_PATHS = [
+    r"/enterprise/contact/$",
+    r"/landing/[a-zA-Z0-9\-]+/contact/$",
+]
