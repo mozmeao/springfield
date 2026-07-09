@@ -2118,11 +2118,14 @@ class ContactPage(AbstractSpringfieldCMSPage):
 _FLARE_SECTION_ORDER = ["blocks", "snippets", "sample-pages"]
 
 
-class FlareDocsIndexPage(FreeFormPage2026):
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
     """
     A page containing an index of all docs pages for Flare26.
     It shows links to other docs pages.
     """
+
+    # Only created programmatically
+    parent_page_types = []
 
     template = "cms/flare_docs_index_page.html"
 
