@@ -4,8 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# cta_text uses the stable English label so analytics aggregate across locales #}
-{% set cta_text = (block_text ~ " - " if block_text else "") ~ button_label_en_us %}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ button_label %}
 {% set icon_name = value.settings.icon %}
 
 <include:download-firefox-button
