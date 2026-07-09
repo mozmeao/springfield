@@ -819,6 +819,12 @@
     },
     {
       "files": [
+        "js/cms/user-routing-resolver.js"
+      ],
+      "name": "user_routing_resolver"
+    },
+    {
+      "files": [
         "js/data/data-uitour.es6.js"
       ],
       "name": "data_uitour"

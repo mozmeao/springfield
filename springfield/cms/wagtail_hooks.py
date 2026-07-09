@@ -51,11 +51,23 @@ from springfield.cms.models import (
 )
 
 
-@hooks.register("register_admin_urls")
 def register_content_search_url():
     return [
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+    ]
+
+
+@hooks.register("register_admin_urls")
+def register_user_routing_admin_urls():
+    """Register the User Routing signals reference view under the Wagtail
+    admin URL space so it inherits admin authentication."""
+    from django.urls import path
+
+    from springfield.cms.routing.admin_views import signals_reference
+
+    return [
+        path("user-routing/signals/", signals_reference, name="user_routing_signals_reference"),
     ]
 
 
@@ -66,6 +78,52 @@ def register_content_search_link():
         reverse("cms_content_search"),
         icon_name="search",
         order=2,
+    )
+
+
+# ---------------------------------------------------------------------------
+# User Routing submenu
+#
+# One top-level "User Routing" sidebar entry expands to a submenu with:
+#   * "Rules"              — the RoutingRule snippet listing
+#   * "Signals reference"  — the auto-generated signal catalog
+#
+# Both live inside the same admin group so marketing has one entry point.
+# ---------------------------------------------------------------------------
+
+from wagtail.admin.menu import Menu, SubmenuMenuItem  # noqa: E402
+
+user_routing_menu = Menu(
+    register_hook_name="register_user_routing_menu_item",
+    construct_hook_name="construct_user_routing_menu",
+)
+
+
+@hooks.register("register_admin_menu_item")
+def register_user_routing_submenu():
+    return SubmenuMenuItem(
+        "User Routing",
+        user_routing_menu,
+        icon_name="site",
+        order=250,
+    )
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_user_routing_rules_link():
+    return MenuItem(
+        "Rules",
+        reverse("wagtailsnippets_cms_routingrule:list"),
+        icon_name="list-ul",
+    )
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_user_routing_signals_link():
+    return MenuItem(
+        "Signals reference",
+        reverse("user_routing_signals_reference"),
+        icon_name="help",
     )
 
 
@@ -602,17 +660,15 @@ class UserRoutingViewSet(SnippetViewSet):
     aggregation surface — "show me every rule using this signal", "every
     draft rule", "every rule targeting this variant".
 
-    Sidebar label uses "User Routing" rather than "Routing Rules" to avoid
-    confusion with Wagtail's built-in Redirects feature (see
-    ``.research/wnp-dynamic-rendering-plan.md``).
+    NOT added to the admin menu directly — a ``SubmenuMenuItem`` groups
+    this listing with the Signals reference under a single top-level
+    "User Routing" entry (see below).
     """
 
     model = RoutingRule
-    menu_label = "User Routing"
-    menu_name = "user_routing"
+    menu_label = "Rules"
+    menu_name = "user_routing_rules"
     icon = "site"
-    add_to_admin_menu = True
-    menu_order = 250
     list_display = ["name", "priority", "parent_page", "target_page", "status"]
     list_filter = ["status", "parent_page"]
     search_fields = ["name"]
