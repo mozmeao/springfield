@@ -1382,10 +1382,15 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
         ),
     ]
 
+    # The Promote tab must reference ``UTMParamsMixin.promote_panels`` (not
+    # the AbstractSpringfieldCMSPage base) so the mixin's "Stub Attribution
+    # UTM Parameters" panel stays visible — MRO would resolve the model-level
+    # ``promote_panels`` attribute to the mixin, but TabbedInterface can't
+    # depend on that resolution because it runs inside the class body.
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
-            ObjectList(AbstractSpringfieldCMSPage.promote_panels, heading="Promote"),
+            ObjectList(UTMParamsMixin.promote_panels, heading="Promote"),
             ObjectList(user_routing_panels, heading="User Routing"),
             ObjectList(settings_panels, heading="Settings"),
         ]

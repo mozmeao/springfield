@@ -807,18 +807,6 @@
     },
     {
       "files": [
-        "js/firefox/whatsnew/dispatch-timing-test.js"
-      ],
-      "name": "wnp_dispatch_timing_test"
-    },
-    {
-      "files": [
-        "js/firefox/whatsnew/dispatch-proto-resolver.js"
-      ],
-      "name": "wnp_dispatch_proto_resolver"
-    },
-    {
-      "files": [
         "js/cms/user-routing-resolver.js"
       ],
       "name": "user_routing_resolver"

@@ -976,9 +976,13 @@ def wnp_dispatch(request, *args, **kwargs):
     def _fallback():
         return prefer_cms(WhatsnewView.as_view())(request, *args, **kwargs)
 
-    try:
-        locale = WagtailLocale.objects.get(language_code=lang_code)
-    except WagtailLocale.DoesNotExist:
+    # Use ``.filter().first()`` rather than ``.get()`` so a Locale table with
+    # a duplicate row (data-import race, manual DB edit) still falls through
+    # to the Fluent evergreen path instead of 500-ing on MultipleObjectsReturned.
+    # The fallback is deliberately catch-all here — the whole point of the
+    # try block is "don't let locale lookup take down the WNP path."
+    locale = WagtailLocale.objects.filter(language_code=lang_code).first()
+    if locale is None:
         return _fallback()
 
     canonical = WhatsNewPage2026.objects.live().public().filter(locale=locale, slug=version).first()
@@ -993,7 +997,7 @@ def wnp_dispatch(request, *args, **kwargs):
     if request.GET.get(trigger_param) != trigger_value:
         return _fallback()
 
-    response = dispatch_for_canonical(request, canonical, target_version=version)
+    response = dispatch_for_canonical(request, canonical, signal_context={"target_version": version})
     if response is not None:
         return response
 
@@ -1082,12 +1086,35 @@ class WhatsnewView(L10nTemplateView):
         if not locale_codes_to_check:
             return None
 
+        # Scope the slug lookup to the WhatsNewIndexPage's direct children.
+        # Since WhatsNewPage2026.parent_page_types now includes itself (so
+        # variants can nest under canonicals), a variant slugged 'general' /
+        # 'nightly' / 'developer' / 'beta' would false-positive on the
+        # unscoped filter and drive a bogus redirect to /whatsnew/{slug}/.
+        # Filtering by ``depth=index.depth + 1`` keeps evergreen resolution
+        # honest — only pages directly under the index qualify.
+        from springfield.cms.models.pages import WhatsNewIndexPage
+
+        # Do NOT filter the index by ``.live()``: whether the index is
+        # published or a draft, its subtree still contains live evergreen
+        # pages that should be reachable. Order by path so the lookup is
+        # deterministic if a data glitch has produced more than one index
+        # for a locale (the class docstring says "only one should exist"
+        # but nothing enforces it at the DB level).
         for locale_code in locale_codes_to_check:
             try:
                 locale = WagtailLocale.objects.get(language_code=locale_code)
             except WagtailLocale.DoesNotExist:
                 continue
-            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
+            index = WhatsNewIndexPage.objects.filter(locale=locale).order_by("path").first()
+            if index is None:
+                continue
+            if (
+                WhatsNewPage2026.objects.live()
+                .public()
+                .filter(slug=wnp_slug, locale=locale, path__startswith=index.path, depth=index.depth + 1)
+                .exists()
+            ):
                 break
         else:
             return None
