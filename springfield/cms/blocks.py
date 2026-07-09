@@ -781,7 +781,6 @@ class BaseButtonValue(blocks.StructValue):
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
-            "tertiary": "button-tertiary",
             "gold": "button-gold",
             "link": "button-link",
         }

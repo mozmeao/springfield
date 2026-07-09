@@ -72,7 +72,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "back",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
@@ -217,7 +217,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "export-data",
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
@@ -267,7 +267,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "fxa_button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "single-user",
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
@@ -374,7 +374,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "type": "button",
                     "value": {
                         "settings": {
-                            "theme": "tertiary",
+                            "theme": "ghost",
                             "icon": "back",
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
@@ -424,7 +424,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "type": "button",
                     "value": {
                         "settings": {
-                            "theme": "tertiary",
+                            "theme": "ghost",
                             "icon": "paperclip",
                             "icon_position": "left",
                             "analytics_id": "2ce75501-5dc6-44cf-8609-61ee89c914b0",
