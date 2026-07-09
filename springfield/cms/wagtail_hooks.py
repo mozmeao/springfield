@@ -594,19 +594,22 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
-class RoutingRuleViewSet(SnippetViewSet):
-    """Routing rules for CMS-driven conditional rendering.
+class UserRoutingViewSet(SnippetViewSet):
+    """Global cross-reference view of User Routing rules across the site.
 
-    Not locale-defaulting: rules attach to a specific canonical page and are
-    evaluated against per-request signals, not against a Wagtail locale.
+    Marketing primarily edits rules from the "User Routing" tab on each
+    canonical page (via ``InlinePanel``). This standalone list exists as an
+    aggregation surface — "show me every rule using this signal", "every
+    draft rule", "every rule targeting this variant".
 
-    Registered as a top-level menu entry (``add_to_admin_menu = True``) so
-    marketing can find it without hunting inside the Snippets sub-menu.
+    Sidebar label uses "User Routing" rather than "Routing Rules" to avoid
+    confusion with Wagtail's built-in Redirects feature (see
+    ``.research/wnp-dynamic-rendering-plan.md``).
     """
 
     model = RoutingRule
-    menu_label = "Routing Rules"
-    menu_name = "routing_rules"
+    menu_label = "User Routing"
+    menu_name = "user_routing"
     icon = "site"
     add_to_admin_menu = True
     menu_order = 250
@@ -627,7 +630,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
-    RoutingRuleViewSet,
+    UserRoutingViewSet,
 ):
     register_snippet(_viewset)
 

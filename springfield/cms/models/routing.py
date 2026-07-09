@@ -18,8 +18,8 @@ Not yet wired to any consumer view — Step 2 of Phase 1. See
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, HelpPanel, PageChooserPanel
-from wagtail.models import Page
 
 from springfield.cms.routing import registry
 
@@ -81,6 +81,29 @@ def _validate_condition(condition, *, registry_=registry):
 class RoutingRule(models.Model):
     """Routes traffic from a canonical page to a variant when the condition matches."""
 
+    # NOTE on parent_page: ParentalKey to a concrete Page subclass is what
+    # Wagtail's InlinePanel machinery wants. Today WhatsNewPage2026 is the
+    # only consumer of User Routing. When a second page type opts in, we
+    # revisit — either broaden to Page (if Wagtail's cluster machinery
+    # cooperates) or split RoutingRule per-parent-type. See
+    # ``.research/wnp-dynamic-rendering-plan.md`` § Reusability.
+    parent_page = ParentalKey(
+        "cms.WhatsNewPage2026",
+        on_delete=models.CASCADE,
+        related_name="routing_rules",
+        help_text="The canonical page this rule attaches to.",
+    )
+
+    # target_page uses a plain FK because it is *not* an inline-cluster child
+    # of anything — it can be any Page in the site, and outliving parent
+    # deletion via PROTECT keeps stale-target rules from silently orphaning.
+    target_page = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.PROTECT,
+        related_name="routing_rules_as_target",
+        help_text="The variant page to route matching users to.",
+    )
+
     name = models.CharField(
         max_length=255,
         help_text="Human-readable name shown in the admin (e.g. 'Lapsed users → welcomeback').",
@@ -88,19 +111,6 @@ class RoutingRule(models.Model):
     priority = models.IntegerField(
         default=100,
         help_text="Lower numbers evaluate first. Ties broken by rule ID.",
-    )
-
-    parent_page = models.ForeignKey(
-        Page,
-        on_delete=models.CASCADE,
-        related_name="routing_rules_as_parent",
-        help_text="The canonical page this rule attaches to.",
-    )
-    target_page = models.ForeignKey(
-        Page,
-        on_delete=models.PROTECT,
-        related_name="routing_rules_as_target",
-        help_text="The variant page to route matching users to.",
     )
 
     condition = models.JSONField(
@@ -141,8 +151,8 @@ class RoutingRule(models.Model):
         indexes = [
             models.Index(fields=["parent_page", "status", "priority"]),
         ]
-        verbose_name = "Routing Rule"
-        verbose_name_plural = "Routing Rules"
+        verbose_name = "User Routing rule"
+        verbose_name_plural = "User Routing rules"
 
     def __str__(self):
         target = self.target_page.title if self.target_page_id else "(no target)"

@@ -27,7 +27,7 @@ import requests
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
@@ -1292,10 +1292,22 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
 
 
 class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
-    """A 2026 version of the What's New page with optional upper/lower split layout."""
+    """A 2026 version of the What's New page with optional upper/lower split layout.
 
-    parent_page_types = ["cms.WhatsNewIndexPage"]
-    subpage_types = []
+    Two roles in the page tree:
+
+    * **Canonical** — direct child of ``WhatsNewIndexPage`` at
+      ``/whatsnew/<version>/``. Rendered to organic traffic and to any
+      Balrog-flow user whose request doesn't match a routing rule.
+    * **Variant** — child of a canonical WNP at
+      ``/whatsnew/<version>/<variant-slug>/``. Reached only via a routing
+      rule 302 (server-side) or the resolver page (client-side, Step 3b).
+
+    Both are the same model — the position in the tree distinguishes them.
+    """
+
+    parent_page_types = ["cms.WhatsNewIndexPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     ftl_files = ["firefox/whatsnew/evergreen"]
 
@@ -1348,9 +1360,36 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+    # Panels for the User Routing tab (see edit_handler below).
+    # Rules attached here are evaluated when this page is the canonical for a
+    # /whatsnew/{version}/ request. Variants (children of a canonical) may
+    # also technically render this tab today; rules on variants are inert
+    # because dispatch only queries rules attached to the canonical.
+    user_routing_panels = [
+        HelpPanel(
+            content=(
+                "<p>Rules here apply when <strong>this page is the canonical "
+                "for a release</strong> (a direct child of the What's New Index). "
+                "Rules on variant pages are stored but not evaluated. "
+                "See the <em>User Routing</em> section in the sidebar for a "
+                "global cross-reference of rules across the site.</p>"
+            ),
+        ),
+        InlinePanel(
+            "routing_rules",
+            label="User Routing rule",
+            heading="Rules for this release",
+        ),
     ]
+
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(AbstractSpringfieldCMSPage.promote_panels, heading="Promote"),
+            ObjectList(user_routing_panels, heading="User Routing"),
+            ObjectList(settings_panels, heading="Settings"),
+        ]
+    )
 
     class Meta:
         indexes = [

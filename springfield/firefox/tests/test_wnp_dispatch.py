@@ -1,0 +1,148 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Integration tests for wnp_dispatch.
+
+Verify the server-side routing layer at /whatsnew/{version}/:
+
+  1. No live rules → canonical serves as before (delegates to prefer_cms).
+  2. Live rule that server-side signals cannot resolve → canonical serves.
+  3. Live rule that fully matches server-side → 302 to variant.
+  4. Client-side-only rule → falls through to canonical for now
+     (Step 3b will serve the resolver page here).
+"""
+
+import pytest
+from wagtail.models import Locale, Page
+
+from springfield.cms.models import RoutingRule
+from springfield.cms.models.routing import RULE_STATUS_DRAFT, RULE_STATUS_LIVE
+from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
+
+
+@pytest.fixture
+def _canonical_and_variants(db):
+    """Build a small WNP tree with a canonical version 156 and two variants."""
+    root = Page.objects.get(depth=1)
+    home = root.get_children().first() or root.add_child(instance=Page(title="Home", slug="home"))
+    en_locale, _ = Locale.objects.get_or_create(language_code="en-US")
+    index = WhatsNewIndexPageFactory(parent=home, title="WNP Index", slug="whatsnew", locale=en_locale)
+    canonical = WhatsNewPage2026Factory(parent=index, title="WNP 156", slug="156", version="156", locale=en_locale)
+    lapsed = WhatsNewPage2026Factory(parent=index, title="WNP 156 lapsed", slug="156-lapsed", version="156", locale=en_locale)
+    signed_in = WhatsNewPage2026Factory(parent=index, title="WNP 156 signed-in", slug="156-signed-in", version="156", locale=en_locale)
+    return {"index": index, "canonical": canonical, "lapsed": lapsed, "signed_in": signed_in}
+
+
+def _make_rule(canonical, target, *, condition, status=RULE_STATUS_LIVE, priority=100, name="test-rule"):
+    rule = RoutingRule(
+        name=name,
+        priority=priority,
+        parent_page=canonical,
+        target_page=target,
+        condition=condition,
+        status=status,
+    )
+    rule.save()
+    return rule
+
+
+class TestWnpDispatch:
+    def _did_not_route_to_variant(self, response):
+        """Helper: the response is NOT a redirect to a known variant.
+
+        wnp_dispatch may still return 200 (canonical served) or 302 (Wagtail
+        locale-fallback machinery may redirect for other reasons). Either is
+        fine as long as we didn't send the user to one of the variant slugs
+        the rule *would* have targeted.
+        """
+        location = response.get("Location", "") or ""
+        return "/156-lapsed" not in location and "/156-signed-in" not in location
+
+    @pytest.mark.django_db
+    def test_canonical_serves_when_no_rules(self, client, _canonical_and_variants):
+        response = client.get("/en-US/whatsnew/156/")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_lapsed_rule_matches_and_302s(self, client, _canonical_and_variants):
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        # gap = 156 - 149 = 7, well past LAPSED_MIN_GAP=5.
+        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        assert response.status_code in (301, 302)
+        assert "/156-lapsed" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_lapsed_rule_does_not_match_narrow_gap(self, client, _canonical_and_variants):
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        # gap = 1. Rule condition is `lapsed_user == True`; resolver returns
+        # False definitively → rule fails, canonical serves.
+        response = client.get("/en-US/whatsnew/156/?oldversion=155")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_draft_rule_ignored(self, client, _canonical_and_variants):
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            status=RULE_STATUS_DRAFT,
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        # Draft rules are not evaluated — canonical still serves.
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_client_side_rule_falls_through_to_canonical(self, client, _canonical_and_variants):
+        # ai_controls is a CLIENT_SIDE_STATE signal. Step 3b will serve the
+        # resolver page here; today wnp_dispatch just falls through.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "ai_controls", "equals": "available"},
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_lower_priority_rule_wins(self, client, _canonical_and_variants):
+        # Both rules would match on oldversion=149; the lower-priority one
+        # (priority=50) evaluates first and wins.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "lapsed_user", "equals": True},
+            priority=100,
+            name="high-priority",
+        )
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            priority=50,
+            name="low-priority",
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149")
+        assert response.status_code in (301, 302)
+        assert "/156-lapsed" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_querystring_preserved_on_302(self, client, _canonical_and_variants):
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update&utm_campaign=156")
+        assert response.status_code in (301, 302)
+        assert "oldversion=149" in response["Location"]
+        assert "utm_source=update" in response["Location"]
+        assert "utm_campaign=156" in response["Location"]
