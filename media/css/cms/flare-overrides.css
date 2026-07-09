@@ -30,6 +30,6 @@ For now, this is a blank slate.
     display: block;
 }
 
-.fl-docs-inline .fl-main {
+.fl-docs-inline .fl-split-page-upper {
     padding-block-start: var(--token-layout-xs);
 }
