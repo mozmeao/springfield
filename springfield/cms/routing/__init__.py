@@ -12,6 +12,7 @@ trigger. See ``.research/wnp-dynamic-rendering-plan.md`` for the full design.
 """
 
 from . import server_resolvers as _sr
+from .evaluator import EvaluationResult, evaluate_rules, rule_needs_client_side
 from .signals import (
     ResolverType,
     Signal,
@@ -21,11 +22,14 @@ from .signals import (
 )
 
 __all__ = [
+    "EvaluationResult",
     "ResolverType",
     "Signal",
     "SignalRegistrationError",
     "SignalRegistry",
+    "evaluate_rules",
     "registry",
+    "rule_needs_client_side",
 ]
 
 

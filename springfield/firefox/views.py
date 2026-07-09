@@ -938,6 +938,73 @@ def detect_channel(version):
     return "unknown"
 
 
+def wnp_dispatch(request, *args, **kwargs):
+    """
+    Front-of-flow dispatcher for /whatsnew/{version}/.
+
+    Runs BEFORE prefer_cms so that routing decisions can 302 to a variant
+    page without prefer_cms's response-code filter swallowing the redirect.
+
+    Behavior:
+      1. Look up the canonical ``WhatsNewPage2026`` for the requested locale
+         and version (slug == version).
+      2. If a canonical exists AND has ``status=live`` routing rules whose
+         signals are fully resolvable server-side, evaluate them and 302 to
+         the first matching target.
+      3. Otherwise delegate to the standard ``prefer_cms(WhatsnewView)``
+         flow — which will serve the canonical CMS page if present, or the
+         legacy Fluent evergreen fallback if not.
+
+    Client-side (UITour-mediated) rules are not yet honored here — Step 3b
+    of the WNP dynamic-rendering plan will add the resolver-page pathway.
+    Rules requiring client-side signals currently fall through to canonical.
+    """
+    # Local imports keep this module cheap when the routing package is absent
+    # (e.g. during migrations) and avoid import cycles at module load.
+    from springfield.cms.decorators import prefer_cms
+    from springfield.cms.models.routing import RULE_STATUS_LIVE
+    from springfield.cms.routing import evaluate_rules, registry, rule_needs_client_side
+
+    version = kwargs.get("version") or ""
+    lang_code = request.LANGUAGE_CODE
+
+    def _fallback():
+        return prefer_cms(WhatsnewView.as_view())(request, *args, **kwargs)
+
+    # Find the canonical WhatsNewPage2026 for this (locale, version).
+    try:
+        locale = WagtailLocale.objects.get(language_code=lang_code)
+    except WagtailLocale.DoesNotExist:
+        return _fallback()
+
+    canonical = WhatsNewPage2026.objects.live().public().filter(locale=locale, slug=version).first()
+    if canonical is None:
+        return _fallback()
+
+    live_rules = list(canonical.routing_rules.filter(status=RULE_STATUS_LIVE).select_related("target_page"))
+    if not live_rules:
+        return _fallback()
+
+    server_signals = registry.resolve_server_signals(request, context={"target_version": version})
+    result = evaluate_rules(live_rules, server_signals)
+
+    if result.matched is not None:
+        target_url = result.matched.target_page.get_url(request=request)
+        if target_url:
+            # Preserve the incoming querystring so downstream analytics /
+            # utm tracking still work on the variant.
+            querystring = request.META.get("QUERY_STRING", "")
+            if querystring:
+                target_url = f"{target_url}?{querystring}"
+            return HttpResponseRedirect(target_url)
+
+    # If any unresolved rules are client-side, Step 3b will serve a resolver
+    # page here. For now, fall through to canonical rendering — safe default.
+    _ = [r for r in result.unresolved if rule_needs_client_side(r)]
+
+    return _fallback()
+
+
 class WhatsnewView(L10nTemplateView):
     # The 3-digit Whats New route in urls.py is decorated with prefer_cms, so requests
     # like /en-US/whatsnew/150/ will only reach this view when there is not already a

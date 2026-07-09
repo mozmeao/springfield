@@ -143,8 +143,11 @@ urlpatterns = (
     # START What's New Page (WNP) paths
     # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
     re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
-    # 2. New version format, which should be served from the CMS, but falls back to evergreen page
-    re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
+    # 2. New version format: `wnp_dispatch` runs first to honor any live
+    #    RoutingRule against server-resolvable signals; on no match, it
+    #    delegates internally to prefer_cms(WhatsnewView) so the CMS canonical
+    #    (or Fluent evergreen fallback) is rendered as before.
+    re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", views.wnp_dispatch, name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
     # START WNP Dynamic Rendering — Prototype 1 (UITour timing measurement).
     # Not integrated with the main WNP flow. Remove once findings are recorded.
