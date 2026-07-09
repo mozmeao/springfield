@@ -7,13 +7,15 @@
 /*
  * User Routing — client-side resolver library.
  *
- * Reads three JSON/text blobs embedded in the resolver page:
+ * Reads three JSON blobs embedded in the resolver page (all three are
+ * application/json script elements — they must survive HTML autoescape
+ * cleanly, so the server pre-escapes </-sequences too):
  *   #user-routing-rules            — array of rules the client must evaluate
  *   #user-routing-signal-metadata  — {signal_name: {uitour_key}} for required signals
- *   #user-routing-canonical-url    — fallback URL if nothing matches or times out
+ *   #user-routing-canonical-url    — fallback URL string
  *
  * Contract for a rule:
- *   { name, priority, condition: {signal, equals}, target_url }
+ *   { name, priority, condition: {signal, op, values}, target_url }
  *
  * Contract for signal metadata:
  *   { <signal_name>: { uitour_key: '<key>' } }
@@ -93,9 +95,14 @@
 
         // From getConfiguration('aiControls')
         ai_controls: function (data) {
-            if (!data) return undefined;
-            // Returns the tri-state: 'enabled' | 'available' | 'blocked'.
-            return data.default || undefined;
+            // Consistent typeof guard (like the other extractors) — using
+            // `data.default || undefined` would coerce any legitimate falsy
+            // value ('', false, 0) to undefined and mask real answers.
+            if (!data || typeof data.default === 'undefined') {
+                return undefined;
+            }
+            // The tri-state that ships today: 'enabled' | 'available' | 'blocked'.
+            return data.default;
         }
     };
 
@@ -113,14 +120,13 @@
         }
     }
 
-    function readText(id) {
-        var node = document.getElementById(id);
-        return node ? node.textContent.trim() : '';
-    }
-
     var rules = readJSON('user-routing-rules') || [];
     var signalMetadata = readJSON('user-routing-signal-metadata') || {};
-    var canonicalUrl = readText('user-routing-canonical-url');
+    // Canonical URL is emitted as a JSON string so the server-side escape
+    // path is the same for all three blobs and & doesn't get autoescaped.
+    // Fall back to the site root if the blob is missing or unparseable —
+    // never navigate('') which would reload the same URL and loop.
+    var canonicalUrl = readJSON('user-routing-canonical-url') || '/';
     var status = document.getElementById('user-routing-status');
 
     function setStatus(text) {
@@ -166,9 +172,14 @@
 
     function ruleMatches(rule, resolved) {
         var c = rule.condition || {};
-        if (!c.signal || !(c.signal in resolved)) return null;
+        if (!c.signal) return false;
+        // Distinguish 'signal not fetched yet' from 'fetched but no value':
+        //   not in resolved                → null   (still pending)
+        //   in resolved but value=undefined → false (fetched and failed;
+        //                                           rule can't match)
+        if (!(c.signal in resolved)) return null;
         var v = resolved[c.signal];
-        if (typeof v === 'undefined') return null;
+        if (typeof v === 'undefined') return false;
         var values = c.values || [];
         if (!values.length) return false;
         var isInList = values.indexOf(v) !== -1;
@@ -179,13 +190,22 @@
     }
 
     function evaluate(resolved) {
+        // Priority requires strict ordering: a lower-priority rule can
+        // only "win" once every higher-priority rule has been definitively
+        // decided (matched or not-matched). If any earlier-in-priority
+        // rule is still pending, we hold the decision — otherwise a slow
+        // signal on rule A could let rule B claim traffic that A would
+        // have taken as soon as its signal resolved.
         var pending = false;
         rules.sort(function (a, b) {
             return (a.priority || 0) - (b.priority || 0);
         });
         for (var i = 0; i < rules.length; i++) {
             var m = ruleMatches(rules[i], resolved);
-            if (m === true) return { matched: rules[i] };
+            if (m === true) {
+                if (pending) return { pending: true };
+                return { matched: rules[i] };
+            }
             if (m === null) pending = true;
         }
         if (pending) return { pending: true };
@@ -297,22 +317,34 @@
         done(canonicalUrl);
     }, PING_TIMEOUT_MS);
 
-    window.Mozilla.UITour.ping(function () {
+    // Wrap ping() the same way fetchUITourKey wraps getConfiguration —
+    // a synchronous throw (e.g. UITour present but origin not allowlisted
+    // for this call) shouldn't escape the IIFE. The pingTimer will still
+    // fire eventually, so we don't need to signal completion here; just
+    // avoid the console noise from an uncaught error.
+    try {
+        window.Mozilla.UITour.ping(function () {
+            if (pingSettled) return;
+            pingSettled = true;
+            window.clearTimeout(pingTimer);
+
+            setStatus('Checking your settings…');
+
+            var byKey = groupByUITourKey();
+
+            // A quick pass in case groupByUITourKey resolved everything as
+            // unknown up front — we may already have enough to decide.
+            onSignalUpdate();
+            if (navigated) return;
+
+            Object.keys(byKey).forEach(function (key) {
+                fetchUITourKey(key, byKey[key]);
+            });
+        });
+    } catch (e) {
         if (pingSettled) return;
         pingSettled = true;
         window.clearTimeout(pingTimer);
-
-        setStatus('Checking your settings…');
-
-        var byKey = groupByUITourKey();
-
-        // A quick pass in case groupByUITourKey resolved everything as
-        // unknown up front — we may already have enough to decide.
-        onSignalUpdate();
-        if (navigated) return;
-
-        Object.keys(byKey).forEach(function (key) {
-            fetchUITourKey(key, byKey[key]);
-        });
-    });
+        done(canonicalUrl);
+    }
 })();

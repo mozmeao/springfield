@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
-from wagtail.admin.menu import MenuItem
+from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     ExternalLinkElementHandler,
     InlineEntityElementHandler,
@@ -90,8 +90,6 @@ def register_content_search_link():
 #
 # Both live inside the same admin group so marketing has one entry point.
 # ---------------------------------------------------------------------------
-
-from wagtail.admin.menu import Menu, SubmenuMenuItem  # noqa: E402
 
 user_routing_menu = Menu(
     register_hook_name="register_user_routing_menu_item",

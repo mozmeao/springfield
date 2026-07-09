@@ -63,9 +63,14 @@
     <p id="user-routing-status">Preparing your page…</p>
   </main>
 
+  {# All three blobs are pre-escaped by dispatcher._json_for_script — the
+     `</` sequence and comment openers are neutralized before render, so
+     admin-editable strings can't break out of the <script> tag. Using
+     |safe here bypasses Jinja autoescape (which would double-encode &
+     inside script raw text and break URL parsing). #}
   <script id="user-routing-rules" type="application/json">{{ rules_json|safe }}</script>
   <script id="user-routing-signal-metadata" type="application/json">{{ signal_metadata_json|safe }}</script>
-  <script id="user-routing-canonical-url" type="text/plain">{{ canonical_url }}</script>
+  <script id="user-routing-canonical-url" type="application/json">{{ canonical_url_json|safe }}</script>
 
   {{ js_bundle('user_routing_resolver') }}
 </body>
