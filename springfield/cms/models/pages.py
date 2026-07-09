@@ -1067,22 +1067,6 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
-        MultiFieldPanel(
-            [
-                FieldPanel("show_pre_footer"),
-                FieldPanel("show_navigation"),
-                FieldPanel("show_nav_cta"),
-                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
-                *QRCodeFloatingSnippetMixin.floating_qr_panels,
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
-            ],
-            heading="Page Options",
-        ),
-        MultiFieldPanel(
-            [FieldPanel("docs")],
-            heading="Documentation (Flare Docs only)",
-        ),
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
