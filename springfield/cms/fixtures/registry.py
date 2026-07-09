@@ -34,7 +34,6 @@ from springfield.cms.fixtures.freeformpage import (
     get_freeform_page_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
     get_pencil_banner_snippet_test_page,
-    get_pre_footer_cta_form_snippet_test_page,
     get_pre_footer_cta_snippet_test_page,
     get_scroll_to_see_more_snippet_test_page,
 )
@@ -110,6 +109,5 @@ PAGE_FIXTURES = [
     get_banner_snippet_test_page,
     get_pencil_banner_snippet_test_page,
     get_pre_footer_cta_snippet_test_page,
-    get_pre_footer_cta_form_snippet_test_page,
     get_scroll_to_see_more_snippet_test_page,
 ]

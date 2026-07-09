@@ -416,6 +416,7 @@ def get_pencil_banner_snippet_test_page() -> FreeFormPage2026:
 
 def get_pre_footer_cta_snippet_test_page() -> FreeFormPage2026:
     get_pre_footer_cta_snippet()
+    get_pre_footer_cta_form_snippet()
     index_page = get_flare_snippets_docs_page()
 
     slug = "pre-footer-cta-snippet"
@@ -425,33 +426,43 @@ def get_pre_footer_cta_snippet_test_page() -> FreeFormPage2026:
         index_page.add_child(instance=page)
 
     page.show_pre_footer = True
+    page.content = [
+        {
+            "type": "intro",
+            "value": {
+                "settings": {
+                    "layout": "vertical",
+                    "slim": False,
+                    "anchor_id": "",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="pf0000">Pre-Footer CTA Snippet</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "value": (
+                            '<p data-block-key="pf0001">Open this page in Firefox and in a non-Firefox browser to see both '
+                            "pre-footer variants. Firefox users see the newsletter signup form; non-Firefox users see the "
+                            "Get Firefox download button. The page opts in via Show Pre-Footer &mdash; it does not choose "
+                            "which snippet appears.</p>"
+                        ),
+                        "id": "pf000001-0000-0000-0000-000000000002",
+                    }
+                ],
+            },
+            "id": "pf000001-0000-0000-0000-000000000001",
+        }
+    ]
     page.docs = (
-        "<p>The Pre-Footer CTA Snippet renders a final call-to-action above the page footer &mdash; typically a &lsquo;Get "
-        "Firefox&rsquo; button with a single label and analytics ID. Pages opt in via the Show Pre-Footer toggle in the page "
-        "options panel.</p>"
-        "<p>Keep the label short and action-oriented. The analytics_id should be unique per snippet so downstream funnel reporting "
-        "can distinguish placements. Edit the snippet itself in the Snippets admin to change its label and analytics ID.</p>"
-    )
-    page.save_revision().publish()
-    return page
-
-
-def get_pre_footer_cta_form_snippet_test_page() -> FreeFormPage2026:
-    get_pre_footer_cta_form_snippet()
-    index_page = get_flare_snippets_docs_page()
-
-    slug = "pre-footer-cta-form-snippet"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Pre-Footer CTA Form Snippet")
-        index_page.add_child(instance=page)
-
-    page.show_pre_footer = True
-    page.docs = (
-        "<p>The Pre-Footer CTA Form Snippet renders a newsletter-style signup form in the pre-footer area, with a heading, "
-        "subheading, and an inline email form. Pages opt in via Show Pre-Footer.</p>"
-        "<p>Use the form variant when the page goal is list growth rather than a click-through download. The analytics_id is "
-        "required for form-submission tracking. Heading and subheading copy are edited on the snippet, not the page.</p>"
+        "<p>The Pre-Footer CTA Snippet renders a final call-to-action above the page footer. Pages opt in via the Show "
+        "Pre-Footer toggle in the page options panel &mdash; the page does not choose which snippet to display.</p>"
+        "<p>Non-Firefox users see the download button (PreFooterCTASnippet: label and analytics ID). Firefox users see the "
+        "newsletter signup form (PreFooterCTAFormSnippet: heading, subheading, and analytics ID). Both snippets are rendered "
+        "and the browser determines which one to show via conditional display.</p>"
     )
     page.save_revision().publish()
     return page
