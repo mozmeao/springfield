@@ -183,6 +183,14 @@ python manage.py dumpdata \
     cms.QRCodeFloatingSnippet \
     cms.Tag \
     cms.SetAsDefaultSnippet \
+    cms.PretranslatedPhrase \
+    cms.PencilBannerSnippet \
+    cms.QRCodeSnippet \
+    cms.ScrollToSeeMoreSnippet \
+    cms.PencilBannerPlacement \
+    cms.HomePagePencilBannerPlacement \
+    cms.ArticleThemePagePencilBannerPlacement \
+    cms.ArticleDetailPagePencilBannerPlacement \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \
