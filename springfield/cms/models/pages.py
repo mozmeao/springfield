@@ -2090,7 +2090,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
             if api_response.ok:
                 success = True
             else:
-                if 400 <= api_response.status_code < 500:
+                # Log any unexpected 4xx errors to Sentry
+                UNPROCESSABLE_CONTENT = 422  # Basket rejects data such as invalid characters
+                TOO_MANY_REQUESTS = 429  # Rate limiting
+                if api_response.status_code not in (UNPROCESSABLE_CONTENT, TOO_MANY_REQUESTS) and 400 <= api_response.status_code < 500:
                     with new_scope() as scope:
                         scope.set_extra("post_data", form_data)
                         scope.set_extra("basket_path", self.basket_api_path)

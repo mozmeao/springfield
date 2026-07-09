@@ -1709,6 +1709,53 @@ def test_contact_page_shows_error_message_and_reports_to_sentry_on_basket_api_4x
     assert "400" in call_args[0][0]
 
 
+@responses.activate
+@patch("springfield.cms.models.pages.capture_message")
+@pytest.mark.parametrize("status_code", [422, 429])
+def test_contact_page_does_not_report_to_sentry_on_expected_api_errors(
+    mock_capture_message,
+    minimal_site: Site,
+    rf: RequestFactory,
+    status_code: int,
+) -> None:
+    """4xx basket API response re-renders with an error BUT does not send a Sentry event on 422 and 429 responses."""
+    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    responses.add(responses.POST, basket_url, status=status_code)
+
+    index_page = minimal_site.root_page
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Basket 4xx Test",
+        slug="basket-4xx-test",
+        form_fields=form_field_variants,
+        basket_api_path="/news/subscribe/",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    spam_data = {
+        "first_name": "Test",
+        "last_name": "; DROP TABLE users;",
+        "company": "Acme",
+        "job_title": "Engineer",
+        "business_email": "test@acme.com",
+        "business_phone": "555-1234",
+        "company_size": "1 - 10",
+        "country": "US",
+        "lead_source": "techrider.de",
+        "cta": "Request Private Briefing",
+        "opt_in": True,
+    }
+    request = rf.post(page.relative_url(minimal_site), spam_data)
+    resp = page.serve(request)
+    assert resp.status_code == 200
+    assert "There was an error sending your message. Please try again." in resp.content.decode()
+    mock_capture_message.assert_not_called()
+
+
 @patch("springfield.cms.models.pages.EmailMessage")
 def test_contact_page_post_valid_shows_thank_you_message(
     mock_email_class,
