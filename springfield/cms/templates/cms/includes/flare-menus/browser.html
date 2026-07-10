@@ -54,30 +54,36 @@
 
         <span class="fl-nav-separator"></span>
 
-        {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
+        {% set whats_new_url = get_whats_new_url() %}
+        {% set whats_next_url = get_whats_next_url() %}
+        {% if whats_new_url or whats_next_url %}
           <ul>
-            <li>
-              <a
-                class="fl-nav-link"
-                href="/{{ LANG }}/whatsnew/?fromMainNav=true"
-                data-link-text="What's New"
-                data-link-position="topnav - whats-new"
-              >
-                <span class="fl-icon fl-icon-bookmark-fill"></span>
-                {{ ftl('navigation-whats-new') }}
-              </a>
-            </li>
-            <li>
-              <a
-                class="fl-nav-link"
-                href="/{{ LANG }}/whatsnext/"
-                data-link-text="What's Next"
-                data-link-position="topnav - whats-next"
-              >
-                <span class="fl-icon fl-icon-calendar"></span>
-                {{ ftl('navigation-whats-next') }}
-              </a>
-            </li>
+            {% if whats_new_url %}
+              <li>
+                <a
+                  class="fl-nav-link"
+                  href="{{ whats_new_url }}?fromMainNav=true"
+                  data-link-text="What's New"
+                  data-link-position="topnav - whats-new"
+                >
+                  <span class="fl-icon fl-icon-bookmark-fill"></span>
+                  {{ ftl('navigation-whats-new') }}
+                </a>
+              </li>
+            {% endif %}
+            {% if whats_next_url %}
+              <li>
+                <a
+                  class="fl-nav-link"
+                  href="{{ whats_next_url }}"
+                  data-link-text="What's Next"
+                  data-link-position="topnav - whats-next"
+                >
+                  <span class="fl-icon fl-icon-calendar"></span>
+                  {{ ftl('navigation-whats-next') }}
+                </a>
+              </li>
+            {% endif %}
           </ul>
 
           <span class="fl-nav-separator"></span>

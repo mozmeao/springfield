@@ -343,3 +343,41 @@ def test_get_whats_next_url_is_locale_specific(minimal_site, rf):
         result = get_whats_next_url({"request": request})
 
     assert result is None
+
+
+@pytest.mark.django_db
+def test_browser_nav_renders_both_links_from_cms(minimal_site, rf):
+    root_page = minimal_site.root_page
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    roadmap_page = RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get(roadmap_page.get_full_url())
+    with translation.override("en-US"):
+        response = roadmap_page.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    whats_new_link = soup.find("a", attrs={"data-link-position": "topnav - whats-new"})
+    whats_next_link = soup.find("a", attrs={"data-link-position": "topnav - whats-next"})
+
+    assert whats_new_link is not None
+    assert "/whatsnew/" in whats_new_link["href"]
+    # The What's New nav link carries ?fromMainNav=true.
+    assert whats_new_link["href"].endswith("/whatsnew/?fromMainNav=true")
+    assert whats_next_link is not None
+    assert whats_next_link["href"].endswith("/whatsnext/")
+
+
+@pytest.mark.django_db
+def test_browser_nav_hides_whats_new_link_when_page_missing(minimal_site, rf):
+    # Only the roadmap (What's Next) page exists; the What's New link must not render.
+    root_page = minimal_site.root_page
+    roadmap_page = RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get(roadmap_page.get_full_url())
+    with translation.override("en-US"):
+        response = roadmap_page.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("a", attrs={"data-link-position": "topnav - whats-new"}) is None
+    assert soup.find("a", attrs={"data-link-position": "topnav - whats-next"}) is not None
