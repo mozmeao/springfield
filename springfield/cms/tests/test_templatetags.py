@@ -2,19 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
+    get_whats_new_url,
     remove_p_tag,
     remove_tags,
     richtext,
 )
+from springfield.cms.tests.factories import WhatsNewIndexPageFactory
 
 
 def _link_value(link_to, **fields):
@@ -236,3 +240,39 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
         expected_url = original_url
     expected_html = f'<p>Check out <a href="{expected_url}">this page</a>.</p>'
     assert BeautifulSoup(output_html, "html.parser") == BeautifulSoup(expected_html, "html.parser")
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_localized_url(minimal_site, rf):
+    root_page = minimal_site.root_page
+    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is not None
+    assert result.endswith("/whatsnew/")
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_page_missing(minimal_site, rf):
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_is_locale_specific(minimal_site, rf):
+    # Page exists only in en-US; fr locale exists (created by minimal_site) but has no page.
+    root_page = minimal_site.root_page
+    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    assert Locale.objects.filter(language_code="fr").exists()
+
+    request = rf.get("/fr/")
+    with translation.override("fr"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None

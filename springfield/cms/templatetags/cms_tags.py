@@ -14,10 +14,11 @@ import markdown
 from bs4 import BeautifulSoup
 from django_jinja import library
 from jinja2 import pass_context
+from wagtail.models import Locale
 from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
-from springfield.cms.models.pages import BASE_UTM_PARAMETERS
+from springfield.cms.models.pages import BASE_UTM_PARAMETERS, WhatsNewIndexPage
 from springfield.firefox.templatetags.misc import fxa_button
 
 
@@ -388,4 +389,22 @@ def get_floating_qr_code_snippet(context):
         if snippet:
             return snippet.build_context(page=page, request=context.get("request"))
 
+    return None
+
+
+@pass_context
+@library.global_function
+def get_whats_new_url(context):
+    """Return the localized What's New index URL, or None if not available.
+
+    Usage in templates:
+        {% set whats_new_url = get_whats_new_url() %}
+        {% if whats_new_url %}
+          <a href="{{ whats_new_url }}">...</a>
+        {% endif %}
+    """
+    locale = Locale.get_active()
+    page = WhatsNewIndexPage.objects.live().public().filter(locale=locale).first()
+    if page:
+        return page.get_active_locale_url(context.get("request"))
     return None
