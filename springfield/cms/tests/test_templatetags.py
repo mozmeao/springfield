@@ -14,11 +14,12 @@ from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
     get_whats_new_url,
+    get_whats_next_url,
     remove_p_tag,
     remove_tags,
     richtext,
 )
-from springfield.cms.tests.factories import WhatsNewIndexPageFactory
+from springfield.cms.tests.factories import RoadmapPageFactory, WhatsNewIndexPageFactory
 
 
 def _link_value(link_to, **fields):
@@ -274,5 +275,39 @@ def test_get_whats_new_url_is_locale_specific(minimal_site, rf):
     request = rf.get("/fr/")
     with translation.override("fr"):
         result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_returns_localized_url(minimal_site, rf):
+    root_page = minimal_site.root_page
+    RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_next_url({"request": request})
+
+    assert result is not None
+    assert result.endswith("/whatsnext/")
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_returns_none_when_page_missing(minimal_site, rf):
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_next_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_is_locale_specific(minimal_site, rf):
+    root_page = minimal_site.root_page
+    RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get("/fr/")
+    with translation.override("fr"):
+        result = get_whats_next_url({"request": request})
 
     assert result is None

@@ -18,7 +18,7 @@ from wagtail.models import Locale
 from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
-from springfield.cms.models.pages import BASE_UTM_PARAMETERS, WhatsNewIndexPage
+from springfield.cms.models.pages import BASE_UTM_PARAMETERS, RoadmapPage, WhatsNewIndexPage
 from springfield.firefox.templatetags.misc import fxa_button
 
 
@@ -405,6 +405,24 @@ def get_whats_new_url(context):
     """
     locale = Locale.get_active()
     page = WhatsNewIndexPage.objects.live().public().filter(locale=locale).first()
+    if page:
+        return page.get_active_locale_url(context.get("request"))
+    return None
+
+
+@pass_context
+@library.global_function
+def get_whats_next_url(context):
+    """Return the localized What's Next (Roadmap) URL, or None if not available.
+
+    Usage in templates:
+        {% set whats_next_url = get_whats_next_url() %}
+        {% if whats_next_url %}
+          <a href="{{ whats_next_url }}">...</a>
+        {% endif %}
+    """
+    locale = Locale.get_active()
+    page = RoadmapPage.objects.live().public().filter(locale=locale).order_by("path").first()
     if page:
         return page.get_active_locale_url(context.get("request"))
     return None

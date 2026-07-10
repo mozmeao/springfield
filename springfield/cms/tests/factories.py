@@ -99,6 +99,15 @@ class BetaWhatsNewPage2026Factory(wagtail_factories.PageFactory):
         model = models.WhatsNewPage2026
 
 
+class RoadmapPageFactory(wagtail_factories.PageFactory):
+    title = "Firefox Roadmap"
+    live = True
+    slug = "whatsnext"
+
+    class Meta:
+        model = models.RoadmapPage
+
+
 class ArticleIndexPageFactory(wagtail_factories.PageFactory):
     title = "Test Article Index Page"
     live = True
