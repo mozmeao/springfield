@@ -226,5 +226,5 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         """
         for site_root_path in Site.get_site_root_paths():
             if self.url_path.startswith(site_root_path.root_path):
-                return self.get_ancestors().live().public().filter(url_path__startswith=site_root_path.root_path)
+                return self.get_ancestors().live().public().filter(url_path__startswith=site_root_path.root_path).order_by("path")
         return WagtailBasePage.objects.none()

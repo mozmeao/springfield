@@ -17,7 +17,7 @@ from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Page
+from wagtail.models import Page, PageViewRestriction
 
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 
@@ -235,8 +235,6 @@ def test_get_breadcrumb_ancestors_excludes_view_restricted_ancestors(prod_shape_
     A password-protected or group-restricted ancestor would otherwise expose
     its title and URL to Google when a public descendant is crawled.
     """
-    from wagtail.models import PageViewRestriction
-
     features = prod_shape_site["features"]
     article = prod_shape_site["article"]
 
@@ -248,3 +246,23 @@ def test_get_breadcrumb_ancestors_excludes_view_restricted_ancestors(prod_shape_
 
     ancestors = list(article.specific.get_breadcrumb_ancestors())
     assert features.pk not in [a.pk for a in ancestors]
+
+
+def test_get_breadcrumb_ancestors_query_count(prod_shape_site, django_assert_max_num_queries):
+    """Tripwire for the docstring's `Don't refactor to full_url is not None` warning.
+
+    In steady state, the helper should fire exactly 2 queries: one for `.public()`'s
+    PageViewRestriction lookup and one for the ancestor QuerySet. Site.get_site_root_paths
+    is cached — in production requests it's always warm; here we pre-call it to isolate
+    the steady-state cost from the one-time cache warmup.
+
+    If a future refactor swaps the url_path prefix filter for per-ancestor Python
+    attribute access (`[a for a in ... if a.full_url]`), this ceiling will trip.
+    """
+    from wagtail.models import Site
+
+    Site.get_site_root_paths()  # warm the cache the way production requests do
+
+    article = prod_shape_site["article"]
+    with django_assert_max_num_queries(2):
+        list(article.specific.get_breadcrumb_ancestors())
