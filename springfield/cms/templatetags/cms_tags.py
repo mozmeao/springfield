@@ -397,6 +397,10 @@ def get_floating_qr_code_snippet(context):
 def get_whats_new_url(context):
     """Return the localized What's New index URL, or None if not available.
 
+    Only return the URL if the index page has children in the current locale.
+    The "General" What's New Page is excluded, since the index page also excludes it
+    when redirecting to the latest version.
+
     Usage in templates:
         {% set whats_new_url = get_whats_new_url() %}
         {% if whats_new_url %}
@@ -405,7 +409,7 @@ def get_whats_new_url(context):
     """
     locale = Locale.get_active()
     page = WhatsNewIndexPage.objects.live().public().filter(locale=locale).first()
-    if page:
+    if page and page.get_children().live().public().exclude(slug="general").exists():
         return page.get_active_locale_url(context.get("request"))
     return None
 

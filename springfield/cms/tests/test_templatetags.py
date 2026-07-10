@@ -19,7 +19,7 @@ from springfield.cms.templatetags.cms_tags import (
     remove_tags,
     richtext,
 )
-from springfield.cms.tests.factories import RoadmapPageFactory, WhatsNewIndexPageFactory
+from springfield.cms.tests.factories import RoadmapPageFactory, WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
 
 def _link_value(link_to, **fields):
@@ -245,8 +245,11 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
 
 @pytest.mark.django_db
 def test_get_whats_new_url_returns_localized_url(minimal_site, rf):
+    """The template tag returns the localized URL for the What's New index page
+    if it exists in the current locale and has children."""
     root_page = minimal_site.root_page
-    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
 
     request = rf.get("/en-US/")
     with translation.override("en-US"):
@@ -254,6 +257,35 @@ def test_get_whats_new_url_returns_localized_url(minimal_site, rf):
 
     assert result is not None
     assert result.endswith("/whatsnew/")
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_no_children(minimal_site, rf):
+    """The template tag returns None for the What's New index page
+    if it exists in the current locale but has no children."""
+    root_page = minimal_site.root_page
+    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_general_is_the_only_child(minimal_site, rf):
+    """The template tag returns None for the What's New index page
+    if it exists in the current locale but its only child is the "General" page."""
+    root_page = minimal_site.root_page
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="general", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
 
 
 @pytest.mark.django_db
