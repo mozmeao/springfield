@@ -4,10 +4,12 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
@@ -27,6 +29,9 @@ from sentry_sdk import capture_message, new_scope
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
+from wagtail.rich_text import RichText
+from wagtail.search import index
+from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
@@ -332,6 +337,11 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
     class Meta:
         verbose_name = "Home Page"
         verbose_name_plural = "Home Pages"
@@ -453,6 +463,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("subheading"),
+        index.SearchField("intro_footer_text"),
+    ]
+
     class Meta:
         verbose_name = "Download Page"
         verbose_name_plural = "Download Pages"
@@ -503,6 +518,10 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("content"),
     ]
 
     def __str__(self):
@@ -587,6 +606,12 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_sibling_detail_pages"),
         FieldPanel("index_card_type"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("sub_title"),
+        index.SearchField("other_articles_subheading"),
+        index.SearchField("other_articles_heading"),
     ]
 
     def __str__(self):
@@ -829,6 +854,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("description"),
+        index.SearchField("content"),
+    ]
+
     if TYPE_CHECKING:
         tag: Tag | None
 
@@ -873,6 +903,11 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("content"),
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
     ]
 
     def __str__(self):
@@ -1099,6 +1134,11 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         ),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1214,6 +1254,11 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
             ],
             heading="Appearance",
         ),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
     ]
 
     class Meta:
@@ -1407,6 +1452,18 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("heading_text"),
+        index.SearchField("subheading_text"),
+        index.SearchField("content"),
+        index.SearchField("mobile_message"),
+        index.SearchField("thank_you_heading"),
+        index.SearchField("thank_you_message"),
+        index.SearchField("privacy_notice"),
+        index.SearchField("update_instructions"),
+        index.SearchField("post_download_instructions"),
+    ]
+
     class Meta:
         verbose_name = "Smart Window Page"
         verbose_name_plural = "Smart Window Pages"
@@ -1466,6 +1523,11 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Smart Window Explainer Page"
         verbose_name_plural = "Smart Window Explainer Pages"
@@ -1517,6 +1579,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             ],
             heading="More Articles",
         ),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("page_heading"),
+        index.SearchField("more_articles_heading"),
+        index.SearchField("cards_lists"),
     ]
 
     class Meta:
@@ -1759,6 +1827,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("description"),
+        index.SearchField("content"),
+    ]
+
     class Meta:
         verbose_name = "Blog Article Page"
         verbose_name_plural = "Blog Article Pages"
@@ -1815,6 +1888,11 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("intro"),
         FieldPanel("content"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("intro"),
+        index.SearchField("content"),
     ]
 
     class Meta:
@@ -1901,6 +1979,19 @@ class ContactPage(AbstractSpringfieldCMSPage):
         ),
     ]
 
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("intro"),
+        index.SearchField("form_fields"),
+        index.SearchField("thank_you_message"),
+    ]
+
+    class Meta:
+        verbose_name = "Contact Page"
+        verbose_name_plural = "Contact Pages"
+
+    def __str__(self):
+        return f"ContactPage: {self.title} - {self.locale}"
+
     def clean(self):
         super().clean()
         errors = {}
@@ -1929,190 +2020,185 @@ class ContactPage(AbstractSpringfieldCMSPage):
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
 
+        # On production, only certain paths are allowed to send POST requests
+        if settings.PROD:
+            parent = self.get_parent()
+            path = parent.url_path + self.slug + "/" if parent else "/" + self.slug + "/"
+            # Using .search() instead of .match() because paths will often start with /home/parent/child/
+            # We don't use .get_url() because it doesn't use the instance's current slug
+            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
+                errors["slug"] = f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}"
+
         if errors:
             raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        context["form_errors"] = getattr(request, "form_errors", {})
+        form = getattr(request, "form", None)
+        context["form_errors"] = getattr(form, "errors", {})
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        context["form_data"] = getattr(request, "form_data", {})
+        context["form_data"] = self._get_display_data(form)
         return context
 
-    def render_with_errors(self, request, form_errors, *args, **kwargs):
-        """Re-render the form in place with the given errors and the submitted values."""
-        request.form_errors = form_errors
-        request.form_data = self.get_form_data_for_context(request.POST)
-        response = super().serve(request, *args, **kwargs)
-        add_never_cache_headers(response)
-        return response
-
     def serve(self, request, *args, **kwargs):
+        request.form = self.get_form(request)
+        success = None
+
         if request.method == "POST":
-            form_errors = self.validate_form_data(request.POST)
-            if form_errors:
-                return self.render_with_errors(request, form_errors, *args, **kwargs)
+            if request.form.is_valid():
+                if self.basket_api_path:
+                    success = self.send_to_basket(request)
+                elif self.to_email_address:
+                    success = self.send_form_email(request)
+                if not success:
+                    request.form.add_error(None, ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+            else:
+                success = False
 
-            if self.basket_api_path:
-                form_data = self._collect_form_data(request)
-                try:
-                    api_response = requests.post(
-                        f"{settings.BASKET_URL}{self.basket_api_path}",
-                        json=form_data,
-                        timeout=settings.BASKET_TIMEOUT,
-                    )
-                    if not api_response.ok:
-                        if 400 <= api_response.status_code < 500:
-                            with new_scope() as scope:
-                                scope.set_extra("post_data", form_data)
-                                scope.set_extra("basket_path", self.basket_api_path)
-                                scope.set_extra("status_code", api_response.status_code)
-                                capture_message(
-                                    f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
-                                    level="error",
-                                )
-                        return self.render_with_errors(
-                            request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
-                        )
-                except requests.RequestException as exc:
-                    with new_scope() as scope:
-                        scope.set_extra("basket_path", self.basket_api_path)
-                        scope.set_extra("exception", str(exc))
-                        capture_message(
-                            f"Basket API request failed for path {self.basket_api_path}",
-                            level="error",
-                        )
-                    return self.render_with_errors(
-                        request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
-                    )
+            request.form_success = success
 
-            if self.to_email_address:
-                try:
-                    self.send_form_email(request)
-                except Exception as exc:
-                    with new_scope() as scope:
-                        scope.set_extra("exception", str(exc))
-                        capture_message(
-                            "Failed to send contact form email",
-                            level="error",
-                        )
-                    return self.render_with_errors(
-                        request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}, *args, **kwargs
-                    )
-
-            if self.redirect_to:
+            if success and self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
 
-            request.form_success = True
-            response = super().serve(request, *args, **kwargs)
-            add_never_cache_headers(response)
-            return response
-
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
         return response
 
-    def _collect_form_data(self, request):
-        """Return submitted form data as a plain dict (lists joined for checkboxes)."""
-        data = {}
+    def get_form(self, request):
+        """Return a Django Form instance generated from the form_fields StreamField.
+
+        Bound to ``request.POST`` for POST requests, unbound otherwise.
+        """
+        form_fields = {}
         for field in self.form_fields:
             value = field.value
-            identifier = value["internal_identifier"]
-            if field.block_type == "hidden_field":
-                post_value = request.POST.get(identifier, "")
-                data[identifier] = post_value if post_value else value.get("default_value", "")
-            elif field.block_type == "checkbox_group_field":
-                data[identifier] = ", ".join(request.POST.getlist(identifier))
-            else:
-                data[identifier] = request.POST.get(identifier, "")
-        return data
+            form_fields[value["internal_identifier"]] = value.get_form_field()
 
-    def get_form_data_for_context(self, post_data):
-        """Return submitted form values keyed by internal_identifier for template use.
+        ContactForm = type("ContactForm", (forms.Form,), form_fields)
 
-        Returns a dict with string values for text-like fields and lists for
-        checkbox_group_field. Hidden fields are excluded — they always render
-        their default_value regardless of POST data.
-        """
-        form_data = {}
+        # Hidden fields always arrive in POST, they must not be considered when checking for an empty submission.
+        hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
+        visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
+
+        def clean_form(_self):
+            # The honeypot must stay empty, and every hidden field must have a value
+            honeypot = _self.data.get("office_fax")
+            empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
+            if honeypot or empty_hidden_fields:
+                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+            # Only flag an empty submission when no per-field error already exists
+            has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
+            if not has_any_data and not _self.errors:
+                raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+
+        ContactForm.clean = clean_form
+
+        if request.method == "POST":
+            return ContactForm(request.POST)
+        return ContactForm()
+
+    def _get_display_data(self, form):
+        """Build a display dict from raw form data for template persistence"""
+
+        if form is None:
+            return {}
+        data = form.data
+        result = {}
         for field in self.form_fields:
             if field.block_type == "hidden_field":
                 continue
             identifier = field.value["internal_identifier"]
-            if field.block_type == "checkbox_group_field":
-                form_data[identifier] = post_data.getlist(identifier)
+            if field.value.is_multivalue:
+                result[identifier] = data.getlist(identifier)
             else:
-                form_data[identifier] = post_data.get(identifier, "")
-        return form_data
+                result[identifier] = data.get(identifier, "")
+        return result
 
-    def validate_form_data(self, post_data):
-        """Validate submitted form data against the field configuration.
+    def _collect_field_values(self, form):
+        """Return submitted values keyed by internal_identifier, normalized to the
+        string types the basket API and email template expect."""
 
-        Returns a dict matching Django's ErrorDict shape:
-          {identifier: [msg], ..., "__all__": [global_msg]}
-        An empty dict means the data is valid.
-        """
-        if post_data.get("office_fax", ""):
-            return {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-
-        errors = {}
-        has_any_data = False
-
+        values = {}
         for field in self.form_fields:
-            if field.block_type == "hidden_field":
-                continue
+            identifier = field.value["internal_identifier"]
+            value = form.cleaned_data.get(identifier)
+            if isinstance(value, list):
+                value = ", ".join(value)
+            elif isinstance(value, bool):
+                value = "on" if value else ""
+            elif value is None:
+                value = ""
+            values[identifier] = value
+        return values
 
-            value = field.value
-            identifier = value["internal_identifier"]
-            is_required = value.get("required", False)
-
-            if field.block_type == "checkbox_group_field":
-                submitted = post_data.getlist(identifier)
-            else:
-                submitted = post_data.get(identifier, "").strip()
-
-            if submitted:
-                has_any_data = True
-
-            if is_required and not submitted:
-                errors[identifier] = [ftl_lazy("contact-form-error-required", ftl_files=self.ftl_files)]
-
-        if not has_any_data and not errors:
-            errors.setdefault("__all__", []).append(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
-
-        return errors
-
-    def send_form_email(self, request):
+    def send_form_email(self, request) -> bool:
         """Collect form data and send it as an email."""
-        fields = []
-        for field in self.form_fields:
-            block_type = field.block_type
-            value = field.value
-            identifier = value["internal_identifier"]
-            label = value["label"]
 
-            if block_type == "hidden_field":
-                post_value = request.POST.get(identifier, "")
-                submitted = post_value if post_value else value.get("default_value", "")
-            elif block_type == "checkbox_group_field":
-                submitted = ", ".join(request.POST.getlist(identifier))
+        from springfield.cms.templatetags.cms_tags import remove_tags  # Circular import
+
+        success = None
+        try:
+            values = self._collect_field_values(request.form)
+            field_data = []
+            for field in self.form_fields:
+                label = field.value["label"]
+                if isinstance(label, RichText):
+                    label = remove_tags(richtext(label))
+                field_data.append({"label": label, "value": values.get(field.value["internal_identifier"], "")})
+
+            msg = render_to_string("cms/emails/contact-form.txt", {"fields": field_data})
+            subject = f"Contact form submission: {self.title}"
+            email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
+            email.send()
+            success = True
+        except Exception as exc:
+            with new_scope() as scope:
+                scope.set_extra("exception", str(exc))
+                capture_message(
+                    "Failed to send contact form email",
+                    level="error",
+                )
+            success = False
+        return success
+
+    def send_to_basket(self, request) -> bool:
+        """Collect form data and send it to the basket API."""
+
+        success = None
+        form_data = self._collect_field_values(request.form)
+        try:
+            api_response = requests.post(
+                f"{settings.BASKET_URL}{self.basket_api_path}",
+                json=form_data,
+                timeout=settings.BASKET_TIMEOUT,
+            )
+            if api_response.ok:
+                success = True
             else:
-                submitted = request.POST.get(identifier, "")
-
-            fields.append({"label": label, "value": submitted})
-
-        msg = render_to_string("cms/emails/contact-form.txt", {"fields": fields})
-        subject = f"Contact form submission: {self.title}"
-        email = EmailMessage(subject, msg, settings.DEFAULT_FROM_EMAIL, [self.to_email_address])
-        email.send()
-
-    class Meta:
-        verbose_name = "Contact Page"
-        verbose_name_plural = "Contact Pages"
-
-    def __str__(self):
-        return f"ContactPage: {self.title} - {self.locale}"
+                # Log any unexpected 4xx errors to Sentry
+                UNPROCESSABLE_CONTENT = 422  # Basket rejects data such as invalid characters
+                TOO_MANY_REQUESTS = 429  # Rate limiting
+                if api_response.status_code not in (UNPROCESSABLE_CONTENT, TOO_MANY_REQUESTS) and 400 <= api_response.status_code < 500:
+                    with new_scope() as scope:
+                        scope.set_extra("post_data", form_data)
+                        scope.set_extra("basket_path", self.basket_api_path)
+                        scope.set_extra("status_code", api_response.status_code)
+                        capture_message(
+                            f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
+                            level="error",
+                        )
+                success = False
+        except requests.RequestException as exc:
+            with new_scope() as scope:
+                scope.set_extra("basket_path", self.basket_api_path)
+                scope.set_extra("exception", str(exc))
+                capture_message(
+                    f"Basket API request failed for path {self.basket_api_path}",
+                    level="error",
+                )
+            success = False
+        return success
 
 
 _FLARE_SECTION_ORDER = ["blocks", "snippets", "sample-pages"]

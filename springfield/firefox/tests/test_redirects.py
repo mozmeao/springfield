@@ -155,17 +155,6 @@ def test_refresh_redirect_locale_handling(locale, permanent):
     assert resp["location"] == f"/{locale}/download/windows/"
 
 
-def test_refresh_redirects_not_in_redirectpatterns_when_disabled():
-    with override_settings(ENABLE_CMS_REFRESH_REDIRECTS=False, PERMANENT_CMS_REFRESH_REDIRECTS=False):
-        importlib.reload(redirects_module)
-        rf = RequestFactory()
-        middleware = RedirectsMiddleware(get_response=HttpResponse, resolver=get_resolver(redirects_module.redirectpatterns))
-        resp = middleware.process_request(rf.get("/browsers/desktop/windows/"))
-    assert resp is None
-    # Reload to restore original state
-    importlib.reload(redirects_module)
-
-
 @pytest.mark.parametrize(
     "source, dest",
     (

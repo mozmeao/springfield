@@ -39,6 +39,7 @@ from springfield.cms.blocks import (
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
+    UUIDBlock,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -3799,7 +3800,6 @@ def test_two_column_card_media_position_validation_no_media_skips_check():
 
 def test_uuid_block_is_not_translatable():
     """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
-    from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
 
