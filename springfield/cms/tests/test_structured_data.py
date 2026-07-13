@@ -17,6 +17,7 @@ from django.conf import settings
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Page, PageViewRestriction
 
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 
@@ -143,22 +144,125 @@ def test_homepage_software_application_has_dynamic_version(index_page, rf):
 
 
 # ---------------------------------------------------------------------------
-# BreadcrumbList on nested CMS pages
+# BreadcrumbList — get_breadcrumb_ancestors() helper on AbstractSpringfieldCMSPage
 #
-# BreadcrumbList rendering lives in the `{% block structured_data %}` default
-# in `cms/base-flare.html`. It fires for any CMS page whose template extends
-# base-flare.html and which has ancestors above the Wagtail root.
-#
-# The straightforward `tiny_localized_site` fixture (used in
-# test_locale_fallback_rendering.py) creates `SimpleRichTextPage` instances
-# which extend `base-protocol.html` — a legacy base that does NOT have the
-# structured_data block. Adding live-render coverage for BreadcrumbList would
-# require building a nested fixture with a page type that extends
-# base-flare.html (e.g. ArticleDetailPage), which is more setup than this
-# behavior warrants.
-#
-# Manual verification path: visit any nested CMS page in dev and view source —
-# the JSON-LD BreadcrumbList block appears in <head> with itemListElement
-# entries for each ancestor and the current page (last item has `name` but no
-# `item` URL, per schema.org convention).
+# Full template-render coverage is skipped: the fixture pages extend
+# base-protocol.html (no structured_data block). The helper is what actually
+# determines whether the emitted BreadcrumbList is correct, so we cover it
+# directly.
 # ---------------------------------------------------------------------------
+
+
+def test_get_breadcrumb_ancestors_starts_at_site_root(tiny_localized_site):
+    """The ancestor list must start at Site.root_page, never above it.
+
+    Regression guard for the "Welcome to your new Wagtail site!" leak: in
+    production the Wagtail tree root and per-locale roots sit above
+    Site.root_page, and their titles must not appear in the BreadcrumbList.
+    """
+    home = Page.objects.get(locale__language_code="en-US", slug="home")
+    test_page = home.get_children().get(slug="test-page")
+    child_page = test_page.get_children().get(slug="child-page")
+
+    ancestors = list(child_page.specific.get_breadcrumb_ancestors())
+
+    assert ancestors == [home, test_page]
+
+
+def test_get_breadcrumb_ancestors_excludes_wagtail_system_root(tiny_localized_site):
+    """The depth-1 Wagtail system root must never appear in the breadcrumb."""
+    home = Page.objects.get(locale__language_code="en-US", slug="home")
+    test_page = home.get_children().get(slug="test-page")
+
+    wagtail_root = Page.objects.get(depth=1)
+
+    for page in test_page.specific.get_breadcrumb_ancestors():
+        assert page != wagtail_root
+        assert page.depth > 1
+
+
+def test_get_breadcrumb_ancestors_all_items_have_full_url(tiny_localized_site):
+    """Every ancestor returned must be routable (full_url is not None).
+
+    This is the invariant that a valid Google BreadcrumbList requires: every
+    non-final `item` must be a resolvable URL.
+    """
+    home = Page.objects.get(locale__language_code="en-US", slug="home")
+    child_page = home.get_children().get(slug="test-page").get_children().get(slug="child-page")
+
+    for page in child_page.specific.get_breadcrumb_ancestors():
+        assert page.full_url is not None, f"Ancestor {page!r} has full_url=None — would emit invalid BreadcrumbList"
+
+
+def test_get_breadcrumb_ancestors_only_returns_live_pages(tiny_localized_site):
+    """Unpublished ancestors must be excluded."""
+    home = Page.objects.get(locale__language_code="en-US", slug="home")
+    test_page = home.get_children().get(slug="test-page")
+    child_page = test_page.get_children().get(slug="child-page")
+
+    test_page.unpublish()
+
+    ancestors = list(child_page.specific.get_breadcrumb_ancestors())
+    assert test_page not in ancestors
+
+
+def test_get_breadcrumb_ancestors_excludes_ancestor_above_site_root_page(prod_shape_site):
+    """Regression guard for the production bug this method was written to fix.
+
+    Uses a fixture that mirrors production's 3-level tree, where a non-routable
+    page ('Welcome to your new Wagtail site!') sits at depth 2 above
+    Site.root_page at depth 3. A regression to depth-based filtering
+    (`filter(depth__gt=1)`) would leak that page's title into the breadcrumb;
+    this test would catch it. The other tests in this file use `tiny_localized_site`
+    where Site.root_page is at depth 2, so they cannot reproduce this scenario.
+    """
+    article = prod_shape_site["article"]
+    default_seed = prod_shape_site["default_seed"]
+    homepage = prod_shape_site["homepage"]
+    features = prod_shape_site["features"]
+
+    ancestors = list(article.specific.get_breadcrumb_ancestors())
+
+    ancestor_pks = [a.pk for a in ancestors]
+    assert default_seed.pk not in ancestor_pks
+    assert all(a.title != "Welcome to your new Wagtail site!" for a in ancestors)
+    assert ancestor_pks == [homepage.pk, features.pk]
+
+
+def test_get_breadcrumb_ancestors_excludes_view_restricted_ancestors(prod_shape_site):
+    """Access-restricted ancestors must not leak into public JSON-LD.
+
+    A password-protected or group-restricted ancestor would otherwise expose
+    its title and URL to Google when a public descendant is crawled.
+    """
+    features = prod_shape_site["features"]
+    article = prod_shape_site["article"]
+
+    PageViewRestriction.objects.create(
+        page=features,
+        restriction_type=PageViewRestriction.PASSWORD,
+        password="secret",
+    )
+
+    ancestors = list(article.specific.get_breadcrumb_ancestors())
+    assert features.pk not in [a.pk for a in ancestors]
+
+
+def test_get_breadcrumb_ancestors_query_count(prod_shape_site, django_assert_max_num_queries):
+    """Tripwire for the docstring's `Don't refactor to full_url is not None` warning.
+
+    In steady state, the helper should fire exactly 2 queries: one for `.public()`'s
+    PageViewRestriction lookup and one for the ancestor QuerySet. Site.get_site_root_paths
+    is cached — in production requests it's always warm; here we pre-call it to isolate
+    the steady-state cost from the one-time cache warmup.
+
+    If a future refactor swaps the url_path prefix filter for per-ancestor Python
+    attribute access (`[a for a in ... if a.full_url]`), this ceiling will trip.
+    """
+    from wagtail.models import Site
+
+    Site.get_site_root_paths()  # warm the cache the way production requests do
+
+    article = prod_shape_site["article"]
+    with django_assert_max_num_queries(2):
+        list(article.specific.get_breadcrumb_ancestors())
