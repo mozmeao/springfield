@@ -33,7 +33,7 @@
             {% for article in featured_articles %}
 
               {% if page.index_card_type == "outline_card" %}
-                <include:card expand_link="true">
+                <include:outlined-card expand_link="true">
                   <content:heading>
                     <h2 class="fl-heading fl-heading-size-3">
                       <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
@@ -47,7 +47,7 @@
                   <content:buttons>
                     <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
                   </content:buttons>
-                </include:card>
+                </include:outlined-card>
               {% elif page.index_card_type == "illustration_card" %}
                 <include:illustration-card expand_link="true">
                   <content:media>
@@ -168,7 +168,7 @@
             <include:cards-list container_width="fill" cards_per_row="3">
               {% for article in list_articles %}
                 {% if page.index_card_type == "outline_card" %}
-                  <include:card expand_link="true">
+                  <include:outlined-card expand_link="true">
                     <content:heading>
                       <h3 class="fl-heading fl-heading-size-3">
                         <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
@@ -182,7 +182,7 @@
                     <content:buttons>
                       <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
                     </content:buttons>
-                  </include:card>
+                  </include:outlined-card>
                 {% elif page.index_card_type == "illustration_card" %}
                   <include:illustration-card expand_link="true">
                     <content:media>
