@@ -1,0 +1,42 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 1 %}
+
+{# Extract block_text from the first heading in the content stream #}
+{% set ns = namespace(block_text="") %}
+{% for content_block in value.content %}
+  {% if content_block.block_type == "heading" and not ns.block_text %}
+    {% set ns.block_text = content_block.value.heading_text|richtext|remove_tags %}
+  {% endif %}
+{% endfor %}
+{% set block_text = ns.block_text %}
+
+<include:conditional-display
+  condition_settings="{{ value.settings.show_to }}">
+  <include:card
+    variant="{{ value.settings.variant }}"
+    align="{{ value.settings.align or 'start' }}"
+    expand_link="{{ value.settings.expand_link }}">
+    <content:body>
+      {% for content_block in value.content %}
+        {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
+        {% if content_block.block_type == "heading" %}
+          {# Force heading size so card headings are visually consistent regardless of nesting depth #}
+          {% with heading_size = "fl-heading-size-3" %}
+            {% include_block content_block %}
+          {% endwith %}
+        {% elif content_block.block_type == "media" %}
+          <div class="fl-card-media">
+            {% include_block content_block %}
+          </div>
+        {% else %}
+          {% include_block content_block %}
+        {% endif %}
+      {% endfor %}
+    </content:body>
+  </include:card>
+</include:conditional-display>

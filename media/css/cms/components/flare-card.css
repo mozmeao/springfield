@@ -154,48 +154,93 @@ Basic Card
 ===================================================================== */
 
 .fl-card {
-    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    position: relative;
+}
 
+.fl-card .fl-heading-group {
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card .fl-heading,
+.fl-card .fl-body,
+.fl-card .fl-body p {
+    margin: 0;
+}
+
+.fl-card .fl-buttons,
+.fl-card .fl-button-row {
+    margin-block-start: auto;
+}
+
+/* Default card variant: illustration card look.
+   fl-card-media sits at top, fl-card-content wraps heading/body/buttons.
+   Only applied when not an outline or filled variant. */
+.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+/* Icon and pictogram variants get extra article gap (xl) to match illustration card */
+.fl-card:not(.fl-card-outline, .fl-card-filled):has(.fl-card-media-icon),
+.fl-card:not(.fl-card-outline, .fl-card-filled):has(.fl-card-media-pictogram) {
+    gap: var(--token-spacing-xl);
+}
+
+.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media-icon,
+.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media-pictogram {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-card > .fl-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-card > .fl-card-content .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    margin: 0;
+}
+
+.fl-card:not(.fl-card-filled) .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-variation-settings: unset;
+    line-height: 1.1;
+}
+
+.fl-card:not(.fl-card-filled) .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    display: block;
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-medium);
+    margin-block-end: var(--token-spacing-sm);
+}
+
+/* =====================================================================
+Outlined Card variant
+===================================================================== */
+
+.fl-card.fl-card-outline {
     /* backdrop-filter: blur(7.5px); */
     background: var(--fl-theme-default-card-bg);
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--fl-theme-color-text);
-    display: flex;
-    flex-direction: column;
     gap: var(--token-spacing-md);
     padding: var(--token-spacing-2xl);
-    position: relative;
     transition: transform var(--token-transition-base);
 }
 
-/* Transitioning box-shadow causes a repaint every frame. Instead, we place
-   the hover shadow on a ::after pseudo-element and transition its opacity —
-   opacity is composited on the GPU with zero repaint cost. */
-.fl-card::after {
-    border-radius: inherit;
-    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
-    content: '';
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    transition: opacity var(--token-transition-base);
-}
-
-.fl-card:hover {
-    transform: translateY(-2px);
-}
-
-.fl-card:hover::after {
-    opacity: 1;
-}
-
-.fl-card .fl-heading-group {
+.fl-card.fl-card-outline .fl-heading-group {
     gap: unset;
-    margin: 0;
-    padding: 0;
 }
 
 .fl-card-heading-group .fl-card-sticker {
@@ -206,11 +251,7 @@ Basic Card
     margin-block-end: 0;
 }
 
-.fl-card .fl-buttons {
-    margin-block-start: auto;
-}
-
-.fl-card .learn-more-link {
+.fl-card.fl-card-outline .learn-more-link {
     display: block;
     margin-block: var(--token-spacing-md);
 }
@@ -222,6 +263,326 @@ Basic Card
     .fl-card,
     .fl-sticker-card {
         backdrop-filter: none;
+    }
+}
+
+/* Transitioning box-shadow causes a repaint every frame. Instead, we place
+   the hover shadow on a ::after pseudo-element and transition its opacity —
+   opacity is composited on the GPU with zero repaint cost. */
+.fl-card.fl-card-outline::after,
+.fl-card.fl-card-filled::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-card.fl-card-outline:hover,
+.fl-card.fl-card-filled:hover {
+    transform: translateY(-2px);
+}
+
+.fl-card.fl-card-outline:hover::after,
+.fl-card.fl-card-filled:hover::after {
+    opacity: 1;
+}
+
+/* =====================================================================
+Filled Card variant
+===================================================================== */
+
+.fl-card.fl-card-filled {
+    /* backdrop-filter: blur(7.5px); */
+    background: var(--fl-theme-surface-card-gradient);
+    border: 1px solid var(--sticker-card-border-color);
+    border-radius: var(--token-border-radius-md);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--token-color-black-4);
+    gap: var(--token-spacing-xl);
+    min-block-size: 316px;
+    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
+    text-align: center;
+    transition: transform var(--token-transition-base);
+}
+
+.fl-card.fl-card-filled > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-card.fl-card-filled .fl-heading {
+    color: var(--token-color-black-4);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+}
+
+.fl-card.fl-card-filled .fl-heading-group {
+    color: var(--token-color-black-4);
+    gap: unset;
+}
+
+.fl-card.fl-card-filled .fl-superheading {
+    color: var(--token-color-light-purple);
+    display: block;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    margin: 0 0 var(--token-spacing-xl);
+
+    @container style(--lang-supports-uppercase: true) {
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+}
+
+.fl-card.fl-card-filled > .fl-card-sticker,
+.fl-card.fl-card-filled > .fl-card-media-pictogram {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+}
+
+/* Pictogram in filled card matches sticker card image style: no squircle bg */
+.fl-card.fl-card-filled > .fl-card-media-pictogram {
+    background-color: transparent;
+    block-size: auto;
+    border-radius: 0;
+    inline-size: auto;
+    min-block-size: unset;
+    min-inline-size: unset;
+    padding: 0;
+}
+
+.fl-card.fl-card-filled > .fl-card-media-pictogram img {
+    block-size: var(--fl-card-sticker-size, 60px);
+    inline-size: var(--fl-card-sticker-size, 60px);
+    margin: 0;
+    object-fit: contain;
+}
+
+.fl-card.fl-card-filled .fl-body > * {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    text-wrap: balance;
+}
+
+.fl-card.fl-card-filled > .fl-button-row,
+.fl-card.fl-card-filled > .fl-buttons {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-lg);
+    justify-content: center;
+    margin-block-start: auto;
+}
+
+@media (--viewport-md-up) {
+    .fl-card.fl-card-filled {
+        min-block-size: 480px;
+    }
+}
+
+/* =====================================================================
+Card Testimonial content block
+===================================================================== */
+
+/* When an outline card contains a testimonial, match the old fl-testimonial-card sizing:
+   mobile uses xl padding (24px) and md-up upgrades font to body-sm. */
+.fl-card.fl-card-outline:has(.fl-card-testimonial) {
+    padding: var(--token-spacing-xl);
+}
+
+@media (--viewport-md-up) {
+    .fl-card.fl-card-outline:has(.fl-card-testimonial) {
+        padding: var(--token-spacing-2xl);
+    }
+
+    .fl-card.fl-card-outline .fl-card-testimonial {
+        font-size: var(--fl-theme-font-size-body-sm);
+    }
+}
+
+.fl-card-testimonial {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-xl);
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card-testimonial-quote {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card-testimonial-quote > *:first-child::before {
+    content: '\201C';
+}
+
+.fl-card-testimonial-quote > *:last-child::after {
+    content: '\201D';
+}
+
+.fl-card-testimonial-footer {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-start: auto;
+}
+
+.fl-card-testimonial-image {
+    block-size: 48px;
+    border-radius: var(--token-border-radius-xs);
+    flex-shrink: 0;
+    inline-size: 48px;
+    overflow: hidden;
+}
+
+.fl-card-testimonial-image img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-card-testimonial-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xs);
+}
+
+.fl-card-testimonial-attribution {
+    font-style: normal;
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-card-testimonial-role {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-xs);
+    opacity: 0.7;
+}
+
+/* =====================================================================
+Alignment modifiers
+===================================================================== */
+
+.fl-card.fl-card-center {
+    text-align: center;
+}
+
+.fl-card.fl-card-end {
+    text-align: end;
+}
+
+/* Button and tag alignment follows card alignment */
+.fl-card.fl-card-start .fl-buttons,
+.fl-card.fl-card-start .fl-tags {
+    justify-content: flex-start;
+}
+
+.fl-card.fl-card-center .fl-buttons,
+.fl-card.fl-card-center .fl-tags {
+    justify-content: center;
+}
+
+.fl-card.fl-card-end .fl-buttons,
+.fl-card.fl-card-end .fl-tags {
+    justify-content: flex-end;
+}
+
+/* =====================================================================
+Card media containers
+===================================================================== */
+
+/* General media: full-width image (like illustration card default).
+   Excludes icon and pictogram containers which manage their own sizing. */
+.fl-card .fl-card-media:not(.fl-card-media-icon, .fl-card-media-pictogram) {
+    border-radius: var(--token-border-radius-sm);
+    inline-size: 100%;
+}
+
+.fl-card .fl-card-media:not(.fl-card-media-icon, .fl-card-media-pictogram) img {
+    border-radius: var(--token-border-radius-sm);
+    inline-size: 100%;
+    margin-block-end: 0;
+}
+
+.fl-card .fl-card-media .fl-video {
+    aspect-ratio: 17/20;
+    border-radius: var(--token-border-radius-sm);
+}
+
+.fl-card .fl-card-media .fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Icon media container (48px with light bg, like fl-illustration-icon-card) */
+.fl-card .fl-card-media-icon {
+    --media-size: 48px;
+    --media-border-radius: var(--token-border-radius-2xs);
+    --media-padding: var(--token-spacing-md);
+    align-items: center;
+    background-color: var(--fl-theme-illustration-icon-bg);
+    block-size: var(--media-size);
+    border-radius: var(--media-border-radius);
+    display: flex;
+    inline-size: var(--media-size);
+    justify-content: center;
+    min-block-size: var(--media-size);
+    min-inline-size: var(--media-size);
+    padding: var(--media-padding);
+}
+
+.fl-card .fl-card-media-icon .fl-icon {
+    font-size: 24px;
+}
+
+.fl-card .fl-card-media-icon img,
+.fl-card .fl-card-media-pictogram img {
+    margin-block-end: 0;
+}
+
+/* Pictogram media container: squircle bg (like fl-illustration-sticker-card) */
+.fl-card .fl-card-media-pictogram {
+    --media-size: 56px;
+    --media-border-radius: var(--token-border-radius-xs);
+    --media-padding: var(--token-spacing-md);
+    align-items: center;
+    background-color: var(--fl-theme-illustration-icon-bg);
+    block-size: var(--media-size);
+    border-radius: var(--media-border-radius);
+    display: flex;
+    inline-size: var(--media-size);
+    justify-content: center;
+    min-block-size: var(--media-size);
+    min-inline-size: var(--media-size);
+    padding: var(--media-padding);
+}
+
+.fl-card .fl-card-media-pictogram img {
+    border-radius: 0;
+    margin: 0;
+    max-block-size: 100%;
+    max-inline-size: 100%;
+}
+
+@media (--viewport-md-up) {
+    .fl-card .fl-card-media-pictogram {
+        --media-border-radius: var(--token-border-radius-sm);
+        --media-padding: var(--token-spacing-lg);
+        --media-size: 102px;
     }
 }
 
@@ -298,7 +659,6 @@ Sticker Card
 
 .fl-card-sticker {
     margin: auto;
-    order: 1;
 }
 
 .fl-sticker-card > div:has(.fl-card-sticker) {

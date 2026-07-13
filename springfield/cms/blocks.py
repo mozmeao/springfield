@@ -2098,6 +2098,98 @@ def TestimonialCardBlock(*args, **kwargs):
     return _TestimonialCardBlock(*args, **kwargs)
 
 
+class CardIconBlock(blocks.StructBlock):
+    icon = IconChoiceBlock()
+
+    class Meta:
+        template = "cms/blocks/card-icon.html"
+        label = "Icon"
+        label_format = "{icon}"
+
+
+class CardPictogramBlock(blocks.StructBlock):
+    image = ImageVariantsBlock()
+
+    class Meta:
+        template = "cms/blocks/card-pictogram.html"
+        label = "Pictogram"
+        label_format = "Pictogram - {image}"
+
+
+class CardTestimonialBlock(blocks.StructBlock):
+    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    attribution_image = ImageVariantsBlock(required=False)
+
+    class Meta:
+        template = "cms/blocks/card-testimonial.html"
+        label = "Testimonial"
+        label_format = "Testimonial - {attribution}"
+
+
+def CardBlock(allow_uitour=False, *args, **kwargs):
+    class _CardSettings(blocks.StructBlock):
+        variant = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default"),
+                ("outline", "Outline"),
+                ("filled", "Filled"),
+            ],
+            required=False,
+            default="",
+            inline_form=True,
+        )
+        align = blocks.ChoiceBlock(
+            choices=[
+                ("start", "Start"),
+                ("center", "Center"),
+                ("end", "End"),
+            ],
+            required=False,
+            default="start",
+            inline_form=True,
+        )
+        expand_link = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            help_text="Expand the link click area to the whole card",
+        )
+        show_to = ConditionalDisplayBlock(
+            label="Show To",
+            help_text="Control which users can see this content block",
+        )
+
+        class Meta:
+            icon = "cog"
+            collapsed = True
+            label = "Settings"
+            label_format = "Variant: {variant} - Align: {align} - Show to: {show_to}"
+            form_classname = "compact-form struct-block"
+
+    class _CardBlock(blocks.StructBlock):
+        settings = _CardSettings()
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("tags_list", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
+                ("icon", CardIconBlock()),
+                ("media", MediaBlock()),
+                ("pictogram", CardPictogramBlock()),
+                ("testimonial", CardTestimonialBlock()),
+                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
+            ]
+        )
+
+        class Meta:
+            template = "cms/blocks/card.html"
+            label = "Card"
+            label_format = "Card - {settings}"
+
+    return _CardBlock(*args, **kwargs)
+
+
 def CardsListBlock(allow_uitour=False, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
@@ -2145,6 +2237,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
+                ("card", CardBlock(allow_uitour=allow_uitour)),
                 ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
                 (
                     "illustration_card",
