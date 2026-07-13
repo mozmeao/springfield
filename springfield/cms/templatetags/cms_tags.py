@@ -14,10 +14,10 @@ import markdown
 from bs4 import BeautifulSoup
 from django_jinja import library
 from jinja2 import pass_context
-from wagtail.models import Locale
 from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
+from springfield.cms.models import SpringfieldLocale
 from springfield.cms.models.pages import BASE_UTM_PARAMETERS, RoadmapPage, WhatsNewIndexPage
 from springfield.firefox.templatetags.misc import fxa_button
 
@@ -392,6 +392,21 @@ def get_floating_qr_code_snippet(context):
     return None
 
 
+def get_active_locale(request):
+    """Return the active Locale, cached on the request.
+
+    The active locale does not change within a request, so caching it avoids
+    repeating the same lookup query for each template tag that needs it.
+    """
+    if request is not None and hasattr(request, "_cached_active_locale"):
+        return request._cached_active_locale
+
+    locale = SpringfieldLocale.get_active()
+    if request is not None:
+        request._cached_active_locale = locale
+    return locale
+
+
 @pass_context
 @library.global_function
 def get_whats_new_url(context):
@@ -407,10 +422,11 @@ def get_whats_new_url(context):
           <a href="{{ whats_new_url }}">...</a>
         {% endif %}
     """
-    locale = Locale.get_active()
+    request = context.get("request")
+    locale = get_active_locale(request)
     page = WhatsNewIndexPage.objects.live().public().filter(locale=locale).first()
     if page and page.get_children().live().public().exclude(slug="general").exists():
-        return page.get_active_locale_url(context.get("request"))
+        return page.get_active_locale_url(request)
     return None
 
 
@@ -425,8 +441,9 @@ def get_whats_next_url(context):
           <a href="{{ whats_next_url }}">...</a>
         {% endif %}
     """
-    locale = Locale.get_active()
+    request = context.get("request")
+    locale = get_active_locale(request)
     page = RoadmapPage.objects.live().public().filter(locale=locale).order_by("path").first()
     if page:
-        return page.get_active_locale_url(context.get("request"))
+        return page.get_active_locale_url(request)
     return None
