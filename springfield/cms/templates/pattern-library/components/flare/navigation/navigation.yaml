@@ -1,0 +1,36 @@
+name: Navigation
+context:
+  items:
+    - type: folder
+      label: Browser
+      panel_id: fl-menu-panel-browser
+      columns:
+        - groups:
+            - - { label: Mobile, href: /browsers/mobile/, icon: device-mobile }
+              - { label: Enterprise, href: /enterprise/, icon: globe }
+            - - {
+                  label: Extensions & Themes,
+                  href: "https://addons.mozilla.org/firefox/",
+                  icon: extension-fill,
+                  external: true,
+                  new_window: true
+                }
+          button: { label: Download Firefox, href: /download/ }
+    - type: folder
+      label: Features
+      panel_id: fl-menu-panel-features
+      columns:
+        - groups:
+            - - { label: Protection, href: /features/protection/, icon: lock }
+              - {
+                  label: About Firefox features,
+                  href: /features/,
+                  icon: forward,
+                  icon_position: right
+                }
+        - groups:
+            - - { label: Private browsing, href: /features/private-browsing/, icon: shield }
+              - { label: Password manager, href: /features/password-manager/, icon: lock }
+    - type: top_level_link
+      label: Pricing
+      href: /pricing/

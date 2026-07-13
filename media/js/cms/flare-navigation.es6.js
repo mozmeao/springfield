@@ -83,6 +83,8 @@ import { createFocusTrap } from 'focus-trap';
 
     // keyboard is being used
     menuTitles.forEach(function (title) {
+        if (title.classList.contains('fl-menu-top-level-link')) return;
+
         // when focusing a menu title, close all menus
         title.addEventListener('focus', function () {
             menuCategories.forEach(function (category) {

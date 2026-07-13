@@ -1,0 +1,15 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:nav-top-level-link
+  label="{{ button_label }}"
+  href="{{ value.link.get_url()|add_utm_parameters }}"
+  external="{{ value.is_external() }}"
+  new_window="{{ value.link.new_window }}"
+  analytics_id="{{ value.analytics_id }}"
+  analytics_text="{{ button_label }}"
+  analytics_position="{{ block_position }}"
+/>

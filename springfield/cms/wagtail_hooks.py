@@ -37,6 +37,7 @@ from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
+    NavigationSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -579,6 +580,13 @@ class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["text", "locale", "live"]
 
 
+class NavigationSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = NavigationSnippet
+    list_display = ["name", "locale", "is_default", "live"]
+    list_filter = ["locale", "is_default"]
+    search_fields = ["name"]
+
+
 class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = PencilBannerSnippet
     # `title` is a RichTextField — use the `title_plain` method on the model
@@ -597,6 +605,7 @@ for _viewset in (
     QRCodeFloatingSnippetViewSet,
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
+    NavigationSnippetViewSet,
 ):
     register_snippet(_viewset)
 

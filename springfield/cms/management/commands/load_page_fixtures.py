@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
+from springfield.cms.fixtures.navigation_fixtures import get_navigation_snippet
 from springfield.cms.fixtures.registry import PAGE_FIXTURES
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_scroll_to_see_more_snippet
 
@@ -47,6 +48,9 @@ class Command(BaseCommand):
 
         scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
         self.stdout.write(self.style.SUCCESS(f"Scroll to See More Snippet loaded: {scroll_to_see_more_snippet.id}"))
+
+        navigation_snippet = get_navigation_snippet()
+        self.stdout.write(self.style.SUCCESS(f"Navigation Snippet loaded: {navigation_snippet.id}"))
 
         for fixture in PAGE_FIXTURES:
             for page in _as_pages(fixture()):

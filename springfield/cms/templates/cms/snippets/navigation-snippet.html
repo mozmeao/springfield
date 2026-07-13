@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set utm_parameters = {
+    "utm_source": "www.firefox.com",
+    "utm_medium": "referral",
+    "utm_campaign": "nav",
+    "utm_content": "browser"
+} %}
+
+{% if value %}
+  <include:nav-menu>
+    {% set block_position = "topnav" %}
+    {% for block in value.items %}
+      {% with nav_index = loop.index %}
+        {% set block_position = block_position ~ ".item-" ~ nav_index %}
+        {% include_block block %}
+      {% endwith %}
+    {% endfor %}
+  </include:nav-menu>
+{% endif %}

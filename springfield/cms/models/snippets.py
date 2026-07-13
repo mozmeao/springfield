@@ -23,7 +23,14 @@ from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock, ConditionalDisplayBlock
+from springfield.cms.blocks import (
+    EXPANDED_TEXT_FEATURES,
+    HEADING_TEXT_FEATURES,
+    ButtonBlock,
+    ConditionalDisplayBlock,
+    NavFolderBlock,
+    TopLevelLinkBlock,
+)
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
@@ -466,6 +473,41 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pencil-banner-snippet-preview.html"
+
+
+class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet defining a site navigation menu, editable in the CMS.
+
+    The ``items`` stream holds top-level links (a label + link rendered directly
+    in the nav bar) and folders (a label + a dropdown of grouped links).
+    """
+
+    name = models.CharField(max_length=255, help_text="Internal name for this navigation menu.")
+    is_default = models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")
+    items = StreamField(
+        [
+            ("top_level_link", TopLevelLinkBlock()),
+            ("folder", NavFolderBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("is_default"),
+        FieldPanel("items"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Navigation"
+        verbose_name_plural = "Navigation"
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/navigation-snippet-preview.html"
 
 
 class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
