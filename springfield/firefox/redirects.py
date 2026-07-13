@@ -118,19 +118,17 @@ redirectpatterns = (
     redirect(r"^mobile/get-app/?$", "/mobile/", permanent=False),
 )
 
-permanent = settings.PERMANENT_CMS_REFRESH_REDIRECTS
 refresh_redirects = (
-    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=permanent),
-    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=permanent),
-    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=permanent),
-    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=permanent),
-    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=permanent),
-    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=permanent),
-    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=permanent),
-    redirect(r"^browsers/mobile/$", "/mobile/", permanent=permanent),
-    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=permanent),
-    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=permanent),
+    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/mobile/$", "/mobile/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
 )
 
-if settings.ENABLE_CMS_REFRESH_REDIRECTS:
-    redirectpatterns = redirectpatterns + refresh_redirects
+redirectpatterns = redirectpatterns + refresh_redirects
