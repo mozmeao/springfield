@@ -9,11 +9,11 @@
     <div class="fl-section-container">
       <include:cards-list container_width="wide">
         {% for card in cards %}
-          <include:card expand_link="{{ card.expand_link }}">
-            <content:heading>
+          <include:card variant="outline" expand_link="{{ card.expand_link }}">
+            <content:body>
               {% if card.sticker %}
-                <div class="fl-card-sticker">
-                  <img src="{{ card.sticker }}" alt="" />
+                <div class="fl-card-media fl-card-media-pictogram">
+                  <img src="{{ card.sticker }}" alt="" loading="lazy" />
                 </div>
               {% endif %}
               <include:heading
@@ -21,21 +21,19 @@
                 heading_size="fl-heading-xs"
                 heading_text="{{ card.headline }}"
               />
-            </content:heading>
-            <content:body>
-              {{ card.content }}
+              <div class="fl-body">{{ card.content }}</div>
+              {% if card.buttons %}
+                <div class="fl-buttons is-stacked auto-width-buttons">
+                  {% for button in card.buttons %}
+                    <include:button
+                      label="{{ button.label }}"
+                      link="{{ button.link }}"
+                      theme_class="{{ button.theme_class }}"
+                    />
+                  {% endfor %}
+                </div>
+              {% endif %}
             </content:body>
-            {% if card.buttons %}
-              <content:buttons>
-                {% for button in card.buttons %}
-                  <include:button
-                    label="{{ button.label }}"
-                    link="{{ button.link }}"
-                    theme_class="{{ button.theme_class }}"
-                  />
-                {% endfor %}
-              </content:buttons>
-            {% endif %}
           </include:card>
         {% endfor %}
       </include:cards-list>
