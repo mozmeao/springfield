@@ -7,7 +7,6 @@
 import importlib
 from operator import itemgetter
 
-from django.test import override_settings
 from django.urls import clear_url_caches
 
 import pytest
@@ -28,15 +27,14 @@ from .map_locales import URLS as LOCALE_URLS
 @pytest.mark.parametrize("url", REDIRECT_URLS, ids=itemgetter("url"))
 def test_redirect_url(url, base_url):
     original_patterns = list(redirects_util.redirectpatterns)
-    with override_settings(ENABLE_CMS_REFRESH_REDIRECTS=True):
-        importlib.reload(firefox_redirects_module)
-        importlib.reload(firefox_urls_module)
-        importlib.reload(root_urls_module)
-        redirects_util.redirectpatterns.clear()
-        redirects_util.register(firefox_redirects_module.redirectpatterns)
-        clear_url_caches()
-        url["base_url"] = base_url
-        assert_valid_url(**url)
+    importlib.reload(firefox_redirects_module)
+    importlib.reload(firefox_urls_module)
+    importlib.reload(root_urls_module)
+    redirects_util.redirectpatterns.clear()
+    redirects_util.register(firefox_redirects_module.redirectpatterns)
+    clear_url_caches()
+    url["base_url"] = base_url
+    assert_valid_url(**url)
 
     redirects_util.redirectpatterns.clear()
     redirects_util.redirectpatterns.extend(original_patterns)
