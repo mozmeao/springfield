@@ -846,12 +846,6 @@
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"
-    },
-    {
-      "files": [
-        "js/cms/pages/flare-whats-new.es6.js"
-      ],
-      "name": "flare-whats-new"
     }
   ]
 }

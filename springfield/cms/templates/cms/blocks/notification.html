@@ -5,21 +5,25 @@
 #}
 
 {% set block_text = value.message|richtext|remove_tags %}
+{# Hide the 'Your Firefox has been updated.' notification on What's New Pages when the user navigates from the main navigation #}
+{% set hide_firefox_updated_notification = request.GET.get("fromMainNav") and value.settings.anchor_id == "firefox-has-been-updated" %}
 
-<include:conditional-display
-  condition_settings="{{ value.settings.show_to }}">
-  <include:notification
-    icon="{{ value.settings.icon }}"
-    color="{{ value.settings.color }}"
-    stacked="{{ value.settings.stacked }}"
-    closable="{{ value.settings.closable }}"
-    anchor_id="{{ value.settings.anchor_id }}"
-  >
-    {% if value.headline %}
-      <content:heading>
-        {{ value.headline|richtext|remove_p_tag }}
-      </content:heading>
-    {% endif %}
-    {{ value.message|richtext|remove_p_tag }}
-  </include:notification>
-</include:conditional-display>
+{% if not hide_firefox_updated_notification %}
+  <include:conditional-display
+    condition_settings="{{ value.settings.show_to }}">
+    <include:notification
+      icon="{{ value.settings.icon }}"
+      color="{{ value.settings.color }}"
+      stacked="{{ value.settings.stacked }}"
+      closable="{{ value.settings.closable }}"
+      anchor_id="{{ value.settings.anchor_id }}"
+    >
+      {% if value.headline %}
+        <content:heading>
+          {{ value.headline|richtext|remove_p_tag }}
+        </content:heading>
+      {% endif %}
+      {{ value.message|richtext|remove_p_tag }}
+    </include:notification>
+  </include:conditional-display>
+{% endif %}
