@@ -7,7 +7,7 @@ from django.conf import settings
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 _IMAGE_VARIANTS = {
     "image": settings.PLACEHOLDER_IMAGE_ID,
@@ -48,59 +48,6 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_testimonial_card_variants() -> list[dict]:
-    return [
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _IMAGE_VARIANTS,
-                "attribution": '<p data-block-key="2026tc1a">Jane Smith</p>',
-                "attribution_role": '<p data-block-key="2026tc1r">Head of Privacy, Mozilla</p>',
-                "content": '<p data-block-key="2026tc1c">Firefox gives me confidence that my browsing stays private. '
-                "I've recommended it to everyone on my team.</p>",
-            },
-            "id": "2026tc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _EMPTY_IMAGE_VARIANTS,
-                "attribution": '<p data-block-key="2026tc2a">Alex Johnson</p>',
-                "attribution_role": "",
-                "content": '<p data-block-key="2026tc2c">Switching to Firefox was the best decision I made for my online security. '
-                "The built-in protections are outstanding.</p>",
-            },
-            "id": "2026tc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _IMAGE_VARIANTS,
-                "attribution": '<p data-block-key="2026tc3a">Sam Rivera</p>',
-                "attribution_role": '<p data-block-key="2026tc3r">Software Engineer</p>',
-                "content": '<p data-block-key="2026tc3c">The performance improvements in Firefox have made it my go-to browser for development work.'
-                " Fast, private, and open source.</p>",
-            },
-            "id": "2026tc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _EMPTY_IMAGE_VARIANTS,
-                "attribution": '<p data-block-key="2026tc4a">Morgan Lee</p>',
-                "attribution_role": '<p data-block-key="2026tc4r">Journalist</p>',
-                "content": '<p data-block-key="2026tc4c">I cover privacy and tech policy, and Firefox continues to lead the industry in respecting '
-                "user rights. It's the standard I measure others against.</p>",
-            },
-            "id": "2026tc01-0000-0000-0000-000000000004",
-        },
-    ]
-
-
 def _cards_list(cards, settings=None, block_id=""):
     return {
         "type": "cards_list",
@@ -110,6 +57,91 @@ def _cards_list(cards, settings=None, block_id=""):
         },
         "id": block_id,
     }
+
+
+def get_testimonial_card_variants() -> list[dict]:
+    return [
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "content": [
+                    {
+                        "type": "testimonial",
+                        "value": {
+                            "content": '<p data-block-key="2026tc1c">Firefox gives me confidence that my browsing stays private. '
+                            "I've recommended it to everyone on my team.</p>",
+                            "attribution": '<p data-block-key="2026tc1a">Jane Smith</p>',
+                            "attribution_role": '<p data-block-key="2026tc1r">Head of Privacy, Mozilla</p>',
+                            "attribution_image": _IMAGE_VARIANTS,
+                        },
+                        "id": "2026tc01-0001-0000-0000-000000000001",
+                    },
+                ],
+            },
+            "id": "2026tc01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "content": [
+                    {
+                        "type": "testimonial",
+                        "value": {
+                            "content": '<p data-block-key="2026tc2c">Switching to Firefox was the best decision I made for my online security. '
+                            "The built-in protections are outstanding.</p>",
+                            "attribution": '<p data-block-key="2026tc2a">Alex Johnson</p>',
+                            "attribution_role": "",
+                            "attribution_image": _EMPTY_IMAGE_VARIANTS,
+                        },
+                        "id": "2026tc01-0002-0000-0000-000000000001",
+                    },
+                ],
+            },
+            "id": "2026tc01-0000-0000-0000-000000000002",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "content": [
+                    {
+                        "type": "testimonial",
+                        "value": {
+                            "content": '<p data-block-key="2026tc3c">The performance improvements in Firefox'
+                            " have made it my go-to browser for development work. Fast, private, and open source.</p>",
+                            "attribution": '<p data-block-key="2026tc3a">Sam Rivera</p>',
+                            "attribution_role": '<p data-block-key="2026tc3r">Software Engineer</p>',
+                            "attribution_image": _IMAGE_VARIANTS,
+                        },
+                        "id": "2026tc01-0003-0000-0000-000000000001",
+                    },
+                ],
+            },
+            "id": "2026tc01-0000-0000-0000-000000000003",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "content": [
+                    {
+                        "type": "testimonial",
+                        "value": {
+                            "content": '<p data-block-key="2026tc4c">I cover privacy and tech policy, and Firefox'
+                            " continues to lead the industry in respecting user rights. It's the standard I measure others against.</p>",
+                            "attribution": '<p data-block-key="2026tc4a">Morgan Lee</p>',
+                            "attribution_role": '<p data-block-key="2026tc4r">Journalist</p>',
+                            "attribution_image": _EMPTY_IMAGE_VARIANTS,
+                        },
+                        "id": "2026tc01-0004-0000-0000-000000000001",
+                    },
+                ],
+            },
+            "id": "2026tc01-0000-0000-0000-000000000004",
+        },
+    ]
 
 
 def get_testimonial_cards_sections() -> list[dict]:

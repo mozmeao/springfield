@@ -50,65 +50,6 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-# ---------------------------------------------------------------------------
-# Sticker Cards 2026
-# ---------------------------------------------------------------------------
-
-
-def get_sticker_card_variants() -> list[dict]:
-    buttons = get_button_variants()
-    return [
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": "",
-                "headline": '<p data-block-key="2026sc1h">Sticker Card 2026</p>',
-                "content": '<p data-block-key="2026sc1c">Without superheading, primary button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["primary"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": '<p data-block-key="2026sc2s">Firefox 2026</p>',
-                "headline": '<p data-block-key="2026sc2h">Sticker Card with Superheading</p>',
-                "content": '<p data-block-key="2026sc2c">With superheading and secondary button.</p>',
-                "buttons": [buttons["secondary"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": "",
-                "headline": '<p data-block-key="2026sc3h">Clickable Sticker Card</p>',
-                "content": '<p data-block-key="2026sc3c">With expand link enabled - the entire card is clickable.</p>',
-                "buttons": [buttons["ghost"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": '<p data-block-key="2026sc4s">Privacy</p>',
-                "headline": '<p data-block-key="2026sc4h">All Sticker Card Fields</p>',
-                "content": '<p data-block-key="2026sc4c">With all fields filled, expand link enabled, and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000004",
-        },
-    ]
-
-
 def _cards_list(cards, settings=None, block_id=""):
     return {
         "type": "cards_list",
@@ -118,6 +59,153 @@ def _cards_list(cards, settings=None, block_id=""):
         },
         "id": block_id,
     }
+
+
+def _card(card_id, settings, content):
+    return {
+        "type": "card",
+        "value": {
+            "settings": settings,
+            "content": content,
+        },
+        "id": card_id,
+    }
+
+
+def _settings(variant="", align="start", expand_link=False):
+    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": _SHOW_TO_ALL}
+
+
+# ---------------------------------------------------------------------------
+# Sticker Cards 2026
+# ---------------------------------------------------------------------------
+
+
+def get_sticker_card_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        _card(
+            "2026sc01-0000-0000-0000-000000000001",
+            _settings(variant="filled", align="center"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026sc1h">Sticker Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0001-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026sc01-0001-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc1c">Without superheading, primary button.'
+                    " Switch to Dark Mode to see the alternative image.</p>",
+                    "id": "2026sc01-0001-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["primary"]], "help_text": ""},
+                    "id": "2026sc01-0001-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000002",
+            _settings(variant="filled", align="center"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026sc2s">Firefox 2026</p>',
+                        "heading_text": '<p data-block-key="2026sc2h">Sticker Card with Superheading</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0002-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026sc01-0002-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc2c">With superheading and secondary button.</p>',
+                    "id": "2026sc01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["secondary"]], "help_text": ""},
+                    "id": "2026sc01-0002-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000003",
+            _settings(variant="filled", align="center", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026sc3h">Clickable Sticker Card</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0003-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026sc01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc3c">With expand link enabled - the entire card is clickable.</p>',
+                    "id": "2026sc01-0003-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["ghost"]], "help_text": ""},
+                    "id": "2026sc01-0003-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000004",
+            _settings(variant="filled", align="center", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026sc4s">Privacy</p>',
+                        "heading_text": '<p data-block-key="2026sc4h">All Sticker Card Fields</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0004-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026sc01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc4c">With all fields filled, expand link enabled, and link button.</p>',
+                    "id": "2026sc01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026sc01-0004-0000-0000-000000000004",
+                },
+            ],
+        ),
+    ]
 
 
 def get_sticker_cards_sections() -> list[dict]:
@@ -226,54 +314,126 @@ def get_illustration_card_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000011"}],
-                "eyebrow": "",
-                "headline": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
-                "content": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000021"}],
-                "eyebrow": '<p data-block-key="2026ic2e">Privacy</p>',
-                "headline": '<p data-block-key="2026ic2h">Illustration Card with Eyebrow</p>',
-                "content": '<p data-block-key="2026ic2c">With eyebrow and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [videos["youtube"]],
-                "eyebrow": '<p data-block-key="2026ic3e">Video</p>',
-                "headline": '<p data-block-key="2026ic3h">Illustration Card with Video</p>',
-                "content": '<p data-block-key="2026ic3c">With a YouTube video instead of an image.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [videos["animation"]],
-                "eyebrow": '<p data-block-key="2026ic4e">Animation</p>',
-                "headline": '<p data-block-key="2026ic4h">Illustration Card with Animation</p>',
-                "content": '<p data-block-key="2026ic4c">With an autoplay looping animation.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000004",
-        },
+        _card(
+            "2026ic01-0000-0000-0000-000000000001",
+            _settings(),
+            [
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
+                    "id": "2026ic01-0001-0000-0000-000000000002",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0001-0000-0000-000000000003",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
+                    "id": "2026ic01-0001-0000-0000-000000000004",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0001-0000-0000-000000000005",
+                },
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000002",
+            _settings(),
+            [
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
+                    "id": "2026ic01-0002-0000-0000-000000000002",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic2e">Privacy</p>',
+                        "heading_text": '<p data-block-key="2026ic2h">Illustration Card with Eyebrow</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic2c">With eyebrow and link button.</p>',
+                    "id": "2026ic01-0002-0000-0000-000000000004",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0002-0000-0000-000000000005",
+                },
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000003",
+            _settings(),
+            [
+                {
+                    "type": "media",
+                    "value": [videos["youtube"]],
+                    "id": "2026ic01-0003-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic3e">Video</p>',
+                        "heading_text": '<p data-block-key="2026ic3h">Illustration Card with Video</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic3c">With a YouTube video instead of an image.</p>',
+                    "id": "2026ic01-0003-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0003-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000004",
+            _settings(),
+            [
+                {
+                    "type": "media",
+                    "value": [videos["animation"]],
+                    "id": "2026ic01-0004-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic4e">Animation</p>',
+                        "heading_text": '<p data-block-key="2026ic4h">Illustration Card with Animation</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic4c">With an autoplay looping animation.</p>',
+                    "id": "2026ic01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0004-0000-0000-000000000004",
+                },
+            ],
+        ),
     ]
 
 
@@ -473,50 +633,116 @@ def get_step_cards_test_page() -> FreeFormPage2026:
 def get_outlined_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "sticker": _EMPTY_IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
-                "content": '<p data-block-key="2026oc1c">Without sticker, primary button.</p>',
-                "buttons": [buttons["primary"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "sticker": _IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc2h">Outlined Card with Sticker</p>',
-                "content": '<p data-block-key="2026oc2c">With sticker and secondary button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["secondary"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "sticker": _EMPTY_IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc3h">Clickable Outlined Card</p>',
-                "content": '<p data-block-key="2026oc3c">With expand link enabled - the entire card is clickable.</p>',
-                "buttons": [buttons["ghost"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "sticker": _IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc4h">All Outlined Card Fields</p>',
-                "content": '<p data-block-key="2026oc4c">With sticker, expand link enabled, and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000004",
-        },
+        _card(
+            "2026oc01-0000-0000-0000-000000000001",
+            _settings(variant="outline"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0001-0000-0000-000000000001",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc1c">Without sticker, primary button.</p>',
+                    "id": "2026oc01-0001-0000-0000-000000000002",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["primary"]], "help_text": ""},
+                    "id": "2026oc01-0001-0000-0000-000000000003",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000002",
+            _settings(variant="outline"),
+            [
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026oc01-0002-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc2h">Outlined Card with Sticker</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0002-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc2c">With sticker and secondary button. Switch to Dark Mode to see the alternative image.</p>',
+                    "id": "2026oc01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["secondary"]], "help_text": ""},
+                    "id": "2026oc01-0002-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000003",
+            _settings(variant="outline", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc3h">Clickable Outlined Card</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0003-0000-0000-000000000001",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc3c">With expand link enabled - the entire card is clickable.</p>',
+                    "id": "2026oc01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["ghost"]], "help_text": ""},
+                    "id": "2026oc01-0003-0000-0000-000000000003",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000004",
+            _settings(variant="outline", expand_link=True),
+            [
+                {
+                    "type": "pictogram",
+                    "value": {"image": _IMAGE_VARIANTS},
+                    "id": "2026oc01-0004-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc4h">All Outlined Card Fields</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc4c">With sticker, expand link enabled, and link button.</p>',
+                    "id": "2026oc01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026oc01-0004-0000-0000-000000000004",
+                },
+            ],
+        ),
     ]
 
 

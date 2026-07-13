@@ -14,6 +14,7 @@ from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.card_fixtures import get_card_test_page
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page
 from springfield.cms.fixtures.cards_fixtures import (
     get_illustration_cards_test_page,
@@ -73,6 +74,7 @@ PAGE_FIXTURES = [
     get_whatsnew_index_page,
     get_intro_test_page,
     get_kit_intro_test_page,
+    get_card_test_page,
     get_sticker_cards_test_page,
     get_illustration_cards_test_page,
     get_outlined_cards_test_page,
