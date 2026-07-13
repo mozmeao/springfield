@@ -764,7 +764,12 @@ def test_blog_article_related_articles_display_image(privacy_articles, rf):
 
 
 def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
-    """Blog index page should fetch all related data in bulk, not per article."""
+    """Blog index page should fetch all related data in bulk, not per article.
+
+    The ceiling includes one query from AbstractSpringfieldCMSPage.get_breadcrumb_ancestors
+    calling `.public()`, which does a PageViewRestriction lookup per render — required to
+    keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
+    """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     with django_assert_max_num_queries(22):
