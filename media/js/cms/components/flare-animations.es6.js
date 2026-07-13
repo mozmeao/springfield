@@ -99,7 +99,10 @@ function initAnimationPauseButtons() {
 
         button.addEventListener('click', function () {
             if (video.paused) {
-                video.play().catch();
+                video.play().catch((error) => {
+                    if (error && error.name === 'AbortError') return;
+                    throw error;
+                });
                 button.setAttribute('aria-label', button.dataset.labelPause);
                 button.classList.remove('is-paused');
                 pauseIcon.hidden = false;
