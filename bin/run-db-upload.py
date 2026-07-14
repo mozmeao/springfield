@@ -30,7 +30,7 @@ sys.path.append(ROOT)
 from springfield.base.config_manager import config  # noqa
 
 CACHE = {}
-BUCKET_NAME = config("AWS_DB_S3_BUCKET", default="springfield-db-dev")
+BUCKET_NAME = config("GCS_DB_BUCKET", default="springfield-db-dev")
 
 
 def gcs_client():

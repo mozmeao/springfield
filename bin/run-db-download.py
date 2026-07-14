@@ -29,7 +29,7 @@ sys.path.append(ROOT)
 # must import after adding springfield to path
 from springfield.base.config_manager import config  # noqa
 
-BUCKET_NAME = config("AWS_DB_S3_BUCKET", default="springfield-db-dev")
+BUCKET_NAME = config("GCS_DB_BUCKET", default="springfield-db-dev")
 GCS_BASE_URL = f"https://storage.googleapis.com/{BUCKET_NAME}"
 
 
