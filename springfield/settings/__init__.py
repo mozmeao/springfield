@@ -47,6 +47,7 @@ _csp_connect_src = {
     "www.googletagmanager.com",
     "www.google-analytics.com",
     "region1.google-analytics.com",
+    "analytics.google.com",  # WT-1453
     "gtm.springfield.moz.works",
     "gtm-dev.springfield.moz.works",
     "gtm.firefox.com",
