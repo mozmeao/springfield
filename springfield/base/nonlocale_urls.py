@@ -15,6 +15,7 @@ sync with the urlpatterns below
 """
 
 from django.urls import path
+from django.views.generic.base import RedirectView
 
 from springfield.base import views
 
@@ -23,4 +24,9 @@ urlpatterns = (
     path(".well-known/security.txt", views.SecurityDotTxt.as_view(), name="security.txt"),
     path(".well-known/gpc.json", views.GpcDotJson.as_view(), name="gpc.json"),
     path("locales/", views.locales, name="base.locales"),
+    path(
+        "school/",
+        RedirectView.as_view(url="/en-US/landing/school/", permanent=False, query_string=True),
+        name="school.redirect",
+    ),
 )

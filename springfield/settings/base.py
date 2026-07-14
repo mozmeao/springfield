@@ -476,6 +476,7 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
 
 # Paths that can exist either with or without a locale code in the URL.
