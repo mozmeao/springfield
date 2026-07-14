@@ -55,7 +55,7 @@ HEALTH_FILES = [
     ("update_locales", 600),
 ]
 
-# Only check download_database health for SQLite deployments that download from S3
+# Only check download_database health for SQLite deployments that download from GCS
 if SQLITE_DB_IN_USE and not LOCAL_DB_UPDATE:
     HEALTH_FILES.insert(
         0,
