@@ -9,7 +9,9 @@
 
 {% block flare_header %}
   {% set theme = "dark" if page.upper_content else None %}
-  <include:flare-header theme="{{ theme }}" no_menu disable_sticky/>
+  {% set no_menu = true %}
+  {% set disable_sticky = true %}
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 

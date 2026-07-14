@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+{#
+ Renders the site header via the flare-header component, injecting the page's
+ custom navigation snippet into the nav slot when one is available and falling
+ back to the default navigation otherwise.
+
+ Pages set the header options they need as context variables before including
+ this partial (all read from context by the flare-header component): theme,
+ no_menu, disable_sticky, no_menu_dropdowns, hide_nav_cta, custom_nav_cta.
+ `custom_navigation` is supplied by CustomNavPageMixin.get_context.
+#}
+<include:flare-header>
+  {% if custom_navigation %}
+    <content:nav>
+      {% with value = custom_navigation %}
+        {% include 'cms/snippets/navigation-snippet.html' %}
+      {% endwith %}
+    </content:nav>
+  {% endif %}
+</include:flare-header>
