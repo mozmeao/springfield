@@ -1282,9 +1282,9 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
-    ALLOWED_TERRITORIES = {"US", "CA"}
+    ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
-    ALLOWED_TERRITORIES_LABEL = "US and Canada only"
+    ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
