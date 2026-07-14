@@ -170,7 +170,7 @@ def assert_folder(category, item, *, position):
     value = item["value"]
     folder_label = value["custom_label"]
 
-    title = category.find("span", class_="fl-menu-title")
+    title = category.find("a", class_="fl-menu-title")
     assert title.get_text(strip=True) == folder_label
     assert title.find("span", class_="fl-icon-chevron-down") is not None
 
@@ -178,7 +178,6 @@ def assert_folder(category, item, *, position):
     assert panel is not None
     assert title["aria-controls"] == panel["id"]
     assert category["data-testid"] == panel["id"]
-    assert panel.find("button", class_="fl-menu-close-button") is not None
 
     columns = value["sub_items"]
     column_elements = panel.find_all("div", class_="fl-menu-panel-content-column")

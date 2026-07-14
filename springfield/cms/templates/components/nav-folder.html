@@ -10,7 +10,7 @@
 #}
 
 <li class="fl-menu-category" data-testid="{{ panel_id }}">
-  <span
+  <a
     class="fl-menu-title"
     aria-haspopup="true"
     aria-controls="{{ panel_id }}"
@@ -19,11 +19,8 @@
       {{ label }}
       <span class="fl-icon fl-icon-chevron-down"></span>
     </span>
-  </span>
+  </a>
   <div class="fl-menu-panel" id="{{ panel_id }}">
-    <button class="fl-menu-close-button" type="button">
-      <span class="fl-icon fl-icon-close fl-menu-close-button-content">{{ ftl('navigation-close-menu') }}</span>
-    </button>
     <div class="fl-menu-panel-content">
       {{ contents }}
     </div>
