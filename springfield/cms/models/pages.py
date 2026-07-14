@@ -134,25 +134,6 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         return redirect(self.get_parent().get_full_url())
 
 
-class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
-    """
-    A page containing an index of all docs pages for Flare.
-    It shows links to other docs pages.
-    """
-
-    template = "cms/flare_docs_index_page.html"
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        children = list(self.get_children().live().public().specific().order_by("title"))
-        steplen = WagtailBasePage.steplen
-        grandchildren_by_parent = {}
-        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().order_by("title"):
-            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
-        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
-        return context
-
-
 class SimpleRichTextPage(AbstractSpringfieldCMSPage):
     """Simple page that renders a rich-text field, using our broadest set of
     allowed rich-text features.
@@ -1109,6 +1090,14 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         verbose_name="Extra JS",
         help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
     )
+    docs = RichTextField(
+        blank=True,
+        features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
+        help_text=(
+            "Optional documentation about this page. Only used by Flare Docs demo pages "
+            "to describe the block(s) or snippet(s) being demonstrated — leave blank on production pages."
+        ),
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
@@ -1293,9 +1282,9 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
-    ALLOWED_TERRITORIES = {"US", "CA"}
+    ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
-    ALLOWED_TERRITORIES_LABEL = "US and Canada only"
+    ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -2210,3 +2199,35 @@ class ContactPage(AbstractSpringfieldCMSPage):
                 )
             success = False
         return success
+
+
+_FLARE_SECTION_ORDER = ["blocks", "snippets", "sample-pages"]
+
+
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
+    """
+    A page containing an index of all docs pages for Flare26.
+    It shows links to other docs pages.
+    """
+
+    # Only created programmatically
+    parent_page_types = []
+
+    template = "cms/flare_docs_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        children = list(self.get_children().live().public().specific().order_by("title"))
+        children.sort(key=lambda p: (_FLARE_SECTION_ORDER.index(p.slug) if p.slug in _FLARE_SECTION_ORDER else len(_FLARE_SECTION_ORDER), p.title))
+        steplen = WagtailBasePage.steplen
+        pages_by_parent = {}
+        for desc in self.get_descendants().live().public().specific().order_by("title"):
+            pages_by_parent.setdefault(desc.path[:-steplen], []).append(desc)
+
+        def build_node(page):
+            children = [build_node(c) for c in pages_by_parent.get(page.path, [])]
+            children.sort(key=lambda n: (0 if n["children"] else 1, n["page"].title))
+            return {"page": page, "children": children}
+
+        context["sections"] = [build_node(child) for child in children]
+        return context

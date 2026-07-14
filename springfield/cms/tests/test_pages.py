@@ -491,6 +491,7 @@ def test_smart_window_without_v_product_serves_normally(smart_window_page: Smart
         ("all", None, True),
         ("allowed_territories", "US", True),
         ("allowed_territories", "CA", True),
+        ("allowed_territories", "FR", True),
         ("allowed_territories", "DE", False),
         ("allowed_territories", None, False),
         ("never", "US", False),

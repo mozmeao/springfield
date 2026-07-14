@@ -117,5 +117,11 @@ def get_carousel_test_page() -> FreeFormPage2026:
     variants = get_carousel_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Carousel block displays a sequence of slides, each with media and a short heading. "
+        "Use it for testimonials, feature highlights, or any set of equal-weight items where the user benefits from controlled pacing.</p>"
+        "<p>Avoid putting critical CTAs inside carousel slides &mdash; users often skip past them. Limit slides to 3&ndash;4; longer "
+        "carousels lose engagement. Always provide alt text on slide media so the block remains accessible.</p>"
+    )
     page.save_revision().publish()
     return page

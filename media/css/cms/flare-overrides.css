@@ -29,3 +29,7 @@ For now, this is a blank slate.
 .linux .show-linux {
     display: block;
 }
+
+.fl-docs-inline .fl-split-page-upper {
+    padding-block-start: var(--token-layout-xs);
+}

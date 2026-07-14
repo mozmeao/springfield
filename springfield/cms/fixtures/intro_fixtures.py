@@ -228,12 +228,18 @@ def get_intro_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Test Intro 2026",
+            "title": "Intro",
         },
     )
 
     variants = get_intro_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Intro block is the introductory section for a page: it holds an eyebrow superheading, main heading, optional "
+        "subheading, tags, body content, buttons, and optional media. Choose the &lsquo;vertical&rsquo; layout for centered "
+        "intros, or &lsquo;left&rsquo; / &lsquo;right&rsquo; to place media beside the text.</p>"
+        "<p>Use the slim option when the intro needs to be compact. Always set the anchor_id when the intro is linked from elsewhere.</p>"
+    )
     page.save_revision().publish()
     return page

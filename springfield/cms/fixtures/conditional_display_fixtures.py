@@ -282,5 +282,11 @@ def get_conditional_display_test_page() -> FreeFormPage2026:
     blocks = get_conditional_display_variants()
     page.upper_content = blocks
     page.content = blocks
+    page.docs = (
+        "<p>The Conditional Display block wraps content that should only appear for specific audiences &mdash; particular platforms "
+        "(Windows, macOS, Linux, Android, iOS), browser types (Firefox / non-Firefox), authentication states (signed-in / signed-out), "
+        "or default-browser status.</p>"
+        "<p>Consider having a sensible &lsquo;show to all&rsquo; fallback so the page stays coherent if no condition matches.</p>"
+    )
     page.save_revision().publish()
     return page

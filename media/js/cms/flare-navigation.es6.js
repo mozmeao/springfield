@@ -8,7 +8,11 @@
 import { createFocusTrap } from 'focus-trap';
 
 (function () {
+    /* Custom media: --viewport-md-up */
+    const viewportMdUpQuery = window.matchMedia('(min-width: 900px)');
+
     const headerEl = document.querySelector('.fl-header.enable-sticky');
+    const nav = document.querySelector('.fl-nav');
 
     if (headerEl) {
         const sentinel = document.createElement('div');
@@ -27,15 +31,14 @@ import { createFocusTrap } from 'focus-trap';
 
     // Hamburger menu
     const buttonEl = document.querySelector('.fl-show-mobile-menu');
-    const mobileNavEl = document.querySelector('.fl-nav');
     const trap = createFocusTrap(headerEl);
 
-    if (buttonEl && mobileNavEl) {
+    if (buttonEl && nav) {
         buttonEl.addEventListener('click', function (e) {
             e.preventDefault();
             const mobileNavIsOpen =
                 e.currentTarget.classList.contains('is-open');
-            const elements = [e.currentTarget, mobileNavEl];
+            const elements = [e.currentTarget, nav];
 
             if (mobileNavIsOpen) {
                 elements.forEach(function (el) {
@@ -56,91 +59,192 @@ import { createFocusTrap } from 'focus-trap';
     // Menu panels
     const menuCategories = document.querySelectorAll('.fl-menu-category');
 
-    menuCategories.forEach(function (category) {
-        // keyboard is being used
-        category.addEventListener('keyup', function (event) {
-            if (event.key === 'Escape') {
-                menuCategories.forEach(function (category) {
-                    category.classList.remove('is-active');
-                });
-            }
-        });
+    for (const category of menuCategories) {
+        const title = category.querySelector('.fl-menu-title');
 
-        // mouse is being used
-        category.addEventListener('mouseover', function () {
-            menuCategories.forEach(function (category) {
-                category.classList.remove('is-active');
-            });
-            category.classList.add('is-active');
-        });
-        category.addEventListener('mouseout', function () {
-            category.classList.remove('is-active');
-        });
-    });
+        /* ESSENTIAL SEMANTICS: Convert anchor menu titles to buttons */
+        if (title.matches('a') && viewportMdUpQuery.matches) {
+            applyButtonSemanticsToAnchor(title);
+        }
+    }
 
-    const menuTitles = document.querySelectorAll('.fl-menu-title');
-    let focusedMenu = null;
+    // Perform initial event listener setup
+    setupEventListeners();
 
-    // keyboard is being used
-    menuTitles.forEach(function (title) {
-        if (title.classList.contains('fl-menu-top-level-link')) return;
-
-        // when focusing a menu title, close all menus
-        title.addEventListener('focus', function () {
-            menuCategories.forEach(function (category) {
-                if (category.classList.contains('is-active')) {
-                    focusedMenu = category;
-                }
-                category.classList.remove('is-active');
-            });
-        });
-
-        // when leaving the last link of a menu, close all menus
-        const menuLinks = title
-            .closest('.fl-menu-category')
-            .querySelectorAll('a');
-
-        menuLinks[menuLinks.length - 1].addEventListener(
-            'keydown',
-            function (event) {
-                if (event.key === 'Tab' && !event.shiftKey) {
-                    menuCategories.forEach(function (category) {
-                        category.classList.remove('is-active');
-                    });
-                }
-            }
+    viewportMdUpQuery.addEventListener('change', (event) => {
+        const menuTitles = document.querySelectorAll(
+            '.fl-menu-category .fl-menu-title'
         );
 
-        // when clicking or pressing enter, toggle the menu
-        title.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            const menuPanel = event.target.closest('.fl-menu-category');
-
-            // focus runs first then click. if we click a menu that was closed
-            // by focus don't open it again immediately
-            if (focusedMenu === menuPanel) {
-                focusedMenu = null;
-                return;
-            }
-
-            if (menuPanel.classList.contains('is-active')) {
-                menuPanel.classList.remove('is-active');
+        for (const title of menuTitles) {
+            if (event.matches) {
+                applyButtonSemanticsToAnchor(title);
             } else {
-                menuPanel.classList.add('is-active');
+                removeButtonSemanticsFromAnchor(title);
             }
-        });
+        }
+
+        setupEventListeners();
     });
 
-    const menuPanelCloseButtons = document.querySelectorAll(
-        '.fl-menu-close-button'
-    );
+    /* Sets up and tears down delegated event listeners based on desktop media query */
+    function setupEventListeners() {
+        if (viewportMdUpQuery.matches) {
+            nav.addEventListener('click', handleCategoryToggle);
+            nav.addEventListener('keydown', handleNonLinkAnchorClick);
+            nav.addEventListener('keyup', handleNonLinkAnchorClick);
+            nav.addEventListener('blur', handleAutoClose, true);
+            nav.addEventListener('mouseenter', handleCategoryHoverReveal, true);
+            document.addEventListener('keydown', handleDismissActiveCategory);
+        } else {
+            nav.removeEventListener('click', handleCategoryToggle);
+            nav.removeEventListener('keydown', handleNonLinkAnchorClick);
+            nav.removeEventListener('keyup', handleNonLinkAnchorClick);
+            nav.removeEventListener('blur', handleAutoClose, true);
+            nav.removeEventListener(
+                'mouseenter',
+                handleCategoryHoverReveal,
+                true
+            );
+            document.removeEventListener(
+                'keydown',
+                handleDismissActiveCategory
+            );
+        }
+    }
 
-    menuPanelCloseButtons.forEach(function (button) {
-        button.addEventListener('click', function (event) {
+    /* DELEGATED EVENT HANDLERS */
+
+    function handleNonLinkAnchorClick(event) {
+        if (event.type === 'keydown' && event.key === ' ') {
             event.preventDefault();
-            const menuPanel = event.target.closest('.fl-menu-category');
-            menuPanel.classList.remove('is-active');
-        });
-    });
+            event.target.closest('[role="button"]').click();
+        }
+        if (event.type === 'keyup' && event.key === 'Enter') {
+            event.target.closest('[role="button"]').click();
+        }
+    }
+
+    /**
+     * Handles toggling panels on click.
+     */
+    function handleCategoryToggle(event) {
+        if (!event.target.closest('.fl-menu-title')) return;
+        const category = getCategory(event.target);
+        const activeCategory = getActiveCategory();
+        if (category !== activeCategory) {
+            toggleCategory(getActiveCategory(), false);
+        }
+        toggleCategory(category);
+    }
+
+    /**
+     * Dismisses an active panel when the Escape key is pressed
+     */
+    function handleDismissActiveCategory(event) {
+        if (event.key === 'Escape') {
+            const activeCategory = getActiveCategory();
+
+            if (!activeCategory) return;
+
+            const title = getTitleForCategory(activeCategory);
+            const focusedElement = document.activeElement;
+
+            toggleCategory(activeCategory, false);
+
+            if (activeCategory.contains(focusedElement)) {
+                title.focus();
+            }
+        }
+    }
+
+    /**
+     * Auto-closes open panels on blur.
+     */
+    function handleAutoClose(event) {
+        const category = getCategory(event.target);
+        const panel = getPanelForCategory(category);
+        if (!panel.contains(event.relatedTarget)) {
+            toggleCategory(category, false);
+        }
+    }
+
+    function handleCategoryHoverReveal(event) {
+        // If a menu has been opened with other interaction types, ignore.
+        if (!event.target.matches('.fl-menu-category:not(.is-active)')) return;
+
+        toggleCategory(getActiveCategory(), false);
+        toggleCategory(event.target, true);
+
+        event.target.addEventListener(
+            'mouseleave',
+            (event) => {
+                toggleCategory(getCategory(event.target), false);
+            },
+            { once: true }
+        );
+    }
+
+    /* TOGGLING LOGIC */
+
+    /* Toggles panel visibility and trigger aria-expanded */
+    function toggleCategory(
+        category,
+        force = category && !category.classList.contains('is-active')
+    ) {
+        if (!category) return;
+        const title = getTitleForCategory(category);
+        category.classList.toggle('is-active', force);
+        title.setAttribute('aria-expanded', force ? 'true' : 'false');
+    }
+
+    /* SEMANTIC SETUP */
+
+    /* Applies button semantics to menu title (anchor) */
+    function applyButtonSemanticsToAnchor(anchor) {
+        if (anchor.hasAttribute('href')) {
+            anchor.dataset.href = anchor.getAttribute('href');
+            // Remove the link semantics
+            anchor.removeAttribute('href');
+        }
+        // Remove button semantics (apply link semantics)
+        anchor.setAttribute('tabindex', 0);
+        anchor.setAttribute('role', 'button');
+        anchor.setAttribute('aria-expanded', 'false');
+        anchor.setAttribute(
+            'aria-controls',
+            getPanelForCategory(getCategory(anchor)).id
+        );
+    }
+
+    /* Removes button semantics from the menu title (anchor) */
+    function removeButtonSemanticsFromAnchor(anchor) {
+        // Restore the href if the title was originally a link
+        if (anchor.dataset.href) {
+            anchor.setAttribute('href', anchor.dataset.href);
+        }
+        // Remove button semantics
+        anchor.removeAttribute('tabindex');
+        anchor.removeAttribute('role');
+        anchor.removeAttribute('aria-expanded');
+        anchor.removeAttribute('aria-controls');
+    }
+
+    /* RELATIVE QUERY HELPERS */
+
+    function getActiveCategory() {
+        return document.querySelector('.fl-menu-category.is-active');
+    }
+
+    function getCategory(node) {
+        return node.closest('.fl-menu-category');
+    }
+
+    function getPanelForCategory(category) {
+        return category.querySelector('.fl-menu-panel');
+    }
+
+    function getTitleForCategory(category) {
+        return category.querySelector('.fl-menu-title');
+    }
 })();
