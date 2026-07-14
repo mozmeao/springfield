@@ -206,7 +206,6 @@
     }
 
     .fl-docs-index.fl-docs-inline-mode {
-        block-size: calc(100dvh - var(--token-layout-lg));
         inset-block-start: var(--token-layout-lg);
         overflow: hidden;
         position: sticky;
@@ -224,10 +223,20 @@
     }
 
     .fl-docs-inline-frame {
-        block-size: 100%;
+        block-size: 80dvh;
         border: 2px solid var(--fl-theme-divider-color);
         border-radius: var(--token-border-radius-xs);
         inline-size: 100%;
+    }
+
+    @media (--viewport-lg-up) {
+        .fl-docs-index.fl-docs-inline-mode {
+            block-size: calc(100dvh - var(--token-layout-lg));
+        }
+
+        .fl-docs-inline-frame {
+            block-size: 100%;
+        }
     }
 
     .fl-docs-search {
