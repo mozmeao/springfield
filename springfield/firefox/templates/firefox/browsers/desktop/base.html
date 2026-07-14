@@ -95,39 +95,33 @@
         <div class="fl-section">
           <div class="fl-section-container">
             <include:cards-list>
-              <include:illustration-card variant="sticker">
-                <content:media>
-                  <img src="/media/{{ card1_image_url }}" aria-hidden="true" />
-                </content:media>
-                <content:heading>
-                  <include:heading level="h2" heading_text="{{ card1_title }}" />
-                </content:heading>
+              <include:card variant="filled" align="center">
                 <content:body>
+                  <div class="fl-card-media">
+                    <img src="/media/{{ card1_image_url }}" aria-hidden="true" />
+                  </div>
+                  <include:heading level="h2" heading_text="{{ card1_title }}" />
                   <p>{{ card1_desc }}</p>
                 </content:body>
-              </include:illustration-card>
-              <include:illustration-card variant="sticker">
-                <content:media>
-                  <img src="/media/{{ card2_image_url }}" aria-hidden="true" />
-                </content:media>
-                <content:heading>
-                  <include:heading level="h2" heading_text="{{ card2_title }}" />
-                </content:heading>
+              </include:card>
+              <include:card variant="filled" align="center">
                 <content:body>
+                  <div class="fl-card-media">
+                    <img src="/media/{{ card2_image_url }}" aria-hidden="true" />
+                  </div>
+                  <include:heading level="h2" heading_text="{{ card2_title }}" />
                   <p>{{ card2_desc }}</p>
                 </content:body>
-              </include:illustration-card>
-              <include:illustration-card variant="sticker">
-                <content:media>
-                  <img src="/media/{{ card3_image_url }}" aria-hidden="true" />
-                </content:media>
-                <content:heading>
-                  <include:heading level="h2" heading_text="{{ card3_title }}" />
-                </content:heading>
+              </include:card>
+              <include:card variant="filled" align="center">
                 <content:body>
+                  <div class="fl-card-media">
+                    <img src="/media/{{ card3_image_url }}" aria-hidden="true" />
+                  </div>
+                  <include:heading level="h2" heading_text="{{ card3_title }}" />
                   <p>{{ card3_desc }}</p>
                 </content:body>
-              </include:illustration-card>
+              </include:card>
             </include:cards-list>
           </div>
         </div>
