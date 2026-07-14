@@ -21,6 +21,10 @@
 
     // === Inline mode ===
 
+    /**
+     * @param {string} [forcedUrl]
+     * @returns {string|undefined}
+     */
     function resolveInlineModeUrl(forcedUrl) {
         if (forcedUrl) return forcedUrl;
 
@@ -29,12 +33,18 @@
         if (hashLink) return hashLink.dataset.url;
 
         const firstSidebarLink = sidebarEl.querySelector('a[data-url]');
+        if (!firstSidebarLink) return;
         return firstSidebarLink.dataset.url;
     }
 
+    /**
+     * @param {HTMLIFrameElement} iframeEl
+     * @returns {void}
+     */
     function preventIframeScrollChaining(iframeEl) {
         try {
             const innerDoc = iframeEl.contentDocument;
+            if (!innerDoc) return;
             const scrollEl =
                 innerDoc.scrollingElement || innerDoc.documentElement;
             innerDoc.addEventListener(
@@ -55,8 +65,13 @@
         }
     }
 
+    /**
+     * @param {string} [forcedUrl]
+     * @returns {void}
+     */
     function enableInlineMode(forcedUrl) {
         const url = resolveInlineModeUrl(forcedUrl);
+        if (!url) return;
 
         indexEl.classList.add('fl-docs-inline-mode');
         indexEl.classList.remove('max-width-wide-banner');
@@ -69,10 +84,13 @@
         contentEl.innerHTML = '';
         contentEl.appendChild(iframe);
         iframe.src = url + (url.includes('?') ? '&' : '?') + 'fl_docs_inline=1';
-        document.body.style.overflowY = 'hidden';
+        if (window.matchMedia('(min-width: 1200px)').matches) {
+            document.body.style.overflowY = 'hidden';
+        }
         contentEl.scrollIntoView({ behavior: 'smooth' });
     }
 
+    /** @returns {void} */
     function disableInlineMode() {
         contentEl.innerHTML = savedContent;
         iframe = null;
@@ -91,6 +109,7 @@
 
     // === Search state ===
 
+    /** @returns {void} */
     function resetSearchFilterDisplay() {
         indexEl.querySelectorAll('.fl-docs-accordion').forEach((acc) => {
             acc.style.display = '';
@@ -118,6 +137,10 @@
         noResultsEl.hidden = true;
     }
 
+    /**
+     * @param {string} hash
+     * @returns {void}
+     */
     function focusSidebarAccordionForHash(hash) {
         indexEl.querySelectorAll('.fl-docs-accordion').forEach((acc) => {
             acc.open = false;
@@ -131,6 +154,10 @@
         if (parentGroup) parentGroup.open = true;
     }
 
+    /**
+     * @param {string} hash
+     * @returns {void}
+     */
     function reopenContentAccordionForHash(hash) {
         if (!hash) return;
         const contentTarget = contentEl.querySelector(
@@ -143,6 +170,10 @@
         if (parentAccordion) parentAccordion.open = true;
     }
 
+    /**
+     * @param {string|null|undefined} destinationHash
+     * @returns {void}
+     */
     function applyHashSelection(destinationHash) {
         const resolvedHash =
             destinationHash !== null && destinationHash !== undefined
@@ -161,10 +192,19 @@
 
     // === Search filters ===
 
+    /**
+     * @param {Element|null} el
+     * @returns {string}
+     */
     function getElementTitleText(el) {
         return el ? el.textContent.trim().toLowerCase() : '';
     }
 
+    /**
+     * @param {HTMLElement} ul
+     * @param {string} query
+     * @returns {boolean}
+     */
     function filterSidebarList(ul, query) {
         let anyVisible = false;
         ul.querySelectorAll(':scope > li').forEach((li) => {
@@ -201,6 +241,11 @@
         return anyVisible;
     }
 
+    /**
+     * @param {HTMLElement} container
+     * @param {string} query
+     * @returns {boolean}
+     */
     function filterContentSection(container, query) {
         let anyVisible = false;
         container
@@ -251,6 +296,11 @@
 
     // === Navigation ===
 
+    /**
+     * @param {string} hash
+     * @param {string} url
+     * @returns {void}
+     */
     function navigateToItemInline(hash, url) {
         history.replaceState(null, '', hash);
         applyHashSelection(hash);
@@ -284,9 +334,10 @@
         'click',
         (e) => {
             const btn = e.target.closest('.fl-docs-inline-btn');
-            if (!btn || !btn.closest('summary')) return;
-            e.stopPropagation();
+            if (!btn) return;
             const summary = btn.closest('summary');
+            if (!summary) return;
+            e.stopPropagation();
             const detailsEl = summary.closest(
                 'details.fl-docs-content-accordion'
             );
