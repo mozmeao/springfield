@@ -142,10 +142,6 @@ def get_card_gallery_test_page() -> FreeFormPage2026:
     variants = get_card_gallery_variants()
     page.upper_content = variants
     page.content = variants
-    page.docs = (
-        "<p>The Card Gallery block lays out a collection of cards (illustration, sticker, outlined, etc.) into a responsive grid. "
-        "Use it when you want to showcase 1&ndash;3 related items &mdash; features, products, themes &mdash; with consistent visual treatment.</p>"
-        "<p>To stay visually appealing, you will need to add 3 cards to it. Look at the page inline to see examples.</p>"
-    )
+    page.docs = "<p>The Card Gallery block lays out a grid with two main cards and a smaller callout card.</p>"
     page.save_revision().publish()
     return page

@@ -185,11 +185,10 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     page.upper_content = [get_mobile_store_qr_code()]
     page.content = [get_mobile_store_qr_code()]
     page.docs = (
-        "<p>The Mobile Store QR Code block displays a QR code beside a heading and copy, generating the code from a URL that "
-        "typically deep-links to the iOS / Android app stores. Use it on pages that promote the Firefox mobile app to desktop "
-        "visitors.</p>"
-        "<p>Keep the QR&rsquo;s destination short and brand-safe &mdash; the URL it encodes is what the user lands on after "
-        "scanning. Pair with a mobile placeholder image that clarifies what to expect once on the device.</p>"
+        "<p>The Mobile Store QR Code block displays a QR code with a branded Kit treatment, a heading, and copy. "
+        "The code is generated from a URL that should link to the iOS / Android app stores. "
+        "Use it on pages that promote the Firefox mobile app to desktop visitors.</p>"
+        "<p>On iOS and Android devices, it displays the &ldquo;Mobile Image&rdquo; instead of the QR code and buttons linking to both app stores.</p>"
     )
     page.save_revision().publish()
     return page
@@ -458,11 +457,12 @@ def get_pre_footer_cta_snippet_test_page() -> FreeFormPage2026:
         }
     ]
     page.docs = (
-        "<p>The Pre-Footer CTA Snippet renders a final call-to-action above the page footer. Pages opt in via the Show "
-        "Pre-Footer toggle in the page options panel &mdash; the page does not choose which snippet to display.</p>"
-        "<p>Non-Firefox users see the download button (PreFooterCTASnippet: label and analytics ID). Firefox users see the "
-        "newsletter signup form (PreFooterCTAFormSnippet: heading, subheading, and analytics ID). Both snippets are rendered "
-        "and the browser determines which one to show via conditional display.</p>"
+        "<p>The Pre-Footer CTA Snippet renders a final call-to-action above the page footer &mdash; Download button with a single "
+        "label and analytics ID. Pages opt in via the Show Pre-Footer toggle in the page options panel.</p>"
+        "<p>The snippet is displayed only to non-Firefox users. Firefox users see the Pre-Footer CTA Form Snippet, "
+        "with a newsletter sign up form.</p>"
+        "<p>To see the visual differences, access them in the Wagtail admin. You can also edit the snippet itself in the Snippets admin "
+        "to change its label and analytics ID.</p>"
     )
     page.save_revision().publish()
     return page

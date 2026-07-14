@@ -343,8 +343,7 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Illustration Cards combine a generous illustration with a headline, description, and one or more buttons. They&rsquo;re "
         "the workhorse card for product and feature roundups where each item needs equal visual prominence.</p>"
-        "<p>Aim for illustrations that have consistent style and color treatment across a set. The &lsquo;image_after&rsquo; setting "
-        "flips the order so text comes before the image &mdash; useful when you want the eye drawn to the heading first.</p>"
+        "<p>Aim for illustrations with consistent styles and color treatment across a set.</p>"
     )
     page.save_revision().publish()
     return page
@@ -458,8 +457,8 @@ def get_step_cards_test_page() -> FreeFormPage2026:
     page.content = sections
     page.docs = (
         "<p>Step Cards visualize a sequential process &mdash; a how-to, a setup walkthrough &mdash; by numbering each card and laying "
-        "them out left-to-right or top-to-bottom.</p>"
-        "<p>Limit the sequence to 3 steps so the flow stays scannable. Each step&rsquo;s content should be short and "
+        "them out left-to-right.</p>"
+        "<p>Limit the sequence to 3&ndash;4 steps so the flow stays scannable. Each step&rsquo;s content should be short and "
         "action-oriented (a verb in the headline, a single supporting sentence).</p>"
     )
     page.save_revision().publish()

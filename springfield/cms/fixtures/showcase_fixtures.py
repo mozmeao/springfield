@@ -81,10 +81,7 @@ def get_showcase_test_page() -> FreeFormPage2026:
     page.upper_content = variants
     page.content = variants
     page.docs = (
-        "<p>The Showcase block highlights a single feature or product with a large media surface, a heading, supporting copy, and "
-        "call-to-action. It sits between the Banner and Intro blocks in visual weight.</p>"
-        "<p>Use one Showcase per page &mdash; repeating them dilutes their effect. Pair the Showcase with smaller follow-up blocks "
-        "(Icon Cards, Line Cards) to expand on the highlighted feature.</p>"
+        "<p>The Showcase block highlights a single feature or product with a large media surface, an optional heading, and supporting copy.</p>"
     )
     page.save_revision().publish()
     return page

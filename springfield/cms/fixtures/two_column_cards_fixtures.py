@@ -395,10 +395,9 @@ def get_two_column_cards_test_page() -> FreeFormPage2026:
     page.upper_content = variants
     page.content = variants
     page.docs = (
-        "<p>The Two Column Cards block lays out cards in a strict two-column grid (vs. the responsive multi-column behavior of the "
-        "Card Gallery). Use it when you want a deliberate side-by-side comparison or pairing.</p>"
-        "<p>Provide an even number of cards so columns balance. The block reflows to a single column on small viewports &mdash; "
-        "verify that the pairing relationship still reads when stacked.</p>"
+        "<p>The Two Column Cards block lays out cards in a two-column grid. Use it when you want a deliberate side-by-side comparison or pairing. "
+        "Besides the common heading, text, image, and button elements, it supports inner blocks appropriate for listing features: "
+        "Numbered List, Timeline, and Icons List.</p>"
     )
     page.save_revision().publish()
     return page
