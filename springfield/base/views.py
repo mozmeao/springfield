@@ -55,14 +55,14 @@ HEALTH_FILES = [
     ("update_locales", 600),
 ]
 
-# Only check download_database health for SQLite deployments that download from S3
+# Only check download_database health for SQLite deployments that download from GCS
 if SQLITE_DB_IN_USE and not LOCAL_DB_UPDATE:
     HEALTH_FILES.insert(
         0,
         ("download_database", 600),
     )
 
-DB_INFO_FILE = getenv("AWS_DB_JSON_DATA_FILE", f"{settings.DATA_PATH}/springfield_db_info.json")
+DB_INFO_FILE = getenv("GCS_DB_JSON_DATA_FILE", f"{settings.DATA_PATH}/springfield_db_info.json")
 GIT_SHA = getenv("GIT_SHA")
 BUCKET_NAME = config("GCS_DB_BUCKET", default="springfield-db-dev")
 GCS_BASE_URL = f"https://storage.googleapis.com/{BUCKET_NAME}"
