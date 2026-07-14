@@ -175,5 +175,10 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
     sections = get_testimonial_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
+    page.docs = (
+        "<p>Testimonial Cards display user or critic quotes with attribution, optional avatars, and optional star ratings. Use them "
+        "to surface social proof on product pages, plans pages, or the homepage.</p>"
+        "<p>Use real quotes with verifiable attribution. Keep quotes short (1&ndash;2 sentences); long quotes get scanned past.</p>"
+    )
     page.save_revision().publish()
     return page
