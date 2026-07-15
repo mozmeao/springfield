@@ -119,6 +119,18 @@ class OtherPage(Page):
 * Layouts use logical properties (start/end) or the BIDI mixin.
 * Javascript promise rejections are handled.
 
+## 12. Wagtail version upgrades (When Relevant)
+
+If Wagtail or a Wagtail-related library is upgraded, verify if overrides and customizations across the codebase would be broken by the new versions. Scan the codebase for implementations that modify Wagtail behavior. In particular, scan these files:
+
+* `springfield/cms/models/base.py` - the custom Page model could have attributes or methods that break Wagtail's Page implementation
+* `springfield/cms/models/images.py` - the custom Image model could have attributes or methods that break Wagtail's Image implementation
+* `springfield/cms/models/locale.py` - the custom Locale model could have attributes or methods that break Wagtail's Locale implementation
+* `springfield/cms/wagtail_hooks.py` - verify that the hooks honor the contracts expected by Wagtail
+* `springfield/cms/templates/cms/wagtailadmin/` - verify that the Wagtail admin template overrides are still compatible with the originals
+* `springfield/cms/models/pages.py` and `springfield/cms/models/snippets.py` - verify that mixins and subclasses respect Wagtail's classes' implementation
+* `springfield/cms/fields.py` - verify that custom fields respect the contracts from the classes they inherit from
+
 # What Not to Do
 
 * Do not restate what the code already clearly shows

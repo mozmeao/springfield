@@ -71,6 +71,61 @@ def test_show_nav_cta(free_form_page: FreeFormPage2026, rf, show_nav_cta):
         assert ("hide-cta-on-desktop" in nav_cta_wrap.get("class", [])) == (not show_nav_cta)
 
 
+# Page theme
+
+
+@pytest.mark.django_db
+def test_page_theme_sets_theme_to_body_class(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    page.theme = "enterprise"
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    body_el = soup.find("body")
+    assert body_el
+    assert "fl-theme-enterprise" in body_el.get("class", [])
+
+
+@pytest.mark.django_db
+def test_page_theme_adds_theme_css_bundle(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    page.theme = "enterprise"
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    head_el = soup.find("head")
+    assert head_el
+    links = head_el.find_all("link", rel="stylesheet")
+    assert any(link.get("href", "").endswith("/media/css/flare-theme-enterprise.css") for link in links)
+
+
+@pytest.mark.django_db
+def test_empty_page_theme_does_not_set_body_class(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    body_el = soup.find("body")
+    assert body_el
+    assert "fl-theme-" not in " ".join(body_el.get("class", []))
+
+
+@pytest.mark.django_db
+def test_page_theme_does_not_add_theme_css_bundle(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    head_el = soup.find("head")
+    assert head_el
+    links = head_el.find_all("link", rel="stylesheet")
+    assert not any("/media/css/flare-theme-" in link.get("href", "") for link in links)
+
+
 # Stub Attribution Campaign
 
 
@@ -436,6 +491,7 @@ def test_smart_window_without_v_product_serves_normally(smart_window_page: Smart
         ("all", None, True),
         ("allowed_territories", "US", True),
         ("allowed_territories", "CA", True),
+        ("allowed_territories", "FR", True),
         ("allowed_territories", "DE", False),
         ("allowed_territories", None, False),
         ("never", "US", False),

@@ -4,13 +4,13 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
 
 
-def _image(image_id, dark_mode_image_id=None):
+def _image(image_id, dark_mode_image_id=None, block_id=None):
     return {
         "type": "image",
         "value": {
@@ -21,7 +21,8 @@ def _image(image_id, dark_mode_image_id=None):
                 "dark_mode_mobile_image": None,
             },
         },
-        "id": None,
+        # Stable id required for wagtail_localize (StreamBlock children must have one).
+        "id": block_id,
     }
 
 
@@ -45,7 +46,7 @@ def get_sliding_carousel_slides() -> list[dict]:
                     superheading_text="Privacy",
                     subheading_text="Control who can see your browsing activity.",
                 ),
-                "media": [_image(img, dark)],
+                "media": [_image(img, dark, block_id="2026sc01-0000-0000-0000-0000000000a1")],
             },
             "id": "2026sc01-0000-0000-0000-000000000001",
         },
@@ -57,7 +58,7 @@ def get_sliding_carousel_slides() -> list[dict]:
                     superheading_text="Security",
                     subheading_text="Enhanced Tracking Protection works out of the box.",
                 ),
-                "media": [_image(dark, img)],
+                "media": [_image(dark, img, block_id="2026sc01-0000-0000-0000-0000000000a2")],
             },
             "id": "2026sc01-0000-0000-0000-000000000002",
         },
@@ -69,7 +70,7 @@ def get_sliding_carousel_slides() -> list[dict]:
                     superheading_text="Sync",
                     subheading_text="Bookmarks, passwords, and tabs — always with you.",
                 ),
-                "media": [_image(img)],
+                "media": [_image(img, block_id="2026sc01-0000-0000-0000-0000000000a3")],
             },
             "id": "2026sc01-0000-0000-0000-000000000003",
         },
@@ -95,13 +96,23 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-sliding-carousel"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Sliding Carousel")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Sliding Carousel",
+        },
+    )
 
     variants = get_sliding_carousel_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Sliding Carousel block is a continuous-sliding variant of the Carousel. It&rsquo;s well suited for screenshot "
+        "galleries, and any visual collection where continuous motion communicates &lsquo;more here&rsquo;.</p>"
+        "<p>Keep slide content visually consistent (matching backgrounds, similar dimensions). Don&rsquo;t include CTAs inside "
+        "sliding items &mdash; the motion makes them hard to click.</p>"
+    )
     page.save_revision().publish()
     return page

@@ -4,32 +4,23 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
-{% block page_css %}{{ css_bundle('flare26-thanks') }}{% endblock %}
+{% block page_css %}{{ css_bundle('flare-thanks') }}{% endblock %}
 
 {% block body_class %}fl-thanks-body{% endblock %}
 
-{% block stub_attribution %}
-  {% if not switch('enable_attribution_refactor') %}
-    <!-- use stub attribution -->
-    {{ super() }}
-  {% endif%}
-  <!-- else let auto-download handle attribution -->
-{% endblock %}
+<!-- let auto-download handle attribution -->
+{% block stub_attribution %}{% endblock %}
 
 {% block js %}
-  {% if switch('enable_attribution_refactor') %}
-    {{ js_bundle('auto-download') }}
-  {% else %}
-    {{ js_bundle('firefox_download_thanks') }}
-  {% endif %}
+  {{ js_bundle('auto-download') }}
 {% endblock %}
 
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header />
+  <include:flare-header />
 {% endblock %}
 
 {% block main_class %}{% endblock %}

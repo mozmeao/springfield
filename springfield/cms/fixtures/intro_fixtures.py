@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
@@ -223,13 +223,23 @@ def get_intro_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-intro"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Intro 2026")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Intro",
+        },
+    )
 
     variants = get_intro_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Intro block is the introductory section for a page: it holds an eyebrow superheading, main heading, optional "
+        "subheading, tags, body content, buttons, and optional media. Choose the &lsquo;vertical&rsquo; layout for centered "
+        "intros, or &lsquo;left&rsquo; / &lsquo;right&rsquo; to place media beside the text.</p>"
+        "<p>Use the slim option when the intro needs to be compact. Always set the anchor_id when the intro is linked from elsewhere.</p>"
+    )
     page.save_revision().publish()
     return page

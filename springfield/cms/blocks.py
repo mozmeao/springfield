@@ -4,22 +4,25 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qsl, urlparse
 from uuid import uuid4
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
-from django.forms.widgets import CheckboxSelectMultiple
+from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from product_details import product_details
 from wagtail import blocks
+from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -186,6 +189,7 @@ SET_AS_DEFAULT_BUTTON = "set_as_default_button"
 DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
+QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
 
 
 BUTTON_PRIMARY = ""
@@ -231,6 +235,16 @@ def icon_display_label(stem: str) -> str:
     return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
 
 
+class UntranslatableCharBlock(blocks.CharBlock):
+    """A CharBlock that is not sent for translation"""
+
+    def get_translatable_segments(self, value):
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
+
 class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
     """A SnippetChooserBlock that renders the live localized version of the selected snippet."""
 
@@ -246,6 +260,84 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
         if value and not value.live:
             raise ValidationError("The selected snippet is not published.")
         return super().clean(value)
+
+
+class LabelSourceMixin(blocks.StructBlock):
+    """
+    Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
+
+    This mixin adds two render-time context keys:
+      - button_label:        rendered, locale-resolved label (visible to users)
+      - button_label_en_us:  stable English source for analytics / campaign slugs
+
+    When using this mixin,
+      1. declare an explicit `Meta.form_layout` to set the admin field order, and
+      2. `label_format = "{custom_label}{pretranslated_label}"` to set the value for the StreamField preview
+    """
+
+    pretranslated_label = LocalizedLiveSnippetChooserBlock(
+        "cms.PretranslatedPhrase",
+        required=False,
+        label="Pre-translated Text",
+        help_text="Select a pre-translated label. Takes precedence over Custom Text.",
+    )
+    custom_label = blocks.CharBlock(
+        required=False,
+        label="Custom Text",
+        help_text="Use only if no pre-translated option fits. Will be sent to Smartling for translation as part of the page.",
+    )
+
+    def clean(self, value):
+        # 1. Mixin's own checks.
+        errors = {}
+        has_pretranslated = bool(value.get("pretranslated_label"))
+        has_custom = bool((value.get("custom_label") or "").strip())
+        if not has_pretranslated and not has_custom:
+            errors["pretranslated_label"] = ValidationError("Either a pre-translated text or custom text is required.")
+        if has_pretranslated and has_custom:
+            errors["custom_label"] = ValidationError("Provide either a pre-translated text or custom text, not both.")
+
+        # 2. Call super().clean() and merge any subclass/child errors.
+        try:
+            cleaned = super().clean(value)
+        except StructBlockValidationError as exc:
+            for k, v in exc.block_errors.items():
+                # Don't shadow a mixin error with a child error for the same key.
+                errors.setdefault(k, v)
+            cleaned = value  # fall through; we're going to raise anyway
+
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            # User-visible label: locale-resolved with fallback to the stored row.
+            localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
+            context["button_label"] = (localized or pretranslated).label
+            # Stable English source for analytics. On a translated page, the
+            # stored FK is the locale-specific phrase, so its own label is
+            # localized — resolve the en-US sibling through the phrase's translation
+            # group instead of reading the stored row's label.
+            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
+            context["button_label_en_us"] = (en_us or pretranslated).label
+        elif value.get("custom_label"):
+            context["button_label"] = value["custom_label"]
+            context["button_label_en_us"] = value["custom_label"]
+        return context
+
+    def get_searchable_content(self, value):
+        # Match against both the snippet's label (which may be localized), and
+        # any custom_label so editor search hits both forms.
+        items = list(super().get_searchable_content(value) or [])
+        pretranslated = value.get("pretranslated_label")
+        if pretranslated:
+            items.append(pretranslated.label)
+        if value.get("custom_label"):
+            items.append(value["custom_label"])
+        return items
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
@@ -358,7 +450,7 @@ def get_button_types(allow_uitour=False):
     """
     base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON]
+        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
     return base_button_types
 
 
@@ -379,7 +471,6 @@ class BaseButtonValue(blocks.StructValue):
         classes = {
             "ghost": "button-ghost",
             "secondary": "button-secondary",
-            "tertiary": "button-tertiary",
             "gold": "button-gold",
             "link": "button-link",
         }
@@ -390,6 +481,9 @@ class BaseButtonValue(blocks.StructValue):
 
 
 class UUIDBlock(blocks.CharBlock):
+    """A CharBlock that generates a UUID if left blank, and is excluded from translation.
+    When copying a page, regenerate_analytics_ids() is called to replace all UUIDs with new ones."""
+
     def clean(self, value):
         return super().clean(value) or str(uuid4())
 
@@ -401,8 +495,48 @@ class UUIDBlock(blocks.CharBlock):
         return value
 
 
-def BaseButtonSettings(themes=BUTTON_THEMES, **kwargs):
+def _regenerate_uuid_blocks(block, value):
+    """Walk a block's prepared value and replace every UUIDBlock (analytics ID)
+    with a freshly generated UUID, recursing into structs, streams and lists.
 
+    Operates on the JSON-serialisable form returned by ``get_prep_value`` and
+    mutates it in place, returning the (possibly replaced) value."""
+    if isinstance(block, UUIDBlock):
+        return str(uuid4())
+    if isinstance(block, blocks.StructBlock):
+        for name, child_block in block.child_blocks.items():
+            if name in value:
+                value[name] = _regenerate_uuid_blocks(child_block, value[name])
+    elif isinstance(block, blocks.StreamBlock):
+        for member in value:
+            child_block = block.child_blocks.get(member["type"])
+            if child_block is not None:
+                member["value"] = _regenerate_uuid_blocks(child_block, member["value"])
+    elif isinstance(block, blocks.ListBlock):
+        for index, member in enumerate(value):
+            if isinstance(member, dict) and "value" in member and "type" in member:
+                member["value"] = _regenerate_uuid_blocks(block.child_block, member["value"])
+            else:
+                value[index] = _regenerate_uuid_blocks(block.child_block, member)
+    return value
+
+
+def regenerate_analytics_ids(stream_value):
+    """Return a new StreamField value with every analytics-ID UUIDBlock replaced
+    by a freshly generated UUID.
+
+    Used when duplicating a page so the copy gets its own unique analytics IDs.
+    Translations must NOT call this — a translated page keeps the source page's
+    analytics IDs so tracking stays consistent across locales."""
+    stream_block = stream_value.stream_block
+    # deepcopy so mutating the prepared data never touches the source value —
+    # get_prep_value() can share nested references with the live StreamValue.
+    prepared = deepcopy(stream_value.get_prep_value())
+    _regenerate_uuid_blocks(stream_block, prepared)
+    return stream_block.to_python(prepared)
+
+
+def BaseButtonSettings(themes=BUTTON_THEMES, **kwargs):
     class _BaseButtonSettings(blocks.StructBlock):
         theme = blocks.ChoiceBlock(
             choices=[(theme, BUTTON_THEME_CHOICES[theme]) for theme in themes],
@@ -621,16 +755,19 @@ def ButtonBlock(themes=BUTTON_THEMES, **kwargs):
         themes: List of theme strings to include in the button settings.
     """
 
-    class _ButtonBlock(blocks.StructBlock):
+    class _ButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         link = SpringfieldLinkBlock()
 
         class Meta:
             template = "cms/blocks/button.html"
             label = "Button"
-            label_format = "Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "link"],
+                settings=["settings"],
+            )
 
     return _ButtonBlock(**kwargs)
 
@@ -647,51 +784,80 @@ class UITourButtonValue(BaseButtonValue):
 
 
 def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _UITourButtonBlock(blocks.StructBlock):
+    class _UITourButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
         button_type = blocks.ChoiceBlock(
             default=UITOUR_BUTTON_NEW_TAB,
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
             label = "UI Tour Button"
-            label_format = "UI Tour Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "button_type"],
+                settings=["settings"],
+            )
 
     return _UITourButtonBlock(**kwargs)
 
 
 def FXAccountButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _FXAccountButtonBlock(blocks.StructBlock):
+    class _FXAccountButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
 
         class Meta:
             template = "cms/blocks/fxa_button.html"
             label = "Firefox Account Button"
-            label_format = "Firefox Account Button"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label"],
+                settings=["settings"],
+            )
 
     return _FXAccountButtonBlock(**kwargs)
 
 
 def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _SetAsDefaultButtonBlock(blocks.StructBlock):
+    class _SetAsDefaultButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text")
         snippet = LocalizedLiveSnippetChooserBlock("cms.SetAsDefaultSnippet", label="Set as Default Snippet")
 
         class Meta:
             template = "cms/blocks/set_as_default_button.html"
             label = "Set As Default Button"
-            label_format = "Set As Default Button"
+            label_format = "{custom_label} {pretranslated_label}"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "snippet"],
+                settings=["settings"],
+            )
 
     return _SetAsDefaultButtonBlock(**kwargs)
+
+
+def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
+    class _QRCodeModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        url = blocks.URLBlock(label="QR Code URL", help_text="URL to encode as a QR code")
+        heading = blocks.CharBlock(label="Modal heading")
+        content = blocks.CharBlock(label="Modal caption", required=False)
+
+        class Meta:
+            template = "cms/blocks/qr-code-modal-button.html"
+            label = "QR Code Modal Button"
+            label_format = "{custom_label} {pretranslated_label}"
+            value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "url", "heading", "content"],
+                settings=["settings"],
+            )
+
+    return _QRCodeModalButtonBlock(**kwargs)
 
 
 def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
@@ -762,13 +928,12 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
 
 
 def DownloadFirefoxButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _DownloadFirefoxButtonBlock(blocks.StructBlock):
+    class _DownloadFirefoxButtonBlock(LabelSourceMixin):
         settings = DownloadFirefoxButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox")
 
         class Meta:
             label = "Download Firefox Button"
-            label_format = "Download Firefox Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/download-firefox-button.html"
             value_class = BaseButtonValue
 
@@ -791,9 +956,8 @@ class StoreButtonBlock(blocks.StructBlock):
 
 
 def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
-    class _FirefoxFocusButtonBlock(blocks.StructBlock):
+    class _FirefoxFocusButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        label = blocks.CharBlock(label="Button Text", default="Get Firefox Focus")
         store = blocks.ChoiceBlock(
             choices=[
                 ("android", "Android (Google Play)"),
@@ -804,9 +968,13 @@ def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
         class Meta:
             label = "Firefox Focus Button"
-            label_format = "Firefox Focus Button - {label}"
+            label_format = "{custom_label} {pretranslated_label}"
             template = "cms/blocks/firefox-focus-button.html"
             value_class = BaseButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "store"],
+                settings=["settings"],
+            )
 
     return _FirefoxFocusButtonBlock(**kwargs)
 
@@ -836,6 +1004,7 @@ def MixedButtonsBlock(
         DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
+        QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -2784,9 +2953,51 @@ class DownloadSupportBlock(blocks.StaticBlock):
 # Contact Page Form Field Blocks
 
 
+class BaseFieldValue(blocks.StructValue):
+    def get_field(self):
+        """Override in subclasses to return the appropriate Django form field class."""
+        return forms.CharField
+
+    def get_error_messages(self):
+        """Localised validation messages. Subclasses extend for field-specific keys."""
+        return {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])}
+
+    def get_form_field(self):
+        Field = self.get_field()
+        kwargs = {
+            "label": self.get("label"),
+            "required": self.get("required", False),
+            "error_messages": self.get_error_messages(),
+        }
+        if initial := self.get_initial_value():
+            kwargs["initial"] = initial
+        if widget := self.get_widget():
+            kwargs["widget"] = widget
+        if choices := self.get_choices():
+            kwargs["choices"] = choices
+        return Field(**kwargs)
+
+    def get_widget(self):
+        """Override in subclasses if a specific widget is needed."""
+        return None
+
+    def get_initial_value(self):
+        """Override in subclasses if the field type has a specific initial value."""
+        return None
+
+    def get_choices(self):
+        """Override in subclasses if the field type has specific choices (e.g., for select fields)."""
+        return None
+
+    @property
+    def is_multivalue(self):
+        """True if this field submits multiple values (e.g. checkbox group). Used by _get_display_data."""
+        return False
+
+
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
-    internal_identifier = blocks.CharBlock(
+    internal_identifier = UntranslatableCharBlock(
         label="Internal Identifier",
         help_text="Internal name for the field (e.g., 'name', 'email', 'phone_number')",
     )
@@ -2809,6 +3020,12 @@ class TextFieldBlock(BaseField):
         template = "cms/blocks/form_fields/text_field.html"
         label = "Text Field"
         label_format = "Text - {label}"
+        value_class = BaseFieldValue
+
+
+class TextAreaFieldValue(BaseFieldValue):
+    def get_widget(self):
+        return forms.Textarea(attrs={"rows": self.get("rows", 4)})
 
 
 class TextAreaFieldBlock(BaseField):
@@ -2823,6 +3040,17 @@ class TextAreaFieldBlock(BaseField):
         template = "cms/blocks/form_fields/textarea_field.html"
         label = "Text Area Field"
         label_format = "Text Area - {label}"
+        value_class = TextAreaFieldValue
+
+
+class EmailFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.EmailField
+
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid"] = ftl_lazy("contact-form-error-email", ftl_files=["cms/contact"])
+        return messages
 
 
 class EmailFieldBlock(BaseField):
@@ -2830,6 +3058,12 @@ class EmailFieldBlock(BaseField):
         template = "cms/blocks/form_fields/email_field.html"
         label = "Email Field"
         label_format = "Email - {label}"
+        value_class = EmailFieldValue
+
+
+class PhoneFieldValue(BaseFieldValue):
+    def get_widget(self):
+        return TelInput()
 
 
 class PhoneFieldBlock(BaseField):
@@ -2837,15 +3071,30 @@ class PhoneFieldBlock(BaseField):
         template = "cms/blocks/form_fields/phone_field.html"
         label = "Phone Field"
         label_format = "Phone - {label}"
+        value_class = PhoneFieldValue
 
 
 class SelectOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.CharBlock(label="Option Label")
 
     class Meta:
         label = "Select Option"
         label_format = "{label}"
+
+
+class SelectFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.ChoiceField
+
+    def get_choices(self):
+        options = self.get("options", [])
+        return [(option["value"], option["label"]) for option in options]
+
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid_choice"] = ftl_lazy("contact-form-error-choice", ftl_files=["cms/contact"])
+        return messages
 
 
 class SelectFieldBlock(BaseField):
@@ -2859,15 +3108,37 @@ class SelectFieldBlock(BaseField):
         template = "cms/blocks/form_fields/select_field.html"
         label = "Select Field"
         label_format = "Select - {label}"
+        value_class = SelectFieldValue
 
 
 class CheckboxOptionBlock(blocks.StructBlock):
-    value = blocks.CharBlock(label="Option Value")
+    value = UntranslatableCharBlock(label="Option Value")
     label = blocks.RichTextBlock(label="Option Label", features=HEADING_TEXT_FEATURES)
 
     class Meta:
         label = "Checkbox Option"
         label_format = "{label}"
+
+
+class CheckboxGroupFieldValue(BaseFieldValue):
+    @property
+    def is_multivalue(self):
+        return True
+
+    def get_field(self):
+        return forms.MultipleChoiceField
+
+    def get_choices(self):
+        options = self.get("options", [])
+        return [(option["value"], option["label"]) for option in options]
+
+    def get_widget(self):
+        return forms.CheckboxSelectMultiple()
+
+    def get_error_messages(self):
+        messages = super().get_error_messages()
+        messages["invalid_choice"] = ftl_lazy("contact-form-error-choice", ftl_files=["cms/contact"])
+        return messages
 
 
 class CheckboxGroupFieldBlock(BaseField):
@@ -2881,6 +3152,12 @@ class CheckboxGroupFieldBlock(BaseField):
         template = "cms/blocks/form_fields/checkbox_group_field.html"
         label = "Checkbox Group Field"
         label_format = "Checkbox Group - {label}"
+        value_class = CheckboxGroupFieldValue
+
+
+class CheckboxFieldValue(BaseFieldValue):
+    def get_field(self):
+        return forms.BooleanField
 
 
 class CheckboxFieldBlock(BaseField):
@@ -2890,18 +3167,45 @@ class CheckboxFieldBlock(BaseField):
         template = "cms/blocks/form_fields/checkbox_field.html"
         label = "Checkbox Field"
         label_format = "Checkbox - {label}"
+        value_class = CheckboxFieldValue
+
+
+class HiddenFieldValue(BaseFieldValue):
+    def get_initial_value(self):
+        return self.get("default_value", "")
+
+    def get_widget(self):
+        return forms.HiddenInput()
 
 
 class HiddenFieldBlock(BaseField):
-    default_value = blocks.CharBlock(
+    default_value = UntranslatableCharBlock(
         label="Default value",
         help_text="Value submitted with the form for this hidden field.",
+    )
+    query_param_override = UntranslatableCharBlock(
+        required=False,
+        label="Query param override for default value",
+        help_text="If this query param is sent on the request, its value will be used instead of the default value. "
+        'Ex: ?my_param=custom_value will render <input value="custom_value" name="{internal_identifier}" type="hidden"/>',
     )
 
     class Meta:
         template = "cms/blocks/form_fields/hidden_field.html"
         label = "Hidden Field"
         label_format = "Hidden - {label}"
+        value_class = HiddenFieldValue
+
+
+class CountrySelectFieldValue(SelectFieldValue):
+    def get_choices(self):
+        # The choices displayed to the user are localized and built by the block's get_context
+        # method. The choices built here are used for validation only.
+        countries = sorted(
+            ((code.upper(), name) for code, name in product_details.get_regions(settings.LANGUAGE_CODE).items()),
+            key=lambda item: item[1],
+        )
+        return countries
 
 
 class CountrySelectFieldBlock(BaseField):
@@ -2920,3 +3224,4 @@ class CountrySelectFieldBlock(BaseField):
         template = "cms/blocks/form_fields/country_select_field.html"
         label = "Country Select Field"
         label_format = "Country Select - {label}"
+        value_class = CountrySelectFieldValue

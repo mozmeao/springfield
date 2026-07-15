@@ -68,7 +68,7 @@ repos:
           - --comment-style
           - "|#|"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
+    rev: v0.15.18
     hooks:
       - id: ruff
       - id: ruff-format
@@ -83,7 +83,7 @@ repos:
     hooks:
       - id: prettier
         additional_dependencies:
-        - prettier@^3.7.4
+        - prettier@^3.9.3
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2
     hooks:
@@ -97,8 +97,8 @@ repos:
     rev: 0.0.2
     hooks:
       - id: stylelint
-        files: media/css/.*/flare26.*\.css$
-        args: [-c, .stylelintrc-flare26]
+        files: media/css/.*/flare.*\.css$
+        args: [-c, .stylelintrc-flare]
         additional_dependencies:
           - "stylelint@16.26.1"
           - "stylelint-config-standard-scss@13.1.0"

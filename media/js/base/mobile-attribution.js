@@ -24,6 +24,13 @@ if (typeof window.Mozilla === 'undefined') {
     var ANDROID_RE = /\bAndroid\b/i;
     var IOS_RE = /\b(iPhone|iPad|iPod)\b/i;
 
+    // Fallback campaign for mobile users with no campaign declared on the
+    // page or in the URL. Distinct from "download" (the value baked into
+    // the server-rendered Path A Play Store URL) so attribution dashboards
+    // can tell "firefox.com mobile fallback" apart from explicit campaigns
+    // named "download".
+    var DEFAULT_CAMPAIGN = 'fxcomdefault';
+
     /**
      * Resolve the campaign value: force > override > URL utm_campaign > default.
      * IE9-safe parse avoids URLSearchParams.
@@ -98,7 +105,7 @@ if (typeof window.Mozilla === 'undefined') {
     /**
      * Click handler: fire the GA4 + legacy download events and navigate to
      * the closure-captured https:// URL. We navigate via JS (mirroring
-     * thanks-init.js) because mozilla-utils.js mutates Android Play Store
+     * auto-download.js) because mozilla-utils.js mutates Android Play Store
      * hrefs to `market://details?...` on DOM ready — that scheme works on
      * real Android but fails in desktop browsers, breaking dev testing.
      * The https:// URL works in both contexts (Android App Links open the
@@ -128,7 +135,9 @@ if (typeof window.Mozilla === 'undefined') {
      *      the captured https:// URL. iOS Path A is unaffected and not
      *      supplemented (would double-fire).
      *   2. Path B: rewrite /thanks/-bound CTAs to attributed store URLs.
-     *      Gated on a declared campaign (CMS stub_attr or URL utm_campaign).
+     *      Falls back to DEFAULT_CAMPAIGN when no campaign is declared so
+     *      mobile users never route through /thanks/, which renders desktop-
+     *      stub-installer copy and serves no purpose pre-install on mobile.
      */
     MobileAttribution.init = function () {
         var html = document.documentElement;
@@ -143,13 +152,9 @@ if (typeof window.Mozilla === 'undefined') {
             MobileAttribution.attachAndroidStoreButtonTracking(document);
         }
 
-        var campaign = MobileAttribution.getCampaign(
-            html,
-            window.location.search
-        );
-        if (!campaign) {
-            return;
-        }
+        var campaign =
+            MobileAttribution.getCampaign(html, window.location.search) ||
+            DEFAULT_CAMPAIGN;
 
         var storeUrl = MobileAttribution.getStoreUrl(campaign, isAndroid);
         MobileAttribution.rewriteLinks(document, storeUrl);

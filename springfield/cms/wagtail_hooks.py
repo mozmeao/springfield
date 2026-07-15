@@ -6,8 +6,9 @@ import json
 from uuid import uuid4
 
 from django.conf import settings
+from django.shortcuts import redirect
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
@@ -22,12 +23,48 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
-from wagtail.models import Locale as WagtailLocale
+from wagtail.fields import StreamField
+from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
+from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.admin_views import ContentSearchView
+from springfield.cms.blocks import regenerate_analytics_ids
+from springfield.cms.models import (
+    AbstractSpringfieldCMSPage,
+    BannerSnippet,
+    PencilBannerSnippet,
+    PreFooterCTAFormSnippet,
+    PreFooterCTASnippet,
+    PretranslatedPhrase,
+    QRCodeFloatingSnippet,
+    QRCodeSnippet,
+    ScrollToSeeMoreSnippet,
+    SetAsDefaultSnippet,
+    Tag,
+)
+
+
+@hooks.register("register_admin_urls")
+def register_content_search_url():
+    return [
+        path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
+        path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_content_search_link():
+    return MenuItem(
+        "Search content",
+        reverse("cms_content_search"),
+        icon_name="search",
+        order=2,
+    )
 
 
 @hooks.register("register_admin_menu_item")
@@ -442,3 +479,165 @@ def register_uid_link_handlers(features):
             "to_database_format": {"entity_decorators": {"DOCUMENT": uid_document_link_entity}},
         },
     )
+
+
+class LocaleDefaultingIndexView(IndexView):
+    """
+    Snippet IndexView that defaults to the default locale (en-US) when the
+    `locale` query parameter is absent from the URL, matching the page tree's
+    behaviour.
+
+    When `locale` is present in the request, we treat it as an explicit editor
+    decision, so we do NOT redirect. This includes the 'locale=' value Wagtail's
+    LocaleFilter uses for the "All locales" choice.
+
+    Our logic is only used:
+        - for models that are translatable AND
+        - when WAGTAIL_I18N_ENABLED AND
+        - NOT for results_only requests (this is used for the inline filter form
+         (which re-fetches without a `locale=` key when "All" is picked))
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if (
+            self.model
+            and issubclass(self.model, TranslatableMixin)
+            and getattr(settings, "WAGTAIL_I18N_ENABLED", False)
+            # IMPORTANT: key-presence check, NOT truthy check. An empty string
+            # `?locale=` is Wagtail's LocaleFilter "All locales" choice; we
+            # must not redirect it back to en-US.
+            and "locale" not in request.GET
+            # Wagtail's BaseListingView.results_only marks the AJAX endpoint
+            # that the inline filter form re-fetches on every change. See
+            # wagtail/admin/views/generic/base.py `BaseListingView`.
+            and not self.results_only
+        ):
+            default = WagtailLocale.get_default()
+            if default:
+                query = request.GET.copy()
+                query["locale"] = default.language_code
+                return redirect(f"{request.path}?{query.urlencode()}")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LocaleDefaultingSnippetViewSet(SnippetViewSet):
+    index_view_class = LocaleDefaultingIndexView
+
+
+class PretranslatedPhraseViewSet(LocaleDefaultingSnippetViewSet):
+    model = PretranslatedPhrase
+    menu_label = "Phrases"
+    list_display = ["label", "locale", "live"]
+    search_fields = ["label"]
+
+
+class PreFooterCTASnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PreFooterCTASnippet
+    list_display = ["label", "locale", "live"]
+
+
+class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PreFooterCTAFormSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = BannerSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class TagViewSet(LocaleDefaultingSnippetViewSet):
+    model = Tag
+    list_display = ["name", "locale", "live"]
+
+
+class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = QRCodeSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class SetAsDefaultSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = SetAsDefaultSnippet
+    list_display = ["heading_text", "locale", "live"]
+
+
+class QRCodeFloatingSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = QRCodeFloatingSnippet
+    # `heading` is a RichTextField — use the `heading_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["heading_plain", "locale", "live"]
+
+
+class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = ScrollToSeeMoreSnippet
+    list_display = ["text", "locale", "live"]
+
+
+class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = PencilBannerSnippet
+    # `title` is a RichTextField — use the `title_plain` method on the model
+    # to strip HTML tags so the listing column is readable.
+    list_display = ["title_plain", "locale", "live"]
+
+
+for _viewset in (
+    PretranslatedPhraseViewSet,
+    PreFooterCTASnippetViewSet,
+    PreFooterCTAFormSnippetViewSet,
+    BannerSnippetViewSet,
+    TagViewSet,
+    QRCodeSnippetViewSet,
+    SetAsDefaultSnippetViewSet,
+    QRCodeFloatingSnippetViewSet,
+    ScrollToSeeMoreSnippetViewSet,
+    PencilBannerSnippetViewSet,
+):
+    register_snippet(_viewset)
+
+
+@hooks.register("after_copy_page")
+def regenerate_analytics_ids_on_copy(request, page, new_page):
+    """Give freshly copied pages their own analytics IDs so duplicated pages don't
+    share tracking UUIDs with their source.
+
+    Runs for every admin "Copy page" action (the admin view uses ``CopyPageAction``
+    directly, so overriding ``Page.copy()`` would not catch it). Skipped when:
+
+    * the editor ticked "Keep analytics IDs" on the copy form (opt-out), or
+    * the copy is an alias, which must mirror its original exactly.
+
+    Applies to the copied page and every copied descendant, since recursive copies
+    build subpages without calling ``Page.copy()`` either.
+    """
+    post = getattr(request, "POST", {})
+    user = getattr(request, "user", None)
+
+    if post.get("keep_analytics_ids"):
+        return
+    if new_page.alias_of_id:
+        return
+
+    for copied_page in new_page.get_descendants(inclusive=True).specific():
+        if not isinstance(copied_page, AbstractSpringfieldCMSPage):
+            continue
+
+        stream_fields = [field for field in copied_page._meta.get_fields() if isinstance(field, StreamField)]
+        if not stream_fields:
+            continue
+
+        for field in stream_fields:
+            setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
+
+        copied_page.save()
+        revision = copied_page.save_revision(user=user) if user else copied_page.save_revision()
+        if copied_page.live:
+            if user:
+                revision.publish(user=user)
+            else:
+                revision.publish()

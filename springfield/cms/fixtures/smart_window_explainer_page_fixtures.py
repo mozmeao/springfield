@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models.pages import SmartWindowExplainerPage
 
 _ANIMATION_URL = "https://assets.mozilla.net/video/red-pandas.webm"
@@ -154,13 +154,14 @@ def get_smart_window_explainer_test_page() -> SmartWindowExplainerPage:
     index_page = get_flare_pages_docs_page()
 
     slug = "test-smart-window-explainer"
-    page = SmartWindowExplainerPage.objects.filter(slug=slug).first()
-    if not page:
-        page = SmartWindowExplainerPage(
-            slug=slug,
-            title="Smart Window Explainer Page",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        SmartWindowExplainerPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Smart Window Explainer Page",
+        },
+    )
 
     page.upper_content = [get_smart_window_explainer_intro()]
     page.content = get_smart_window_explainer_content()

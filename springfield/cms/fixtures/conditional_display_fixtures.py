@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.models import FreeFormPage2026
 
 
@@ -270,16 +270,23 @@ def get_conditional_display_variants() -> list[dict]:
 def get_conditional_display_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage2026.objects.filter(slug="test-conditional-display").first()
-    if not page:
-        page = FreeFormPage2026(
-            slug="test-conditional-display",
-            title="Conditional Display",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug="test-conditional-display",
+        parent=index_page,
+        defaults={
+            "title": "Conditional Display",
+        },
+    )
 
     blocks = get_conditional_display_variants()
     page.upper_content = blocks
     page.content = blocks
+    page.docs = (
+        "<p>The Conditional Display block wraps content that should only appear for specific audiences &mdash; particular platforms "
+        "(Windows, macOS, Linux, Android, iOS), browser types (Firefox / non-Firefox), authentication states (signed-in / signed-out), "
+        "or default-browser status.</p>"
+        "<p>Consider having a sensible &lsquo;show to all&rsquo; fallback so the page stays coherent if no condition matches.</p>"
+    )
     page.save_revision().publish()
     return page

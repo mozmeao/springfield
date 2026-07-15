@@ -56,12 +56,9 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
-# CMS refresh redirect controls (toggled by infra during URL/content migrations).
-# ENABLE_CMS_REFRESH_REDIRECTS turns the redirects on; defaults to false so new behavior
-# is opt-in and can be rolled out gradually. PERMANENT_CMS_REFRESH_REDIRECTS switches
-# the redirects from temporary (302) to permanent (301); defaults to false so we can
-# verify the rollout and later make redirects permanent or remove them as part of cleanup.
-ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
+# PERMANENT_CMS_REFRESH_REDIRECTS switches the CMS-refresh redirects from temporary (302)
+# to permanent (301); defaults to true. The redirects themselves are now always
+# on. TODO: remove this setting once the redirects are confirmed permanent (follow-up).
 PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
@@ -139,8 +136,6 @@ TIME_ZONE = config("TIME_ZONE", default="America/Los_Angeles")
 USE_I18N = True
 
 USE_TZ = True
-
-USE_ETAGS = config("USE_ETAGS", default=str(not DEBUG), parser=bool)
 
 # Use the "X-Forwarded-Host" header from the CDN to set the Hostname
 # https://mozilla-hub.atlassian.net/browse/SE-4263
@@ -474,7 +469,6 @@ SUPPORTED_NONLOCALES = [
     "robots.txt",
     ".well-known",
     "healthz",  # Needed for k8s
-    # "healthz-cdn",  # Needed for Fastly CDN health checks
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
     "revision.txt",  # from root_files
@@ -482,11 +476,8 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
-
-# Ensure local debug-only test routes are not locale-prefixed
-if DEBUG:
-    SUPPORTED_NONLOCALES.append("flare-test")
 
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
@@ -508,7 +499,7 @@ NOINDEX_URLS = [
     r"^django-rq/",
     r"^oidc/",
     r"^\.well-known/",
-    r"^browsers/unsupported-systems/",
+    r"^download/unsupported-systems/",
     r"^download/installer-help/",
     r"^firefox/nightly/notes/feed/$",
     r"^landing/",
@@ -516,7 +507,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -686,6 +677,14 @@ ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bo
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
 ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool)
 
+# Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
+# Secret in webservices-infra), requests carrying the same token in the
+# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# 5xx for testing Fastly's failover cascade without breaking the /healthz/
+# probe. When unset (the default in every environment) the middleware is a
+# no-op and this setting has no effect.
+SYNTHETIC_5XX_TOKEN = config("SYNTHETIC_5XX_TOKEN", default="")
+
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
     "django.middleware.security.SecurityMiddleware",
@@ -694,6 +693,7 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.SyntheticServerErrorMiddleware",
     "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
@@ -789,7 +789,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron|-cdn)?/$",
+    r"^healthz-cron/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -871,7 +871,7 @@ PATTERN_LIBRARY = {
     "SECTIONS": (
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
-        ("Components", ["pattern-library/components/flare-26/"]),
+        ("Components", ["pattern-library/components/flare/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -880,7 +880,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare26.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1085,6 +1085,9 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
+    # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
+    # requests; keep it out of Sentry events so the token cannot leak via error reports.
+    "X-Mozilla-Ops-Canary",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
@@ -1471,6 +1474,7 @@ def _localize_dashboard_column_filter_options():
 # Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
 WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.PretranslatedPhrase"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1539,3 +1543,11 @@ PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", par
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
 PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
+
+# Contact Page
+# On PROD, only certain paths are allowed to send POST requests
+# This needs to be in sync with Fastly WAF configuration
+CONTACT_PAGE_ALLOWED_PATHS = [
+    r"/enterprise/contact/$",
+    r"/landing/[a-zA-Z0-9\-]+/contact/$",
+]

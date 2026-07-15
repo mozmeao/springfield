@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% block body_class %}fl-article-body{% endblock %}
 
@@ -17,7 +17,7 @@
       <header class="fl-article-header">
         <include:heading
             level="h1"
-            heading_size="fl-heading-xl"
+            heading_size="fl-heading-xl fl-heading-condensed"
             heading_text="{{ page.title }}"
         />
         {% if page.image %}

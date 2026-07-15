@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
@@ -87,7 +87,7 @@ def get_cards_list_section():
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": SHOW_TO_ALL},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="7tmxz">Work confidently. </p><p data-block-key="4tohn">Browse privately.</p>',
@@ -121,13 +121,14 @@ def get_download_index_page() -> DownloadIndexPage:
     index_page = get_flare_pages_docs_page()
 
     slug = "test-download-index-page"
-    page = DownloadIndexPage.objects.filter(slug=slug).first()
-    if not page:
-        page = DownloadIndexPage(
-            slug=slug,
-            title="Download Index",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        DownloadIndexPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Download Index",
+        },
+    )
 
     page.save_revision().publish()
     return page
@@ -139,13 +140,14 @@ def get_download_page(platform) -> DownloadPage:
     image, _, _, _ = get_placeholder_images()
 
     slug = f"test-download-page-{platform}"
-    page = DownloadPage.objects.filter(slug=slug).first()
-    if not page:
-        page = DownloadPage(
-            slug=slug,
-            title=f"Download Page Test - {platform.capitalize()}",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        DownloadPage,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": f"Download Page Test - {platform.capitalize()}",
+        },
+    )
 
     page.platform = platform
     page.subheading = (
@@ -153,7 +155,7 @@ def get_download_page(platform) -> DownloadPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
-    page.content = [get_cards_list_section()]
+    page.content = with_fresh_ids([get_cards_list_section()])
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page

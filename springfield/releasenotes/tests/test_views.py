@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from springfield.releasenotes.views import releases_index, show_android_sys_req
+from springfield.releasenotes.views import latest_notes, latest_sysreq, releases_index, show_android_sys_req
 
 
 @pytest.mark.parametrize(
@@ -161,3 +161,44 @@ def test_releases_index__product_other_than_firefox(render_mock, rf):
         "someproduct/releases/index.html",
         {"releases": []},
     )
+
+
+@pytest.mark.parametrize(
+    "view_func, url_method",
+    [
+        (latest_notes, "get_absolute_url"),
+        (latest_sysreq, "get_sysreq_url"),
+    ],
+)
+@patch("springfield.releasenotes.views.latest_release")
+def test_latest_redirects_preserve_query_params(latest_release_mock, view_func, url_method, rf):
+    mock_release = latest_release_mock.return_value
+    mock_release.get_sysreq_url.return_value = "/firefox/ios/152.0/system-requirements/"
+    mock_release.get_absolute_url.return_value = "/en-US/firefox/ios/152.0/releasenotes/"
+
+    request = rf.get("/?redirect_source=mozilla-org")
+    response = view_func(request)
+
+    assert response.status_code == 302
+    expected_url = getattr(mock_release, url_method)()
+    assert response.url == f"{expected_url}?redirect_source=mozilla-org"
+
+
+@pytest.mark.parametrize(
+    "view_func, url_method",
+    [
+        (latest_notes, "get_absolute_url"),
+        (latest_sysreq, "get_sysreq_url"),
+    ],
+)
+@patch("springfield.releasenotes.views.latest_release")
+def test_latest_redirects_without_query_params(latest_release_mock, view_func, url_method, rf):
+    mock_release = latest_release_mock.return_value
+    mock_release.get_sysreq_url.return_value = "/firefox/ios/152.0/system-requirements/"
+    mock_release.get_absolute_url.return_value = "/en-US/firefox/ios/152.0/releasenotes/"
+
+    request = rf.get("/")
+    response = view_func(request)
+
+    assert response.status_code == 302
+    assert response.url == getattr(mock_release, url_method)()

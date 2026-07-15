@@ -761,6 +761,8 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             return;
         }
 
+        // This is required for checkbox-based attribution updates
+        // to run multiple times on a page
         DownloadAttribution.requestComplete = false;
         DownloadAttribution.requestAuthentication(combined);
     },
