@@ -3866,7 +3866,7 @@ class TestIconListItemValue:
         assert value.icon_name == ""
 
     def test_icon_url_looks_up_from_thumbnail_source(self):
-        expected_url = "/static/img/firefox/flare/2026/icons/desktop-16/activity/activity-16.svg"
+        expected_url = "/static/img/firefox/flare/icons/desktop-16/activity/activity-16.svg"
         value = _make_icon_list_item_value("activity", thumbnail_url=expected_url)
         assert value.icon_url == expected_url
 

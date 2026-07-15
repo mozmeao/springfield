@@ -343,7 +343,7 @@ class LabelSourceMixin(blocks.StructBlock):
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, thumbnail_size=20, **kwargs):
         super().__init__(
-            thumbnail_directory="img/firefox/flare/2026/icons",
+            thumbnail_directory="img/firefox/flare/icons",
             thumbnail_directory_label_fn=icon_display_label,
             thumbnail_directory_value_fn=icon_value_fn,
             thumbnail_size=thumbnail_size,
