@@ -1576,7 +1576,6 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
     response = test_page.serve(request)
     assert response.status_code == 200
 
-    context = test_page.get_context(request)
     content = response.content
     soup = BeautifulSoup(content, "html.parser")
 
@@ -1585,26 +1584,22 @@ def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
     cards_list_div = soup.find("div", class_="fl-card-grid")
     assert cards_list_div
 
-    card_elements = cards_list_div.find_all("article", class_="fl-sticker-card")
+    card_elements = cards_list_div.find_all("article", class_="fl-card")
 
     cards = cards_list["value"]["cards"]
     assert len(card_elements) == len(cards)
 
     for index, card in enumerate(cards):
         card_element = card_elements[index]
-        assert_card_attributes(
-            card_element=card_element,
-            card_data=card,
-            context=context,
-            heading_tag="h2",
-        )
+        content_items = card["value"]["content"]
 
-        images_element = card_element.find("div", class_="fl-card-sticker")
-        assert_image_variants_attributes(
-            images_element=images_element,
-            images_value=card["value"]["image"],
-            widths="width-400",
-        )
+        heading_block = next(b for b in content_items if b["type"] == "heading")
+        heading_text = BeautifulSoup(heading_block["value"]["heading_text"], "html.parser").get_text()
+        heading_el = card_element.find("h2", class_="fl-heading")
+        assert heading_el and heading_text in heading_el.get_text()
+
+        pictogram_wrapper = card_element.find("div", class_="fl-card-media-pictogram")
+        assert pictogram_wrapper and pictogram_wrapper.find("img")
 
 
 def test_home_carousel_block(index_page, placeholder_images, rf):
@@ -2153,7 +2148,7 @@ def test_freeform_page_split_layout(index_page, rf):
     # Lower content contains the section with cards
     sections = lower.find_all("section", class_="fl-section")
     assert len(sections) == 1
-    card_articles = sections[0].find_all("article", class_="fl-illustration-card")
+    card_articles = sections[0].find_all("article", class_="fl-card")
     assert len(card_articles) == 3, "Should render cards for Android, iOS, and Focus"
 
 
@@ -2430,31 +2425,6 @@ def assert_icon_card(card_el, variant, context, region_name, heading_tag, block_
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
-
-
-def assert_testimonial_card(card_el, card_data):
-    value = card_data["value"]
-
-    content_text = BeautifulSoup(value["content"], "html.parser").get_text()
-    quote_el = card_el.find("blockquote", class_="fl-testimonial-card-quote")
-    assert quote_el and content_text in quote_el.get_text()
-
-    attribution_text = BeautifulSoup(value["attribution"], "html.parser").get_text()
-    cite_el = card_el.find("cite", class_="fl-testimonial-card-attribution")
-    assert cite_el and attribution_text in cite_el.get_text()
-
-    if value.get("attribution_role"):
-        role_text = BeautifulSoup(value["attribution_role"], "html.parser").get_text()
-        role_el = card_el.find("span", class_="fl-testimonial-card-role")
-        assert role_el and role_text in role_el.get_text()
-    else:
-        assert not card_el.find("span", class_="fl-testimonial-card-role")
-
-    image_container = card_el.find("div", class_="fl-testimonial-card-image")
-    if value["attribution_image"]["image"]:
-        assert image_container and image_container.find("img")
-    else:
-        assert not image_container
 
 
 def test_sticker_cards_block(index_page, placeholder_images, rf):

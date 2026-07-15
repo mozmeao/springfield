@@ -443,17 +443,19 @@ def test_smart_window_page_content_blocks(smart_window_page: SmartWindowPage, rf
     assert len(illustration_card_els) == len(illustration_cards_data) == 3
 
     for i, card in enumerate(illustration_cards_data):
-        headline_text = BeautifulSoup(card["value"]["headline"], "html.parser").get_text()
+        heading_block = next(b for b in card["value"]["content"] if b["type"] == "heading")
+        headline_text = BeautifulSoup(heading_block["value"]["heading_text"], "html.parser").get_text()
         assert headline_text in illustration_card_els[i].get_text()
 
     testimonial_cards_data = testimonial_cards_fixture["value"]["cards"]
     testimonial_grid = card_grids[1]
     assert "fl-card-grid-scroll" in testimonial_grid.get("class", [])
-    testimonial_card_els = testimonial_grid.find_all("article", class_="fl-testimonial-card")
+    testimonial_card_els = testimonial_grid.find_all("article", class_="fl-card")
     assert len(testimonial_card_els) == len(testimonial_cards_data) == 6
 
     for i, card in enumerate(testimonial_cards_data):
-        attribution_text = BeautifulSoup(card["value"]["attribution"], "html.parser").get_text()
+        testimonial_block = next(b for b in card["value"]["content"] if b["type"] == "testimonial")
+        attribution_text = BeautifulSoup(testimonial_block["value"]["attribution"], "html.parser").get_text()
         assert attribution_text in testimonial_card_els[i].get_text()
 
 
