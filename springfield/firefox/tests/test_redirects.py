@@ -170,6 +170,30 @@ def test_ai_redirect_to_smart_window_waitlist(client, source, dest):
     assert resp.headers["Location"] == dest
 
 
+@pytest.mark.parametrize(
+    "accept_language",
+    ("en-US", "de", "fr", "es-MX", "ja"),
+)
+@pytest.mark.parametrize(
+    "source",
+    ("/school/", "/school"),
+)
+def test_school_redirect_always_lands_on_en_us(client, source, accept_language):
+    resp = client.get(source, headers={"accept-language": accept_language}, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/en-US/landing/school/"
+
+
+@pytest.mark.parametrize(
+    "source",
+    ("/school/?utm_source=test&utm_campaign=school", "/school?utm_source=test&utm_campaign=school"),
+)
+def test_school_redirect_preserves_query_string(client, source):
+    resp = client.get(source, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/en-US/landing/school/?utm_source=test&utm_campaign=school"
+
+
 # -- Offsite redirect / locale / query string isolation tests --
 
 EXPECTED_REDIRECT_QS = "?redirect_source=test"

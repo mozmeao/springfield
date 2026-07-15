@@ -116,6 +116,10 @@ redirectpatterns = (
         merge_query=False,
     ),
     redirect(r"^mobile/get-app/?$", "/mobile/", permanent=False),
+    # WT-1212: /school/ vanity URL always lands on the en-US page.
+    # `school` is in SUPPORTED_NONLOCALES so LangCodeFixupMiddleware won't
+    # prepend a locale before this pattern fires.
+    redirect(r"^school/?$", "/en-US/landing/school/", locale_prefix=False, permanent=False),
 )
 
 refresh_redirects = (
