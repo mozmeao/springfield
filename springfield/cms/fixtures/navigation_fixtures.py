@@ -6,13 +6,17 @@
 Browser / Features / Resources top navigation (see
 ``cms/includes/flare-menus/*.html``) as CMS-editable content."""
 
+from io import BytesIO
 from uuid import uuid4
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 
+from PIL import Image
 from wagtail.models import Locale
 
-from springfield.cms.models import NavigationSnippet
+from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.models import NavigationSnippet, SpringfieldImage
 
 
 def build_link(link_to="custom_url", custom_url="", relative_url="", new_window=False):
@@ -209,6 +213,18 @@ def get_navigation_variants() -> list[dict]:
     ]
 
 
+def build_logo_image(title, color) -> SpringfieldImage:
+    """Create (idempotently) a small placeholder logo image within the size cap."""
+    buffer = BytesIO()
+    Image.new("RGB", (240, 60), color).save(buffer, format="PNG")
+    buffer.seek(0)
+    image, _ = SpringfieldImage.objects.get_or_create(
+        title=title,
+        defaults={"file": ContentFile(buffer.read(), f"{title}.png")},
+    )
+    return image
+
+
 def get_navigation_snippet() -> NavigationSnippet:
     locale = Locale.get_default()
     snippet, _ = NavigationSnippet.objects.update_or_create(
@@ -217,6 +233,10 @@ def get_navigation_snippet() -> NavigationSnippet:
             "locale": locale,
             "name": "Main navigation",
             "items": get_navigation_variants(),
+            "logo": build_logo_image("Placeholder Navigation Logo", (117, 79, 224)),
+            "logo_dark": build_logo_image("Placeholder Navigation Logo (Dark)", (255, 138, 80)),
+            "logo_link": [("link", build_link(link_to="relative_url", relative_url="/"))],
+            "cta_button": [("button", [get_button_variants()["download"]])],
         },
     )
     snippet.save_revision().publish()

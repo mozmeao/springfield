@@ -3,6 +3,7 @@
  License, v. 2.0. If a copy of the MPL was not distributed with this
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
+
 {#
  Renders the site header via the flare-header component, injecting the page's
  custom navigation snippet into the nav slot when one is available and falling
@@ -10,10 +11,31 @@
 
  Pages set the header options they need as context variables before including
  this partial (all read from context by the flare-header component): theme,
- no_menu, disable_sticky, no_menu_dropdowns, hide_nav_cta, custom_nav_cta.
+ no_menu, disable_sticky, no_menu_dropdowns, hide_nav_cta,
+ hide_nav_download_button, custom_nav_cta.
  `custom_navigation` is supplied by CustomNavPageMixin.get_context.
 #}
+
+{% if custom_navigation and custom_navigation.cta_button %}
+  {% set custom_nav_cta %}
+    {% set block_position = "nav" %}
+    {% include_block custom_navigation.cta_button %}
+  {% endset %}
+{% endif %}
+
 <include:flare-header>
+  {% if custom_navigation and custom_navigation.logo %}
+    {% set logo_href = custom_navigation.logo_link[0].value.get_url() if custom_navigation.logo_link else "/" + LANG + "/" %}
+    {% set logo_classes = image_variant_classes(custom_navigation.logo_dark) %}
+    <content:custom_logo>
+      <a href="{{ logo_href }}" class="fl-logo-fx fl-logo-fx-custom" aria-label="Firefox">
+        {{ image(custom_navigation.logo, "width-400", class=logo_classes.primary) }}
+        {% if custom_navigation.logo_dark %}
+          {{ image(custom_navigation.logo_dark, "width-400", class=logo_classes.dark_mode) }}
+        {% endif %}
+      </a>
+    </content:custom_logo>
+  {% endif %}
   {% if custom_navigation %}
     <content:nav>
       {% with value = custom_navigation %}

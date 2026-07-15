@@ -28,8 +28,11 @@ from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     ButtonBlock,
     ConditionalDisplayBlock,
+    MixedButtonsBlock,
     NavFolderBlock,
+    SpringfieldLinkBlock,
     TopLevelLinkBlock,
+    get_button_types,
 )
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
@@ -492,11 +495,48 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         blank=True,
         use_json_field=True,
     )
+    logo = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
+    )
+    logo_dark = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Dark-mode variant of the header logo. Falls back to the light logo if unset.",
+    )
+    logo_link = StreamField(
+        [("link", SpringfieldLinkBlock())],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Where the logo links to. Falls back to the site home page if empty.",
+    )
+    cta_button = StreamField(
+        [("button", MixedButtonsBlock(button_types=get_button_types(), min_num=0, max_num=1))],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
+    )
+
+    LOGO_MAX_WIDTH = 480
+    LOGO_MAX_HEIGHT = 160
 
     panels = [
         FieldPanel("name"),
         FieldPanel("is_default"),
         FieldPanel("items"),
+        FieldPanel("logo"),
+        FieldPanel("logo_dark"),
+        FieldPanel("logo_link"),
+        FieldPanel("cta_button"),
     ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
@@ -505,6 +545,17 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
+
+    def validate_logo_size(self, field_name):
+        """Reject a logo image larger than the header logo cap."""
+        image = getattr(self, field_name)
+        if image and (image.width > self.LOGO_MAX_WIDTH or image.height > self.LOGO_MAX_HEIGHT):
+            raise ValidationError({field_name: f"Logo must be at most {self.LOGO_MAX_WIDTH}×{self.LOGO_MAX_HEIGHT} pixels."})
+
+    def clean(self):
+        super().clean()
+        self.validate_logo_size("logo")
+        self.validate_logo_size("logo_dark")
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/navigation-snippet-preview.html"

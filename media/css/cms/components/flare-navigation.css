@@ -85,6 +85,19 @@ html {
     z-index: 1;
 }
 
+/* A custom navigation snippet supplies its own logo image(s) instead of the theme's CSS logo.  */
+.fl-logo-fx-custom {
+    align-items: center;
+    background-image: none;
+    display: flex;
+    inline-size: auto;
+    text-indent: 0;
+}
+
+.fl-logo-fx-custom img {
+    margin: 0;
+}
+
 /* ================================================
    Show Mobile Menu Button
    ================================================ */

@@ -36,6 +36,44 @@ class Migration(migrations.Migration):
                 ("is_default", models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")),
                 ("items", springfield.cms.fields.StreamField(blank=True, block_lookup={})),
                 (
+                    "logo",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to="cms.springfieldimage",
+                    ),
+                ),
+                (
+                    "logo_dark",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Dark-mode variant of the header logo. Falls back to the light logo if unset.",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to="cms.springfieldimage",
+                    ),
+                ),
+                (
+                    "logo_link",
+                    springfield.cms.fields.StreamField(
+                        blank=True,
+                        block_lookup={},
+                        help_text="Where the logo links to. Falls back to the site home page if empty.",
+                    ),
+                ),
+                (
+                    "cta_button",
+                    springfield.cms.fields.StreamField(
+                        blank=True,
+                        block_lookup={},
+                        help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
+                    ),
+                ),
+                (
                     "latest_revision",
                     models.ForeignKey(
                         blank=True,

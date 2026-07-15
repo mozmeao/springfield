@@ -676,7 +676,7 @@ class ArticleIndexPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
         return f"ArticleIndexPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
+        context = super().get_context(request, *args, **kwargs)
 
         child_ids = self.get_children().live().public().values_list("pk", flat=True)
 

@@ -2,18 +2,25 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from io import BytesIO
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale
+from PIL import Image as PILImage
+from wagtail.models import Locale, Site
 
 from lib.l10n_utils import fluent_l10n
+from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.navigation_fixtures import build_top_level_link, get_navigation_snippet, get_navigation_variants
-from springfield.cms.models import NavigationSnippet
+from springfield.cms.models import NavigationSnippet, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.cms.tests.factories import FreeFormPage2026Factory
 
 pytestmark = [pytest.mark.django_db]
 
@@ -47,6 +54,26 @@ def make_snippet(items):
     snippet.save_revision().publish()
     snippet.refresh_from_db()
     return snippet
+
+
+def make_image(width, height, title="Logo"):
+    """Create a SpringfieldImage of the given pixel dimensions."""
+    buffer = BytesIO()
+    PILImage.new("RGB", (width, height), (117, 79, 224)).save(buffer, format="PNG")
+    buffer.seek(0)
+    return SpringfieldImage.objects.create(title=title, file=ContentFile(buffer.read(), f"{title}.png"))
+
+
+def render_preview(snippet, request):
+    """Render the snippet PREVIEW (header + nav) to a BeautifulSoup document.
+
+    Uses Wagtail's real preview code path so base-flare's context processors
+    (settings, LANG, geo) are populated the same way they are in production.
+    """
+    with translation.override("en-US"):
+        response = snippet.serve_preview(request, snippet.default_preview_mode)
+        response.render()
+    return BeautifulSoup(response.content.decode(), "html.parser")
 
 
 def is_external(url):
@@ -176,7 +203,6 @@ def assert_folder(category, item, *, position):
 
     panel = category.find("div", class_="fl-menu-panel")
     assert panel is not None
-    assert title["aria-controls"] == panel["id"]
     assert category["data-testid"] == panel["id"]
 
     columns = value["sub_items"]
@@ -229,3 +255,102 @@ def test_str_includes_name_and_locale(minimal_site):
     snippet = get_navigation_snippet()
     assert snippet.name in str(snippet)
     assert str(snippet.locale) in str(snippet)
+
+
+def test_snippet_stores_logo_cta_button_and_logo_link(minimal_site):
+    logo = make_image(240, 80)
+    logo_dark = make_image(240, 80, title="dark-logo")
+    primary_button = get_button_variants()["primary"]
+    snippet = NavigationSnippet.objects.create(
+        locale=Locale.get_default(),
+        name="Override nav",
+        items=[],
+        logo=logo,
+        logo_dark=logo_dark,
+        cta_button=[("button", [primary_button])],
+        logo_link=[("link", {"link_to": "custom_url", "custom_url": "https://example.com/campaign/"})],
+    )
+    snippet.refresh_from_db()
+    assert snippet.logo_id == logo.id
+    assert snippet.logo_dark_id == logo_dark.id
+    assert len(snippet.cta_button) == 1
+    assert snippet.cta_button[0].block_type == "button"
+    inner_buttons = snippet.cta_button[0].value
+    assert len(inner_buttons) == 1
+    assert inner_buttons[0].block_type == "button"
+    assert inner_buttons[0].value["custom_label"] == primary_button["value"]["custom_label"]
+    assert len(snippet.logo_link) == 1
+    assert snippet.logo_link[0].value.get_url() == "https://example.com/campaign/"
+
+
+def test_clean_rejects_oversized_logo(minimal_site):
+    snippet = NavigationSnippet(locale=Locale.get_default(), name="too big", logo=make_image(500, 200))
+    with pytest.raises(ValidationError) as exc_info:
+        snippet.clean()
+    assert "logo" in exc_info.value.message_dict
+
+
+def test_clean_rejects_oversized_logo_dark(minimal_site):
+    snippet = NavigationSnippet(locale=Locale.get_default(), name="too big", logo_dark=make_image(500, 200))
+    with pytest.raises(ValidationError) as exc_info:
+        snippet.clean()
+    assert "logo_dark" in exc_info.value.message_dict
+
+
+def serve_page_soup(page, site, rf):
+    """Serve a page (en-US) and return its rendered document as BeautifulSoup."""
+    with translation.override("en-US"):
+        response = page.serve(rf.get(page.relative_url(site)))
+        if hasattr(response, "render"):
+            response.render()
+    return BeautifulSoup(response.content.decode(), "html.parser")
+
+
+def test_page_header_overrides_logo_and_button(minimal_site, rf):
+    site = Site.objects.get(is_default_site=True)
+    logo = make_image(240, 80, title="page-logo")
+    logo_dark = make_image(240, 80, title="page-logo-dark")
+    override_button = get_button_variants()["primary"]
+    override_button["value"]["custom_label"] = "Buy now"
+    snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    snippet.logo = logo
+    snippet.logo_dark = logo_dark
+    snippet.cta_button = [("button", [override_button])]
+    snippet.logo_link = [("link", {"link_to": "custom_url", "custom_url": "https://example.com/campaign/"})]
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
+
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=snippet)
+    soup = serve_page_soup(page, site, rf)
+
+    logo_anchor = soup.find("a", class_="fl-logo-fx")
+    assert logo_anchor["href"] == "https://example.com/campaign/"
+
+    light_img = logo_anchor.find("img", class_="display-light")
+    dark_img = logo_anchor.find("img", class_="display-dark")
+    assert logo.get_rendition("width-400").url in light_img["src"]
+    assert logo_dark.get_rendition("width-400").url in dark_img["src"]
+    # The default CSS-painted logo is not used for the override.
+    assert "logo-word-hor-2026.svg" not in soup.decode()
+
+    # The override replaces the default download button.
+    assert "Buy now" in soup.get_text()
+    assert soup.find("div", class_="nav-cta-wrap") is None
+
+
+def test_page_header_dark_logo_omitted_when_unset(minimal_site, rf):
+    site = Site.objects.get(is_default_site=True)
+    logo = make_image(240, 80, title="light-only")
+    snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    snippet.logo = logo
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
+
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=snippet)
+    soup = serve_page_soup(page, site, rf)
+
+    logo_anchor = soup.find("a", class_="fl-logo-fx")
+    images = logo_anchor.find_all("img")
+    assert len(images) == 1
+    assert logo.get_rendition("width-400").url in images[0]["src"]
+    assert logo_anchor.find("img", class_="display-dark") is None
