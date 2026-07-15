@@ -4,8 +4,6 @@
 
 import re
 
-from django.conf import settings
-
 from springfield.redirects.util import mobile_app_redirector, no_redirect, platform_redirector, redirect
 
 # matches only ASCII letters (ignoring case), numbers, dashes, periods, and underscores.
@@ -123,16 +121,16 @@ redirectpatterns = (
 )
 
 refresh_redirects = (
-    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/mobile/$", "/mobile/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
-    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=settings.PERMANENT_CMS_REFRESH_REDIRECTS),
+    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=True),
+    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=True),
+    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=True),
+    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=True),
+    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=True),
+    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=True),
+    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=True),
+    redirect(r"^browsers/mobile/$", "/mobile/", permanent=True),
+    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=True),
+    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=True),
 )
 
 redirectpatterns = redirectpatterns + refresh_redirects
