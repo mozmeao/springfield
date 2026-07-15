@@ -22,21 +22,29 @@
     align="{{ value.settings.align or 'start' }}"
     expand_link="{{ value.settings.expand_link }}">
     <content:body>
-      {% for content_block in value.content %}
-        {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
-        {% if content_block.block_type == "heading" %}
-          {# Force heading size so card headings are visually consistent regardless of nesting depth #}
-          {% with heading_size = "fl-heading-size-3" %}
-            {% include_block content_block %}
-          {% endwith %}
-        {% elif content_block.block_type == "media" %}
-          <div class="fl-card-media">
-            {% include_block content_block %}
-          </div>
-        {% else %}
-          {% include_block content_block %}
-        {% endif %}
-      {% endfor %}
+      {% with align = value.settings.align %}
+        {% set ns = namespace(in_content=false) %}
+        {% for content_block in value.content %}
+          {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
+          {% if content_block.block_type == "media" %}
+            {% if ns.in_content %}</div>{% set ns.in_content = false %}{% endif %}
+            <div class="fl-card-media">
+              {% include_block content_block %}
+            </div>
+          {% else %}
+            {% if not ns.in_content %}<div class="fl-card-content">{% set ns.in_content = true %}{% endif %}
+            {% if content_block.block_type == "heading" %}
+              {# Force heading size so card headings are visually consistent regardless of nesting depth #}
+              {% with heading_size = "fl-heading-size-3" %}
+                {% include_block content_block %}
+              {% endwith %}
+            {% else %}
+              {% include_block content_block %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% if ns.in_content %}</div>{% endif %}
+      {% endwith %}
     </content:body>
   </include:card>
 </include:conditional-display>

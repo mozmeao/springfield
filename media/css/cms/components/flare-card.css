@@ -177,6 +177,16 @@ Basic Card
     margin-block-start: auto;
 }
 
+/* Stack buttons vertically inside cards regardless of their orientation setting */
+.fl-card .fl-buttons.is-horizontal {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.fl-card.fl-card-center .fl-buttons.is-horizontal {
+    align-items: center;
+}
+
 /* Default card variant: illustration card look.
    fl-card-media sits at top, fl-card-content wraps heading/body/buttons.
    Only applied when not an outline or filled variant. */

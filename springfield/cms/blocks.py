@@ -1337,6 +1337,14 @@ def MixedButtonsBlock(
 
 def ButtonRowBlock(allow_uitour=False, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
+        orientation = blocks.ChoiceBlock(
+            choices=[
+                ("stacked", "Stacked (one per line)"),
+                ("horizontal", "Horizontal (side by side)"),
+            ],
+            default="horizontal",
+            required=False,
+        )
         spacing = blocks.ChoiceBlock(
             choices=[
                 ("", "No spacing"),
@@ -1359,7 +1367,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["spacing"],
+                settings=["orientation", "spacing"],
             )
 
     return _ButtonRowBlock(**kwargs)
