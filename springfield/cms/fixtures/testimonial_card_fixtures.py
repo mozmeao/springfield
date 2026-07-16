@@ -213,8 +213,8 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Sample of the <strong>Card block</strong> configured as a testimonial card. "
         "Use <code>variant=outline</code> and add a <em>Testimonial</em> content block inside the card to produce this layout.</p>"
-        "<p>Testimonial cards display user or critic quotes with attribution and an optional avatar. Use them to surface "
-        "social proof on product pages, plans pages, or the homepage.</p>"
+        "<p>Testimonial Cards display user or critic quotes with attribution, optional avatars, and optional star ratings. Use them "
+        "to surface social proof on product pages, plans pages, or the homepage.</p>"
         "<p>Use real quotes with verifiable attribution. Keep quotes short (1&ndash;2 sentences); long quotes get scanned past.</p>"
     )
     page.save_revision().publish()

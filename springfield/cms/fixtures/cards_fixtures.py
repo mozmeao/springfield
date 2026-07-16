@@ -303,9 +303,10 @@ def get_pictogram_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Sample of the <strong>Card block</strong> configured as a filled pictogram card. "
         "Use <code>variant=filled</code>, <code>align=center</code>, and a <em>Pictogram</em> content block inside the card.</p>"
-        "<p>These cards display a compact pictogram image with a superheading, headline, and description. They work well "
-        "for feature highlights where the image is the primary visual element.</p>"
-        "<p>Keep captions short. Use bright, distinctive imagery rather than text-heavy graphics.</p>"
+        "<p>Pictogram Cards display a compact image with a short caption. They work well for thumbnail-style "
+        "listings (e.g. quick links, theme galleries) where the image is the primary content.</p>"
+        "<p>Keep captions short (a few words). The image should be the focal point &mdash; use bright, distinctive imagery rather "
+        "than text-heavy graphics.</p>"
     )
     page.save_revision().publish()
     return page
@@ -509,8 +510,9 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Sample of the <strong>Card block</strong> configured as an illustration card (default variant, image at top). "
         "Use a <em>Media</em> content block as the first item inside the card to produce this layout.</p>"
-        "<p>These cards work well for product and feature roundups where each item needs equal visual prominence. "
-        "Aim for illustrations with consistent styles and color treatment across a set.</p>"
+        "<p>Illustration Cards combine a generous illustration with a headline, description, and one or more buttons. They&rsquo;re "
+        "the workhorse card for product and feature roundups where each item needs equal visual prominence.</p>"
+        "<p>Aim for illustrations with consistent styles and color treatment across a set.</p>"
     )
     page.save_revision().publish()
     return page
@@ -820,8 +822,8 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Sample of the <strong>Card block</strong> configured as an outlined card (<code>variant=outline</code>). "
         "Use a <em>Heading</em> and <em>Rich Text</em> content inside the card to produce this layout.</p>"
-        "<p>Outlined cards present content within a bordered container, usually pointing the user somewhere else for more info. "
-        "Always use more than one (ideally 3 or 4); a banner is more appropriate when you only have one thing to highlight.</p>"
+        "<p>Outlined Cards present small content within a bordered container, usually pointing the user somewhere else to get more info. "
+        "Always use more than one (ideally 3 or 4), since banners are more appropriate when you only have one thing to highlight.</p>"
     )
     page.save_revision().publish()
     return page

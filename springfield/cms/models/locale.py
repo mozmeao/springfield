@@ -24,6 +24,7 @@ class SpringfieldLocale(WagtailLocale):
 
     class Meta:
         proxy = True
+        app_label = "cms"
 
     @classmethod
     def get_active(cls):

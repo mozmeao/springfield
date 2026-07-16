@@ -242,8 +242,10 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>Sample of the <strong>Card block</strong> configured as an icon card. "
         "Add an <em>Icon</em> content block as the first item inside the card to produce this layout.</p>"
-        "<p>Icon cards are ideal for feature roundups, value-prop lists, and at-a-glance sections with many short items. "
-        "Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences.</p>"
+        "<p>Icon Cards present a small icon, a headline, and a short description. They&rsquo;re ideal for feature roundups, "
+        "value-prop lists, and at-a-glance sections where you have many short items to surface.</p>"
+        "<p>Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences so "
+        "cards align visually in a grid.</p>"
     )
     page.save_revision().publish()
     return page
