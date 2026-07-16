@@ -3964,6 +3964,57 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     assert "uitour_button" not in button_types_without
 
 
+def _make_button_row_raw(count=1, spacing="", alignment="", help_text=""):
+    variants = get_button_variants()
+    buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
+    return {"spacing": spacing, "alignment": alignment, "buttons": buttons, "help_text": help_text}
+
+
+def _render_button_row(raw_value, rf):
+    request = rf.get("/en-US/")
+    block = ButtonRowBlock()
+    bound = block.to_python(raw_value)
+    return block.render(bound, context=_render_context(request))
+
+
+def test_button_row_renders_center_class_by_default(rf):
+    html = _render_button_row(_make_button_row_raw(alignment=""), rf)
+    assert "is-center" in html
+
+
+def test_button_row_renders_start_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="start"), rf)
+    assert "is-start" in html
+
+
+def test_button_row_renders_end_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="end"), rf)
+    assert "is-end" in html
+
+
+@pytest.mark.parametrize("spacing", ["small", "large"])
+def test_button_row_renders_spacing_class(spacing, rf):
+    html = _render_button_row(_make_button_row_raw(spacing=spacing), rf)
+    assert f"fl-buttons-spacing-{spacing}" in html
+
+
+def test_button_row_no_spacing_class_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(spacing=""), rf)
+    assert "fl-buttons-spacing" not in html
+
+
+def test_button_row_renders_help_text(rf):
+    raw = _make_button_row_raw(help_text='<p data-block-key="test">Help text here.</p>')
+    html = _render_button_row(raw, rf)
+    assert "fl-button-row-help-text" in html
+    assert "Help text here." in html
+
+
+def test_button_row_omits_help_text_div_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(help_text=""), rf)
+    assert "fl-button-row-help-text" not in html
+
+
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
 def test_base_article_value_get_link_url_returns_url_with_current_locale():
     """
