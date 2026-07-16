@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_outlined.html`;
+const url = `${patternLibraryURL}/card/card_outlined.html`;
 
 test.describe(
-    `Outlined Card List`,
+    `Card - Outlined`,
     {
         tag: '@visual-regression'
     },
@@ -22,7 +22,7 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'cards-list-outlined');
+            await expectComponentScreenshot(page, 'card-outlined');
         });
 
         test.describe('dark mode', () => {
@@ -31,8 +31,8 @@ test.describe(
             test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'cards-list-outlined',
-                    'cards-list-outlined-dark'
+                    'card-outlined',
+                    'card-outlined-dark'
                 );
             });
         });

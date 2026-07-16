@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/illustration-card/illustration-card_variants.html`;
+const url = `${patternLibraryURL}/card/card_illustration.html`;
 
 test.describe(
-    `Illustration Card Variants`,
+    `Card - Illustration`,
     {
         tag: '@visual-regression'
     },
@@ -22,15 +22,18 @@ test.describe(
         });
 
         test('default', async ({ page }) => {
-            await expectComponentScreenshot(page, 'illustration-card-default');
+            await expectComponentScreenshot(page, 'card-illustration-default');
         });
 
         test('icon', async ({ page }) => {
-            await expectComponentScreenshot(page, 'illustration-card-icon');
+            await expectComponentScreenshot(page, 'card-illustration-icon');
         });
 
-        test('sticker', async ({ page }) => {
-            await expectComponentScreenshot(page, 'illustration-card-sticker');
+        test('pictogram', async ({ page }) => {
+            await expectComponentScreenshot(
+                page,
+                'card-illustration-pictogram'
+            );
         });
 
         test.describe('dark mode', () => {
@@ -39,24 +42,24 @@ test.describe(
             test('default', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'illustration-card-default',
-                    'illustration-card-default-dark'
+                    'card-illustration-default',
+                    'card-illustration-default-dark'
                 );
             });
 
             test('icon', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'illustration-card-icon',
-                    'illustration-card-icon-dark'
+                    'card-illustration-icon',
+                    'card-illustration-icon-dark'
                 );
             });
 
-            test('sticker', async ({ page }) => {
+            test('pictogram', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'illustration-card-sticker',
-                    'illustration-card-sticker-dark'
+                    'card-illustration-pictogram',
+                    'card-illustration-pictogram-dark'
                 );
             });
         });

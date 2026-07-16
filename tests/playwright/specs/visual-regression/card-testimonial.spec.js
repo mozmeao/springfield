@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/testimonial-card/testimonial-card-list.html`;
+const url = `${patternLibraryURL}/card/card_testimonial.html`;
 
 test.describe(
-    `Testimonial Card List`,
+    `Card - Testimonial`,
     {
         tag: '@visual-regression'
     },
@@ -23,7 +23,7 @@ test.describe(
         });
 
         test('light', async ({ page }) => {
-            await expectComponentScreenshot(page, 'testimonial-card');
+            await expectComponentScreenshot(page, 'card-testimonial');
         });
 
         test.describe('dark mode', () => {
@@ -32,8 +32,8 @@ test.describe(
             test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'testimonial-card',
-                    'testimonial-card-dark'
+                    'card-testimonial',
+                    'card-testimonial-dark'
                 );
             });
         });
@@ -44,8 +44,8 @@ test.describe(
             test('light mobile', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'testimonial-card',
-                    'testimonial-card-mobile'
+                    'card-testimonial',
+                    'card-testimonial-mobile'
                 );
             });
         });

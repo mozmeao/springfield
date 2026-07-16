@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_sticker.html`;
+const url = `${patternLibraryURL}/card/card_pictogram.html`;
 
 test.describe(
-    `Sticker Card List`,
+    `Card - Pictogram`,
     {
         tag: '@visual-regression'
     },
@@ -22,7 +22,7 @@ test.describe(
         });
 
         test('light mode', async ({ page }) => {
-            await expectComponentScreenshot(page, 'cards-list-sticker');
+            await expectComponentScreenshot(page, 'card-pictogram');
         });
 
         test.describe('dark mode', () => {
@@ -31,8 +31,8 @@ test.describe(
             test('dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'cards-list-sticker',
-                    'cards-list-sticker-dark'
+                    'card-pictogram',
+                    'card-pictogram-dark'
                 );
             });
         });

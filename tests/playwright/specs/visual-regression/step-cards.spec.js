@@ -9,7 +9,7 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/cards-list/cards-list_step-cards.html`;
+const url = `${patternLibraryURL}/step-cards/step-cards.html`;
 
 test.describe(
     `Step Cards With Kit`,
