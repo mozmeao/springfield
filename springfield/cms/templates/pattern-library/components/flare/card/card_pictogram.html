@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div data-testid="cards-list-sticker">
+<div data-testid="card-pictogram">
   <section class="fl-section">
     <div class="fl-section-container">
       <include:cards-list container_width="wide">
@@ -17,21 +17,10 @@
                 superheading_text="{{ card.superheading_text }}"
                 heading_text="{{ card.heading }}"
               />
-              <div class="fl-card-sticker">
-                <img src="{{ card.sticker }}" alt="" loading="lazy" />
+              <div class="fl-card-media fl-card-media-pictogram">
+                <img src="{{ card.pictogram }}" alt="" loading="lazy" />
               </div>
               <div class="fl-body">{{ card.body }}</div>
-              {% if card.buttons %}
-                <div class="fl-buttons">
-                  {% for button in card.buttons %}
-                    <include:button
-                      label="{{ button.label }}"
-                      link="{{ button.link }}"
-                      theme_class="{{ button.theme_class }}"
-                    />
-                  {% endfor %}
-                </div>
-              {% endif %}
             </content:body>
           </include:card>
         {% endfor %}

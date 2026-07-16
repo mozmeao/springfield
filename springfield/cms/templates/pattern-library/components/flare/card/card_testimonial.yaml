@@ -1,4 +1,4 @@
-name: Testimonial Card
+name: "Card - Testimonial"
 context:
   cards:
     - note: "With image and role"

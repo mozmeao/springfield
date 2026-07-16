@@ -1,18 +1,18 @@
-name: "Outlined Card List"
+name: "Card - Outlined"
 context:
   cards:
     - headline: "Outlined Card"
-      content: "Without sticker, primary button."
+      content: "Without pictogram, primary button."
       expand_link: false
-      sticker: ""
+      pictogram: ""
       buttons:
         - label: Learn More
           link: /learn-more/
           theme_class: ""
-    - headline: "Outlined Card with Sticker"
-      content: "With sticker and secondary button."
+    - headline: "Outlined Card with Pictogram"
+      content: "With pictogram and secondary button."
       expand_link: false
-      sticker: "/media/img/firefox/flare/ai-sticker.png"
+      pictogram: "/media/img/firefox/flare/ai-sticker.png"
       buttons:
         - label: Learn More
           link: /learn-more/
@@ -20,15 +20,15 @@ context:
     - headline: "Clickable Outlined Card"
       content: "With expand link enabled — the entire card is clickable."
       expand_link: true
-      sticker: ""
+      pictogram: ""
       buttons:
         - label: Learn More
           link: /learn-more/
           theme_class: "button-ghost"
     - headline: "All Outlined Card Fields"
-      content: "With sticker, expand link, and link button."
+      content: "With pictogram, expand link, and link button."
       expand_link: true
-      sticker: "/media/img/firefox/flare/privacy-sticker.png"
+      pictogram: "/media/img/firefox/flare/privacy-sticker.png"
       buttons:
         - label: Learn More
           link: /learn-more/

@@ -5,7 +5,7 @@
 #}
 
 <div class="pl-frame pl-frame--white">
-  <h4>Illustration Card Variants</h4>
+  <h4>Card - Illustration</h4>
 
   <include:cards-list container_width="wide">
     {% for card in cards %}
@@ -17,7 +17,7 @@
               <div class="fl-card-media fl-card-media-icon">
                 <include:icon icon_name="{{ card.icon }}" hidden=true />
               </div>
-            {% elif card.variant == "sticker" %}
+            {% elif card.variant == "pictogram" %}
               <div class="fl-card-media fl-card-media-pictogram">
                 <img src="{{ card.image }}" alt="" loading="lazy" />
               </div>

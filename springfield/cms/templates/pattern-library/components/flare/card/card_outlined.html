@@ -4,16 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div data-testid="cards-list-outlined">
+<div data-testid="card-outlined">
   <section class="fl-section">
     <div class="fl-section-container">
       <include:cards-list container_width="wide">
         {% for card in cards %}
           <include:card variant="outline" expand_link="{{ card.expand_link }}">
             <content:body>
-              {% if card.sticker %}
+              {% if card.pictogram %}
                 <div class="fl-card-media fl-card-media-pictogram">
-                  <img src="{{ card.sticker }}" alt="" loading="lazy" />
+                  <img src="{{ card.pictogram }}" alt="" loading="lazy" />
                 </div>
               {% endif %}
               <include:heading
