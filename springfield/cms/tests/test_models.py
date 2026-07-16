@@ -14,6 +14,7 @@ from wagtail.models import Locale, Page, Site
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
+    FreeFormPage2026,
     SimpleRichTextPage,
     StructuralPage,
     Tag,
@@ -1242,7 +1243,7 @@ def test_flare_docs_index_page_get_context_sections_with_children(minimal_site, 
     assert sections[0]["page"].title == "Flare Docs - Blocks"
     assert len(sections[0]["children"]) == 2
 
-    child_titles = [c.title for c in sections[0]["children"]]
+    child_titles = [c["page"].title for c in sections[0]["children"]]
     # Should be ordered by title
     assert child_titles == ["Intro Block", "Section Block"]
 
@@ -1339,7 +1340,7 @@ def test_flare_docs_index_page_excludes_unpublished_children(minimal_site, rf):
     assert sections[0]["page"].title == "Flare Docs - Blocks"
     # Only the live grandchild should appear
     assert len(sections[0]["children"]) == 1
-    assert sections[0]["children"][0].title == "Live Page"
+    assert sections[0]["children"][0]["page"].title == "Live Page"
 
 
 def test_flare_docs_index_page_empty_sections(minimal_site, rf):
@@ -1410,3 +1411,72 @@ def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
 
     # Leaf section (standalone) should appear in the other section
     assert "Standalone Page" in content.text
+
+
+def test_flare_docs_index_page_renders_child_docs_field(minimal_site, rf):
+    """A FreeFormPage2026 grandchild's docs field should render inside the main content area."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="docs", title="Flare Docs - Index")
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+
+    documented = FreeFormPage2026Factory(
+        parent=blocks_page,
+        slug="banner-demo",
+        title="Banner Demo",
+        docs="<p>Use the Banner block to introduce a major topic.</p>",
+    )
+    documented.save()
+    undocumented = FreeFormPage2026Factory(
+        parent=blocks_page,
+        slug="silent-demo",
+        title="Silent Demo",
+        docs="",
+    )
+    undocumented.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    content = soup.find("div", class_="fl-docs-index-content")
+    assert content is not None
+
+    # Documented child should produce a docs body containing the docs HTML
+    documented_entry = content.find("article", id="banner-demo")
+    assert documented_entry is not None
+    docs_body = documented_entry.find("div", class_="fl-docs-entry-body")
+    assert docs_body is not None
+    assert "introduce a major topic" in docs_body.text
+
+    # Undocumented child should still render its <article> heading but no docs body
+    undocumented_entry = content.find("article", id="silent-demo")
+    assert undocumented_entry is not None
+    assert undocumented_entry.find("div", class_="fl-docs-entry-body") is None
+
+
+def test_flare_docs_index_page_get_context_returns_specific_grandchildren(minimal_site, rf):
+    """get_context should return typed instances for grandchildren so the docs field is accessible."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="docs", title="Flare Docs - Index")
+    index_page.save()
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+    gc = FreeFormPage2026Factory(parent=blocks_page, slug="demo", title="Demo", docs="<p>docs body</p>")
+    gc.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    grandchild = context["sections"][0]["children"][0]["page"]
+    # Specific resolution means the FreeFormPage2026 subclass is returned, not the base Page,
+    # so subclass-only fields like ``docs`` are accessible without an extra .specific lookup.
+    assert grandchild.__class__ is FreeFormPage2026
+    assert grandchild.docs == "<p>docs body</p>"

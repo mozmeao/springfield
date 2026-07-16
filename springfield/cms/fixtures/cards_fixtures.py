@@ -207,6 +207,12 @@ def get_sticker_cards_test_page() -> FreeFormPage2026:
     sections = get_sticker_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
+    page.docs = (
+        "<p>Sticker Cards display a compact image (pictogram) with a short caption. They work well for thumbnail-style "
+        "listings (e.g. quick links, theme galleries) where the image is the primary content.</p>"
+        "<p>Keep captions short (a few words). The image should be the focal point &mdash; use bright, distinctive imagery rather "
+        "than text-heavy graphics.</p>"
+    )
     page.save_revision().publish()
     return page
 
@@ -334,6 +340,11 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
     sections = get_illustration_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
+    page.docs = (
+        "<p>Illustration Cards combine a generous illustration with a headline, description, and one or more buttons. They&rsquo;re "
+        "the workhorse card for product and feature roundups where each item needs equal visual prominence.</p>"
+        "<p>Aim for illustrations with consistent styles and color treatment across a set.</p>"
+    )
     page.save_revision().publish()
     return page
 
@@ -444,6 +455,12 @@ def get_step_cards_test_page() -> FreeFormPage2026:
     sections = get_step_cards_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>Step Cards visualize a sequential process &mdash; a how-to, a setup walkthrough &mdash; by numbering each card and laying "
+        "them out left-to-right.</p>"
+        "<p>Limit the sequence to 3&ndash;4 steps so the flow stays scannable. Each step&rsquo;s content should be short and "
+        "action-oriented (a verb in the headline, a single supporting sentence).</p>"
+    )
     page.save_revision().publish()
     return page
 
@@ -566,5 +583,9 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
     sections = get_outlined_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
+    page.docs = (
+        "<p>Outlined Cards present small content within a bordered container, usually pointing the user somewhere else to get more info. "
+        "Always use more than one (ideally 3 or 4), since banners are more appropriate when you only have one thing to highlight.</p>"
+    )
     page.save_revision().publish()
     return page

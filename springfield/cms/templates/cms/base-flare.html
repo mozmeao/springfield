@@ -79,6 +79,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% block page_ios_icon %}{{ static('img/favicons/firefox/browser/apple-touch-icon.png') }}{% endblock %}">
     <link rel="icon" type="image/png" sizes="196x196" href="{% block page_favicon_large %}{{ static('img/favicons/firefox/browser/favicon-196x196.png') }}{% endblock %}">
     <link rel="shortcut icon" href="{% block page_favicon %}{{ static('img/favicons/firefox/browser/favicon.ico') }}{% endblock %}">
+    <link rel="me" href="https://mastodon.social/@FirefoxOfficial">
     {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
     {% endblock shared_meta %}
 
@@ -147,9 +148,16 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
+  {% set is_inline_frame = request.GET.fl_docs_inline and request.META.get('HTTP_SEC_FETCH_DEST') == 'iframe' and page and page.docs %}
+
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
-    class="html-{{ DIR }} {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %} {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}"
+    class="
+      html-{{ DIR }}
+      {% if is_inline_frame %}fl-docs-inline{% endif %}
+      {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}
+      {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}
+    "
     {% block body_attrs %}{% endblock %}
   >
     {{ wagtailuserbar() }}
@@ -162,9 +170,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endif %}
     {% endblock %}
 
+    {% if not is_inline_frame %}
     {% block flare_header %}
     <include:flare-header />
     {% endblock %}
+    {% endif %}
 
     {% block sub_navigation %}
     {% endblock %}
@@ -213,9 +223,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock pre_footer %}
     </main>
 
+    {% if not is_inline_frame %}
     {% block flare_footer %}
       <include:flare-footer />
     {% endblock %}
+    {% endif %}
 
     {% block consent_banner %}
       {% include 'includes/banners/consent-banner-flare.html' %}

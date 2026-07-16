@@ -27,11 +27,15 @@ from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
+    get_banner_snippet_test_page,
     get_freeform_page_test_page,
     get_freeform_page_with_floating_qr_snippet,
     get_freeform_page_with_qr_snippet,
     get_freeform_page_with_set_as_default_button,
     get_mobile_store_qr_code_test_page,
+    get_pencil_banner_snippet_test_page,
+    get_pre_footer_cta_snippet_test_page,
+    get_scroll_to_see_more_snippet_test_page,
 )
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_cards_test_page
@@ -102,4 +106,8 @@ PAGE_FIXTURES = [
     get_blog_pages,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,
+    get_banner_snippet_test_page,
+    get_pencil_banner_snippet_test_page,
+    get_pre_footer_cta_snippet_test_page,
+    get_scroll_to_see_more_snippet_test_page,
 ]

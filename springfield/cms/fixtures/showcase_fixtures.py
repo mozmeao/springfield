@@ -80,5 +80,8 @@ def get_showcase_test_page() -> FreeFormPage2026:
     variants = get_showcase_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Showcase block highlights a single feature or product with a large media surface, an optional heading, and supporting copy.</p>"
+    )
     page.save_revision().publish()
     return page
