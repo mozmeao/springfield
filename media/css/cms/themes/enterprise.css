@@ -26,11 +26,6 @@
     --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
     --button-text-color-disabled: var(--token-color-enterprise-blue);
 
-    /* tame border radius */
-
-    /* --token-border-radius-md: 1rem;
-    --fl-theme-main-border-radius: 0; */
-
     /* blue tokens from Figma. WIP, maybe orange? */
 
     --token-color-dark-blue: #031B40;
@@ -97,12 +92,6 @@
     --token-gradient-radial-purple: var(--token-gradient-radial-blue);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise-dark.svg");
-    }
-}
-
 .fl-section-container > .fl-heading,
 .fl-section-container > .fl-heading-group {
     max-width: var(--token-width-desktop-content-lg);
@@ -123,7 +112,7 @@
 
 .has-gradient-bottom::before {
     content: "";
-    background-image: linear-gradient(0deg,hsla(35deg, 84%, 64%, 0.57) 0%, hsla(35deg, 84%, 64%, 0) 64%);
+    background-image: linear-gradient(0deg, var(--token-color-soft-blue-5) 0%, #8accff00 64%);
 }
 
 .fl-logo-fx {
