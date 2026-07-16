@@ -347,6 +347,7 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
             thumbnail_directory_label_fn=icon_display_label,
             thumbnail_directory_value_fn=icon_value_fn,
             thumbnail_size=thumbnail_size,
+            thumbnail_is_one_color=True,
             **kwargs,
         )
 
