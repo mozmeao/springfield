@@ -26,6 +26,10 @@
     margin: 0 auto;
 }
 
+.fl-showcase-cta {
+    margin: 0 auto;
+}
+
 .fl-showcase-image img {
     inline-size: 100%;
 }

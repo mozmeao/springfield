@@ -35,4 +35,9 @@
     {% endif %}
     {{ value.caption_description|richtext }}
   </content:caption>
+  {% if value.cta.buttons %}
+  <content:cta>
+    {% include_block value.cta %}
+  </content:cta>
+  {% endif %}
 </include:showcase>

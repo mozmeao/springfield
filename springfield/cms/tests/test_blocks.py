@@ -2919,6 +2919,12 @@ def test_showcase_block(index_page, placeholder_images, rf):
             caption_description_text = BeautifulSoup(variant["value"]["caption_description"], "html.parser").get_text()
             assert caption_description_text in caption.get_text()
 
+            cta = showcase_el.find("div", class_="fl-showcase-cta")
+            if variant["value"].get("cta", {}).get("buttons"):
+                assert cta, "Expected .fl-showcase-cta to be present when CTA buttons are set"
+            else:
+                assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
+
 
 def test_card_gallery_block(index_page, placeholder_images, rf):
     variants = get_card_gallery_variants()

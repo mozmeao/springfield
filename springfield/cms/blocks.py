@@ -3025,6 +3025,7 @@ class ShowcaseBlock(blocks.StructBlock):
     media = MediaBlock(max_num=1)
     caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    cta = ButtonRowBlock(required=False)
 
     class Meta:
         template = "cms/blocks/sections/showcase.html"
