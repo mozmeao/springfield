@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# Sample pages demonstrating testimonial-style Cards. These are not a separate card type —
+# they are built on top of CardBlock (outline variant) with a card-testimonial content block inside.
+
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
@@ -200,7 +203,7 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Testimonial Cards",
+            "title": "Card - Testimonial",
         },
     )
 
@@ -208,8 +211,10 @@ def get_testimonial_cards_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
-        "<p>Testimonial Cards display user or critic quotes with attribution, optional avatars, and optional star ratings. Use them "
-        "to surface social proof on product pages, plans pages, or the homepage.</p>"
+        "<p>Sample of the <strong>Card block</strong> configured as a testimonial card. "
+        "Use <code>variant=outline</code> and add a <em>Testimonial</em> content block inside the card to produce this layout.</p>"
+        "<p>Testimonial cards display user or critic quotes with attribution and an optional avatar. Use them to surface "
+        "social proof on product pages, plans pages, or the homepage.</p>"
         "<p>Use real quotes with verifiable attribution. Keep quotes short (1&ndash;2 sentences); long quotes get scanned past.</p>"
     )
     page.save_revision().publish()

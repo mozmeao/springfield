@@ -30,7 +30,7 @@ _EMPTY_IMAGE_VARIANTS = {
 
 _SETTINGS_DEFAULT = {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL}
 _SETTINGS_OUTLINE = {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL}
-_SETTINGS_FILLED = {"variant": "filled", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL}
+_SETTINGS_FILLED = {"variant": "filled", "align": "center", "expand_link": False, "show_to": _SHOW_TO_ALL}
 _SETTINGS_CENTER = {"variant": "", "align": "center", "expand_link": False, "show_to": _SHOW_TO_ALL}
 _SETTINGS_END = {"variant": "", "align": "end", "expand_link": False, "show_to": _SHOW_TO_ALL}
 

@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# Sample pages demonstrating icon-style Cards. These are not a separate card type —
+# they are built on top of CardBlock with icon content inside the card media area.
+
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
@@ -229,7 +232,7 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Icon Cards",
+            "title": "Card - Icon",
         },
     )
 
@@ -237,10 +240,10 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
-        "<p>Icon Cards present a small icon, a headline, and a short description. They&rsquo;re ideal for feature roundups, "
-        "value-prop lists, and at-a-glance sections where you have many short items to surface.</p>"
-        "<p>Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences so "
-        "cards align visually in a grid.</p>"
+        "<p>Sample of the <strong>Card block</strong> configured as an icon card. "
+        "Add an <em>Icon</em> content block as the first item inside the card to produce this layout.</p>"
+        "<p>Icon cards are ideal for feature roundups, value-prop lists, and at-a-glance sections with many short items. "
+        "Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences.</p>"
     )
     page.save_revision().publish()
     return page
