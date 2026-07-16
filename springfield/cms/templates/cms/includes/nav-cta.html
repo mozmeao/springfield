@@ -8,18 +8,6 @@
 <div
     class="nav-cta-wrap {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
 >
-{% if page.theme == "enterprise" %}
-  <include:download-firefox-button
-    analytics_id="nav-download-firefox-enterprise"
-    label="Enterprise Button TODO"
-    theme_class="button-gold"
-    cta_text="{{ ftl('navigation-get-firefox') }}"
-    icon_name="downloads"
-    icon_position="left"
-    block_position="nav"
-    exclude_unsupported_content="True"
-  />
-{% else %}
   <include:download-firefox-button
     analytics_id="nav-download-firefox"
     label="{{ ftl('navigation-get-firefox') }}"
@@ -29,7 +17,6 @@
     block_position="nav"
     exclude_unsupported_content="True"
   />
-  {% endif %}
 </div>
 {% else %}
   {{ custom_nav_cta }}

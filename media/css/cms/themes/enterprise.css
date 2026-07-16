@@ -21,53 +21,19 @@
 
     /* button overrides */
 
-    /* --button-bg-color: var(--token-color-enterprise-blue);
+    --button-bg-color: var(--token-color-enterprise-blue);
     --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
     --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
-    --button-text-color-disabled: var(--token-color-enterprise-blue); */
+    --button-text-color-disabled: var(--token-color-enterprise-blue);
 
     /* tame border radius */
 
     /* --token-border-radius-md: 1rem;
     --fl-theme-main-border-radius: 0; */
 
-    /* orange version */
-    --token-color-dark-orange: rgb(205, 82, 0);
-;
-    --token-color-dark-orange-22: rgba(205, 82, 0,.22);
-    --token-color-dark-orange-30: rgba(205, 82, 0,.3);
-    --token-color-dark-orange-50: rgba(205, 82, 0,.4);
-    --token-color-dark-orange-2: rgb(53, 22, 2);
-    --token-color-dark-orange-2-40: rgba(53, 22, 2,.4);
-    --token-color-orange: rgb(255, 102, 0);
-    --token-color-medium-orange: rgb(252, 134, 55);
-    --token-color-link-orange: var(--token-color-orange);
-    --token-color-nav-icon-orange: rgb(255, 102, 0, 0.6);
-    --token-color-light-orange: #e39043;
-    --token-color-light-orange-20: rgba(227,144,67,.2);
-    --token-color-light-orange-40: rgba(227,144,67,.4);
-    --token-color-light-orange-60: rgba(227,144,67,.6);
-    --token-color-light-orange-80: rgba(227,144,67,.8);
-    --token-color-soft-orange: rgb(248, 240, 231);
-    --token-color-soft-orange-2: hsl(35deg, 86%, 92%);
-    --token-color-soft-orange-3: hsl(35deg, 100%, 89%);
-    --token-color-soft-orange-4: hsl(35deg, 100%, 83%);
-    --token-color-soft-orange-5: hsl(35deg, 100%, 77%) ;
-    --token-color-soft-orange-6: hsl(35deg, 100%, 70%);
-    --token-color-soft-orange-40: hsla(35deg, 55%, 94%, 0.4);
-    --token-color-soft-orange-64: hsla(35deg, 55%, 94%, 0.64);
-    --token-gradient-privacy: linear-gradient(90deg,hsl(35deg, 100%, 69%) 0%,var(--token-color-dark-orange) 100%);
-    --token-gradient-orange: radial-gradient(122.66% 137.66% at 50% 0%,hsl(35deg, 100%, 69%) 0%,var(--token-color-dark-orange) 100%);
-    --token-gradient-subnav-dark: linear-gradient(0deg,var(--token-color-dark-orange) 0%,var(--token-color-orange) 100%);
-    --token-gradient-dark-orange: linear-gradient(to bottom,var(--token-color-dark-orange-50) 0%,var(--token-color-dark-orange-22) 100%);
-    --token-gradient-soft-orange: linear-gradient(180deg,var(--token-color-soft-orange-64) 0%,var(--token-color-white) 100%);
-    --token-gradient-radial-orange: radial-gradient(74.06% 118.24% at 50% -18.24%,var(--token-color-light-orange) 0%,var(--token-color-dark-orange) 100%);
-    --notification-box-shadow: 0px 0px 24px 2px hsla(35deg, 74%, 58%, 0.2);
-
-
     /* blue tokens from Figma. WIP, maybe orange? */
 
-    /* --token-color-dark-blue: #031B40;
+    --token-color-dark-blue: #031B40;
     --token-color-dark-blue-22: rgba(3,27,64,.22);
     --token-color-dark-blue-30: rgba(3,27,64,.3);
     --token-color-dark-blue-50: rgba(3,27,64,.4);
@@ -97,11 +63,11 @@
     --token-gradient-soft-blue: linear-gradient(180deg,var(--token-color-soft-blue-64) 0%,var(--token-color-white) 100%);
     --token-gradient-radial-blue: radial-gradient(74.06% 118.24% at 50% -18.24%,var(--token-color-light-blue) 0%,var(--token-color-dark-blue) 100%);
     --token-gradient-blurred-bg: radial-gradient( oklch(61.48% 0.1284 246.95deg) 0%, oklch(55.29% 0.1234 249.43deg) 8%, oklch(45.9% 0.1139 252.93deg) 18%, oklch(36.64% 0.1039 256.12deg) 30%, oklch(28.6% 0.0946 258.6deg) 42%, oklch(24.67% 0.0885 259.38deg) 54%, oklch(23.64% 0.084 258.65deg) 68%, oklch(23.5% 0.0804 258.63deg) 82%, oklch(22.96% 0.0771 258.36deg) 100%);
-    --notification-box-shadow: 0px 0px 24px 2px rgba(67,158,227,.2); */
+    --notification-box-shadow: 0px 0px 24px 2px rgba(67,158,227,.2);
 
     /* overriding purple tokens with blue tokens. little hacky, but lets experiment. */
 
-    /* --token-color-dark-purple: var(--token-color-dark-blue);
+    --token-color-dark-purple: var(--token-color-dark-blue);
     --token-color-dark-purple-22: var(--token-color-dark-blue-22);
     --token-color-dark-purple-30: var(--token-color-dark-blue-30);
     --token-color-dark-purple-50: var(--token-color-dark-blue-50);
@@ -128,37 +94,7 @@
     --token-gradient-purple: var(--token-gradient-blue);
     --token-gradient-dark-purple: var(--token-gradient-dark-blue);
     --token-gradient-soft-purple: var(--token-gradient-soft-blue);
-    --token-gradient-radial-purple: var(--token-gradient-radial-blue); */
-
-    /* orange version */
-    --token-color-dark-purple: var(--token-color-dark-orange);
-    --token-color-dark-purple-22: var(--token-color-dark-orange-22);
-    --token-color-dark-purple-30: var(--token-color-dark-orange-30);
-    --token-color-dark-purple-50: var(--token-color-dark-orange-50);
-    --token-color-dark-purple-2: var(--token-color-dark-orange-2);
-    --token-color-dark-purple-2-40: var(--token-color-dark-orange-2-40);
-    --token-color-purple: var(--token-color-orange);
-    --token-color-medium-purple: var(--token-color-medium-orange);
-    --token-color-link-purple: var(--token-color-link-orange);
-    --token-color-nav-icon-purple: var(--token-color-nav-icon-orange);
-    --token-color-light-purple: var(--token-color-light-orange);
-    --token-color-light-purple-20: var(--token-color-light-orange-20);
-    --token-color-light-purple-40: var(--token-color-light-orange-40);
-    --token-color-light-purple-60: var(--token-color-light-orange-60);
-    --token-color-light-purple-80: var(--token-color-light-orange-80);
-    --token-color-cream: var(--token-color-cream);
-    --token-color-soft-purple: var(--token-color-soft-orange);
-    --token-color-soft-purple-2: var(--token-color-soft-orange-2);
-    --token-color-soft-purple-3: var(--token-color-soft-orange-3);
-    --token-color-soft-purple-4: var(--token-color-soft-orange-4);
-    --token-color-soft-purple-5: var(--token-color-soft-orange-5);
-    --token-color-soft-purple-6: var(--token-color-soft-orange-6);
-    --token-color-soft-purple-40: var(--token-color-soft-orange-40);
-    --token-color-soft-purple-64: var(--token-color-soft-orange-64);
-    --token-gradient-purple: var(--token-gradient-orange);
-    --token-gradient-dark-purple: var(--token-gradient-dark-orange);
-    --token-gradient-soft-purple: var(--token-gradient-soft-orange);
-    --token-gradient-radial-purple: var(--token-gradient-radial-orange);
+    --token-gradient-radial-purple: var(--token-gradient-radial-blue);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -166,20 +102,6 @@
         --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise-dark.svg");
     }
 }
-
-.fl-button.button-gold {
-        /* gold button theme gets an orange gradient */
-    --button-bg-image: linear-gradient(
-        180deg,
-        #FD862F 0.09%,
-        #FD4A40 120%
-    );
-    --button-text-color: white;
-    --button-text-color-hover: white;
-    background-position: top -2px left;
-    background-size: calc(100% + 24px) calc(100% + 24px);
-}
-
 
 .fl-section-container > .fl-heading,
 .fl-section-container > .fl-heading-group {
