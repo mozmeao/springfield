@@ -35,6 +35,7 @@ def signals_reference(request):
                 "resolver_type": "server" if signal.resolver_type == ResolverType.SERVER_SIDE else "browser",
                 "value_type": signal.value_type.value,
                 "enum_values": list(signal.enum_values) if signal.enum_values else None,
+                "cache_safe": signal.cache_safe,
             }
         )
     # Force the Django Templates backend — this template extends

@@ -77,6 +77,15 @@ class Signal:
             client-side extractor that converts the UITour response into the
             signal's value. The client-side resolver library maps this name
             to a function.
+        cache_safe: Whether the signal's projection is wired into the Fastly
+            cache key via VCL. Only meaningful for SERVER_SIDE signals — a
+            server-side rule referencing a signal that is NOT in the cache
+            key risks silent cache poisoning (one user's variant response
+            gets served to another). CLIENT_SIDE_STATE signals are inherently
+            cache-safe because they resolve after the response is served, so
+            they never affect what Fastly caches. Default is ``False`` —
+            explicit opt-in required for server-side signals, coordinated
+            with Websites team VCL changes.
     """
 
     name: str
@@ -92,6 +101,7 @@ class Signal:
     # ``ai_controls`` returns one of "enabled" / "available" / "blocked").
     # Used by the admin to render a dropdown instead of a free-text input.
     enum_values: tuple[str, ...] | None = None
+    cache_safe: bool = False
 
 
 class SignalRegistrationError(ValueError):

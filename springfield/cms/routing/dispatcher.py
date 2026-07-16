@@ -30,7 +30,7 @@ WNP is the first consumer (see ``springfield.firefox.views.wnp_dispatch``).
 import json
 import logging
 from typing import Any
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -41,6 +41,31 @@ from .signals import registry as default_registry
 logger = logging.getLogger(__name__)
 
 RESOLVER_TEMPLATE = "cms/routing/resolver.html"
+
+# Analytics query params attached to redirect target URLs so downstream
+# analytics (GA4, MarTech pipelines) can attribute matched-variant landings
+# back to the rule and canonical page that routed them.
+#
+# Named descriptively (not cryptic) so they read cleanly in dashboards.
+# Emitted on the URL the user's browser is sent to; the landing page reads
+# them on load and fires whatever analytics event MarTech has configured.
+ROUTED_FROM_PARAM = "routed_from"  # slug of the canonical page that routed
+ROUTED_RULE_PARAM = "routed_rule"  # name of the rule that matched
+ROUTED_MODE_PARAM = "routed_mode"  # "server" or "client"
+ROUTED_MODE_SERVER = "server"
+ROUTED_MODE_CLIENT = "client"
+
+# Reserved query-param names the framework emits itself. Any pre-existing
+# incoming values for these params are stripped before we append our own —
+# otherwise a spoofed ``?routed_from=fake`` on the inbound request would
+# shadow our attribution (most JS analytics readers take the first match).
+_RESERVED_ROUTING_PARAMS = frozenset(
+    {
+        ROUTED_FROM_PARAM,
+        ROUTED_RULE_PARAM,
+        ROUTED_MODE_PARAM,
+    }
+)
 
 
 def _json_for_script(value) -> str:
@@ -107,7 +132,7 @@ def dispatch_for_canonical(
     result = evaluate_rules(live_rules, server_signals)
 
     if result.matched is not None:
-        return _redirect_to_variant(request, result.matched)
+        return _redirect_to_variant(request, canonical, result.matched)
 
     client_rules = [r for r in result.unresolved if rule_needs_client_side(r, registry=registry)]
     if not client_rules:
@@ -126,9 +151,55 @@ def dispatch_for_canonical(
     return _render_resolver_page(request, canonical, client_rules, registry=registry)
 
 
-def _redirect_to_variant(request, matched_rule):
+def _canonical_url_for(canonical, request) -> str:
+    """Resolve the canonical page's URL for use in the ``Link: rel="canonical"``
+    header. Prefers the absolute URL (scheme + host + path) because that's
+    what SEO/AEO crawlers most reliably interpret for canonical link hints;
+    falls back to the relative URL if Wagtail's Site config can't produce
+    an absolute one, and finally to ``"/"``.
+    """
+    try:
+        full_url = canonical.get_full_url(request=request)
+    except Exception:
+        # Wagtail can raise if Sites aren't configured or the page isn't
+        # routable. Fall back to the relative URL rather than 500-ing.
+        full_url = None
+    if full_url:
+        return full_url
+    return canonical.get_url(request=request) or "/"
+
+
+def _set_canonical_link_header(response, canonical_url: str) -> None:
+    """Add a ``Link: <url>; rel="canonical"`` header to a router response.
+
+    Router URLs return content (canonical fallback, resolver page) or redirects
+    at the SAME path a user would organically visit — declaring the canonical
+    URL tells search engines and AEO crawlers where the true content lives,
+    so SEO signals consolidate on the canonical URL rather than fragmenting
+    across router-marked variants.
+    """
+    response["Link"] = f'<{canonical_url}>; rel="canonical"'
+
+
+def _strip_reserved_routing_params(querystring: str) -> str:
+    """Remove any pre-existing ``routed_from`` / ``routed_rule`` / ``routed_mode``
+    entries from an incoming querystring.
+
+    The framework emits these itself on every redirect target. If a caller
+    (or a hostile URL) already carries values for them, they would shadow
+    the framework-emitted values in analytics — most ``URLSearchParams.get``
+    implementations return the first match. Stripping incoming values first
+    keeps attribution honest.
+    """
+    if not querystring:
+        return ""
+    filtered = [(k, v) for k, v in parse_qsl(querystring, keep_blank_values=True) if k not in _RESERVED_ROUTING_PARAMS]
+    return urlencode(filtered)
+
+
+def _redirect_to_variant(request, canonical, matched_rule):
     """Build a 302 redirect to the matched rule's target, preserving the
-    incoming querystring so downstream analytics keep working."""
+    incoming querystring and attaching analytics attribution params."""
     target_url = matched_rule.target_page.get_url(request=request)
     if not target_url:
         # Matched rule but the target page can't produce a URL (e.g. the
@@ -141,10 +212,24 @@ def _redirect_to_variant(request, matched_rule):
             getattr(matched_rule.target_page, "pk", None),
         )
         return None
-    querystring = request.META.get("QUERY_STRING", "")
+    querystring = _strip_reserved_routing_params(request.META.get("QUERY_STRING", ""))
     if querystring:
         target_url = _append_qs(target_url, querystring)
-    return HttpResponseRedirect(target_url)
+    # Attach analytics attribution params. Additive to any existing query;
+    # the landing page reads these to fire the routing event.
+    target_url = _append_qs(
+        target_url,
+        urlencode(
+            {
+                ROUTED_FROM_PARAM: getattr(canonical, "slug", "") or "",
+                ROUTED_RULE_PARAM: getattr(matched_rule, "name", "") or "",
+                ROUTED_MODE_PARAM: ROUTED_MODE_SERVER,
+            }
+        ),
+    )
+    response = HttpResponseRedirect(target_url)
+    _set_canonical_link_header(response, _canonical_url_for(canonical, request))
+    return response
 
 
 def _append_qs(url: str, querystring: str) -> str:
@@ -176,10 +261,17 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
       rule: the UITour key to fetch. The client-side resolver library
       has a hardcoded map of signal name → extractor function that
       converts the UITour response into the signal value.
+
+    Each rule's serialized ``target_url`` includes analytics attribution
+    params (``routed_from``, ``routed_rule``, ``routed_mode=client``) so
+    when the resolver JS navigates to a variant, the landing event fires
+    with the same attribution as a server-side redirect.
     """
     canonical_url = canonical.get_url(request=request) or "/"
-    querystring = request.META.get("QUERY_STRING", "")
-    canonical_url = _append_qs(canonical_url, querystring)
+    querystring = _strip_reserved_routing_params(request.META.get("QUERY_STRING", ""))
+    canonical_url_with_qs = _append_qs(canonical_url, querystring)
+
+    canonical_slug = getattr(canonical, "slug", "") or ""
 
     serialized_rules = []
     required_signal_names: set[str] = set()
@@ -193,6 +285,18 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
         # Preserve the incoming querystring on variant URLs too — the user's
         # utm_source, oldversion, etc. shouldn't be dropped by the resolver.
         target_url = _append_qs(target_url, querystring)
+        # Attach analytics attribution — mode is "client" here because the
+        # resolver JS is what will navigate the user, not the server.
+        target_url = _append_qs(
+            target_url,
+            urlencode(
+                {
+                    ROUTED_FROM_PARAM: canonical_slug,
+                    ROUTED_RULE_PARAM: rule.name or "",
+                    ROUTED_MODE_PARAM: ROUTED_MODE_CLIENT,
+                }
+            ),
+        )
 
         serialized_rules.append(
             {
@@ -210,15 +314,17 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             continue
         signal_metadata[signal_name] = {"uitour_key": signal.uitour_key}
 
-    return TemplateResponse(
+    response = TemplateResponse(
         request,
         RESOLVER_TEMPLATE,
         {
             # canonical_url is emitted as JSON (not raw text) so Jinja
             # autoescape can't corrupt ampersands into &amp;amp; inside the
             # <script> block — the client parses the JSON to get a clean URL.
-            "canonical_url_json": _json_for_script(canonical_url),
+            "canonical_url_json": _json_for_script(canonical_url_with_qs),
             "rules_json": _json_for_script(serialized_rules),
             "signal_metadata_json": _json_for_script(signal_metadata),
         },
     )
+    _set_canonical_link_header(response, canonical_url)
+    return response
