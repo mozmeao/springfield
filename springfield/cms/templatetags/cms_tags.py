@@ -361,7 +361,7 @@ def get_qr_code_snippet(context):
 @library.global_function
 def get_default_navigation():
     """Return the site default navigation snippet for the active locale, or None."""
-    from springfield.cms.models.snippets import NavigationSnippet
+    from springfield.cms.models.snippets import NavigationSnippet  # circular import
 
     return NavigationSnippet.get_default()
 
