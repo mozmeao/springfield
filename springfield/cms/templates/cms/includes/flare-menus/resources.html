@@ -25,14 +25,14 @@
       />
       <include:nav-link
         label="{{ ftl('navigation-blog') }}"
-        href="https://blog.mozilla.org/en/category/firefox/{{ params }}"
+        href="{{ 'https://blog.mozilla.org/en/category/firefox/' ~ params }}"
         icon_name="reader-view-fill"
         analytics_text="Blog"
         analytics_position="topnav - blog"
       />
       <include:nav-link
         label="{{ ftl('navigation-podcast') }}"
-        href="https://www.youtube.com/@firefox/podcasts{{ params }}"
+        href="{{ 'https://www.youtube.com/@firefox/podcasts' ~ params }}"
         icon_name="microphone-true"
         analytics_text="Podcast"
         analytics_position="topnav - podcast"
