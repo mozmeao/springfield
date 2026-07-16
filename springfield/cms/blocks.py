@@ -721,6 +721,12 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         label="AI Controls",
         help_text="Show based on AI Controls availability. Leave empty for no restriction.",
     )
+    bind_to_uitour = blocks.BooleanBlock(
+        required=False,
+        label="Bind to UI Tour",
+        help_text="If checked, this block will only be shown when it includes a UI Tour button and "
+        "the button matches the UI Tour display conditions.",
+    )
 
     class Meta:
         label = "Conditional Display"
