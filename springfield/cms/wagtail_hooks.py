@@ -583,7 +583,6 @@ class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
 class NavigationSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = NavigationSnippet
     list_display = ["name", "locale", "is_default", "live"]
-    list_filter = ["locale", "is_default"]
     search_fields = ["name"]
 
 
