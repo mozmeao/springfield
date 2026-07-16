@@ -414,6 +414,10 @@ html {
     .fl-hamburger.is-open::after {
         content: none;
     }
+
+    .fl-nav-mobile-download-link .fl-button {
+        inline-size: 100%;
+    }
 }
 
 /* ================================================
