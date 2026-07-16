@@ -21,14 +21,20 @@ from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPa
 
 @pytest.fixture
 def _canonical_and_variants(db):
-    """Build a small WNP tree with a canonical version 156 and two variants."""
+    """Build a small WNP tree with a canonical version 156 and two variants.
+
+    Variants are children of the canonical (matching the intended production
+    URL structure: ``/whatsnew/156/lapsed/`` is a child page of
+    ``/whatsnew/156/``). This lets descendant validation on the RoutingRule
+    ``target_page`` field pass cleanly.
+    """
     root = Page.objects.get(depth=1)
     home = root.get_children().first() or root.add_child(instance=Page(title="Home", slug="home"))
     en_locale, _ = Locale.objects.get_or_create(language_code="en-US")
     index = WhatsNewIndexPageFactory(parent=home, title="WNP Index", slug="whatsnew", locale=en_locale)
     canonical = WhatsNewPage2026Factory(parent=index, title="WNP 156", slug="156", version="156", locale=en_locale)
-    lapsed = WhatsNewPage2026Factory(parent=index, title="WNP 156 lapsed", slug="156-lapsed", version="156", locale=en_locale)
-    signed_in = WhatsNewPage2026Factory(parent=index, title="WNP 156 signed-in", slug="156-signed-in", version="156", locale=en_locale)
+    lapsed = WhatsNewPage2026Factory(parent=canonical, title="WNP 156 lapsed", slug="lapsed", version="156", locale=en_locale)
+    signed_in = WhatsNewPage2026Factory(parent=canonical, title="WNP 156 signed-in", slug="signed-in", version="156", locale=en_locale)
     return {"index": index, "canonical": canonical, "lapsed": lapsed, "signed_in": signed_in}
 
 
@@ -55,7 +61,7 @@ class TestWnpDispatch:
         the rule *would* have targeted.
         """
         location = response.get("Location", "") or ""
-        return "/156-lapsed" not in location and "/156-signed-in" not in location
+        return "/156/lapsed" not in location and "/156/signed-in" not in location
 
     @pytest.mark.django_db
     def test_canonical_serves_when_no_rules(self, client, _canonical_and_variants):
@@ -72,7 +78,7 @@ class TestWnpDispatch:
         # gap = 156 - 149 = 7, well past LAPSED_MIN_GAP=5.
         response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         assert response.status_code in (301, 302)
-        assert "/156-lapsed" in response["Location"]
+        assert "/156/lapsed" in response["Location"]
 
     @pytest.mark.django_db
     def test_variant_url_does_not_re_enter_dispatch(self, _canonical_and_variants):
@@ -147,7 +153,7 @@ class TestWnpDispatch:
         assert 'id="user-routing-signal-metadata"' in body
         # Rule payload includes the condition and the target URL.
         assert '"ai_controls"' in body
-        assert "/whatsnew/156-signed-in/" in body
+        assert "/whatsnew/156/signed-in/" in body
         # Signal metadata includes ai_controls → aiControls UITour key.
         assert '"aiControls"' in body
 
@@ -187,7 +193,7 @@ class TestWnpDispatch:
         )
         response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         assert response.status_code in (301, 302)
-        assert "/156-lapsed" in response["Location"]
+        assert "/156/lapsed" in response["Location"]
 
     @pytest.mark.django_db
     def test_querystring_preserved_on_302(self, client, _canonical_and_variants):
@@ -201,3 +207,93 @@ class TestWnpDispatch:
         assert "oldversion=149" in response["Location"]
         assert "utm_source=update" in response["Location"]
         assert "utm_campaign=156" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_redirect_carries_analytics_params(self, client, _canonical_and_variants):
+        # A server-side match emits routed_from / routed_rule / routed_mode
+        # on the redirect target so the landing page can fire the routing
+        # event with attribution to the canonical + matched rule.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            name="lapsed-users-156",
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
+        assert response.status_code in (301, 302)
+        location = response["Location"]
+        assert "routed_from=156" in location  # canonical slug
+        assert "routed_rule=lapsed-users-156" in location
+        assert "routed_mode=server" in location
+
+    @pytest.mark.django_db
+    def test_redirect_has_canonical_link_header(self, client, _canonical_and_variants):
+        # Router redirect responses declare the canonical URL via the Link
+        # header so SEO/AEO crawlers consolidate signals on the canonical
+        # rather than on the redirect endpoint.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
+        assert response.status_code in (301, 302)
+        link_header = response.get("Link", "")
+        assert 'rel="canonical"' in link_header
+        assert "/whatsnew/156/" in link_header
+
+    @pytest.mark.django_db
+    def test_resolver_page_has_canonical_link_header(self, client, _canonical_and_variants):
+        # The resolver page serves at the router URL (same as canonical);
+        # Link: rel="canonical" tells crawlers the true canonical is
+        # elsewhere.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "ai_controls", "equals": "available"},
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update")
+        assert response.status_code == 200
+        link_header = response.get("Link", "")
+        assert 'rel="canonical"' in link_header
+        assert "/whatsnew/156/" in link_header
+
+    @pytest.mark.django_db
+    def test_spoofed_routed_params_are_stripped(self, client, _canonical_and_variants):
+        # A hostile / curious user putting ?routed_from=fake in the incoming
+        # URL must not shadow the framework-emitted attribution. The final
+        # URL should contain only the real values, not the spoofed ones.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            name="real-rule",
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update&routed_from=fake&routed_rule=fake-rule&routed_mode=client")
+        location = response["Location"]
+        # Real values present.
+        assert "routed_from=156" in location
+        assert "routed_rule=real-rule" in location
+        assert "routed_mode=server" in location
+        # Spoofed values stripped.
+        assert "routed_from=fake" not in location
+        assert "routed_rule=fake-rule" not in location
+        assert "routed_mode=client" not in location
+
+    @pytest.mark.django_db
+    def test_resolver_page_rules_carry_client_side_analytics_params(self, client, _canonical_and_variants):
+        # Rules embedded in the resolver page have their target URLs
+        # pre-annotated with routed_mode=client + routed_from/routed_rule
+        # so client-side navigation fires the same attribution event as a
+        # server-side redirect.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "ai_controls", "equals": "available"},
+            name="ai-controls-available-156",
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update")
+        body = response.content.decode("utf-8")
+        assert "routed_mode=client" in body
+        assert "routed_from=156" in body
+        assert "routed_rule=ai-controls-available-156" in body

@@ -17,12 +17,17 @@ from springfield.cms.tests.factories import (
 
 @pytest.fixture
 def _wnp_tree(db):
-    """Build a small WNP tree: index → canonical + variant."""
+    """Build a small WNP tree: index → canonical → variant.
+
+    Variant is a child of canonical (matching the production URL structure
+    ``/whatsnew/156/lapsed/``) so descendant validation on RoutingRule
+    ``target_page`` passes.
+    """
     root = Page.objects.get(depth=1)
     home = root.get_children().first() or root.add_child(instance=Page(title="Home", slug="home"))
     index = WhatsNewIndexPageFactory(parent=home, title="WNP Index", slug="whatsnew")
     canonical = WhatsNewPage2026Factory(parent=index, title="WNP 156", slug="156", version="156")
-    variant = WhatsNewPage2026Factory(parent=index, title="WNP 156 lapsed", slug="156-lapsed", version="156")
+    variant = WhatsNewPage2026Factory(parent=canonical, title="WNP 156 lapsed", slug="lapsed", version="156")
     return {"index": index, "canonical": canonical, "variant": variant}
 
 
@@ -227,6 +232,28 @@ class TestRoutingRuleModel:
             rule.full_clean()
 
     @pytest.mark.django_db
+    def test_clean_rejects_non_descendant_target(self, _wnp_tree):
+        # A rule attached to canonical 156 must target a descendant of that
+        # canonical — routing to a sibling (unrelated) page is a common
+        # authoring mistake and rejected at save time.
+        second_canonical = WhatsNewPage2026Factory(
+            parent=_wnp_tree["index"],
+            title="WNP 157",
+            slug="157",
+            version="157",
+        )
+        rule = _make_rule(_wnp_tree, target_page=second_canonical)
+        with pytest.raises(ValidationError, match="descendant"):
+            rule.full_clean()
+
+    @pytest.mark.django_db
+    def test_clean_accepts_descendant_target(self, _wnp_tree):
+        # The default fixture's variant IS a descendant of canonical; make
+        # sure the descendant check passes.
+        rule = _make_rule(_wnp_tree)
+        rule.full_clean()  # should not raise
+
+    @pytest.mark.django_db
     def test_target_page_protect_prevents_delete(self, _wnp_tree):
         from django.db.models import ProtectedError
 
@@ -237,7 +264,18 @@ class TestRoutingRuleModel:
 
     @pytest.mark.django_db
     def test_parent_page_cascade_deletes_rules(self, _wnp_tree):
-        rule = _make_rule(_wnp_tree)
+        # Verify ParentalKey CASCADE — deleting the canonical removes its
+        # attached rules. Use a sibling (non-descendant) target here so that
+        # Wagtail's cascade on the canonical's descendants doesn't collide
+        # with the rule's PROTECTED target_page. Since save() doesn't invoke
+        # clean(), the sibling target is fine for this specific test.
+        sibling_target = WhatsNewPage2026Factory(
+            parent=_wnp_tree["index"],
+            title="Sibling target",
+            slug="sibling-target",
+            version="156",
+        )
+        rule = _make_rule(_wnp_tree, target_page=sibling_target)
         rule.save()
         rule_id = rule.pk
         _wnp_tree["canonical"].delete()

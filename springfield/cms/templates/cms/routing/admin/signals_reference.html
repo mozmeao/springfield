@@ -72,6 +72,14 @@ first tag in the file — the license comment lives right below it.
       background: rgba(215, 138, 20, 0.18);
       color: #8a5100;
     }
+    .user-routing-badge-cachesafe-yes {
+      background: rgba(46, 132, 76, 0.18);
+      color: #1e6a3a;
+    }
+    .user-routing-badge-cachesafe-no {
+      background: rgba(180, 60, 60, 0.18);
+      color: #a03030;
+    }
     .user-routing-values {
       font-family: SFMono-Regular, Consolas, monospace;
       font-size: 0.8125rem;
@@ -92,6 +100,8 @@ first tag in the file — the license comment lives right below it.
       .user-routing-intro { color: #ccc; }
       .user-routing-badge-server { background: rgba(80, 200, 120, 0.2); color: #7dd39e; }
       .user-routing-badge-browser { background: rgba(240, 173, 60, 0.2); color: #ffc06b; }
+      .user-routing-badge-cachesafe-yes { background: rgba(80, 200, 120, 0.2); color: #7dd39e; }
+      .user-routing-badge-cachesafe-no { background: rgba(220, 100, 100, 0.2); color: #e88888; }
     }
   </style>
 {% endblock %}
@@ -113,6 +123,14 @@ first tag in the file — the license comment lives right below it.
       resolve via UITour after the page loads — they add a small
       (roughly 500 ms) delay for matched users.
     </p>
+    <p class="user-routing-intro">
+      <strong>Cache-safe</strong> indicates whether a server signal's value
+      is included in the Fastly cache key. Signals marked <em>No</em> require
+      infra coordination before they're safe to use in a Live rule —
+      otherwise cached responses could be served to the wrong audience.
+      Browser signals are always safe because they resolve in the browser
+      after the response is served.
+    </p>
 
     <table class="user-routing-signals-table">
       <thead>
@@ -121,6 +139,7 @@ first tag in the file — the license comment lives right below it.
           <th>Kind</th>
           <th>Value type</th>
           <th>Valid values</th>
+          <th>Cache-safe</th>
           <th>What it means</th>
         </tr>
       </thead>
@@ -143,6 +162,13 @@ first tag in the file — the license comment lives right below it.
                 <span class="any">any number</span>
               {% else %}
                 <span class="any">any string</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if signal.cache_safe %}
+                <span class="user-routing-badge user-routing-badge-cachesafe-yes">Yes</span>
+              {% else %}
+                <span class="user-routing-badge user-routing-badge-cachesafe-no">No</span>
               {% endif %}
             </td>
             <td>{{ signal.description }}</td>

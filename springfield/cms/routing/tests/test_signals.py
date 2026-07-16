@@ -102,6 +102,17 @@ class TestSignalRegistry:
         with pytest.raises(SignalRegistrationError, match="at least one"):
             reg.register(signal)
 
+    def test_cache_safe_defaults_to_false(self):
+        # cache_safe is an opt-in flag — signals that don't declare it get
+        # the safe default of "not cache-safe", so a rule can't accidentally
+        # use a server signal that isn't wired into the Fastly cache key.
+        signal = self._server_signal()
+        assert signal.cache_safe is False
+
+    def test_cache_safe_can_be_set(self):
+        signal = self._server_signal(cache_safe=True)
+        assert signal.cache_safe is True
+
 
 # ---------------------------------------------------------------------------
 # resolve_server_signals — orchestrates all SERVER_SIDE resolvers
@@ -311,3 +322,26 @@ class TestDefaultRegistrations:
         request = RequestFactory().get("/", HTTP_USER_AGENT=ua)
         resolved = registry.resolve_server_signals(request)
         assert resolved.get("is_firefox") is False
+
+    def test_all_client_side_signals_are_cache_safe(self):
+        # Client-side signals resolve after the response is served — they
+        # never affect what Fastly caches, so they're inherently cache-safe.
+        # Every CLIENT_SIDE_STATE default registration must be marked as such.
+        for signal in registry.by_resolver_type(ResolverType.CLIENT_SIDE_STATE):
+            assert signal.cache_safe is True, f"Client-side signal {signal.name!r} should be cache_safe"
+
+    def test_country_is_not_cache_safe_by_default(self):
+        # Country is the highest-cardinality server signal (200 raw values).
+        # Server-side use requires Fastly VCL cache-key extension —
+        # coordinate with Websites team before flipping to cache_safe=True.
+        country = registry.get("country")
+        assert country is not None
+        assert country.cache_safe is False
+
+    def test_server_side_signals_default_to_not_cache_safe(self):
+        # In V1, all server-side signals are cache_safe=False until Websites
+        # team's Fastly VCL work lands. This is the safe default.
+        for signal in registry.by_resolver_type(ResolverType.SERVER_SIDE):
+            assert signal.cache_safe is False, (
+                f"Server signal {signal.name!r} is unexpectedly cache_safe — confirm VCL is in place before flipping this."
+            )

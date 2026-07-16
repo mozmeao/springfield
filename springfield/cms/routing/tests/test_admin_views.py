@@ -79,3 +79,11 @@ class TestSignalsReferenceView:
         # Both kinds should appear in the resulting table.
         assert "user-routing-badge-server" in body
         assert "user-routing-badge-browser" in body
+
+    def test_cache_safe_column_present(self):
+        body = self._render()
+        # The reference page includes a cache-safe column so authors can
+        # see which server signals still need infra coordination before use.
+        assert "Cache-safe" in body
+        assert "user-routing-badge-cachesafe-yes" in body  # client signals
+        assert "user-routing-badge-cachesafe-no" in body  # country et al.

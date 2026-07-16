@@ -34,12 +34,12 @@ from springfield.cms.routing import ResolverType, SignalValueType, registry
 
 RULE_STATUS_DRAFT = "draft"
 RULE_STATUS_LIVE = "live"
-RULE_STATUS_RETIRED = "retired"
+RULE_STATUS_ARCHIVED = "archived"
 
 RULE_STATUS_CHOICES = [
     (RULE_STATUS_DRAFT, "Draft"),
     (RULE_STATUS_LIVE, "Live"),
-    (RULE_STATUS_RETIRED, "Retired"),
+    (RULE_STATUS_ARCHIVED, "Archived"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -318,6 +318,24 @@ class RoutingRule(models.Model):
 
         if self.parent_page_id and self.target_page_id and self.parent_page_id == self.target_page_id:
             raise ValidationError({"target_page": "A rule cannot target the same page it attaches to."})
+
+        # Target page must be a descendant of the canonical (parent) page.
+        # This matches the WNP convention (variants are children of the
+        # canonical) and prevents accidental cross-linking to unrelated
+        # pages. Only enforced when both sides are set — parent may be
+        # unset during initial admin creation before Wagtail persists.
+        if self.parent_page_id and self.target_page_id and self.parent_page_id != self.target_page_id:
+            # treebeard's ``is_descendant_of`` is exclusive (excludes self);
+            # we already handled the equal-page case above.
+            if not self.target_page.is_descendant_of(self.parent_page):
+                raise ValidationError(
+                    {
+                        "target_page": (
+                            "Target page must be a descendant of the canonical page. "
+                            "Move the variant under this page in the tree, or pick a different variant."
+                        )
+                    }
+                )
 
         # Signal name and value validation kicks in only when a signal is
         # chosen — leaving the fields blank is a valid "draft not filled in
