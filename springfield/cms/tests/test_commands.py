@@ -6,6 +6,7 @@ from io import StringIO
 from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase
 
@@ -14,6 +15,8 @@ import pytest
 from wagtail.models import Page
 from wagtail_localize.models import StringTranslation, Translation, TranslationSource
 
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
@@ -473,3 +476,81 @@ class TestLinkTranslationsAfterExport:
         assert Translation.objects.filter(source=en_home_source, target_locale__language_code="de")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="fr")
         assert Translation.objects.filter(source=en_page_source, target_locale__language_code="de")
+
+
+def run_create_pretranslated_phrases():
+    out = StringIO()
+    call_command("create_pretranslated_phrases", stdout=out)
+    return out.getvalue()
+
+
+@pytest.mark.django_db
+class TestCreatePretranslatedPhrases:
+    def test_creates_one_record_per_phrase(self):
+        run_create_pretranslated_phrases()
+
+        assert PretranslatedPhrase.objects.count() == len(PHRASES)
+        for info in PHRASES.values():
+            assert PretranslatedPhrase.objects.filter(
+                translation_key=info["translation_key"],
+                label=info["label"],
+            ).exists()
+
+    def test_translation_sources_created_for_every_phrase(self):
+        run_create_pretranslated_phrases()
+
+        ct = ContentType.objects.get_for_model(PretranslatedPhrase)
+        assert TranslationSource.objects.filter(specific_content_type=ct).count() == len(PHRASES)
+
+    def test_rerunning_is_idempotent(self):
+        run_create_pretranslated_phrases()
+        run_create_pretranslated_phrases()
+
+        assert PretranslatedPhrase.objects.count() == len(PHRASES)
+        ct = ContentType.objects.get_for_model(PretranslatedPhrase)
+        assert TranslationSource.objects.filter(specific_content_type=ct).count() == len(PHRASES)
+
+    def test_creates_translated_phrase_for_each_locale_with_ftl_coverage(self):
+        """PretranslatedPhrases are created for each Locale."""
+        fr_locale = LocaleFactory(language_code="fr")
+        de_locale = LocaleFactory(language_code="de")
+
+        # Create some FTL translations for fr, but not for de.
+        ftl_translations_by_locale = {
+            "fr": {
+                "navigation-firefox.ftl": {"navigation-get-firefox": "Obtenir Firefox"},
+                "download_button.ftl": {"download-button-download-firefox": "Télécharger Firefox"},
+            },
+        }
+
+        def fake_get_ftl_translations_at_subpath(locale, ftl_subpath):
+            return ftl_translations_by_locale.get(locale, {}).get(ftl_subpath, {})
+
+        with patch(
+            "springfield.cms.ftl_parser.get_ftl_translations_at_subpath",
+            side_effect=fake_get_ftl_translations_at_subpath,
+        ):
+            run_create_pretranslated_phrases()
+
+        # PretranslatedPhrases exist for each phrase in en-US and in fr.
+        assert PretranslatedPhrase.objects.count() == len(["en-US", "fr"]) * len(PHRASES)
+        # en-US row exists for every phrase
+        for info in PHRASES.values():
+            assert PretranslatedPhrase.objects.filter(
+                translation_key=info["translation_key"],
+                locale__language_code="en-US",
+                label=info["label"],
+            ).exists(), f"missing en-US row for {info['label']}"
+        # fr row exists for every phrase
+        assert PretranslatedPhrase.objects.filter(
+            translation_key=PHRASES["get_firefox"]["translation_key"],
+            locale=fr_locale,
+            label="Obtenir Firefox",
+        ).exists()
+        assert PretranslatedPhrase.objects.filter(
+            translation_key=PHRASES["download_firefox"]["translation_key"],
+            locale=fr_locale,
+            label="Télécharger Firefox",
+        ).exists()
+        # de row does NOT exist — no FTL coverage configured for it.
+        assert not PretranslatedPhrase.objects.filter(locale=de_locale).exists()

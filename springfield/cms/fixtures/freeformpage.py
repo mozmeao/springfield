@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images, get_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_flare_pages_docs_page, get_placeholder_images
 from springfield.cms.fixtures.snippet_fixtures import (
     get_floating_qr_code_snippet,
     get_pencil_banner_snippet,
@@ -69,7 +69,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "11111111-1111-1111-1111-111111111111"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -100,7 +101,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "22222222-2222-2222-2222-222222222221"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -131,7 +133,8 @@ def get_mobile_browsers_cards():
                         "type": "button",
                         "value": {
                             "settings": {**link_button_settings, "analytics_id": "33333333-3333-3333-3333-333333333331"},
-                            "label": "Learn more",
+                            "pretranslated_label": None,
+                            "custom_label": "Learn more",
                             "link": {
                                 "link_to": "custom_url",
                                 "page": None,
@@ -153,14 +156,14 @@ def get_mobile_browsers_cards():
 
 
 def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "mobile-store-qr-code"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(
             slug=slug,
-            title="Mobile Store QR Code Test",
+            title="Mobile Store QR Code",
         )
         index_page.add_child(instance=page)
 
@@ -171,14 +174,14 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
 
 
 def get_freeform_page_test_page() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
     slug = "freeform"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
     if not page:
         page = FreeFormPage2026(
             slug=slug,
-            title="Free Form Test",
+            title="Free Form Page",
         )
         index_page.add_child(instance=page)
 
@@ -244,7 +247,8 @@ def get_set_as_default_button_block() -> dict:
                                     "icon_position": "right",
                                     "analytics_id": "sad00001-0000-0000-0000-000000000002",
                                 },
-                                "label": "Set Firefox as default",
+                                "pretranslated_label": None,
+                                "custom_label": "Set Firefox as default",
                                 "snippet": snippet.id,
                             },
                             "id": "sad00001-0000-0000-0000-000000000003",
@@ -258,7 +262,7 @@ def get_set_as_default_button_block() -> dict:
 
 
 def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-set-as-default"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -276,7 +280,7 @@ def get_freeform_page_with_set_as_default_button() -> FreeFormPage2026:
 
 def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
     get_qr_code_snippet()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()
@@ -295,7 +299,7 @@ def get_freeform_page_with_qr_snippet() -> FreeFormPage2026:
 
 def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
     get_floating_qr_code_snippet()
-    index_page = get_test_index_page()
+    index_page = get_flare_blocks_docs_page()
 
     slug = "freeform-with-floating-qr"
     page = FreeFormPage2026.objects.filter(slug=slug).first()

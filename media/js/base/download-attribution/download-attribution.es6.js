@@ -644,13 +644,14 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             pageCampaign &&
             DownloadAttribution.ESSENTIAL_CAMPAIGNS.includes(pageCampaign)
         ) {
-            // apply content and referrer for Return to AMO
-            // these fields are required for extra validation checks
+            // Return to AMO requires extra fields for special validation
             if (pageCampaign === 'rtamo') {
                 const params = new window._SearchParams();
                 const utms = params.utmParams();
 
                 return {
+                    utm_campaign: utms.utm_campaign,
+                    utm_source: utms.utm_source,
                     utm_content: utms.utm_content,
                     referrer: document.referrer
                 };
@@ -760,6 +761,8 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             return;
         }
 
+        // This is required for checkbox-based attribution updates
+        // to run multiple times on a page
         DownloadAttribution.requestComplete = false;
         DownloadAttribution.requestAuthentication(combined);
     },

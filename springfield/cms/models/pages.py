@@ -32,7 +32,6 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
-from springfield.base import waffle
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -120,6 +119,25 @@ class StructuralPage(AbstractSpringfieldCMSPage):
 
     def serve(self, request):
         return redirect(self.get_parent().get_full_url())
+
+
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
+    """
+    A page containing an index of all docs pages for Flare26.
+    It shows links to other docs pages.
+    """
+
+    template = "cms/flare_docs_index_page.html"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        children = list(self.get_children().live().public().specific().order_by("title"))
+        steplen = WagtailBasePage.steplen
+        grandchildren_by_parent = {}
+        for gc in self.get_descendants().filter(depth=self.depth + 2).live().public().order_by("title"):
+            grandchildren_by_parent.setdefault(gc.path[:-steplen], []).append(gc)
+        context["sections"] = [{"page": child, "children": grandchildren_by_parent.get(child.path, [])} for child in children]
+        return context
 
 
 class SimpleRichTextPage(AbstractSpringfieldCMSPage):
@@ -526,10 +544,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def get_template(self, request, *args, **kwargs):
         if request.GET.get("s") == "direct":
-            if waffle.switch("ENABLE_ATTRIBUTION_REFACTOR"):
-                return "firefox/download/rtamo.html"
-            else:
-                return "cms/thanks_page__direct.html"
+            return "firefox/download/rtamo.html"
 
         return "cms/thanks_page.html"
 
@@ -1954,15 +1969,18 @@ class ContactPage(AbstractSpringfieldCMSPage):
         context["form_data"] = getattr(request, "form_data", {})
         return context
 
+    def _redirect_with_errors(self, request, form_errors):
+        """Store form errors/data in session and redirect back, preserving query params."""
+        request.session["contact_form_errors"] = {k: [str(e) for e in v] for k, v in form_errors.items()}
+        request.session["contact_form_data"] = self._get_form_data_for_context(request.POST)
+        qs = request.POST.get("_qs", "")
+        return redirect(request.path + ("?" + qs if qs else ""))
+
     def serve(self, request, *args, **kwargs):
         if request.method == "POST":
             form_errors = self.validate_form_data(request.POST)
             if form_errors:
-                request.form_errors = form_errors
-                request.form_data = self._get_form_data_for_context(request.POST)
-                response = super().serve(request, *args, **kwargs)
-                add_never_cache_headers(response)
-                return response
+                return self._redirect_with_errors(request, form_errors)
 
             if self.basket_api_path:
                 form_data = self._collect_form_data(request)
@@ -1982,11 +2000,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                                     f"Basket API returned {api_response.status_code} for path {self.basket_api_path}",
                                     level="error",
                                 )
-                        request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                        request.form_data = self._get_form_data_for_context(request.POST)
-                        response = super().serve(request, *args, **kwargs)
-                        add_never_cache_headers(response)
-                        return response
+                        return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
                 except requests.RequestException as exc:
                     with new_scope() as scope:
                         scope.set_extra("basket_path", self.basket_api_path)
@@ -1995,11 +2009,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             f"Basket API request failed for path {self.basket_api_path}",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
 
             if self.to_email_address:
                 try:
@@ -2011,11 +2021,7 @@ class ContactPage(AbstractSpringfieldCMSPage):
                             "Failed to send contact form email",
                             level="error",
                         )
-                    request.form_errors = {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]}
-                    request.form_data = self._get_form_data_for_context(request.POST)
-                    response = super().serve(request, *args, **kwargs)
-                    add_never_cache_headers(response)
-                    return response
+                    return self._redirect_with_errors(request, {"__all__": [ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files)]})
 
             if self.redirect_to:
                 return redirect(self.redirect_to.localized.url)
@@ -2024,6 +2030,13 @@ class ContactPage(AbstractSpringfieldCMSPage):
             response = super().serve(request, *args, **kwargs)
             add_never_cache_headers(response)
             return response
+
+        session = getattr(request, "session", None)
+        if session:
+            form_errors = session.pop("contact_form_errors", {})
+            if form_errors:
+                request.form_errors = form_errors
+                request.form_data = session.pop("contact_form_data", {})
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
@@ -2036,7 +2049,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             value = field.value
             identifier = value["internal_identifier"]
             if field.block_type == "hidden_field":
-                data[identifier] = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                data[identifier] = post_value if post_value else value.get("default_value", "")
             elif field.block_type == "checkbox_group_field":
                 data[identifier] = ", ".join(request.POST.getlist(identifier))
             else:
@@ -2108,7 +2122,8 @@ class ContactPage(AbstractSpringfieldCMSPage):
             label = value["label"]
 
             if block_type == "hidden_field":
-                submitted = value.get("default_value", "")
+                post_value = request.POST.get(identifier, "")
+                submitted = post_value if post_value else value.get("default_value", "")
             elif block_type == "checkbox_group_field":
                 submitted = ", ".join(request.POST.getlist(identifier))
             else:

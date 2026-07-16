@@ -13,8 +13,8 @@ class EnterprisePage(BasePage):
 
     _primary_download_button_locator = (By.ID, "primary-download-button")
     _win64_download_list_locator = (By.ID, "win64-download-list")
-    _win32_download_list_locator = (By.ID, "win32-download-list")
     _mac_download_list_locator = (By.ID, "mac-download-list")
+    _linux_download_list_locator = (By.ID, "linux-download-list")
 
     @property
     def is_primary_download_button_displayed(self):
@@ -26,11 +26,11 @@ class EnterprisePage(BasePage):
         return MenuList(self, root=el)
 
     @property
-    def win32_download_list(self):
-        el = self.find_element(*self._win32_download_list_locator)
+    def mac_download_list(self):
+        el = self.find_element(*self._mac_download_list_locator)
         return MenuList(self, root=el)
 
     @property
-    def mac_download_list(self):
-        el = self.find_element(*self._mac_download_list_locator)
+    def linux_download_list(self):
+        el = self.find_element(*self._linux_download_list_locator)
         return MenuList(self, root=el)
