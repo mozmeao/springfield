@@ -12,6 +12,7 @@ const path = require('path');
 
 const BASE_URL_A = process.env.HOST_A || 'http://localhost:8000';
 const BASE_URL_B = process.env.HOST_B || 'https://www.firefox.com';
+const LOCALE = process.env.LOCALE || 'en-US';
 
 const PAGES = [
     { name: 'home', path: '/' },
@@ -37,12 +38,13 @@ const storageState = fs.existsSync(AUTH_FILE) ? AUTH_FILE : undefined;
 
 for (const { name, path: pagePath } of PAGES) {
     test(name, async ({ browser }, testInfo) => {
+        const localizedPath = pagePath.replace('/en-US/', `/${LOCALE}/`);
         const contextB = await browser.newContext({
             viewport: VIEWPORT,
             storageState
         });
         const pageB = await contextB.newPage();
-        await pageB.goto(BASE_URL_B + pagePath);
+        await pageB.goto(BASE_URL_B + localizedPath);
         const refScreenshot = await pageB.screenshot(SCREENSHOT_OPTIONS);
         await contextB.close();
 
@@ -60,7 +62,7 @@ for (const { name, path: pagePath } of PAGES) {
             storageState
         });
         const pageA = await contextA.newPage();
-        await pageA.goto(BASE_URL_A + pagePath);
+        await pageA.goto(BASE_URL_A + localizedPath);
         const localScreenshot = await pageA.screenshot(SCREENSHOT_OPTIONS);
         fs.writeFileSync(
             testInfo.outputPath(`${name}-local.png`),
