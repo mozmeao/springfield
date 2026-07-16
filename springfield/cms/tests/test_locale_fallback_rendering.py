@@ -538,8 +538,8 @@ def test_non_cms_page_hreflang_alternates(client):
     # Canonical should be self-referencing (en-US).
     assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
     assert '<meta name="robots" content="noindex,follow">' not in html
-    # en-US should emit both hreflang="en" and hreflang="en-US".
-    assert f'hreflang="en" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    # en-US should emit hreflang="en-US" only (duplicate bare hreflang="en" was removed for SEO clarity).
+    assert f'hreflang="en" href="{settings.CANONICAL_URL}/en-US{page_path}"' not in html
     assert f'hreflang="en-US" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
     # Locales in active_locales should appear.
     assert f'hreflang="fr" href="{settings.CANONICAL_URL}/fr{page_path}"' in html
@@ -736,7 +736,7 @@ def test_alias_to_nonexistent_cms_fallback_page_redirects(client):
 
 def test_noindex_page_has_canonical(client):
     """
-    A page with noindex=True using base-flare26.html served directly should emit
+    A page with noindex=True using base-flare.html served directly should emit
     both a self-referencing canonical link and the noindex meta tag.
     """
     site = Site.objects.get(is_default_site=True)
@@ -759,7 +759,7 @@ def test_noindex_page_has_canonical(client):
 
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
 def test_noindex_page_alias_request_gets_canonical(client):
-    """A page with noindex=True on base-flare26.html served via an alias locale
+    """A page with noindex=True on base-flare.html served via an alias locale
     should emit a canonical link to the fallback locale alongside the noindex meta tag.
     """
     es_mx_locale = LocaleFactory(language_code="es-MX")

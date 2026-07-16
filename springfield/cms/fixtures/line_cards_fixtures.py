@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -114,10 +114,14 @@ def get_line_cards_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-line-cards"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Line Cards")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Line Cards",
+        },
+    )
 
     variants = get_line_cards_variants()
     page_content = [
@@ -130,5 +134,11 @@ def get_line_cards_test_page() -> FreeFormPage2026:
     ]
     page.upper_content = page_content
     page.content = page_content
+    page.docs = (
+        "<p>Line Cards arrange compact card content along a horizontal line &mdash; typically used for chronological highlights, "
+        "mini-features, or &lsquo;as featured in&rsquo; style rows.</p>"
+        "<p>Keep card content short (an icon, a label, maybe one supporting line). The block is most effective when the row reads "
+        "as a single connected thought rather than as independent cards.</p>"
+    )
     page.save_revision().publish()
     return page

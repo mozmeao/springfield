@@ -7,7 +7,7 @@ import pytest
 from pages.firefox.browsers.mobile_ios import FirefoxMobileIosPage
 
 
-@pytest.mark.skip("This needs Flare26 update")
+@pytest.mark.skip("This needs Flare update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_send_to_device_success(base_url, selenium):
@@ -19,7 +19,7 @@ def test_send_to_device_success(base_url, selenium):
     assert send_to_device.send_successful
 
 
-@pytest.mark.skip("This needs Flare26 update")
+@pytest.mark.skip("This needs Flare update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_send_to_device_failure(base_url, selenium):
@@ -30,7 +30,7 @@ def test_send_to_device_failure(base_url, selenium):
     assert send_to_device.is_form_error_displayed
 
 
-@pytest.mark.skip("This needs Flare26 update")
+@pytest.mark.skip("This needs Flare update")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_get_firefox_qr_code(base_url, selenium):

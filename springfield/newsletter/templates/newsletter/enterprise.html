@@ -4,10 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
 
 {% set page_title_copy = ftl('newsletter-enterprise-title-v2') %}
-{% set page_desc_copy = ftl('newsletter-enterprise-description-v2') %}
+{% set page_desc_copy = ftl('newsletter-enterprise-description-v3') %}
 
 {% block page_title %}{{ page_title_copy }}{% endblock page_title %}
 {% block page_desc %}{{ page_desc_copy }}{% endblock %}
@@ -15,7 +15,7 @@
 {% block body_class %}{{ super() }} newsletter-mozilla{% endblock %}
 
 {% block flare_header %}
-    <include:flare26-header hide_nav_cta no_menu />
+    <include:flare-header hide_nav_cta no_menu />
 {% endblock %}
 
 
@@ -31,7 +31,7 @@
       heading_size="fl-heading-size-3"
       heading_text="{{ page_title_copy }}"
     />
-    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-v2') }}</p>
+    <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-v3') }}</p>
     <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-note') }}</p>
   </include:newsletter-form>
 </div>

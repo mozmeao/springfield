@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -50,15 +50,20 @@ def get_kit_intro_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-kit-intro"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Kit Intro")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Kit Intro",
+        },
+    )
 
     content = [*get_kit_intro_variants(), get_bottom_section()]
     page.upper_content = content
     # Add the Kit Intro block data to the Content field despite the block not being allowed there
     # to test that it isn't rendered on the page
     page.content = content
+    page.docs = "<p>The Kit Intro block is the main component of our home page. We should avoid using it in other pages.</p>"
     page.save_revision().publish()
     return page

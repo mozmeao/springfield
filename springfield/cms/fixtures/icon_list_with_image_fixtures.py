@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
@@ -95,13 +95,24 @@ def get_icon_list_with_image_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-icon-list-with-image"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Icon List with Image")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Icon List with Image",
+        },
+    )
 
     sections = get_icon_list_with_image_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>The Icon List with Image block places a vertical list of icon+text items beside a supporting image. It&rsquo;s well "
+        "suited for product walkthroughs, capability checklists, and &lsquo;why us&rsquo; sections that benefit from a single "
+        "anchoring visual.</p>"
+        "<p>Limit the list to 4&ndash;6 items so column heights stay balanced. Match the image to the list&rsquo;s overall theme &mdash; "
+        "abstract or decorative imagery weakens the structure.</p>"
+    )
     page.save_revision().publish()
     return page

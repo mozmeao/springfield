@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
@@ -199,16 +199,24 @@ def get_notification_variants() -> list[dict]:
 def get_notification_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage2026.objects.filter(slug="test-notifications-page").first()
-    if not page:
-        page = FreeFormPage2026(
-            slug="test-notifications-page",
-            title="Notifications",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug="test-notifications-page",
+        parent=index_page,
+        defaults={
+            "title": "Notifications",
+        },
+    )
 
     variants = get_notification_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Notification block displays a contextual alert &mdash; informational, success, warning, or error &mdash; with an "
+        "optional icon, color, headline, and closability. Use it for time-sensitive messages, system status, or in-page guidance.</p>"
+        "<p>Pick the color to match severity: purple for general info, green for success / confirmation, orange for warnings, red "
+        "for errors. Mark &ldquo;closable&rdquo; when the message is dismissible per session; leave it false when the user must act on it "
+        "before continuing.</p>"
+    )
     page.save_revision().publish()
     return page

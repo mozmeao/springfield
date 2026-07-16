@@ -61,7 +61,7 @@ firefox-enterprise-download-firefox-or-esr = Download { -brand-name-firefox } or
 
 firefox-enterprise-support-for-organizations-v2 = { -brand-name-firefox-professional-support }
 
-firefox-enterprise-early-access-is-v3 = Early access is now open for our new support program. Built for organizations that use { -brand-name-firefox } to ensure security, resilience, and data sovereignty, it provides private, reliable, and custom support for large-scale deployments.
+firefox-enterprise-early-access-is-v2 = Early access is now open for our new support program. Built for organizations that use { -brand-name-firefox } to ensure security, resilience, and data sovereignty, it provides private, reliable, and custom support for large-scale deployments.
 firefox-enterprise-contact-sales = Contact Sales
 firefox-enterprise-support-for-organizations-documentation-v2 = { -brand-name-firefox-professional-support } documentation
 firefox-enterprise-support-for-organizations-is-v2 = { -brand-name-firefox-professional-support } is a dedicated offering for teams who need private issue triage and escalation, defined response times, custom development options, and close collaboration with { -brand-name-mozilla }’s engineering and product teams.

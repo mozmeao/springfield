@@ -15,8 +15,9 @@ import pytest
 from wagtail.models import Page
 from wagtail_localize.models import StringTranslation, Translation, TranslationSource
 
+from springfield.cms.fixtures.registry import PAGE_FIXTURES
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
-from springfield.cms.models import PretranslatedPhrase
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
@@ -554,3 +555,19 @@ class TestCreatePretranslatedPhrases:
         ).exists()
         # de row does NOT exist — no FTL coverage configured for it.
         assert not PretranslatedPhrase.objects.filter(locale=de_locale).exists()
+
+
+@pytest.mark.django_db
+def test_load_page_fixtures_loads_registry_pages():
+    """The load_page_fixtures command seeds every page fixture in the registry."""
+    call_command("load_page_fixtures", stdout=StringIO())
+
+    # The command actually ran the fixtures (representative page exists).
+    assert FreeFormPage2026.objects.filter(slug="test-buttons").exists()
+
+    # Every registry fixture is get-or-create, so re-running them all after the
+    # command must create no new pages — proving the command loaded them all.
+    page_count = Page.objects.count()
+    for fixture in PAGE_FIXTURES:
+        fixture()
+    assert Page.objects.count() == page_count

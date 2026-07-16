@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
@@ -816,16 +816,24 @@ def get_banner_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    page = FreeFormPage2026.objects.filter(slug="test-banner-page").first()
-    if not page:
-        page = FreeFormPage2026(
-            slug="test-banner-page",
-            title="Banner",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug="test-banner-page",
+        parent=index_page,
+        defaults={
+            "title": "Banner",
+        },
+    )
 
     variants = get_banner_variants()
-    page.upper_content = variants
-    page.content = variants
+    page.upper_content = with_fresh_ids(variants)
+    page.content = with_fresh_ids(variants)
+    page.docs = (
+        "<p>The Banner block is a hero-style headline section designed for highlighting or introducing a major topic, usually with a CTA. "
+        "It supports an eyebrow superheading, a primary heading, optional subheading, body content (rich text, tags, buttons), "
+        "and optional media (image or video) positioned before or after the text.</p>"
+        "<p>Use it sparingly &mdash; only when you want a CTA. Choose the &lsquo;default&rsquo; or &lsquo;outlined&rsquo; "
+        "theme to suit the page&rsquo;s visual weight, and prefer media that fully illustrates the message rather than decorative imagery.</p>"
+    )
     page.save_revision().publish()
     return page

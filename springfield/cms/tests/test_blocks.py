@@ -14,7 +14,7 @@ from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.blocks import StreamBlockValidationError, StructBlockValidationError
+from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
@@ -32,11 +32,14 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
+    QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     SpringfieldLinkBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
+    UntranslatableCharBlock,
+    UUIDBlock,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -159,7 +162,7 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -184,6 +187,11 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
     elif btn_type == "focus_button":
         block = FirefoxFocusButtonBlock()
         value["store"] = "android"
+    elif btn_type == "qr_code_modal_button":
+        block = QRCodeModalButtonBlock()
+        value["url"] = "https://www.mozilla.org/firefox/mobile/"
+        value["heading"] = "Get Firefox on your phone"
+        value["content"] = "Take Firefox with you."
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -1210,8 +1218,8 @@ def test_buttons(index_page, rf):
 
         for block_index, (intro, block) in enumerate(zip(intros, blocks)):
             buttons_data = next(b for b in block["value"]["content"] if b["type"] == "buttons")["value"]
-            # Store buttons render as fl-store-button; all others render as fl-button
-            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button"]]
+            # Store/uitour/qr_code_modal buttons don't render as <a class="fl-button">
+            non_store_data = [b for b in buttons_data if b["type"] not in ["store_button", "uitour_button", "qr_code_modal_button"]]
             store_data = [b for b in buttons_data if b["type"] == "store_button"]
 
             button_elements = [el for el in intro.find_all("a", class_="fl-button") if "Extended Support Release" not in el.get("data-cta-text", "")]
@@ -3792,9 +3800,31 @@ def test_two_column_card_media_position_validation_no_media_skips_check():
 
 def test_uuid_block_is_not_translatable():
     """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
-    from springfield.cms.blocks import UUIDBlock
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+def test_untranslatable_char_block_excludes_content_from_translation():
+    """
+    UntranslatableCharBlock holds internal/config values (field identifiers, hidden
+    field defaults), not user-facing copy — its content must never be sent to translators.
+
+    A plain CharBlock has no get_translatable_segments method, so wagtail_localize's
+    extractor treats its value as a translatable string (the isinstance branch); defining
+    the method to return [] is what opts this value out of extraction.
+    """
+    assert not hasattr(CharBlock(), "get_translatable_segments")
+    assert UntranslatableCharBlock().get_translatable_segments("office_phone") == []
+
+
+def test_untranslatable_char_block_restore_returns_value_unchanged():
+    """
+    Because nothing is extracted for translation, ingesting translated segments must
+    return the original value untouched — even if segments are somehow supplied.
+    """
+    block = UntranslatableCharBlock()
+    assert block.restore_translated_segments("name", []) == "name"
+    assert block.restore_translated_segments("name", ["ignored"]) == "name"
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

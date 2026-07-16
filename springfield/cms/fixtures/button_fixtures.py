@@ -5,7 +5,7 @@
 
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_test_document
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_test_document, with_fresh_ids
 from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
@@ -72,7 +72,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "back",
                     "icon_position": "left",
                     "analytics_id": "83b0d9d6-2b49-4704-b06a-1300704e12fc",
@@ -141,7 +141,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "78d40d75-9303-41f3-82d9-097970dced8e",
         },
         "link": {
             "type": "button",
@@ -166,7 +166,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "relative_url": "",
                 },
             },
-            "id": "4ff21d57-e112-4799-a8c3-20bf9ebb2a93",
+            "id": "aca0af22-515c-4357-a959-81eba0568a3b",
         },
         "external_mozilla": {
             "type": "button",
@@ -217,7 +217,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "export-data",
                     "icon_position": "right",
                     "analytics_id": "77d97583-3536-48ae-a72f-6a67077b9988",
@@ -267,7 +267,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
             "type": "fxa_button",
             "value": {
                 "settings": {
-                    "theme": "tertiary",
+                    "theme": "ghost",
                     "icon": "single-user",
                     "icon_position": "left",
                     "analytics_id": "d9456b7f-015d-4799-a2c8-e67a2246bf4f",
@@ -305,7 +305,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "show_default_browser_checkbox": True,
                 },
             },
-            "id": "98bd248c-c715-4986-9a60-c0922ba12799",
+            "id": "a5dfce3c-ff6b-4cd6-abf2-e88648c99150",
         },
         "store_android": {
             "type": "store_button",
@@ -347,6 +347,23 @@ def get_button_variants(full=False) -> dict[str, dict]:
             },
             "id": "fb000001-0000-0000-0000-000000000004",
         },
+        "qr_code_modal": {
+            "type": "qr_code_modal_button",
+            "value": {
+                "settings": {
+                    "theme": "",
+                    "icon": "device-mobile",
+                    "icon_position": "left",
+                    "analytics_id": "qrmodal1-0000-0000-0000-000000000001",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Get Firefox on your phone",
+                "url": "https://www.mozilla.org/firefox/mobile/",
+                "heading": "Get Firefox on your phone",
+                "content": "Take Firefox with you.",
+            },
+            "id": "qrmodal1-0000-0000-0000-000000000002",
+        },
     }
     if full:
         index_page = get_flare_blocks_docs_page()
@@ -357,7 +374,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "type": "button",
                     "value": {
                         "settings": {
-                            "theme": "tertiary",
+                            "theme": "ghost",
                             "icon": "back",
                             "icon_position": "left",
                             "analytics_id": "0fef2106-9dd4-4185-9d5d-e9c352392c15",
@@ -407,7 +424,7 @@ def get_button_variants(full=False) -> dict[str, dict]:
                     "type": "button",
                     "value": {
                         "settings": {
-                            "theme": "tertiary",
+                            "theme": "ghost",
                             "icon": "paperclip",
                             "icon_position": "left",
                             "analytics_id": "2ce75501-5dc6-44cf-8609-61ee89c914b0",
@@ -672,6 +689,27 @@ def get_button_blocks() -> list[dict]:
                 ],
             },
             "id": "focusintr-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="qrmodal01h">QR Code Modal Button</p>',
+                    "subheading_text": '<p data-block-key="qrmodal01s">Opens a modal with a QR code and Firefox logo. '
+                    "Editors configure the URL to encode, the modal heading, and an optional caption.</p>",
+                },
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "qrmodal01-0000-0000-0000-000000000002",
+                        "value": [buttons["qr_code_modal"]],
+                    },
+                ],
+            },
+            "id": "qrmodal01-0000-0000-0000-000000000001",
         },
         {
             "type": "intro",
@@ -1028,13 +1066,21 @@ def get_buttons_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-buttons"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Buttons")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Buttons",
+        },
+    )
 
     blocks = get_button_blocks()
-    page.upper_content = blocks
-    page.content = blocks
+    page.upper_content = with_fresh_ids(blocks)
+    page.content = with_fresh_ids(blocks)
+    page.docs = (
+        "<p>This page has one example for every single available button in the app. "
+        "If you need a button, open this page inline to see all button types.</p>"
+    )
     page.save_revision().publish()
     return page

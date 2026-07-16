@@ -8,7 +8,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.shortcuts import redirect
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
@@ -23,6 +23,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
+from wagtail.fields import StreamField
 from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -31,9 +32,11 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.admin_views import ContentSearchView
+from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
+    AbstractSpringfieldCMSPage,
     BannerSnippet,
-    DownloadFirefoxCallToActionSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -44,6 +47,24 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+
+
+@hooks.register("register_admin_urls")
+def register_content_search_url():
+    return [
+        path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
+        path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_content_search_link():
+    return MenuItem(
+        "Search content",
+        reverse("cms_content_search"),
+        icon_name="search",
+        order=2,
+    )
 
 
 @hooks.register("register_admin_menu_item")
@@ -522,13 +543,6 @@ class PreFooterCTAFormSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading_plain", "locale", "live"]
 
 
-class DownloadFirefoxCallToActionSnippetViewSet(LocaleDefaultingSnippetViewSet):
-    model = DownloadFirefoxCallToActionSnippet
-    # `heading` is a RichTextField — use the `heading_plain` method on the model
-    # to strip HTML tags so the listing column is readable.
-    list_display = ["heading_plain", "locale", "live"]
-
-
 class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = BannerSnippet
     # `heading` is a RichTextField — use the `heading_plain` method on the model
@@ -576,7 +590,6 @@ for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
     PreFooterCTAFormSnippetViewSet,
-    DownloadFirefoxCallToActionSnippetViewSet,
     BannerSnippetViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
@@ -586,3 +599,45 @@ for _viewset in (
     PencilBannerSnippetViewSet,
 ):
     register_snippet(_viewset)
+
+
+@hooks.register("after_copy_page")
+def regenerate_analytics_ids_on_copy(request, page, new_page):
+    """Give freshly copied pages their own analytics IDs so duplicated pages don't
+    share tracking UUIDs with their source.
+
+    Runs for every admin "Copy page" action (the admin view uses ``CopyPageAction``
+    directly, so overriding ``Page.copy()`` would not catch it). Skipped when:
+
+    * the editor ticked "Keep analytics IDs" on the copy form (opt-out), or
+    * the copy is an alias, which must mirror its original exactly.
+
+    Applies to the copied page and every copied descendant, since recursive copies
+    build subpages without calling ``Page.copy()`` either.
+    """
+    post = getattr(request, "POST", {})
+    user = getattr(request, "user", None)
+
+    if post.get("keep_analytics_ids"):
+        return
+    if new_page.alias_of_id:
+        return
+
+    for copied_page in new_page.get_descendants(inclusive=True).specific():
+        if not isinstance(copied_page, AbstractSpringfieldCMSPage):
+            continue
+
+        stream_fields = [field for field in copied_page._meta.get_fields() if isinstance(field, StreamField)]
+        if not stream_fields:
+            continue
+
+        for field in stream_fields:
+            setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
+
+        copied_page.save()
+        revision = copied_page.save_revision(user=user) if user else copied_page.save_revision()
+        if copied_page.live:
+            if user:
+                revision.publish(user=user)
+            else:
+                revision.publish()

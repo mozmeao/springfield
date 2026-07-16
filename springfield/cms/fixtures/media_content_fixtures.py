@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -263,13 +263,23 @@ def get_media_content_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-media-content"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Test Media Content 2026")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Media Content",
+        },
+    )
 
     sections = get_media_content_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>The Media Content block places a media element (image or video) alongside a content column (heading, body, buttons). "
+        "It&rsquo;s the building block for alternating media-text sections that make up product feature pages.</p>"
+        "<p>Alternate the media position (left / right) across consecutive blocks to keep the page rhythm engaging. Provide alt "
+        "text on every image; for video, set the autoplay variant only when sound is not required.</p>"
+    )
     page.save_revision().publish()
     return page

@@ -4,7 +4,7 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
 _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
@@ -96,13 +96,23 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     index_page = get_flare_blocks_docs_page()
 
     slug = "test-sliding-carousel"
-    page = FreeFormPage2026.objects.filter(slug=slug).first()
-    if not page:
-        page = FreeFormPage2026(slug=slug, title="Sliding Carousel")
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Sliding Carousel",
+        },
+    )
 
     variants = get_sliding_carousel_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = (
+        "<p>The Sliding Carousel block is a continuous-sliding variant of the Carousel. It&rsquo;s well suited for screenshot "
+        "galleries, and any visual collection where continuous motion communicates &lsquo;more here&rsquo;.</p>"
+        "<p>Keep slide content visually consistent (matching backgrounds, similar dimensions). Don&rsquo;t include CTAs inside "
+        "sliding items &mdash; the motion makes them hard to click.</p>"
+    )
     page.save_revision().publish()
     return page

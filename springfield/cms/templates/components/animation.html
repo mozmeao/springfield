@@ -11,6 +11,8 @@
   <video
     autoplay muted loop
     poster="{{ poster }}"
+    {# Firefox does not support playsinline, so we need to manually remove it from the tab order #}
+    tabindex="-1"
     playsinline
     preload="metadata"
   >
