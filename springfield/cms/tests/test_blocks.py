@@ -68,6 +68,7 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
@@ -2130,6 +2131,48 @@ def test_mobile_store_qr_code_block(index_page, placeholder_images, rf):
     lower_mobile_image_div = lower_qr_section.find("div", class_="fl-mobile-store-mobile-image")
     assert lower_mobile_image_div, "Mobile image div should be present"
     assert lower_mobile_image_div.find("img"), "Mobile image should render an img element"
+
+
+def test_enterprise_download_block(index_page, rf):
+    page = get_enterprise_download_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper, "Upper section should exist when upper_content has blocks"
+    assert lower, "Lower section should exist when content has blocks"
+
+    for region in (upper, lower):
+        download_section = region.find("section", id="download")
+        assert download_section, "Enterprise download section should render"
+        assert "Enterprise downloads" in download_section.get_text()
+
+        platform_blocks = download_section.find_all("section", class_="enterprise-download-block")
+        platform_classes = [cls for block in platform_blocks for cls in block["class"]]
+        assert "platform-win64" in platform_classes
+        assert "platform-mac" in platform_classes
+        assert "platform-linux" in platform_classes
+
+        win64_links = download_section.find("div", id="win64-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=win64") for link in win64_links)
+
+        mac_links = download_section.find("div", id="mac-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=osx") for link in mac_links)
+
+        linux_links = download_section.find("div", id="linux-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
+
+        resources = download_section.find("div", class_="enterprise-download-resources")
+        assert resources, "Resources block should render"
+        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
+        assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
+
+        assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
 
 
 def test_freeform_page_split_layout(index_page, rf):
