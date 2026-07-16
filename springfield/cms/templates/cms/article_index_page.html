@@ -33,21 +33,21 @@
             {% for article in featured_articles %}
 
               {% if page.index_card_type == "outline_card" %}
-                <include:outlined-card expand_link="true">
-                  <content:heading>
-                    <h2 class="fl-heading fl-heading-size-3">
-                      <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                        {{ article.index_page_heading or article.title }}
-                      </a>
-                    </h2>
-                  </content:heading>
+                <include:card variant="outline" expand_link="true">
                   <content:body>
-                    {{ article.description|richtext }}
+                    <hgroup class="fl-card-heading-group">
+                      <h2 class="fl-heading fl-heading-size-3">
+                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                          {{ article.index_page_heading or article.title }}
+                        </a>
+                      </h2>
+                    </hgroup>
+                    <div class="fl-body fl-body-medium">{{ article.description|richtext }}</div>
+                    <div class="fl-buttons is-stacked auto-width-buttons">
+                      <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                    </div>
                   </content:body>
-                  <content:buttons>
-                    <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-                  </content:buttons>
-                </include:outlined-card>
+                </include:card>
               {% elif page.index_card_type == "illustration_card" %}
                 <include:card expand_link="true">
                   <content:body>
@@ -166,21 +166,21 @@
             <include:cards-list container_width="fill" cards_per_row="3">
               {% for article in list_articles %}
                 {% if page.index_card_type == "outline_card" %}
-                  <include:outlined-card expand_link="true">
-                    <content:heading>
-                      <h3 class="fl-heading fl-heading-size-3">
-                        <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
-                          {{ article.index_page_heading or article.title }}
-                        </a>
-                      </h3>
-                    </content:heading>
+                  <include:card variant="outline" expand_link="true">
                     <content:body>
-                      {{ article.description|richtext }}
+                      <hgroup class="fl-card-heading-group">
+                        <h3 class="fl-heading fl-heading-size-3">
+                          <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                            {{ article.index_page_heading or article.title }}
+                          </a>
+                        </h3>
+                      </hgroup>
+                      <div class="fl-body fl-body-medium">{{ article.description|richtext }}</div>
+                      <div class="fl-buttons is-stacked auto-width-buttons">
+                        <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
+                      </div>
                     </content:body>
-                    <content:buttons>
-                      <a href="{{ article.url }}" class="fl-link-expand">{{ ftl('ui-learn-more') }}</a>
-                    </content:buttons>
-                  </include:outlined-card>
+                  </include:card>
                 {% elif page.index_card_type == "illustration_card" %}
                   <include:card expand_link="true">
                     <content:body>
