@@ -67,6 +67,23 @@ _RESERVED_ROUTING_PARAMS = frozenset(
     }
 )
 
+# Admin-only preview URL params. Marketing authors paste preview URLs from
+# the Wagtail admin to verify rules before publishing them Live.
+#
+# * ``preview_rule={id}`` — force-select a specific rule (bypasses the
+#   evaluator entirely); redirect to that rule's target. Answers "does the
+#   target page render correctly?"
+# * ``preview_signal={name}:{value}`` (repeatable) — feed fake signal values
+#   to the evaluator alongside (or overriding) real resolved signals.
+#   Answers "would this rule actually match given these signals?"
+#
+# Both require Wagtail admin authentication (``request.user.is_staff``);
+# unauthenticated requests silently ignore them. Preview responses set
+# ``Cache-Control: no-store`` so authors see fresh evaluations, not stale
+# cached responses.
+PREVIEW_RULE_PARAM = "preview_rule"
+PREVIEW_SIGNAL_PARAM = "preview_signal"
+
 
 def _json_for_script(value) -> str:
     """Serialize ``value`` to JSON and escape sequences that would break out
@@ -124,15 +141,59 @@ def dispatch_for_canonical(
     # loaded via cms.models.__init__.
     from springfield.cms.models.routing import RULE_STATUS_LIVE
 
+    # Track whether ANY preview URL param was supplied so responses are
+    # never served from cache when an author is previewing — even when the
+    # preview lookup fails (invalid rule id, no signals actually override,
+    # etc.). Includes preview_rule presence regardless of resolution success
+    # so a typo like ``?preview_rule=999`` doesn't get cached and served
+    # stale on the author's next attempt.
+    preview_signals = _parse_preview_signals(request)
+    is_preview_request = _is_preview_authorized(request) and (bool(preview_signals) or request.GET.get(PREVIEW_RULE_PARAM))
+
+    # ---- Admin preview: preview_rule short-circuits the evaluator ---------
+    # ``?preview_rule={id}`` (admin-authenticated) forces a redirect to the
+    # specified rule's target regardless of signal state or rule status.
+    # Answers "does the variant page render correctly?" without needing the
+    # rule to be Live or the signals to actually resolve. Preview intentionally
+    # bypasses the ``routing_paused`` kill switch so authors can still verify
+    # a variant page's render while production routing is halted.
+    preview_rule = _get_preview_rule(request, canonical)
+    if preview_rule is not None:
+        response = _redirect_to_variant(request, canonical, preview_rule)
+        _set_no_store(response)
+        return response
+
+    # ---- Emergency kill switch ---------------------------------------------
+    # Marketing-editable field on the canonical page. When on, dispatch
+    # short-circuits and canonical serves regardless of rule state. Rules
+    # themselves are untouched — flip the toggle back off to resume.
+    # Preview requests bypass the pause switch so authors can still verify
+    # a rule works while production routing is halted.
+    if getattr(canonical, "routing_paused", False) and not is_preview_request:
+        return None
+
     live_rules = list(canonical.routing_rules.filter(status=RULE_STATUS_LIVE).select_related("target_page"))
     if not live_rules:
         return None
 
+    # ---- Admin preview: preview_signal overrides resolved signals ---------
+    # ``?preview_signal=name:value`` (repeatable, admin-authenticated)
+    # feeds fake values to the evaluator on top of / overriding the real
+    # server-resolved signals. Answers "would this rule actually match given
+    # these signals?" without needing production traffic conditions.
     server_signals = registry.resolve_server_signals(request, context=signal_context or {})
+    if preview_signals:
+        # Preview values override real resolutions — same-name preview_signal
+        # takes precedence over what the server would have resolved.
+        server_signals = {**server_signals, **preview_signals}
+
     result = evaluate_rules(live_rules, server_signals)
 
     if result.matched is not None:
-        return _redirect_to_variant(request, canonical, result.matched)
+        response = _redirect_to_variant(request, canonical, result.matched)
+        if is_preview_request:
+            _set_no_store(response)
+        return response
 
     client_rules = [r for r in result.unresolved if rule_needs_client_side(r, registry=registry)]
     if not client_rules:
@@ -148,7 +209,10 @@ def dispatch_for_canonical(
             )
         return None
 
-    return _render_resolver_page(request, canonical, client_rules, registry=registry)
+    response = _render_resolver_page(request, canonical, client_rules, registry=registry)
+    if is_preview_request:
+        _set_no_store(response)
+    return response
 
 
 def _canonical_url_for(canonical, request) -> str:
@@ -179,6 +243,92 @@ def _set_canonical_link_header(response, canonical_url: str) -> None:
     across router-marked variants.
     """
     response["Link"] = f'<{canonical_url}>; rel="canonical"'
+
+
+def _is_preview_authorized(request) -> bool:
+    """Preview URLs are for admin authors, not general public traffic.
+    Gate on Wagtail admin's ``is_staff`` — anyone with a valid admin session
+    is trusted to preview."""
+    user = getattr(request, "user", None)
+    return bool(user and getattr(user, "is_authenticated", False) and getattr(user, "is_staff", False))
+
+
+def _get_preview_rule(request, canonical):
+    """Look up the ``?preview_rule={id}`` rule for admin-authenticated requests.
+
+    Only rules attached to the requested ``canonical`` are eligible — a
+    rule ID from a different canonical would silently not-match. Returns the
+    rule instance or ``None``.
+    """
+    if not _is_preview_authorized(request):
+        return None
+    raw_id = request.GET.get(PREVIEW_RULE_PARAM)
+    if not raw_id:
+        return None
+    try:
+        rule_id = int(raw_id)
+    except (TypeError, ValueError):
+        return None
+    return canonical.routing_rules.filter(pk=rule_id).select_related("target_page").first()
+
+
+def _parse_preview_signals(request) -> dict[str, Any]:
+    """Parse repeated ``?preview_signal=name:value`` params into a
+    ``{signal_name: value}`` dict.
+
+    Values coerce best-effort:
+    * ``true`` / ``false`` (case-insensitive) → bool
+    * an integer string → int
+    * otherwise → string as-is
+
+    Silently returns ``{}`` for unauthenticated requests, so the same URL is
+    inert (no preview effect) when shared or crawled.
+    """
+    if not _is_preview_authorized(request):
+        return {}
+    signals: dict[str, Any] = {}
+    for raw in request.GET.getlist(PREVIEW_SIGNAL_PARAM):
+        if not raw or ":" not in raw:
+            continue
+        name, _sep, value = raw.partition(":")
+        name = name.strip()
+        value = value.strip()
+        if not name:
+            continue
+        signals[name] = _coerce_preview_value(value)
+    return signals
+
+
+def _coerce_preview_value(text: str) -> Any:
+    """Coerce a preview-signal string value to a Python type the evaluator
+    understands.
+
+    Accepts the same boolean vocabulary the admin form stores (``true`` /
+    ``yes`` / ``1`` for True; ``false`` / ``no`` / ``0`` for False) so a
+    preview URL built with admin-side values behaves the same as the rule
+    it's previewing. Integer strings coerce to ``int``; anything else stays
+    a string.
+
+    Note: the bool-check runs BEFORE the int-check so ``"1"`` and ``"0"``
+    resolve to ``True``/``False`` (matching the admin vocabulary) rather
+    than to the ints ``1`` and ``0``.
+    """
+    lower = text.lower()
+    if lower in ("true", "yes", "1"):
+        return True
+    if lower in ("false", "no", "0"):
+        return False
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        return text
+
+
+def _set_no_store(response) -> None:
+    """Mark a response as uncacheable — used for preview responses so
+    authors see fresh evaluations regardless of upstream cache state."""
+    if response is not None:
+        response["Cache-Control"] = "no-store"
 
 
 def _strip_reserved_routing_params(querystring: str) -> str:
@@ -277,11 +427,31 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
     required_signal_names: set[str] = set()
 
     for rule in client_rules:
-        signal_name = (rule.condition or {}).get("signal")
-        if signal_name:
-            required_signal_names.add(signal_name)
+        target_url = rule.target_page.get_url(request=request)
+        if not target_url:
+            # Target page has no resolvable URL (unpublished, off-site,
+            # or off any Wagtail Site root). Falling back to canonical_url
+            # would create a JS-navigation loop: the resolver-page URL and
+            # the canonical URL share the same path, so navigating there
+            # from the resolver would re-enter dispatch, re-render the
+            # resolver, and repeat. Drop the rule from the client payload
+            # entirely and log the misconfiguration so marketing can see
+            # WHY their rule isn't taking effect. Mirrors the server-side
+            # safe fallback in ``_redirect_to_variant``.
+            logger.warning(
+                "user_routing: client-side rule %r has target_page %r with no resolvable URL; dropping from resolver page.",
+                getattr(rule, "name", "?"),
+                getattr(rule.target_page, "pk", None),
+            )
+            continue
 
-        target_url = rule.target_page.get_url(request=request) or canonical_url
+        # AND-conditions: a rule has 1+ conditions. Collect all their signals.
+        rule_conditions = rule.conditions_as_dicts()
+        for condition in rule_conditions:
+            signal_name = condition.get("signal")
+            if signal_name:
+                required_signal_names.add(signal_name)
+
         # Preserve the incoming querystring on variant URLs too — the user's
         # utm_source, oldversion, etc. shouldn't be dropped by the resolver.
         target_url = _append_qs(target_url, querystring)
@@ -301,8 +471,13 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
         serialized_rules.append(
             {
                 "name": rule.name,
-                "priority": rule.priority,
-                "condition": rule.condition,
+                # ``priority`` is the JSON-contract name the client-side
+                # resolver uses to sort rules. Server-side field renamed to
+                # ``sort_order`` (Wagtail Orderable convention) — the JSON
+                # payload keeps "priority" so marketing / analytics
+                # consumers see the term they know.
+                "priority": rule.sort_order if rule.sort_order is not None else 0,
+                "conditions": rule_conditions,
                 "target_url": target_url,
             }
         )

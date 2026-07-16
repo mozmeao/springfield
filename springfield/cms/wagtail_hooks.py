@@ -51,6 +51,7 @@ from springfield.cms.models import (
 )
 
 
+@hooks.register("register_admin_urls")
 def register_content_search_url():
     return [
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
@@ -667,7 +668,7 @@ class UserRoutingViewSet(SnippetViewSet):
     menu_label = "Rules"
     menu_name = "user_routing_rules"
     icon = "site"
-    list_display = ["name", "priority", "parent_page", "target_page", "status"]
+    list_display = ["name", "sort_order", "parent_page", "target_page", "status"]
     list_filter = ["status", "parent_page"]
     search_fields = ["name"]
 

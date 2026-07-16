@@ -1329,6 +1329,18 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
         use_json_field=True,
     )
 
+    routing_paused = models.BooleanField(
+        default=False,
+        verbose_name="Pause routing",
+        help_text=(
+            "Emergency kill switch — when on, the dispatcher short-circuits "
+            "and canonical serves regardless of rule state. Use to stop all "
+            "routing behavior without unpublishing or archiving individual "
+            "rules. Flip back off to resume."
+        ),
+    )
+
+
     content_panels = [
         FieldPanel("internal_title"),
         FieldPanel("title"),
@@ -1378,6 +1390,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
                 "global cross-reference of rules across the site.</p>"
             ),
         ),
+        FieldPanel("routing_paused"),
         InlinePanel(
             "routing_rules",
             label="User Routing rule",

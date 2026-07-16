@@ -15,7 +15,11 @@
  *   #user-routing-canonical-url    — fallback URL string
  *
  * Contract for a rule:
- *   { name, priority, condition: {signal, op, values}, target_url }
+ *   { name, priority, conditions: [{signal, op, values}, ...], target_url }
+ *
+ * A rule contains one or more conditions joined by AND — the rule matches
+ * only when every condition matches. Cross-rule evaluation stays OR
+ * (priority-ordered).
  *
  * Contract for signal metadata:
  *   { <signal_name>: { uitour_key: '<key>' } }
@@ -164,19 +168,29 @@
     // Condition shape (matches the server-side dispatcher's serialization):
     //   { signal: '<name>', op: 'is' | 'is_not', values: [<v1>, <v2>, ...] }
     //
-    // ruleMatches returns:
+    // Rule shape:
+    //   { conditions: [<condition>, ...], ... }
+    //
+    // A rule matches iff every condition matches (AND). Per-condition
+    // tri-state combines as:
+    //   any false     → rule is false (short-circuit — one failing AND-clause
+    //                    is enough to reject, regardless of unresolved others)
+    //   else any null → rule is null (need to wait for more signals)
+    //   else          → rule is true
+    //
+    // conditionMatches / ruleMatches both return:
     //   true  → matched
     //   false → definitively did not match
     //   null  → cannot decide yet (signal unresolved)
     // -----------------------------------------------------------------------
 
-    function ruleMatches(rule, resolved) {
-        var c = rule.condition || {};
+    function conditionMatches(condition, resolved) {
+        var c = condition || {};
         if (!c.signal) return false;
         // Distinguish 'signal not fetched yet' from 'fetched but no value':
         //   not in resolved                → null   (still pending)
         //   in resolved but value=undefined → false (fetched and failed;
-        //                                           rule can't match)
+        //                                           condition can't match)
         if (!(c.signal in resolved)) return null;
         var v = resolved[c.signal];
         if (typeof v === 'undefined') return false;
@@ -187,6 +201,19 @@
         if (op === 'is') return isInList;
         if (op === 'is_not') return !isInList;
         return false;
+    }
+
+    function ruleMatches(rule, resolved) {
+        var conditions = rule.conditions || [];
+        if (!conditions.length) return false;
+        var anyPending = false;
+        for (var i = 0; i < conditions.length; i++) {
+            var outcome = conditionMatches(conditions[i], resolved);
+            if (outcome === false) return false;
+            if (outcome === null) anyPending = true;
+        }
+        if (anyPending) return null;
+        return true;
     }
 
     function evaluate(resolved) {
