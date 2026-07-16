@@ -3253,6 +3253,19 @@ class DownloadSupportBlock(blocks.StaticBlock):
         label = "Download Support Message"
 
 
+class EnterpriseDownloadBlock(blocks.StaticBlock):
+    """Static placeholder block for the Firefox Enterprise download section.
+
+    No editable fields by design: it renders the existing enterprise
+    download markup/FTL strings as-is while the Enterprise page's
+    redesign is in progress.
+    """
+
+    class Meta:
+        template = "cms/blocks/enterprise-download.html"
+        label = "Enterprise Download"
+
+
 # Contact Page Form Field Blocks
 
 
