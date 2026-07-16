@@ -56,6 +56,7 @@ from springfield.cms.blocks import (
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
+    EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
     HiddenFieldBlock,
@@ -982,6 +983,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
