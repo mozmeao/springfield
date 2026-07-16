@@ -236,7 +236,7 @@ def get_navigation_snippet() -> NavigationSnippet:
             "logo": build_logo_image("Placeholder Navigation Logo", (117, 79, 224)),
             "logo_dark": build_logo_image("Placeholder Navigation Logo (Dark)", (255, 138, 80)),
             "logo_link": [("link", build_link(link_to="relative_url", relative_url="/"))],
-            "cta_button": [("button", [get_button_variants()["download"]])],
+            "cta_button": [("button", [get_button_variants()["primary"]])],
         },
     )
     snippet.save_revision().publish()

@@ -67,8 +67,25 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         help_text="Image displayed when this page is shared on social media. Recommended size: 1200×630 pixels (PNG).",
     )
 
+    custom_navigation = models.ForeignKey(
+        "cms.NavigationSnippet",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=(
+            "Override the page header navigation with this menu. If unset, the page "
+            "inherits its nearest ancestor's custom navigation, then the site default "
+            "navigation, then the built-in navigation."
+        ),
+    )
+
     promote_panels = WagtailBasePage.promote_panels + [
         FieldPanel("og_image"),
+    ]
+
+    settings_panels = WagtailBasePage.settings_panels + [
+        FieldPanel("custom_navigation"),
     ]
 
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
@@ -76,6 +93,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     # See https://wagtail-localize.org/stable/how-to/field-configuration/
     override_translatable_fields = [
         SynchronizedField("slug"),
+        SynchronizedField("custom_navigation"),
     ]
 
     # Add the "Keep analytics IDs" opt-out checkbox to the admin copy form.
@@ -232,3 +250,25 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
             if self.url_path.startswith(site_root_path.root_path):
                 return self.get_ancestors().live().public().filter(url_path__startswith=site_root_path.root_path).order_by("path")
         return WagtailBasePage.objects.none()
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["custom_navigation"] = self.get_navigation()
+        return context
+
+    def get_navigation(self):
+        """Resolve this page's custom navigation: its own, else the nearest
+        ancestor's, walking up the tree; each candidate must resolve in the
+        active locale. Returns None when neither the page nor any ancestor has
+        one — the site default navigation is supplied separately by the header
+        template via the get_default_navigation() tag.
+        """
+        candidate_pages = [self, *self.get_ancestors().specific().order_by("-depth")]
+        for page in candidate_pages:
+            # Ancestors above the routable subtree (the Wagtail root and per-locale
+            # root pages) are plain wagtailcore Pages without this field.
+            if getattr(page, "custom_navigation_id", None):
+                navigation = page.custom_navigation.get_localized()
+                if navigation:
+                    return navigation
+        return None

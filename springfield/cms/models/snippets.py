@@ -17,7 +17,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
-from wagtail.admin.panels import FieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
@@ -532,11 +532,16 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
     panels = [
         FieldPanel("name"),
         FieldPanel("is_default"),
+        MultiFieldPanel(
+            [
+                FieldPanel("logo"),
+                FieldPanel("logo_dark"),
+                FieldPanel("logo_link"),
+            ],
+            heading="Logo",
+        ),
         FieldPanel("items"),
-        FieldPanel("logo"),
-        FieldPanel("logo_dark"),
-        FieldPanel("logo_link"),
-        FieldPanel("cta_button"),
+        FieldPanel("cta_button", heading="CTA Button"),
     ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
@@ -545,6 +550,12 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
+
+    @classmethod
+    def get_default(cls):
+        """Return the site default navigation, localized to the active locale, or None."""
+        snippet = cls.objects.filter(is_default=True, locale=SpringfieldLocale.get_default()).live().order_by("-last_published_at").first()
+        return snippet.get_localized() if snippet else None
 
     def validate_logo_size(self, field_name):
         """Reject a logo image larger than the header logo cap."""

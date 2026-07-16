@@ -10,65 +10,25 @@ from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.navigation_fixtures import build_top_level_link
 from springfield.cms.models import NavigationSnippet
-from springfield.cms.models.pages import (
-    ArticleDetailPage,
-    ArticleIndexPage,
-    ArticleThemePage,
-    BlogArticlePage,
-    BlogIndexPage,
-    ContactPage,
-    CustomNavPageMixin,
-    DownloadPage,
-    FlareDocsIndexPage,
-    FreeFormPage2026,
-    HomePage,
-    RoadmapPage,
-    SmartWindowPage,
-    ThanksPage,
-    WhatsNewPage2026,
-)
+from springfield.cms.models.pages import FreeFormPage2026
 from springfield.cms.tests.factories import DownloadPageFactory, FlareDocsIndexPageFactory, FreeFormPage2026Factory, LocaleFactory
 
 pytestmark = [pytest.mark.django_db]
 
-CUSTOM_NAV_PAGES = [
-    HomePage,
-    DownloadPage,
-    ThanksPage,
-    ArticleIndexPage,
-    ArticleDetailPage,
-    ArticleThemePage,
-    FreeFormPage2026,
-    WhatsNewPage2026,
-    SmartWindowPage,
-    BlogIndexPage,
-    BlogArticlePage,
-    RoadmapPage,
-    ContactPage,
-    FlareDocsIndexPage,
-]
 
-
-def make_snippet(name="Custom nav", live=True, locale=None):
+def make_snippet(name="Custom nav", live=True, locale=None, is_default=False):
     """Create a NavigationSnippet with a single distinctive top-level link."""
     snippet = NavigationSnippet.objects.create(
         locale=locale or Locale.get_default(),
         name=name,
         items=[build_top_level_link("Custom Nav Link", custom_url="/custom-nav/", block_id="b1")],
         live=live,
+        is_default=is_default,
     )
     if live:
         snippet.save_revision().publish()
     snippet.refresh_from_db()
     return snippet
-
-
-@pytest.mark.parametrize("page_model", CUSTOM_NAV_PAGES)
-def test_target_pages_use_mixin_and_have_fk(page_model):
-    assert issubclass(page_model, CustomNavPageMixin)
-    field = page_model._meta.get_field("custom_navigation")
-    assert field.related_model is NavigationSnippet
-    assert field.null is True
 
 
 def test_get_context_includes_localized_snippet_for_custom_navigation(rf):
@@ -100,8 +60,8 @@ def get_nav_soup(client, page):
     return BeautifulSoup(response.content.decode("utf-8"), "html.parser")
 
 
-def test_page_with_default_header_template_renders_custom_nav(client):
-    # FlareDocsIndexPage uses base-flare's default flare_header block.
+def test_page_without_header_template_override_renders_custom_nav(client):
+    # FlareDocsIndexPage inherits base-flare's flare_header block.
     site = Site.objects.get(is_default_site=True)
     snippet = make_snippet()
     page = FlareDocsIndexPageFactory(parent=site.root_page, custom_navigation=snippet)
@@ -113,18 +73,32 @@ def test_page_with_default_header_template_renders_custom_nav(client):
     assert "Custom Nav Link" in cms_menu.get_text()
 
 
-def test_page_with_default_header_falls_back_to_default_if_no_snippet(client):
+def test_page_without_header_override_falls_back_to_static_nav_if_no_snippet(client):
     site = Site.objects.get(is_default_site=True)
-    page = FlareDocsIndexPageFactory(parent=site.root_page, slug="flare-docs-default")
+    page = FlareDocsIndexPageFactory(parent=site.root_page, slug="flare-docs-static-nav")
     page.save_revision().publish()
 
     soup = get_nav_soup(client, page)
     assert soup.find("ul", class_="fl-nav-menu-cms") is None
-    # The default header still renders its nav container.
+    # The static header still renders its nav container.
     assert soup.find("nav", class_="fl-nav") is not None
 
 
-def test_page_with_custom_header_template_renders_custom_nav(client):
+def test_page_without_header_override_uses_default_navigation_snippet(client):
+    # No custom_navigation on the page or its ancestors, the header template
+    # supplies the published default snippet.
+    site = Site.objects.get(is_default_site=True)
+    make_snippet(name="Default nav", is_default=True)
+    page = FlareDocsIndexPageFactory(parent=site.root_page, slug="flare-docs-default-nav")
+    page.save_revision().publish()
+
+    soup = get_nav_soup(client, page)
+    cms_menu = soup.find("ul", class_="fl-nav-menu-cms")
+    assert cms_menu is not None
+    assert "Custom Nav Link" in cms_menu.get_text()
+
+
+def test_page_with_override_header_template_renders_custom_nav(client):
     # FreeFormPage2026 overrides flare_header (theme="dark") and shows the menu
     # (show_navigation defaults to True).
     site = Site.objects.get(is_default_site=True)
@@ -133,6 +107,22 @@ def test_page_with_custom_header_template_renders_custom_nav(client):
     page.save_revision().publish()
 
     soup = get_nav_soup(client, page)
+    cms_menu = soup.find("ul", class_="fl-nav-menu-cms")
+    assert cms_menu is not None
+    assert "Custom Nav Link" in cms_menu.get_text()
+
+
+def test_child_page_renders_inherited_ancestor_custom_nav(client):
+    # The child has no custom_navigation of its own, so it must inherit the
+    # parent's custom navigation snippet.
+    site = Site.objects.get(is_default_site=True)
+    snippet = make_snippet()
+    parent = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=snippet, slug="freeform-nav-parent")
+    parent.save_revision().publish()
+    child = FreeFormPage2026Factory(parent=parent, custom_navigation=None, slug="freeform-nav-child")
+    child.save_revision().publish()
+
+    soup = get_nav_soup(client, child)
     cms_menu = soup.find("ul", class_="fl-nav-menu-cms")
     assert cms_menu is not None
     assert "Custom Nav Link" in cms_menu.get_text()

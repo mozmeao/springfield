@@ -117,7 +117,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     is_structural_page = True
     # TO COME: guard rails on page hierarchy
     # subpage_types = []
-    settings_panels = WagtailBasePage.settings_panels + [
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
     content_panels = [
@@ -311,35 +311,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class CustomNavPageMixin(models.Model):
-    """Mixin that lets a page override its header navigation with a NavigationSnippet."""
-
-    custom_navigation = models.ForeignKey(
-        "cms.NavigationSnippet",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-        help_text=(
-            "Override the page header navigation with this menu. Falls back to the default navigation if unset or unavailable in the active locale."
-        ),
-    )
-
-    custom_nav_panels = [FieldPanel("custom_navigation")]
-
-    class Meta:
-        abstract = True
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        custom_navigation = None
-        if self.custom_navigation_id:
-            custom_navigation = self.custom_navigation.get_localized()
-        context["custom_navigation"] = custom_navigation
-        return context
-
-
-class HomePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -365,7 +337,7 @@ class HomePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
@@ -374,7 +346,6 @@ class HomePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -402,7 +373,7 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
 
     ftl_files = [
@@ -498,7 +469,7 @@ class DownloadPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         FieldPanel("content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("subheading"),
@@ -507,7 +478,6 @@ class DownloadPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -536,7 +506,7 @@ class DownloadPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return context
 
 
-class ThanksPage(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A thank you page displayed after the user downloads Firefox."""
 
     ftl_files = ["firefox/download/desktop"]
@@ -562,7 +532,7 @@ class ThanksPage(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin,
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("content"),
@@ -570,7 +540,6 @@ class ThanksPage(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin,
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     def __str__(self):
@@ -610,7 +579,7 @@ class ThanksPage(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin,
         return True
 
 
-class ArticleIndexPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
 
     sub_title = models.CharField(
@@ -652,14 +621,10 @@ class ArticleIndexPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
         FieldPanel("other_articles_subheading"),
     ]
 
-    settings_panels = (
-        AbstractSpringfieldCMSPage.settings_panels
-        + [
-            FieldPanel("show_sibling_detail_pages"),
-            FieldPanel("index_card_type"),
-        ]
-        + CustomNavPageMixin.custom_nav_panels
-    )
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("show_sibling_detail_pages"),
+        FieldPanel("index_card_type"),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("sub_title"),
@@ -669,7 +634,6 @@ class ArticleIndexPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     def __str__(self):
@@ -699,7 +663,7 @@ class ArticleIndexPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
         return context
 
 
-class ArticleDetailPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
 
     featured = models.BooleanField(
@@ -912,7 +876,7 @@ class ArticleDetailPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldC
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
@@ -921,7 +885,6 @@ class ArticleDetailPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldC
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     if TYPE_CHECKING:
@@ -943,7 +906,7 @@ class ArticleDetailPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldC
         return [snippet for snippet in snippets if snippet]
 
 
-class ArticleThemePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays articles related to a specific theme."""
 
     upper_content = StreamField(
@@ -970,7 +933,7 @@ class ArticleThemePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
@@ -979,7 +942,6 @@ class ArticleThemePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCM
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     def __str__(self):
@@ -1106,7 +1068,7 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
-class FreeFormPage2026(CustomNavPageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -1180,35 +1142,31 @@ class FreeFormPage2026(CustomNavPageMixin, PromotedPageMixin, UTMParamsMixin, QR
         FieldPanel("enable_marketing_attribution"),
     ]
 
-    settings_panels = (
-        AbstractSpringfieldCMSPage.settings_panels
-        + [
-            MultiFieldPanel(
-                [
-                    FieldPanel("theme"),
-                    FieldPanel("body_class"),
-                    FieldPanel("extra_js"),
-                ],
-                heading="Appearance",
-            ),
-            MultiFieldPanel(
-                [
-                    FieldPanel("show_navigation"),
-                    FieldPanel("show_nav_cta"),
-                ],
-                heading="Navigation",
-            ),
-            MultiFieldPanel(
-                [
-                    FieldPanel("show_pre_footer"),
-                    InlinePanel("pencil_banner_placements", label="Pencil Banners"),
-                    *QRCodeFloatingSnippetMixin.floating_qr_panels,
-                ],
-                heading="Snippets",
-            ),
-        ]
-        + CustomNavPageMixin.custom_nav_panels
-    )
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("theme"),
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+            ],
+            heading="Appearance",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_navigation"),
+                FieldPanel("show_nav_cta"),
+            ],
+            heading="Navigation",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("show_pre_footer"),
+                InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Snippets",
+        ),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
@@ -1217,7 +1175,6 @@ class FreeFormPage2026(CustomNavPageMixin, PromotedPageMixin, UTMParamsMixin, QR
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -1271,7 +1228,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -1326,20 +1283,16 @@ class WhatsNewPage2026(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippet
         FieldPanel("content"),
     ]
 
-    settings_panels = (
-        AbstractSpringfieldCMSPage.settings_panels
-        + [
-            MultiFieldPanel(
-                [
-                    FieldPanel("theme"),
-                    FieldPanel("body_class"),
-                    FieldPanel("extra_js"),
-                ],
-                heading="Appearance",
-            ),
-        ]
-        + CustomNavPageMixin.custom_nav_panels
-    )
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("theme"),
+                FieldPanel("body_class"),
+                FieldPanel("extra_js"),
+            ],
+            heading="Appearance",
+        ),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
@@ -1348,7 +1301,6 @@ class WhatsNewPage2026(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippet
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -1369,7 +1321,7 @@ class WhatsNewPage2026(CustomNavPageMixin, UTMParamsMixin, QRCodeFloatingSnippet
         return True
 
 
-class SmartWindowPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
@@ -1542,7 +1494,7 @@ class SmartWindowPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMS
         FieldPanel("content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("heading_text"),
@@ -1558,7 +1510,6 @@ class SmartWindowPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMS
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -1633,7 +1584,7 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
 
 
-class BlogIndexPage(CustomNavPageMixin, RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
     subpage_types = ["cms.BlogArticlePage"]
@@ -1678,7 +1629,7 @@ class BlogIndexPage(CustomNavPageMixin, RoutablePageMixin, UTMParamsMixin, Abstr
         ),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
@@ -1688,7 +1639,6 @@ class BlogIndexPage(CustomNavPageMixin, RoutablePageMixin, UTMParamsMixin, Abstr
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -1833,7 +1783,7 @@ class BlogIndexPage(CustomNavPageMixin, RoutablePageMixin, UTMParamsMixin, Abstr
         )
 
 
-class BlogArticlePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
     parent_page_types = ["cms.BlogIndexPage"]
@@ -1931,7 +1881,7 @@ class BlogArticlePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMS
         FieldPanel("content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
@@ -1940,7 +1890,6 @@ class BlogArticlePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMS
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -1975,7 +1924,7 @@ class BlogArticlePage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMS
         return self._tags_cache
 
 
-class RoadmapPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the Firefox roadmap."""
 
     ftl_files = ["cms/roadmap"]
@@ -2001,7 +1950,7 @@ class RoadmapPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
         FieldPanel("content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("intro"),
@@ -2010,7 +1959,6 @@ class RoadmapPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -2021,7 +1969,7 @@ class RoadmapPage(CustomNavPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
-class ContactPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
+class ContactPage(AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
 
     template = "cms/contact_page.html"
@@ -2086,20 +2034,16 @@ class ContactPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
         FieldPanel("thank_you_message"),
     ]
 
-    settings_panels = (
-        AbstractSpringfieldCMSPage.settings_panels
-        + [
-            MultiFieldPanel(
-                [
-                    FieldPanel("to_email_address"),
-                    FieldPanel("basket_api_path"),
-                    FieldPanel("redirect_to"),
-                ],
-                heading="Form Submission Settings",
-            ),
-        ]
-        + CustomNavPageMixin.custom_nav_panels
-    )
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("to_email_address"),
+                FieldPanel("basket_api_path"),
+                FieldPanel("redirect_to"),
+            ],
+            heading="Form Submission Settings",
+        ),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("intro"),
@@ -2109,7 +2053,6 @@ class ContactPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     class Meta:
@@ -2331,7 +2274,7 @@ class ContactPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
 _FLARE_SECTION_ORDER = ["blocks", "snippets", "sample-pages"]
 
 
-class FlareDocsIndexPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
+class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
     """
     A page containing an index of all docs pages for Flare26.
     It shows links to other docs pages.
@@ -2342,11 +2285,10 @@ class FlareDocsIndexPage(CustomNavPageMixin, AbstractSpringfieldCMSPage):
 
     template = "cms/flare_docs_index_page.html"
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + CustomNavPageMixin.custom_nav_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
-        SynchronizedField("custom_navigation"),
     ]
 
     def __str__(self):

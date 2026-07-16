@@ -19,8 +19,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -32,8 +33,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -45,8 +47,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -58,8 +61,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -71,8 +75,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -84,8 +89,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -97,8 +103,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -110,8 +117,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -123,8 +131,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -136,8 +145,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -149,8 +159,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -162,8 +173,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -175,8 +187,9 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
@@ -188,8 +201,79 @@ class Migration(migrations.Migration):
             name="custom_navigation",
             field=models.ForeignKey(
                 blank=True,
-                help_text="Override the page header navigation with this menu. "
-                "Falls back to the default navigation if unset or unavailable in the active locale.",
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="cms.navigationsnippet",
+            ),
+        ),
+        migrations.AddField(
+            model_name="structuralpage",
+            name="custom_navigation",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="cms.navigationsnippet",
+            ),
+        ),
+        migrations.AddField(
+            model_name="simplerichtextpage",
+            name="custom_navigation",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="cms.navigationsnippet",
+            ),
+        ),
+        migrations.AddField(
+            model_name="downloadindexpage",
+            name="custom_navigation",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="cms.navigationsnippet",
+            ),
+        ),
+        migrations.AddField(
+            model_name="whatsnewindexpage",
+            name="custom_navigation",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="cms.navigationsnippet",
+            ),
+        ),
+        migrations.AddField(
+            model_name="smartwindowexplainerpage",
+            name="custom_navigation",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Override the page header navigation with this menu. If unset, the page "
+                "inherits its nearest ancestor's custom navigation, then the site default "
+                "navigation, then the built-in navigation.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",

@@ -20,7 +20,7 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.navigation_fixtures import build_top_level_link, get_navigation_snippet, get_navigation_variants
 from springfield.cms.models import NavigationSnippet, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
-from springfield.cms.tests.factories import FreeFormPage2026Factory
+from springfield.cms.tests.factories import FreeFormPage2026Factory, StructuralPageFactory
 
 pytestmark = [pytest.mark.django_db]
 
@@ -354,3 +354,114 @@ def test_page_header_dark_logo_omitted_when_unset(minimal_site, rf):
     assert len(images) == 1
     assert logo.get_rendition("width-400").url in images[0]["src"]
     assert logo_anchor.find("img", class_="display-dark") is None
+
+
+def make_default_snippet(name="Default nav", items=None):
+    """Create and publish a default NavigationSnippet in the default locale."""
+    snippet = NavigationSnippet.objects.create(
+        locale=Locale.get_default(),
+        name=name,
+        is_default=True,
+        items=items or [],
+    )
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
+    return snippet
+
+
+def test_get_default_returns_none_when_no_default(minimal_site):
+    # A non-default snippet exists but must be ignored.
+    make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    with translation.override("en-US"):
+        assert NavigationSnippet.get_default() is None
+
+
+def test_get_default_returns_published_default(minimal_site):
+    snippet = make_default_snippet()
+    with translation.override("en-US"):
+        assert NavigationSnippet.get_default() == snippet
+
+
+def test_get_default_ignores_unpublished_default(minimal_site):
+    # A default snippet that was never published is not live and must be skipped.
+    NavigationSnippet.objects.create(locale=Locale.get_default(), name="Draft default", is_default=True, items=[], live=False)
+    with translation.override("en-US"):
+        assert NavigationSnippet.get_default() is None
+
+
+def test_get_default_returns_most_recently_published(minimal_site):
+    older = make_default_snippet(name="Older default")
+    newer = make_default_snippet(name="Newer default")
+    # Force a deterministic ordering on last_published_at.
+    NavigationSnippet.objects.filter(pk=older.pk).update(last_published_at="2020-01-01T00:00:00Z")
+    NavigationSnippet.objects.filter(pk=newer.pk).update(last_published_at="2020-06-01T00:00:00Z")
+    with translation.override("en-US"):
+        assert NavigationSnippet.get_default() == newer
+
+
+def get_page_navigation(page):
+    """Resolve a page's navigation in the en-US active locale."""
+    with translation.override("en-US"):
+        return page.get_navigation()
+
+
+def test_page_uses_own_custom_navigation(minimal_site):
+    site = Site.objects.get(is_default_site=True)
+    own = make_snippet([build_top_level_link("Own", custom_url="/own/", block_id="o1")])
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=own)
+    assert get_page_navigation(page) == own
+
+
+def test_child_inherits_parent_custom_navigation(minimal_site):
+    site = Site.objects.get(is_default_site=True)
+    parent_nav = make_snippet([build_top_level_link("Parent", custom_url="/p/", block_id="p1")])
+    parent = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=parent_nav)
+    child = FreeFormPage2026Factory(parent=parent, custom_navigation=None)
+    assert get_page_navigation(child) == parent_nav
+
+
+def test_descendant_inherits_nearest_ancestor_through_structural_page(minimal_site):
+    site = Site.objects.get(is_default_site=True)
+    grandparent_nav = make_snippet([build_top_level_link("GP", custom_url="/gp/", block_id="g1")])
+    grandparent = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=grandparent_nav)
+    structural = StructuralPageFactory(parent=grandparent)  # mixin-less intermediate, no nav
+    child = FreeFormPage2026Factory(parent=structural, custom_navigation=None)
+    assert get_page_navigation(child) == grandparent_nav
+
+
+def test_nearest_ancestor_wins(minimal_site):
+    site = Site.objects.get(is_default_site=True)
+    far_nav = make_snippet([build_top_level_link("Far", custom_url="/far/", block_id="f1")])
+    near_nav = make_snippet([build_top_level_link("Near", custom_url="/near/", block_id="n1")])
+    far = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=far_nav)
+    near = FreeFormPage2026Factory(parent=far, custom_navigation=near_nav)
+    child = FreeFormPage2026Factory(parent=near, custom_navigation=None)
+    assert get_page_navigation(child) == near_nav
+
+
+def test_unresolvable_ancestor_nav_is_skipped(minimal_site):
+    # When a nearer ancestor's nav does not resolve in the active locale, the walk
+    # continues to a farther ancestor whose nav does.
+    site = Site.objects.get(is_default_site=True)
+    draft_nav = NavigationSnippet.objects.create(locale=Locale.get_default(), name="Draft nav", items=[], live=False)
+    available_nav = make_snippet([build_top_level_link("Avail", custom_url="/a/", block_id="a1")])
+    far = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=available_nav)
+    near = FreeFormPage2026Factory(parent=far, custom_navigation=draft_nav)
+    child = FreeFormPage2026Factory(parent=near, custom_navigation=None)
+    assert get_page_navigation(child) == available_nav
+
+
+def test_get_navigation_excludes_default_snippet(minimal_site):
+    # A default snippet exists, but get_navigation() returns None because the
+    # default belongs to the header template (get_default_navigation tag), not
+    # the page's custom_navigation context var.
+    site = Site.objects.get(is_default_site=True)
+    make_default_snippet()
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=None)
+    assert get_page_navigation(page) is None
+
+
+def test_falls_back_to_none_when_no_default(minimal_site):
+    site = Site.objects.get(is_default_site=True)
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=None)
+    assert get_page_navigation(page) is None
