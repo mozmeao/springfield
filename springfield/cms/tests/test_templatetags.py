@@ -2,19 +2,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 from django.conf import settings
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
+    get_whats_new_url,
+    get_whats_next_url,
     remove_p_tag,
     remove_tags,
     richtext,
 )
+from springfield.cms.tests.factories import RoadmapPageFactory, WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
 
 def _link_value(link_to, **fields):
@@ -236,3 +241,143 @@ def test_richtext_adds_utm_params_to_links(original_url: str, utm_params: bool):
         expected_url = original_url
     expected_html = f'<p>Check out <a href="{expected_url}">this page</a>.</p>'
     assert BeautifulSoup(output_html, "html.parser") == BeautifulSoup(expected_html, "html.parser")
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_localized_url(minimal_site, rf):
+    """The template tag returns the localized URL for the What's New index page
+    if it exists in the current locale and has children."""
+    root_page = minimal_site.root_page
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is not None
+    assert result.endswith("/whatsnew/")
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_no_children(minimal_site, rf):
+    """The template tag returns None for the What's New index page
+    if it exists in the current locale but has no children."""
+    root_page = minimal_site.root_page
+    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_general_is_the_only_child(minimal_site, rf):
+    """The template tag returns None for the What's New index page
+    if it exists in the current locale but its only child is the "General" page."""
+    root_page = minimal_site.root_page
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="general", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_returns_none_when_page_missing(minimal_site, rf):
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_new_url_is_locale_specific(minimal_site, rf):
+    # Page exists only in en-US; fr locale exists (created by minimal_site) but has no page.
+    root_page = minimal_site.root_page
+    WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    assert Locale.objects.filter(language_code="fr").exists()
+
+    request = rf.get("/fr/")
+    with translation.override("fr"):
+        result = get_whats_new_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_returns_localized_url(minimal_site, rf):
+    root_page = minimal_site.root_page
+    RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_next_url({"request": request})
+
+    assert result is not None
+    assert result.endswith("/whatsnext/")
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_returns_none_when_page_missing(minimal_site, rf):
+    request = rf.get("/en-US/")
+    with translation.override("en-US"):
+        result = get_whats_next_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_get_whats_next_url_is_locale_specific(minimal_site, rf):
+    root_page = minimal_site.root_page
+    RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get("/fr/")
+    with translation.override("fr"):
+        result = get_whats_next_url({"request": request})
+
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_browser_nav_renders_both_links_from_cms(minimal_site, rf):
+    root_page = minimal_site.root_page
+    index = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    roadmap_page = RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get(roadmap_page.get_full_url())
+    with translation.override("en-US"):
+        response = roadmap_page.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    whats_new_link = soup.find("a", attrs={"data-link-position": "topnav - whats-new"})
+    whats_next_link = soup.find("a", attrs={"data-link-position": "topnav - whats-next"})
+
+    assert whats_new_link is not None
+    assert "/whatsnew/" in whats_new_link["href"]
+    # The What's New nav link carries ?fromMainNav=true.
+    assert whats_new_link["href"].endswith("/whatsnew/?fromMainNav=true")
+    assert whats_next_link is not None
+    assert whats_next_link["href"].endswith("/whatsnext/")
+
+
+@pytest.mark.django_db
+def test_browser_nav_hides_whats_new_link_when_page_missing(minimal_site, rf):
+    # Only the roadmap (What's Next) page exists; the What's New link must not render.
+    root_page = minimal_site.root_page
+    roadmap_page = RoadmapPageFactory(parent=root_page, slug="whatsnext", live=True)
+
+    request = rf.get(roadmap_page.get_full_url())
+    with translation.override("en-US"):
+        response = roadmap_page.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("a", attrs={"data-link-position": "topnav - whats-new"}) is None
+    assert soup.find("a", attrs={"data-link-position": "topnav - whats-next"}) is not None

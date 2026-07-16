@@ -17,7 +17,8 @@ from jinja2 import pass_context
 from wagtail.rich_text import RichText
 from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 
-from springfield.cms.models.pages import BASE_UTM_PARAMETERS
+from springfield.cms.models import SpringfieldLocale
+from springfield.cms.models.pages import BASE_UTM_PARAMETERS, RoadmapPage, WhatsNewIndexPage
 from springfield.firefox.templatetags.misc import fxa_button
 
 
@@ -388,4 +389,61 @@ def get_floating_qr_code_snippet(context):
         if snippet:
             return snippet.build_context(page=page, request=context.get("request"))
 
+    return None
+
+
+def get_active_locale(request):
+    """Return the active Locale, cached on the request.
+
+    The active locale does not change within a request, so caching it avoids
+    repeating the same lookup query for each template tag that needs it.
+    """
+    if request is not None and hasattr(request, "_cached_active_locale"):
+        return request._cached_active_locale
+
+    locale = SpringfieldLocale.get_active()
+    if request is not None:
+        request._cached_active_locale = locale
+    return locale
+
+
+@pass_context
+@library.global_function
+def get_whats_new_url(context):
+    """Return the localized What's New index URL, or None if not available.
+
+    Only return the URL if the index page has children in the current locale.
+    The "General" What's New Page is excluded, since the index page also excludes it
+    when redirecting to the latest version.
+
+    Usage in templates:
+        {% set whats_new_url = get_whats_new_url() %}
+        {% if whats_new_url %}
+          <a href="{{ whats_new_url }}">...</a>
+        {% endif %}
+    """
+    request = context.get("request")
+    locale = get_active_locale(request)
+    page = WhatsNewIndexPage.objects.live().public().filter(locale=locale).first()
+    if page and page.get_children().live().public().exclude(slug="general").exists():
+        return page.get_active_locale_url(request)
+    return None
+
+
+@pass_context
+@library.global_function
+def get_whats_next_url(context):
+    """Return the localized What's Next (Roadmap) URL, or None if not available.
+
+    Usage in templates:
+        {% set whats_next_url = get_whats_next_url() %}
+        {% if whats_next_url %}
+          <a href="{{ whats_next_url }}">...</a>
+        {% endif %}
+    """
+    request = context.get("request")
+    locale = get_active_locale(request)
+    page = RoadmapPage.objects.live().public().filter(locale=locale).order_by("path").first()
+    if page:
+        return page.get_active_locale_url(request)
     return None

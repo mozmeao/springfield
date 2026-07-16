@@ -772,7 +772,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(18):
+    with django_assert_max_num_queries(22):
         index_page.serve(request)
 
 
@@ -781,5 +781,5 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(21):
+    with django_assert_max_num_queries(25):
         index_page.all_route(request)

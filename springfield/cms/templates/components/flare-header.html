@@ -4,6 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set nav_menu_items %}
+  {% include 'cms/includes/flare-menus/browser.html' %}
+  {% include 'cms/includes/flare-menus/features.html' %}
+  {% include 'cms/includes/flare-menus/resources.html' %}
+{% endset %}
+
 <header class="fl-header
   {% if no_menu %}fl-header-no-menu{% endif %}
     {% if not disable_sticky %}enable-sticky{% endif %}
@@ -28,9 +34,7 @@
     <nav class="fl-nav" data-testid="navigation-menu-items">
       {% if not no_menu_dropdowns %}
         <ul class="fl-nav-menu">
-          {% include 'cms/includes/flare-menus/browser.html' %}
-          {% include 'cms/includes/flare-menus/features.html' %}
-          {% include 'cms/includes/flare-menus/resources.html' %}
+          {{ nav_menu_items }}
         </ul>
       {% endif %}
       <div class="fl-nav-mobile-download-link">
@@ -56,9 +60,7 @@
     <div class="fl-ie-only fl-nav">
       <a class="ie-menu-button" href="#">Menu</a>
       <ul class="fl-nav-menu">
-        {% include 'cms/includes/flare-menus/browser.html' %}
-        {% include 'cms/includes/flare-menus/features.html' %}
-        {% include 'cms/includes/flare-menus/resources.html' %}
+        {{ nav_menu_items }}
       </ul>
     </div>
   </div>

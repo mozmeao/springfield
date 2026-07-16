@@ -2563,6 +2563,12 @@ class NotificationSettings(blocks.StructBlock):
         label="Show To",
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation. "
+        "Use 'firefox-has-been-updated' on a What's New page to hide the notification "
+        "when the user comes from a context where they shouldn't see this message.",
+    )
 
     class Meta:
         icon = "cog"

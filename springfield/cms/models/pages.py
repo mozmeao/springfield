@@ -1186,7 +1186,10 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .first()
         )
         if latest_whats_new:
-            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
+            url = request.build_absolute_uri(latest_whats_new.get_url())
+            if request.GET.get("fromMainNav"):
+                url += "?fromMainNav=true"
+            return redirect(url)
         return redirect("/")
 
 
