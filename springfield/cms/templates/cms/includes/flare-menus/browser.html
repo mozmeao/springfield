@@ -6,111 +6,75 @@
 
 {% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' %}
 
-<li class="fl-menu-category" data-testid="menu-category-browser">
-  <a
-    class="fl-menu-title"
-    data-testid="navigation-link-browser"
-  >
-    <span class="fl-menu-heading">
-      {{ ftl('navigation-browser')}}
-      <span class="fl-icon fl-icon-chevron-down"></span>
-    </span>
-  </a>
-  <div class="fl-menu-panel" id="fl-menu-panel-browser" data-testid="navigation-menu-browser">
+<include:nav-folder
+  label="{{ ftl('navigation-browser') }}"
+  panel_id="fl-menu-panel-browser"
+  category_testid="menu-category-browser"
+  link_testid="navigation-link-browser"
+  panel_testid="navigation-menu-browser"
+>
+  <include:nav-column>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-mobile') }}"
+        href="{{ url('firefox.browsers.mobile') }}"
+        icon_name="device-mobile"
+        testid="navigation-menu-link-mobile"
+        analytics_text="Mobile"
+        analytics_position="topnav - mobile"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-enterprise') }}"
+        href="{{ url('firefox.enterprise.index') }}"
+        icon_name="globe"
+        analytics_text="Enterprise"
+        analytics_position="topnav - enterprise"
+      />
+    </ul>
 
-    <div class="fl-menu-panel-content">
-      <div class="fl-menu-panel-content-column">
-        <ul>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="{{ url('firefox.browsers.mobile') }}"
-              data-link-text="Mobile"
-              data-link-position="topnav - mobile"
-              data-testid="navigation-menu-link-mobile"
-            >
-              <span class="fl-icon fl-icon-device-mobile"></span>
-              {{ ftl('navigation-mobile') }}
-            </a>
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="{{ url('firefox.enterprise.index') }}"
-              data-link-text="Enterprise"
-              data-link-position="topnav - enterprise"
-            >
-              <span class="fl-icon fl-icon-globe"></span>
-              {{ ftl('navigation-enterprise') }}
-            </a>
-          </li>
-        </ul>
-
-        <span class="fl-nav-separator"></span>
-
-        {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
-          <ul>
-            <li>
-              <a
-                class="fl-nav-link"
-                href="/{{ LANG }}/whatsnew/"
-                data-link-text="What's New"
-                data-link-position="topnav - whats-new"
-              >
-                <span class="fl-icon fl-icon-bookmark-fill"></span>
-                {{ ftl('navigation-whats-new') }}
-              </a>
-            </li>
-            <li>
-              <a
-                class="fl-nav-link"
-                href="/{{ LANG }}/whatsnext/"
-                data-link-text="What's Next"
-                data-link-position="topnav - whats-next"
-              >
-                <span class="fl-icon fl-icon-calendar"></span>
-                {{ ftl('navigation-whats-next') }}
-              </a>
-            </li>
-          </ul>
-
-          <span class="fl-nav-separator"></span>
-        {% endif %}
-
-        <ul>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="https://addons.mozilla.org/firefox/{{params}}"
-              data-link-text="Extensions & Themes"
-              data-link-position="topnav - addons"
-            >
-              <span class="fl-icon fl-icon-extension-fill"></span>
-              {{ ftl('navigation-extensions-and-themes') }}
-            </a>
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="https://support.mozilla.org/{{params}}"
-              data-link-text="Support"
-              data-link-position="topnav - support"
-            >
-              <span class="fl-icon fl-nav-icon-avatar-info-circle"></span>
-              {{ ftl('navigation-support') }}
-            </a>
-          </li>
-        </ul>
-
-        <span class="fl-nav-separator"></span>
-
-        <include:button
-          theme_class="button-ghost"
-          size_class="fl-button-small"
-          label="{{ ftl('navigation-download-firefox') }}"
-          link="{{ url('firefox.download') }}"
+    {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
+      <span class="fl-nav-separator"></span>
+      <ul>
+        <include:nav-link
+          label="{{ ftl('navigation-whats-new') }}"
+          href="/{{ LANG }}/whatsnew/"
+          icon_name="bookmark-fill"
+          analytics_text="What's New"
+          analytics_position="topnav - whats-new"
         />
-      </div>
-    </div>
-  </div>
-</li>
+        <include:nav-link
+          label="{{ ftl('navigation-whats-next') }}"
+          href="/{{ LANG }}/whatsnext/"
+          icon_name="calendar"
+          analytics_text="What's Next"
+          analytics_position="topnav - whats-next"
+        />
+      </ul>
+    {% endif %}
+
+    <span class="fl-nav-separator"></span>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-extensions-and-themes') }}"
+        href="https://addons.mozilla.org/firefox/{{ params }}"
+        icon_name="extension-fill"
+        analytics_text="Extensions & Themes"
+        analytics_position="topnav - addons"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-support') }}"
+        href="https://support.mozilla.org/{{ params }}"
+        icon_name="avatar-info-circle-fill"
+        analytics_text="Support"
+        analytics_position="topnav - support"
+      />
+    </ul>
+
+    <span class="fl-nav-separator"></span>
+    <include:nav-link
+      label="{{ ftl('navigation-download-firefox') }}"
+      href="{{ url('firefox.download') }}"
+      button_style="{{ True }}"
+    />
+  </include:nav-column>
+</include:nav-folder>

@@ -29,6 +29,7 @@
     <a
       class="fl-nav-link"
       href="{{ href }}"
+      {% if testid %}data-testid="{{ testid }}"{% endif %}
       {% if new_window %}target="_blank" rel="external noopener"{% endif %}
       {% if analytics_text %}data-cta-text="{{ analytics_text }}"{% endif %}
       {% if analytics_position %}data-cta-position="{{ analytics_position }}"{% endif %}
