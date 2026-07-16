@@ -24,7 +24,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, PageChooserPanel
+from modelcluster.models import ClusterableModel
+from wagtail.admin.panels import FieldPanel, InlinePanel, PageChooserPanel
+from wagtail.models import Orderable
 
 from springfield.cms.routing import ResolverType, SignalValueType, registry
 
@@ -161,8 +163,20 @@ def _stringify_value(value):
 # ---------------------------------------------------------------------------
 
 
-class RoutingRule(models.Model):
-    """Routes traffic from a canonical page to a variant when the condition matches."""
+class RoutingRule(Orderable, ClusterableModel):
+    """Routes traffic from a canonical page to a variant when ALL conditions match.
+
+    Inherits :class:`wagtail.models.Orderable` to get a nullable ``sort_order``
+    field that Wagtail's ``InlinePanel`` renders with drag-to-reorder handles.
+    Rules evaluate in ``sort_order`` ascending — the top of the admin list
+    matches first. Ties broken by primary key.
+
+    Also inherits :class:`modelcluster.models.ClusterableModel` so it can
+    itself be the "cluster root" for a nested set of :class:`RoutingCondition`
+    children (edited via a nested InlinePanel). One rule holds one or more
+    conditions; the rule matches iff **every** attached condition matches
+    (AND semantics). Cross-rule evaluation stays OR (priority-ordered).
+    """
 
     # NOTE on parent_page: ParentalKey to a concrete Page subclass is what
     # Wagtail's InlinePanel machinery wants. Today WhatsNewPage2026 is the
@@ -188,35 +202,6 @@ class RoutingRule(models.Model):
         max_length=255,
         help_text="Human-readable name shown in the admin (e.g. 'Lapsed users → welcomeback').",
     )
-    priority = models.IntegerField(
-        default=100,
-        help_text="Lower numbers evaluate first. Ties broken by rule ID.",
-    )
-
-    # --- Condition (three structured fields, synthesized into `condition`) ---
-
-    signal_name = models.CharField(
-        max_length=64,
-        blank=True,
-        choices=_signal_choices,
-        help_text="Which browser or server signal this rule checks.",
-    )
-    operator = models.CharField(
-        max_length=16,
-        choices=RULE_OPERATOR_CHOICES,
-        default=RULE_OPERATOR_IS,
-        help_text="`is` matches when the signal is one of the values below; `is not` matches when it isn't.",
-    )
-    expected_values = models.TextField(
-        blank=True,
-        default="",
-        help_text=(
-            "One or more values, one per line (commas also accepted). "
-            "For enum-valued signals, values must match the exact allowed set "
-            "(check the signal's help entry). Booleans: 'true' or 'false'. "
-            "Integers: a number."
-        ),
-    )
 
     status = models.CharField(
         max_length=16,
@@ -230,19 +215,20 @@ class RoutingRule(models.Model):
 
     panels = [
         FieldPanel("name"),
-        FieldPanel("priority"),
-        PageChooserPanel("parent_page"),
         PageChooserPanel("target_page"),
-        FieldPanel("signal_name"),
-        FieldPanel("operator"),
-        FieldPanel("expected_values"),
+        InlinePanel(
+            "conditions",
+            label="Condition",
+            heading="Conditions (all must match — AND)",
+            min_num=1,
+        ),
         FieldPanel("status"),
     ]
 
     class Meta:
-        ordering = ["parent_page", "priority", "id"]
+        ordering = ["parent_page", "sort_order", "id"]
         indexes = [
-            models.Index(fields=["parent_page", "status", "priority"]),
+            models.Index(fields=["parent_page", "status", "sort_order"]),
         ]
         verbose_name = "User Routing rule"
         verbose_name_plural = "User Routing rules"
@@ -252,64 +238,17 @@ class RoutingRule(models.Model):
         return f"{self.name} → {target}"
 
     # ------------------------------------------------------------------
-    # Condition — synthesized from structured fields for the rule engine.
+    # Conditions accessor for the rule engine
     # ------------------------------------------------------------------
 
-    @property
-    def condition(self):
-        """The rule's condition as ``{"signal": ..., "op": ..., "values": [...]}``.
+    def conditions_as_dicts(self):
+        """Return this rule's conditions as a list of engine-shaped dicts.
 
-        Returns ``{}`` when the rule has no signal set — the "draft with
-        nothing chosen yet" state, which the rule engine treats as
-        unresolvable (safe: canonical serves).
+        Each dict has the shape ``{"signal": ..., "op": ..., "values": [...]}``.
+        Order is deterministic (by ``sort_order``, then ``id``) so client-side
+        replay of the rule sees the same ordering the server did.
         """
-        if not self.signal_name:
-            return {}
-        signal = registry.get(self.signal_name)
-        value_type = signal.value_type if signal else SignalValueType.STRING
-        tokens = _tokenize_values(self.expected_values)
-        parsed = []
-        for token in tokens:
-            parsed_value = _parse_expected_value(token, value_type)
-            if parsed_value is not None:
-                parsed.append(parsed_value)
-        return {
-            "signal": self.signal_name,
-            "op": self.operator or RULE_OPERATOR_IS,
-            "values": parsed,
-        }
-
-    @condition.setter
-    def condition(self, value):
-        """Accept both the legacy ``{signal, equals}`` shape and the new
-        ``{signal, op, values}`` shape, decomposing either into the
-        structured fields.
-
-        Legacy support preserves the fluent ``RoutingRule(condition={...})``
-        construction pattern the earlier tests were written against.
-        """
-        if not isinstance(value, dict):
-            self.signal_name = ""
-            self.operator = RULE_OPERATOR_IS
-            self.expected_values = ""
-            return
-
-        self.signal_name = value.get("signal") or ""
-
-        if "equals" in value:
-            # Legacy shape → single-value `is`.
-            self.operator = RULE_OPERATOR_IS
-            equals_value = value["equals"]
-            if equals_value is None:
-                self.expected_values = ""
-            else:
-                self.expected_values = _stringify_value(equals_value)
-            return
-
-        # New shape.
-        self.operator = value.get("op") or RULE_OPERATOR_IS
-        values = value.get("values") or []
-        self.expected_values = "\n".join(_stringify_value(v) for v in values)
+        return [c.as_dict() for c in self.conditions.all()]
 
     # ------------------------------------------------------------------
 
@@ -337,6 +276,84 @@ class RoutingRule(models.Model):
                     }
                 )
 
+
+class RoutingCondition(Orderable):
+    """A single AND-clause on a :class:`RoutingRule`.
+
+    Rules hold one or more conditions via ParentalKey; the rule matches only
+    when every condition matches. Splitting condition-per-row lets marketing
+    author compound rules like ``[country=US, default_browser=false]`` via
+    a repeatable inline panel instead of typing structured expressions.
+    """
+
+    rule = ParentalKey(
+        RoutingRule,
+        on_delete=models.CASCADE,
+        related_name="conditions",
+    )
+
+    signal_name = models.CharField(
+        max_length=64,
+        blank=True,
+        choices=_signal_choices,
+        help_text="Which browser or server signal this condition checks.",
+    )
+    operator = models.CharField(
+        max_length=16,
+        choices=RULE_OPERATOR_CHOICES,
+        default=RULE_OPERATOR_IS,
+        help_text="`is` matches when the signal is one of the values below; `is not` matches when it isn't.",
+    )
+    expected_values = models.TextField(
+        blank=True,
+        default="",
+        help_text=(
+            "One or more values, one per line (commas also accepted). "
+            "For enum-valued signals, values must match the exact allowed set "
+            "(check the signal's help entry). Booleans: 'true' or 'false'. "
+            "Integers: a number."
+        ),
+    )
+
+    panels = [
+        FieldPanel("signal_name"),
+        FieldPanel("operator"),
+        FieldPanel("expected_values"),
+    ]
+
+    class Meta(Orderable.Meta):
+        verbose_name = "condition"
+        verbose_name_plural = "conditions"
+
+    def __str__(self):
+        return f"{self.signal_name} {self.operator} {self.expected_values!r}"
+
+    def as_dict(self):
+        """Return this condition as ``{"signal": ..., "op": ..., "values": [...]}``.
+
+        Returns ``{}`` when the signal isn't set (draft-not-filled-in state);
+        the rule engine treats an empty condition as unresolvable so canonical
+        serves — the safe default.
+        """
+        if not self.signal_name:
+            return {}
+        signal = registry.get(self.signal_name)
+        value_type = signal.value_type if signal else SignalValueType.STRING
+        tokens = _tokenize_values(self.expected_values)
+        parsed = []
+        for token in tokens:
+            parsed_value = _parse_expected_value(token, value_type)
+            if parsed_value is not None:
+                parsed.append(parsed_value)
+        return {
+            "signal": self.signal_name,
+            "op": self.operator or RULE_OPERATOR_IS,
+            "values": parsed,
+        }
+
+    def clean(self):
+        super().clean()
+
         # Signal name and value validation kicks in only when a signal is
         # chosen — leaving the fields blank is a valid "draft not filled in
         # yet" state.
@@ -351,7 +368,6 @@ class RoutingRule(models.Model):
         if not tokens:
             return  # empty draft state
 
-        parsed_values = []
         for token in tokens:
             parsed = _parse_expected_value(token, signal.value_type)
             if parsed is None:
@@ -360,4 +376,3 @@ class RoutingRule(models.Model):
             if signal.enum_values and parsed not in signal.enum_values:
                 allowed = ", ".join(repr(v) for v in signal.enum_values)
                 raise ValidationError({"expected_values": f"Value {parsed!r} must be one of: {allowed}."})
-            parsed_values.append(parsed)

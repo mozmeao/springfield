@@ -14,7 +14,7 @@ permanent-archive framing).
 import pytest
 from wagtail.models import Locale, Page
 
-from springfield.cms.models import RoutingRule
+from springfield.cms.models import RoutingCondition, RoutingRule
 from springfield.cms.models.routing import RULE_STATUS_DRAFT, RULE_STATUS_LIVE
 from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
@@ -38,16 +38,52 @@ def _canonical_and_variants(db):
     return {"index": index, "canonical": canonical, "lapsed": lapsed, "signed_in": signed_in}
 
 
-def _make_rule(canonical, target, *, condition, status=RULE_STATUS_LIVE, priority=100, name="test-rule"):
+def _make_rule(canonical, target, *, condition=None, conditions=None, status=RULE_STATUS_LIVE, sort_order=100, name="test-rule"):
+    """Create a rule and its condition(s). ``condition=`` is legacy single-condition
+    convenience (accepts the ``{signal, equals: X}`` or ``{signal, op, values}``
+    shape); ``conditions=`` takes a list of the new shape dicts."""
     rule = RoutingRule(
         name=name,
-        priority=priority,
+        sort_order=sort_order,
         parent_page=canonical,
         target_page=target,
-        condition=condition,
         status=status,
     )
     rule.save()
+
+    condition_specs = []
+    if condition is not None:
+        condition_specs.append(condition)
+    if conditions is not None:
+        condition_specs.extend(conditions)
+
+    for spec in condition_specs:
+        signal_name = spec.get("signal") or ""
+        if "equals" in spec:
+            operator = "is"
+            equals_value = spec["equals"]
+            if equals_value is None:
+                expected_values = ""
+            elif isinstance(equals_value, bool):
+                expected_values = "true" if equals_value else "false"
+            else:
+                expected_values = str(equals_value)
+        else:
+            operator = spec.get("op") or "is"
+            values = spec.get("values") or []
+            parts = []
+            for v in values:
+                if isinstance(v, bool):
+                    parts.append("true" if v else "false")
+                else:
+                    parts.append(str(v))
+            expected_values = "\n".join(parts)
+        RoutingCondition.objects.create(
+            rule=rule,
+            signal_name=signal_name,
+            operator=operator,
+            expected_values=expected_values,
+        )
     return rule
 
 
@@ -174,22 +210,23 @@ class TestWnpDispatch:
         assert 'id="user-routing-rules"' not in body
 
     @pytest.mark.django_db
-    def test_lower_priority_rule_wins(self, client, _canonical_and_variants):
-        # Both rules would match on oldversion=149; the lower-priority one
-        # (priority=50) evaluates first and wins.
+    def test_lower_sort_order_rule_wins(self, client, _canonical_and_variants):
+        # Both rules would match on oldversion=149; the lower-sort_order one
+        # (sort_order=50, higher in the drag-to-reorder list) evaluates first
+        # and wins.
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["signed_in"],
             condition={"signal": "lapsed_user", "equals": True},
-            priority=100,
-            name="high-priority",
+            sort_order=100,
+            name="lower-in-list",
         )
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
-            priority=50,
-            name="low-priority",
+            sort_order=50,
+            name="higher-in-list",
         )
         response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
         assert response.status_code in (301, 302)
@@ -257,6 +294,208 @@ class TestWnpDispatch:
         link_header = response.get("Link", "")
         assert 'rel="canonical"' in link_header
         assert "/whatsnew/156/" in link_header
+
+    # -------------------------------------------------------------------
+    # Pause routing (emergency kill switch on the canonical page)
+    # -------------------------------------------------------------------
+
+    @pytest.mark.django_db
+    def test_pause_routing_short_circuits_dispatch(self, client, _canonical_and_variants):
+        # A live rule that would ordinarily match — but the canonical's
+        # routing_paused flag is on, so the dispatcher must serve canonical.
+        canonical = _canonical_and_variants["canonical"]
+        _make_rule(
+            canonical,
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        canonical.routing_paused = True
+        canonical.save(update_fields=["routing_paused"])
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_pause_routing_off_by_default(self, client, _canonical_and_variants):
+        # Baseline sanity check: absent an explicit pause, dispatch runs
+        # normally and the matching rule redirects.
+        canonical = _canonical_and_variants["canonical"]
+        assert canonical.routing_paused is False
+        _make_rule(
+            canonical,
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert "/156/lapsed" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_preview_rule_bypasses_pause(self, client, _canonical_and_variants, django_user_model):
+        # Preview intentionally IGNORES the pause switch so authors can still
+        # verify variant renders while production routing is halted.
+        canonical = _canonical_and_variants["canonical"]
+        rule = _make_rule(
+            canonical,
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        canonical.routing_paused = True
+        canonical.save(update_fields=["routing_paused"])
+        client.force_login(self._admin_user(django_user_model))
+        response = client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert "/156/lapsed" in response["Location"]
+
+    @pytest.mark.django_db
+    def test_preview_signal_bypasses_pause(self, client, _canonical_and_variants, django_user_model):
+        # preview_signal should also bypass the pause switch — authors need to
+        # verify their fix works BEFORE flipping pause off.
+        canonical = _canonical_and_variants["canonical"]
+        _make_rule(
+            canonical,
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        canonical.routing_paused = True
+        canonical.save(update_fields=["routing_paused"])
+        client.force_login(self._admin_user(django_user_model))
+        response = client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert "/156/lapsed" in response["Location"]
+        assert response.get("Cache-Control") == "no-store"
+
+    # -------------------------------------------------------------------
+    # Preview mode (admin authors verifying rules before publish)
+    # -------------------------------------------------------------------
+
+    def _admin_user(self, django_user_model):
+        return django_user_model.objects.create_user(
+            username="preview-admin",
+            password="x",
+            is_staff=True,
+        )
+
+    @pytest.mark.django_db
+    def test_preview_rule_forces_redirect_regardless_of_signals(self, client, _canonical_and_variants, django_user_model):
+        # ``?preview_rule={id}`` from an admin session redirects to that
+        # rule's target without evaluating signals. Even a rule that would
+        # NOT match on the real signals gets shown to the author for review.
+        rule = _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            status=RULE_STATUS_DRAFT,  # not Live — preview bypasses status
+            name="draft-not-live",
+        )
+        client.force_login(self._admin_user(django_user_model))
+        # No utm_source, no oldversion → would never match in production.
+        response = client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert "/156/lapsed" in response["Location"]
+        assert response.get("Cache-Control") == "no-store"
+
+    @pytest.mark.django_db
+    def test_preview_rule_ignored_for_unauthenticated_requests(self, client, _canonical_and_variants):
+        rule = _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+            status=RULE_STATUS_DRAFT,
+        )
+        # No login → preview_rule silently ignored → canonical serves.
+        response = client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_preview_rule_scoped_to_this_canonical(self, client, _canonical_and_variants, django_user_model):
+        # A rule ID that belongs to a DIFFERENT canonical must NOT be
+        # previewable via this canonical's URL — prevents cross-canonical
+        # preview leakage.
+        other_canonical = WhatsNewPage2026Factory(
+            parent=_canonical_and_variants["index"],
+            title="WNP 157",
+            slug="157",
+            version="157",
+        )
+        other_variant = WhatsNewPage2026Factory(
+            parent=other_canonical,
+            title="WNP 157 variant",
+            slug="variant",
+            version="157",
+        )
+        other_rule = _make_rule(
+            other_canonical,
+            other_variant,
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        client.force_login(self._admin_user(django_user_model))
+        # Preview_rule ID belongs to WNP 157 but we're hitting WNP 156.
+        response = client.get(f"/en-US/whatsnew/156/?preview_rule={other_rule.pk}&utm_source=update")
+        # Should fall through to canonical, not redirect to other_variant.
+        location = response.get("Location", "") or ""
+        assert "/157/variant" not in location
+
+    @pytest.mark.django_db
+    def test_preview_signal_overrides_resolved_signals(self, client, _canonical_and_variants, django_user_model):
+        # ``?preview_signal=lapsed_user:true`` feeds a fake value to the
+        # evaluator — the real signal would resolve differently (no
+        # oldversion in query) but the fake wins.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        client.force_login(self._admin_user(django_user_model))
+        # No oldversion → lapsed_user would normally be unresolvable.
+        response = client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert "/156/lapsed" in response["Location"]
+        assert response.get("Cache-Control") == "no-store"
+
+    @pytest.mark.django_db
+    def test_preview_signal_ignored_for_unauthenticated_requests(self, client, _canonical_and_variants):
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        # No login → preview_signal silently ignored → no oldversion means
+        # lapsed_user stays unresolved → canonical serves.
+        response = client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
+    def test_preview_signal_accepts_admin_bool_vocabulary(self, client, _canonical_and_variants, django_user_model):
+        # ``preview_signal`` should accept the same True/False vocabulary the
+        # admin form stores (yes/no/1/0) — otherwise preview URLs built with
+        # admin-side values silently mismatch bool rules.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        client.force_login(self._admin_user(django_user_model))
+        for truthy in ("true", "yes", "1"):
+            response = client.get(f"/en-US/whatsnew/156/?preview_signal=lapsed_user:{truthy}&utm_source=update")
+            assert response.status_code in (301, 302), f"preview_signal=lapsed_user:{truthy} should match"
+            assert "/156/lapsed" in response["Location"], f"preview_signal=lapsed_user:{truthy} should route to lapsed variant"
+
+    @pytest.mark.django_db
+    def test_invalid_preview_rule_still_marks_no_store_on_matched_response(self, client, _canonical_and_variants, django_user_model):
+        # When a preview_rule ID doesn't resolve BUT the request still ends
+        # up matching a real rule (via the normal evaluator), the response
+        # should carry Cache-Control: no-store because the preview marker
+        # was on the request. Guarantees admin preview responses never come
+        # from cache regardless of resolution success.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        client.force_login(self._admin_user(django_user_model))
+        response = client.get("/en-US/whatsnew/156/?preview_rule=999999&oldversion=149&utm_source=update")
+        assert response.status_code in (301, 302)
+        assert response.get("Cache-Control") == "no-store"
 
     @pytest.mark.django_db
     def test_spoofed_routed_params_are_stripped(self, client, _canonical_and_variants):
