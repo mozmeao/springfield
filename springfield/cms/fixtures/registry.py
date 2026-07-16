@@ -19,8 +19,8 @@ from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test
 from springfield.cms.fixtures.cards_fixtures import (
     get_illustration_cards_test_page,
     get_outlined_cards_test_page,
+    get_pictogram_cards_test_page,
     get_step_cards_test_page,
-    get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
@@ -75,7 +75,7 @@ PAGE_FIXTURES = [
     get_intro_test_page,
     get_kit_intro_test_page,
     get_card_test_page,
-    get_sticker_cards_test_page,
+    get_pictogram_cards_test_page,
     get_illustration_cards_test_page,
     get_outlined_cards_test_page,
     get_icon_cards_test_page,

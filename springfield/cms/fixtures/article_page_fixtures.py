@@ -409,7 +409,7 @@ def get_theme_page_icon_cards_section():
     }
 
 
-def get_theme_page_sticker_row_section():
+def get_theme_page_pictogram_row_section():
     articles = get_article_pages()
     return {
         "type": "section",
@@ -633,7 +633,7 @@ def get_theme_hub_illustration_cards_section():
     }
 
 
-def get_theme_hub_page_sticker_row_section():
+def get_theme_hub_page_pictogram_row_section():
     buttons = get_button_variants()
     articles = get_article_pages()
     return {
@@ -756,7 +756,7 @@ def get_article_theme_page():
             get_theme_page_intro(),
             get_theme_page_illustration_cards_section(),
             get_theme_page_icon_cards_section(),
-            get_theme_page_sticker_row_section(),
+            get_theme_page_pictogram_row_section(),
         ]
     )
     snippet = get_pencil_banner_snippet()
@@ -778,7 +778,7 @@ def get_article_theme_hub_page():
     theme_page.upper_content = get_theme_hub_page_upper_content()
     theme_page.content = [
         get_theme_hub_illustration_cards_section(),
-        get_theme_hub_page_sticker_row_section(),
+        get_theme_hub_page_pictogram_row_section(),
     ]
     theme_page.save_revision().publish()
     return theme_page

@@ -18,7 +18,7 @@ Card Grid - Flare Design System Cards
 
 .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
-    --fl-card-sticker-size: 120px;
+    --fl-card-pictogram-size: 120px;
     display: grid;
     gap: var(--fl-card-grid-gap);
     grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
@@ -27,8 +27,8 @@ Card Grid - Flare Design System Cards
     max-inline-size: var(--token-width-desktop-content-lg); /* 934px default */
 }
 
-/* symmetrical card grid for sticker cards. (homepage) */
-.fl-card-grid:has(.fl-sticker-card) {
+/* symmetrical card grid for filled (pictogram) cards. */
+.fl-card-grid:has(.fl-card-filled) {
     --fl-card-grid-gap: var(--token-spacing-lg);
 }
 
@@ -56,7 +56,7 @@ Card Grid - Flare Design System Cards
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
 
-    /* when a card grid only has two items, let them fill the space on tablet+ sizes */
+    /* higher specificity keeps 2-item grids at 2-col on md-up where the default becomes 4 */
     .fl-card-grid:has(> *:nth-child(2):last-child) {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
@@ -85,15 +85,15 @@ Card Grid - Flare Design System Cards
         --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
     }
 
-    /* special case for when sticker cards have four items. */
-    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+    /* special case for when filled (pictogram) cards have four items. */
+    .fl-card-grid:has(.fl-card-filled):has(> *:nth-child(4):last-child) {
         --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (--viewport-lg-up) {
-    /* special case for when sticker cards have four items. */
-    .fl-card-grid:has(.fl-sticker-card):has(> *:nth-child(4):last-child) {
+    /* special case for when filled (pictogram) cards have four items. */
+    .fl-card-grid:has(.fl-card-filled):has(> *:nth-child(4):last-child) {
         --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
     }
 }
@@ -102,7 +102,6 @@ Card Grid - Flare Design System Cards
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-xl);
-    order: 0;
 }
 
 .fl-card-superheading {
@@ -238,7 +237,6 @@ Outlined Card variant
 ===================================================================== */
 
 .fl-card.fl-card-outline {
-    /* backdrop-filter: blur(7.5px); */
     background: var(--fl-theme-default-card-bg);
     border: 1px solid var(--card-border-color);
     border-radius: var(--token-border-radius-sm);
@@ -253,7 +251,7 @@ Outlined Card variant
     gap: unset;
 }
 
-.fl-card-heading-group .fl-card-sticker {
+.fl-card-heading-group .fl-card-media-pictogram {
     margin-block-end: var(--token-spacing-md);
 }
 
@@ -261,17 +259,11 @@ Outlined Card variant
     margin-block-end: 0;
 }
 
-.fl-card.fl-card-outline .learn-more-link {
-    display: block;
-    margin-block: var(--token-spacing-md);
-}
-
 /* Drop backdrop-filter for users who prefer reduced transparency or motion —
    both are signals that the OS is running in a low-power or accessibility mode. */
 @media (prefers-reduced-transparency: reduce),
     (prefers-reduced-motion: reduce) {
-    .fl-card,
-    .fl-sticker-card {
+    .fl-card {
         backdrop-filter: none;
     }
 }
@@ -306,9 +298,8 @@ Filled Card variant
 ===================================================================== */
 
 .fl-card.fl-card-filled {
-    /* backdrop-filter: blur(7.5px); */
     background: var(--fl-theme-surface-card-gradient);
-    border: 1px solid var(--sticker-card-border-color);
+    border: 1px solid var(--fl-card-filled-border-color);
     border-radius: var(--token-border-radius-md);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--token-color-black-4);
@@ -342,7 +333,7 @@ Filled Card variant
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-font-size-body-2xs);
     font-weight: var(--token-font-weight-medium);
-    margin: 0 0 var(--token-spacing-xl);
+    margin-block-end: var(--token-spacing-xl);
 
     @container style(--lang-supports-uppercase: true) {
         letter-spacing: 0.02em;
@@ -350,30 +341,19 @@ Filled Card variant
     }
 }
 
-.fl-card.fl-card-filled > .fl-card-sticker,
-.fl-card.fl-card-filled > .fl-card-media-pictogram {
+/* Pictogram in filled card: no squircle bg */
+.fl-card.fl-card-filled .fl-card-media-pictogram {
     align-items: center;
-    display: flex;
-    flex: 1 1 auto;
-    justify-content: center;
-}
-
-/* Pictogram in filled card matches sticker card image style: no squircle bg */
-.fl-card.fl-card-filled > .fl-card-media-pictogram {
     background-color: transparent;
     block-size: auto;
     border-radius: 0;
+    display: flex;
+    flex: 1 1 auto;
     inline-size: auto;
+    justify-content: center;
     min-block-size: unset;
     min-inline-size: unset;
     padding: 0;
-}
-
-.fl-card.fl-card-filled > .fl-card-media-pictogram img {
-    block-size: var(--fl-card-sticker-size, 60px);
-    inline-size: var(--fl-card-sticker-size, 60px);
-    margin: 0;
-    object-fit: contain;
 }
 
 .fl-card.fl-card-filled .fl-body > * {
@@ -394,18 +374,11 @@ Filled Card variant
     margin-block-start: auto;
 }
 
-@media (--viewport-md-up) {
-    .fl-card.fl-card-filled {
-        min-block-size: 480px;
-    }
-}
-
 /* =====================================================================
 Card Testimonial content block
 ===================================================================== */
 
-/* When an outline card contains a testimonial, match the old fl-testimonial-card sizing:
-   mobile uses xl padding (24px) and md-up upgrades font to body-sm. */
+/* Testimonial cards use xl padding on mobile; md-up upgrades font to body-sm. */
 .fl-card.fl-card-outline:has(.fl-card-testimonial) {
     padding: var(--token-spacing-xl);
 }
@@ -431,7 +404,7 @@ Card Testimonial content block
 }
 
 .fl-card-testimonial-quote {
-    flex: 1 1 auto;
+    flex: auto;
     margin: 0;
     padding: 0;
 }
@@ -535,14 +508,11 @@ Card media containers
 
 .fl-card .fl-card-media .fl-video video {
     object-fit: cover;
-    object-position: center;
 }
 
-/* Icon media container (48px with light bg, like fl-illustration-icon-card) */
-.fl-card .fl-card-media-icon {
-    --media-size: 48px;
-    --media-border-radius: var(--token-border-radius-2xs);
-    --media-padding: var(--token-spacing-md);
+/* Shared layout for icon and pictogram media containers */
+.fl-card .fl-card-media-icon,
+.fl-card .fl-card-media-pictogram {
     align-items: center;
     background-color: var(--fl-theme-illustration-icon-bg);
     block-size: var(--media-size);
@@ -553,6 +523,13 @@ Card media containers
     min-block-size: var(--media-size);
     min-inline-size: var(--media-size);
     padding: var(--media-padding);
+}
+
+/* Icon media container (48px with light bg, like fl-illustration-icon-card) */
+.fl-card .fl-card-media-icon {
+    --media-size: 48px;
+    --media-border-radius: var(--token-border-radius-2xs);
+    --media-padding: var(--token-spacing-md);
 }
 
 .fl-card .fl-card-media-icon .fl-icon {
@@ -564,28 +541,21 @@ Card media containers
     margin-block-end: 0;
 }
 
-/* Pictogram media container: squircle bg (like fl-illustration-sticker-card) */
+/* Pictogram media container: squircle bg */
 .fl-card .fl-card-media-pictogram {
     --media-size: 56px;
     --media-border-radius: var(--token-border-radius-xs);
     --media-padding: var(--token-spacing-md);
-    align-items: center;
-    background-color: var(--fl-theme-illustration-icon-bg);
-    block-size: var(--media-size);
-    border-radius: var(--media-border-radius);
-    display: flex;
-    inline-size: var(--media-size);
-    justify-content: center;
-    min-block-size: var(--media-size);
-    min-inline-size: var(--media-size);
-    padding: var(--media-padding);
 }
 
 .fl-card .fl-card-media-pictogram img {
+    block-size: var(--fl-card-pictogram-size, 60px);
     border-radius: 0;
+    inline-size: var(--fl-card-pictogram-size, 60px);
     margin: 0;
     max-block-size: 100%;
     max-inline-size: 100%;
+    object-fit: contain;
 }
 
 @media (--viewport-md-up) {
@@ -594,192 +564,6 @@ Card media containers
         --media-padding: var(--token-spacing-lg);
         --media-size: 102px;
     }
-}
-
-/* =====================================================================
-Sticker Card
-===================================================================== */
-
-.fl-sticker-card {
-    align-items: stretch;
-
-    /* backdrop-filter: blur(7.5px); */
-    background: var(--fl-theme-surface-card-gradient);
-    block-size: auto;
-    border: 1px solid var(--sticker-card-border-color);
-    border-radius: var(--token-border-radius-md);
-    box-shadow: var(--fl-theme-shadow-card);
-    color: var(--token-color-black-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-xl);
-    justify-content: flex-start;
-    min-block-size: 316px;
-    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
-    position: relative;
-    text-align: center;
-    transition: transform var(--token-transition-base);
-}
-
-/* Same opacity-shadow technique as .fl-card::after — avoids per-frame repaints
-   that transitioning box-shadow directly would cause. */
-.fl-sticker-card::after {
-    border-radius: inherit;
-    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
-    content: '';
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    transition: opacity var(--token-transition-base);
-}
-
-.fl-sticker-card:hover {
-    transform: translateY(-2px);
-}
-
-.fl-sticker-card:hover::after {
-    opacity: 1;
-}
-
-.fl-sticker-card .fl-heading {
-    color: var(--token-color-black-4);
-}
-
-.fl-sticker-card .fl-heading-group {
-    color: var(--token-color-black-4);
-    gap: unset;
-    margin: 0;
-    padding: 0;
-}
-
-.fl-sticker-card
-    > :is(
-        h1.fl-heading,
-        h2.fl-heading,
-        h3.fl-heading,
-        h4.fl-heading,
-        h5.fl-heading,
-        h6.fl-heading,
-        .fl-heading-group
-    ) {
-    margin-block-end: 0;
-    order: 0;
-}
-
-.fl-card-sticker {
-    margin: auto;
-}
-
-.fl-sticker-card > div:has(.fl-card-sticker) {
-    order: 2;
-}
-
-.fl-sticker-card > .fl-body {
-    order: 3;
-}
-
-.fl-sticker-card > .fl-buttons {
-    order: 4;
-}
-
-.fl-sticker-card > div:has(.fl-card-sticker),
-.fl-sticker-card > div:has(.fl-card-icon),
-.fl-sticker-card > div:has(.fl-tag) {
-    align-items: center;
-    display: flex;
-    flex: 1 1 auto;
-    gap: var(--token-spacing-sm);
-    inline-size: 100%;
-    justify-content: center;
-}
-
-.fl-sticker-card
-    :is(
-        h1.fl-heading,
-        h2.fl-heading,
-        h3.fl-heading,
-        h4.fl-heading,
-        h5.fl-heading,
-        h6.fl-heading
-    ) {
-    color: inherit;
-    font-family: var(--fl-theme-font-family-headline);
-    font-weight: var(--token-font-weight-semibold);
-    letter-spacing: -0.01em;
-    line-height: 1.05;
-    margin: 0;
-}
-
-.fl-sticker-card .fl-superheading {
-    color: var(--token-color-light-purple);
-    display: block;
-    font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-body-2xs);
-    font-weight: var(--token-font-weight-medium);
-    margin: 0 0 var(--token-spacing-xl);
-
-    @container style(--lang-supports-uppercase: true) {
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-    }
-}
-
-.fl-sticker-card .fl-body > * {
-    font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-body-sm);
-    font-weight: var(--token-font-weight-regular);
-    line-height: 1.4;
-    text-wrap: balance;
-}
-
-.fl-sticker-card .fl-body > *:first-child {
-    margin-block-start: 0;
-}
-
-.fl-sticker-card .fl-body > *:last-child {
-    margin-block-end: 0;
-}
-
-.fl-sticker-card .fl-body a:not(.fl-button) {
-    color: inherit;
-    text-decoration: underline;
-}
-
-.fl-sticker-card .fl-body a:not(.fl-button):hover {
-    text-decoration: none;
-}
-
-.fl-sticker-card .fl-buttons {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--token-spacing-lg);
-    justify-content: center;
-    margin-block-start: var(--token-spacing-lg);
-}
-
-.fl-sticker-card .fl-buttons:empty {
-    display: none;
-}
-
-.fl-sticker-card .fl-button {
-    margin: 0;
-}
-
-.fl-card-sticker img {
-    block-size: var(--fl-card-sticker-size, 60px);
-    inline-size: var(--fl-card-sticker-size, 60px);
-    margin: 0;
-    object-fit: contain;
-}
-
-.fl-sticker-card > div:has(.fl-card-icon) {
-    color: var(--token-color-light-purple);
-}
-
-.fl-sticker-card.fl-card-fill {
-    background: var(--token-gradient-soft-purple);
 }
 
 /* =====================================================================
@@ -914,7 +698,7 @@ Step Cards List - With Kit variant
 }
 
 @media (--viewport-md-up) {
-    .fl-sticker-card {
+    .fl-card.fl-card-filled {
         min-block-size: 480px;
     }
 
@@ -925,226 +709,6 @@ Step Cards List - With Kit variant
     .fl-step-cards-with-kit .fl-step-card:last-child {
         margin-block-start: 0;
     }
-}
-
-/* =====================================================================
-Illustration Card
-===================================================================== */
-
-.fl-illustration-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    position: relative;
-}
-
-.fl-illustration-card .fl-heading-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-lg);
-    margin: 0;
-}
-
-.fl-illustration-card .fl-heading-group .fl-superheading {
-    margin: 0;
-}
-
-.fl-illustration-card .fl-card-media,
-.fl-illustration-card .fl-card-media img {
-    border-radius: var(--token-border-radius-sm);
-    inline-size: 100%;
-}
-
-.fl-illustration-card .fl-card-media {
-    margin-block-end: var(--token-spacing-xl);
-}
-
-.fl-illustration-card .fl-card-media img {
-    margin-block-end: 0;
-}
-
-.fl-illustration-card .fl-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    gap: var(--token-spacing-lg);
-}
-
-.fl-illustration-card .fl-video {
-    aspect-ratio: 17/20;
-    border-radius: var(--token-spacing-xl);
-}
-
-.fl-illustration-card .fl-video video {
-    object-fit: cover;
-    object-position: center;
-}
-
-.fl-illustration-card .fl-heading,
-.fl-illustration-card .fl-body,
-.fl-illustration-card .fl-body p {
-    margin: 0;
-}
-
-.fl-illustration-card .fl-superheading {
-    color: var(--fl-theme-color-brand-text);
-    display: block;
-    font-size: var(--fl-theme-label-xs);
-    font-weight: var(--token-font-weight-medium);
-    margin-block-end: var(--token-spacing-sm);
-}
-
-.fl-illustration-card .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-variation-settings: unset;
-    line-height: 1.1;
-}
-
-.fl-illustration-icon-card {
-    color: var(--fl-theme-color-text);
-}
-
-.fl-illustration-icon-card .fl-icon {
-    font-size: 24px;
-}
-
-.fl-illustration-card.fl-illustration-icon-card,
-.fl-illustration-card.fl-illustration-sticker-card {
-    --media-padding: var(--token-spacing-md);
-    flex-direction: column;
-    gap: var(--token-spacing-xl);
-}
-
-.fl-illustration-card.fl-illustration-sticker-card {
-    --media-size: 56px;
-    --media-border-radius: var(--token-border-radius-xs);
-}
-
-.fl-illustration-card.fl-illustration-icon-card {
-    --media-size: 48px;
-    --media-border-radius: var(--token-border-radius-2xs);
-}
-
-.fl-illustration-card.fl-illustration-icon-card img,
-.fl-illustration-card.fl-illustration-sticker-card img {
-    border-radius: 0;
-    margin: 0;
-    max-block-size: 100%;
-    max-inline-size: 100%;
-}
-
-.fl-illustration-card.fl-illustration-icon-card .fl-card-media,
-.fl-illustration-card.fl-illustration-sticker-card .fl-card-media {
-    align-items: center;
-    background-color: var(--fl-theme-illustration-icon-bg);
-    block-size: var(--media-size);
-    border-radius: var(--media-border-radius);
-    display: flex;
-    inline-size: var(--media-size);
-    justify-content: center;
-    margin-block-end: var(--token-spacing-lg);
-    min-block-size: var(--media-size);
-    min-inline-size: var(--media-size);
-    padding: var(--media-padding);
-}
-
-@media (--viewport-md-up) {
-    .fl-illustration-card.fl-illustration-sticker-card {
-        --media-border-radius: var(--token-border-radius-sm);
-        --media-padding: var(--token-spacing-lg);
-        --media-size: 102px;
-    }
-}
-
-/* =====================================================================
-Testimonial Card
-===================================================================== */
-
-.fl-testimonial-card {
-    background: var(--fl-theme-default-card-bg);
-    border: 1px solid var(--card-border-color);
-    border-radius: var(--token-border-radius-sm);
-    box-shadow: var(--fl-theme-shadow-card);
-    color: var(--fl-theme-color-text);
-    display: flex;
-    flex-direction: column;
-    font-size: var(--fl-theme-font-size-body-xs);
-    gap: var(--token-spacing-xl);
-    padding: var(--token-spacing-xl);
-    position: relative;
-    transition: transform var(--token-transition-base);
-}
-
-.fl-testimonial-card::after {
-    border-radius: inherit;
-    box-shadow: 0 20px 46px var(--token-color-dark-purple-22);
-    content: '';
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    transition: opacity var(--token-transition-base);
-}
-
-.fl-testimonial-card:hover {
-    transform: translateY(-2px);
-}
-
-.fl-testimonial-card:hover::after {
-    opacity: 1;
-}
-
-.fl-testimonial-card-quote {
-    flex: 1 1 auto;
-    margin: 0;
-    padding: 0;
-}
-
-.fl-testimonial-card-quote > *:first-child::before {
-    content: '“';
-}
-
-.fl-testimonial-card-quote > *:last-child::after {
-    content: '”';
-}
-
-.fl-testimonial-card-footer {
-    align-items: center;
-    display: flex;
-    gap: var(--token-spacing-lg);
-    margin-block-start: auto;
-}
-
-.fl-testimonial-card-image {
-    block-size: 48px;
-    border-radius: var(--token-border-radius-xs);
-    flex-shrink: 0;
-    inline-size: 48px;
-    overflow: hidden;
-}
-
-.fl-testimonial-card-image img {
-    block-size: 100%;
-    display: block;
-    inline-size: 100%;
-    object-fit: cover;
-}
-
-.fl-testimonial-card-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-2xs);
-}
-
-.fl-testimonial-card-attribution {
-    font-style: normal;
-    font-weight: var(--token-font-weight-semibold);
-}
-
-.fl-testimonial-card-role {
-    color: var(--fl-theme-color-text);
-    font-size: var(--fl-theme-font-size-body-xs);
-    opacity: 0.7;
 }
 
 /* =====================================================================
@@ -1221,16 +785,5 @@ Card Grid - Scroll variant
         display: flex;
         flex-wrap: nowrap;
         gap: var(--token-spacing-lg);
-    }
-
-    .fl-testimonial-card:hover {
-        transform: none;
-    }
-}
-
-@media (--viewport-md-up) {
-    .fl-testimonial-card {
-        font-size: var(--fl-theme-font-size-body-sm);
-        padding: var(--token-spacing-2xl);
     }
 }

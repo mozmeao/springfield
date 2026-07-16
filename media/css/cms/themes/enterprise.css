@@ -34,7 +34,7 @@
     --fl-theme-main-border-radius: 0;
 
     /* card overrides */
-    --sticker-card-border-color: var(--token-color-enterprise-blue-light);
+    --fl-card-filled-border-color: var(--token-color-enterprise-blue-light);
 
     /* misc overrides. Todo: cleanup, or find/replace token primitives */
     --icon-text-list-icon-bg: var(--token-color-enterprise-blue-light);

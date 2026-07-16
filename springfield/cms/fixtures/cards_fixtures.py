@@ -77,11 +77,11 @@ def _settings(variant="", align="start", expand_link=False):
 
 
 # ---------------------------------------------------------------------------
-# Sticker Cards 2026
+# Pictogram Cards 2026
 # ---------------------------------------------------------------------------
 
 
-def get_sticker_card_variants() -> list[dict]:
+def get_pictogram_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
         _card(
@@ -92,7 +92,7 @@ def get_sticker_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026sc1h">Sticker Card 2026</p>',
+                        "heading_text": '<p data-block-key="2026sc1h">Pictogram Card 2026</p>',
                         "subheading_text": "",
                     },
                     "id": "2026sc01-0001-0000-0000-000000000001",
@@ -123,7 +123,7 @@ def get_sticker_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": '<p data-block-key="2026sc2s">Firefox 2026</p>',
-                        "heading_text": '<p data-block-key="2026sc2h">Sticker Card with Superheading</p>',
+                        "heading_text": '<p data-block-key="2026sc2h">Pictogram Card with Superheading</p>',
                         "subheading_text": "",
                     },
                     "id": "2026sc01-0002-0000-0000-000000000001",
@@ -153,7 +153,7 @@ def get_sticker_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026sc3h">Clickable Sticker Card</p>',
+                        "heading_text": '<p data-block-key="2026sc3h">Clickable Pictogram Card</p>',
                         "subheading_text": "",
                     },
                     "id": "2026sc01-0003-0000-0000-000000000001",
@@ -183,7 +183,7 @@ def get_sticker_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": '<p data-block-key="2026sc4s">Privacy</p>',
-                        "heading_text": '<p data-block-key="2026sc4h">All Sticker Card Fields</p>',
+                        "heading_text": '<p data-block-key="2026sc4h">All Pictogram Card Fields</p>',
                         "subheading_text": "",
                     },
                     "id": "2026sc01-0004-0000-0000-000000000001",
@@ -208,11 +208,11 @@ def get_sticker_card_variants() -> list[dict]:
     ]
 
 
-def get_sticker_cards_sections() -> list[dict]:
-    cards = get_sticker_card_variants()
+def get_pictogram_cards_sections() -> list[dict]:
+    cards = get_pictogram_card_variants()
     return [
         _section(
-            heading_text="Sticker Cards - Default",
+            heading_text="Pictogram Cards - Default",
             subheading_text="Default layout, auto column count based on number of cards.",
             content_blocks=[
                 _cards_list(cards[:3], block_id="2026scs1-0000-0000-0000-000000000001"),
@@ -220,7 +220,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000001",
         ),
         _section(
-            heading_text="Sticker Cards - 4 Cards",
+            heading_text="Pictogram Cards - 4 Cards",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
                 _cards_list(cards, block_id="2026scs1-0000-0000-0000-000000000002"),
@@ -228,7 +228,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000002",
         ),
         _section(
-            heading_text="Sticker Cards - Narrow container, 2 columns",
+            heading_text="Pictogram Cards - Narrow container, 2 columns",
             subheading_text="Narrow container (725px) with 2 columns forced.",
             content_blocks=[
                 _cards_list(
@@ -240,7 +240,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000003",
         ),
         _section(
-            heading_text="Sticker Cards - Wide container, 3 columns",
+            heading_text="Pictogram Cards - Wide container, 3 columns",
             subheading_text="Wide container (1170px) with 3 columns forced.",
             content_blocks=[
                 _cards_list(
@@ -252,7 +252,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000004",
         ),
         _section(
-            heading_text="Sticker Cards - Fill container, 2 wide on mobile",
+            heading_text="Pictogram Cards - Fill container, 2 wide on mobile",
             subheading_text="Fill container (no max-width) with 2-wide on mobile.",
             content_blocks=[
                 _cards_list(
@@ -264,7 +264,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000005",
         ),
         _section(
-            heading_text="Sticker Cards - Scroll",
+            heading_text="Pictogram Cards - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
                 _cards_list(
@@ -278,11 +278,11 @@ def get_sticker_cards_sections() -> list[dict]:
     ]
 
 
-def get_sticker_cards_test_page() -> FreeFormPage2026:
+def get_pictogram_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    slug = "test-sticker-cards"
+    slug = "test-pictogram-cards"
     page = get_or_create_page(
         FreeFormPage2026,
         slug=slug,
@@ -292,7 +292,7 @@ def get_sticker_cards_test_page() -> FreeFormPage2026:
         },
     )
 
-    sections = get_sticker_cards_sections()
+    sections = get_pictogram_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
@@ -648,7 +648,7 @@ def get_outlined_card_variants() -> list[dict]:
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026oc1c">Without sticker, primary button.</p>',
+                    "value": '<p data-block-key="2026oc1c">Without pictogram, primary button.</p>',
                     "id": "2026oc01-0001-0000-0000-000000000002",
                 },
                 {
@@ -671,14 +671,15 @@ def get_outlined_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026oc2h">Outlined Card with Sticker</p>',
+                        "heading_text": '<p data-block-key="2026oc2h">Outlined Card with Pictogram</p>',
                         "subheading_text": "",
                     },
                     "id": "2026oc01-0002-0000-0000-000000000002",
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026oc2c">With sticker and secondary button. Switch to Dark Mode to see the alternative image.</p>',
+                    "value": '<p data-block-key="2026oc2c">With pictogram and secondary button.'
+                    " Switch to Dark Mode to see the alternative image.</p>",
                     "id": "2026oc01-0002-0000-0000-000000000003",
                 },
                 {
@@ -733,7 +734,7 @@ def get_outlined_card_variants() -> list[dict]:
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026oc4c">With sticker, expand link enabled, and link button.</p>',
+                    "value": '<p data-block-key="2026oc4c">With pictogram, expand link enabled, and link button.</p>',
                     "id": "2026oc01-0004-0000-0000-000000000003",
                 },
                 {

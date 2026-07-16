@@ -46,12 +46,12 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_article_theme_hub_page,
     get_article_theme_page,
     get_theme_hub_illustration_cards_section,
-    get_theme_hub_page_sticker_row_section,
+    get_theme_hub_page_pictogram_row_section,
     get_theme_hub_page_upper_content,
     get_theme_page_icon_cards_section,
     get_theme_page_illustration_cards_section,
     get_theme_page_intro,
-    get_theme_page_sticker_row_section,
+    get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -63,10 +63,10 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_illustration_cards_test_page,
     get_outlined_cards_sections,
     get_outlined_cards_test_page,
+    get_pictogram_cards_sections,
+    get_pictogram_cards_test_page,
     get_step_card_variants,
     get_step_cards_test_page,
-    get_sticker_cards_sections,
-    get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
 from springfield.cms.fixtures.featured_image_section_fixtures import (
@@ -1569,7 +1569,7 @@ def test_home_intro_block(index_page, rf):
     )
 
 
-def test_home_sticker_cards_list_block(index_page, placeholder_images, rf):
+def test_home_pictogram_cards_list_block(index_page, placeholder_images, rf):
     test_page = get_home_test_page()
 
     request = rf.get(test_page.get_full_url())
@@ -1749,7 +1749,7 @@ def test_theme_page_blocks(index_page, rf):
     illustration_card_article_section = sections[0]
 
     assert illustration_card_article_section.find(class_="fl-card-grid")
-    illustration_card_articles = illustration_card_article_section.find_all("article", class_="fl-illustration-card")
+    illustration_card_articles = illustration_card_article_section.find_all("article", class_="fl-card")
     illustration_card_articles_data = illustration_card_section_data["value"]["content"][0]["value"]["cards"]
     assert len(illustration_card_articles) == len(illustration_card_articles_data)
 
@@ -1798,7 +1798,7 @@ def test_theme_page_blocks(index_page, rf):
     )
 
     assert icon_card_section.find(class_="fl-card-grid")
-    icon_card_articles = icon_card_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+    icon_card_articles = icon_card_section.find_all("article", class_="fl-card")
     icon_card_articles_data = icon_card_section_data["value"]["content"][0]["value"]["cards"]
     assert len(icon_card_articles) == len(icon_card_articles_data)
 
@@ -1819,23 +1819,23 @@ def test_theme_page_blocks(index_page, rf):
         icon_element = card_element.find("span", class_="fl-icon")
         assert icon_element and f"fl-icon-{icon_name}" in icon_element["class"]
 
-    # Sticker Row Articles
-    sticker_row_section_data = get_theme_page_sticker_row_section()
-    sticker_row_section = sections[2]
+    # Pictogram Row Articles
+    pictogram_row_section_data = get_theme_page_pictogram_row_section()
+    pictogram_row_section = sections[2]
 
     assert_section_heading_attributes(
-        section_element=sticker_row_section,
-        heading_data=sticker_row_section_data["value"]["heading"],
+        section_element=pictogram_row_section,
+        heading_data=pictogram_row_section_data["value"]["heading"],
         index=2,
     )
 
-    assert sticker_row_section and sticker_row_section.find(class_="fl-stacked-article-list")
-    sticker_row_articles = sticker_row_section.find_all("article", class_="fl-article-item")
-    sticker_row_articles_data = sticker_row_section_data["value"]["content"][0]["value"]["cards"]
-    assert len(sticker_row_articles) == len(sticker_row_articles_data)
+    assert pictogram_row_section and pictogram_row_section.find(class_="fl-stacked-article-list")
+    pictogram_row_articles = pictogram_row_section.find_all("article", class_="fl-article-item")
+    pictogram_row_articles_data = pictogram_row_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(pictogram_row_articles) == len(pictogram_row_articles_data)
 
-    for i, article_data in enumerate(sticker_row_articles_data):
-        card_element = sticker_row_articles[i]
+    for i, article_data in enumerate(pictogram_row_articles_data):
+        card_element = pictogram_row_articles[i]
         article_id = article_data["value"]["article"]
         article = ArticleDetailPage.objects.get(id=article_id)
         overrides = article_data["value"].get("overrides", {})
@@ -1850,8 +1850,8 @@ def test_theme_page_blocks(index_page, rf):
         image_id = overrides.get("image") or article.sticker.id
         img = image_ids[image_id]
         rendered_icon = image(img, "width-400").img_tag()
-        sticker_element = card_element.find("img")
-        assert sticker_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
+        pictogram_element = card_element.find("img")
+        assert pictogram_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
 
 
 def test_theme_hub_page_blocks(index_page, rf):
@@ -1896,7 +1896,7 @@ def test_theme_hub_page_blocks(index_page, rf):
     illustration_section = sections[0]
 
     assert illustration_section.find(class_="fl-card-grid")
-    illustration_card_articles = illustration_section.find_all("article", class_="fl-illustration-card")
+    illustration_card_articles = illustration_section.find_all("article", class_="fl-card")
     illustration_card_articles_data = illustration_section_data["value"]["content"][0]["value"]["cards"]
     assert len(illustration_card_articles) == len(illustration_card_articles_data)
 
@@ -1933,23 +1933,23 @@ def test_theme_hub_page_blocks(index_page, rf):
         assert img_tag["height"] == image_soup["height"]
         assert img_tag["src"] == image_soup["src"]
 
-    # Sticker Row Section (second section in lower content)
-    sticker_row_section_data = get_theme_hub_page_sticker_row_section()
-    sticker_row_section = sections[1]
+    # Pictogram Row Section (second section in lower content)
+    pictogram_row_section_data = get_theme_hub_page_pictogram_row_section()
+    pictogram_row_section = sections[1]
 
     assert_section_heading_attributes(
-        section_element=sticker_row_section,
-        heading_data=sticker_row_section_data["value"]["heading"],
+        section_element=pictogram_row_section,
+        heading_data=pictogram_row_section_data["value"]["heading"],
         index=1,
     )
 
-    assert sticker_row_section and sticker_row_section.find(class_="fl-stacked-article-list")
-    sticker_row_articles = sticker_row_section.find_all("article", class_="fl-article-item")
-    sticker_row_articles_data = sticker_row_section_data["value"]["content"][0]["value"]["cards"]
-    assert len(sticker_row_articles) == len(sticker_row_articles_data)
+    assert pictogram_row_section and pictogram_row_section.find(class_="fl-stacked-article-list")
+    pictogram_row_articles = pictogram_row_section.find_all("article", class_="fl-article-item")
+    pictogram_row_articles_data = pictogram_row_section_data["value"]["content"][0]["value"]["cards"]
+    assert len(pictogram_row_articles) == len(pictogram_row_articles_data)
 
-    for i, article_data in enumerate(sticker_row_articles_data):
-        card_element = sticker_row_articles[i]
+    for i, article_data in enumerate(pictogram_row_articles_data):
+        card_element = pictogram_row_articles[i]
         article_id = article_data["value"]["article"]
         article = ArticleDetailPage.objects.get(id=article_id)
         overrides = article_data["value"].get("overrides", {})
@@ -1963,9 +1963,9 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_sticker = image(img, "width-400").img_tag()
-        sticker_element = card_element.find("img")
-        assert sticker_element.prettify() == BeautifulSoup(rendered_sticker, "html.parser").find("img").prettify()
+        rendered_pictogram = image(img, "width-400").img_tag()
+        pictogram_element = card_element.find("img")
+        assert pictogram_element.prettify() == BeautifulSoup(rendered_pictogram, "html.parser").find("img").prettify()
 
 
 def test_illustration_card_renders_featured_image_without_override(index_page, rf):
@@ -1980,7 +1980,7 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
     soup = BeautifulSoup(response.content, "html.parser")
     sections = soup.find_all("section", class_="fl-section")
     illustration_section = sections[0]
-    illustration_cards = illustration_section.find_all("article", class_="fl-illustration-card")
+    illustration_cards = illustration_section.find_all("article", class_="fl-card")
 
     articles = get_article_pages()
     images = get_placeholder_images()
@@ -2014,8 +2014,8 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
     assert img_tag["height"] == image_soup["height"]
 
 
-def test_sticker_row_renders_sticker_without_override(index_page, rf):
-    """When a sticker row card has no image override, the article's sticker
+def test_pictogram_row_renders_pictogram_without_override(index_page, rf):
+    """When a pictogram row card has no image override, the article's pictogram
     should be rendered instead of the placeholder image."""
     page = get_article_theme_page()
 
@@ -2025,31 +2025,31 @@ def test_sticker_row_renders_sticker_without_override(index_page, rf):
 
     soup = BeautifulSoup(response.content, "html.parser")
     sections = soup.find_all("section", class_="fl-section")
-    sticker_section = sections[2]
-    sticker_row_articles = sticker_section.find_all("article", class_="fl-article-item")
+    pictogram_section = sections[2]
+    pictogram_row_articles = pictogram_section.find_all("article", class_="fl-article-item")
 
     articles = get_article_pages()
     images = get_placeholder_images()
     image_ids = {img.id: img for img in images}
 
     # Card at index 1 has overrides.image = None (articles[3] = regular_article_2),
-    # so it should fall back to the article's sticker
-    card_element = sticker_row_articles[1]
+    # so it should fall back to the article's pictogram
+    card_element = pictogram_row_articles[1]
 
-    section_data = get_theme_page_sticker_row_section()
+    section_data = get_theme_page_pictogram_row_section()
     card_data = section_data["value"]["content"][0]["value"]["cards"][1]
     article_ids = {article.id: article for article in articles}
     article = article_ids[card_data["value"]["article"]]
-    sticker_element = card_element.find("img")
+    pictogram_element = card_element.find("img")
 
     # Should NOT be the Firefox logo placeholder
-    assert sticker_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
+    assert pictogram_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
 
-    # Should match the article's sticker rendered with image()
+    # Should match the article's pictogram rendered with image()
     expected_img = image_ids[article.sticker.id]
     rendered_icon = image(expected_img, "width-400").img_tag()
     expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
-    assert sticker_element.prettify() == expected_soup.prettify()
+    assert pictogram_element.prettify() == expected_soup.prettify()
 
 
 def test_icon_card_renders_article_icon_without_override(index_page, rf):
@@ -2064,7 +2064,7 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     sections = soup.find_all("section", class_="fl-section")
     icon_section = sections[1]
-    icon_card_articles = icon_section.find_all("article", class_="fl-illustration-card fl-illustration-icon-card")
+    icon_card_articles = icon_section.find_all("article", class_="fl-card")
 
     articles = get_article_pages()
 
@@ -2281,155 +2281,9 @@ def assert_cards_list_settings(grid_el: BeautifulSoup, settings: dict):
         assert grid_el.find("div", class_="fl-card-grid-scroll-inner")
 
 
-def assert_sticker_card(card_el, variant, context, region_name, heading_tag, block_index, card_index):
-    value = variant["value"]
-    headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-    heading = card_el.find(heading_tag, class_="fl-heading")
-    assert heading and headline_text in heading.get_text()
-
-    if value["settings"].get("expand_link"):
-        assert "fl-card-expand-link" in card_el.get("class", [])
-
-    content_text = BeautifulSoup(value["content"], "html.parser").get_text()
-    body = card_el.find(class_="fl-body")
-    assert body and content_text in body.get_text()
-
-    if value.get("superheading"):
-        superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
-        superheading_el = card_el.find(class_="fl-superheading")
-        assert superheading_el and superheading_text in superheading_el.get_text()
-
-    sticker_el = card_el.find("div", class_="fl-card-sticker")
-    assert_image_variants_attributes(
-        images_element=sticker_el,
-        images_value=value["image"],
-        widths="width-400",
-    )
-
-    for button_data in value["buttons"]:
-        if button_data["type"] == "button":
-            button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
-            cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
-            assert_button_attributes(
-                button_element=button_el,
-                button_data=button_data,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-
-def assert_illustration_card(card_el, variant, context, region_name, heading_tag, block_index, card_index):
-    value = variant["value"]
-    headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-    heading = card_el.find(heading_tag, class_="fl-heading")
-    assert heading and headline_text in heading.get_text()
-
-    if value["settings"].get("expand_link"):
-        assert "fl-card-expand-link" in card_el.get("class", [])
-
-    content_text = BeautifulSoup(value["content"], "html.parser").get_text()
-    body = card_el.find(class_="fl-body")
-    assert body and content_text in body.get_text()
-
-    if value.get("eyebrow"):
-        eyebrow_text = BeautifulSoup(value["eyebrow"], "html.parser").get_text()
-        eyebrow_el = card_el.find(class_="fl-superheading")
-        assert eyebrow_el and eyebrow_text in eyebrow_el.get_text()
-
-    media_el = card_el.find("div", class_="fl-card-media")
-    media_value = value["media"][0]
-    if media_value["type"] == "image":
-        assert_image_variants_attributes(images_element=media_el, images_value=media_value["value"])
-    elif media_value["type"] == "video":
-        assert_video_attributes(media_el.find("div", class_="fl-video"), media_value)
-    elif media_value["type"] == "animation":
-        assert_animation_attributes(media_el.find("div", class_="fl-video"), media_value)
-
-    for button_data in value["buttons"]:
-        if button_data["type"] == "button":
-            button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
-            cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
-            assert_button_attributes(
-                button_element=button_el,
-                button_data=button_data,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-
-def assert_outlined_card(card_el, variant, context, region_name, heading_tag, block_index, card_index):
-    value = variant["value"]
-    headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-    heading = card_el.find(heading_tag, class_="fl-heading")
-    assert heading and headline_text in heading.get_text()
-
-    if value["settings"].get("expand_link"):
-        assert "fl-card-expand-link" in card_el.get("class", [])
-    else:
-        assert "fl-card-expand-link" not in card_el.get("class", [])
-
-    content_text = BeautifulSoup(value["content"], "html.parser").get_text()
-    body = card_el.find(class_="fl-body")
-    assert body and content_text in body.get_text()
-
-    if value.get("sticker", {}).get("image"):
-        sticker_el = card_el.find("div", class_="fl-card-sticker")
-        assert sticker_el
-        assert_image_variants_attributes(images_element=sticker_el, images_value=value["sticker"])
-
-    for button_data in value["buttons"]:
-        if button_data["type"] == "button":
-            button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
-            cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
-            assert_button_attributes(
-                button_element=button_el,
-                button_data=button_data,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-
-def assert_icon_card(card_el, variant, context, region_name, heading_tag, block_index, card_index):
-    value = variant["value"]
-    headline_text = BeautifulSoup(value["headline"], "html.parser").get_text()
-    heading = card_el.find(heading_tag, class_="fl-heading")
-    assert heading and headline_text in heading.get_text()
-
-    if value["settings"].get("expand_link"):
-        assert "fl-card-expand-link" in card_el.get("class", [])
-    else:
-        assert "fl-card-expand-link" not in card_el.get("class", [])
-
-    content_text = BeautifulSoup(value["content"], "html.parser").get_text()
-    body = card_el.find(class_="fl-body")
-    assert body and content_text in body.get_text()
-
-    icon_el = card_el.find("span", class_="fl-icon")
-    assert icon_el and f"fl-icon-{value['icon']}" in icon_el.get("class", [])
-
-    for button_data in value["buttons"]:
-        if button_data["type"] == "button":
-            button_el = card_el.find("a", class_="fl-button")
-            cta_text = f"{headline_text.strip()} - {button_data['value']['custom_label'].strip()}"
-            cta_position = f"{region_name}-block-{block_index}-section.item-1-cards_list.card-{card_index}.button-1"
-            assert_button_attributes(
-                button_element=button_el,
-                button_data=button_data,
-                context=context,
-                cta_position=cta_position,
-                cta_text=cta_text,
-            )
-
-
-def test_sticker_cards_block(index_page, placeholder_images, rf):
-    sections_data = get_sticker_cards_sections()
-    page = get_sticker_cards_test_page()
+def test_pictogram_cards_block(index_page, placeholder_images, rf):
+    sections_data = get_pictogram_cards_sections()
+    page = get_pictogram_cards_test_page()
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)

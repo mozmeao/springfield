@@ -211,7 +211,7 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-illustration-card")
+    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-card")
     assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 4  # 8 total - 1 hero - 3 list items = 4 cards
 
     for fixture_article, card in zip(all_articles[4:8], cards):
@@ -246,7 +246,7 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     for cards_list in cards_list_divs:
         assert cards_list.find(class_="fl-heading")
         assert cards_list.find("a", class_="fl-blog-cards-list-link")
-        cards = cards_list.find_all("article", class_="fl-illustration-card")
+        cards = cards_list.find_all("article", class_="fl-card")
         assert cards
         for card in cards:
             assert "fl-card-expand-link" in card.get("class", [])

@@ -32,7 +32,7 @@ def get_home_intro():
     }
 
 
-def _sticker_card(card_id, superheading, headline, content, image_id, dark_image_id):
+def _pictogram_card(card_id, superheading, headline, content, image_id, dark_image_id):
     _image = {
         "image": image_id,
         "settings": {"dark_mode_image": dark_image_id, "mobile_image": None, "dark_mode_mobile_image": None},
@@ -62,7 +62,7 @@ def get_cards_list():
         "type": "cards_list",
         "value": {
             "cards": [
-                _sticker_card(
+                _pictogram_card(
                     card_id="770c184d-1840-4128-b424-575b9449c31e",
                     superheading='<p data-block-key="p55oi">AI</p>',
                     headline='<p data-block-key="nnvio">Chat with your favorite AI </p>',
@@ -70,7 +70,7 @@ def get_cards_list():
                     image_id=img,
                     dark_image_id=dark,
                 ),
-                _sticker_card(
+                _pictogram_card(
                     card_id="b5722296-ce54-4e26-9b14-0ef23dd4030c",
                     superheading='<p data-block-key="p55oi">Privacy</p>',
                     headline='<p data-block-key="nnvio">Privacy you can see and control </p>',
@@ -78,7 +78,7 @@ def get_cards_list():
                     image_id=img,
                     dark_image_id=dark,
                 ),
-                _sticker_card(
+                _pictogram_card(
                     card_id="0670ff11-78b2-4c5d-81c2-f4b392af3adb",
                     superheading='<p data-block-key="p55oi">Organization</p>',
                     headline='<p data-block-key="nnvio">Work smarter, \u2028not harder</p>',
@@ -86,7 +86,7 @@ def get_cards_list():
                     image_id=img,
                     dark_image_id=dark,
                 ),
-                _sticker_card(
+                _pictogram_card(
                     card_id="3f06b021-aed7-4e8f-bc80-e13665e70f52",
                     superheading='<p data-block-key="p55oi">Independence</p>',
                     headline='<p data-block-key="nnvio">Your browser answers to you</p>',

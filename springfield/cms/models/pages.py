@@ -580,12 +580,12 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
-    INDEX_CARD_STICKER = "sticker_card"
+    INDEX_CARD_PICTOGRAM = "sticker_card"
     INDEX_CARD_OUTLINE = "outline_card"
     INDEX_CARD_ILLUSTRATION = "illustration_card"
 
     INDEX_CARD_TYPE_CHOICES = (
-        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_PICTOGRAM, "Pictogram card"),
         (INDEX_CARD_OUTLINE, "Outline card"),
         (INDEX_CARD_ILLUSTRATION, "Illustration card"),
     )
@@ -593,7 +593,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     index_card_type = models.CharField(
         max_length=20,
         choices=INDEX_CARD_TYPE_CHOICES,
-        default=INDEX_CARD_STICKER,
+        default=INDEX_CARD_PICTOGRAM,
         help_text="Controls the card style used in the article listing.",
     )
 
@@ -697,7 +697,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="A sticker image used in article cards.",
+        help_text="A pictogram image used in article cards.",
     )
     sticker_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -705,7 +705,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode variant of the sticker.",
+        help_text="Optional dark mode variant of the pictogram.",
     )
     sticker_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -713,7 +713,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional mobile variant of the sticker.",
+        help_text="Optional mobile variant of the pictogram.",
     )
     sticker_dark_mode_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -721,7 +721,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode mobile variant of the sticker.",
+        help_text="Optional dark mode mobile variant of the pictogram.",
     )
     icon = models.CharField(
         max_length=50,
@@ -819,7 +819,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                             ]
                         )
                     ],
-                    heading="Sticker Variants",
+                    heading="Pictogram Variants",
                     classname="collapsed",
                 ),
                 FieldPanel(

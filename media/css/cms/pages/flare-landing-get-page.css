@@ -229,12 +229,6 @@
                 'main secondary';
         }
 
-        .fl-landing-get
-            .fl-favorite-browser
-            .fl-card-grid:has(.fl-illustration-card-default) {
-            --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
-        }
-
         .fl-landing-get .fl-banner-kit-face {
             --kit-img-size: 280px auto;
             --kit-img-position: bottom right 18%;

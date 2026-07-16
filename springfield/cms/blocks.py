@@ -2126,7 +2126,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     sticker = ImageChooserBlock(
         required=False,
-        help_text="Optional custom sticker image to override the article's sticker.",
+        help_text="Optional custom pictogram image to override the article's pictogram.",
     )
     icon = IconChoiceBlock(
         required=False,
@@ -2135,7 +2135,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     superheading = blocks.CharBlock(
         required=False,
-        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
+        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and pictogram cards.",
     )
     title = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
@@ -2222,10 +2222,10 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.featured_image
         return None
 
-    def get_sticker(self) -> SpringfieldImage | None:
+    def get_pictogram(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
-        if sticker := overrides.get("sticker"):
-            return sticker
+        if pictogram := overrides.get("sticker"):
+            return pictogram
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
@@ -2269,10 +2269,10 @@ class ArticleBlock(blocks.StructBlock):
 class ArticlesListSettings(blocks.StructBlock):
     card_type = blocks.ChoiceBlock(
         choices=[
-            ("sticker_card", "Sticker Card"),
+            ("sticker_card", "Pictogram Card"),
             ("illustration_card", "Illustration Card"),
             ("icon_card", "Icon Card"),
-            ("sticker_row", "Sticker Row"),
+            ("sticker_row", "Pictogram Row"),
         ],
         default="sticker_card",
         label="Card Type",

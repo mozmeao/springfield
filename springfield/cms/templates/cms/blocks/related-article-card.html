@@ -4,39 +4,33 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:illustration-card expand_link="true">
-  <content:media>
-    {% set img = value.get_sticker() %}
-    {% if img %}
-      {{ image(img, "width-400") }}
-    {% else %}
-      <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
-    {% endif %}
-  </content:media>
-  <content:heading>
-    {% set superheading = value.get_superheading() %}
-    <hgroup class="fl-heading-group">
-      {% if superheading %}
-        <p class="fl-superheading">
-          {{ superheading }}
-        </p>
-      {% endif %}
-
-      <h3 class="fl-heading">
-        <a href="{{ value.get_link_url() }}">
-          {{ value.get_title() }}
-        </a>
-      </h3>
-
-    </hgroup>
-  </content:heading>
+<include:card expand_link="true">
   <content:body>
-    {% if value.tags %}
-      <div>
-        {% for tag in value.tags %}
-          {% include_block tag %}
-        {% endfor %}
-      </div>
-    {% endif %}
+    <div class="fl-card-media fl-card-media-pictogram">
+      {% set img = value.get_pictogram() %}
+      {% if img %}
+        {{ image(img, "width-400") }}
+      {% else %}
+        <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
+      {% endif %}
+    </div>
+    <div class="fl-card-content">
+      {% set superheading = value.get_superheading() %}
+      <hgroup class="fl-heading-group">
+        {% if superheading %}
+          <p class="fl-superheading">{{ superheading }}</p>
+        {% endif %}
+        <h3 class="fl-heading">
+          <a href="{{ value.get_link_url() }}">{{ value.get_title() }}</a>
+        </h3>
+      </hgroup>
+      {% if value.tags %}
+        <div>
+          {% for tag in value.tags %}
+            {% include_block tag %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
   </content:body>
-</include:illustration-card>
+</include:card>

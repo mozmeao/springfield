@@ -37,7 +37,7 @@
 --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
 /* Cards */
---sticker-card-border-color: transparent;
+--fl-card-filled-border-color: transparent;
 --fl-step-card-bg: var(--token-color-medium-purple);
 --fl-step-card-index-bg: var(--token-color-dark-purple);
 --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);

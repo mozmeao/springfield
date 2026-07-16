@@ -100,8 +100,8 @@
     transform: translate(-50%, -50%);
 }
 
-/* illustration cards always bottom-right */
-.fl-illustration-card .fl-video .fl-video-play-icon {
+/* cards with video: play icon always bottom-right */
+.fl-card .fl-video .fl-video-play-icon {
     block-size: 36px;
     inline-size: 36px;
     inset-block-start: auto;
