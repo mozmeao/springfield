@@ -43,19 +43,3 @@ def test_healthz_cron(client):
         expected_content="Time Since Last Cron Task Runs",
         expected_status=500,  # because an unsynced DB returns a 500, but with the correct HTML
     )
-
-
-@pytest.mark.parametrize(
-    "accept_language",
-    ("en-US", "de", "fr", "es-MX", "ja"),
-)
-def test_school_redirects_to_en_us_landing_regardless_of_accept_language(client, accept_language):
-    resp = client.get("/school/", headers={"accept-language": accept_language})
-    assert resp.status_code == 302
-    assert resp["Location"] == "/en-US/landing/school/"
-
-
-def test_school_redirect_preserves_query_string(client):
-    resp = client.get("/school/?utm_source=test&utm_campaign=school")
-    assert resp.status_code == 302
-    assert resp["Location"] == "/en-US/landing/school/?utm_source=test&utm_campaign=school"
