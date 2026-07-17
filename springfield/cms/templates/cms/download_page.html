@@ -12,8 +12,9 @@
 {% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
 
 {% block flare_header %}
+  {% set theme = "dark" %}
   {% set hide_nav_cta = true %}
-  <include:flare-header theme="dark" />
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

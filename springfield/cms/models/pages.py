@@ -118,7 +118,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     is_structural_page = True
     # TO COME: guard rails on page hierarchy
     # subpage_types = []
-    settings_panels = WagtailBasePage.settings_panels + [
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
     content_panels = [
@@ -367,9 +367,15 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -493,9 +499,15 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("subheading"),
         index.SearchField("intro_footer_text"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -550,8 +562,14 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     def __str__(self):
@@ -644,11 +662,15 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         index.SearchField("other_articles_heading"),
     ]
 
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
     def __str__(self):
         return f"ArticleIndexPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
+        context = super().get_context(request, *args, **kwargs)
 
         child_ids = self.get_children().live().public().values_list("pk", flat=True)
 
@@ -884,9 +906,15 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     if TYPE_CHECKING:
@@ -935,9 +963,15 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     def __str__(self):
@@ -1176,6 +1210,10 @@ class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, Q
         index.SearchField("content"),
     ]
 
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+    ]
+
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1305,6 +1343,10 @@ class WhatsNewPage2026(PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippe
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:
@@ -1498,6 +1540,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("heading_text"),
         index.SearchField("subheading_text"),
@@ -1508,6 +1552,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         index.SearchField("privacy_notice"),
         index.SearchField("update_instructions"),
         index.SearchField("post_download_instructions"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1627,10 +1675,16 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         ),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
         index.SearchField("more_articles_heading"),
         index.SearchField("cards_lists"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1873,9 +1927,15 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1936,9 +1996,15 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("intro"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -2029,6 +2095,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
         index.SearchField("intro"),
         index.SearchField("form_fields"),
         index.SearchField("thank_you_message"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -2260,6 +2330,15 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
     parent_page_types = []
 
     template = "cms/flare_docs_index_page.html"
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
+    def __str__(self):
+        return f"FlareDocsIndexPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)

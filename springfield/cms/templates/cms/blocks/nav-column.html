@@ -1,0 +1,29 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ Renders a column's stream of links and horizontal rules. Consecutive plain
+ links are grouped inside a single <ul>; horizontal rules and button-style
+ links break the list and render as siblings.
+#}
+
+{% set column = namespace(list_open=false, items_count=0) %}
+<include:nav-column>
+  {% for child in value %}
+    {% if child.block_type != "separator" %}
+      {% set column.items_count = column.items_count + 1 %}
+    {% endif %}
+    {% set block_position = block_position ~ ".link-" ~ column.items_count %}
+    {% if child.block_type == 'link' and not child.value.has_button_style %}
+      {% if not column.list_open %}<ul>{% set column.list_open = true %}{% endif %}
+      {% include_block child %}
+    {% else %}
+      {% if column.list_open %}</ul>{% set column.list_open = false %}{% endif %}
+      {% include_block child %}
+    {% endif %}
+  {% endfor %}
+  {% if column.list_open %}</ul>{% endif %}
+</include:nav-column>
