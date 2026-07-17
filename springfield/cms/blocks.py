@@ -22,7 +22,7 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -590,9 +590,8 @@ class LabelSourceMixin(blocks.StructBlock):
     """
     Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
 
-    This mixin adds two render-time context keys:
+    This mixin adds the render-time context key:
       - button_label:        rendered, locale-resolved label (visible to users)
-      - button_label_en_us:  stable English source for analytics / campaign slugs
 
     When using this mixin,
       1. declare an explicit `Meta.form_layout` to set the admin field order, and
@@ -641,15 +640,8 @@ class LabelSourceMixin(blocks.StructBlock):
             # User-visible label: locale-resolved with fallback to the stored row.
             localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
             context["button_label"] = (localized or pretranslated).label
-            # Stable English source for analytics. On a translated page, the
-            # stored FK is the locale-specific phrase, so its own label is
-            # localized — resolve the en-US sibling through the phrase's translation
-            # group instead of reading the stored row's label.
-            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
-            context["button_label_en_us"] = (en_us or pretranslated).label
         elif value.get("custom_label"):
             context["button_label"] = value["custom_label"]
-            context["button_label_en_us"] = value["custom_label"]
         return context
 
     def get_searchable_content(self, value):

@@ -4,6 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label or "") %}
 {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-browsers-mobile") %}
 {% set link = play_store_url('focus', campaign) if value.store == "android" else app_store_url('focus', campaign) %}
 
@@ -15,7 +16,7 @@
   external="{{ True }}"
   icon_name="{{ value.settings.icon }}"
   icon_position="{{ value.settings.icon_position }}"
-  analytics_text="{{ block_text or '' }}"
+  analytics_text="{{ cta_text }}"
   analytics_position="{{ block_position }}"
   analytics_id="{{ value.settings.analytics_id }}"
 />

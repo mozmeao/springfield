@@ -4,8 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# analytics_text uses the stable English label so analytics aggregate across locales #}
-{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label_en_us or "") %}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label or "") %}
 {% set dialog_id = "set-as-default-dialog" %}
 
 <include:conditional-display default_browser_condition="is-not-default">

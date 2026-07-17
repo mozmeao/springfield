@@ -4,7 +4,7 @@
 
 import re
 from unittest import mock
-from urllib.parse import parse_qs, urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -198,7 +198,7 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
     return block, value
 
 
-def _render_context(request):
+def _render_context(request, block_text="Heading", block_position="block-1-intro") -> dict:
     """
     Minimal parent context a button block needs to render in isolation.
 
@@ -207,8 +207,8 @@ def _render_context(request):
     (whose snippet uses Fluent) renders without a context KeyError.
     """
     return {
-        "block_text": "Heading",
-        "block_position": "1",
+        "block_text": block_text,
+        "block_position": block_position,
         "request": request,
         "fluent_l10n": fluent_l10n(["en"], settings.FLUENT_DEFAULT_FILES),
     }
@@ -219,14 +219,6 @@ def _render_button(btn_type, request, **label_kwargs):
     block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
     bound = block.to_python(raw)
     return block.render(bound, context=_render_context(request))
-
-
-def _fxa_utm_campaign(html):
-    """
-    Return the ``utm_campaign`` query-param value from a rendered FXA button.
-    """
-    a = BeautifulSoup(html, "html.parser").find("a")
-    return parse_qs(urlparse(a["href"]).query).get("utm_campaign", [None])[0]
 
 
 def _get_cta_text(html):
@@ -822,57 +814,6 @@ class TestLabelSourceMixin:
         with pytest.raises(StructBlockValidationError):
             download_firefox_button_block.clean(value)
 
-    def test_get_context_exposes_button_label_en_us_from_pretranslated_label(self, download_firefox_button_block, pretranslated_phrase_snippet):
-        """Test the context's button_label_en_us."""
-        value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
-        context = download_firefox_button_block.get_context(value)
-        assert context["button_label_en_us"] == "Get Firefox"
-
-    def test_get_context_button_label_en_us_stays_english_when_active_locale_differs(
-        self, download_firefox_button_block, pretranslated_phrase_snippet
-    ):
-        """Test the context's button_label and button_label_en_us for a non-en-US translation."""
-        es_mx_locale = LocaleFactory(language_code="es-MX")
-        PretranslatedPhrase.objects.create(
-            locale=es_mx_locale,
-            translation_key=pretranslated_phrase_snippet.translation_key,
-            label="Obtén Firefox",
-            live=True,
-        )
-        with translation.override("es-mx"):
-            value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
-            context = download_firefox_button_block.get_context(value)
-        # User-visible label is localized.
-        assert context["button_label"] == "Obtén Firefox"
-        # Analytics-safe English source is unchanged.
-        assert context["button_label_en_us"] == "Get Firefox"
-
-    def test_get_context_button_label_en_us_resolves_english_when_stored_fk_is_localized(
-        self, download_firefox_button_block, pretranslated_phrase_snippet
-    ):
-        """
-        When a translated button has pretranslated text, the button_label_en_us is in English.
-        """
-        es_mx_locale = LocaleFactory(language_code="es-MX")
-        es_mx_snippet = PretranslatedPhrase.objects.create(
-            locale=es_mx_locale,
-            translation_key=pretranslated_phrase_snippet.translation_key,
-            label="Obtén Firefox",
-            live=True,
-        )
-        with translation.override("es-mx"):
-            # The stored FK is the locale-specific phrase, as the migration produces.
-            value = {"pretranslated_label": es_mx_snippet, "custom_label": "", "settings": {}}
-            context = download_firefox_button_block.get_context(value)
-        assert context["button_label"] == "Obtén Firefox"
-        assert context["button_label_en_us"] == "Get Firefox"
-
-    def test_get_context_button_label_en_us_falls_back_to_custom_label(self, download_firefox_button_block):
-        """For the custom_label path, button_label_en_us is the custom text as-is."""
-        value = {"pretranslated_label": None, "custom_label": "Custom text", "settings": {}}
-        context = download_firefox_button_block.get_context(value)
-        assert context["button_label_en_us"] == "Custom text"
-
     def test_get_searchable_content_includes_both_label_sources(self, download_firefox_button_block, pretranslated_phrase_snippet):
         """Test the get_searchable_content value."""
         value = {"pretranslated_label": pretranslated_phrase_snippet, "custom_label": "", "settings": {}}
@@ -955,71 +896,14 @@ class TestButtonBlockCleanComposition:
         assert "snippet" in exc.value.block_errors  # child chooser's own error
 
 
-class TestFXAButtonUtmCampaign:
-    """
-    Test the FXAButton.
-
-    fxa_button derives utm_campaign from the stable English label
-    (button_label_en_us), so the campaign slug is locale-invariant. The visible
-    label still localizes; only the analytics slug is the same across locales.
-    """
-
-    def test_analytics_attributes_are_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet):
-        es_mx = LocaleFactory(language_code="es-MX")
-        PretranslatedPhrase.objects.create(
-            locale=es_mx,
-            translation_key=pretranslated_phrase_snippet.translation_key,
-            label="Obtén Firefox",
-            live=True,
-        )
-        block, raw = _button_block_and_value("fxa_button", pretranslated_label=pretranslated_phrase_snippet.pk)
-        ctx = _render_context(rf.get("/"))
-
-        # Build a fresh value inside each locale: the snippet's localized lookup
-        # caches on the instance, so reusing one bound value across locales would
-        # leak the first locale's result into the second.
-        with translation.override("en-US"):
-            html_en = block.render(block.to_python(raw), context=dict(ctx))
-        with translation.override("es-mx"):
-            html_es = block.render(block.to_python(raw), context=dict(ctx))
-
-        # button_label_en_us is the en-US source label regardless of active locale,
-        # so both utm_campaign and data-cta-text are identical across locales.
-        assert _fxa_utm_campaign(html_en) == _fxa_utm_campaign(html_es) == "get_firefox"
-        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
-
-    def test_analytics_attributes_derive_from_custom_label(self, rf):
-        # For the custom_label path button_label_en_us == custom_label, so both
-        # utm_campaign and data-cta-text follow the editor-typed text.
-        ctx = _render_context(rf.get("/"))
-
-        block_a, raw_a = _button_block_and_value("fxa_button", custom_label="Log in")
-        html_a = block_a.render(block_a.to_python(raw_a), context=dict(ctx))
-        assert _fxa_utm_campaign(html_a) == "log_in"
-        assert _get_cta_text(html_a) == "Heading - Log in"
-
-        block_b, raw_b = _button_block_and_value("fxa_button", custom_label="Sign up")
-        html_b = block_b.render(block_b.to_python(raw_b), context=dict(ctx))
-        assert _fxa_utm_campaign(html_b) == "sign_up"
-        assert _get_cta_text(html_b) == "Heading - Sign up"
-
-
 class TestButtonCtaText:
     """
     Test data-cta-text for ButtonBlock and UITourButtonBlock.
-
-    All LabelSourceMixin buttons set analytics_text to the stable English label
-    (button_label_en_us) so analytics aggregate across locales. The visible label
-    still localizes; only the analytics attribute uses the English source.
-
-    FirefoxFocusButtonBlock is the exception: it uses only block_text in
-    analytics_text (no button label), so the CTA text is locale-invariant by
-    default regardless of the label.
     """
 
-    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
-    def test_cta_text_is_locale_invariant_when_pretranslated_label_set(self, rf, pretranslated_phrase_snippet, btn_type):
-        """Pretranslated label: data-cta-text uses the en-US source label regardless of active locale."""
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button", "focus_button"])
+    def test_cta_text_uses_localized_pretranslated_label(self, rf, pretranslated_phrase_snippet, btn_type):
+        """Pretranslated label: data-cta-text uses the locale-resolved label for the active locale."""
         es_mx = LocaleFactory(language_code="es-MX")
         PretranslatedPhrase.objects.create(
             locale=es_mx,
@@ -1028,29 +912,29 @@ class TestButtonCtaText:
             live=True,
         )
         block, raw = _button_block_and_value(btn_type, pretranslated_label=pretranslated_phrase_snippet.pk)
-        ctx = _render_context(rf.get("/"))
 
         with translation.override("en-US"):
-            html_en = block.render(block.to_python(raw), context=dict(ctx))
-        with translation.override("es-mx"):
-            html_es = block.render(block.to_python(raw), context=dict(ctx))
+            context = _render_context(rf.get("/"), block_text="English Heading")
+            html_en = block.render(block.to_python(raw), context=dict(context))
+            assert _get_cta_text(html_en) == "English Heading - Get Firefox"
+        with translation.override("es-MX"):
+            context = _render_context(rf.get("/"), block_text="Título en Español")
+            html_es = block.render(block.to_python(raw), context=dict(context))
+            assert _get_cta_text(html_es) == "Título en Español - Obtén Firefox"
 
-        assert _get_cta_text(html_en) == _get_cta_text(html_es) == "Heading - Get Firefox"
-
-    @pytest.mark.parametrize("btn_type", ["button", "uitour_button"])
-    def test_cta_text_derives_from_custom_label(self, rf, btn_type):
+    @pytest.mark.parametrize("btn_type", ["button", "uitour_button", "focus_button"])
+    def test_cta_text_uses_custom_label(self, rf, btn_type):
         """Custom label: data-cta-text tracks the editor-typed text."""
-        ctx = _render_context(rf.get("/"))
-        block, raw = _button_block_and_value(btn_type, custom_label="Learn more")
-        html = block.render(block.to_python(raw), context=dict(ctx))
-        assert _get_cta_text(html) == "Heading - Learn more"
-
-    def test_focus_button_cta_text_is_block_heading_only(self, rf):
-        """FirefoxFocusButtonBlock: analytics_text is block_text only — button label is excluded."""
-        ctx = _render_context(rf.get("/"))
-        block, raw = _button_block_and_value("focus_button", custom_label="Download Focus")
-        html = block.render(block.to_python(raw), context=dict(ctx))
-        assert _get_cta_text(html) == "Heading"
+        with translation.override("en-US"):
+            context = _render_context(rf.get("/"), block_text="English Heading")
+            block, raw = _button_block_and_value(btn_type, custom_label="Learn more")
+            html = block.render(block.to_python(raw), context=dict(context))
+            assert _get_cta_text(html) == "English Heading - Learn more"
+        with translation.override("es-MX"):
+            context = _render_context(rf.get("/"), block_text="Título en Español")
+            block, raw = _button_block_and_value(btn_type, custom_label="Saber más")
+            html = block.render(block.to_python(raw), context=dict(context))
+            assert _get_cta_text(html) == "Título en Español - Saber más"
 
 
 def assert_tags_content_item(tags_value: list, rendered_element: BeautifulSoup):
