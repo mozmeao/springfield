@@ -5,6 +5,7 @@
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
 _IMAGE_MEDIA = [
@@ -24,6 +25,7 @@ _IMAGE_MEDIA = [
 
 
 def get_showcase_variants() -> list[dict]:
+    buttons = get_button_variants()
     return [
         {
             "type": "showcase",
@@ -59,6 +61,18 @@ def get_showcase_variants() -> list[dict]:
                 "caption_description": '<p data-block-key="2026sh3d">The full layout spans the entire width of the container.</p>',
             },
             "id": "2026sh01-0000-0000-0000-000000000003",
+        },
+        {
+            "type": "showcase",
+            "value": {
+                "settings": {"layout": "default"},
+                "headline": '<p data-block-key="2026sh4h">Showcase - With CTA</p>',
+                "media": _IMAGE_MEDIA,
+                "caption_title": "",
+                "caption_description": '<p data-block-key="2026sh4d">This variant includes a CTA button row below the image.</p>',
+                "cta": [dict(buttons["primary"], id="2026sh04-0000-0000-0000-000000000001")],
+            },
+            "id": "2026sh01-0000-0000-0000-000000000004",
         },
     ]
 

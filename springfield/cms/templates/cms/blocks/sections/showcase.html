@@ -35,4 +35,11 @@
     {% endif %}
     {{ value.caption_description|richtext }}
   </content:caption>
+  {% if value.cta %}
+  <content:cta>
+    {% for cta in value.cta %}
+      {% include_block cta %}
+    {% endfor %}
+  </content:cta>
+  {% endif %}
 </include:showcase>
