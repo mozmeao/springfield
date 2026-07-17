@@ -7,12 +7,11 @@
 {% set block_text =  value.headline|richtext|remove_tags %}
 {% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 
-
 <include:conditional-display condition_settings="{{ value.settings.show_to }}">
   <include:illustration-card variant="icon" expand_link="{{ value.settings.expand_link }}">
     <content:media>
       <include:icon
-        icon_name="{{ value.icon }}"
+        icon_name="{{ value.icon_name }}"
         hidden="true"
       />
     </content:media>

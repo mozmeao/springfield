@@ -20,7 +20,7 @@
       {{ value.main_card.superheading|richtext|remove_p_tag }}
     </p>
     <{{ card_heading_level }} class="fl-card-gallery-heading">
-      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.main_card.icon }}" /></span>
+      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.main_card.icon_name }}" /></span>
       {{ value.main_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>
     <div class="fl-card-gallery-body">
@@ -49,7 +49,7 @@
       {{ value.secondary_card.superheading|richtext|remove_p_tag }}
     </div>
     <{{ card_heading_level }} class="fl-card-gallery-heading">
-      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.secondary_card.icon }}" /></span>
+      <span class="fl-card-gallery-icon"><include:icon icon_name="{{ value.secondary_card.icon_name }}" /></span>
       {{ value.secondary_card.headline|richtext|remove_p_tag }}
     </{{ card_heading_level }}>
     <div class="fl-card-gallery-body">
