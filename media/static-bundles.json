@@ -118,6 +118,12 @@
     },
     {
       "files": [
+        "css/firefox/all-form/all-form.scss"
+      ],
+      "name": "firefox_all_form"
+    },
+    {
+      "files": [
         "css/firefox/features/index.scss"
       ],
       "name": "firefox-features-index"
@@ -616,6 +622,12 @@
         "js/firefox/all/all-init-v2.es6.js"
       ],
       "name": "firefox_all-v2"
+    },
+    {
+      "files": [
+        "js/firefox/all-form/all-form.js"
+      ],
+      "name": "firefox_all_form"
     },
     {
       "files": [

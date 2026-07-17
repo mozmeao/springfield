@@ -1,0 +1,68 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% set campaign = "firefox-all" %}
+
+{% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
+
+{% block page_title %}Firefox download options{% endblock %}
+
+{% block content %}
+
+<div class="fl-main">
+  <div class="fl-section">
+
+    <h1>Firefox download options</h1>
+    <form method="get" action="{{ url('firefox.all_form.result') }}">
+
+      <label for="os">Operating System</label>
+      <select id="os" name="os" required>
+        <option value="" selected></option>
+        {% macro os_options(slugs) %}
+          {% for value, label in installers if value in slugs %}
+            {% set ca = installer_channel_actions.get(value, {}) %}
+            <option value="{{ value }}"
+              {% if ca.get('release') %}data-release-actions="{{ ca['release'] }}"{% endif %}
+              {% if ca.get('esr') %}data-esr-actions="{{ ca['esr'] }}"{% endif %}
+              {% if ca.get('esr_next') %}data-esr-next-actions="{{ ca['esr_next'] }}"{% endif %}
+              {% if ca.get('beta') %}data-beta-actions="{{ ca['beta'] }}"{% endif %}
+              {% if ca.get('dev') %}data-dev-actions="{{ ca['dev'] }}"{% endif %}
+              {% if ca.get('nightly') %}data-nightly-actions="{{ ca['nightly'] }}"{% endif %}
+            >{{ label }}</option>
+          {% endfor %}
+        {% endmacro %}
+        <optgroup label="Apple">{{ os_options(('ios', 'osx', 'osx-pkg')) }}</optgroup>
+        <optgroup label="Google">{{ os_options(('android',)) }}</optgroup>
+        <optgroup label="Microsoft">{{ os_options(('win', 'win-msi', 'win64', 'win64-msi', 'win64-aarch64')) }}</optgroup>
+        <optgroup label="Linux">{{ os_options(('linux', 'linux64', 'linux64-aarch64')) }}</optgroup>
+      </select>
+
+      <br>
+      <label for="release">Release Type</label>
+      <select id="release" name="release" required>
+        {% for value, label in release_types %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+      </select>
+      <br>
+      <label for="language">Language</label>
+      <select id="language" name="language" required>
+        {% for value, label in languages %}<option value="{{ value }}"{{ ' selected' if value == selected_language }}>{{ label }}</option>{% endfor %}
+      </select>
+      <br>
+      <button type="submit" name="action" value="download">Download</button>
+      <button type="submit" name="action" value="store">Store</button>
+      <button type="submit" name="action" value="apk">APK</button>
+      <button type="submit" name="action" value="apt">APT</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('firefox_all_form') }}
+{% endblock %}

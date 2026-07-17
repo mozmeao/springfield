@@ -23,6 +23,7 @@ from lib.l10n_utils.fluent import ftl, ftl_file_is_active
 from springfield.base import waffle
 from springfield.base.urlresolvers import reverse
 from springfield.cms.models.pages import WhatsNewPage2026
+from springfield.firefox import all_form
 from springfield.firefox.firefox_details import (
     firefox_android,
     firefox_desktop,
@@ -418,6 +419,111 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
         )
 
     return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)
+
+
+@require_safe
+def firefox_all_form(request):
+    # Temporary, switch-gated URL for the new "all-form" download page iteration.
+    # Hidden (404) until the `all-form` switch is enabled.
+    if not waffle.switch("all-form"):
+        raise Http404()
+    languages = all_form.get_languages()
+    language_codes = {code for code, _ in languages}
+    selected_language = request.locale if request.locale in language_codes else "en-US"
+    return l10n_utils.render(
+        request,
+        "firefox/all-form/base.html",
+        {
+            "installers": all_form.get_installers(),
+            "installer_channel_actions": all_form.get_installer_channel_actions(),
+            "release_types": all_form.get_release_types(),
+            "languages": languages,
+            "selected_language": selected_language,
+        },
+    )
+
+
+@require_safe
+def firefox_all_form_result(request):
+    # Temporary, switch-gated results page for the new "all-form" download form.
+    # Echoes the submitted values back; hidden (404) until the `all-form` switch is enabled.
+    if not waffle.switch("all-form"):
+        raise Http404()
+    os_slug = request.GET.get("os", "")
+    release = request.GET.get("release", "")
+    language = request.GET.get("language", "")
+    action = request.GET.get("action", "")
+    form_data = {key: request.GET.get(key) for key in request.GET}
+
+    installers = all_form.get_installers()
+    release_types = all_form.get_release_types()
+    valid_actions = frozenset({"download", "store", "apk", "apt"})
+
+    validation_errors = []
+    if not os_slug:
+        validation_errors.append("No operating system selected.")
+    elif os_slug not in {slug for slug, _ in installers}:
+        validation_errors.append(f"'{os_slug}' is not a recognised operating system.")
+    if not release:
+        validation_errors.append("No release type selected.")
+    elif release not in {val for val, _ in release_types}:
+        validation_errors.append(f"'{release}' is not a recognised release type.")
+    if not language:
+        validation_errors.append("No language selected.")
+    if not action:
+        validation_errors.append("No action selected.")
+    elif action not in valid_actions:
+        validation_errors.append(f"'{action}' is not a recognised action.")
+
+    ctx = {"form_data": form_data, "validation_errors": validation_errors, "language_valid": None}
+
+    if not validation_errors:
+        os_label = next((lbl for sl, lbl in installers if sl == os_slug), os_slug)
+        channel_label = next((lbl for val, lbl in release_types if val == release), release)
+        lang_info = product_details.languages.get(language)
+        language_label = lang_info["English"] if lang_info else language
+
+        _, language_valid = all_form.get_valid_language(os_slug, release, language)
+        download_url = all_form.get_download_url(os_slug=os_slug, release=release, language=language) if language_valid is not False else None
+        store_url = all_form.get_store_url(os_slug, release)
+        apk_url = all_form.get_android_apk_url(release) if os_slug == "android" else None
+        apt_url = all_form.get_apt_url(os_slug, release)
+
+        proposed = {"download": download_url, "store": store_url, "apk": apk_url, "apt": apt_url}.get(action)
+
+        if action == "store":
+            action_label = {
+                "android": "Play Store",
+                "ios": "App Store",
+                "win": "Microsoft Store",
+                "win64": "Microsoft Store",
+                "win64-aarch64": "Microsoft Store",
+            }.get(os_slug, "Store")
+        else:
+            action_label = {"download": "Direct download", "apk": "APK", "apt": "APT"}.get(action, action)
+
+        if proposed is None:
+            error_reason = "language" if language_valid is False and action == "download" else "channel"
+        else:
+            error_reason = None
+
+        ctx.update(
+            {
+                "action_label": action_label,
+                "proposed": proposed,
+                "error_reason": error_reason,
+                "os_label": os_label,
+                "channel_label": channel_label,
+                "language_label": language_label,
+                "download_url": download_url,
+                "store_url": store_url,
+                "apk_url": apk_url,
+                "apt_url": apt_url,
+                "language_valid": language_valid,
+            }
+        )
+
+    return l10n_utils.render(request, "firefox/all-form/result.html", ctx)
 
 
 class DownloadThanksView(L10nTemplateView):
