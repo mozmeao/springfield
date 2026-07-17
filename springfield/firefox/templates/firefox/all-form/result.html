@@ -1,0 +1,61 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
+
+{% block page_title %}Download Firefox — form results{% endblock %}
+
+{% block content %}
+<div class="fl-main">
+  <div class="fl-section">
+
+    {% if validation_errors %}
+      <h2>Incomplete form submission</h2>
+      <ul>
+        {% for error in validation_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <h2>Proposed forward</h2>
+      {% if proposed %}
+        <p><a href="{{ proposed }}">{{ proposed }}</a></p>
+      {% elif error_reason == 'language' %}
+        <p>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}.</p>
+      {% else %}
+        <p>{{ channel_label }} on {{ os_label }} is not available in {{ action_label }}.</p>
+      {% endif %}
+
+      <h2>Matching product links</h2>
+      <p>Direct Download: {% if download_url %}<a href="{{ download_url }}">{{ download_url }}</a>{% else %}None{% endif %}</p>
+      {% if apk_url %}<p>APK: <a href="{{ apk_url }}">{{ apk_url }}</a></p>{% endif %}
+      {% if apt_url %}<p>APT: <a href="{{ apt_url }}">{{ apt_url }}</a></p>{% endif %}
+      {% if store_url %}<p>Store: <a href="{{ store_url }}">{{ store_url }}</a></p>{% endif %}
+    {% endif %}
+
+    <h2>Form values</h2>
+    {% if form_data %}
+      <dl>
+        {% for key, value in form_data.items() %}
+          <dt><strong>{{ key }}</strong></dt>
+          <dd>
+            {{ value }}
+            {% if key == 'language' and not validation_errors %}
+              {% if language_valid is none %}(not validated — universal build)
+              {% elif language_valid %}(validated)
+              {% else %}(not available)
+              {% endif %}
+            {% endif %}
+          </dd>
+        {% endfor %}
+      </dl>
+    {% else %}
+      <p>No data submitted.</p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
