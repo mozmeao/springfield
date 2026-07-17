@@ -3557,3 +3557,102 @@ class CountrySelectFieldBlock(BaseField):
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
+
+
+# Navigation
+
+
+class NavLinkValue(blocks.StructValue):
+    def is_external(self):
+        link = self["link"]
+        if link.get("link_to") == "custom_url":
+            return (link.get("custom_url") or "").startswith(("http://", "https://"))
+        return False
+
+
+class NavLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    link = SpringfieldLinkBlock()
+    icon = IconChoiceBlock(required=False, label="Icon")
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="left",
+        required=False,
+        label="Icon position",
+    )
+    has_button_style = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Has button style",
+        help_text="Render this link as a button instead of a plain nav link.",
+    )
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        value_class = NavLinkValue
+        template = "cms/blocks/nav-link.html"
+        icon = "link"
+        label = "Nav Link"
+        label_format = "Nav Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "link"],
+            settings=["icon", "icon_position", "has_button_style", "analytics_id"],
+        )
+
+
+class NavSeparatorBlock(blocks.StaticBlock):
+    """A horizontal rule separating groups of links within a column."""
+
+    class Meta:
+        template = "cms/blocks/nav-separator.html"
+        label = "Horizontal Rule"
+        icon = "minus"
+        admin_text = "Horizontal rule — separates groups of links."
+
+
+class NavColumnBlock(blocks.StreamBlock):
+    """A single column within a folder: a sequence of links and horizontal rules."""
+
+    link = NavLinkBlock()
+    separator = NavSeparatorBlock()
+
+    class Meta:
+        template = "cms/blocks/nav-column.html"
+        label = "Column"
+        icon = "list-ul"
+
+
+class NavFolderBlock(LabelSourceMixin, blocks.StructBlock):
+    sub_items = blocks.ListBlock(NavColumnBlock(), label="Sub-items")
+
+    class Meta:
+        template = "cms/blocks/nav-folder.html"
+        icon = "folder-open-1"
+        label = "Folder"
+        label_format = "Folder - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "sub_items"],
+        )
+
+
+class TopLevelLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    link = SpringfieldLinkBlock()
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        value_class = NavLinkValue
+        template = "cms/blocks/nav-top-level-link.html"
+        icon = "link"
+        label = "Top Level Link"
+        label_format = "Top Level Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "link"],
+            settings=["analytics_id"],
+        )

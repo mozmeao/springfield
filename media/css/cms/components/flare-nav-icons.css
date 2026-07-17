@@ -5,8 +5,6 @@
 */
 
 .fl-nav-icon-up-right-arrow {
-    color: var(--token-color-nav-icon-purple);
-
     --icon-src: url('/media/img/firefox/flare/nav/append-up-right-24.svg');
 }
 
