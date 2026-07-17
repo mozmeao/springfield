@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0114_merge_20260714_1149"),
+        ("cms", "0115_freeformpage2026_pre_footer_image_and_more"),
     ]
 
     operations = [
