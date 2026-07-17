@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0115_freeformpage2026_pre_footer_image_and_more"),
+        ("cms", "0118_editors_moderators_navigationsnippet_permissions"),
     ]
 
     operations = [
