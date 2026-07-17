@@ -349,6 +349,50 @@ context:
         <p>Content with class <code>.conditional-display.condition-ai-controls-unavailable</code>
           will be displayed when JS adds class <code>.ai-controls-unavailable</code> to
           <code>&lt;html&gt;</code> via <code>UITour.getConfiguration('aiControls')</code>.</p>
+    - name: "Bind to UI Tour: visible UI Tour button (shown)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      ai_controls_condition: null
+      bind_to_uitour: true
+      html_class:
+      body_class:
+      contents: |
+        <p>The wrapping <code>.conditional-display.condition-bind-uitour</code> div is revealed by the
+          CSS rule <code>.condition-bind-uitour:has(.ui-tour:not(.is-hidden))</code> because it contains
+          a visible UI Tour button. No JS is added for this condition &mdash; in production the button
+          starts hidden (<code>.ui-tour.is-hidden</code>) and <code>ui-tour-buttons.js</code> reveals it
+          only in Firefox Desktop, which is what makes the block appear.</p>
+        <div class="ui-tour">
+          <button type="button" class="fl-button ui-tour-open-new-tab">Open New Tab</button>
+        </div>
+    - name: "Bind to UI Tour: hidden UI Tour button (not shown)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      ai_controls_condition: null
+      bind_to_uitour: true
+      html_class:
+      body_class:
+      unconditional_contents: |
+        <p>Nothing is shown above this note: the only UI Tour button inside the
+          <code>.condition-bind-uitour</code> wrapper carries <code>.is-hidden</code>, so
+          <code>:has(.ui-tour:not(.is-hidden))</code> does not match and the base
+          <code>.conditional-display { display: none }</code> rule keeps the block hidden.
+          This mirrors a non-Firefox browser, where the button is never revealed.</p>
+      contents: |
+        <p>This paragraph is not displayed because its only UI Tour button is hidden.</p>
+        <div class="ui-tour is-hidden">
+          <button type="button" class="fl-button ui-tour-open-new-tab">Open New Tab</button>
+        </div>
     - name: "Combo: Windows + Firefox users"
       platform_conditions:
         - windows
