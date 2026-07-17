@@ -51,7 +51,7 @@
 .fl-two-column-cards-light-dark
     .fl-two-column-card-wrapper:first-child
     .fl-two-column-card {
-    --current-card-bg-color: var(--theme-purple-card-bg-color);
+    --current-card-bg-color: var(--two-column-light-dark-first-card-bg);
     background-color: var(--two-column-light-dark-first-card-bg);
 }
 
