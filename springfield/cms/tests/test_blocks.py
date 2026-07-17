@@ -72,6 +72,7 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
@@ -2137,6 +2138,48 @@ def test_mobile_store_qr_code_block(index_page, placeholder_images, rf):
     assert lower_mobile_image_div.find("img"), "Mobile image should render an img element"
 
 
+def test_enterprise_download_block(index_page, rf):
+    page = get_enterprise_download_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper, "Upper section should exist when upper_content has blocks"
+    assert lower, "Lower section should exist when content has blocks"
+
+    for region in (upper, lower):
+        download_section = region.find("section", id="download")
+        assert download_section, "Enterprise download section should render"
+        assert "Enterprise downloads" in download_section.get_text()
+
+        platform_blocks = download_section.find_all("section", class_="enterprise-download-block")
+        platform_classes = [cls for block in platform_blocks for cls in block["class"]]
+        assert "platform-win64" in platform_classes
+        assert "platform-mac" in platform_classes
+        assert "platform-linux" in platform_classes
+
+        win64_links = download_section.find("div", id="win64-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=win64") for link in win64_links)
+
+        mac_links = download_section.find("div", id="mac-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=osx") for link in mac_links)
+
+        linux_links = download_section.find("div", id="linux-download-list").find_all("a", class_="download-link")
+        assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
+
+        resources = download_section.find("div", class_="enterprise-download-resources")
+        assert resources, "Resources block should render"
+        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
+        assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
+
+        assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
+
+
 def test_freeform_page_split_layout(index_page, rf):
     page = get_freeform_page_test_page()
 
@@ -2923,6 +2966,12 @@ def test_showcase_block(index_page, placeholder_images, rf):
 
             caption_description_text = BeautifulSoup(variant["value"]["caption_description"], "html.parser").get_text()
             assert caption_description_text in caption.get_text()
+
+            cta = showcase_el.find("div", class_="fl-showcase-cta")
+            if variant["value"].get("cta"):
+                assert cta, "Expected .fl-showcase-cta to be present when CTA buttons are set"
+            else:
+                assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
 
 
 def test_card_gallery_block(index_page, placeholder_images, rf):
@@ -4045,6 +4094,57 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
     assert "uitour_button" in button_types_with
     assert "uitour_button" not in button_types_without
+
+
+def _make_button_row_raw(count=1, spacing="", alignment="", help_text=""):
+    variants = get_button_variants()
+    buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
+    return {"spacing": spacing, "alignment": alignment, "buttons": buttons, "help_text": help_text}
+
+
+def _render_button_row(raw_value, rf):
+    request = rf.get("/en-US/")
+    block = ButtonRowBlock()
+    bound = block.to_python(raw_value)
+    return block.render(bound, context=_render_context(request))
+
+
+def test_button_row_renders_center_class_by_default(rf):
+    html = _render_button_row(_make_button_row_raw(alignment=""), rf)
+    assert "is-center" in html
+
+
+def test_button_row_renders_start_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="start"), rf)
+    assert "is-start" in html
+
+
+def test_button_row_renders_end_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="end"), rf)
+    assert "is-end" in html
+
+
+@pytest.mark.parametrize("spacing", ["small", "large"])
+def test_button_row_renders_spacing_class(spacing, rf):
+    html = _render_button_row(_make_button_row_raw(spacing=spacing), rf)
+    assert f"fl-buttons-spacing-{spacing}" in html
+
+
+def test_button_row_no_spacing_class_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(spacing=""), rf)
+    assert "fl-buttons-spacing" not in html
+
+
+def test_button_row_renders_help_text(rf):
+    raw = _make_button_row_raw(help_text='<p data-block-key="test">Help text here.</p>')
+    html = _render_button_row(raw, rf)
+    assert "fl-button-row-help-text" in html
+    assert "Help text here." in html
+
+
+def test_button_row_omits_help_text_div_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(help_text=""), rf)
+    assert "fl-button-row-help-text" not in html
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

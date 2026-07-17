@@ -16,4 +16,9 @@
         {{ contents.caption }}
       </figcaption>
   </figure>
+  {% if contents.cta %}
+  <div class="fl-showcase-cta">
+    {{ contents.cta }}
+  </div>
+  {% endif %}
 </section>

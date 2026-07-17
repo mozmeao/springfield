@@ -55,6 +55,7 @@ from springfield.cms.blocks import (
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
+    EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
     HiddenFieldBlock,
@@ -232,6 +233,35 @@ class UTMParamsMixin(models.Model):
         context = super().get_context(request, *args, **kwargs)
         context["utm_parameters"] = self.get_utm_parameters()
         return context
+
+
+PRE_FOOTER_IMAGE_KIT = "kit"
+PRE_FOOTER_IMAGE_GLOBE = "globe"
+PRE_FOOTER_IMAGE_NONE = "none"
+PRE_FOOTER_IMAGE_CHOICES = [
+    (PRE_FOOTER_IMAGE_KIT, "Show Kit on Newsletter form"),
+    (PRE_FOOTER_IMAGE_GLOBE, "Show globe pictogram on Newsletter form"),
+    (PRE_FOOTER_IMAGE_NONE, "Hide Newsletter form image"),
+]
+
+
+class PreFooterImageMixin(models.Model):
+    """Per-page choice of the pre-footer newsletter form illustration."""
+
+    pre_footer_image = models.CharField(
+        max_length=20,
+        choices=PRE_FOOTER_IMAGE_CHOICES,
+        default=PRE_FOOTER_IMAGE_KIT,
+        verbose_name="Pre-footer options",
+        help_text="Image shown alongside the pre-footer newsletter form.",
+    )
+
+    pre_footer_image_panels = [
+        FieldPanel("pre_footer_image"),
+    ]
+
+    class Meta:
+        abstract = True
 
 
 class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
@@ -952,6 +982,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -1038,7 +1069,7 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
-class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -1131,11 +1162,17 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         MultiFieldPanel(
             [
                 FieldPanel("show_pre_footer"),
+                *PreFooterImageMixin.pre_footer_image_panels,
                 InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
             ],
             heading="Snippets",
         ),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("pre_footer_image"),
     ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -1194,7 +1231,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -1258,6 +1295,15 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
             ],
             heading="Appearance",
         ),
+        MultiFieldPanel(
+            PreFooterImageMixin.pre_footer_image_panels,
+            heading="Snippets",
+        ),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("pre_footer_image"),
     ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
