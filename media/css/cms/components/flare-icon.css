@@ -85,7 +85,7 @@
 }
 
 .fl-icon-android {
-    --icon-src: url('/media/img/firefox/flare/icons/android.svg');
+    --icon-src: url('/media/img/firefox/flare/icons/desktop-16/os/android.svg');
 }
 
 .fl-icon-app-menu {
@@ -109,7 +109,7 @@
 }
 
 .fl-icon-apple {
-    --icon-src: url('/media/img/firefox/flare/icons/apple.svg');
+    --icon-src: url('/media/img/firefox/flare/icons/desktop-16/os/apple.svg');
 }
 
 .fl-icon-applied-policy {
