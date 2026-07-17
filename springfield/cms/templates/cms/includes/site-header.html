@@ -19,7 +19,13 @@
 
 {% if page_navigation and page_navigation.cta_button %}
   {% set custom_nav_cta %}
-    {% set block_position = "nav" %}
+    {% set block_position = "topnav" %}
+    {% set utm_parameters = {
+        "utm_source": "www.firefox.com",
+        "utm_medium": "referral",
+        "utm_campaign": "nav",
+        "utm_content": "topnav"
+    } %}
     {% include_block page_navigation.cta_button %}
   {% endset %}
 {% endif %}

@@ -21,6 +21,7 @@ from springfield.cms.fixtures.navigation_fixtures import build_top_level_link, g
 from springfield.cms.models import NavigationSnippet, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import FreeFormPage2026Factory, StructuralPageFactory
+from springfield.firefox.templatetags.misc import slugify
 
 pytestmark = [pytest.mark.django_db]
 
@@ -30,7 +31,6 @@ UTM_PARAMETERS = {
     "utm_source": "www.firefox.com",
     "utm_medium": "referral",
     "utm_campaign": "nav",
-    "utm_content": "browser",
 }
 
 
@@ -80,9 +80,9 @@ def is_external(url):
     return url.startswith(("http://", "https://"))
 
 
-def expected_href(url):
+def expected_href(url, utm_content=""):
     """The href a link should render, including the nav's UTM params for Mozilla domains."""
-    return add_utm_parameters({"utm_parameters": UTM_PARAMETERS}, url)
+    return add_utm_parameters({"utm_parameters": {**UTM_PARAMETERS, "utm_content": utm_content}}, url)
 
 
 def assert_link_icon(element, value):
@@ -127,13 +127,13 @@ def assert_analytics(element, cta_text, cta_position, analytics_id):
     assert element["data-cta-uid"] == analytics_id
 
 
-def assert_nav_link(element, value, cta_text, cta_position):
+def assert_nav_link(element, value, cta_text, cta_position, utm_content=""):
     """A plain nav link: <li><a class="fl-nav-link">."""
     assert element.name == "a"
     assert "fl-nav-link" in element["class"]
     assert element.parent.name == "li"
     assert element.get_text(strip=True) == value["custom_label"]
-    assert element["href"] == expected_href(value["link"]["custom_url"])
+    assert element["href"] == expected_href(value["link"]["custom_url"], utm_content=utm_content)
     assert_analytics(element, cta_text=cta_text, cta_position=cta_position, analytics_id=value["analytics_id"])
     assert_external_and_target(element, value)
     assert_link_icon(element, value)
@@ -145,7 +145,7 @@ def assert_nav_button(element, value, cta_text, cta_position):
     assert {"fl-button", "button-ghost", "fl-button-small"} <= set(element["class"])
     assert element.parent.name != "li"
     assert element.get_text(strip=True) == value["custom_label"]
-    assert element["href"] == expected_href(value["link"]["custom_url"])
+    assert element["href"] == expected_href(value["link"]["custom_url"], utm_content="topnav")
     assert_analytics(element, cta_text=cta_text, cta_position=cta_position, analytics_id=value["analytics_id"])
     if value["link"]["new_window"]:
         assert element["target"] == "_blank"
@@ -164,7 +164,7 @@ def assert_top_level_link(category, value, cta_position):
     link = category.find("a", class_="fl-menu-title")
     assert "fl-menu-top-level-link" in link["class"]
     assert link.get_text(strip=True) == value["custom_label"]
-    assert link["href"] == expected_href(value["link"]["custom_url"])
+    assert link["href"] == expected_href(value["link"]["custom_url"], utm_content=slugify(value["custom_label"]))
     assert_analytics(link, cta_text=value["custom_label"], cta_position=cta_position, analytics_id=value["analytics_id"])
     assert_external_and_target(link, value)
 
@@ -189,7 +189,7 @@ def assert_column(column_element, children, folder_label, position):
         if value["has_button_style"]:
             assert_nav_button(element, value, cta_text=cta_text, cta_position=cta_position)
         else:
-            assert_nav_link(element, value, cta_text=cta_text, cta_position=cta_position)
+            assert_nav_link(element, value, cta_text=cta_text, cta_position=cta_position, utm_content=slugify(folder_label))
 
 
 def assert_folder(category, item, *, position):
