@@ -8,11 +8,12 @@
 <div class="fl-scallop-decoration">
   <div class="fl-scallop-decoration-inner"></div>
 </div>
+{% set enterprise_theme = page is defined and page.theme == 'enterprise' %}
 <section
   class="
     fl-featured-image-section
     has-gradient-bottom
-    {% if not page.theme == 'enterprise' %}fl-force-dark-theme{% endif %}
+    {% if not enterprise_theme %}fl-force-dark-theme{% endif %}
     ">
   <div class="fl-section">
     <div class="fl-section-container">

@@ -16,8 +16,8 @@
     --upper-page-theme-color: white;
 
     /* colors */
-    --token-color-enterprise-blue: #0061FA;
-    --token-color-enterprise-blue-hover: #004fce;
+    --token-color-enterprise-blue: #025289;
+    --token-color-enterprise-blue-hover: #01416b;
 
     /* button overrides */
 
@@ -38,11 +38,11 @@
     --token-color-medium-blue: #245589;
     --token-color-link-blue: #327CBC;
     --token-color-nav-icon-blue: #89CCFF;
-    --token-color-light-blue: #439EE3;
-    --token-color-light-blue-20: rgba(67,158,227,.2);
-    --token-color-light-blue-40: rgba(67,158,227,.4);
-    --token-color-light-blue-60: rgba(67,158,227,.6);
-    --token-color-light-blue-80: rgba(67,158,227,.8);
+    --token-color-light-blue: #dff0ff;
+    --token-color-light-blue-20: rgba(223, 240, 255,.2);
+    --token-color-light-blue-40: rgba(223, 240, 255,.4);
+    --token-color-light-blue-60: rgba(223, 240, 255,.6);
+    --token-color-light-blue-80: rgba(223, 240, 255,.8);
     --token-color-soft-blue: #E7ECF8;
     --token-color-soft-blue-2: #D8ECFC;
     --token-color-soft-blue-3: #C9E3FF;
@@ -52,13 +52,16 @@
     --token-color-soft-blue-40: rgba(231,236,248,.4);
     --token-color-soft-blue-64: rgba(231,236,248,.64);
     --token-gradient-privacy: linear-gradient(90deg,#61B4FF 0%,var(--token-color-dark-blue) 100%);
-    --token-gradient-blue: radial-gradient(122.66% 137.66% at 50% 0%,#61B4FF 0%,var(--token-color-dark-blue) 100%);
+    --token-gradient-blue: radial-gradient(135.31% 135.31% at 50% 0%, var(--token-color-light-blue) 0%, #61B4FF 100%);
     --token-gradient-subnav-dark: linear-gradient(0deg,var(--token-color-dark-blue) 0%,var(--token-color-blue) 100%);
     --token-gradient-dark-blue: linear-gradient(to bottom,var(--token-color-dark-blue-50) 0%,var(--token-color-dark-blue-22) 100%);
     --token-gradient-soft-blue: linear-gradient(180deg,var(--token-color-soft-blue-64) 0%,var(--token-color-white) 100%);
     --token-gradient-radial-blue: radial-gradient(74.06% 118.24% at 50% -18.24%,var(--token-color-light-blue) 0%,var(--token-color-dark-blue) 100%);
     --token-gradient-blurred-bg: radial-gradient( oklch(61.48% 0.1284 246.95deg) 0%, oklch(55.29% 0.1234 249.43deg) 8%, oklch(45.9% 0.1139 252.93deg) 18%, oklch(36.64% 0.1039 256.12deg) 30%, oklch(28.6% 0.0946 258.6deg) 42%, oklch(24.67% 0.0885 259.38deg) 54%, oklch(23.64% 0.084 258.65deg) 68%, oklch(23.5% 0.0804 258.63deg) 82%, oklch(22.96% 0.0771 258.36deg) 100%);
     --notification-box-shadow: 0px 0px 24px 2px rgba(67,158,227,.2);
+
+
+
 
     /* overriding purple tokens with blue tokens. little hacky, but lets experiment. */
 
@@ -90,6 +93,10 @@
     --token-gradient-dark-purple: var(--token-gradient-dark-blue);
     --token-gradient-soft-purple: var(--token-gradient-soft-blue);
     --token-gradient-radial-purple: var(--token-gradient-radial-blue);
+
+    /* two-card color deviations */
+    --two-column-light-light-first-card-bg: var(--token-color-light-blue);
+    --two-column-light-light-second-card-bg: var(--token-color-grey-1);
 }
 
 .fl-section-container > .fl-heading,
@@ -143,4 +150,27 @@ body {
     color: var(--fl-theme-color-text);
     border-color: var(--fl-subtle-border-color);
 }
+}
+
+.fl-button.button-secondary {
+    --button-border-color: var(--token-color-enterprise-blue);
+    --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+}
+
+.fl-banner.fl-banner-purple-radial-gradient,
+.fl-banner.fl-banner-dark-purple-gradient {
+    --fl-theme-color-text: var(--fl-theme-color-text);
+}
+
+.fl-banner-dark-purple-gradient {
+    background-color: var(--token-color-light-blue);
+    background-image: none;
+}
+
+
+@media (--viewport-md-up) {
+    .fl-logo-fx {
+        inline-size: 237px;
+        background-size: 237px 36px;
+    }
 }

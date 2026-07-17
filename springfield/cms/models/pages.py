@@ -235,6 +235,41 @@ class UTMParamsMixin(models.Model):
         return context
 
 
+class PageThemeMixin(models.Model):
+    theme = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=THEME_CHOICES,
+        default=FIREFOX_THEME,
+        verbose_name="Theme",
+        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
+    )
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
+    )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
+
+    theme_panels = [
+        FieldPanel("theme"),
+        FieldPanel("body_class"),
+        FieldPanel("extra_js"),
+    ]
+
+    class Meta:
+        abstract = True
+
+
 PRE_FOOTER_IMAGE_KIT = "kit"
 PRE_FOOTER_IMAGE_GLOBE = "globe"
 PRE_FOOTER_IMAGE_NONE = "none"
@@ -1103,7 +1138,9 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
-class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(
+    PageThemeMixin, PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
+):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -1120,14 +1157,6 @@ class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, Q
         null=True,
     )
 
-    theme = models.CharField(
-        max_length=20,
-        blank=True,
-        choices=THEME_CHOICES,
-        default=FIREFOX_THEME,
-        verbose_name="Theme",
-        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
-    )
     show_pre_footer = models.BooleanField(
         default=True,
         verbose_name="Show Pre-Footer",
@@ -1143,21 +1172,6 @@ class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, Q
         default=True,
         verbose_name="Show Navigation",
         help_text="If true, the navigation menu will be displayed on this page's header bar.",
-    )
-    body_class = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Body Class",
-        help_text=(
-            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
-            "The page will also inject <this>.css, so ensure that exists before using this field."
-        ),
-    )
-    extra_js = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Extra JS",
-        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
     )
     docs = RichTextField(
         blank=True,
@@ -1180,9 +1194,7 @@ class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, Q
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("theme"),
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
+                *PageThemeMixin.theme_panels,
             ],
             heading="Appearance",
         ),
@@ -1236,6 +1248,11 @@ class FreeFormPage2026(PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, Q
         # get_localized() can return None if the snippet isn't translated and published
         return [snippet for snippet in snippets if snippet]
 
+    def clean(self):
+        super().clean()
+        if self.theme == ENTERPRISE_THEME and self.show_pre_footer:
+            raise ValidationError({"show_pre_footer": "Enterprise-themed pages cannot show the pre-footer section."})
+
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
@@ -1269,7 +1286,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -1293,30 +1310,6 @@ class WhatsNewPage2026(PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippe
         use_json_field=True,
     )
 
-    theme = models.CharField(
-        max_length=20,
-        blank=True,
-        choices=THEME_CHOICES,
-        default=FIREFOX_THEME,
-        verbose_name="Theme",
-        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
-    )
-    body_class = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Body Class",
-        help_text=(
-            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
-            "The page will also inject <this>.css, so ensure that exists before using this field."
-        ),
-    )
-    extra_js = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Extra JS",
-        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
-    )
-
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
@@ -1327,14 +1320,15 @@ class WhatsNewPage2026(PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippe
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("theme"),
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
+                *PageThemeMixin.theme_panels,
             ],
             heading="Appearance",
         ),
         MultiFieldPanel(
-            PreFooterImageMixin.pre_footer_image_panels,
+            [
+                *PreFooterImageMixin.pre_footer_image_panels,
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
             heading="Snippets",
         ),
     ]
