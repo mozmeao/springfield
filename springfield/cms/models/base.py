@@ -263,7 +263,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         one — the site default navigation is supplied separately by the header
         template via the get_default_navigation() tag.
         """
-        candidate_pages = [self, *self.get_ancestors().specific().order_by("-depth")]
+        candidate_pages = [self, *self.get_ancestors().live().specific().order_by("-depth")]
         for page in candidate_pages:
             # Ancestors above the routable subtree (the Wagtail root and per-locale
             # root pages) are plain wagtailcore Pages without this field.
