@@ -1346,6 +1346,15 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             default="",
             required=False,
         )
+        alignment = blocks.ChoiceBlock(
+            choices=[
+                ("", "Center"),
+                ("start", "Start"),
+                ("end", "End"),
+            ],
+            default="",
+            required=False,
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=1,
@@ -1359,7 +1368,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["spacing"],
+                settings=["spacing", "alignment"],
             )
 
     return _ButtonRowBlock(**kwargs)
@@ -3016,6 +3025,13 @@ class ShowcaseBlock(blocks.StructBlock):
     media = MediaBlock(max_num=1)
     caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    cta = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=2,
+        required=False,
+        label="Call to Action",
+    )
 
     class Meta:
         template = "cms/blocks/sections/showcase.html"

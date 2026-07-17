@@ -21,7 +21,7 @@
     {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
     {% set analytics_position = "pre-footer-cta-form" %}
     {% set analytics_id = pre_footer_cta_form.analytics_id %}
-    <include:newsletter-form theme="dark">
+    <include:newsletter-form theme="dark" illustration="{{ page.pre_footer_image|default('kit', true) }}">
       <include:heading
         level="h2"
         heading_size="fl-heading-size-3"

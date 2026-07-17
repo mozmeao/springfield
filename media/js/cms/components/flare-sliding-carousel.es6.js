@@ -83,7 +83,12 @@ class SlidingCarousel {
     }
 
     playVideo(videoEl) {
-        videoEl.play();
+        // play() rejects with AbortError when a slide change pauses the video
+        // before the play promise resolves; that's expected here.
+        videoEl.play().catch((error) => {
+            if (error && error.name === 'AbortError') return;
+            throw error;
+        });
         videoEl.autoplay = true;
 
         const btn = this.getAnimationButton(videoEl);

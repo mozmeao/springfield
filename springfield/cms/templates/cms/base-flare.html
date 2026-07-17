@@ -209,7 +209,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         {% set analytics_position = "pre-footer-cta-form" %}
         {% set analytics_id = pre_footer_cta_form.analytics_id %}
           <include:conditional-display firefox_condition="is-firefox">
-            <include:newsletter-form theme="dark">
+            <include:newsletter-form theme="dark" illustration="{{ page.pre_footer_image|default('kit', true) }}">
               <include:heading
                 level="h2"
                 heading_size="fl-heading-size-3"
@@ -264,6 +264,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
+    {% if switch('easter-egg-logo') %}
+    {{ js_bundle('easter-egg-logo') }}
+    {% endif %}
     {% endblock %}
 
     {% block consent_banner_js %}
