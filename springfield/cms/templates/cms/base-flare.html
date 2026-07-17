@@ -264,6 +264,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
+    {% if switch('easter-egg-logo') %}
+    {{ js_bundle('easter-egg-logo') }}
+    {% endif %}
     {% endblock %}
 
     {% block consent_banner_js %}

@@ -783,6 +783,12 @@
     },
     {
       "files": [
+        "js/cms/easter-egg-logo.es6.js"
+      ],
+      "name": "easter-egg-logo"
+    },
+    {
+      "files": [
         "js/firefox/landing/init.es6.js"
       ],
       "name": "firefox_landing"
