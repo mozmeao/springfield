@@ -2963,7 +2963,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
             assert caption_description_text in caption.get_text()
 
             cta = showcase_el.find("div", class_="fl-showcase-cta")
-            if variant["value"].get("cta", {}).get("buttons"):
+            if variant["value"].get("cta"):
                 assert cta, "Expected .fl-showcase-cta to be present when CTA buttons are set"
             else:
                 assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"

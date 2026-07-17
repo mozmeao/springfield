@@ -70,12 +70,7 @@ def get_showcase_variants() -> list[dict]:
                 "media": _IMAGE_MEDIA,
                 "caption_title": "",
                 "caption_description": '<p data-block-key="2026sh4d">This variant includes a CTA button row below the image.</p>',
-                "cta": {
-                    "spacing": "",
-                    "alignment": "",
-                    "buttons": [dict(buttons["primary"], id="2026sh04-0000-0000-0000-000000000001")],
-                    "help_text": "",
-                },
+                "cta": [dict(buttons["primary"], id="2026sh04-0000-0000-0000-000000000001")],
             },
             "id": "2026sh01-0000-0000-0000-000000000004",
         },
