@@ -1244,6 +1244,11 @@ class FreeFormPage2026(
         # get_localized() can return None if the snippet isn't translated and published
         return [snippet for snippet in snippets if snippet]
 
+    def clean(self):
+        super().clean()
+        if self.theme == ENTERPRISE_THEME and self.show_pre_footer:
+            raise ValidationError({"show_pre_footer": "Enterprise-themed pages cannot show the pre-footer section."})
+
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
     """Index page for the Whats New pages that redirect to the latest version's What's New Page."""
