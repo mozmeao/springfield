@@ -33,6 +33,11 @@ const setupEasterEggLogo = () => {
 
     if (!logoLink) return;
     if (logoLink.querySelector('.fl-video')) return;
+    // Custom navigation snippets paint a partner/brand <img> logo and no CSS
+    // wordmark (.fl-logo-fx-custom { background-image: none }). Leave those
+    // alone — the WebM is the Firefox flame, and we'd have no wordmark to
+    // restore on teardown anyway.
+    if (logoLink.classList.contains('fl-logo-fx-custom')) return;
 
     // The WebM is the white/light wordmark, so it only reads against a dark
     // nav. The theme swaps --fl-logo-url between a dark wordmark (light theme)
@@ -97,8 +102,12 @@ const setupEasterEggLogo = () => {
                         hoverTimer = null;
                         isPlaying = true;
                         video.play().catch((error) => {
+                            // AbortError from pause/teardown races is expected.
+                            // For anything else, reset state so a later hover
+                            // can retry — don't rethrow (a throw here escapes
+                            // as an uncatchable unhandled rejection).
                             if (error && error.name === 'AbortError') return;
-                            throw error;
+                            isPlaying = false;
                         });
                     }, HOVER_INTENT_MS);
                 });
