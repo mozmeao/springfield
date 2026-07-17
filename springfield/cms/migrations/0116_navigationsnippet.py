@@ -15,7 +15,7 @@ import springfield.cms.models.snippets
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0114_merge_20260714_1149"),
+        ("cms", "0115_freeformpage2026_pre_footer_image_and_more"),
         ("wagtailcore", "0096_referenceindex_referenceindex_source_object_and_more"),
     ]
 
