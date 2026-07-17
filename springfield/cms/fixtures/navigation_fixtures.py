@@ -133,7 +133,7 @@ def get_navigation_variants() -> list[dict]:
                 build_column(
                     [
                         build_nav_link(
-                            "Protection", custom_url="/features/protection/", icon="lock", block_id="2026nav0-0000-0000-0000-000000000201"
+                            "Protection", custom_url="/features/protection/", icon="lock-fill", block_id="2026nav0-0000-0000-0000-000000000201"
                         ),
                         build_nav_link(
                             "Control", custom_url="/features/control/", icon="cursor-arrow", block_id="2026nav0-0000-0000-0000-000000000202"
@@ -176,12 +176,12 @@ def get_navigation_variants() -> list[dict]:
                 build_column(
                     [
                         build_nav_link(
-                            "Data Protection", custom_url="/privacy/firefox/", icon="lock", block_id="2026nav0-0000-0000-0000-000000000301"
+                            "Data Protection", custom_url="/privacy/firefox/", icon="lock-fill", block_id="2026nav0-0000-0000-0000-000000000301"
                         ),
                         build_nav_link(
                             "Blog",
                             custom_url="https://blog.mozilla.org/en/category/firefox/",
-                            icon="newsfeed",
+                            icon="reader-view-fill",
                             new_window=True,
                             block_id="2026nav0-0000-0000-0000-000000000302",
                         ),
