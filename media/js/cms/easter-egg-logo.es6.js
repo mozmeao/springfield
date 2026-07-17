@@ -34,73 +34,121 @@ const setupEasterEggLogo = () => {
     if (!logoLink) return;
     if (logoLink.querySelector('.fl-video')) return;
 
-    const existingLogo = logoLink.querySelector('img');
-    if (existingLogo) existingLogo.remove();
+    // The WebM is the white/light wordmark, so it only reads against a dark
+    // nav. The theme swaps --fl-logo-url between a dark wordmark (light theme)
+    // and the white one (dark theme); reuse that signal so we only run where
+    // the video won't disappear into a white background (e.g. /features/protection).
+    // Read the custom property rather than the resolved background-image: the
+    // variable stays readable even after activate() blanks background-image, so
+    // we can re-evaluate it when the color scheme flips.
+    const wantsVideo = () =>
+        window
+            .getComputedStyle(logoLink)
+            .getPropertyValue('--fl-logo-url')
+            .includes('logo-word-hor-white');
 
-    // Hide the wordmark that .fl-logo-fx paints as a background.
-    logoLink.style.backgroundImage = 'none';
-    // Widen the logo container so the WebM's flame lands at the same visual
-    // size as the SVG wordmark, and shift it back so the layout doesn't move.
-    logoLink.style.setProperty('inline-size', '130px');
-    logoLink.style.setProperty('block-size', '55px');
-    logoLink.style.setProperty('margin-inline-start', '-5px');
+    // Set by activate(); calling it removes the video and restores the logo.
+    let teardown = null;
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'fl-video';
-    wrapper.style.setProperty('max-block-size', '56px');
+    const activate = () => {
+        if (teardown) return;
 
-    const video = document.createElement('video');
-    video.muted = true;
+        const existingLogo = logoLink.querySelector('img');
+        if (existingLogo) existingLogo.remove();
 
-    const source = document.createElement('source');
-    source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
-    source.type = 'video/webm';
+        // Hide the wordmark that .fl-logo-fx paints as a background.
+        logoLink.style.backgroundImage = 'none';
+        // Widen the logo container so the WebM's flame lands at the same visual
+        // size as the SVG wordmark, and shift it back so the layout doesn't move.
+        logoLink.style.setProperty('inline-size', '130px');
+        logoLink.style.setProperty('block-size', '55px');
+        logoLink.style.setProperty('margin-inline-start', '-5px');
 
-    video.appendChild(source);
-    wrapper.appendChild(video);
-    logoLink.appendChild(wrapper);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'fl-video';
+        wrapper.style.setProperty('max-block-size', '56px');
 
-    const HOVER_INTENT_MS = 1000;
-    const COOLDOWN_MS = 10000;
+        const video = document.createElement('video');
+        video.muted = true;
 
-    let hoverTimer = null;
-    let isPlaying = false;
-    let cooldownUntil = 0;
+        const source = document.createElement('source');
+        source.src = 'https://assets.mozilla.net/wc/logo-1-alpha.webm';
+        source.type = 'video/webm';
 
-    video.addEventListener(
-        'canplaythrough',
-        () => {
-            video.addEventListener('mouseover', () => {
-                if (isPlaying || hoverTimer) return;
-                if (Date.now() < cooldownUntil) return;
+        video.appendChild(source);
+        wrapper.appendChild(video);
+        logoLink.appendChild(wrapper);
 
-                hoverTimer = setTimeout(() => {
-                    hoverTimer = null;
-                    isPlaying = true;
-                    video.play().catch((error) => {
-                        if (error && error.name === 'AbortError') return;
-                        throw error;
-                    });
-                }, HOVER_INTENT_MS);
-            });
+        const HOVER_INTENT_MS = 1000;
+        const COOLDOWN_MS = 10000;
 
-            video.addEventListener('mouseout', () => {
-                // Cancel a pending start if the user leaves before hover-intent fires.
-                // Do NOT stop an in-progress animation — let it play through.
-                if (hoverTimer) {
-                    clearTimeout(hoverTimer);
-                    hoverTimer = null;
-                }
-            });
+        let hoverTimer = null;
+        let isPlaying = false;
+        let cooldownUntil = 0;
 
-            video.addEventListener('ended', () => {
-                isPlaying = false;
-                cooldownUntil = Date.now() + COOLDOWN_MS;
-                video.currentTime = 0;
-            });
-        },
-        { once: true }
-    );
+        video.addEventListener(
+            'canplaythrough',
+            () => {
+                video.addEventListener('mouseover', () => {
+                    if (isPlaying || hoverTimer) return;
+                    if (Date.now() < cooldownUntil) return;
+
+                    hoverTimer = setTimeout(() => {
+                        hoverTimer = null;
+                        isPlaying = true;
+                        video.play().catch((error) => {
+                            if (error && error.name === 'AbortError') return;
+                            throw error;
+                        });
+                    }, HOVER_INTENT_MS);
+                });
+
+                video.addEventListener('mouseout', () => {
+                    // Cancel a pending start if the user leaves before hover-intent fires.
+                    // Do NOT stop an in-progress animation — let it play through.
+                    if (hoverTimer) {
+                        clearTimeout(hoverTimer);
+                        hoverTimer = null;
+                    }
+                });
+
+                video.addEventListener('ended', () => {
+                    isPlaying = false;
+                    cooldownUntil = Date.now() + COOLDOWN_MS;
+                    video.currentTime = 0;
+                });
+            },
+            { once: true }
+        );
+
+        teardown = () => {
+            if (hoverTimer) clearTimeout(hoverTimer);
+            wrapper.remove();
+            // Restore the CSS-painted wordmark and our sizing overrides.
+            logoLink.style.removeProperty('background-image');
+            logoLink.style.removeProperty('inline-size');
+            logoLink.style.removeProperty('block-size');
+            logoLink.style.removeProperty('margin-inline-start');
+        };
+    };
+
+    const deactivate = () => {
+        if (!teardown) return;
+        teardown();
+        teardown = null;
+    };
+
+    const sync = () => (wantsVideo() ? activate() : deactivate());
+
+    sync();
+
+    // Keep in sync if the OS color scheme flips at runtime (devtools emulation,
+    // macOS auto dark-at-sunset) so the video doesn't linger on a white nav.
+    if (window.matchMedia) {
+        window
+            .matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', sync);
+    }
 };
 
 if (document.readyState === 'loading') {
