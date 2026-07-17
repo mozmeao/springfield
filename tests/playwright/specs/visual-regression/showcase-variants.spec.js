@@ -59,5 +59,13 @@ test.describe(
                 'showcase-full-without-caption'
             );
         });
+
+        test('default with cta', async ({ page }) => {
+            await expectComponentScreenshot(page, 'showcase-default-with-cta');
+        });
+
+        test('expanded with cta', async ({ page }) => {
+            await expectComponentScreenshot(page, 'showcase-expanded-with-cta');
+        });
     }
 );
