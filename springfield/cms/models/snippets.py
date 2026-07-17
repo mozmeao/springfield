@@ -17,13 +17,23 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
-from wagtail.admin.panels import FieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.cms.blocks import EXPANDED_TEXT_FEATURES, HEADING_TEXT_FEATURES, ButtonBlock, ConditionalDisplayBlock
+from springfield.cms.blocks import (
+    EXPANDED_TEXT_FEATURES,
+    HEADING_TEXT_FEATURES,
+    ButtonBlock,
+    ConditionalDisplayBlock,
+    MixedButtonsBlock,
+    NavFolderBlock,
+    SpringfieldLinkBlock,
+    TopLevelLinkBlock,
+    get_button_types,
+)
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
@@ -466,6 +476,100 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/pencil-banner-snippet-preview.html"
+
+
+class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet defining a site navigation menu, editable in the CMS.
+
+    The ``items`` stream holds top-level links (a label + link rendered directly
+    in the nav bar) and folders (a label + a dropdown of grouped links).
+    """
+
+    name = models.CharField(max_length=255, help_text="Internal name for this navigation menu.")
+    is_default = models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")
+    items = StreamField(
+        [
+            ("top_level_link", TopLevelLinkBlock()),
+            ("folder", NavFolderBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+    logo = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
+    )
+    logo_dark = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Dark-mode variant of the header logo. Falls back to the light logo if unset.",
+    )
+    logo_link = StreamField(
+        [("link", SpringfieldLinkBlock())],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Where the logo links to. Falls back to the site home page if empty.",
+    )
+    cta_button = StreamField(
+        [("button", MixedButtonsBlock(button_types=get_button_types(), min_num=0, max_num=1))],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
+    )
+
+    LOGO_MAX_WIDTH = 480
+    LOGO_MAX_HEIGHT = 160
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("is_default"),
+        MultiFieldPanel(
+            [
+                FieldPanel("logo"),
+                FieldPanel("logo_dark"),
+                FieldPanel("logo_link"),
+            ],
+            heading="Logo",
+        ),
+        FieldPanel("items"),
+        FieldPanel("cta_button", heading="CTA Button"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Navigation"
+        verbose_name_plural = "Navigation"
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+    @classmethod
+    def get_default(cls):
+        """Return the site default navigation, localized to the active locale, or None."""
+        snippet = cls.objects.filter(is_default=True, locale=SpringfieldLocale.get_default()).live().order_by("-last_published_at").first()
+        return snippet.get_localized() if snippet else None
+
+    def validate_logo_size(self, field_name):
+        """Reject a logo image larger than the header logo cap."""
+        image = getattr(self, field_name)
+        if image and (image.width > self.LOGO_MAX_WIDTH or image.height > self.LOGO_MAX_HEIGHT):
+            raise ValidationError({field_name: f"Logo must be at most {self.LOGO_MAX_WIDTH}×{self.LOGO_MAX_HEIGHT} pixels."})
+
+    def clean(self):
+        super().clean()
+        self.validate_logo_size("logo")
+        self.validate_logo_size("logo_dark")
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/navigation-snippet-preview.html"
 
 
 class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):

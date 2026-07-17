@@ -1,0 +1,28 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ A top-level navigation entry that links directly to a destination
+ (no dropdown panel).
+#}
+
+<li class="fl-menu-category">
+  <a
+    class="fl-menu-title fl-menu-top-level-link"
+    href="{{ href }}"
+    {% if new_window %}target="_blank" rel="external noopener"{% endif %}
+    {% if analytics_text %}data-cta-text="{{ analytics_text }}"{% endif %}
+    {% if analytics_position %}data-cta-position="{{ analytics_position }}"{% endif %}
+    {% if analytics_id %}data-cta-uid="{{ analytics_id }}"{% endif %}
+  >
+    <span class="fl-menu-heading">
+      {{ label }}
+      {% if external %}
+        <span class="fl-icon fl-nav-icon-up-right-arrow" aria-hidden="true"></span>
+      {% endif %}
+    </span>
+  </a>
+</li>

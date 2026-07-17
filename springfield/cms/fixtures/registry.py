@@ -30,6 +30,7 @@ from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
     get_banner_snippet_test_page,
+    get_custom_navigation_snippet_test_page,
     get_freeform_page_test_page,
     get_freeform_page_with_floating_qr_snippet,
     get_freeform_page_with_qr_snippet,
@@ -114,4 +115,5 @@ PAGE_FIXTURES = [
     get_pencil_banner_snippet_test_page,
     get_pre_footer_cta_snippet_test_page,
     get_scroll_to_see_more_snippet_test_page,
+    get_custom_navigation_snippet_test_page,
 ]

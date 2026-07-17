@@ -33,6 +33,7 @@ def make_show_to(
     max_version=None,
     geo=None,
     ai_controls="",
+    bind_to_uitour=False,
 ):
     return {
         "platforms": platforms or [],
@@ -43,6 +44,44 @@ def make_show_to(
         "max_version": max_version,
         "geo": geo or [],
         "ai_controls": ai_controls,
+        "bind_to_uitour": bind_to_uitour,
+    }
+
+
+def get_bind_to_uitour_section() -> dict:
+    """A section bound to UI Tour: it only shows when its UI Tour button is visible."""
+    return {
+        "type": "section",
+        "value": {
+            "settings": {
+                "anchor_id": "",
+                "show_to": make_show_to(bind_to_uitour=True),
+            },
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="cduith1">Bound to UI Tour</p>',
+                "subheading_text": "",
+            },
+            "content": [],
+            "cta": [
+                {
+                    "type": "uitour_button",
+                    "value": {
+                        "settings": {
+                            "theme": "",
+                            "icon": "open-tabs",
+                            "icon_position": "right",
+                            "analytics_id": "cduit001-0000-0000-0000-000000000010",
+                        },
+                        "button_type": "open_new_tab",
+                        "pretranslated_label": None,
+                        "custom_label": "Open New Tab",
+                    },
+                    "id": "cduit001-0000-0000-0000-000000000010",
+                }
+            ],
+        },
+        "id": "cduit001-0000-0000-0000-000000000000",
     }
 
 
@@ -280,8 +319,9 @@ def get_conditional_display_test_page() -> FreeFormPage2026:
     )
 
     blocks = get_conditional_display_variants()
-    page.upper_content = blocks
-    page.content = blocks
+    blocks_with_uitour = [*blocks, get_bind_to_uitour_section()]
+    page.upper_content = blocks_with_uitour
+    page.content = blocks_with_uitour
     page.docs = (
         "<p>The Conditional Display block wraps content that should only appear for specific audiences &mdash; particular platforms "
         "(Windows, macOS, Linux, Android, iOS), browser types (Firefox / non-Firefox), authentication states (signed-in / signed-out), "

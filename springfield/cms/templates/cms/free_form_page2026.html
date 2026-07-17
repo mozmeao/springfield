@@ -16,8 +16,7 @@
 
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
-
-  <include:flare-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

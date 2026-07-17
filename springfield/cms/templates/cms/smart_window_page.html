@@ -49,7 +49,11 @@
       {% endif %}
     </div>
   {% endset %}
-  <include:flare-header theme="dark" hide_nav_cta disable_sticky no_menu_dropdowns />
+  {% set theme = "dark" %}
+  {% set hide_nav_cta = true %}
+  {% set disable_sticky = true %}
+  {% set no_menu_dropdowns = true %}
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block content %}
