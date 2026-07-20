@@ -177,6 +177,8 @@ python manage.py dumpdata \
     cms.BlogArticlePage \
     cms.RoadmapPage \
     cms.ContactPage \
+    cms.ReferralHubPage \
+    cms.ReferralGetFirefoxPage \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \

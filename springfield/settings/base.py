@@ -1502,6 +1502,8 @@ _allowed_page_models = [
     "cms.BlogArticlePage",
     "cms.RoadmapPage",
     "cms.ContactPage",
+    "cms.ReferralHubPage",
+    "cms.ReferralGetFirefoxPage",
 ]
 
 if DEV is True:
