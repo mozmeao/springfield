@@ -2367,6 +2367,13 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        context["invite_url"] = "https://example.com/invite-link-still-to-come"
+
+        return context
+
 
 class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     """Landing page for an invitee, from which they can download Firefox.
