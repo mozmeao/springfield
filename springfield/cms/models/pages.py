@@ -2364,6 +2364,55 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.HomePage"]
     template = "cms/referral_hub_page.html"
 
+    heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading_text = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+
+    invite_label = models.CharField(blank=True)
+    invite_heading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+    invite_details = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+
+    stats_label = models.CharField(blank=True)
+    stats_heading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+    stats_subheading = RichTextField(features=HEADING_TEXT_FEATURES, blank=True)
+
+    content = StreamField(
+        LOWER_FREEFORM_PAGE_BLOCKS,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        MultiFieldPanel(
+            [
+                FieldPanel("heading_text"),
+                FieldPanel("subheading_text"),
+            ],
+            heading="Intro",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("invite_label"),
+                FieldPanel("invite_heading"),
+                FieldPanel("invite_details"),
+                FieldPanel("stats_label"),
+                FieldPanel("stats_heading"),
+                FieldPanel("stats_subheading"),
+            ],
+            heading="Referral Panel",
+        ),
+        FieldPanel("content"),
+    ]
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("heading_text"),
+        index.SearchField("subheading_text"),
+        index.SearchField("invite_heading"),
+        index.SearchField("invite_details"),
+        index.SearchField("stats_heading"),
+        index.SearchField("stats_subheading"),
+    ]
+
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
 

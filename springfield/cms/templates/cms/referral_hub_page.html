@@ -4,4 +4,52 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/includes/referral-context-dump.html" %}
+{% extends "cms/base-flare.html" %}
+
+{% block content %}
+<div class="fl-page">
+  <div class="fl-main">
+    <div class="fl-split-page-upper end-of-page has-gradient-bottom">
+      <div class="fl-section-container">
+        <include:intro
+          vertical=true
+          media_position="after"
+        >
+          <content:heading>
+            <include:heading
+              heading_text="{{ page.heading_text|richtext|remove_p_tag }}"
+              heading_size="fl-heading-xl"
+              subheading_text="{{ page.subheading_text|richtext|remove_p_tag }}"
+            />
+          </content:heading>
+          <content:content>
+            {% if page.invite_label %}<p>{{ page.invite_label }}</p>{% endif %}
+            {% if page.invite_heading %}<p>{{ page.invite_heading|richtext|remove_p_tag }}</p>{% endif %}
+            {% if page.invite_details %}<p>{{ page.invite_details|richtext|remove_p_tag }}</p>{% endif %}
+            {% if page.stats_label %}<p>{{ page.stats_label }}</p>{% endif %}
+            {% if page.stats_heading %}<p>{{ page.stats_heading|richtext|remove_p_tag }}</p>{% endif %}
+            {% if page.stats_subheading %}<p>{{ page.stats_subheading|richtext|remove_p_tag }}</p>{% endif %}
+
+            <dl>
+              {% for key, value in page.get_context(request).items() %}
+                <dt><strong>{{ key }}</strong></dt>
+                <dd><pre>{{ value }}</pre></dd>
+              {% endfor %}
+            </dl>
+          </content:content>
+        </include:intro>
+      </div>
+    </div>
+
+    <div class="fl-split-page-lower no-gap">
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+        {% set block_level = 2 %}
+        {% include_block block %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
