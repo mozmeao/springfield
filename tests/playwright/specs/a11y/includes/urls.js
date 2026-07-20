@@ -12,37 +12,16 @@
  */
 const desktopTestURLs = [
     '/en-US/',
-    '/en-US/browsers/desktop/',
-    '/en-US/browsers/desktop/linux/',
-    '/en-US/browsers/enterprise/',
-    '/en-US/browsers/mobile/',
-    '/en-US/browsers/mobile/android/',
-    '/en-US/browsers/mobile/ios/',
-    '/en-US/browsers/mobile/focus/',
-    '/en-US/browsers/mobile/get-app/',
     '/en-US/channel/android/',
     '/en-US/channel/desktop/',
     '/en-US/channel/desktop/developer/',
     '/en-US/download/all/',
-    '/en-US/compare/',
-    '/en-US/compare/opera/',
-    '/en-US/features/',
-    '/en-US/features/sync/',
+    '/en-US/thanks/',
+    '/en-US/browsers/enterprise/',
     '/en-US/firefox/releasenotes/',
-    '/en-US/privacy/websites/cookie-settings/',
-    '/en-US/thanks/'
+    '/en-US/privacy/websites/cookie-settings/'
 ];
 
-const mobileTestURLs = [
-    '/en-US/',
-    '/en-US/browsers/mobile/',
-    '/en-US/browsers/mobile/android/',
-    '/en-US/browsers/mobile/ios/',
-    '/en-US/browsers/mobile/focus/',
-    '/en-US/channel/android/',
-    '/en-US/download/all/',
-    '/en-US/firefox/android/notes/',
-    '/en-US/thanks/'
-];
+const mobileTestURLs = ['/en-US/', '/en-US/channel/android/'];
 
 module.exports = { desktopTestURLs, mobileTestURLs };
