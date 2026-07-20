@@ -91,7 +91,7 @@ from springfield.cms.rich_text import RichTextBlock, RichTextField
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
 if TYPE_CHECKING:
-    from springfield.cms.models import Tag
+    from springfield.cms.models import Author, Tag
 
 
 BASE_UTM_PARAMETERS = {
@@ -1781,7 +1781,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("all/")
     def all_route(self, request):
-        from springfield.cms.models.snippets import Tag
+        from springfield.cms.models.snippets import Author, Tag
 
         base_qs = (
             BlogArticlePage.objects.child_of(self)
@@ -1789,6 +1789,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             .public()
             .select_related(
                 "topic",
+                "author",
                 "image",
                 "image_dark_mode",
                 "image_mobile",
@@ -1810,6 +1811,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
             base_qs = base_qs.filter(topic=topic)
 
+        author = None
+        author_slug = request.GET.get("author")
+        if author_slug:
+            author = Author.objects.filter(slug=author_slug, locale=self.locale).first()
+            # `author` is nullable, so filter(author=None) would match un-authored
+            # articles instead of showing nothing for an unknown slug.
+            base_qs = base_qs.filter(author=author) if author else base_qs.none()
+
         list_articles_qs = base_qs.order_by("-first_published_at")
         paginator = Paginator(list_articles_qs, 10)
 
@@ -1823,6 +1832,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             {
                 "list_articles": list_articles,
                 "topic": topic,
+                "author": author,
             },
         )
 
@@ -1851,6 +1861,13 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     tags = models.ManyToManyField(
         "cms.Tag",
         related_name="blog_articles_tags",
+        blank=True,
+    )
+    author = models.ForeignKey(
+        "cms.Author",
+        on_delete=models.PROTECT,
+        related_name="blog_articles",
+        null=True,
         blank=True,
     )
     image = models.ForeignKey(
@@ -1906,6 +1923,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("topic"),
                 FieldPanel("tags", widget=CheckboxSelectMultiple()),
+                FieldPanel("author"),
             ],
             heading="Tags",
         ),
@@ -1966,6 +1984,14 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             else:
                 self._tags_cache = None
         return self._tags_cache
+
+    def get_author(self):
+        if not hasattr(self, "_author_cache"):
+            if self.author:
+                self._author_cache = self.author.get_localized()
+            else:
+                self._author_cache = None
+        return self._author_cache
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

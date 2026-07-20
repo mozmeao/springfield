@@ -36,6 +36,7 @@ from springfield.cms.admin_views import ContentSearchView
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
+    Author,
     BannerSnippet,
     NavigationSnippet,
     PencilBannerSnippet,
@@ -556,6 +557,11 @@ class TagViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["name", "locale", "live"]
 
 
+class AuthorViewSet(LocaleDefaultingSnippetViewSet):
+    model = Author
+    list_display = ["name", "locale", "live"]
+
+
 class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = QRCodeSnippet
     # `heading` is a RichTextField — use the `heading_plain` method on the model
@@ -599,6 +605,7 @@ for _viewset in (
     PreFooterCTAFormSnippetViewSet,
     BannerSnippetViewSet,
     TagViewSet,
+    AuthorViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,
     QRCodeFloatingSnippetViewSet,

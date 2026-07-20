@@ -6,6 +6,7 @@ from django.db.models import Count
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
@@ -22,7 +23,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_topics,
 )
 from springfield.cms.models import BlogArticlePage
-from springfield.cms.models.snippets import Tag
+from springfield.cms.models.snippets import Author, Tag
 
 pytestmark = [pytest.mark.django_db]
 
@@ -795,3 +796,85 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     request = rf.get(url)
     with django_assert_max_num_queries(26):
         index_page.all_route(request)
+
+
+# ---------------------------------------------------------------------------
+# Author (get_author, ?author= filtering on the "all" route)
+# ---------------------------------------------------------------------------
+
+
+def _make_author(name="Nick Nguyen", slug="nick-nguyen"):
+    return Author.objects.create(name=name, slug=slug, locale=Locale.get_default())
+
+
+def test_author_str():
+    author = _make_author()
+    assert str(author) == f"{author.name} – {author.locale}"
+
+
+def test_get_author_returns_localized_author(single_article):
+    _, article = single_article
+    author = _make_author()
+    article.author = author
+    article.save_revision().publish()
+
+    assert article.get_author() == author.get_localized()
+
+
+def test_get_author_returns_none_when_not_set(single_article):
+    _, article = single_article
+    assert article.author is None
+    assert article.get_author() is None
+
+
+def test_get_author_result_is_cached(single_article):
+    _, article = single_article
+    author = _make_author()
+    article.author = author
+    article.save_revision().publish()
+
+    first = article.get_author()
+    # Mutate the underlying relation directly in the DB; the cached
+    # attribute on the in-memory instance should still be returned.
+    BlogArticlePage.objects.filter(pk=article.pk).update(author=None)
+    assert article.get_author() is first
+
+
+def test_blog_all_author_filter_filters_articles(blog_setup, rf):
+    index_page, articles = blog_setup
+    author = _make_author()
+    target = articles[0]
+    target.author = author
+    target.save_revision().publish()
+
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url, {"author": author.slug})
+    response = index_page.all_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    article_list = soup.find("div", class_="fl-blog-article-list")
+    assert article_list
+    items = article_list.find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == 1
+    assert target.title in items[0].get_text()
+
+
+def test_blog_all_unknown_author_shows_no_articles(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url, {"author": "nonexistent"})
+    response = index_page.all_route(request)
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("div", class_="fl-blog-article-list") is None
+
+
+def test_blog_all_no_author_param_shows_all_articles(blog_setup, rf):
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url)
+    response = index_page.all_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+    article_list = soup.find("div", class_="fl-blog-article-list")
+    assert article_list
+    assert len(article_list.find_all("article", class_="fl-blog-article-list-item")) == 10  # first page
