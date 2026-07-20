@@ -3,20 +3,15 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from unittest.mock import Mock, patch
-
-from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
+from django.test import override_settings
 
 import pytest
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import Locale, Page
-from wagtail_localize.models import StringTranslation, TranslatableObject, Translation, TranslationSource
+from wagtail.models import Locale, Page, Site
 
-from springfield.cms.models import PageTranslationData
-from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+from springfield.cms.tests.factories import LocaleFactory
 from springfield.cms.utils import (
-    create_page_translation_data,
+    find_fallback_page_for_locale,
     get_cms_locales_for_path,
     get_locales_for_cms_page,
     get_page_for_request,
@@ -25,6 +20,15 @@ from springfield.cms.utils import (
 pytestmark = [pytest.mark.django_db]
 
 
+def _publish_root_page(site, locale_code):
+    """Publish the root page for the given locale (tiny_localized_site creates them as drafts)."""
+    root = site.root_page.get_translation(Locale.objects.get(language_code=locale_code))
+    root.live = True
+    root.save()
+    return root
+
+
+@override_settings(FALLBACK_LOCALES={})
 def test_get_locales_for_cms_page(tiny_localized_site):
     en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
     en_us_test_page = en_us_homepage.get_children()[0]
@@ -51,6 +55,7 @@ def test_get_locales_for_cms_page(tiny_localized_site):
     assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "fr", "pt-BR"]
 
 
+@override_settings(FALLBACK_LOCALES={})
 def test_get_locales_for_cms_page__ensure_draft_pages_are_excluded(tiny_localized_site):
     en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
     en_us_test_page = en_us_homepage.get_children()[0]
@@ -60,6 +65,328 @@ def test_get_locales_for_cms_page__ensure_draft_pages_are_excluded(tiny_localize
     fr_test_page.unpublish()
 
     assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "pt-BR"]
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_get_locales_for_cms_page__no_alias_added_when_no_target_matches(tiny_localized_site):
+    """Test when no FALLBACK_LOCALES entries match a locale in the page's translation set."""
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # en_us_test_page has translations in fr and pt-BR; none of those are targets in FALLBACK_LOCALES,
+    # so the results are ["en-US", "fr", "pt-BR"].
+    assert sorted(get_locales_for_cms_page(en_us_test_page)) == sorted(["en-US", "fr", "pt-BR"])
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_locales_for_cms_page__alias_added_when_target_is_a_translation(tiny_localized_site):
+    """
+    When a page's translation has an fallback locale in FALLBACK_LOCALES, the fallback is returned.
+    """
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # en_us_test_page has translations in fr and pt-BR.
+    translation_locales = ["en-US", "fr", "pt-BR"]
+    assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
+        translation_locales
+    )
+    # Since pt-BR is a fallback locale for pt-PT, we expect that pt-PT is included
+    # in the results of get_locales_for_cms_page().
+    expected_result = translation_locales + ["pt-PT"]
+    result = get_locales_for_cms_page(en_us_test_page)
+    assert "pt-PT" in result
+    assert sorted(result) == sorted(expected_result)
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_locales_for_cms_page__alias_added_even_when_locale_record_absent(tiny_localized_site):
+    """Alias locale codes are returned even if no Locale DB record exists for them.
+    The function works with locale code strings and does not require a Locale row."""
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    result = get_locales_for_cms_page(en_us_test_page)
+    assert "pt-PT" in result
+
+
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
+def test_get_locales_for_cms_page__alias_added_when_target_is_page_own_locale(tiny_localized_site):
+    """An alias locale whose target is the page's own locale is also appended."""
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # en_us_test_page has translations in fr and pt-BR.
+    translation_locales = ["en-US", "fr", "pt-BR"]
+    assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
+        translation_locales
+    )
+    # Since "en-US" is a fallback locale for "en-GB" and "en-CA", we expect that
+    # "en-GB" and "en-CA" are included in the results of get_locales_for_cms_page().
+    expected_result = translation_locales + ["en-GB", "en-CA"]
+    result = get_locales_for_cms_page(en_us_test_page)
+    assert "en-GB" in result
+    assert "en-CA" in result
+    assert sorted(result) == sorted(expected_result)
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX", "es-CL": "es-MX"})
+def test_get_locales_for_cms_page__multiple_aliases_for_same_target_all_added(tiny_localized_site):
+    """All alias locales targeting the same locale are each included in the result."""
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # Create an es-MX translation of the test page so es-MX is in the list
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_mx_test_page = en_us_test_page.copy_for_translation(es_mx_locale, copy_parents=True)
+    es_mx_test_page.save_revision().publish()
+
+    # en_us_test_page has translations in fr, pt-BR, and es-MX.
+    translation_locales = ["en-US", "fr", "pt-BR", "es-MX"]
+    assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
+        translation_locales
+    )
+    # Since "es-MX" is a fallback locale for "es-AR" and "es-CL", we expect that
+    # "es-AR" and "es-CL" are included in the results of get_locales_for_cms_page().
+    expected_result = translation_locales + ["es-AR", "es-CL"]
+    result = get_locales_for_cms_page(en_us_test_page)
+    assert "es-AR" in result
+    assert "es-CL" in result
+    assert sorted(result) == sorted(expected_result)
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_locales_for_cms_page__canonical_locales_listed_before_alias_additions(tiny_localized_site):
+    """Alias locales are appended after canonical/translated locales, not interleaved."""
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    result = get_locales_for_cms_page(en_us_test_page)
+    pt_br_index = result.index("pt-BR")
+    pt_pt_index = result.index("pt-PT")
+    assert pt_br_index < pt_pt_index
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_get_locales_for_cms_page__no_duplicate_when_alias_locale_is_also_an_actual_translation(tiny_localized_site):
+    """When an alias locale has a real translation, it must not appear twice in the result."""
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # Create actual (non-alias) translations in both es-MX and es-AR
+    es_mx_test_page = en_us_test_page.copy_for_translation(es_mx_locale, copy_parents=True)
+    es_mx_test_page.save_revision().publish()
+
+    es_ar_test_page = en_us_test_page.copy_for_translation(es_ar_locale, copy_parents=True)
+    es_ar_test_page.save_revision().publish()
+
+    # From es-MX page's perspective: es-AR is both an actual translation AND listed
+    # in FALLBACK_LOCALES as an alias. It should appear exactly once.
+    es_mx_test_page.refresh_from_db()
+    result = get_locales_for_cms_page(es_mx_test_page)
+    assert result.count("es-AR") == 1
+    assert result.count("es-MX") == 1
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_get_locales_for_cms_page__empty_fallback_locales_adds_nothing(tiny_localized_site):
+    """An empty FALLBACK_LOCALES dict adds no alias locales."""
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # en_us_test_page has translations in fr and pt-BR.
+    translation_locales = ["en-US", "fr", "pt-BR"]
+    assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
+        translation_locales
+    )
+    # get_locales_for_cms_page() results match the translations' locale codes.
+    assert sorted(get_locales_for_cms_page(en_us_test_page)) == sorted(translation_locales)
+
+
+def test_get_locales_for_cms_page__absent_fallback_locales_setting_adds_nothing(tiny_localized_site, settings):
+    """When FALLBACK_LOCALES is not present in settings at all, the function
+    handles it gracefully via getattr and adds no aliases."""
+    del settings.FALLBACK_LOCALES
+
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+
+    # en_us_test_page has translations in fr and pt-BR.
+    translation_locales = ["en-US", "fr", "pt-BR"]
+    assert sorted(Page.objects.filter(translation_key=en_us_test_page.translation_key).values_list("locale__language_code", flat=True)) == sorted(
+        translation_locales
+    )
+    # get_locales_for_cms_page() results match the translations' locale codes.
+    assert sorted(get_locales_for_cms_page(en_us_test_page)) == sorted(translation_locales)
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_page_when_found(tiny_localized_site):
+    """Returns the live page from the fallback locale's tree."""
+    # The pt-BR page for this URL exists; this is the expected result.
+    expected_result = Page.objects.get(locale__language_code="pt-BR", slug="test-page")
+
+    result = find_fallback_page_for_locale("pt-PT", "test-page/")
+    assert expected_result == result
+    assert result.locale.language_code == "pt-BR"
+
+
+@pytest.mark.parametrize(
+    "falsy_url_path",
+    [
+        (""),
+        ("/"),
+    ],
+)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_homepage_for_falsy_url_path(tiny_localized_site, falsy_url_path):
+    """
+    Returns fallback locale homepage when no alias homepage & url_path is falsy (homepage request).
+
+    When a user requests /pt-PT/ (the pt-PT homepage), and the pt-PT locale does
+    not have a live homepage, we should return the pt-BR homepage.
+    """
+    # The pt-PT locale does not have a live homepage.
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    site = Site.objects.get(is_default_site=True)
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", falsy_url_path)
+    assert result is not None, "find_fallback_page_for_locale returned None for empty url_path (homepage)"
+    assert result == pt_br_root
+    assert result.locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_fallback_homepage_when_alias_has_no_live_homepage(tiny_localized_site):
+    """
+    When the alias locale (pt-PT) exists but has no live homepage,
+    the function returns the fallback locale's (pt-BR) homepage.
+    """
+    # Create pt-PT locale with a non-live root page (mimics migration 0053).
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    pt_pt_root = site.root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = False
+    pt_pt_root.save()
+
+    # pt-PT has no live homepage.
+    assert not Page.objects.live().filter(locale=pt_pt_locale, depth=site.root_page.depth).exists()
+
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", "")
+    assert result is not None, "find_fallback_page_for_locale returned None when alias has no live homepage"
+    assert result == pt_br_root
+    assert result.locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_fallback_homepage_when_alias_has_live_homepage(tiny_localized_site):
+    """
+    When the alias locale (pt-PT) has its own live homepage, the function
+    still returns the fallback locale's (pt-BR) homepage.
+
+    find_fallback_page_for_locale always looks up the fallback locale's page tree.
+    Whether to use the alias locale's own page or the fallback is decided by the
+    caller (the middleware), not by this function.
+    """
+    # Create pt-PT locale with a live root page (promoted alias).
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    pt_pt_root = site.root_page.copy_for_translation(pt_pt_locale)
+    pt_pt_root.live = True
+    pt_pt_root.save()
+    pt_pt_root.save_revision().publish()
+
+    # pt-PT has a live homepage.
+    assert Page.objects.live().filter(locale=pt_pt_locale, depth=site.root_page.depth).exists()
+
+    pt_br_root = _publish_root_page(site, "pt-BR")
+
+    result = find_fallback_page_for_locale("pt-PT", "")
+    assert result is not None, "find_fallback_page_for_locale returned None when alias has live homepage"
+    # The function always returns the fallback locale's page, regardless of
+    # whether the alias locale has its own content.
+    assert result == pt_br_root
+    assert result.locale.language_code == "pt-BR"
+
+
+@pytest.mark.parametrize(
+    "url_path",
+    [
+        ("/test-page"),  # left slash
+        ("test-page/"),  # right slash
+        ("/test-page/"),  # left and right slash
+        ("test-page"),  # no slash
+    ],
+)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__url_path_normalized(tiny_localized_site, url_path):
+    """Leading/trailing slashes in url_path are stripped before the lookup."""
+    expected_result = Page.objects.get(locale__language_code="pt-BR", slug="test-page")
+    assert find_fallback_page_for_locale("pt-PT", url_path) == expected_result
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_none_when_page_not_found(tiny_localized_site):
+    """Returns None when no live page exists at the constructed URL path."""
+    assert find_fallback_page_for_locale("pt-PT", "does-not-exist/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_find_fallback_page_for_locale__returns_none_when_locale_not_in_fallback_locales(tiny_localized_site):
+    """Returns None for a locale_code not listed in FALLBACK_LOCALES."""
+    # es-AR is not in FALLBACK_LOCALES, so the function returns None
+    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_db_record(tiny_localized_site):
+    """Returns None when the fallback locale has no Locale DB record."""
+    assert not Locale.objects.filter(language_code="es-MX").exists()
+    assert find_fallback_page_for_locale("es-AR", "test-page/") is None
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locale_has_no_page_tree(tiny_localized_site, caplog):
+    """
+    Returns None when the fallback Locale record exists but has no root page translation.
+
+    get_translation raises Page.DoesNotExist in this case; find_fallback_page_for_locale()
+    catches the exception, logs it, and returns None.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    site = Site.objects.get(is_default_site=True)
+
+    # Confirm that get_translation raises Page.DoesNotExist for this locale —
+    # this is the exception find_fallback_page_for_locale must catch.
+    with pytest.raises(Page.DoesNotExist):
+        site.root_page.get_translation(es_mx_locale)
+
+    with caplog.at_level("ERROR", logger="springfield.cms.utils"):
+        result = find_fallback_page_for_locale("es-AR", "test-page/")
+
+    assert result is None
+    assert "No root page translation found for fallback locale 'es-MX'" in caplog.text
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_find_fallback_page_for_locale__returns_none_with_empty_fallback_locales(tiny_localized_site):
+    """Returns None when FALLBACK_LOCALES is empty."""
+    assert find_fallback_page_for_locale("pt-PT", "test-page/") is None
+
+
+def test_find_fallback_page_for_locale__returns_none_when_fallback_locales_absent(tiny_localized_site, settings):
+    """Returns None when FALLBACK_LOCALES is absent from settings."""
+    del settings.FALLBACK_LOCALES
+    assert find_fallback_page_for_locale("pt-PT", "test-page/") is None
 
 
 @pytest.mark.parametrize(
@@ -155,360 +482,3 @@ def test_get_cms_locales_for_path(
     if get_page_for_request_should_return_a_page:
         mock_get_page_for_request.assert_called_once_with(request=request)
         mock_get_locales_for_cms_page.assert_called_once_with(page=page)
-
-
-class TestCreateTranslationData:
-    def test_create_page_translation_data_no_translations(self, minimal_site):
-        """Test create_page_translation_data with a page that has no translations."""
-        # Get the page that has no translations
-        en_page = Page.objects.get(slug="test-page")
-
-        create_page_translation_data(en_page)
-
-        # No PageTranslationData objects were created.
-        assert not PageTranslationData.objects.exists()
-
-    def test_create_page_translation_data_with_wagtail_localize_objects(self, tiny_localized_site):
-        """Test create_page_translation_data with actual wagtail-localize objects."""
-        # Get the English page and its translations
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-        fr_homepage = Page.objects.get(locale__language_code="fr", slug="test-page")
-        pt_br_homepage = Page.objects.get(locale__language_code="pt-BR", slug="test-page")
-
-        # Get the specific page instance
-        specific_page = en_us_homepage.specific
-
-        # Create TranslatableObject using the same logic as get_for_instance
-        translatable_object, created = TranslatableObject.objects.get_or_create(
-            translation_key=specific_page.translation_key,
-            content_type=ContentType.objects.get_for_model(specific_page.get_translation_model()),
-        )
-
-        # Create TranslationSource for the English page
-        translation_source, created = TranslationSource.objects.get_or_create(
-            object=translatable_object,
-            locale=en_us_homepage.locale,
-            defaults={
-                "object_repr": str(specific_page),
-                "specific_content_type": specific_page.content_type,
-                "last_updated_at": timezone.now(),
-            },
-        )
-
-        # Create Translation records for French and Portuguese translations
-        fr_locale = fr_homepage.locale
-        pt_br_locale = pt_br_homepage.locale
-
-        # Create Translation for French
-        Translation.objects.get_or_create(source=translation_source, target_locale=fr_locale, defaults={"enabled": True})
-
-        # Create Translation for Portuguese
-        Translation.objects.get_or_create(source=translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        create_page_translation_data(en_us_homepage)
-
-        # A PageTranslationData object was created for each locale, with the expected data.
-        assert PageTranslationData.objects.count() == 2
-        fr_translation_data = PageTranslationData.objects.get(source_page=en_us_homepage, translated_page__locale=fr_locale)
-        pt_br_translation_data = PageTranslationData.objects.get(source_page=en_us_homepage, translated_page__locale=pt_br_locale)
-        expected_fr_data = {
-            "edit_url": f"/cms-admin/pages/{fr_homepage.id}/edit/",
-            "locale": "fr",
-            "percent_translated": 100,
-            "view_url": fr_homepage.url,
-        }
-        expected_pt_br_data = {
-            "edit_url": f"/cms-admin/pages/{pt_br_homepage.id}/edit/",
-            "locale": "pt-BR",
-            "percent_translated": 100,
-            "view_url": pt_br_homepage.url,
-        }
-        assert fr_translation_data.to_dict() == expected_fr_data
-        assert pt_br_translation_data.to_dict() == expected_pt_br_data
-
-    def test_create_page_translation_data_with_nested_translations(self, minimal_site):
-        """
-        Test translation of a translation scenario.
-
-        We expect the original page to be translated to each language, but sometimes
-        a translation will itself be translated into another language. The original
-        page should still have the correct calculations for all of its translations.
-        """
-        # Make sure 3 locales exist: English, Spanish, and Portuguese (Brazil).
-        assert Locale.objects.filter(language_code="en-US").exists()
-        es_locale = LocaleFactory(language_code="es")
-        pt_br_locale = LocaleFactory(language_code="pt-BR")
-
-        # Create a homepage for each locale.
-        en_us_homepage = Page.objects.get(slug="test-page")
-        es_homepage = en_us_homepage.copy_for_translation(es_locale)
-        es_homepage.title = "Página de Test"
-        es_homepage.save()
-        rev = es_homepage.save_revision()
-        es_homepage.publish(rev)
-        pt_br_homepage = en_us_homepage.copy_for_translation(pt_br_locale)
-        pt_br_homepage.title = "Página de Teste"
-        pt_br_homepage.save()
-        rev = pt_br_homepage.save_revision()
-        pt_br_homepage.publish(rev)
-
-        # Create a child page for the English homepage.
-        en_us_child = SimpleRichTextPageFactory(
-            title="Child",
-            slug="child-page",
-            parent=en_us_homepage,
-        )
-
-        # Translate the en_us_child to Spanish.
-        es_child = en_us_child.copy_for_translation(es_locale)
-        es_child.title = "Child (es)"
-        es_child.save()
-        rev = es_child.save_revision()
-        es_child.publish(rev)
-        # Translate the es_child to Portuguese.
-        pt_br_child = en_us_child.copy_for_translation(pt_br_locale)
-        pt_br_child.title = "Child (pt_br)"
-        pt_br_child.save()
-        rev = pt_br_child.save_revision()
-        pt_br_child.publish(rev)
-
-        # Get the specific page instance for the child page (which is what we're testing)
-        specific_page = en_us_child.specific
-
-        # Translate the en_us_child into Spanish.
-        translatable_object, _ = TranslatableObject.objects.get_or_create_from_instance(specific_page)
-        translation_source, _ = TranslationSource.objects.update_or_create(
-            object=translatable_object,
-            locale=en_us_child.locale,
-            defaults={
-                "object_repr": str(specific_page),
-                "specific_content_type": specific_page.content_type,
-                "last_updated_at": timezone.now(),
-            },
-        )
-        Translation.objects.get_or_create(source=translation_source, target_locale=es_locale, defaults={"enabled": True})
-
-        # Translate the es_child into Portuguese.
-        es_specific_page = es_child.specific
-        es_translatable_object, _ = TranslatableObject.objects.get_or_create_from_instance(es_specific_page)
-        es_translation_source, _ = TranslationSource.objects.update_or_create(
-            object=es_translatable_object,
-            locale=es_child.locale,
-            defaults={
-                "object_repr": str(es_specific_page),
-                "specific_content_type": es_specific_page.content_type,
-                "last_updated_at": timezone.now(),
-            },
-        )
-        Translation.objects.get_or_create(source=es_translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
-
-        # Force creation of segments using wagtail-localize's API. This translates
-        # each relevant page field.
-        translation_source.update_from_db()
-        # Get the string segments that were created
-        string_segments = translation_source.stringsegment_set.all()
-
-        # Create translations for some segments to simulate progress
-        for segment in string_segments[:2]:  # Translate first 2 segments
-            # Spanish translation
-            StringTranslation.objects.get_or_create(
-                translation_of=segment.string,
-                locale=es_locale,
-                context=segment.context,
-                defaults={
-                    "data": f"Spanish: {segment.string.data}",
-                    "translation_type": StringTranslation.TRANSLATION_TYPE_MANUAL,
-                    "has_error": False,
-                },
-            )
-
-            # Portuguese translation
-            StringTranslation.objects.get_or_create(
-                translation_of=segment.string,
-                locale=pt_br_locale,
-                context=segment.context,
-                defaults={
-                    "data": f"Portuguese: {segment.string.data}",
-                    "translation_type": StringTranslation.TRANSLATION_TYPE_MANUAL,
-                    "has_error": False,
-                },
-            )
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        # Create the PageTranslationData objects.
-        create_page_translation_data(en_us_child)
-
-        # A PageTranslationData object was created for the es_child and the
-        # pt_br_child, with the expected data.
-        assert PageTranslationData.objects.count() == 2
-        es_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=es_locale)
-        pt_br_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=pt_br_locale)
-        expected_es_data = {
-            "edit_url": f"/cms-admin/pages/{es_child.id}/edit/",
-            "locale": "es",
-            "percent_translated": 100,
-            "view_url": es_child.url,
-        }
-        expected_pt_br_data = {
-            "edit_url": f"/cms-admin/pages/{pt_br_child.id}/edit/",
-            "locale": "pt-BR",
-            "percent_translated": 100,
-            "view_url": pt_br_child.url,
-        }
-        assert es_child_translation_data.to_dict() == expected_es_data
-        assert pt_br_child_translation_data.to_dict() == expected_pt_br_data
-
-        # Now, the es_child title gets updated, so the pt_br_child title translation should become stale.
-        es_child.title = "Página secundaria"
-        es_child.save()
-        rev = es_child.save_revision()
-        es_child.publish(rev)
-        es_translation_source.update_from_db()
-        # Create a new Portuguese translation based on the Spanish source
-        Translation.objects.get_or_create(source=es_translation_source, target_locale=pt_br_locale, defaults={"enabled": True})
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        # Create the PageTranslationData objects.
-        create_page_translation_data(en_us_child)
-
-        # The Portuguese translation is now stale since the Spanish source changed.
-        pt_br_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=pt_br_locale)
-        assert pt_br_child_translation_data.percent_translated == 0
-        # The Spanish translation is still as it was before.
-        es_child_translation_data = PageTranslationData.objects.get(source_page=en_us_child, translated_page__locale=es_locale)
-        assert es_child_translation_data.to_dict() == expected_es_data
-
-    @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
-    @patch("springfield.cms.utils.Translation.objects.get")
-    def test_create_page_translation_data_with_translation_progress(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
-        """
-        Verify that calculations return the percentage for data that wagtail-localize gives us.
-        """
-        # Setup mocks
-        mock_source = Mock()
-        mock_translation_source_get.return_value = mock_source
-
-        mock_translation_record = Mock()
-        mock_translation_record.get_progress.return_value = (10, 7)  # 7 out of 10 segments translated
-        mock_translation_get.return_value = mock_translation_record
-
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        create_page_translation_data(en_us_homepage)
-
-        # Should calculate 70% translation progress
-        assert PageTranslationData.objects.count() == 2  # fr and pt-BR translations
-        for translation_data in PageTranslationData.objects.all():
-            assert translation_data.percent_translated == 70
-
-    @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
-    @patch("springfield.cms.utils.Translation.objects.get")
-    def test_create_page_translation_data_with_zero_segments(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
-        """Test create_page_translation_data when total segments is zero."""
-        # Setup mocks
-        mock_source = Mock()
-        mock_translation_source_get.return_value = mock_source
-
-        mock_translation_record = Mock()
-        mock_translation_record.get_progress.return_value = (0, 0)  # No segments
-        mock_translation_get.return_value = mock_translation_record
-
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        create_page_translation_data(en_us_homepage)
-
-        # Should return 100% when there are no segments to translate
-        assert PageTranslationData.objects.count() == 2
-        for translation_data in PageTranslationData.objects.all():
-            assert translation_data.percent_translated == 100
-
-    @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
-    def test_create_page_translation_data_no_translation_source(self, mock_translation_source_get, tiny_localized_site):
-        """Test create_page_translation_data when TranslationSource doesn't exist."""
-        # Mock TranslationSource.DoesNotExist
-        from wagtail_localize.models import TranslationSource
-
-        mock_translation_source_get.side_effect = TranslationSource.DoesNotExist()
-
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        create_page_translation_data(en_us_homepage)
-
-        # Should still return translation data with 0% progress
-        assert PageTranslationData.objects.count() == 2
-        for translation_data in PageTranslationData.objects.all():
-            assert translation_data.percent_translated == 0
-
-    @patch("springfield.cms.utils.TranslationSource.objects.get_for_instance")
-    @patch("springfield.cms.utils.Translation.objects.get")
-    def test_create_page_translation_data_fallback_to_nested_search(self, mock_translation_get, mock_translation_source_get, tiny_localized_site):
-        """Test the fallback logic when translation is from another translation."""
-        mock_translation_record = Mock()
-        mock_translation_record.get_progress.return_value = (8, 6)  # 75% translated
-
-        mock_translation_source_get.side_effect = [TranslationSource.DoesNotExist(), Mock(), TranslationSource.DoesNotExist(), Mock()]
-        mock_translation_get.side_effect = [
-            Translation.DoesNotExist(),  # First call (direct translation) should fail
-            mock_translation_record,  # Second call (translation of a translation) should succeed
-        ]
-
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        create_page_translation_data(en_us_homepage)
-
-        # Should find translations via the fallback method
-        assert PageTranslationData.objects.count() == 2
-        # At least one translation should have 75% progress from the nested search
-        progress_values = {td.percent_translated for td in PageTranslationData.objects.all()}
-        assert 75 in progress_values
-
-    def test_create_page_translation_data_handles_value_error(self, tiny_localized_site):
-        """Test create_page_translation_data handles ValueError gracefully."""
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        # Mock get_translations to raise ValueError
-        with patch.object(Page, "get_translations", side_effect=ValueError("Test error")):
-            create_page_translation_data(en_us_homepage)
-
-            # Should not create any PageTranslationData when ValueError occurs
-            assert PageTranslationData.objects.count() == 0
-
-    @patch("springfield.cms.utils.logger")
-    def test_create_page_translation_data_handles_attribute_error(self, mock_logger, tiny_localized_site):
-        """Test create_page_translation_data handles AttributeError gracefully."""
-        en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="test-page")
-
-        # Make sure there are currently no PageTranslationData objects.
-        PageTranslationData.objects.all().delete()
-
-        # Mock specific property to raise AttributeError
-        with patch.object(Page, "get_translations", side_effect=AttributeError("Test error")):
-            create_page_translation_data(en_us_homepage)
-
-            # If an AttributeError occurs, then no PageTranslationData should be created.
-            assert PageTranslationData.objects.count() == 0
-            # The logger was called with an exception.
-            assert mock_logger.exception.call_count == 1
-            assert [str(thing.args[0]) for thing in mock_logger.exception.call_args_list] == ["Test error"]

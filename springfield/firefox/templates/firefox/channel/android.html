@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "firefox/channel/base.html" %}
+{% extends "firefox/channel/base-flare.html" %}
+
+{% from "macros-protocol.html" import callout_compact with context %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=channel-android' %}
 
@@ -22,7 +24,7 @@
 {% block page_og_desc %}{{ self.page_desc() }}{% endblock %}
 
 {% block channels %}
-<section id="beta" class="mzp-is-anchor-link">
+<section id="beta" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-beta'),
     desc=ftl('firefox-channel-try-the-latest-android-features'),
@@ -35,7 +37,8 @@
     {{ download_firefox('beta', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-beta-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content fl-section-container is-narrow fl-channel-notes">
+    <div>
     <ul>
       <li>
         <a href="{{ firefox_url('android', 'all', 'beta') }}">
@@ -45,19 +48,20 @@
     </ul>
     <p>
       {% if ftl_has_messages('firefox-channel-beta-is-an-unstable-testing') %}
-        {{ ftl('firefox-channel-beta-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#pre-release') }}
+        {{ ftl('firefox-channel-beta-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#applicability-firefox-version') }}
       {% else %}
         {{ ftl('firefox-channel-firefox-beta-automatically') }}
-        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#pre-release">{{ ftl('ui-learn-more') }}</a>
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
       {% endif %}
     </p>
     <p>
-      {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://input.mozilla.com/feedback') }}
+      {{ ftl('firefox-channel-give-us-feedback-to-help', feedback='https://connect.mozilla.org/') }}
     </p>
   </div>
+</div>
 </section>
 
-<section id="nightly" class="mzp-is-anchor-link">
+<section id="nightly" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-nightly'),
     desc=ftl('firefox-channel-check-out-new-android-features'),
@@ -70,20 +74,22 @@
     {{ download_firefox('nightly', platform='android', alt_copy=ftl('download-button-download'), dom_id="android-nightly-download") }}
   {% endcall %}
 
-  <div class="l-notes mzp-l-content">
+  <div class="l-notes mzp-l-content fl-section-container is-narrow fl-channel-notes">
+    <div>
     <ul>
       <li><a rel="external" href="https://blog.nightly.mozilla.org/">{{ ftl('firefox-channel-nightly-blog') }}</a></li>
       <li><a href="{{ firefox_url('android', 'all', 'nightly') }}">{{ ftl('firefox-channel-all-languages-and-builds') }}</a></li>
     </ul>
     <p>
     {% if ftl_has_messages('firefox-channel-nightly-is-an-unstable-testing') %}
-      {{ ftl('firefox-channel-nightly-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params + '#pre-release') }}
+      {{ ftl('firefox-channel-nightly-is-an-unstable-testing', link='https://www.mozilla.org/' + LANG + '/privacy/firefox/' + params  + '#applicability-firefox-version') }}
     {% else %}
       {{ ftl('firefox-channel-firefox-nightly-automatically') }}
-      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#pre-release">{{ ftl('ui-learn-more') }}</a>
+      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}#applicability-firefox-version">{{ ftl('ui-learn-more') }}</a>
     {% endif %}
     </p>
     <p>{{ ftl('firefox-channel-nightly-update-one-or-more-times') }}</p>
   </div>
+</div>
 </section>
 {% endblock %}

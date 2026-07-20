@@ -11,7 +11,7 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django.conf.locale import LANG_INFO  # we patch this in springfield.base.apps.BaseAppConfig  # noqa: F401
+from django.conf.locale import LANG_INFO
 from django.utils.functional import lazy
 
 import dj_database_url
@@ -55,7 +55,6 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
-
 
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
@@ -133,8 +132,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-USE_ETAGS = config("USE_ETAGS", default=str(not DEBUG), parser=bool)
-
 # Use the "X-Forwarded-Host" header from the CDN to set the Hostname
 # https://mozilla-hub.atlassian.net/browse/SE-4263
 USE_X_FORWARDED_HOST = config("USE_X_FORWARDED_HOST", default="False", parser=bool)
@@ -145,6 +142,9 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = "en-US"
+
+# Add a fallback for zh-CN, which doesn't exist in core Django
+LANG_INFO["zh-CN"] = {"fallback": ["zh-hans"]}
 
 # Languages using BiDi (right-to-left) layout. Overrides/extends Django default.
 LANGUAGES_BIDI = ["ar", "ar-dz", "fa", "he", "skr", "ur"]
@@ -307,6 +307,7 @@ FLUENT_DEFAULT_FILES = [
     "ui",
     "mozilla-account-promo",
     "components",
+    "firefox/enterprise",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -370,9 +371,11 @@ CANONICAL_LOCALES = {
 # but sometimes it would be better to offer another locale as fallback. This map
 # specifies such cases.
 FALLBACK_LOCALES = {
-    "es-AR": "es-ES",
-    "es-CL": "es-ES",
-    "es-MX": "es-ES",
+    "es-AR": "es-MX",
+    "es-CL": "es-MX",
+    "pt-PT": "pt-BR",
+    "en-GB": "en-US",
+    "en-CA": "en-US",
 }
 
 
@@ -469,17 +472,16 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
-
-# Ensure local debug-only test routes are not locale-prefixed
-if DEBUG:
-    SUPPORTED_NONLOCALES.append("flare-test")
 
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
-    "/all-urls-global.xml",  # in sitemap urls
-    "/all-urls.xml",  # in sitemap urls
+    "/all-urls-global.xml",  # in sitemap urls (legacy alias)
+    "/all-urls.xml",  # in sitemap urls (legacy alias)
+    "/sitemap-global.xml",  # in sitemap urls
+    "/sitemap.xml",  # in sitemap urls
 ]
 
 # Pages that we don't want to be indexed by search engines.
@@ -493,7 +495,7 @@ NOINDEX_URLS = [
     r"^django-rq/",
     r"^oidc/",
     r"^\.well-known/",
-    r"^browsers/unsupported-systems/",
+    r"^download/unsupported-systems/",
     r"^download/installer-help/",
     r"^firefox/nightly/notes/feed/$",
     r"^landing/",
@@ -501,7 +503,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz-cron/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -671,6 +673,14 @@ ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bo
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
 ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool)
 
+# Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
+# Secret in webservices-infra), requests carrying the same token in the
+# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# 5xx for testing Fastly's failover cascade without breaking the /healthz/
+# probe. When unset (the default in every environment) the middleware is a
+# no-op and this setting has no effect.
+SYNTHETIC_5XX_TOKEN = config("SYNTHETIC_5XX_TOKEN", default="")
+
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
     "django.middleware.security.SecurityMiddleware",
@@ -679,6 +689,8 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.SyntheticServerErrorMiddleware",
+    "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
     "springfield.base.middleware.SpringfieldLocaleMiddleware",  # wraps django.middleware.locale.LocaleMiddleware
@@ -716,6 +728,7 @@ INSTALLED_APPS = [
     "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
+    "wagtail.contrib.routable_page",
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
@@ -723,17 +736,20 @@ INSTALLED_APPS = [
     "wagtail.snippets",
     "wagtail.images",
     "wagtail_localize_smartling",  # Has to come before wagtail_localize
+    "wagtail_localize_intentional_blanks",  # Must be before wagtail_localize for template overrides
     "wagtail_localize",
     "wagtail_localize.locales",  # This replaces "wagtail.locales"
     "wagtail.search",
     "wagtaildraftsharing",  # has to come before wagtail.admin due to template overriding; also needs wagtail.snippets
     "wagtail.admin",
     "wagtail",
+    "wagtail_thumbnail_choice_block",
     "modelcluster",
     "taggit",
     "csp",
     "wagtail_link_block",
     # Local apps
+    # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases
     "springfield.firefox",
@@ -750,6 +766,7 @@ INSTALLED_APPS = [
     "django_rq",
     "django_rq_email_backend",
     "mozilla_django_oidc",  # needs to be loaded after django.contrib.auth
+    "wagtail_localize_dashboard",
 ]
 
 # Sessions
@@ -768,7 +785,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz-cron/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -807,6 +824,7 @@ TEMPLATES = [
                 "springfield.base.context_processors.canonical_path",
                 "springfield.base.context_processors.current_year",
                 "springfield.firefox.context_processors.latest_firefox_versions",
+                "springfield.cms.pattern_contexts.pattern_library_l10n_context",
             ],
             "extensions": [
                 "jinja2.ext.do",
@@ -847,9 +865,9 @@ PATTERN_LIBRARY = {
     # are the group titles and the values are lists of template name prefixes that will
     # be searched to populate the groups.
     "SECTIONS": (
+        ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
-        ("Components", ["pattern-library/components"]),
-        ("Pages", ["pattern-library/pages"]),
+        ("Components", ["pattern-library/components/flare/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -1021,6 +1039,12 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+
+# Transcend Consent Management - airgap.js script URL
+TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
+
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
 STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
 STUB_ATTRIBUTION_MAX_LEN = config("STUB_ATTRIBUTION_MAX_LEN", default="600", parser=int)
@@ -1057,6 +1081,9 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
+    # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
+    # requests; keep it out of Sentry events so the token cannot leak via error reports.
+    "X-Mozilla-Ops-Canary",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
@@ -1238,6 +1265,10 @@ WAGTAIL_GRAVATAR_PROVIDER_URL = None
 
 WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="")
 
+# Disable Wagtail autosave - doesn't play well with our infra, resulting in false notifications of stale pages
+# https://docs.wagtail.org/en/stable/reference/settings.html#wagtail-autosave-interval
+WAGTAIL_AUTOSAVE_INTERVAL = 0
+
 # We're sticking to LTS releases of Wagtail, so we don't want to be told there's a new version if that's not LTS
 WAGTAIL_ENABLE_UPDATE_CHECK = False
 
@@ -1270,6 +1301,7 @@ if WAGTAIL_ENABLE_ADMIN:
             "django-rq",
             "oidc",
             "_internal_draft_preview",
+            "intentional-blanks",  # wagtail-localize-intentional-blanks
         ]
     )
 
@@ -1288,16 +1320,23 @@ def lazy_wagtail_langs():
         # Smartling-specific ones in the WAGTAIL_LOCALIZE_SMARTLING settings, below
         ("en-US", "English (US)"),
         ("en-GB", "English (Great Britain)"),
+        ("en-CA", "English (Canada)"),
         ("de", "German"),
         ("fr", "French"),
+        ("es-AR", "Spanish (Argentina)"),
+        ("es-CL", "Spanish (Chile)"),
         ("es-ES", "Spanish (Spain)"),
+        ("es-MX", "Spanish (México)"),
         ("it", "Italian"),
         ("ja", "Japanese"),
         ("nl", "Dutch (Netherlands)"),
         ("pl", "Polish"),
         ("pt-BR", "Portuguese (Brazil)"),
+        ("pt-PT", "Portuguese (Portugal)"),
         ("ru", "Russian"),
         ("zh-CN", "Chinese (China-Simplified)"),
+        ("id", "Indonesian"),
+        ("tr", "Turkish"),
     ]
     enabled_language_codes = [x[0] for x in LANGUAGES]
     retval = [wagtail_lang for wagtail_lang in enabled_wagtail_langs if wagtail_lang[0] in enabled_language_codes]
@@ -1322,8 +1361,6 @@ def lazy_wagtail_core_langs():
     retval = [wagtail_lang for wagtail_lang in enabled_wagtail_core_langs if wagtail_lang[0] in enabled_language_codes]
     return retval
 
-
-WAGTAIL_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
 
 # Don't automatically make a page for a non-default locale availble in the default locale
 WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = False  # note that WAGTAILLOCALIZE is correct without the _
@@ -1353,11 +1390,13 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     "LOCALE_TO_SMARTLING_LOCALE": {
         "de": "de-DE",
         "fr": "fr-FR",
+        "id": "id-ID",
         "it": "it-IT",
         "ja": "ja-JP",
         "nl": "nl-NL",
         "pl": "pl-PL",
         "ru": "ru-RU",
+        "tr": "tr-TR",
     },
     "JOB_NAME_PREFIX": config(
         "WAGTAIL_LOCALIZE_JOB_NAME_PREFIX",
@@ -1365,6 +1404,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     ),
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
+    "EXCLUDE_LOCALES": list(FALLBACK_LOCALES.keys()),
 }
 
 WAGTAILDRAFTSHARING = {
@@ -1382,12 +1422,18 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     # Order here is the order used in the editor UI
     "h2",
     "h3",
+    "h4",
+    "h5",
     "hr",
     "bold",
     "italic",
+    "superscript",
+    "subscript",
+    "strikethrough",
     "code",
     "blockquote",
     "link",
+    "document-link",
     "ol",
     "ul",
     "image",
@@ -1404,6 +1450,27 @@ WAGTAILIMAGES_EXTENSIONS = [
     "svg",
 ]
 
+WAGTAILIMAGES_FORMAT_CONVERSIONS = {
+    "png": "webp",
+    "jpg": "webp",
+    "jpeg": "webp",
+    "webp": "webp",
+}
+
+
+def _localize_dashboard_column_filter_options():
+    alias_codes = sorted(FALLBACK_LOCALES.keys())
+    non_alias_codes = sorted(code for code, _label in lazy_wagtail_langs() if code not in FALLBACK_LOCALES)
+    return [
+        ("alias", "Alias locales", alias_codes),
+        ("non_alias", "Non-alias locales", non_alias_codes),
+    ]
+
+
+# Settings for wagtail-localize-dashboard
+WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.PretranslatedPhrase"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1419,11 +1486,22 @@ WAGTAILIMAGES_EXTENSIONS = [
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
+    "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
-    "firefox.FeaturesDetailPage",
-    "firefox.FeaturesIndexPage",
+    "cms.WhatsNewPage2026",
+    "cms.SmartWindowPage",
+    "cms.SmartWindowExplainerPage",
+    "cms.ArticleIndexPage",
+    "cms.ArticleDetailPage",
+    "cms.ArticleThemePage",
+    "cms.HomePage",
+    "cms.DownloadIndexPage",
+    "cms.DownloadPage",
+    "cms.ThanksPage",
+    "cms.BlogIndexPage",
+    "cms.BlogArticlePage",
+    "cms.RoadmapPage",
+    "cms.ContactPage",
 ]
 
 if DEV is True:
@@ -1453,3 +1531,19 @@ if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bo
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
     SUPPORTED_NONLOCALES.append("silk")
     SILKY_PYTHON_PROFILER = config("SILKY_PYTHON_PROFILER", default="False", parser=bool)
+
+# CMS page and block testing
+PLACEHOLDER_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1000", parser=int)
+PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", parser=int)
+PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
+PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
+PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
+PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
+
+# Contact Page
+# On PROD, only certain paths are allowed to send POST requests
+# This needs to be in sync with Fastly WAF configuration
+CONTACT_PAGE_ALLOWED_PATHS = [
+    r"/enterprise/contact/$",
+    r"/landing/[a-zA-Z0-9\-]+/contact/$",
+]

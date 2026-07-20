@@ -9,6 +9,11 @@
  * These styles only apply to the Pattern Library and should not affect production components
  */
 
+.pl-frame-white {
+    background: #fff;
+    color: #15141a;
+}
+
 .pl-row {
     margin-bottom: 80px;
 }
@@ -17,6 +22,10 @@
     margin: 80px 0;
     border: none;
     border-top: 1px solid gray;
+}
+
+.pl-wrapper {
+    background: var(--fl-theme-background);
 }
 
 @media (min-width: 1024px) {
@@ -29,4 +38,39 @@
     max-width: 688px;
     margin: 0 auto;
     padding: 4rem;
+}
+
+.pl-dash-border {
+    border: 2px dashed green;
+}
+
+.pl-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.pl-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pl-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pl-column-heading {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pl-button-note {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
 }

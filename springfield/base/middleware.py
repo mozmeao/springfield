@@ -11,15 +11,18 @@ the locale codes.
 
 import base64
 import contextlib
+import hmac
 import inspect
+import logging
 import time
 from email.utils import formatdate
 from functools import wraps
 
 from django.conf import settings
-from django.core.exceptions import MiddlewareNotUsed
+from django.core.exceptions import DisallowedRedirect, MiddlewareNotUsed
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.middleware.locale import LocaleMiddleware as DjangoLocaleMiddleware
+from django.shortcuts import redirect
 from django.utils import translation
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import trans_real
@@ -36,6 +39,8 @@ from springfield.base.i18n import (
     path_needs_lang_code,
     split_path_and_normalize_language,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SpringfieldLangCodeFixupMiddleware(MiddlewareMixin):
@@ -196,6 +201,111 @@ def simplified_check_for_language():
         yield
     finally:
         trans_real.check_for_language = check_for_language
+
+
+class SyntheticServerErrorMiddleware:
+    """Returns a synthetic 500 when a request carries a matching magic header.
+
+    Purpose is to test failure paths (specifically Fastly's origin failover
+    cascade) by producing a controlled 5xx from Springfield without breaking
+    anything real.
+
+    The middleware is a no-op when the SYNTHETIC_5XX_TOKEN env var is unset
+    (raises MiddlewareNotUsed so Django drops it from the chain). It also
+    refuses to arm if the configured token is not exactly TOKEN_LENGTH chars
+    (see below for why length is pinned).
+
+    When armed, a request carrying the token in the X-Mozilla-Ops-Canary
+    header receives HTTP 500 with a synthetic body; other requests pass
+    through.
+
+    Healthcheck paths (/healthz/, /readiness/, /healthz-cron/) are always
+    passed through so Fastly's probe stays green during a cascade test,
+    which is precisely the scenario the cascade is designed to catch
+    (site broken but /healthz/ says 200).
+
+    Token comparison uses hmac.compare_digest for constant-time content
+    comparison, gated by a strict length check. Python's docs note that
+    compare_digest can leak string lengths via timing when the operands
+    differ in length; by requiring provided == TOKEN_LENGTH before calling
+    compare_digest, we ensure both operands are always the same length when
+    the comparison runs. The pinned length (64 chars = openssl rand -hex 32
+    = 256 bits of entropy) is public info by design, so any timing signal
+    from the length check itself leaks nothing an attacker doesn't already
+    know.
+
+    Two metrics are emitted for observability:
+    - synthetic5xx.triggered (with path tag) on every successful match.
+      Legit tests = a few hits. Leaked-token abuse = many.
+    - synthetic5xx.header_present_no_match on every request that carries
+      the header with a wrong value or wrong length. A spike here is the
+      early-warning signal for token probing before a guesser succeeds.
+
+    The synthetic 500 response is a plain text body with no Cache-Control or
+    Surrogate-Control override. Setting `Cache-Control: no-store` (which was
+    tempting as belt-and-braces against caching a 500) empirically caused
+    Fastly to enter pass state BEFORE our failover cascade in vcl_fetch got
+    a look, suppressing the restart. Fastly's default behaviour already
+    avoids caching 5xx, so the belt-and-braces was low-value and worth
+    dropping for the cascade to fire correctly.
+
+    Trigger by curling with:
+
+        curl -H "X-Mozilla-Ops-Canary: <64-char-token>" https://<host>/some-path
+    """
+
+    HEADER_NAME = "X-Mozilla-Ops-Canary"
+    HEALTHCHECK_PATHS = ("/healthz/", "/readiness/", "/healthz-cron/")
+    # openssl rand -hex 32 → 64 hex chars, 256 bits of entropy.
+    TOKEN_LENGTH = 64
+
+    def __init__(self, get_response):
+        token = settings.SYNTHETIC_5XX_TOKEN
+        if not token:
+            raise MiddlewareNotUsed
+        if len(token) != self.TOKEN_LENGTH:
+            # Fail loud at startup rather than silently accept a weak/misconfigured
+            # token. `openssl rand -hex 32` is the intended generator.
+            logger.warning(
+                "SyntheticServerErrorMiddleware disabled: SYNTHETIC_5XX_TOKEN must be exactly %d chars, got %d",
+                self.TOKEN_LENGTH,
+                len(token),
+            )
+            raise MiddlewareNotUsed
+        self.get_response = get_response
+        self._token = token
+
+    def __call__(self, request):
+        if request.path in self.HEALTHCHECK_PATHS:
+            return self.get_response(request)
+
+        provided = request.headers.get(self.HEADER_NAME, "")
+        if not provided:
+            return self.get_response(request)
+
+        # Length short-circuit ensures compare_digest is only ever called with
+        # equal-length operands (see docstring). Any header value present but
+        # not matching (wrong length OR wrong value) counts as a probe attempt
+        # so we get observability on token-guessing BEFORE anyone succeeds.
+        if len(provided) != self.TOKEN_LENGTH or not hmac.compare_digest(provided, self._token):
+            metrics.incr("synthetic5xx.header_present_no_match")
+            return self.get_response(request)
+
+        # Successful match.
+        metrics.incr("synthetic5xx.triggered", tags=[f"path:{request.path}"])
+        # Note: we deliberately do NOT set Cache-Control: no-store or
+        # Surrogate-Control here, even as belt-and-braces against a synthetic
+        # 500 getting cached. Empirically, Fastly reacts to those headers by
+        # switching the response into pass state BEFORE our cascade block in
+        # vcl_fetch gets a look, which suppresses the failover restart we
+        # want to trigger. Fastly's default behaviour already avoids caching
+        # 5xx responses, so the belt-and-braces was low-value; the cascade
+        # firing correctly is not. See PR #1567 discussion (2026-07-02).
+        return HttpResponse(
+            "synthetic 500 for cascade test",
+            content_type="text/plain",
+            status=500,
+        )
 
 
 class BasicAuthMiddleware:
@@ -383,3 +493,19 @@ class HostnameMiddleware:
     def process_response(self, request, response):
         response["X-Backend-Server"] = self.backend_server
         return response
+
+
+class CatchDisallowedRedirect(MiddlewareMixin):
+    def process_exception(self, request, exc):
+        if isinstance(exc, DisallowedRedirect):
+            _full_path = request.get_full_path()
+            if len(_full_path) > 32:
+                _path = _full_path[:32] + "..."
+            else:
+                _path = _full_path
+            logger.warning("Caught and silenced DisallowedRedirect for %s", _path)
+            if locale := getattr(request, "locale", None):
+                dest = f"/{locale}/"
+            else:
+                dest = "/"
+            return redirect(dest)

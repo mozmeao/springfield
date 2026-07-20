@@ -14,27 +14,9 @@
     },
     {
       "files": [
-        "css/firefox/system-requirements.scss"
-      ],
-      "name": "firefox_system_requirements"
-    },
-    {
-      "files": [
         "css/firefox/installer-help.scss"
       ],
       "name": "installer_help"
-    },
-    {
-      "files": [
-        "css/firefox/releases-index.scss"
-      ],
-      "name": "firefox_releases_index"
-    },
-    {
-      "files": [
-        "css/firefox/developer/developer.scss"
-      ],
-      "name": "firefox_developer"
     },
     {
       "files": [
@@ -94,12 +76,6 @@
     },
     {
       "files": [
-        "css/firefox/testflight.scss"
-      ],
-      "name": "firefox_ios_testflight"
-    },
-    {
-      "files": [
         "css/firefox/ios-summarizer.scss"
       ],
       "name": "firefox-ios-summarizer"
@@ -109,12 +85,6 @@
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
-    },
-    {
-      "files": [
-        "css/base/banners/firefox-newsletter.scss"
-      ],
-      "name": "firefox-newsletter-banner"
     },
     {
       "files": [
@@ -160,18 +130,6 @@
     },
     {
       "files": [
-        "css/firefox/compare/index.scss"
-      ],
-      "name": "firefox-compare-index"
-    },
-    {
-      "files": [
-        "css/firefox/compare/article.scss"
-      ],
-      "name": "firefox-compare-article"
-    },
-    {
-      "files": [
         "css/firefox/unsupported-systems.scss"
       ],
       "name": "firefox_unsupported_systems"
@@ -187,18 +145,6 @@
         "css/firefox/enterprise/landing.scss"
       ],
       "name": "firefox-enterprise"
-    },
-    {
-      "files": [
-        "css/firefox/releasenotes.scss"
-      ],
-      "name": "firefox_releasenotes"
-    },
-    {
-      "files": [
-        "css/newsletter/newsletter-firefox.scss"
-      ],
-      "name": "newsletter-firefox"
     },
     {
       "files": [
@@ -225,7 +171,7 @@
       ],
       "name": "firefox-home"
     },
-        {
+    {
       "files": [
         "css/firefox/home-ie9.scss"
       ],
@@ -294,16 +240,12 @@
     {
       "files": [
         "css/cms/flare-base.css",
-        "css/cms/flare-icon.css",
+        "css/cms/components/flare-download-utils.css",
+        "css/cms/components/flare-download-link.css",
+        "css/cms/flare-fallback-nav.css",
         "css/cms/flare-utilities.css"
       ],
       "name": "flare_base"
-    },
-    {
-      "files": [
-        "css/cms/flare-utilities.css"
-      ],
-      "name": "flare_utilities"
     },
     {
       "files": [
@@ -353,12 +295,6 @@
     },
     {
       "files": [
-        "css/firefox/browsers/desktop/platform.scss"
-      ],
-      "name": "firefox_desktop_platform"
-    },
-    {
-      "files": [
         "css/firefox/landing/win10-eos.scss"
       ],
       "name": "firefox_win10_eos"
@@ -374,36 +310,6 @@
         "css/firefox/landing/index.scss"
       ],
       "name": "firefox_landing"
-    },
-    {
-      "files": [
-        "css/firefox/more/more.scss"
-      ],
-      "name": "more"
-    },
-    {
-      "files": [
-        "css/firefox/more/best-browser.scss"
-      ],
-      "name": "best-browser"
-    },
-    {
-      "files": [
-        "css/firefox/more/article.scss"
-      ],
-      "name": "more-article"
-    },
-    {
-      "files": [
-        "css/firefox/more/faq.scss"
-      ],
-      "name": "more-faq"
-    },
-    {
-      "files": [
-        "css/firefox/more/windows-64-bit.scss"
-      ],
-      "name": "windows-64-bit"
     },
     {
       "files": [
@@ -431,9 +337,126 @@
     },
     {
       "files": [
-        "css/firefox/ai/waitlist.scss"
+        "css/cms/pages/flare-blog.css"
       ],
-      "name": "firefox_waitlist"
+      "name": "flare-blog"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-docs.css"
+      ],
+      "name": "flare-docs"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-channels.css"
+      ],
+      "name": "flare-channels"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-cookie-settings.css"
+      ],
+      "name": "flare-cookie-settings"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/cms/pages/flare-developer-edition.css"
+      ],
+      "name": "flare-developer-edition"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-download.css"
+      ],
+      "name": "flare-download"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-download_all.css"
+      ],
+      "name": "flare-download-all"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-enterprise.css"
+      ],
+      "name": "flare-enterprise"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-homepage.css"
+      ],
+      "name": "flare-homepage"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-landing-get-page.css"
+      ],
+      "name": "flare-landing-get-page"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-mobile-pages.css"
+      ],
+      "name": "flare-mobile-pages"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/cms/pages/flare-release-notes.css"
+      ],
+      "name": "flare-release-notes"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-releases.css"
+      ],
+      "name": "flare-releases"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-smart-window.css"
+      ],
+      "name": "flare-smart-window"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-system-requirements.css"
+      ],
+      "name": "flare-system-requirements"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-thanks.css"
+      ],
+      "name": "flare-thanks"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-user-privacy.css"
+      ],
+      "name": "flare-user-privacy"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-year-in-review.css"
+      ],
+      "name": "flare-year-in-review"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-kick-page.css"
+      ],
+      "name": "flare26-kick-page",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-kick-page' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise.css"
+      ],
+      "name": "flare-theme-enterprise"
     }
   ],
   "js": [
@@ -447,6 +470,7 @@
       "files": [
         "js/base/site.js",
         "js/base/consent/privacy-helpers.js",
+        "js/base/search-params.js",
         "js/base/mozilla-cookie-helper.js",
         "js/base/banners/m24-pencil-banner-check.js"
       ],
@@ -458,6 +482,30 @@
         "js/base/mozilla-cookie-helper.js"
       ],
       "name": "site-ie"
+    },
+    {
+      "files": [
+        "js/cms/flare-navigation.es6.js"
+      ],
+      "name": "flare-navigation"
+    },
+    {
+      "files": [
+        "js/cms/flare-subnav.es6.js"
+      ],
+      "name": "flare-subnav"
+    },
+    {
+      "files": [
+        "js/cms/flare-lang-switcher.es6.js"
+      ],
+      "name": "flare-lang-switcher"
+    },
+    {
+      "files": [
+        "js/cms/contact-form.js"
+      ],
+      "name": "contact-page"
     },
     {
       "files": [
@@ -473,10 +521,16 @@
     },
     {
       "files": [
-        "js/firefox/download/desktop/download-as-default.es6.js",
-        "js/firefox/download/desktop/download-as-default-init.es6.js"
+        "js/firefox/experiment-home.es6.js"
       ],
-      "name": "download_as_default"
+      "name": "experiment-firefox-home"
+    },
+    {
+      "files": [
+        "js/firefox/download/desktop/download-as-default-v2.es6.js",
+        "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
+      ],
+      "name": "download_as_default-v2"
     },
     {
       "files": [
@@ -486,24 +540,22 @@
     },
     {
       "files": [
-        "js/firefox/download/common/thanks.js",
-        "js/firefox/download/common/thanks-init.js"
+        "js/base/download-attribution/download-attribution-init-essential.es6.js"
       ],
-      "name": "firefox_download_thanks"
+      "name": "download-attribution-init-essential"
     },
     {
       "files": [
-        "js/firefox/download/common/thanks.js",
-        "js/firefox/download/common/thanks-direct.es6.js"
+        "js/base/download-attribution/download-attribution.es6.js",
+        "js/firefox/download/auto-download.es6.js"
       ],
-      "name": "firefox_download_thanks_direct"
+      "name": "auto-download"
     },
     {
       "files": [
-        "js/base/stub-attribution/stub-attribution.js",
-        "js/base/stub-attribution/stub-attribution-init.es6.js"
+        "js/base/mobile-attribution.js"
       ],
-      "name": "stub-attribution"
+      "name": "mobile-attribution"
     },
     {
       "files": [
@@ -519,12 +571,6 @@
     },
     {
       "files": [
-        "js/newsletter/newsletter-firefox-experiment.es6.js"
-      ],
-      "name": "newsletter-firefox-experiment"
-    },
-    {
-      "files": [
         "js/firefox/features/features-article.es6.js"
       ],
       "name": "firefox_features_article"
@@ -537,28 +583,21 @@
     },
     {
       "files": [
-        "js/firefox/browsers/compare-article.es6.js"
-      ],
-      "name": "firefox_compare_article"
-    },
-    {
-      "files": [
         "js/firefox/default/thanks.js"
       ],
       "name": "firefox-default-thanks"
     },
     {
       "files": [
-        "js/base/banners/firefox-app-store-banner.es6.js"
+        "js/firefox/landing/year-in-review.js"
       ],
-      "name": "firefox-app-store-banner"
+      "name": "year_in_review"
     },
     {
       "files": [
-        "js/base/banners/firefox-newsletter-banner-init.es6.js",
-        "js/base/banners/firefox-newsletter-banner-check.js"
+        "js/base/banners/firefox-app-store-banner.es6.js"
       ],
-      "name": "firefox-newsletter-banner"
+      "name": "firefox-app-store-banner"
     },
     {
       "files": [
@@ -574,15 +613,14 @@
     },
     {
       "files": [
-        "js/firefox/all/all-init.es6.js"
+        "js/firefox/all/all-init-v2.es6.js"
       ],
-      "name": "firefox_all"
+      "name": "firefox_all-v2"
     },
     {
       "files": [
         "js/libs/classlist.js",
         "js/libs/array-from.js",
-        "js/base/search-params.js",
         "js/base/uitour-lib.js",
         "js/base/mozilla-run.js",
         "js/base/mozilla-utils.js",
@@ -640,7 +678,7 @@
     },
     {
       "files": [
-        "js/firefox/enterprise/landing.js"
+        "js/firefox/enterprise/landing.es6.js"
       ],
       "name": "firefox-enterprise"
     },
@@ -664,15 +702,15 @@
     },
     {
       "files": [
-        "js/base/video-prefers-reduced-motion.es6.js"
-      ],
-      "name": "video-prefers-reduced-motion"
-    },
-    {
-      "files": [
         "js/base/gtm/gtm-snippet-init.es6.js"
       ],
       "name": "gtm-snippet"
+    },
+    {
+      "files": [
+        "js/base/plausible/plausible-init.es6.js"
+      ],
+      "name": "plausible"
     },
     {
       "files": [
@@ -722,12 +760,32 @@
     },
     {
       "files": [
+        "js/firefox/landing/get/protection-report.js"
+      ],
+      "name": "landing_get_report"
+    },
+    {
+      "files": [
         "js/base/mozilla-client.js",
         "js/base/mozilla-fxa.js",
         "js/base/mozilla-fxa-init.js",
-        "js/cms/new.es6.js"
+        "js/cms/flare.es6.js",
+        "js/base/base-page-init.js"
       ],
-      "name": "firefox-cms-new"
+      "name": "firefox-cms-flare"
+    },
+    {
+      "files":[
+        "js/cms/pages/flare-kick-page.es6.js"
+      ],
+      "name": "flare26-kick-page",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare26-kick-page' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
+        "js/cms/easter-egg-logo.es6.js"
+      ],
+      "name": "easter-egg-logo"
     },
     {
       "files": [
@@ -773,9 +831,27 @@
     },
     {
       "files": [
-        "js/firefox/ai/waitlist-newsletter-init.es6.js"
+        "js/cms/wagtailadmin-fx-logo.js"
       ],
-      "name": "waitlist_newsletter"
+      "name": "wagtailadmin-fx-logo"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-link-block.js"
+      ],
+      "name": "wagtailadmin-link-block"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-locale-badges.js"
+      ],
+      "name": "wagtailadmin-locale-badges"
+    },
+    {
+      "files": [
+        "js/cms/flare-docs.js"
+      ],
+      "name": "flare-docs"
     }
   ]
 }

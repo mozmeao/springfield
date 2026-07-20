@@ -6,9 +6,11 @@
 
 <!doctype html>
 {# Note the "windows" class, without javascript platform-specific assets default to windows #}
-<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}"{% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"{% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}"{% endif %} {% block html_attrs %}{% endblock %}>
+<html class="windows no-js" lang="{{ LANG|replace('en-US', 'en') }}" dir="{{ DIR }}" data-country-code="{{ country_code }}" data-needs-consent="{{ needs_data_consent(country_code) }}" data-latest-firefox="{{ latest_firefox_version }}" data-esr-versions="{{ esr_firefox_versions|join(' ') }}" {% if settings.GTM_CONTAINER_ID %}data-gtm-container-id="{{ settings.GTM_CONTAINER_ID }}"{% endif %} {% if plausible_enabled(country_code) %}data-plausible-domain="{{ settings.PLAUSIBLE_DOMAIN }}" data-plausible-src="{{ settings.PLAUSIBLE_SCRIPT_URL }}"{% endif %} {% if settings.STUB_ATTRIBUTION_RATE %}data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"{% endif %} {% if settings.SENTRY_FRONTEND_DSN %}data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}"{% endif %} {% block html_attrs %}{% endblock %}>
   <head>
     <meta charset="utf-8">{# Note: Must be within first 512 bytes of page #}
+
+    {% include 'includes/transcend-consent.html' %}
 
     <!--[if !IE]><!-->
     {{ js_bundle('site') }}
@@ -28,13 +30,13 @@
     {% block extra_meta %}{% endblock %}
 
     {% block shared_meta %}
-    <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox{% endblock %}{% endfilter %}</title>
+    <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox.com{% endblock %}{% endfilter %}</title>
     <meta name="description" content="{% filter striptags %}{% block page_desc %}{% endblock %}{% endfilter %}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Firefox">
     <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
     <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
-    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('protocol/img/logos/firefox/browser/og.png') }}{% endblock %}{% endfilter %}">
+    <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('img/firefox/flare/og.png') }}{% endblock %}{% endfilter %}">
     <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ self.page_title() }}{% endblock %}{% endfilter %}">
     <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ self.page_desc() }}{% endblock %}{% endfilter %}">
     <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
@@ -50,6 +52,7 @@
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% block page_ios_icon %}{{ static('img/favicons/firefox/browser/apple-touch-icon.png') }}{% endblock %}">
     <link rel="icon" type="image/png" sizes="196x196" href="{% block page_favicon_large %}{{ static('img/favicons/firefox/browser/favicon-196x196.png') }}{% endblock %}">
     <link rel="shortcut icon" href="{% block page_favicon %}{{ static('img/favicons/firefox/browser/favicon.ico') }}{% endblock %}">
+    <link rel="me" href="https://mastodon.social/@FirefoxOfficial">
     {% block canonical_urls %}{% include 'includes/canonical-url.html' %}{% endblock %}
     {% endblock shared_meta %}
 
@@ -88,6 +91,12 @@
           {{ js_bundle('gtm-snippet') }}
         {% endif %}
       <!--<![endif]-->
+    {% endblock %}
+
+    {% block plausible %}
+      {% if plausible_enabled(country_code) %}
+        {{ js_bundle('plausible') }}
+      {% endif %}
     {% endblock %}
   </head>
 
@@ -149,9 +158,16 @@
       {% if settings.STUB_ATTRIBUTION_RATE %}
         <!--[if IE 9]><!-->
           {# Stub attribution is run on all evergreen browsers plus IE9 and above. #}
-          {{ js_bundle('stub-attribution') }}
+          {{ js_bundle('download-attribution-init-essential') }}
         <!--<![endif]-->
       {% endif %}
+    {% endblock %}
+
+    {% block mobile_attribution %}
+      {# Rewrites /thanks/-bound download buttons to attributed store URLs on
+         mobile UAs so page-level campaign survives the click. Self-gates on
+         campaign data attrs or URL utm_campaign; no-op otherwise. #}
+      {{ js_bundle('mobile-attribution') }}
     {% endblock %}
 
     <!--[if !IE]><!-->

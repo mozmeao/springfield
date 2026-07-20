@@ -1,0 +1,74 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block body_class %}fl-article-body{% endblock %}
+
+{% block flare_header %}
+  {% set theme = "dark" if page.upper_content|length else None %}
+  {% include 'cms/includes/site-header.html' %}
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-features-theme-page">
+  {% if page.upper_content|length %}
+    <div class="fl-main">
+      {% set ns = namespace(headings=0) %}
+      {% set block_level = 1 %}
+
+      <div class="fl-split-page-upper has-sitting-kit">
+        {% for block in page.upper_content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
+
+          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% include_block block %}
+        {% endfor %}
+      </div>
+
+
+      <div class="fl-split-page-lower">
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = 'lower-block-' ~ block_index ~ "-" ~ block_type %}
+
+          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="fl-main has-gradient-bottom">
+      {% set ns = namespace(headings=0) %}
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = 'block-' ~ block_index ~ "-" ~ block_type %}
+
+        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

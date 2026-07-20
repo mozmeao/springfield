@@ -8,23 +8,27 @@ from collections import OrderedDict
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import Http404, HttpResponsePermanentRedirect, JsonResponse
+from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect, JsonResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_safe
 
-import querystringsafe_base64
 from product_details import product_details
+from wagtail.models import Locale as WagtailLocale
 
-from lib import l10n_utils
+from lib import l10n_utils, querystringsafe_base64
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
+from springfield.base import waffle
 from springfield.base.urlresolvers import reverse
+from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.firefox.firefox_details import (
     firefox_android,
     firefox_desktop,
     firefox_ios,
 )
+from springfield.firefox.redirects import validate_param_value
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
 
@@ -39,10 +43,11 @@ INSTALLER_CHANNElS = [
 ]
 SEND_TO_DEVICE_MESSAGE_SETS = settings.SEND_TO_DEVICE_MESSAGE_SETS
 
-STUB_VALUE_NAMES = [
+
+_STUB_VALUE_NAMES = [
     # name, default value
     ("utm_source", "(not set)"),
-    ("utm_medium", "(direct)"),
+    ("utm_medium", "(not set)"),
     ("utm_campaign", "(not set)"),
     ("utm_content", "(not set)"),
     ("experiment", "(not set)"),
@@ -63,8 +68,13 @@ class InstallerHelpView(L10nTemplateView):
         ctx = super().get_context_data(**kwargs)
         installer_lang = self.request.GET.get("installer_lang", None)
         installer_channel = self.request.GET.get("channel", None)
+        installer_arch = self.request.GET.get("installer_arch", None)
         ctx["installer_lang"] = None
         ctx["installer_channel"] = None
+        ctx["installer_arch"] = None
+
+        if installer_arch is not None:
+            ctx["installer_arch"] = {"1": "win", "2": "win64", "3": "win64-aarch64"}[installer_arch]
 
         if installer_lang and installer_lang in firefox_desktop.languages:
             ctx["installer_lang"] = installer_lang
@@ -98,7 +108,9 @@ def stub_attribution_code(request):
     data = request.GET
     codes = OrderedDict()
     has_value = False
-    for name, default_value in STUB_VALUE_NAMES:
+    fallback_fields = ["medium", "source"]
+    stub_value_names = _STUB_VALUE_NAMES
+    for name, default_value in stub_value_names:
         val = data.get(name, "")
         # remove utm_
         if name.startswith("utm_"):
@@ -106,24 +118,34 @@ def stub_attribution_code(request):
 
         if val and STUB_VALUE_RE.match(val):
             codes[name] = val
-            has_value = True
+            if name in fallback_fields:
+                # we don't need the fallbacks
+                has_value = True
         else:
             codes[name] = default_value
 
-    if codes["source"] == "(not set)" and "referrer" in data:
-        try:
-            domain = urlparse(data["referrer"]).netloc
-            if domain and STUB_VALUE_RE.match(domain):
-                codes["source"] = domain
-                codes["medium"] = "referral"
-                has_value = True
-        except Exception:
-            # any problems and we should just ignore it
-            pass
+    # Only provide default analytics data if analytics data is allowed
+    # (as indicated by set session_id value)
+    if codes["session_id"] != "(not set)":
+        # set basic fallbacks
+        if codes["medium"] == "(not set)":
+            codes["medium"] = "(direct)"
 
-    if not has_value:
-        codes["source"] = "www.firefox.com"
-        codes["medium"] = "(none)"
+        # try more advanced fallbacks
+        if codes["source"] == "(not set)" and "referrer" in data:
+            try:
+                domain = urlparse(data["referrer"]).netloc
+                if domain and STUB_VALUE_RE.match(domain):
+                    codes["source"] = domain
+                    codes["medium"] = "referral"
+                    has_value = True
+            except Exception:
+                # any problems and we should just ignore it
+                pass
+
+        if not has_value:
+            codes["source"] = "www.firefox.com"
+            codes["medium"] = "(none)"
 
     code_data = sign_attribution_codes(codes)
     if code_data:
@@ -162,15 +184,6 @@ def sign_attribution_codes(codes):
     code = querystringsafe_base64.encode(code.encode())
     sig = hmac.new(key.encode(), code, hashlib.sha256).hexdigest()
     return {"attribution_code": code.decode(), "attribution_sig": sig}
-
-
-@require_safe
-def firefox_ai_waitlist_page(request):
-    template_name = "firefox/ai/waitlist.html"
-    newsletter_id = "smart-window-waitlist"
-    ctx = {"newsletter_id": newsletter_id}
-
-    return l10n_utils.render(request, template_name, ctx)
 
 
 @require_safe
@@ -281,7 +294,12 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
     platform_name = None
     locale_name = None
     download_url = None
-    template_name = "firefox/all/base.html"
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        template_name = "firefox/all/includes/main-flare.html"
+    else:
+        template_name = "firefox/all/base-flare.html"
+
     lang_multi = ftl("firefox-all-lang-multi", ftl_files=ftl_files)
 
     if product:
@@ -349,8 +367,8 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
                 # ESR115 builds do not exist for "sat" and "skr" languages (issue: mozilla/bedrock#15437)
                 if locale in ["sat", "skr"]:
                     download_esr_115_url = None
-                # ESR115 builds do not exist for "linux64-aarch64" platform (see issue #467)
-                if platform == "linux64-aarch64":
+                # ESR115 builds do not exist for "linux64-aarch64" (springfield#467); "linux" (i686) and "win64-aarch64" no longer ship (bug 2040496)
+                if platform in ["linux64-aarch64", "linux", "win64-aarch64"]:
                     download_esr_115_url = None
                 context.update(
                     download_esr_115_url=download_esr_115_url,
@@ -405,9 +423,8 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 class DownloadThanksView(L10nTemplateView):
     ftl_files_map = {
         "firefox/download/basic/thanks.html": ["firefox/download/download"],
-        "firefox/download/basic/thanks_direct.html": ["firefox/download/download"],
         "firefox/download/desktop/thanks.html": ["firefox/download/desktop"],
-        "firefox/download/desktop/thanks_direct.html": ["firefox/download/desktop"],
+        "firefox/download/rtamo.html": ["firefox/download/desktop"],
     }
     activation_files = [
         "firefox/download/download",
@@ -435,16 +452,72 @@ class DownloadThanksView(L10nTemplateView):
 
         if ftl_file_is_active("firefox/download/desktop") and experience != "basic":
             if source == "direct":
-                template = "firefox/download/desktop/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/desktop/thanks.html"
         else:
             if source == "direct":
-                template = "firefox/download/basic/thanks_direct.html"
+                template = "firefox/download/rtamo.html"
             else:
                 template = "firefox/download/basic/thanks.html"
 
         return [template]
+
+
+# Platform detection patterns for /download/ redirect.
+# Order matters: Android and ChromeOS UAs contain "Linux",
+# and iOS UAs can contain "Mac OS X", so check mobile/specific
+# platforms before generic desktop ones.
+_DOWNLOAD_PLATFORM_PATTERNS = (
+    (re.compile(r"\b(iPhone|iPad|iPod)\b", re.I), "ios"),
+    (re.compile(r"\bAndroid\b", re.I), "android"),
+    (re.compile(r"\bCrOS\b", re.I), "chromebook"),
+    (re.compile(r"\bWindows\b", re.I), "windows"),
+    (re.compile(r"\bMacintosh\b", re.I), "mac"),
+    (re.compile(r"\bLinux\b", re.I), "linux"),
+)
+
+
+def detect_download_platform(user_agent):
+    """Detect the download platform from a User-Agent string.
+
+    Returns one of 'windows', 'mac', 'linux', 'android', 'ios',
+    'chromebook', or None if the platform cannot be determined.
+    """
+    for pattern, platform in _DOWNLOAD_PLATFORM_PATTERNS:
+        if pattern.search(user_agent):
+            return platform
+    return None
+
+
+@require_safe
+@never_cache
+def download_redirect(request):
+    """Redirect /download/ to the appropriate platform-specific download page.
+
+    When the PLATFORM_DOWNLOAD_REDIRECTION switch is off, falls back to
+    redirecting to the homepage (matching the legacy redirects.py behaviour).
+    """
+    if not waffle.switch("PLATFORM_DOWNLOAD_REDIRECTION"):
+        return HttpResponseRedirect(reverse("firefox"))
+
+    ua = request.headers.get("User-Agent", "")
+    platform = detect_download_platform(ua)
+
+    base = request.path
+    if not base.endswith("/"):
+        base += "/"
+
+    if platform:
+        redirect_url = f"{base}{platform}/"
+    else:
+        redirect_url = f"{base}all/"
+
+    qs = request.META.get("QUERY_STRING", "")
+    if qs:
+        redirect_url = f"{redirect_url}?{qs}"
+
+    return HttpResponseRedirect(redirect_url)
 
 
 class DownloadView(L10nTemplateView):
@@ -674,10 +747,13 @@ def firefox_features_translate(request):
     translate_langs = [
         "ar",
         "az",
+        "eu",
         "bg",
         "bn",
+        "bs",
         "ca",
         "zh-CN",
+        "zh-TW",
         "hr",
         "cs",
         "da",
@@ -687,6 +763,7 @@ def firefox_features_translate(request):
         "fa",
         "fi",
         "fr",
+        "gl",
         "de",
         "el",
         "gu",
@@ -703,6 +780,7 @@ def firefox_features_translate(request):
         "lt",
         "ml",
         "ms",
+        "nb-NO",
         "pl",
         "pt-PT",
         "ro",
@@ -715,6 +793,7 @@ def firefox_features_translate(request):
         "sv-SE",
         "ta",
         "te",
+        "th",
         "tr",
         "uk",
         "vi",
@@ -835,6 +914,15 @@ class PlatformViewWindows(L10nTemplateView):
     activation_files = ["firefox/download/download", "firefox/download/platform"]
 
 
+class MobileBrowsersView(L10nTemplateView):
+    ftl_files_map = {
+        "firefox/browsers/mobile/index.html": ["firefox/browsers/mobile/index"],
+    }
+
+    def get_template_names(self):
+        return ["firefox/browsers/mobile/index.html"]
+
+
 def detect_channel(version):
     match = re.match(r"\d{1,3}", version)
     if match:
@@ -844,11 +932,31 @@ def detect_channel(version):
                 return "nightly"
             if version.endswith("a2"):
                 return "developer"
+            if version.endswith("beta"):
+                return "beta"
 
     return "unknown"
 
 
 class WhatsnewView(L10nTemplateView):
+    # The 3-digit Whats New route in urls.py is decorated with prefer_cms, so requests
+    # like /en-US/whatsnew/150/ will only reach this view when there is not already a
+    # CMS-backed What's New Page that directly matches the request path. For example,
+    # /en-US/whatsnew/150/ would match a CMS-backed WNP first, but /cy/whatsnew/150/
+    # would not because cy is not currently a CMS-backed locale.
+    #
+    # Legacy version routes (for example 152.0a1 or 152.0beta) may also dispatch here
+    # without prefer_cms, so this view is not exclusively a "no CMS page matched"
+    # fallback for every Whats New URL pattern.
+    #
+    # When this view handles a request, it will either:
+    # a) redirect to a CMS-backed "evergreen" WNP (for Nightly, Developer or the
+    # "general" WNP for FF Release) IF the request's locale is supported by the CMS
+    # or
+    # b) render a static Django-powered evergreen WNP for Nightly, Developer or Beta,
+    # using Fluent strings for L10N, which will cover the locales that are not
+    # supported by the CMS.
+
     ftl_files_map = {
         "firefox/whatsnew/nightly/evergreen.html": ["firefox/whatsnew/nightly/evergreen"],
         "firefox/whatsnew/developer/evergreen.html": ["firefox/whatsnew/developer/evergreen"],
@@ -860,6 +968,89 @@ class WhatsnewView(L10nTemplateView):
 
     # Nimbus experiment variation expected values
     nimbus_variations = ["v1", "v2", "v3", "v4"]
+
+    # Maps detect_channel() return values to the WNP CMS slug to redirect to.
+    # Channels absent from this map (i.e. "unknown") fall back to "general".
+    _CHANNEL_WNP_SLUGS = {
+        "nightly": "nightly",
+        "developer": "developer",
+        "beta": "beta",
+    }
+
+    def _get_evergreen_wnp_redirect(self, request, version):
+        """
+        If an "evergreen", channel-appropriate WNP exists in the CMS for the request
+        locale (or its configured CMS fallback locale), return a 302 redirect to it,
+        preserving existing querystring params and appending ?version=VERSION.
+
+        The target slug is chosen by the channel detected from the version string:
+          a1 suffix  → /whatsnew/nightly/
+          a2 suffix  → /whatsnew/developer/
+          beta suffix → /whatsnew/beta/
+          anything else → /whatsnew/general/
+
+        Returns None if no redirect is warranted.
+        """
+        channel = detect_channel(version)
+        wnp_slug = self._CHANNEL_WNP_SLUGS.get(channel, "general")
+
+        # Extract the raw locale code from the URL path (e.g. "it", "es-AR")
+        _path = request.path.lstrip("/")
+        lang_code, _, _ = _path.partition("/")
+
+        # Build an ordered list of CMS locale codes to check for the target WNP.
+        # Always check the request locale first (if it's a CMS locale), then its
+        # configured fallback (if any). This handles two cases:
+        #   1. Pure alias locales (e.g. es-AR → es-MX): only the fallback is checked.
+        #   2. CMS locales that also have a fallback (e.g. en-GB → en-US): the
+        #      direct locale is checked first; if it has no matching evergreen WNP
+        #      we also check the fallback so that a redirect is still issued and
+        #      CMSLocaleFallbackMiddleware can transparently serve the fallback
+        #      locale's content at the alias URL.
+        cms_language_codes = dict(settings.WAGTAIL_CONTENT_LANGUAGES)
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        locale_codes_to_check = []
+        if lang_code in cms_language_codes:
+            locale_codes_to_check.append(lang_code)
+        fallback_locale_code = fallback_locales.get(lang_code)
+        if fallback_locale_code and fallback_locale_code not in locale_codes_to_check:
+            locale_codes_to_check.append(fallback_locale_code)
+
+        if not locale_codes_to_check:
+            return None
+
+        for locale_code in locale_codes_to_check:
+            try:
+                locale = WagtailLocale.objects.get(language_code=locale_code)
+            except WagtailLocale.DoesNotExist:
+                continue
+            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
+                break
+        else:
+            return None
+
+        # Merge the version into the existing querystring (defence in depth validation)
+        params = request.GET.copy()
+        safe_version = validate_param_value(version)
+        if safe_version:
+            params["version"] = safe_version
+
+        # Use the original lang_code in the redirect URL so that alias locales
+        # (e.g. es-AR) redirect to their alias URL; Wagtail's locale-fallback
+        # machinery then transparently serves the fallback locale's content.
+        redirect_path = f"/{lang_code}/whatsnew/{wnp_slug}/"
+        query_string = params.urlencode()
+        redirect_url = f"{redirect_path}?{query_string}" if query_string else redirect_path
+
+        return HttpResponseRedirect(redirect_url)
+
+    def get(self, request, *args, **kwargs):
+        version = self.kwargs.get("version", "")
+        redirect_response = self._get_evergreen_wnp_redirect(request, version)
+        if redirect_response:
+            return redirect_response
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -920,3 +1111,10 @@ class WhatsnewView(L10nTemplateView):
 
         # return a list to conform with original intention
         return [template]
+
+
+@require_safe
+def landing_get_page(request):
+    ftl_files = ["firefox/download/desktop", "firefox/download/home"]
+    template_name = "firefox/landing/get-new.html"
+    return l10n_utils.render(request, template_name, ftl_files=ftl_files)

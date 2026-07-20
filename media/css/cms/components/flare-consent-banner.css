@@ -1,0 +1,37 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-consent-banner {
+    background: var(--theme-purple-card-bg-color);
+    border: 2px solid var(--fl-subtle-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    display: none;
+    inset: auto var(--token-spacing-lg) var(--token-spacing-lg);
+    padding: var(--token-spacing-2xl);
+    position: fixed;
+    z-index: 5;
+}
+
+.fl-consent-banner p {
+    margin: 0;
+}
+
+.fl-consent-banner.is-visible {
+    display: block;
+}
+
+.fl-consent-banner-content {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+}
+
+.fl-consent-banner-content .fl-buttons {
+    align-items: center;
+    justify-content: center;
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
+}

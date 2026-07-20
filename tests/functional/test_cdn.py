@@ -43,7 +43,6 @@ def get_ssl_json_results(tmp_filename):
 # end helper functions
 
 
-@pytest.mark.cdn
 @pytest.fixture(scope="session")
 def get_ssllabs_results(base_url):
     tmp_filename = "ssllabs_data.txt"
@@ -127,6 +126,7 @@ def test_cdn_cache(base_url):
 
 
 @pytest.mark.cdn
+@pytest.mark.cdnssl
 @pytest.mark.nondestructive
 @pytest.mark.parametrize("version", supported_versions, ids=itemgetter(0))
 def test_enabled_protocols(version, get_ssllabs_results):
@@ -141,6 +141,7 @@ def test_enabled_protocols(version, get_ssllabs_results):
 
 
 @pytest.mark.cdn
+@pytest.mark.cdnssl
 @pytest.mark.nondestructive
 @pytest.mark.parametrize("version", unsupported_versions, ids=itemgetter(0))
 def test_disabled_protocols(version, get_ssllabs_results):
@@ -155,6 +156,7 @@ def test_disabled_protocols(version, get_ssllabs_results):
 
 
 @pytest.mark.cdn
+@pytest.mark.cdnssl
 @pytest.mark.nondestructive
 @pytest.mark.parametrize("cipher", ciphers, ids=itemgetter(0))
 def test_enabled_ciphers(cipher, get_ssllabs_results):
@@ -169,7 +171,7 @@ def test_enabled_ciphers(cipher, get_ssllabs_results):
 
 
 @pytest.mark.cdn
-@pytest.mark.cdnprod
+@pytest.mark.cdnssl
 @pytest.mark.nondestructive
 def test_tls(get_ssllabs_results):
     """Check get_ssllabs_results to make sure that all expected clients connected without issue"""

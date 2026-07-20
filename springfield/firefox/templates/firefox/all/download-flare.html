@@ -1,0 +1,100 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button, ms_store_button with context %}
+
+{# Show download #}
+<div tabindex="-1" aria-labelledby="all-download" class="fl-c-flow-section c-step-name {% if not (product and platform and locale) %}t-step-disabled{% endif %}">
+  <div class="fl-c-flow-step">
+    <span class="fl-c-flow-step-checkbox"></span>
+    <h2 id="all-download" class="fl-c-flow-step-title {% if ftl_has_messages('firefox-all-download-v2') %}fl-t-flow-step-title-counter{% endif %} fl-body fl-body-2xs fl-u-text-uppercase fl-u-font-medium">
+    {% if ftl_has_messages('firefox-all-download-v2') %}
+      {{ ftl('firefox-all-download-v2') }}
+    {% else %}
+      {{ ftl('firefox-all-download') }}
+    {% endif %}
+    </h2>
+  </div>
+
+{% if product and platform and locale %}
+<div class="c-step-contents">
+  {% if platform.startswith("linux") %}
+    {# Linux preamble #}
+    <p class="c-linux-debian">
+      {{ ftl('download-button-using-debian', attrs='href="https://support.mozilla.org/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions" rel="external noopener" data-cta-text="You can set up our APT repository instead"'|safe) }}
+    </p>
+  {% endif %}
+  {% if product.slug.startswith("desktop") %}
+    {% if platform.startswith("win-store") %}
+      {# Windows Store #}
+      <p class="c-step-download">
+        {% set ms_store_product = 'firefox_beta' if product.slug.endswith('beta') else 'firefox' %}
+        {% set ms_store_href = ms_store_url(product=ms_store_product, campaign='firefox-all') %}
+        {{ ms_store_button(href=ms_store_href, id='msStoreLink') }}
+      </p>
+    {% elif product.slug == "desktop-esr" %}
+      {# ESR #}
+      {% set is_esr_next_version = desktop_esr_next_version %}
+      {# If there are multiple ESR's available, show next as well. #}
+      {% if is_esr_next_version %}
+        <p class="c-step-download">
+          <a href="{{ download_esr_next_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
+            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_next_version) }} <include:icon icon_name="downloads" />
+          </a>
+        </p>
+
+        {% if ftl_has_messages('firefox-all-esr-we-are-in-transition', 'firefox-all-esr-when-there-is', 'firefox-all-esr-if-you-choose') %}
+        <p>{{ ftl('firefox-all-esr-we-are-in-transition', esr_next_major=desktop_esr_next_version.split('.')[0], esr_current_major=desktop_esr_latest_version.split('.')[0] ) }}</p>
+        <p>{{ ftl('firefox-all-esr-when-there-is') }}</p>
+        <p>{{ ftl('firefox-all-esr-if-you-choose') }}</p>
+        {% endif %}
+
+        <p>
+          <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
+            {{ ftl('firefox-all-download-esr-version', esr_version=desktop_esr_latest_version) }} <include:icon icon_name="downloads" />
+          </a>
+        </p>
+
+        {% if ftl_has_messages('firefox-all-esr-read-more') %}
+        <p>{{ ftl('firefox-all-esr-read-more', attrs='href="https://support.mozilla.org/kb/firefox-esr-release-cycle" rel="external noopener" data-link-text="Firefox ESR release cycle"') }}</p>
+        {% endif %}
+
+      {% else %}
+      {# ESR latest #}
+      <p class="c-step-download">
+        <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
+          {{ ftl('download-button-download-now') }} <include:icon icon_name="downloads" />
+        </a>
+      </p>
+      {% endif %}
+      {# ESR 115 issue: 15083 #}
+      {% if download_esr_115_url %}
+        <p class="c-step-download mzp-u-body-sm">{{ ftl('firefox-all-note-unsupported') }}</p>
+        <p>
+          <a href="{{ download_esr_115_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
+            {{ ftl('firefox-all-download-esr-115') }} <include:icon icon_name="downloads" />
+          </a>
+        </p>
+      {% endif %}
+    {% else %}
+      {# All other desktop releases #}
+      <p class="c-step-download">
+        <a href="{{ download_url }}" class="download-link fl-button button-primary" data-download-version="{{ platform }}" data-cta-text="Download Now">
+          {{ ftl('download-button-download-now') }} <include:icon icon_name="downloads" />
+        </a>
+      </p>
+    {% endif %}
+  {% elif product.slug.startswith('android') or product.slug.startswith('ios') or product.slug.startswith('mobile') %}
+    {# all mobile releases #}
+    {% include 'firefox/all/mobile.html' %}
+  {% else %}
+    <p class="c-download-error">
+      {{ ftl('firefox-all-sorry-we-couldnt-find') }}
+    </p>
+  {% endif %}
+</div>
+{% endif %}
+</div>

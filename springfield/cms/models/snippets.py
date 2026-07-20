@@ -1,0 +1,587 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from uuid import uuid4
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
+
+    from springfield.cms.models.pages import QRCodeFloatingSnippetMixin
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.functional import cached_property
+
+from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
+from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail_localize.fields import SynchronizedField
+
+from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.cms.blocks import (
+    EXPANDED_TEXT_FEATURES,
+    HEADING_TEXT_FEATURES,
+    ButtonBlock,
+    ConditionalDisplayBlock,
+    MixedButtonsBlock,
+    NavFolderBlock,
+    SpringfieldLinkBlock,
+    TopLevelLinkBlock,
+    get_button_types,
+)
+from springfield.cms.fields import StreamField
+from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.rich_text import RichTextField
+from springfield.cms.templatetags.cms_tags import remove_tags
+
+
+class FluentPreviewableMixin(PreviewableMixin):
+    """
+    A PreviewableMixin that renders templates with localized Fluent strings.
+    """
+
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        locale = get_locale(request)
+        context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
+        context["is_preview"] = True
+        return context
+
+
+class BaseDraftQueryset(models.QuerySet):
+    def live(self):
+        return self.filter(live=True)
+
+    def not_live(self):
+        return self.filter(live=False)
+
+
+class BaseDraftTranslatableSnippetMixin(TranslatableMixin, DraftStateMixin, RevisionMixin):
+    """A base mixin for snippets that are translatable and have draft state and revision history."""
+
+    objects = BaseDraftQueryset.as_manager()
+
+    class Meta(TranslatableMixin.Meta, DraftStateMixin.Meta, RevisionMixin.Meta):
+        abstract = True
+
+    @cached_property
+    def active_locale(self):
+        return SpringfieldLocale.get_active()
+
+    def get_localized(self):
+        """Get the localized instance of this snippet for the active locale or for the fallback locale,
+        or None if not available in the active locale."""
+        localized = self.localized
+
+        active_lang_code = self.active_locale.language_code
+
+        if localized.locale.language_code != active_lang_code:
+            fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+            if fallback_code := fallback_locales.get(active_lang_code):
+                if fallback_locale := SpringfieldLocale.objects.filter(language_code=fallback_code).first():
+                    if fallback_snippet := self.get_translation_or_none(fallback_locale):
+                        localized = fallback_snippet
+            else:
+                return None
+
+        if localized.live:
+            return localized
+        return None
+
+
+class PreFooterCTASnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet for the big Get Firefox button at the bottom of pages."""
+
+    label = models.CharField(max_length=255, default="Get Firefox")
+    analytics_id = models.CharField(default=uuid4)
+
+    panels = [
+        FieldPanel("label"),
+        FieldPanel("analytics_id"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pre Footer Call to Action"
+        verbose_name_plural = "Pre Footer Call to Action"
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pre-footer-cta-snippet-preview.html"
+
+
+class PreFooterCTAFormSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet for the Newsletter sign-up form at the bottom of pages."""
+
+    heading = RichTextField(features=HEADING_TEXT_FEATURES)
+    subheading = RichTextField(features=HEADING_TEXT_FEATURES)
+    analytics_id = models.UUIDField(default=uuid4)
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("subheading"),
+        FieldPanel("analytics_id"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pre Footer Call To Action Form"
+        verbose_name_plural = "Pre Footer Call To Action Forms"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """
+        Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pre-footer-cta-form-snippet-preview.html"
+
+
+class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a banner with a QR code."""
+
+    kit_theme = models.BooleanField(default=False, help_text="Use the Kit theme for this banner.")
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+    )
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+    )
+    buttons = StreamField(
+        [
+            ("button", ButtonBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+        max_num=2,
+    )
+    qr_code = models.CharField(blank=True)
+
+    panels = [
+        FieldPanel("kit_theme"),
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("buttons"),
+        FieldPanel("qr_code"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Banner Snippet"
+        verbose_name_plural = "Banner Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/banner-snippet-preview.html"
+
+
+class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A tag for categorizing articles."""
+
+    name = models.CharField()
+    slug = models.SlugField()
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
+        unique_together = [*TranslatableMixin.Meta.unique_together, ("slug", "locale")]
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+
+class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a floating QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    qr_code = models.CharField(blank=True)
+    closable = models.BooleanField(default=False, help_text="Whether the QR code can be closed by the user.")
+
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("qr_code"),
+        FieldPanel("closable"),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("qr_code"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "QR Code Snippet"
+        verbose_name_plural = "QR Code Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-snippet-preview.html"
+
+    def serve_preview(self, request, mode_name):
+        """Make sure the the snippet is always shown in preview mode, even if the cookie to hide it is set."""
+        response = super().serve_preview(request, mode_name)
+        response.delete_cookie("moz-qr-snippet-dismissed")
+        return response
+
+
+class ScrollToSeeMoreSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render the 'Scroll to see more' text."""
+
+    text = models.CharField(default="Scroll to see more")
+
+    panels = [
+        FieldPanel("text"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Scroll to see more Snippet"
+        verbose_name_plural = "Scroll to see more Snippets"
+
+    def __str__(self):
+        return f"{self.text} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/scroll-to-see-more-snippet-preview.html"
+
+
+class SetAsDefaultSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render the modal content for the 'set as default' button."""
+
+    heading_text = models.CharField()
+    copy_to_clipboard_label = models.CharField(
+        max_length=255, default="Copy link to page", help_text="Label for the button that copies the page link to the clipboard."
+    )
+    copy_success_label = models.CharField(
+        max_length=255, default="Copied", help_text="Label displayed when the link is successfully copied to the clipboard."
+    )
+    not_firefox_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for non-Firefox users. A download button will be shown below it."
+    )
+    not_default_desktop_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for desktop users that haven't set the browser as default yet with instructions."
+    )
+    not_default_android_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for android users that haven't set the browser as default yet with instructions."
+    )
+    not_default_ios_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown for ios users that haven't set the browser as default yet with instructions."
+    )
+    success_content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES, help_text="Content shown after user has successfully set Firefox as default browser."
+    )
+
+    panels = [
+        FieldPanel("heading_text"),
+        FieldPanel("not_firefox_content"),
+        FieldPanel("not_default_desktop_content"),
+        FieldPanel("not_default_android_content"),
+        FieldPanel("not_default_ios_content"),
+        FieldPanel("success_content"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Set as Default Snippet"
+        verbose_name_plural = "Set as Default Snippets"
+
+    def __str__(self):
+        return f"{self.heading_text} – {self.locale}"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/set-as-default-snippet-preview.html"
+
+
+class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a floating QR code."""
+
+    heading = RichTextField(
+        features=HEADING_TEXT_FEATURES,
+        blank=True,
+    )
+    content = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+        blank=True,
+    )
+    url = models.CharField(blank=True, help_text="A QR code will be generated from this URL. Not used if an image is uploaded.")
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
+    )
+    default_open = models.BooleanField(default=True)
+
+    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
+
+    override_translatable_fields = [SynchronizedField("url"), SynchronizedField("image")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "QR Code Floating Snippet"
+        verbose_name_plural = "QR Code Floating Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.heading))} – {self.locale}"
+
+    def heading_plain(self):
+        """Plain-text rendering of `heading` for the snippet listing column.
+
+        `heading` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.heading))
+
+    heading_plain.short_description = "Heading"
+
+    @classmethod
+    def get_live(cls, locale) -> QRCodeFloatingSnippet | None:
+        """Return the live QRCodeFloatingSnippet for the given locale, or None."""
+        return cls.objects.filter(locale=locale).live().first()
+
+    def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
+        """Resolve the QR code source from page overrides or snippet fields."""
+        resolved_image = getattr(page, "floating_qr_image", None) or self.image
+        resolved_url = getattr(page, "floating_qr_url", None) or self.url
+        floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
+
+        hide = bool(request and request.COOKIES.get("moz-qr-snippet-dismissed"))
+
+        resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
+        open = not hide and resolved_default_open
+
+        if resolved_image:
+            return {"type": "image", "value": resolved_image.file.url, "open": open}
+        if resolved_url:
+            return {"type": "qr", "value": resolved_url, "open": open}
+        return None
+
+    def build_context(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict:
+        """Build the floating_qr_snippet context dict for template rendering."""
+        return {
+            "heading": self.heading,
+            "content": self.content,
+            "qr": self.resolve_qr_source(page, request),
+        }
+
+    def get_preview_context(self, request, mode_name):
+        context = super().get_preview_context(request, mode_name)
+        context["floating_qr_snippet"] = self.build_context(request=request)
+        return context
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/qr-code-floating-snippet-preview.html"
+
+    def clean(self):
+        if not self.url and not self.image:
+            raise ValidationError("Missing url or image")
+        return super().clean()
+
+
+class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet to render a banner above the header."""
+
+    title = RichTextField(features=HEADING_TEXT_FEATURES, help_text="Use italic text to insert a yellow pill.")
+    description = RichTextField(
+        features=EXPANDED_TEXT_FEATURES,
+    )
+    link = models.URLField(blank=True)
+    dismissable = models.BooleanField(default=False, help_text="Whether the banner can be dismissed by the user.")
+    settings = StreamField(
+        [
+            ("show_to", ConditionalDisplayBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+
+    panels = [
+        FieldPanel("title"),
+        FieldPanel("description"),
+        FieldPanel("link"),
+        FieldPanel("dismissable"),
+        FieldPanel("settings"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pencil Banner Snippet"
+        verbose_name_plural = "Pencil Banner Snippets"
+
+    def __str__(self):
+        return f"{remove_tags(richtext(self.title))} – {self.locale}"
+
+    def title_plain(self):
+        """
+        Plain-text rendering of `title` for the snippet listing column.
+
+        `title` is a RichTextField; Wagtail's listing renders its raw value as
+        HTML markup, which is hard to read in a table. This strips tags for a
+        cleaner column display.
+        """
+        return remove_tags(richtext(self.title))
+
+    title_plain.short_description = "Title"
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/pencil-banner-snippet-preview.html"
+
+
+class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """A snippet defining a site navigation menu, editable in the CMS.
+
+    The ``items`` stream holds top-level links (a label + link rendered directly
+    in the nav bar) and folders (a label + a dropdown of grouped links).
+    """
+
+    name = models.CharField(max_length=255, help_text="Internal name for this navigation menu.")
+    is_default = models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")
+    items = StreamField(
+        [
+            ("top_level_link", TopLevelLinkBlock()),
+            ("folder", NavFolderBlock()),
+        ],
+        blank=True,
+        use_json_field=True,
+    )
+    logo = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
+    )
+    logo_dark = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Dark-mode variant of the header logo. Falls back to the light logo if unset.",
+    )
+    logo_link = StreamField(
+        [("link", SpringfieldLinkBlock())],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Where the logo links to. Falls back to the site home page if empty.",
+    )
+    cta_button = StreamField(
+        [("button", MixedButtonsBlock(button_types=get_button_types(), min_num=0, max_num=1))],
+        blank=True,
+        max_num=1,
+        use_json_field=True,
+        help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
+    )
+
+    LOGO_MAX_WIDTH = 480
+    LOGO_MAX_HEIGHT = 160
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("is_default"),
+        MultiFieldPanel(
+            [
+                FieldPanel("logo"),
+                FieldPanel("logo_dark"),
+                FieldPanel("logo_link"),
+            ],
+            heading="Logo",
+        ),
+        FieldPanel("items"),
+        FieldPanel("cta_button", heading="CTA Button"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Navigation"
+        verbose_name_plural = "Navigation"
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+    @classmethod
+    def get_default(cls):
+        """Return the site default navigation, localized to the active locale, or None."""
+        snippet = cls.objects.filter(is_default=True, locale=SpringfieldLocale.get_default()).live().order_by("-last_published_at").first()
+        return snippet.get_localized() if snippet else None
+
+    def validate_logo_size(self, field_name):
+        """Reject a logo image larger than the header logo cap."""
+        image = getattr(self, field_name)
+        if image and (image.width > self.LOGO_MAX_WIDTH or image.height > self.LOGO_MAX_HEIGHT):
+            raise ValidationError({field_name: f"Logo must be at most {self.LOGO_MAX_WIDTH}×{self.LOGO_MAX_HEIGHT} pixels."})
+
+    def clean(self):
+        super().clean()
+        self.validate_logo_size("logo")
+        self.validate_logo_size("logo_dark")
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/navigation-snippet-preview.html"
+
+
+class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A reusable, translatable text label."""
+
+    label = models.CharField(max_length=255)
+
+    panels = [FieldPanel("label")]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Pretranslated Phrase"
+        verbose_name_plural = "Pretranslated Phrases"
+
+    def __str__(self):
+        return f"{self.label} – {self.locale}"

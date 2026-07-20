@@ -4,10 +4,10 @@
   "description": "You can have all the money in the world, but there’s one thing you will never have — a dinosaur.",
   "private": true,
   "dependencies": {
-    "@axe-core/playwright": "^4.10.2",
-    "@playwright/test": "^1.55.1",
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
     "axe-html-reporter": "^2.2.11",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.4.2"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,15 @@
   "scripts": {
     "install-deps": "npx playwright install --with-deps",
     "integration-tests": "npx playwright test --grep-invert @a11y",
-    "a11y-tests": "npx playwright test --grep @a11y --project=chromium"
+    "visual-regression-tests": "docker compose -f ../../docker-compose.yml run --rm playwright-visual-regression",
+    "visual-regression-tests:ui": "docker compose -f ../../docker-compose.yml run --rm --service-ports playwright-visual-regression-ui",
+    "update-snapshots": "docker compose -f ../../docker-compose.yml run --rm playwright-update-snapshots",
+    "a11y-tests": "npx playwright test --grep @a11y --project=chromium",
+    "local:visual-regression-tests": "npx playwright test --config playwright.visual-regression.config.js --grep @visual-regression",
+    "local:visual-regression-tests:ui": "npx playwright test --config playwright.visual-regression.config.js --grep @visual-regression --ui",
+    "local:update-snapshots": "npm run local:visual-regression-tests -- --update-snapshots",
+    "compare-live-pages": "npx playwright test --config playwright.compare-live.config.js",
+    "compare-live-pages:ui": "npx playwright test --config playwright.compare-live.config.js --ui",
+    "compare-live-pages:login": "npx playwright open --save-storage=.auth/compare-live-auth.json"
   }
 }

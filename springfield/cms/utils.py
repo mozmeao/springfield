@@ -3,12 +3,12 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Subquery
 from django.http import Http404
 
-from wagtail.models import Locale, Page
-from wagtail_localize.models import TranslatableObject, Translation, TranslationSource
+from wagtail.models import Locale, Page, Site
 
 from springfield.base.i18n import split_path_and_normalize_language
 
@@ -36,11 +36,50 @@ def get_page_for_request(*, request):
     return page
 
 
-def get_locales_for_cms_page(page):
-    # Patch in a list of CMS-available locales for pages that are
-    # translations, not just aliases
+def find_fallback_page_for_locale(locale_code, url_path):
+    """
+    For an alias locale (e.g. 'es-AR'), find the corresponding live page
+    in the fallback locale's page tree (e.g. 'es-MX').
+    url_path is the bare path without locale prefix (normalized internally).
+    Returns a Page instance or None.
+    """
+    fallback_locale_code = getattr(settings, "FALLBACK_LOCALES", {}).get(locale_code)
+    if not fallback_locale_code:
+        return None
 
-    locales_available_via_cms = [page.locale.language_code]
+    try:
+        fallback_locale = Locale.objects.get(language_code=fallback_locale_code)
+    except Locale.DoesNotExist:
+        return None
+
+    # Resolve the locale root page via the default site — avoids hard-coding slug conventions.
+    site = Site.objects.filter(is_default_site=True).select_related("root_page").first()
+    if not site:
+        return None
+    try:
+        locale_root = site.root_page.get_translation(fallback_locale)
+    except Page.DoesNotExist:
+        logger.exception("No root page translation found for fallback locale %r", fallback_locale_code)
+        return None
+
+    # Normalize here; caller passes raw sub_path to avoid double normalization.
+    _url_path = url_path.strip("/")
+    if not _url_path:
+        # Homepage request: return the locale root page itself (if live).
+        return locale_root if locale_root.live else None
+    full_url_path = f"{locale_root.url_path}{_url_path}/"
+
+    return Page.objects.live().filter(url_path=full_url_path).first()
+
+
+def compute_cms_page_locales(page):
+    """
+    Return a tuple of locales: (all_locales, content_locales) for a CMS page.
+
+    all_locales: content_locales + alias locales from FALLBACK_LOCALES.
+    content_locales: locales with real translated content (no alias expansion).
+    """
+    content_locales = [page.locale.language_code]
     try:
         _actual_translations = (
             page.get_translations()
@@ -51,12 +90,26 @@ def get_locales_for_cms_page(page):
                 )
             )
         )
-        locales_available_via_cms += [x.locale.language_code for x in _actual_translations]
+        content_locales += [x.locale.language_code for x in _actual_translations]
     except ValueError:
         # when there's no draft and no potential for aliases, etc, the above lookup will fail
         pass
 
-    return locales_available_via_cms
+    # Expand with alias locales from FALLBACK_LOCALES reverse map.
+    # e.g. if es-MX is in the list, also add es-AR and es-CL.
+    alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in content_locales]
+
+    all_locales = list(dict.fromkeys(content_locales + alias_additions))
+    deduped_content = list(dict.fromkeys(content_locales))
+
+    return all_locales, deduped_content
+
+
+def get_locales_for_cms_page(page):
+    # Patch in a list of CMS-available locales for pages that are
+    # translations, not just aliases
+    all_locales, _ = compute_cms_page_locales(page)
+    return all_locales
 
 
 def get_cms_locales_for_path(request):
@@ -66,56 +119,3 @@ def get_cms_locales_for_path(request):
         locales = get_locales_for_cms_page(page=page)
 
     return locales
-
-
-def get_translation_percentages_for_page(source_page, target_locale):
-    try:
-        # Find the translation source for the original page
-        translation_source = TranslationSource.objects.get_for_instance(source_page)
-
-        # Find the Translation record for this locale
-        translation_record = Translation.objects.get(source=translation_source, target_locale=target_locale)
-
-        # Get the actual translation progress using wagtail-localize logic
-        total_segments, translated_segments = translation_record.get_progress()
-        percent_translated = int((translated_segments / total_segments * 100)) if total_segments > 0 else 100
-        return percent_translated
-    except (TranslationSource.DoesNotExist, Translation.DoesNotExist, TranslatableObject.DoesNotExist):
-        return None
-
-
-def create_page_translation_data(source_page):
-    """Calculate translation data for a given page and create a PageTranslationData object.
-
-    Args:
-        page: A Page object
-    """
-    from springfield.cms.models import PageTranslationData
-
-    try:
-        page_translations = source_page.get_translations()
-        # Loop over all translations for this source_page, and get data for each of them.
-        for translation in page_translations:
-            # First, try to get the translation data based on a translation from the source_page.
-            percent_translated = get_translation_percentages_for_page(source_page, translation.locale)
-            # If we get no data for a translation from the source_page to this
-            # page_translation, then the page_translation must be a translation
-            # of a different translation of the source_page. Therefore, we loop
-            # over the other page translations to try to find the correct source
-            # translation and its data.
-            if percent_translated is None:
-                for other_page_translation in page_translations:
-                    # No need to check for a translation from itself.
-                    if other_page_translation == translation:
-                        continue
-
-                    percent_translated = get_translation_percentages_for_page(other_page_translation, translation.locale)
-                    if percent_translated is not None:
-                        break
-
-            PageTranslationData.objects.update_or_create(
-                source_page=source_page, translated_page=translation, defaults={"percent_translated": percent_translated or 0}
-            )
-    except (ValueError, AttributeError) as error:
-        # If there is an unexpected error, then log it.
-        logger.exception(error, stack_info=True)

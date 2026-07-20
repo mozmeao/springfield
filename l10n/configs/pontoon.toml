@@ -109,6 +109,27 @@ locales = [
     reference = "en/*.ftl"
     l10n = "{locale}/*.ftl"
 [[paths]]
+    reference = "en/cms/*.ftl"
+    l10n = "{locale}/cms/*.ftl"
+    # subset to locales set up in CMS
+    locales = [
+        "de",
+        "en-CA",
+        "en-GB",
+        "es-ES",
+        "es-MX",
+        "fr",
+        "id",
+        "it",
+        "ja",
+        "nl",
+        "pl",
+        "pt-BR",
+        "ru",
+        "tr",
+        "zh-CN",
+    ]
+[[paths]]
     reference = "en/banners/**/*.ftl"
     l10n = "{locale}/banners/**/*.ftl"
 [[paths]]
@@ -150,9 +171,6 @@ locales = [
 [[paths]]
     reference = "en/privacy/*.ftl"
     l10n = "{locale}/privacy/*.ftl"
-[[paths]]
-    reference = "en/firefox/more/**/*.ftl"
-    l10n = "{locale}/firefox/more/**/*.ftl"
 [[paths]]
     # footer-wnp should be in en-US, en-GB, fr and de - the latter two are vendor
     reference = "en/footer-wnp.ftl"

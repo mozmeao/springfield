@@ -1,0 +1,226 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from io import BytesIO
+from uuid import uuid4
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+
+from PIL import Image, ImageDraw, ImageFont
+from wagtail.documents.models import Document
+from wagtail.models import Locale, Site
+
+from springfield.cms.models import ArticleIndexPage, SpringfieldImage
+from springfield.cms.models.pages import FlareDocsIndexPage
+
+
+def with_fresh_ids(blocks):
+    """Return a rebuilt copy of StreamField fixture data with every block ``id``
+    replaced by a freshly generated UUID.
+
+    Fixture block data uses hardcoded ids. Embedding the same generated block
+    more than once in a page (e.g. ``cards * 2`` or reusing a shared button dict
+    across cards) produces duplicate ids, which collapse wagtail-localize segment
+    paths and break translation. Wrapping reused block data in this helper keeps
+    every id unique within the page.
+
+    The structure is rebuilt node-by-node (rather than ``deepcopy``d) so that
+    aliased objects — e.g. the repeated entries created by ``list * 2`` — become
+    independent and each occurrence gets its own id."""
+    if isinstance(blocks, dict):
+        return {key: (str(uuid4()) if key == "id" else with_fresh_ids(value)) for key, value in blocks.items()}
+    if isinstance(blocks, list):
+        return [with_fresh_ids(item) for item in blocks]
+    return blocks
+
+
+def get_or_create_page(model, *, slug, parent, defaults=None, **lookup):
+    """Fetch or create the en-US page of ``model`` with ``slug`` under ``parent``.
+
+    Always scopes the lookup and creation to the en-US locale so fixtures operate
+    on the source-locale page and never accidentally pick up a translated variant
+    with the same slug."""
+    en_us = Locale.objects.get(language_code="en-US")
+    page = model.objects.child_of(parent).filter(slug=slug, locale=en_us, **lookup).first()
+    if page is None:
+        page = model(slug=slug, locale=en_us, **lookup, **(defaults or {}))
+        parent.add_child(instance=page)
+    return page
+
+
+def _draw_numbered_grid(image, cols, rows):
+    draw = ImageDraw.Draw(image)
+    width, height = image.size
+    cell_w = width / cols
+    cell_h = height / rows
+    font = ImageFont.load_default(size=int(min(cell_w, cell_h) // 3))
+
+    for col in range(1, cols):
+        x = round(col * cell_w)
+        draw.line([(x, 0), (x, height)], fill="white", width=3)
+    for row in range(1, rows):
+        y = round(row * cell_h)
+        draw.line([(0, y), (width, y)], fill="white", width=3)
+
+    for row in range(rows):
+        for col in range(cols):
+            num = str(row * cols + col + 1)
+            cx = (col + 0.5) * cell_w
+            cy = (row + 0.5) * cell_h
+            bbox = draw.textbbox((0, 0), num, font=font)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            draw.text((cx - tw / 2, cy - th / 2), num, fill="white", font=font)
+
+
+def get_placeholder_images():
+    image = Image.new("RGB", (800, 450), (117, 79, 224))
+    dark_image = Image.new("RGB", (800, 450), (255, 138, 80))
+    mobile_image = Image.new("RGB", (300, 500), (117, 79, 224))
+    dark_mobile_image = Image.new("RGB", (300, 500), (255, 138, 80))
+
+    _draw_numbered_grid(image, cols=3, rows=2)
+    _draw_numbered_grid(dark_image, cols=3, rows=2)
+    _draw_numbered_grid(mobile_image, cols=2, rows=3)
+    _draw_numbered_grid(dark_mobile_image, cols=2, rows=3)
+
+    image_buffer = BytesIO()
+    image.save(image_buffer, format="PNG")
+    image_buffer.seek(0)
+    image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_IMAGE_ID,
+        defaults={
+            "title": "Placeholder Image for Testing",
+            "file": ContentFile(image_buffer.read(), "placeholder_image.png"),
+            "description": "A placeholder image used for testing purposes.",
+        },
+    )
+    image_buffer.seek(0)
+
+    dark_image_buffer = BytesIO()
+    dark_image.save(dark_image_buffer, format="PNG")
+    dark_image_buffer.seek(0)
+    dark_image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_DARK_IMAGE_ID,
+        defaults={
+            "title": "Dark Mode Placeholder Image for Testing",
+            "file": ContentFile(dark_image_buffer.read(), "dark_placeholder_image.png"),
+            "description": "A dark mode placeholder image used for testing purposes.",
+        },
+    )
+    dark_image_buffer.seek(0)
+
+    mobile_image_buffer = BytesIO()
+    mobile_image.save(mobile_image_buffer, format="PNG")
+    mobile_image_buffer.seek(0)
+    mobile_image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+        defaults={
+            "title": "Placeholder Mobile Image for Testing",
+            "file": ContentFile(mobile_image_buffer.read(), "placeholder_image.png"),
+            "description": "An placeholder mobile image used for testing purposes.",
+        },
+    )
+    mobile_image_buffer.seek(0)
+
+    dark_mobile_image_buffer = BytesIO()
+    dark_mobile_image.save(dark_mobile_image_buffer, format="PNG")
+    dark_mobile_image_buffer.seek(0)
+    dark_mobile_image, _ = SpringfieldImage.objects.get_or_create(
+        id=settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+        defaults={
+            "title": "Dark Mode Placeholder Mobile Image for Testing",
+            "file": ContentFile(dark_mobile_image_buffer.read(), "dark_placeholder_image.png"),
+            "description": "A dark mode mobile placeholder image used for testing purposes.",
+        },
+    )
+    dark_mobile_image_buffer.seek(0)
+
+    return image, dark_image, mobile_image, dark_mobile_image
+
+
+def get_flare_docs_index_page():
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    index_page = get_or_create_page(
+        FlareDocsIndexPage,
+        slug="flare-docs",
+        parent=root_page,
+        defaults={
+            "title": "Flare Docs - Index",
+            "search_description": "This is the base page for Flare 26's samples and docs.",
+        },
+    )
+    index_page.save_revision().publish()
+    return index_page
+
+
+def get_flare_blocks_docs_page():
+    index_page = get_flare_docs_index_page()
+    blocks_docs_page = index_page.get_children().filter(slug="blocks").first()
+    if not blocks_docs_page:
+        blocks_docs_page = FlareDocsIndexPage(
+            slug="blocks", title="Flare Docs - Blocks", search_description="This is the base page for Flare 26's CMS block samples and docs."
+        )
+        index_page.add_child(instance=blocks_docs_page)
+        blocks_docs_page.save_revision().publish()
+    return blocks_docs_page
+
+
+def get_flare_pages_docs_page():
+    index_page = get_flare_docs_index_page()
+    pages_docs_page = index_page.get_children().filter(slug="sample-pages").first()
+    if not pages_docs_page:
+        pages_docs_page = FlareDocsIndexPage(
+            slug="sample-pages", title="Flare Docs - Sample Pages", search_description="This is the base page for Flare 26's CMS page samples."
+        )
+        index_page.add_child(instance=pages_docs_page)
+        pages_docs_page.save_revision().publish()
+    return pages_docs_page
+
+
+def get_flare_snippets_docs_page():
+    index_page = get_flare_docs_index_page()
+    snippets_docs_page = index_page.get_children().filter(slug="snippets").first()
+    if not snippets_docs_page:
+        snippets_docs_page = FlareDocsIndexPage(
+            slug="snippets",
+            title="Flare Docs - Snippets",
+            search_description="This is the base page for Flare 26's CMS snippet samples and docs.",
+        )
+        index_page.add_child(instance=snippets_docs_page)
+        snippets_docs_page.save_revision().publish()
+    return snippets_docs_page
+
+
+def get_article_index_test_page():
+    root_page = get_flare_pages_docs_page()
+    index_page = get_or_create_page(
+        ArticleIndexPage,
+        slug="tests-article-index",
+        parent=root_page,
+        defaults={
+            "title": "Article Index Page",
+            "sub_title": "An index page for testing articles.",
+            "other_articles_heading": "<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+            "other_articles_subheading": "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+        },
+    )
+    index_page.sub_title = "An index page for testing articles."
+    index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
+    index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
+    index_page.save_revision().publish()
+    return index_page
+
+
+def get_test_document():
+    document, _ = Document.objects.get_or_create(
+        id=settings.PLACEHOLDER_DOCUMENT_ID,
+        defaults={
+            "title": "Placeholder Document for Testing",
+            "file": ContentFile(b"Test document content", "placeholder_document.txt"),
+        },
+    )
+    return document

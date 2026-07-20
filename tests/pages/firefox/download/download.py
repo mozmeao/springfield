@@ -10,7 +10,7 @@ from pages.base import BasePage
 class DownloadPage(BasePage):
     _URL_TEMPLATE = "/{locale}/"
 
-    _download_button_locator = (By.CSS_SELECTOR, "#download-button-thanks > .download-link")
+    _download_button_locator = (By.CSS_SELECTOR, "main [data-testid].download-link")
 
     @property
     def is_download_button_displayed(self):

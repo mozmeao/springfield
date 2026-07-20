@@ -11,7 +11,7 @@
 
 import M24PencilBanner from '../../../../media/js/base/banners/m24-pencil-banner.es6';
 
-describe('mozilla-banner.es6.js', function () {
+describe('m24-pencil-banner.es6.js', function () {
     beforeEach(function () {
         const content = `<aside class="m24-pencil-banner">
             <div class="m24-pencil-banner-copy">
@@ -71,7 +71,7 @@ describe('mozilla-banner.es6.js', function () {
             spyOn(window.Mozilla.Cookies, 'setItem');
             M24PencilBanner.setCookie();
             expect(window.Mozilla.Cookies.setItem).toHaveBeenCalledWith(
-                'pencil-banner',
+                'moz-banner-pencil',
                 true,
                 jasmine.any(String),
                 '/',

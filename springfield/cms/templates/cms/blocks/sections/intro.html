@@ -4,64 +4,33 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:intro media_position="{{ value.settings.media_position }}">
+{% set block_position = block_position or "intro" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{% set block_level = block_level or 2 %}
+{% if value.settings.layout != "vertical" %}
+{% set heading_size = 'fl-heading-lg fl-heading-condensed' %}
+{% endif %}
+<include:intro
+  {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
+  anchor_id="{{ value.settings.anchor_id }}"
+  vertical="{{ value.settings.layout == 'vertical' }}"
+  slim="{{ value.settings.slim }}"
+  remove_border_radius="{{ value.settings.remove_border_radius }}"
+  full_width="{{ value.settings.full_width }}"
+>
   <content:heading>
     {% include_block value.heading %}
   </content:heading>
-  <content:actions>
-    {% set block_position = block_position or "intro" %}
-    {% set block_text = value.heading.heading_text|richtext|remove_tags %}
-    {% if value.buttons %}
-      <div class="fl-buttons">
-        {% for button in value.buttons %}
-          {% set block_position = block_position + "." + "button-" ~ loop.index %}
-          {% include_block button %}
-        {% endfor %}
-      </div>
-    {% endif %}
-  </content:actions>
-  {% if value.fine_print %}
-    <content:fine_print>
-      {{ value.fine_print|richtext|remove_p_tag }}
-    </content:fine_print>
+  {% if value.content %}
+    <content:content>
+      {% include_block value.content %}
+    </content:content>
   {% endif %}
-  {% if value.image %}
+  {% if value.media %}
     <content:media>
-      <div class="light-dark-display">
-        {% if value.dark_image %}
-          {{ srcset_image(
-              value.dark_image,
-              "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1440px) 680px,
-                100vw
-              ",
-              width=value.dark_image.width,
-              loading="lazy",
-              class="display-dark",
-            ) }}
-        {% endif %}
-        {{ srcset_image(
-            value.image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1440px) 680px,
-              100vw
-            ",
-            width=value.image.width,
-            loading="lazy",
-            class="display-light",
-          ) }}
-      </div>
-    </content:media>
-  {% elif value.embed %}
-    <content:media>
-      {# Jinja interprets the HTML from the embed block as a string #}
-      {% autoescape false %}
-        {% include_block value.embed %}
-      {% endautoescape %}
+      {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
+      {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+      {% include_block value.media %}
     </content:media>
   {% endif %}
 </include:intro>

@@ -3,43 +3,26 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django import forms
-from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+
+from wagtail.admin.forms.pages import CopyForm
 
 
-class TranslationsFilterForm(forms.Form):
-    ALL_LANGUAGES = "__all__"
-    CORE_LANGUAGES = "__core__"
+class SpringfieldCopyForm(CopyForm):
+    """Wagtail's page copy form plus a "Keep analytics IDs" opt-out.
 
-    search = forms.CharField(
-        required=False,
-        label="Search",
-        widget=forms.TextInput(attrs={"class": "w-field__input", "placeholder": "Search by title or slug..."}),
-    )
-    translation_key = forms.UUIDField(
-        required=False,
-        label="Translation Key",
-        widget=forms.TextInput(attrs={"class": "w-field__input", "placeholder": "Filter by translation key..."}),
-    )
-    original_language = forms.ChoiceField(
-        choices=[("", "Any language")] + list(settings.WAGTAIL_CONTENT_LANGUAGES),
-        required=False,
-        label="Original Language",
-        widget=forms.Select(attrs={"class": "w-field__input"}),
-    )
-    exists_in_language = forms.ChoiceField(
-        choices=[("", "Any language"), (ALL_LANGUAGES, "All languages"), (CORE_LANGUAGES, "Core languages")]
-        + list(settings.WAGTAIL_CONTENT_LANGUAGES),
-        required=False,
-        label="Exists In",
-        widget=forms.Select(attrs={"class": "w-field__input"}),
-    )
+    By default a copied page gets freshly generated analytics IDs (see the
+    ``after_copy_page`` hook). Ticking this box preserves the source page's IDs
+    instead. The checkbox is rendered by the overridden
+    ``wagtailadmin/pages/copy.html`` template and read from ``request.POST`` by
+    the hook.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ensure choices are always up to date
-        self.fields["original_language"].choices = [("", "Any language")] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
-        self.fields["exists_in_language"].choices = [
-            ("", "Any language"),
-            (self.ALL_LANGUAGES, "All languages"),
-            (self.CORE_LANGUAGES, "Core languages"),
-        ] + list(settings.WAGTAIL_CONTENT_LANGUAGES)
+        self.fields["keep_analytics_ids"] = forms.BooleanField(
+            required=False,
+            initial=False,
+            label=_("Keep analytics IDs"),
+            help_text=_("Preserve the original page's analytics tracking IDs instead of generating new ones for the copy."),
+        )

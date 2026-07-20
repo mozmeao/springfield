@@ -5,180 +5,179 @@
 */
 
 /* =====================================================================
-Theme - Contextual CSS custom properties that can change based on
-runtime conditions. Design tokens live in flare-tokens.css.
+Theme - Flare Design System Theme Variables
+
+Contextual CSS custom properties that change based on context (e.g. layout direction, viewport size, dark mode, etc).
 ===================================================================== */
 
+/* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
+
 :root {
-    /* Functional color variables */
-    --fl-theme-functional-error: var(--token-orange-orange);
-    --fl-theme-functional-warning: var(--token-yellow-dark-yellow);
-    --fl-theme-functional-success: var(--token-green-zilla-green);
-    --fl-theme-functional-info-buttons: var(--token-blue-button);
+    @import 'variables/flare-light-theme.css';
 
-    /* Core text colors */
-    --fl-theme-color-text-primary: var(--token-neutrals-charcoal);
-    --fl-theme-color-text-secondary: var(--token-neutrals-grey-7);
-    --fl-theme-color-text-muted: var(--token-neutrals-grey-8);
-    --fl-theme-color-text-inverse: var(--token-neutrals-white);
-    --fl-theme-color-text-on-accent: var(--token-neutrals-charcoal);
-    --fl-theme-color-text-on-accent-soft: var(--token-neutrals-white);
-    --fl-theme-color-text-body: var(--token-neutrals-black);
+    /* dark mode toggle */
+    color-scheme: light dark;
 
-    /* Core surface colors */
-    --fl-theme-surface-page: var(--token-neutrals-ash);
-    --fl-theme-surface-panel: var(--token-neutrals-ash);
-    --fl-theme-surface-elevated: var(--token-neutrals-white);
-    --fl-theme-surface-hover: var(--token-neutrals-white);
-    --fl-theme-surface-neutral-strong: var(--token-neutrals-charcoal);
+    /* Text colors not overridden by force classes */
+    --fl-theme-color-banner-text: var(--token-color-white);
+    --fl-theme-color-link-fade: var(--token-color-grey-4);
+    --fl-theme-accent-color: var(--fl-theme-color-link);
 
-    /* Border colors */
-    --fl-theme-border-color-strong: var(--token-neutrals-charcoal);
-    --fl-theme-border-color-subtle: var(--token-neutrals-grey-3);
-    --fl-theme-border-color-muted: var(--token-neutrals-grey-3);
+    /* Background colors */
+    --fl-theme-body-background: var(--token-color-dark-purple);
 
-    /* Link colors */
-    --fl-theme-color-link: var(--token-blue-button);
-    --fl-theme-color-link-visited: var(--token-purple-purple);
-    --fl-theme-color-link-strong: var(--token-blue-blue);
+    /* Surface colors not overridden by force classes */
+    --fl-theme-card-superheading-color: var(--token-color-light-purple);
 
     /* Button palette */
-    --fl-theme-button-primary-hover-text: var(--token-neutrals-white);
-    --fl-theme-button-primary-active-bg: var(--token-neutrals-black);
-    --fl-theme-button-primary-active-text: var(--token-neutrals-ash);
-    --fl-theme-button-secondary-hover-bg: var(--token-blue-dark-blue);
-    --fl-theme-button-secondary-active-bg: var(--token-blue-medium-blue);
-    --fl-theme-button-secondary-active-text: var(--token-neutrals-white);
-    --fl-theme-button-ghost-text: var(--token-neutrals-grey-8);
-    --fl-theme-button-ghost-hover-bg: var(--token-neutrals-grey-8);
-    --fl-theme-button-ghost-hover-text: var(--token-neutrals-white);
-
-    /* Accent backgrounds */
-    --fl-theme-accent-blue-bg: var(--token-blue-light-blue);
-    --fl-theme-accent-purple-bg: var(--token-purple-light-purple);
-    --fl-theme-accent-orange-bg: var(--token-orange-light-orange);
-    --fl-theme-accent-neutral-bg: var(--token-neutrals-white);
-    --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-charcoal);
-
-    /* Template / navigation accents */
-    --fl-theme-navigation-link: var(--token-neutrals-grey-8);
-    --fl-theme-navigation-icon: var(--token-neutrals-grey-8);
-
-    /* Code and syntax surfaces */
-    --fl-theme-code-surface: var(--token-neutrals-grey-3);
+    --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
 
     /* Typography variables */
-    --fl-theme-font-family-headline: var(--token-font-family-metropolis);
+    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
     --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
-    --fl-theme-font-family-body: var(--token-font-family-inter);
+    --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
-    --fl-theme-font-family-button: var(--token-font-family-metropolis);
-    --fl-theme-font-weight-button: var(--token-font-weight-medium);
 
-        /* Font size variables NOT from Figma */
-    --fl-theme-font-size-base: 16px;
-    --fl-theme-font-size-h1: 3rem;
-    --fl-theme-font-size-h2: 2rem;
-    --fl-theme-font-size-h3: 1.5rem;
-    --fl-theme-font-size-h4: 1.125rem;
-    --fl-theme-font-size-h5: 1.125rem;
-    --fl-theme-font-size-h6: 1.125rem;
+    /* Font size variables */
+    --fl-theme-font-size-heading-3xl: 5rem; /* 80px */
+    --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
+    --fl-theme-font-size-heading-xl: 3rem; /* 48px */
+    --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+    --fl-theme-font-size-heading-md: 2rem; /* 32px */
+    --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
+    --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+    --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
-    /* Subheading font size variables */
-    --fl-theme-font-size-subheading-1: 1.5rem; /* 24px */
-    --fl-theme-font-size-subheading-2: 1.375rem; /* 22px */
-    --fl-theme-font-size-subheading-3: 1.25rem; /* 20px */
-    --fl-theme-font-size-subheading-4: 1.125rem; /* 18px */
-    --fl-theme-font-size-subheading-5: 1rem; /* 16px */
+    /* TODO: refactor these away. Subheading font size variables */
+    --fl-theme-font-size-subheading-md: 1rem; /* 16px */
+    --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
+    --fl-theme-font-size-subheading-xs: 0.75rem; /* 12px */
 
     /* Body font size variables */
-    --fl-theme-font-size-body-large: 1.5rem; /* 24px */
-    --fl-theme-font-size-body-medium: 1.125rem; /* 18px */
-    --fl-theme-font-size-body-small: 1rem; /* 16px */
-    --fl-theme-font-size-body-xsmall: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-lg: 1.25rem; /* 20px */
+    --fl-theme-font-size-body-md: 1.125rem; /* 18px */
+    --fl-theme-font-size-body-sm: 1rem; /* 16px */
+    --fl-theme-font-size-body-xs: 0.875rem; /* 14px */
+    --fl-theme-font-size-body-2xs: 0.75rem; /* 12px */
 
-    /* Other typography variables */
-    --fl-theme-font-size-tag: 0.75rem; /* 12px */
-    --fl-theme-font-size-superheading: 0.75rem; /* 12px */
+    /* Labels */
+    --fl-theme-label-caps-md: 1rem; /* 16px */
+    --fl-theme-label-caps-sm: 0.875rem; /* 14px */
+    --fl-theme-label-caps-xs: 0.75rem; /* 12px */
+    --fl-theme-label-md: 1rem; /* 16px */
+    --fl-theme-label-sm: 0.875rem; /* 14px */
+    --fl-theme-label-xs: 0.75rem; /* 12px */
+    --fl-theme-label-color: var(--token-color-black-1);
+
+    /* Line height variables NOT from Figma */
     --fl-theme-line-height-base: 1.2;
 
-    /* Grid and spacing variables */
-    --fl-theme-grids-spacing-interior-spacing-x1: 8;
-    --fl-theme-grids-spacing-interior-spacing-x1-5: 12;
-
-    /* Layout variables */
+    /* Layout defaults */
     --fl-theme-layout-direction: column;
     --fl-theme-default-justify-content: center;
     --fl-theme-default-text-align: center;
+    --fl-theme-main-border-radius: var(--token-layout-xs);
 
-    /* Color scheme variables */
-    color-scheme: light dark;
+    /* Shadows */
+    --fl-theme-shadow-card: 0 32px 72px var(--token-color-black-4-16);
+
+    /* Default space between page sections */
+    --fl-section-v-padding: var(--token-layout-md-half);
+    --fl-section-h-padding: var(--token-layout-3xs);
+    --fl-section-heading-margin-bottom: var(--token-layout-sm);
+
+    /* Card */
+    --card-bg-color: var(--token-color-white);
+    --card-border-color: var(--token-color-soft-purple);
+    --theme-dark-purple-card-bg-color: var(--token-color-purple);
+
+    /* Two column and gallery cards */
+    --gallery-card-padding: var(--token-layout-2xs);
+    --gallery-card-radius: var(--token-border-radius-md);
+    --gallery-callout-card-padding: var(--token-layout-md)
+        var(--token-layout-2xs);
+
+    /* Navigation */
+    --fl-navigation-menu-height: 80px;
+
+    /* Smart window */
+    --smart-window-logo-url: url('/media/img/firefox/flare/smart-window-logo-dark.svg');
+    --smart-window-background-gradient:
+        radial-gradient(
+            29.9% 38.82% at 50% 44.86%,
+            rgba(216, 202, 247, 0.2) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.5) 0%,
+            rgba(255, 255, 255, 0) 65.89%
+        ),
+        radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
+}
+
+.fl-split-page-upper .fl-force-light-theme,
+.fl-force-light-theme {
+    @import 'variables/flare-light-theme.css';
+}
+
+.fl-split-page-upper,
+.fl-force-dark-theme {
+    @import 'variables/flare-dark-theme.css';
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* Core text colors */
-        --fl-theme-color-text-primary: var(--token-neutrals-ash);
-        --fl-theme-color-text-secondary: var(--token-neutrals-grey-5);
-        --fl-theme-color-text-muted: var(--token-neutrals-white);
-        --fl-theme-color-text-inverse: var(--token-neutrals-black);
-        --fl-theme-color-text-on-accent: var(--token-neutrals-white);
-        --fl-theme-color-text-on-accent-soft: var(--token-neutrals-ash);
-        --fl-theme-color-text-body: var(--token-neutrals-white);
-
-        /* Core surface colors */
-        --fl-theme-surface-page: var(--token-neutrals-black);
-        --fl-theme-surface-panel: var(--token-neutrals-charcoal);
-        --fl-theme-surface-elevated: var(--token-neutrals-charcoal);
-        --fl-theme-surface-hover: var(--token-neutrals-grey-8);
-        --fl-theme-surface-neutral-strong: var(--token-neutrals-black);
-
-        /* Border colors */
-        --fl-theme-border-color-strong: var(--token-neutrals-ash);
-        --fl-theme-border-color-subtle: var(--token-neutrals-grey-8);
-        --fl-theme-border-color-muted: var(--token-neutrals-grey-6);
-
-        /* Link colors */
-        --fl-theme-color-link: var(--token-blue-blue);
-        --fl-theme-color-link-visited: var(--token-purple-light-purple);
-        --fl-theme-color-link-strong: var(--token-blue-light-blue);
-
-        /* Button palette */
-        --fl-theme-button-primary-hover-text: var(--token-neutrals-black);
-        --fl-theme-button-primary-active-bg: var(--token-neutrals-white);
-        --fl-theme-button-primary-active-text: var(--token-neutrals-charcoal);
-        --fl-theme-button-secondary-hover-bg: var(--token-blue-medium-blue);
-        --fl-theme-button-secondary-active-bg: var(--token-blue-dark-blue);
-        --fl-theme-button-secondary-active-text: var(--token-neutrals-ash);
-        --fl-theme-button-ghost-text: var(--token-neutrals-white);
-        --fl-theme-button-ghost-hover-bg: var(--token-neutrals-white);
-        --fl-theme-button-ghost-hover-text: var(--token-neutrals-grey-8);
-
-        /* Accent backgrounds */
-        --fl-theme-accent-blue-bg: var(--token-blue-medium-blue);
-        --fl-theme-accent-purple-bg: var(--token-purple-purple);
-        --fl-theme-accent-orange-bg: var(--token-orange-medium-orange);
-        --fl-theme-accent-neutral-bg: var(--token-neutrals-ash);
-        --fl-theme-accent-neutral-strong-bg: var(--token-neutrals-black);
-
-        /* Template / navigation accents */
-        --fl-theme-navigation-link: var(--token-neutrals-white);
-        --fl-theme-navigation-icon: var(--token-neutrals-white);
-
-        /* Code and syntax surfaces */
-        --fl-theme-code-surface: var(--token-neutrals-charcoal);
+        @import 'variables/flare-dark-theme.css';
     }
 }
 
-/* CSS custom properties are not resolved in media queries; so we
-centralize breakpoints once and flip CSS variables inside.
-components consume the variables (no per-component media queries) */
-
-/* Media query for 768px and larger */
-@media (min-width: 768px) {
+@media (--viewport-sm-up) {
     :root {
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;
         --fl-theme-default-text-align: left;
+        --fl-theme-font-size-heading-3xl: 8rem; /* 128px */
+        --fl-theme-font-size-heading-2xl: 5rem; /* 80px */
+        --fl-theme-font-size-heading-xl: 4rem; /* 64px */
+        --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+        --fl-theme-font-size-heading-md: 2rem; /* 32px */
+        --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
+        --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+        --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-md: 1.25rem; /* 20px */
+        --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
+        --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
+        --fl-section-hgroup-gap: var(--token-spacing-xl);
+    }
+}
+
+@media (--viewport-md-up) {
+    :root {
+        --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
+        --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
+        --fl-theme-font-size-heading-xl: 5rem; /* 80px */
+        --fl-theme-font-size-heading-lg: 4rem; /* 64px */
+        --fl-theme-font-size-heading-md: 3rem; /* 48px */
+        --fl-theme-font-size-heading-sm: 2rem; /* 32px */
+        --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
+        --fl-theme-font-size-body-lg: 2rem; /* 32px */
+        --fl-theme-font-size-body-md: 1.5rem; /* 24px */
+        --fl-section-v-padding: var(--token-layout-lg-half);
+        --fl-section-heading-margin-bottom: var(--token-layout-sm);
+        --fl-theme-main-border-radius: var(--token-layout-lg);
+        --gallery-card-padding: var(--token-layout-xs);
+        --gallery-card-radius: var(--token-border-radius-lg);
+        --gallery-callout-card-padding: var(--token-layout-xs)
+            var(--token-layout-2xs);
+    }
+}
+
+@media (--viewport-lg-up) {
+    :root {
+        --gallery-card-padding: var(--token-layout-md);
+        --gallery-card-radius: var(--token-border-radius-xl);
+        --gallery-callout-card-padding: var(--token-layout-md)
+            var(--token-layout-2xs);
     }
 }

@@ -5,79 +5,33 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set row_heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-<include:media-content media_after="{{ value.settings.media_after }}">
-  {% if value.eyebrow %}
-    <content:eyebrow>
-      {{ value.eyebrow|richtext|remove_p_tag }}
-    </content:eyebrow>
-  {% endif %}
+{% set block_level = block_level or 2 %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
+<include:media-content
+  media_after="{{ value.settings.media_after }}"
+  narrow="{{ value.settings.narrow }}"
+  remove_border_radius="{{ value.settings.remove_border_radius }}"
+>
   <content:heading>
-    <{{ row_heading_level }} class="fl-heading fl-heading-size-4">{{ value.headline|richtext|remove_p_tag }}</{{ row_heading_level }}>
+    {% with heading_size="fl-heading-sm" %}
+      {% include_block value.heading %}
+    {% endwith %}
   </content:heading>
 
-  {% if value.tags %}
-    <content:tags>
-      {% for tag in value.tags %}
-        {% include_block tag %}
-      {% endfor %}
-    </content:tags>
-  {% endif %}
+  <content:content>
+    {% for block in value.content %}
+      {# Make sure that any inner block with a heading uses the correct block level #}
+      {% set block_level = block_level + 1 %}
+      {% include_block block %}
+    {% endfor %}
+  </content:content>
 
-  <content:body>
-    {{ value.content|richtext }}
-  </content:body>
-
-  {% if value.buttons %}
-    <content:buttons>
-      {% if value.buttons %}
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% set block_text =  value.headline|richtext|remove_tags %}
-            {% include_block button %}
-          {% endfor %}
-      {% endif %}
-    </content:buttons>
-  {% endif %}
-
-  {% if value.embed or value.image %}
+  {% if value.media %}
     <content:media>
-      {% if value.embed %}
-        {# Jinja interprets the HTML from the embed block as a string #}
-        {% autoescape false %}
-          {% include_block value.embed %}
-        {% endautoescape %}
-      {% elif value.image %}
-        <div class="light-dark-display">
-          {% if value.dark_image %}
-            {{ srcset_image(
-                value.dark_image,
-                "width-{200,400,600,800,1000,1200,1400}",
-                sizes="
-                  (min-width: 768px) 50vw,
-                  (min-width: 1440px) 680px,
-                  100vw
-                ",
-                width=value.dark_image.width,
-                loading="lazy",
-                class="display-dark",
-              ) }}
-          {% endif %}
-          {{ srcset_image(
-              value.image,
-              "width-{200,400,600,800,1000,1200,1400}",
-              sizes="
-                (min-width: 768px) 50vw,
-                (min-width: 1440px) 680px,
-                100vw
-              ",
-              width=value.image.width,
-              loading="lazy",
-              class="display-light",
-            ) }}
-        </div>
-      {% endif %}
+      {% for block in value.media %}
+        {% include_block block %}
+      {% endfor %}
     </content:media>
   {% endif %}
 </include:media-content>

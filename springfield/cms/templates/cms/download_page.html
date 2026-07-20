@@ -1,0 +1,171 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
+
+{% block flare_header %}
+  {% set theme = "dark" %}
+  {% set hide_nav_cta = true %}
+  {% include 'cms/includes/site-header.html' %}
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="fl-page">
+  <div class="fl-main">
+    <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
+      <h1 class="fl-heading fl-heading-size-1">
+        {% if LANG.startswith('en-') %}
+        Download <span class="prevent-line-break"><span class="fl-fx-logo">‍</span> Firefox</span> for
+        {% else %}
+        {{ ftl('firefox-new-download-firefox') }}
+        {% endif %}
+      </h1>
+      <div class="fl-platform-dropdown-wrapper">
+        <div class="fl-platform-dropdown">
+        <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+            {{ platforms[page.platform] }}
+          </span>
+          <span class="fl-icon-wrapper">
+            <span class="fl-icon fl-icon-chevron-down" aria-hidden="true"></span>
+          </span>
+        </button>
+        <ul class="fl-platform-dropdown-list" aria-role="listbox">
+          {% for key, platform in platforms.items() %}
+            {% if key != page.platform %}
+              <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
+                <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                  {{ platform }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
+
+      {% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+
+      <div class="download-page-actions">
+      {% if page.platform == "mac" %}
+        {{ firefox_download_desktop_button_mac(flare_styles=True) }}
+      {% elif page.platform == "windows" %}
+        {{ firefox_download_desktop_button_windows(flare_styles=True) }}
+      {% elif page.platform == "linux" %}
+        {{ firefox_download_desktop_button_linux(flare_styles=True) }}
+      {% elif page.platform == "android" %}
+        {% set android_url = play_store_url('firefox', campaign) %}
+        {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
+      {% elif page.platform == "ios" %}
+        {% set ios_url = app_store_url('firefox', campaign) %}
+        {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+      {% elif page.platform == "chromebook" %}
+        {% set android_url = play_store_url('firefox', campaign) %}
+        {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
+        <p><small>{{ ftl('browsers-chromebook-x86-based-chromebook') }}</small></p>
+      {% endif %}
+      </div>
+
+      {% if page.intro_footer_text %}
+        <p class="fl-download-intro-footer-text">{{ page.intro_footer_text|richtext|remove_p_tag }}</p>
+      {% endif %}
+      {% if page.featured_image %}
+      {% set classes = image_variant_classes(page.featured_image_dark_mode, page.featured_image_mobile, page.featured_image_dark_mode_mobile) %}
+      <div class="fl-download-intro-featured-image">
+        <div class="image-variants-display">
+          {{ srcset_image(
+              page.featured_image,
+              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+              sizes="(min-width: 900px) 810px, 100vw",
+              width=page.featured_image.width,
+              height=page.featured_image.height,
+              loading="lazy",
+              class=classes.primary,
+          ) }}
+          {% if page.featured_image_mobile %}
+            {{ srcset_image(
+                page.featured_image_mobile,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_mobile.width,
+                height=page.featured_image_mobile.height,
+                loading="lazy",
+                class=classes.mobile,
+            ) }}
+          {% endif %}
+          {% if page.featured_image_dark_mode_mobile %}
+            {{ srcset_image(
+                page.featured_image_dark_mode_mobile,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_dark_mode_mobile.width,
+                height=page.featured_image_dark_mode_mobile.height,
+                loading="lazy",
+                class=classes.dark_mode_mobile,
+            ) }}
+          {% endif %}
+          {% if page.featured_image_dark_mode %}
+            {{ srcset_image(
+                page.featured_image_dark_mode,
+                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+                sizes="(min-width: 900px) 810px, 100vw",
+                width=page.featured_image_dark_mode.width,
+                height=page.featured_image_dark_mode.height,
+                loading="lazy",
+                class=classes.dark_mode,
+            ) }}
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="fl-split-page-lower">
+      {% set ns = namespace(headings=0) %}
+      {% set block_level = 2 %}
+      {% for block in page.content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+
+        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% set block_level = 2 if ns.headings == 0 else 3 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block pre_footer %}
+  {% set pre_footer_cta_form = get_pre_footer_cta_form_snippet() %}
+  {% if pre_footer_cta_form %}
+    {% set analytics_text = pre_footer_cta_form.heading|richtext|remove_tags %}
+    {% set analytics_position = "pre-footer-cta-form" %}
+    {% set analytics_id = pre_footer_cta_form.analytics_id %}
+    <include:newsletter-form theme="dark">
+      <include:heading
+        level="h2"
+        heading_size="fl-heading-size-3"
+        heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
+        subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
+      />
+      </include:newsletter-form>
+  {% endif %}
+
+{% endblock pre_footer %}

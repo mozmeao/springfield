@@ -1,0 +1,65 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ Renders the navigation snippet inside the real site header, via the
+ flare-header component's `nav` slot — the same way a page renders it.
+#}
+
+<div data-testid="navigation">
+  <include:flare-header>
+    <content:nav>
+      <include:nav-menu>
+        {% for item in items %}
+          {% if item.type == 'top_level_link' %}
+            <include:nav-top-level-link
+              label="{{ item.label }}"
+              href="{{ item.href }}"
+              external="{{ item.external }}"
+              new_window="{{ item.new_window }}"
+              analytics_text="{{ item.label }}"
+              analytics_position="topnav"
+            />
+          {% else %}
+            <include:nav-folder label="{{ item.label }}" panel_id="{{ item.panel_id }}">
+              {% for column in item.columns %}
+                <include:nav-column>
+                  {% for group in column.groups %}
+                    <ul>
+                      {% for link in group %}
+                        <include:nav-link
+                          label="{{ link.label }}"
+                          href="{{ link.href }}"
+                          icon_name="{{ link.icon }}"
+                          icon_position="{{ link.icon_position }}"
+                          external="{{ link.external }}"
+                          new_window="{{ link.new_window }}"
+                          analytics_text="{{ link.label }}"
+                          analytics_position="topnav"
+                        />
+                      {% endfor %}
+                    </ul>
+                    {% if not loop.last %}<span class="fl-nav-separator"></span>{% endif %}
+                  {% endfor %}
+                  {% if column.button %}
+                    <span class="fl-nav-separator"></span>
+                    <include:nav-link
+                      label="{{ column.button.label }}"
+                      href="{{ column.button.href }}"
+                      button_style="{{ True }}"
+                      analytics_text="{{ column.button.label }}"
+                      analytics_position="topnav"
+                    />
+                  {% endif %}
+                </include:nav-column>
+              {% endfor %}
+            </include:nav-folder>
+          {% endif %}
+        {% endfor %}
+      </include:nav-menu>
+    </content:nav>
+  </include:flare-header>
+</div>

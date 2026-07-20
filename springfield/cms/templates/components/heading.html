@@ -6,17 +6,21 @@
 
 {% if superheading_text or subheading_text %}
   <hgroup class="fl-heading-group {{ alignment_class }}">
-    <span class="fl-superheading">
-      {{ superheading_text }}
-    </span>
-    <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}">
-      {{ heading_text }}
-    </{{ level|default('h2') }}>
+    {% if superheading_text %}
+      <p class="fl-superheading">
+        {{ superheading_text }}
+      </p>
+    {% endif %}
+    {% if heading_text %}
+      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}" {% if id %}id="{{ id }}"{% endif %}>
+        {{ heading_text }}
+      </{{ level|default('h2') }}>
+    {% endif %}
     {% if subheading_text %}
       <p class="fl-subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
     {% endif %}
   </hgroup>
-{% else %}
+{% elif heading_text %}
   <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
     {{ heading_text }}
   </{{ level|default('h2') }}>

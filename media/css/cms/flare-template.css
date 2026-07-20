@@ -4,469 +4,168 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-/* This file contains the styles the template
-*  (header, footer, page content, etc.) */
+/* =====================================================================
+Template - Layout styles for header, footer, and page structure
 
-.fl-header {
-    position: relative;
-    padding: 18px calc(var(--token-scale-40) * 1px);
-    border-bottom: 1px solid var(--fl-theme-border-color-subtle);
-    background: var(--fl-theme-surface-page);
+This file contains template-level styles for the Flare 2026 design.
+===================================================================== */
+
+body {
+    background: var(--fl-theme-body-background);
+    color: var(--fl-theme-color-text);
 }
 
-.fl-header-inner {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+body.fl-modal-open {
+    block-size: 100vh;
+    overflow-y: hidden;
+    position: fixed;
 }
 
-.fl-logo-fx {
-    text-indent: -9999px;
-    overflow: hidden;
-    white-space: nowrap;
-    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
-    background-size: 120px 40px;
-    width: 120px;
-    height: 40px;
-    margin: 0;
-    text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fl-logo-fx {
-        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-}
-
-.fl-nav {
-    display: none;
-}
-
-@media (min-width: 1025px) {
-    .fl-logo-fx {
-        margin: 0;
-    }
-
-    .fl-nav {
-        display: block
-    }
-
-    .fl-hamburger {
-        display: none
-    }
-}
-
-.fl-hamburger {
-    width: 40px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    border-radius: calc(var(--token-scale-4) * 1px);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    background-image: linear-gradient(var(--fl-theme-navigation-icon), var(--fl-theme-navigation-icon));
-    background-repeat: no-repeat;
-    background-position: left 8px center;
-    background-size: 16px 2px;
-    transition: background-size var(--token-transition-base);
-}
-
-.fl-hamburger::before,
-.fl-hamburger::after {
-    content: "";
-    position: absolute;
-    left: 8px;
-    right: 16px;
-    height: 2px;
-    background: var(--fl-theme-navigation-icon);
-    border-radius: 1px;
-    transition: transform var(--token-transition-base), top var(--token-transition-base), bottom var(--token-transition-base);
-}
-
-.fl-hamburger::before {
-    top: 9px;
-}
-
-.fl-hamburger::after {
-    bottom: 9px;
-}
-
-.fl-hamburger[aria-expanded="true"] {
-    background-size: 0 0;
-}
-
-.fl-hamburger[aria-expanded="true"]::before {
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
-}
-
-.fl-hamburger[aria-expanded="true"]::after {
-    bottom: auto;
-    top: 50%;
-    transform: translateY(-50%) rotate(-45deg);
-}
-
-.fl-nav-menu {
-    display: flex;
-    gap: calc(var(--token-scale-32) * 1px);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.fl-nav-link {
-    font-family: var(--fl-theme-font-family-body);
-    font-size: var(--fl-theme-font-size-base);
-    color: var(--fl-theme-navigation-link);
-    text-decoration: none;
-}
-
-.fl-nav-link-active {
-    font-weight: 700;
-    cursor: default;
-}
-
-.fl-nav-toggle {
-    position: relative;
-    width: 52px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-}
-
-.fl-nav-toggle span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-.fl-nav-toggle::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 44px;
-    height: 24px;
-    border-radius: 999px;
-    background: var(--token-neutrals-ash);
-    box-shadow: inset 0 0 0 1px var(--token-neutrals-grey-4);
-    transition: background var(--token-transition-base);
-}
-
-.fl-nav-toggle::after {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 8px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--token-neutrals-charcoal);
-    box-shadow: none;
-    transform: translateX(0);
-    transition: transform var(--token-transition-base);
-}
-
-.fl-nav-toggle:focus-visible {
-    outline: 2px solid var(--fl-theme-functional-info-buttons);
-    outline-offset: 2px;
-    border-radius: 999px;
-}
-
-.fl-nav-toggle[aria-pressed="true"]::after {
-    transform: translateX(18px);
-}
-
-.fl-theme-toggle {
-    display: none;
-}
-
-@media (max-width: 1024px) {
-    .fl-nav-toggle {
-        display: none
-    }
-
-    .fl-header {
-        padding: 10px calc(var(--token-scale-32) * 1px)
-    }
-
-    .fl-nav.is-open {
-        display: block;
-        position: fixed;
-        inset: 60px 0 0;
-        background: var(--fl-theme-surface-page);
-        padding: calc(var(--token-scale-40) * 1px) calc(var(--token-scale-40) * 1px) calc(var(--token-scale-64) * 1px);
-        z-index: 1000;
-        margin-top: calc(var(--token-scale-4) * 1px);
-    }
-
-    .fl-nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--token-scale-40) * 1px);
-    }
-
-    .fl-theme-toggle {
-        margin-top: auto;
-        position: fixed;
-        left: calc(var(--token-scale-40) * 1px);
-        right: calc(var(--token-scale-40) * 1px);
-        bottom: calc(var(--token-scale-40) * 1px);
-        display: flex;
-        border: 1px solid var(--token-neutrals-grey-4);
-        border-radius: 16px;
-        overflow: hidden;
-        background: var(--token-neutrals-ash);
-        padding: 8px;
-    }
-}
-
-.fl-page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: var(--fl-theme-surface-page);
-    color: var(--fl-theme-color-text-muted);
-}
+/* Main */
 
 .fl-main {
-    flex: 1;
+    background: var(--fl-theme-background);
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    margin: 0 auto;
+    padding-block: 0 var(--fl-theme-main-border-radius);
+}
+
+.fl-body {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-split-page-upper,
+.fl-split-page-lower {
+    margin: 0;
+}
+
+.fl-split-page-upper {
+    background: var(--upper-page-theme-color, var(--token-color-dark-purple));
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    color: var(--fl-theme-color-text);
+    contain: paint;
+    inline-size: 100%;
+    padding-block-end: var(--fl-section-v-padding);
+    position: relative;
+    z-index: 1;
+}
+
+.fl-split-page-upper.has-curious-kit::after {
+    background: url('/media/img/firefox/flare/fox-brand-curious.svg') bottom
+        center no-repeat;
+    background-size: contain;
+    block-size: 120px;
+    content: '';
+    display: block;
+    inline-size: 240px;
+    inset: auto 10vw 0 auto;
+    position: absolute;
+}
+
+.fl-split-page-lower {
     display: flex;
     flex-direction: column;
+    gap: var(--fl-section-v-padding);
+    padding-block-start: var(--fl-section-v-padding);
+    position: relative;
 }
 
-.fl-content-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 calc(var(--token-scale-24) * 1px);
+.fl-split-page-lower.no-gap,
+.fl-split-page-upper.no-gap {
+    gap: 0;
 }
 
-.fl-grid {
+.fl-freeform-2026-page .fl-main:not(:has(.fl-split-page-lower)) {
+    padding-block-end: 0;
+}
+
+.fl-main.has-gradient-bottom .fl-split-page-lower {
+    background: transparent;
+}
+
+.fl-split-page-upper > *,
+.fl-split-page-lower > *,
+.has-gradient-top > *,
+.has-gradient-bottom > *,
+.has-gradient-bottom > .conditional-passthrough > * {
+    position: relative;
+    z-index: 1;
+}
+
+.has-gradient-bottom {
+    contain: paint;
+    position: relative;
+    z-index: 0;
+}
+
+.has-gradient-top::before {
+    --gradient-height: 70vh;
+    background-image: var(--token-gradient-blurred-bg);
+    block-size: var(--gradient-height);
+    content: var(--content-dark-mode-only);
+    inset: calc(var(--gradient-height) / -1.5) -30vw auto;
+    position: absolute;
+    z-index: 0;
+}
+
+.has-gradient-bottom::before,
+.has-sitting-kit::before {
+    --gradient-height: 60vh;
+    background-image: var(--token-gradient-blurred-bg);
+    block-size: var(--gradient-height);
+    content: var(--content-dark-mode-only);
+    inset: auto -40vw calc(var(--gradient-height) / -2);
+    position: absolute;
+    z-index: 0;
+}
+
+.has-gradient-bottom-100-always::before {
+    --gradient-height: 100vh;
+    background-image: var(--token-gradient-blurred-bg);
+    block-size: var(--gradient-height);
+    content: '';
+    inset: 0;
+    inset-block-start: calc(100% - 25vh);
+    position: absolute;
+    z-index: 0;
+}
+
+.fl-l-two-col-grid {
     display: grid;
-    gap: calc(var(--token-scale-32) * 1px);
-    grid-template-columns: 1fr;
+    gap: var(--token-spacing-lg);
 }
 
-.fl-footer {
-    margin-top: auto;
-    padding: calc(var(--token-scale-64) * 1px) 0;
-    background: var(--fl-theme-surface-page);
-}
-
-.fl-footer .fl-button-outline img {
-    margin-right: calc(var(--token-scale-16) * 1px);
-}
-
-.fl-footer-inner {
-    max-width: 1380px;
-    margin: 0 auto;
-    color: var(--token-neutrals-grey-5);
-    font-size: var(--fl-theme-font-size-body-small);
-}
-
-.fl-footer-top {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: calc(var(--token-scale-32) * 1px) calc(var(--token-scale-64) * 1px);
-    align-items: start;
-}
-
-.fl-footer-copy {
-    margin: 0;
-    color: var(--fl-theme-color-text-primary);
-    grid-column: 1;
-}
-
-.fl-footer-link {
-    color: inherit;
-    text-decoration: none;
-}
-
-.fl-footer-link:hover {
-    text-decoration: underline;
-}
-
-.fl-footer-logo {
-    width: 200px;
-    height: 66px;
-    background-image: url('/media/img/logos/firefox/logo-word-hor.svg');
-    background-repeat: no-repeat;
-    background-position: left center;
-    background-size: contain;
-    border-radius: calc(var(--token-scale-4) * 1px);
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: end;
-}
-
-@media (prefers-color-scheme: dark) {
-    .fl-footer-logo {
-        background-image: url('/media/img/logos/firefox/logo-word-hor-white.svg');
-    }
-
-}
-
-.fl-footer-divider {
-    border: none;
-    border-top: 1px solid var(--fl-theme-border-color-strong);
-    ;
-    margin: calc(var(--token-scale-48) * 1px) 0;
-}
-
-.fl-footer-bottom {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: calc(var(--token-scale-32) * 1px);
-}
-
-.fl-footer-cta {
-    width: 100%;
-}
-
-.fl-footer-cta .fl-button {
-    width: 100%;
-}
-
-@media (min-width: 768px) {
-    .fl-grid,
-    .fl-grid-4 {
-        gap: calc(var(--token-scale-24) * 1px);
+@media (--viewport-md-up) {
+    .fl-l-two-col-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .fl-footer {
-        padding: calc(var(--token-scale-64) * 1px) calc(var(--token-scale-24) * 1px)
-    }
-
-    .fl-footer-cta {
-        width: unset;
-    }
-
-    .fl-footer-cta .fl-button {
-        width: unset;
-    }
 }
 
-@media (min-width: 1024px) {
-    .fl-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .fl-grid.fl-grid-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .fl-footer-inner {
-        padding: 0 calc(var(--token-scale-40) * 1px)
-    }
+.has-sitting-kit {
+    --kit-img: url('/media/img/firefox/flare/forward-facing-kit.svg');
+    --kit-img-size: min(40%, 120px) auto;
+    --kit-img-position: 50% 100%;
+    padding-block-end: var(--token-layout-md);
 }
 
-.fl-footer-links {
-    grid-column: 1;
+.has-sitting-kit::after {
+    background-image: var(--kit-img);
+    background-position: var(--kit-img-position);
+    background-repeat: no-repeat;
+    background-size: var(--kit-img-size);
+    block-size: 100%;
+    content: '';
+    inline-size: 100%;
+    inset: auto 0 0;
+    position: absolute;
+    z-index: 0;
 }
 
-.fl-footer-links ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--token-scale-8) * 1px);
-}
-
-.fl-footer-links a {
-    color: var(--fl-theme-color-text-primary);
-}
-
-.fl-footer-title {
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-h4);
-    color: var(--fl-theme-color-text-primary);
-    margin: 0 0 calc(var(--token-scale-4) * 1px);
-}
-
-.fl-footer-subtitle {
-    margin: 0;
-    color: var(--fl-theme-color-text-primary);
-}
-
-.fl-footer-note {
-    margin: 0;
-    margin-top: calc(var(--token-scale-8) * 1px);
-    color: var(--fl-theme-color-text-primary);
-    font-size: var(--fl-theme-font-size-body-xsmall);
-    text-align: center;
-}
-
-@media (max-width: 767px) {
-    .fl-main {
-        padding: 0;
+@media (--viewport-lg-up) {
+    .has-sitting-kit {
+        --kit-img-position: calc(100% - 130px) 100%;
+        padding-block-end: var(--token-layout-xs);
     }
-
-    .fl-footer .fl-footer-top {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .fl-footer .fl-footer-logo {
-        order: -1;
-        align-self: flex-start;
-        margin-bottom: calc(var(--token-scale-24) * 1px);
-        width: 140px;
-        height: 46px;
-    }
-
-    .fl-footer .fl-footer-copy {
-        margin-bottom: calc(var(--token-scale-16) * 1px);
-    }
-
-    .fl-footer .fl-footer-links {
-        margin-bottom: calc(var(--token-scale-32) * 1px);
-    }
-
-    .fl-footer-inner {
-        padding: 0 calc(var(--token-scale-24) * 1px);
-    }
-
-    .fl-footer-top,
-    .fl-footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .fl-footer-top {
-        display: flex;
-    }
-
-    .fl-footer-logo {
-        order: -1;
-        align-self: flex-end;
-        margin-bottom: calc(var(--token-scale-24) * 1px);
-        width: 140px;
-        height: 46px;
-    }
-
-    .fl-footer-copy {
-        margin-bottom: calc(var(--token-scale-16) * 1px);
-    }
-
-    .fl-footer-links {
-        margin-bottom: calc(var(--token-scale-32) * 1px);
-    }
-
 }

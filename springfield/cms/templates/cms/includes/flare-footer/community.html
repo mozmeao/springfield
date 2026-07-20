@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-footer-section fl-footer-section-community" aria-label="{{ ftl('footer-community') }}">
+  <h2 class="fl-footer-heading">
+    {{ ftl('footer-community') }}
+  </h2>
+  <ul class="fl-footer-list">
+    <li><a href="https://connect.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Connect">{{ ftl('footer-connect') }}</a></li>
+    <li><a href="https://www.mozilla.org/contribute/{{params}}" data-link-position="footer" data-link-text="Contribute">{{ ftl('footer-contribute') }}</a></li>
+    <li><a href="{{ url('firefox.developer.index') }}" data-link-position="footer" data-link-text="Developer">{{ ftl('footer-developer') }}</a></li>
+  </ul>
+</section>

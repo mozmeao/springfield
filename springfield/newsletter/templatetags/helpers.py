@@ -81,6 +81,7 @@ def email_newsletter_form(
             email_placeholder=email_placeholder,
             is_multi_newsletter_form=is_multi_newsletter,
             action=action,
+            fluent_l10n=ctx.get("fluent_l10n"),
         )
     )
 

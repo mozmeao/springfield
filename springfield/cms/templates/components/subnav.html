@@ -1,0 +1,45 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if 'releasenotes' in request.path %}
+  {# Map notes permalink to nav items for highlighting as current. #}
+  {# Remove 'releasenotes' and version number: #}
+  {% set root_path = ("/").join(request.path.split("/")[0:-3]) %}
+  {% if release.channel == 'Release' %}
+    {# Firefox Desktop, Android, and iOS omit channel in request path: #}
+    {% set current_page = ("{}/notes/").format(root_path) %}
+  {% else %}
+    {# Beta/Developer and Nightly need the channel added: #}
+    {% set current_page = ("{}/{}/notes/").format(root_path, release.channel.lower()) %}
+  {% endif %}
+{% else %}
+  {% set current_page = request.path %}
+{% endif %}
+
+<nav class="fl-subnav {% if theme == 'dark'%}fl-force-dark-theme{% endif %}" aria-labelledby="fl-subnav-heading">
+  {% if heading_link %}
+    <a id="fl-subnav-heading" class="fl-subnav-heading" href="{{ heading_href }}">{{ heading_text }}</a>
+  {% else %}
+    <h2 id="fl-subnav-heading" class="fl-subnav-heading">{{ heading_text }}</h2>
+  {% endif %}
+  <button data-testid="fl-subnav-toggle" class="fl-subnav-toggle" aria-expanded="false">
+    <span class="visually-hidden">{{ ftl('ui-menu') }}</span>
+    <i class="fl-icon fl-icon-chevron-down"></i>
+  </button>
+
+  <ul class="fl-subnav-list" data-testid="fl-subnav-list" data-testid="sub-navigation-menu">
+    {% for link in links %}
+      <li>
+        <a
+          href="{{ link.href }}"
+          {% if current_page == link.href %}aria-current="page"{% endif %}
+        >
+          {{ link.text }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>

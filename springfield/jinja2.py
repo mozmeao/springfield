@@ -4,12 +4,13 @@
 
 from includecontents.jinja2 import IncludeContentsExtension
 from jinja2 import Environment
+from wagtail.admin.jinja2tags import WagtailUserbarExtension
 
 from springfield.cms.templatetags.cms_tags import richtext
 
 
 def custom_environment(**options):
-    options["extensions"] = options.get("extensions", []) + [IncludeContentsExtension]
+    options["extensions"] = options.get("extensions", []) + [IncludeContentsExtension, WagtailUserbarExtension]
     env = Environment(**options)
     env.filters["richtext"] = richtext
 

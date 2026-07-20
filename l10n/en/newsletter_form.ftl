@@ -37,6 +37,9 @@ newsletter-form-thanks = Thanks!
 newsletter-form-yes = Yes
 newsletter-form-no = No
 
+# Alt text for SVG animation indicating the form has submitted and is waiting for response
+newsletter-form-submit-sending = Sending
+
 multi-newsletter-form-checkboxes-legend = I want information about:
 multi-newsletter-form-checkboxes-label-mozilla = { -brand-name-mozilla-foundation }
 multi-newsletter-form-checkboxes-label-firefox = { -brand-name-firefox }

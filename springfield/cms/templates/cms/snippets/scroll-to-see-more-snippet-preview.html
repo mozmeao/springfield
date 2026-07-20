@@ -1,0 +1,30 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block content %}
+  <div class="fl-main">
+    <div class="fl-split-page-upper">
+      <include:featured-image-section>
+        <content:heading>
+          <include:heading
+            level="h1"
+            heading_text="Scroll to see more snippet preview"
+          />
+        </content:heading>
+        <content:content>
+        </content:content>
+        <content:media>
+          <include:image url="/media/img/firefox/flare/kit-qr.png" />
+        </content:media>
+        <content:scroll_to_see_more_snippet>
+          {% include "cms/snippets/scroll-to-see-more-snippet.html" %}
+        </content:scroll_to_see_more_snippet>
+      </include:featured-image-section>
+    </div>
+  </div>
+{% endblock content %}

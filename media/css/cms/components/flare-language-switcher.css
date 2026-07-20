@@ -1,0 +1,154 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Language switcher component */
+
+.fl-language-switcher {
+    color: var(--token-color-white);
+    position: relative;
+}
+
+.fl-language-switcher:has(.fl-language-switcher-select:hover)::before,
+.fl-language-switcher:has(.fl-language-switcher-select:focus)::before,
+.fl-language-switcher:has(.fl-language-switcher-select:focus-within)::before {
+    background: var(--token-color-dark-purple) var(--icon-src) center center
+        no-repeat;
+    background-size: 18px 18px;
+}
+
+.fl-language-switcher::before {
+    background-color: currentColor;
+    block-size: 18px;
+    content: '';
+    display: inline-block;
+    inline-size: 18px;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: 14px;
+    position: absolute;
+    vertical-align: middle;
+    z-index: 1;
+}
+
+.fl-language-switcher label {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    block-size: 1px;
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+}
+
+.fl-language-switcher-link {
+    color: var(--token-neutrals-gray-3);
+    font-size: 0.875rem;
+    inset-block-start: -1.5em;
+    padding-block-end: 8px;
+    position: absolute;
+    text-decoration: underline;
+}
+
+.js .fl-language-switcher-link {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    block-size: 1px;
+    inline-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    white-space: nowrap;
+}
+
+.fl-language-switcher-link:focus,
+.fl-language-switcher-link:focus-visible {
+    clip: auto;
+    block-size: auto;
+    inline-size: auto;
+    overflow: visible;
+    text-indent: 0;
+}
+
+.fl-language-switcher-select-wrapper {
+    color: var(--token-color-white);
+    position: relative;
+}
+
+.fl-language-switcher-select-wrapper::after {
+    background-color: currentColor;
+    block-size: 14px;
+    content: '';
+    display: inline-block;
+    inline-size: 14px;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
+    -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask: var(--icon-src) no-repeat center / 1em 1em;
+    mask-size: 14px;
+    position: absolute;
+    vertical-align: middle;
+    z-index: 1;
+}
+
+.fl-language-switcher-select {
+    appearance: unset;
+    background-color: var(--token-color-dark-purple);
+    border: 2px solid var(--token-color-white);
+    color: var(--token-color-white);
+    font-size: 1rem;
+    font-weight: 600;
+    inline-size: 100%;
+    line-height: 1.2;
+    margin: 0;
+    max-inline-size: 100%;
+    min-inline-size: 196px;
+    padding: 8px calc(1.5em + 16px) 8px 8px;
+    padding-inline-start: 36px; /* space for globe icon */
+}
+
+.fl-language-switcher-select-wrapper:hover,
+.fl-language-switcher-select-wrapper:focus,
+.fl-language-switcher-select-wrapper:focus-visible,
+.fl-language-switcher-select-wrapper:focus-within {
+    color: var(--token-color-dark-purple);
+}
+
+.fl-language-switcher-select:hover,
+.fl-language-switcher-select:focus,
+.fl-language-switcher-select:focus-visible,
+.fl-language-switcher-select:focus-within {
+    background-color: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+}
+
+/* Show button when JS is disabled */
+.fl-language-switcher button {
+    background: var(--token-color-white);
+    border-radius: 4px;
+    color: var(--token-color-dark-purple);
+    display: none;
+    font-size: 0.875rem;
+    margin-block-start: 8px;
+    padding: 0 4px;
+}
+
+.no-js .fl-language-switcher button {
+    display: block;
+}
+
+/* No JS: remove globe icon */
+.no-js .fl-language-switcher::before {
+    content: none;
+}
+
+.no-js .fl-language-switcher-select {
+    padding-inline-start: 0.5rem;
+}

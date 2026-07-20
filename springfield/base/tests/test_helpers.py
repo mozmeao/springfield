@@ -72,6 +72,7 @@ def test_switch():
     waffle.switch.assert_called_with("dude")
 
 
+@override_settings(FALLBACK_LOCALES={})
 @pytest.mark.parametrize(
     "translations_locales, cms_locales, django_locales, expected",
     (
@@ -119,3 +120,63 @@ def test_get_locale_options(rf, translations_locales, cms_locales, django_locale
         request=request,
         translations=native_translations,
     )
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX", "es-CL": "es-MX", "pt-PT": "pt-BR"})
+def test_get_locale_options_adds_alias_locales_for_fluent_pages(rf):
+    """Alias locales are added when their fallback canonical locale is in translations.
+
+    For pure Fluent pages, translations only reflects FTL-active locales (e.g. es-MX,
+    pt-BR) and does not include alias locales (es-AR, es-CL, pt-PT). This function
+    expands the available set so that hreflang and the language switcher include
+    alias locales pointing to their own URLs.
+    """
+    # Simulate a Fluent page that has es-MX and pt-BR — but not es-AR, es-CL, or pt-PT.
+    translations_locales = ["en-US", "es-MX", "pt-BR"]
+    native_translations = get_translations_native_names(translations_locales)
+    request = rf.get("/dummy/path/")
+
+    result = helpers.get_locale_options(request=request, translations=native_translations)
+
+    # es-AR and es-CL should be added (their fallback es-MX is present).
+    assert "es-AR" in result
+    assert "es-CL" in result
+    # pt-PT should be added (its fallback pt-BR is present).
+    assert "pt-PT" in result
+    # Original locales must still be present.
+    assert "en-US" in result
+    assert "es-MX" in result
+    assert "pt-BR" in result
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX", "es-CL": "es-MX"})
+def test_get_locale_options_does_not_add_alias_when_canonical_absent(rf):
+    """Alias locales are NOT added when their fallback canonical locale is absent."""
+    # es-MX is not in translations — es-AR and es-CL should not be added.
+    translations_locales = ["en-US", "fr"]
+    native_translations = get_translations_native_names(translations_locales)
+    request = rf.get("/dummy/path/")
+
+    result = helpers.get_locale_options(request=request, translations=native_translations)
+
+    # es-AR and es-CL should NOT be added, since their fallback (es-MX) is NOT present.
+    assert "es-AR" not in result
+    assert "es-CL" not in result
+    # The translations_locales should be in the results.
+    assert "en-US" in result
+    assert "fr" in result
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_get_locale_options_does_not_double_add_alias_already_present(rf):
+    """Alias locales are not duplicated when already present (e.g. from CMS path)."""
+    # Simulate CMS page where get_locales_for_cms_page() already added es-AR.
+    translations_locales = ["en-US", "es-MX", "es-AR"]
+    native_translations = get_translations_native_names(translations_locales)
+    request = rf.get("/dummy/path/")
+
+    result = helpers.get_locale_options(request=request, translations=native_translations)
+
+    assert len(result) == len(translations_locales)
+    for key in translations_locales:
+        assert list(result).count(key) == 1  # no duplicate

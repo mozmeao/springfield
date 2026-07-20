@@ -2,10 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
-
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
 /**
  * Conditional messaging for supported / unsupported
@@ -22,16 +19,6 @@ $image-path: '/media/protocol/img';
 .show-else,
 .show-auto-download-notification {
     display: none !important;
-}
-
-.show-linux {
-    .c-linux-button-group {
-        margin-bottom: $spacing-md;
-
-        a:first-child {
-            margin-bottom: $spacing-md;
-        }
-    }
 }
 
 // Show platform specific messaging when known.

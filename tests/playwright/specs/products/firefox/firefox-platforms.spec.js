@@ -109,14 +109,14 @@ test.describe(
             // Assert download button is visible
             await expect(downloadButton).toBeVisible();
             // Assert download button links to advertised platform
-            await expect(downloadButton).toHaveAttribute('href', /os=linux/);
+            await expect(downloadButton).toHaveAttribute('href', /os=linux64/);
 
             // Click download
             const downloadPromise = page.waitForEvent('download');
             await downloadButton.click();
 
             const download = await downloadPromise;
-            expect(download.url()).toContain('linux');
+            expect(download.url()).toContain('linux-x86_64');
 
             // Cancel download
             await download.cancel();

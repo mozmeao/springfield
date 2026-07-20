@@ -1,0 +1,58 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+
+{% block flare_header %}
+  {% set theme = "dark" %}
+  {% include 'cms/includes/site-header.html' %}
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="fl-page fl-roadmap-page">
+  <div class="fl-main has-gradient-bottom">
+    {% set ns = namespace(headings=0, roadmap_sections=0) %}
+
+    {% if page.intro %}
+      <div class="fl-split-page-upper has-gradient-bottom has-sitting-kit">
+        {% set block_level = 1 %}
+        {% set block_position = "intro" %}
+        {% set ns.headings = 1 %}
+        {% for block in page.intro %}
+          {% include_block block %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="fl-split-page-lower no-gap">
+      {% if page.content %}
+        {% for block in page.content %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+          {% set ns.roadmap_sections = ns.roadmap_sections + 1 if block_type == "roadmap_list_section" else ns.roadmap_sections %}
+
+          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+            {% set block_level = 1 if ns.headings == 0 else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+          {% endif %}
+
+          {% with roadmap_sections=ns.roadmap_sections %}
+            {% include_block block %}
+          {% endwith %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block pre_footer %}
+{% endblock pre_footer %}

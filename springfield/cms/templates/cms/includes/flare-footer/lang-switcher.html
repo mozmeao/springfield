@@ -1,0 +1,13 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<section class="fl-footer-section fl-footer-section-lang-select">
+  {% include 'cms/includes/lang-switcher.html'%}
+  <div class="fl-footer-brand">
+    <h3 class="fl-footer-heading">{{ ftl('footer-powdered-by') }}</h3>
+    <a href="https://connect.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Ask us a question!">{{ ftl('footer-ask-question') }}</a>
+  </div>
+</section>

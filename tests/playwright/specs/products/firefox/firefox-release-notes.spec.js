@@ -43,7 +43,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin).toBeVisible();
+                    await expect(downloadButtonSecondaryWin).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -88,7 +88,9 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin64).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin64).toBeVisible();
+                    await expect(
+                        downloadButtonSecondaryWin64
+                    ).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -135,7 +137,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin).toBeVisible();
+                    await expect(downloadButtonSecondaryWin).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -180,7 +182,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin).toBeVisible();
+                    await expect(downloadButtonSecondaryWin).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -225,7 +227,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin).toBeVisible();
+                    await expect(downloadButtonSecondaryWin).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -270,7 +272,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimaryWin).not.toBeVisible();
-                    await expect(downloadButtonSecondaryWin).toBeVisible();
+                    await expect(downloadButtonSecondaryWin).not.toBeVisible();
                     await expect(downloadButtonPrimaryMac).not.toBeVisible();
                     await expect(downloadButtonSecondaryMac).not.toBeVisible();
                 } else if (browserName === 'webkit') {
@@ -309,7 +311,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimary).not.toBeVisible();
-                    await expect(downloadButtonSecondary).toBeVisible();
+                    await expect(downloadButtonSecondary).not.toBeVisible();
                 } else {
                     await expect(downloadButtonPrimary).toBeVisible();
                     await expect(downloadButtonSecondary).toBeVisible();
@@ -339,7 +341,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimary).not.toBeVisible();
-                    await expect(downloadButtonSecondary).toBeVisible();
+                    await expect(downloadButtonSecondary).not.toBeVisible();
                 } else if (browserName === 'webkit') {
                     await expect(downloadButtonPrimary).toBeVisible();
                     await expect(downloadButtonSecondary).toBeVisible();
@@ -372,7 +374,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimary).not.toBeVisible();
-                    await expect(downloadButtonSecondary).toBeVisible();
+                    await expect(downloadButtonSecondary).not.toBeVisible();
                 } else if (browserName === 'webkit') {
                     await expect(downloadButtonPrimary).toBeVisible();
                     await expect(downloadButtonSecondary).toBeVisible();
@@ -405,7 +407,7 @@ test.describe(
 
                 if (browserName === 'firefox') {
                     await expect(downloadButtonPrimary).not.toBeVisible();
-                    await expect(downloadButtonSecondary).toBeVisible();
+                    await expect(downloadButtonSecondary).not.toBeVisible();
                 } else if (browserName === 'webkit') {
                     await expect(downloadButtonPrimary).toBeVisible();
                     await expect(downloadButtonSecondary).toBeVisible();

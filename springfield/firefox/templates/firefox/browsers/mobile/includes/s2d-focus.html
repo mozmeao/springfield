@@ -12,8 +12,8 @@
   {% set qr_url = "https://www.firefox.com/browsers/mobile/app/?product=focus&campaign=firefox-browsers-mobile-focus" %}
 {% endif %}
 
-<div class="c-inline-form">
-  <h2 class="c-inline-form-title">{{ ftl('mobile-focus-get-firefox-focus') }}</h2>
+<div class="fl-newsletterform c-inline-form">
+  <h2 class="fl-heading fl-heading-sm  c-inline-form-title">{{ ftl('mobile-focus-get-firefox-focus') }}</h2>
   <p class="c-inline-form-body">{{ ftl('mobile-focus-scan-the-qr-code-to-get-started') }}</p>
   <div class="qr-code-wrapper" id="focus-qr" aria-label="{{ ftl('mobile-focus-scan-alt-text') }}">
     {{ qrcode(qr_url) }}

@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<section class="fl-section">
+{# props anchor_id=""  #}
+
+<section class="fl-section" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
   <div class="fl-section-container">
     {% if contents.heading %}
       {{ contents.heading }}

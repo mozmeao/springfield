@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if not custom_nav_cta %}
+<div
+    class="nav-cta-wrap {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
+>
+  <include:download-firefox-button
+    analytics_id="nav-download-firefox"
+    label="{{ ftl('navigation-get-firefox') }}"
+    cta_text="{{ ftl('navigation-get-firefox') }}"
+    icon_name="downloads"
+    icon_position="left"
+    block_position="nav"
+    exclude_unsupported_content="True"
+  />
+</div>
+{% else %}
+  {{ custom_nav_cta }}
+{% endif %}

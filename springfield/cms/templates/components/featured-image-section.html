@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props #}
+<div class="fl-scallop-decoration">
+  <div class="fl-scallop-decoration-inner"></div>
+</div>
+{% set enterprise_theme = page is defined and page.theme == 'enterprise' %}
+<section
+  class="
+    fl-featured-image-section
+    has-gradient-bottom
+    {% if not enterprise_theme %}fl-force-dark-theme{% endif %}
+    ">
+  <div class="fl-section">
+    <div class="fl-section-container">
+      <div class="fl-featured-image-section-heading superheading-is-pill">
+        {{ contents.heading }}
+      </div>
+      <div class="fl-featured-image-section-content">
+        {{ contents.content }}
+      </div>
+    </div>
+  </div>
+  <div class="fl-featured-image-section-media">
+    {{ contents.media }}
+  </div>
+  {% if contents.scroll_to_see_more_snippet %}
+    {{ contents.scroll_to_see_more_snippet }}
+  {% endif %}
+</section>

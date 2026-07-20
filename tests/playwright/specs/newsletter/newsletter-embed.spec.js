@@ -9,7 +9,7 @@
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../scripts/open-page');
 const url = '/en-US/';
-const slugs = ['channel/desktop', 'channel/desktop/developer', 'newsletter'];
+const slugs = ['channel/desktop/developer', 'newsletter'];
 
 slugs.forEach((slug) => {
     test.describe(
@@ -38,10 +38,6 @@ slugs.forEach((slug) => {
                     'newsletter-thanks-message'
                 );
 
-                // expand form before running test
-                await submitButton.click();
-
-                await expect(thanksMessage).not.toBeVisible();
                 await emailField.fill('success@example.com');
                 await countryField.selectOption('us');
                 await privacyCheckbox.click();
@@ -68,11 +64,9 @@ slugs.forEach((slug) => {
                     'newsletter-error-message'
                 );
 
-                // expand form before running test
-                await page.getByTestId('newsletter-submit-button').click();
-
+                // show an error message because the email is invalid
                 await expect(errorMessage).not.toBeVisible();
-                await emailField.fill('failure@example.com');
+                await emailField.fill('invalid@email');
                 await countryField.selectOption('us');
                 await privacyCheckbox.click();
                 await submitButton.click();

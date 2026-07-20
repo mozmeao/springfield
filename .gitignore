@@ -12,6 +12,7 @@ __pycache__/
 .jshintrc
 .python-version
 .vscode/*
+.zed/*
 *-all.css
 *-all.js
 *-min.css
@@ -36,7 +37,6 @@ node_modules
 npm-debug.log
 pip-log.txt
 python_coverage/
-root_files/etags.json
 settings_local.py
 settings/local.py
 static
@@ -51,9 +51,14 @@ tests/unit/coverage
 tests/unit/dist/
 tests/playwright/test-results/
 tests/playwright/test-results-a11y/
+tests/playwright/.auth/
 Thumbs.db
 tmp/*
 venv
 /custom-media
 /local-credentials/*.json
+uv.lock // we don't share dependencies via uv lockfiles at the moment
 AGENTS.md
+CLAUDE.md
+.claude/*
+!.claude/skills/

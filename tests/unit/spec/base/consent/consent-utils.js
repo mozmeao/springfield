@@ -11,9 +11,12 @@ import {
     getHostName,
     hasConsentCookie,
     isFirefoxDownloadThanks,
+    isPromotedPage,
     isURLExceptionAllowed,
     isURLPermitted,
-    setConsentCookie
+    setConsentCookie,
+    setGtagAdsConsentMode,
+    setGtagAnalyticsConsentMode
 } from '../../../../../media/js/base/consent/utils.es6';
 
 describe('consentRequired()', function () {
@@ -332,6 +335,17 @@ describe('isURLPermitted()', function () {
             isURLPermitted('/en-US/privacy/websites/cookie-settings/')
         ).toBeFalse();
     });
+
+    it('should return true for promoted pages', function () {
+        document
+            .getElementsByTagName('html')[0]
+            .setAttribute('data-promoted-page', 'true');
+        expect(isURLPermitted('/en-US/landing/some-campaign/')).toBeTrue();
+        expect(isURLPermitted('/en-US/')).toBeTrue();
+        document
+            .getElementsByTagName('html')[0]
+            .removeAttribute('data-promoted-page');
+    });
 });
 
 describe('setConsentCookie()', function () {
@@ -359,5 +373,98 @@ describe('setConsentCookie()', function () {
         const data = true;
         const result = setConsentCookie(data);
         expect(result).toBeFalse();
+    });
+});
+
+describe('isPromotedPage()', function () {
+    afterEach(function () {
+        document
+            .getElementsByTagName('html')[0]
+            .removeAttribute('data-promoted-page');
+    });
+
+    it('should return true when data-promoted-page attribute is "true"', function () {
+        document
+            .getElementsByTagName('html')[0]
+            .setAttribute('data-promoted-page', 'true');
+        expect(isPromotedPage()).toBeTrue();
+    });
+
+    it('should return false when data-promoted-page attribute is absent', function () {
+        expect(isPromotedPage()).toBeFalse();
+    });
+});
+
+describe('setGtagAdsConsentMode()', function () {
+    afterEach(function () {
+        delete window.gtag;
+    });
+
+    it('should return false if window.gtag is not defined', function () {
+        expect(setGtagAdsConsentMode(true)).toBeFalse();
+    });
+
+    it('should grant ads consent when called with true', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(true);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            ad_storage: 'granted'
+        });
+    });
+
+    it('should deny ads consent when called with false', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(false);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            ad_storage: 'denied'
+        });
+    });
+
+    it('should use "default" type when specified', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAdsConsentMode(false, 'default');
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            ad_storage: 'denied'
+        });
+    });
+});
+
+describe('setGtagAnalyticsConsentMode()', function () {
+    afterEach(function () {
+        delete window.gtag;
+    });
+
+    it('should return false if window.gtag is not defined', function () {
+        expect(setGtagAnalyticsConsentMode(true)).toBeFalse();
+    });
+
+    it('should grant analytics consent when called with true', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(true);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            analytics_storage: 'granted'
+        });
+    });
+
+    it('should deny analytics consent when called with false', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(false);
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'update', {
+            analytics_storage: 'denied'
+        });
+    });
+
+    it('should use "default" type when specified', function () {
+        window.gtag = jasmine.createSpy('gtag');
+        setGtagAnalyticsConsentMode(true, 'default');
+        expect(window.gtag).toHaveBeenCalledWith('consent', 'default', {
+            analytics_storage: 'granted'
+        });
     });
 });

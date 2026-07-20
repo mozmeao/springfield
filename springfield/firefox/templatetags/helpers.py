@@ -11,11 +11,7 @@ from markupsafe import Markup
 
 from lib.l10n_utils import get_locale
 from springfield.base.urlresolvers import reverse
-from springfield.firefox.firefox_details import (
-    firefox_android,
-    firefox_desktop,
-    firefox_ios,
-)
+from springfield.firefox.firefox_details import firefox_android, firefox_desktop, firefox_ios
 
 
 def desktop_builds(
@@ -44,16 +40,6 @@ def desktop_builds(
 
     for plat_os, plat_os_pretty in firefox_desktop.platforms(channel, classified):
         os_pretty = plat_os_pretty
-
-        # Firefox Nightly: The Windows stub installer is now universal,
-        # automatically detecting a 32-bit and 64-bit desktop, so the
-        # win64-specific entry can be skipped.
-        if channel == "nightly":
-            if plat_os == "win":
-                continue
-            if plat_os == "win64":
-                plat_os = "win"
-                os_pretty = "Windows 32/64-bit"
 
         # And generate all the info
         download_link = firefox_desktop.get_download_url(
@@ -118,6 +104,7 @@ def download_firefox(
     button_class="mzp-t-xl",
     locale_in_transition=False,
     download_location=None,
+    force_arch=None,
 ):
     """Output a "download firefox" button.
 
@@ -175,6 +162,7 @@ def download_firefox(
         "button_class": button_class,
         "download_location": download_location,
         "fluent_l10n": ctx["fluent_l10n"],
+        "force_arch": force_arch,
     }
 
     html = render_to_string("firefox/includes/download-button.html", data, request=ctx["request"])
@@ -183,7 +171,9 @@ def download_firefox(
 
 @library.global_function
 @jinja2.pass_context
-def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button_class=None, locale_in_transition=False, download_location=None):
+def download_firefox_thanks(
+    ctx, dom_id=None, locale=None, alt_copy=None, button_class=None, locale_in_transition=False, download_location=None, flare_styles=False
+):
     """Output a simple "download firefox" button that only points to /thanks/
 
     :param ctx: context from calling template.
@@ -222,10 +212,40 @@ def download_firefox_thanks(ctx, dom_id=None, locale=None, alt_copy=None, button
         "button_class": button_class,
         "download_location": download_location,
         "fluent_l10n": ctx["fluent_l10n"],
+        "flare_styles": flare_styles,
     }
 
     html = render_to_string("firefox/includes/download-button-thanks.html", data, request=ctx["request"])
     return Markup(html)
+
+
+@library.global_function
+@jinja2.pass_context
+def download_firefox_thanks_link(ctx, locale=None, locale_in_transition=False, os="win"):
+    """Transition URL and direct download link to build a Firefox download button
+    similar to  download_firefox_thanks()."""
+
+    channel = "release"
+    locale = locale or get_locale(ctx["request"])
+    transition_url = "/thanks/"
+    version = firefox_desktop.latest_version(channel)
+
+    if locale_in_transition:
+        transition_url = f"/{locale}{transition_url}"
+
+    download_link_direct = firefox_desktop.get_download_url(
+        channel,
+        version,
+        os,
+        locale,
+        force_direct=True,
+        force_full_installer=False,
+    )
+
+    return {
+        "transition_url": transition_url,
+        "download_link_direct": download_link_direct,
+    }
 
 
 @library.global_function

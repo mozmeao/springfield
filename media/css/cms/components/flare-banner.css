@@ -1,0 +1,454 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-banner {
+    --fl-theme-color-text: var(--fl-theme-color-banner-text);
+    --fl-banner-padding: var(--token-layout-3xs);
+    --fl-banner-border-radius: var(--token-border-radius-md);
+    align-items: center;
+    border-radius: var(--fl-banner-border-radius);
+    color: var(--fl-theme-color-text);
+    contain: paint;
+    display: flex;
+    justify-content: center;
+    min-block-size: 260px;
+    padding: var(--fl-banner-padding);
+    position: relative;
+    text-align: center;
+}
+
+.fl-banner-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-3xl);
+    inline-size: 100%;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-layout);
+    padding: var(--token-spacing-xl);
+}
+
+.fl-banner .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    margin-block-end: 0;
+}
+
+.fl-banner .fl-heading {
+    display: block;
+    inline-size: 100%;
+    line-height: 0.9;
+    margin-block-end: var(--token-spacing-xl);
+    text-wrap: balance;
+}
+
+.fl-banner .fl-subheading {
+    font-size: var(--fl-theme-font-size-body-sm);
+    line-height: 1.4;
+    margin-block-end: var(--token-spacing-xl);
+    text-wrap: balance;
+}
+
+.fl-banner.fl-banner-outlined {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
+    --fl-banner-border-radius: var(--token-border-radius-sm);
+    border: 1px solid var(--token-color-grey-3);
+}
+
+.fl-banner.fl-banner-default {
+    --fl-theme-color-banner-text: var(--fl-theme-color-text);
+    border-radius: 0;
+}
+
+.fl-banner.fl-banner-bottom-cta {
+    --fl-theme-color-text: var(--token-color-white);
+    background-image: var(--token-gradient-purple);
+
+    --fl-banner-border-radius: var(--token-border-radius-xl);
+    --fl-banner-padding: var(--token-layout-lg);
+}
+
+.fl-banner.fl-banner-bottom-cta .fl-banner-content-inner {
+    gap: 0;
+}
+
+.fl-banner.fl-banner-purple-radial-gradient {
+    --fl-theme-color-link: var(--token-color-white);
+    --fl-theme-color-link-hover: var(--token-color-white);
+}
+
+.fl-banner.fl-banner-purple-radial-gradient:not(.fl-banner-kit),
+.fl-banner.fl-banner-dark-purple-gradient:not(.fl-banner-kit) {
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.fl-banner.fl-banner-purple-radial-gradient:not(.fl-banner-kit) {
+    background-image: var(--token-gradient-purple);
+    background-position: center;
+}
+
+.fl-banner.fl-banner-dark-purple-gradient:not(.fl-banner-kit) {
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+    background-position: center bottom;
+}
+
+.fl-banner.fl-banner-dark-purple-gradient.fl-banner-kit {
+    background-color: var(--token-color-dark-purple);
+    background-image: var(--token-noise-gradient);
+}
+
+/* When a banner is the last item on the page, affix it to the bottom */
+.fl-split-page-lower > .fl-banner-container:last-child,
+.fl-split-page-lower .fl-banner-container.is-last-visible {
+    max-inline-size: none;
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg) 0;
+}
+
+.fl-main:not(:has(.fl-split-page-lower)) .fl-banner-container.is-last-visible {
+    max-inline-size: none;
+    padding: var(--fl-section-v-padding) var(--token-spacing-lg)
+        var(--token-spacing-lg);
+}
+
+/* This one isn't used on kit banners, and will need some adjustments if those need to be combined. */
+.fl-banner.fl-banner-dark-purple-gradient-inverted {
+    --fl-theme-color-link: var(--token-color-white);
+    background-image: var(--token-gradient-radial-purple);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.fl-banner .fl-superheading {
+    color: var(--fl-theme-color-link);
+    font-size: var(--fl-theme-label-caps-sm);
+    line-height: 1.2;
+    margin-block-end: var(--token-spacing-md);
+
+    @container style(--lang-supports-uppercase: true) {
+        letter-spacing: 0.0175rem;
+        text-transform: uppercase;
+    }
+}
+
+.fl-banner-media {
+    align-items: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    block-size: auto;
+    border-radius: var(--token-spacing-lg);
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.fl-banner-media.has-qr-code {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.fl-banner-media.has-qr-code img {
+    aspect-ratio: 1/1;
+}
+
+.fl-banner-media img {
+    block-size: auto;
+    border-radius: var(--token-spacing-sm);
+    grid-area: 1 / 1;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-banner-media-qr {
+    align-items: flex-end;
+    background: url('/media/img/firefox/flare/qr-background-simple.png')
+        no-repeat center;
+    background-size: contain;
+    block-size: 338px;
+    padding: 0 var(--token-spacing-xl);
+}
+
+.fl-banner-qr {
+    display: block;
+    grid-area: 1 / 1;
+    inline-size: 50%;
+    order: 2;
+    place-self: center;
+}
+
+.fl-banner-qr svg {
+    inline-size: 100%;
+    margin: auto;
+    max-block-size: none;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr {
+    inline-size: auto;
+}
+
+.fl-banner-media.has-large-qr-code .fl-banner-qr svg {
+    align-items: center;
+    block-size: 300px;
+    box-shadow: none;
+    display: flex;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-sm);
+    inline-size: 200px;
+    justify-content: flex-start;
+    padding: 10px 18px 0;
+}
+
+.fl-banner-content {
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    min-inline-size: 0;
+    text-align: center;
+}
+
+.fl-banner-content-inner {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    min-inline-size: 0;
+}
+
+.fl-banner-content-inner > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-banner-content-inner.fl-banner-content-inner-centralize-content {
+    align-items: center;
+    text-align: center;
+}
+
+.fl-banner-content-inner .fl-buttons {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    inline-size: 100%;
+    justify-content: center;
+    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
+    min-inline-size: 0;
+}
+
+.fl-banner-layout {
+    align-items: center;
+    display: grid;
+    gap: var(--token-layout-xs);
+    grid-template-columns: 1fr;
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    position: relative;
+    z-index: 2;
+}
+
+.fl-banner-slim .fl-banner {
+    --fl-banner-border-radius: var(--token-border-radius-xl-half);
+    padding: var(--token-layout-2xs) var(--token-layout-3xs);
+}
+
+/* These two together make a while border around the last banner on the page. Used on /channel/desktop */
+.fl-main:has(.fl-split-page-lower > .fl-banner:last-child),
+.fl-main:has(.fl-split-page-lower > .fl-banner-container:last-child),
+.fl-main:has(.fl-split-page-lower .fl-banner-container.is-last-visible) {
+    padding-block-end: var(--token-spacing-lg);
+}
+
+.fl-split-page-lower > .fl-banner:last-child {
+    --fl-banner-border-radius: calc(
+        var(--token-border-radius-xl) - var(--token-spacing-lg)
+    );
+    margin-inline: var(--token-spacing-lg);
+}
+
+@media (--viewport-xs) {
+    .fl-banner .fl-button {
+        inline-size: 100%;
+    }
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner {
+        --fl-banner-padding: var(--token-layout-2xs);
+        --fl-banner-border-radius: var(--token-border-radius-lg);
+        align-items: initial;
+        justify-content: initial;
+        text-align: initial;
+    }
+
+    .fl-banner-container {
+        padding: var(--token-spacing-3xl);
+    }
+
+    .fl-banner-slim .fl-banner {
+        --fl-banner-padding: var(--token-layout-3xs);
+    }
+
+    .fl-banner-media img,
+    .fl-banner-media video {
+        border-radius: var(--token-spacing-lg);
+    }
+
+    .fl-banner-media.has-qr-code img {
+        aspect-ratio: 16/9;
+    }
+
+    .fl-banner-qr {
+        background-size: initial;
+        inline-size: 25%;
+    }
+
+    .fl-banner-content-inner .fl-buttons {
+        align-items: start;
+        flex-direction: row;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-banner {
+        --fl-banner-padding: var(--token-layout-xs);
+        --fl-banner-border-radius: var(--token-border-radius-xl);
+    }
+
+    .fl-banner-container {
+        gap: var(--token-layout-sm);
+    }
+
+    .fl-banner-layout:has(.fl-banner-media) {
+        gap: var(--token-layout-md);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-reverse .fl-banner-layout {
+        grid-auto-flow: dense;
+    }
+
+    .fl-banner-reverse .fl-banner-media {
+        grid-column: 2;
+        order: 2;
+    }
+
+    .fl-banner-reverse .fl-banner-content {
+        grid-column: 1;
+        order: 1;
+    }
+
+    .fl-banner-content.fl-banner-content-left {
+        align-items: flex-start;
+        margin: unset;
+        text-align: start;
+    }
+
+    .fl-banner-content-left .fl-banner-content-inner {
+        align-items: start;
+    }
+
+    .fl-banner-content-left .fl-banner-content-inner .fl-buttons {
+        align-items: start;
+        justify-content: start;
+    }
+
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content,
+    .fl-banner-content-inner.fl-banner-content-inner-centralize-content
+        .fl-buttons {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+/* Phone QR Banner */
+
+.fl-banner-phone-qr {
+    max-inline-size: none;
+}
+
+.fl-banner-phone-qr .fl-banner {
+    padding: 0;
+}
+
+.fl-banner-phone-qr .fl-banner-content {
+    grid-row: 1;
+    padding: var(--fl-banner-padding);
+    padding-block-start: calc(var(--fl-banner-padding) * 2);
+}
+
+.fl-banner-phone-qr .fl-banner-qr {
+    align-items: end;
+    aspect-ratio: 2 / 3; /* ratio of phone image */
+    background-image: url('/media/img/firefox/flare/phone_screen.png');
+    background-position: center bottom -10px;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    display: flex;
+    grid-row: 2;
+    inline-size: calc(100% - var(--fl-banner-border-radius));
+    justify-content: center;
+    max-inline-size: 330px;
+    padding-block-end: calc(var(--fl-banner-padding) * 2);
+    position: relative;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg {
+    inline-size: 90%;
+    inset-block-end: 15%;
+    position: absolute;
+}
+
+.fl-banner-phone-qr .fl-banner-qr svg rect {
+    fill: transparent;
+}
+
+@media (--viewport-sm-up) {
+    .fl-banner-phone-qr .fl-banner-content {
+        padding-block-start: var(--fl-banner-padding);
+    }
+}
+
+@media (--viewport-md-only) {
+    .fl-banner-phone-qr .fl-banner-content {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-banner-phone-qr .fl-banner-layout {
+        gap: var(--token-layout-md);
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr {
+        align-self: end;
+        background-position: center bottom -60px;
+        grid-row: 1;
+        justify-content: center;
+        max-inline-size: 330px;
+    }
+
+    .fl-banner-phone-qr .fl-banner-qr svg {
+        inset-block-end: 7%;
+    }
+
+    .fl-banner-phone-qr .fl-banner-content {
+        grid-area: 1 / 2;
+        padding-inline: 0 calc(var(--fl-banner-padding) / 2);
+    }
+
+    .fl-split-page-lower > .fl-banner-phone-qr:last-child {
+        inline-size: calc(100% + var(--token-spacing-xl) * 2);
+        margin-block-end: calc(var(--token-spacing-3xl) * -1);
+        margin-inline: calc(var(--token-spacing-xl) * -1);
+    }
+}

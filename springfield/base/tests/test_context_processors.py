@@ -9,6 +9,7 @@ from django.test import RequestFactory, TestCase, override_settings
 import jinja2
 
 from lib.l10n_utils import translation
+from springfield.base.context_processors import i18n
 
 
 class TestContext(TestCase):
@@ -69,3 +70,36 @@ class TestContext(TestCase):
 
         req = self.factory.get("/", data={"geo": "france"})
         assert self.render("{{ country_code }}", req) == "None"
+
+
+class TestI18nContextProcessor(TestCase):
+    """Tests for the CANONICAL_LANG addition to the i18n() context processor."""
+
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_canonical_lang_equals_lang_for_normal_request(self):
+        """On a normal request with no content_locale, CANONICAL_LANG == LANG."""
+        translation.activate("en-US")
+        request = self.factory.get("/en-US/some/page/")
+
+        ctx = i18n(request)
+
+        assert ctx["CANONICAL_LANG"] == "en-US"
+        assert ctx["LANG"] == "en-US"
+
+    def test_canonical_lang_is_content_locale_when_set(self):
+        """When the middleware sets request.content_locale, CANONICAL_LANG reflects it.
+
+        Simulates: user visits /es-AR/page/ (alias locale), middleware serves
+        es-MX content and sets request.content_locale = 'es-MX'.
+        LANG stays as the URL-facing locale (es-AR); CANONICAL_LANG is es-MX.
+        """
+        translation.activate("es-AR")
+        request = self.factory.get("/es-AR/some/page/")
+        request.content_locale = "es-MX"
+
+        ctx = i18n(request)
+
+        assert ctx["LANG"] == "es-AR"
+        assert ctx["CANONICAL_LANG"] == "es-MX"

@@ -17,7 +17,6 @@ from django.http import Http404
 from django.utils.dateparse import parse_datetime
 from django.utils.functional import cached_property
 
-import bleach
 import markdown
 from bs4 import BeautifulSoup
 from django_extensions.db.fields.json import JSONField
@@ -26,6 +25,7 @@ from markdown.inlinepatterns import InlineProcessor
 from product_details import product_details
 from product_details.version_compare import Version
 
+from springfield.base.sanitization import sanitize_html
 from springfield.base.urlresolvers import reverse
 from springfield.releasenotes import version_re
 from springfield.releasenotes.utils import memoize
@@ -132,6 +132,31 @@ HTML_PATCHING = {
     },
 }
 
+# Global URL rewrites applied to src, srcset, poster attributes
+# List of (regex_pattern, replacement) tuples
+URL_REWRITES = [
+    (r"www\.mozilla\.org/media/", "www.firefox.com/media/"),
+]
+
+
+def _rewrite_urls(soup: BeautifulSoup) -> None:
+    """Apply URL rewrites from URL_REWRITES to src, srcset, and poster attributes in the provided BeautifulSoup object.
+
+    URL_REWRITES is expected to be a list of (pattern, replacement) tuples, where:
+      * pattern is a regular expression string
+      * replacement is the replacement string
+
+    Each (pattern, replacement) pair is applied in order to the attribute value using re.sub(pattern, replacement, value).
+    The provided BeautifulSoup object is modified in-place.
+    """
+    url_attrs = ["src", "srcset", "poster"]
+    for attr in url_attrs:
+        for element in soup.find_all(attrs={attr: True}):
+            value = element[attr]
+            for pattern, replacement in URL_REWRITES:
+                value = re.sub(pattern, replacement, value)
+            element[attr] = value
+
 
 def _patch_html(html: str) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -153,13 +178,14 @@ def _patch_html(html: str) -> str:
             elif action == "delete":
                 if attr in element.attrs:
                     del element[attr]
+    _rewrite_urls(soup)
     return str(soup)
 
 
 def process_markdown(value):
     rendered_html = markdowner.reset().convert(value)
     patched_html = _patch_html(rendered_html)
-    return bleach.clean(patched_html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS)
+    return sanitize_html(patched_html, ALLOWED_TAGS, ALLOWED_ATTRS)
 
 
 def process_notes(notes):

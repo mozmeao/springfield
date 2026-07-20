@@ -134,8 +134,11 @@ class TestReleaseModel(TestCase):
             query = models.ProductRelease.objects.product(product_name="firefox", channel_name="esr")
 
         raw_query_as_str = str(query.query)
-        assert 'AND "releasenotes_productrelease"."channel" LIKE esr' in raw_query_as_str
-        assert 'AND "releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
+        # Check channel filter is applied (syntax varies by database: LIKE on SQLite, UPPER()=UPPER() on PostgreSQL)
+        assert '"releasenotes_productrelease"."channel"' in raw_query_as_str
+        assert "esr" in raw_query_as_str.lower()
+        # Check version filter uses the exact ESR version from product_details
+        assert '"releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
 
     @override_settings(DEV=False)
     def test_is_public_query(self):
@@ -233,7 +236,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 '<source src="example.mp4" type="video/mp4" rel="prefetch">'
                 '<source src="example.webm" type="video/webm" rel="prefetch">'
                 "Your browser does not support the video tag."
@@ -247,7 +250,7 @@ class StrikethroughExtensionTestCase(TestCase):
                 "</video>"
             ),
             (
-                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
                 "Your browser does not support the video tag."
                 "</video>"
             ),
@@ -415,3 +418,44 @@ def test_patch_html_variants(input_html, patching, expected_html):
     finally:
         models.HTML_PATCHING.clear()
         models.HTML_PATCHING.update(orig_patching)
+
+
+@pytest.mark.parametrize(
+    "input_html, rewrites, expected_html",
+    [
+        # Basic src rewrite
+        (
+            '<img src="https://www.mozilla.org/media/img/foo.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://www.firefox.com/media/img/foo.png">',
+        ),
+        # Video poster rewrite (note: video also gets ga-video-engagement class from HTML_PATCHING)
+        (
+            '<video poster="https://www.mozilla.org/media/poster.jpg"></video>',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<video class="ga-video-engagement" poster="https://www.firefox.com/media/poster.jpg"></video>',
+        ),
+        # srcset rewrite
+        (
+            '<img srcset="https://www.mozilla.org/media/1x.png 1x, https://www.mozilla.org/media/2x.png 2x">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img srcset="https://www.firefox.com/media/1x.png 1x, https://www.firefox.com/media/2x.png 2x">',
+        ),
+        # No match - unchanged
+        (
+            '<img src="https://example.com/img.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://example.com/img.png">',
+        ),
+    ],
+)
+def test_url_rewrites(input_html, rewrites, expected_html):
+    orig_rewrites = models.URL_REWRITES.copy()
+    models.URL_REWRITES.clear()
+    models.URL_REWRITES.extend(rewrites)
+    try:
+        output = models._patch_html(input_html)
+        assert_html_equal(output, expected_html)
+    finally:
+        models.URL_REWRITES.clear()
+        models.URL_REWRITES.extend(orig_rewrites)

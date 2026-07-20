@@ -234,6 +234,16 @@ if (typeof window.Mozilla === 'undefined') {
         });
     };
 
+    /**
+     * Trigger the Firefox Accounts sign-in flow for the AI Window feature.
+     * This will prompt the user to sign in and then open the AI Window
+     * upon successful authentication.
+     * @since 149
+     */
+    Mozilla.UITour.showFirefoxAccountsForAIWindow = function () {
+        _sendEvent('showFirefoxAccountsForAIWindow');
+    };
+
     Mozilla.UITour.resetFirefox = function () {
         _sendEvent('resetFirefox');
     };
@@ -329,5 +339,29 @@ if (typeof window.Mozilla === 'undefined') {
 
     Mozilla.UITour.closeTab = function () {
         _sendEvent('closeTab');
+    };
+
+    /**
+     * Trigger the Firefox Accounts sign-in flow for the AI Window feature.
+     *
+     * This will prompt the user to sign in and then open the AI Window
+     * upon successful authentication.
+     *
+     * @example
+     * Mozilla.UITour.showFirefoxAccountsForAIWindow();
+     */
+    Mozilla.UITour.showFirefoxAccountsForAIWindow = function () {
+        _sendEvent('showFirefoxAccountsForAIWindow');
+    };
+
+    /**
+     * Pin Firefox to the taskbar (Windows) or Dock (macOS).
+     * getConfiguration('appinfo') should first be used to check data.needsPin
+     * before calling this.
+     *
+     * @since 152
+     */
+    Mozilla.UITour.pinToTaskbar = function () {
+        _sendEvent('pinToTaskbar');
     };
 })();

@@ -10,11 +10,14 @@ from django.http import HttpResponse
 from django.test import override_settings
 from django.test.client import RequestFactory
 
-import querystringsafe_base64
+import pytest
 from pyquery import PyQuery as pq
+from waffle.testutils import override_switch
 
+from lib import querystringsafe_base64
 from springfield.base.tests import TestCase
 from springfield.firefox import views
+from springfield.firefox.views import detect_download_platform, download_redirect
 
 
 @override_settings(
@@ -42,8 +45,8 @@ class TestStubAttributionCode(TestCase):
 
     def test_no_valid_param_names(self):
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -65,7 +68,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_no_valid_param_data(self):
@@ -79,8 +82,8 @@ class TestStubAttributionCode(TestCase):
             "dlsource": "fs<a>44fn</a>",
         }
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -102,11 +105,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_some_valid_param_data(self):
-        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom"}
+        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -116,7 +119,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -131,7 +134,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_campaign_data_too_long(self):
@@ -235,7 +238,7 @@ class TestStubAttributionCode(TestCase):
         )
 
     def test_handles_referrer(self):
-        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy"}
+        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -245,7 +248,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -260,14 +263,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_handles_referrer_no_source(self):
-        params = {
-            "referrer": "https://example.com:5000/searchin",
-            "utm_medium": "aether",
-        }
+        params = {"referrer": "https://example.com:5000/searchin", "utm_medium": "aether", "session_id": "1234567890"}
         final_params = {
             "source": "example.com:5000",
             "medium": "referral",
@@ -277,7 +277,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -292,7 +292,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1791839786fe22e61e20e570ff0860082b16527cc9f982564461d0b33afed4b8",
+            "ec97d9206561d925c778ddeeaf9e94e77dcd84b6d7f6698225ede54f70a3129b",
         )
 
     def test_handles_referrer_utf8(self):
@@ -302,7 +302,7 @@ class TestStubAttributionCode(TestCase):
         non-ascii domain names in the referrer. The allowed list for bouncer
         doesn't include any such domains anyway, so we should just ignore them.
         """
-        params = {"referrer": "http://youtubê.com/sorry/"}
+        params = {"referrer": "http://youtubê.com/sorry/", "session_id": "1234567890"}
         final_params = {
             "source": "www.firefox.com",
             "medium": "(none)",
@@ -312,7 +312,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -327,7 +327,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "126ffdd4c7959d0ff42e2dea728d4cf21edb70a79c186449b90d129d382ffb64",
         )
 
     @override_settings(STUB_ATTRIBUTION_RATE=0.2)
@@ -461,7 +461,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/desktop/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_thanks_basic_direct(self, render_mock):
@@ -470,7 +470,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/basic/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     # end /thanks?s=direct URL - issue 10520
 
@@ -526,6 +526,20 @@ class TestFirefoxSetAsDefaultThanks(TestCase):
         resp = self.client.get("/landing/set-as-default/thanks/", follow=True)
         assert resp.status_code == 200, "Ensure this URL continues to work, see issue 13253"
         assert resp.templates[0].name == "firefox/default/thanks.html"
+
+
+class TestFirefoxGetPage(TestCase):
+    """Tests for /landing/get/ page."""
+
+    def test_firefox_get_en_us(self):
+        """en-US serves the new template"""
+        response = self.client.get("/en-US/landing/get/")
+        assert response.templates[0].name == "firefox/landing/get-new.html"
+
+    def test_firefox_get_not_en_us(self):
+        """Non-en-US locales serve the new template"""
+        response = self.client.get("/en-CA/landing/get/")
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
 
 @override_settings(DEV=False)
@@ -662,3 +676,256 @@ class TestWhatsNew(TestCase):
         self.assertEqual(template, ["firefox/whatsnew/evergreen.html"])
 
     # end release whatsnew tests
+
+    # begin URL routing tests
+
+    def test_whatsnew_legacy_url_pattern(self, render_mock):
+        """Legacy URL pattern should match full version strings like 127.1a, 139.0.1"""
+        test_versions = [
+            "127.1a",
+            "139.0.1",
+            "70.0",
+            "72.0a2",
+            "100.0a1",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    def test_whatsnew_new_url_pattern_three_digits(self, render_mock):
+        """New URL pattern should match exactly 3-digit version strings like 127, 139"""
+        test_versions = [
+            "127",
+            "139",
+            "200",
+            "333",
+        ]
+        for version in test_versions:
+            with self.subTest(version=version):
+                response = self.client.get(f"/en-US/whatsnew/{version}/")
+                # Check that the request was processed (not 404)
+                assert response.status_code in [200, 301, 302], f"Version {version} failed with status {response.status_code}"
+
+    def test_whatsnew_path_must_start_with_whatsnew(self, render_mock):
+        """Whatsnew URL patterns only match paths starting with whatsnew/"""
+        from springfield.firefox import urls as firefox_urls
+
+        # These paths should NOT match the whatsnew patterns
+        invalid_paths = [
+            "foo/whatsnew/127/",
+            "firefox/whatsnew/139/",
+            "test/whatsnew/70.0/",
+            "a/whatsnew/100.0a1/",
+        ]
+
+        # Get the whatsnew patterns from the urlpatterns
+        whatsnew_patterns = []
+        for pattern in firefox_urls.urlpatterns:
+            if hasattr(pattern, "name") and pattern.name in ["firefox.whatsnew", "firefox.whatsnew_legacy"]:
+                whatsnew_patterns.append(pattern)
+
+        # Verify that none of the invalid paths match the whatsnew patterns
+        for path in invalid_paths:
+            with self.subTest(path=path):
+                for pattern in whatsnew_patterns:
+                    regex = pattern.pattern.regex
+                    match = regex.match(path)
+                    assert match is None, f"Path '{path}' should not match whatsnew pattern {pattern.name} but it did. Pattern: {regex.pattern}"
+
+    def test_whatsnew_valid_paths_resolve_correctly(self, render_mock):
+        """Valid whatsnew URLs that start correctly match whatsnew patterns"""
+        from springfield.firefox import urls as firefox_urls
+
+        # Get the whatsnew patterns from the urlpatterns
+        whatsnew_patterns = {}
+        for pattern in firefox_urls.urlpatterns:
+            if hasattr(pattern, "name") and pattern.name in ["firefox.whatsnew", "firefox.whatsnew_legacy"]:
+                whatsnew_patterns[pattern.name] = pattern.pattern.regex
+
+        # These paths should match the appropriate whatsnew patterns
+        valid_paths = [
+            ("whatsnew/127/", "firefox.whatsnew"),
+            ("whatsnew/139/", "firefox.whatsnew"),
+            ("whatsnew/70.0/", "firefox.whatsnew_legacy"),
+            ("whatsnew/100.0a1/", "firefox.whatsnew_legacy"),
+        ]
+        for path, expected_pattern_name in valid_paths:
+            with self.subTest(path=path):
+                regex = whatsnew_patterns[expected_pattern_name]
+                match = regex.match(path)
+                assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
+
+    # end URL routing tests
+
+
+class TestDetectChannel(TestCase):
+    def test_nightly_a1(self):
+        assert views.detect_channel("152.0a1") == "nightly"
+
+    def test_developer_a2(self):
+        assert views.detect_channel("152.0a2") == "developer"
+
+    def test_beta_beta_suffix(self):
+        assert views.detect_channel("152.0beta") == "beta"
+
+    def test_beta_b_suffix_not_detected(self):
+        # Only the full "beta" suffix is recognised; short "b1" form is not.
+        assert views.detect_channel("152.0b1") == "unknown"
+
+    def test_release_returns_unknown(self):
+        assert views.detect_channel("152.0") == "unknown"
+
+    def test_three_digit_release_returns_unknown(self):
+        assert views.detect_channel("152") == "unknown"
+
+    def test_old_version_returns_unknown(self):
+        # versions below 35 always return unknown regardless of suffix
+        assert views.detect_channel("34.0a1") == "unknown"
+
+
+@pytest.mark.parametrize(
+    "ua, expected",
+    (
+        # Windows
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0", "windows"),
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "windows"),
+        ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0", "windows"),
+        # macOS
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "mac"),
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0", "mac"),
+        ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15", "mac"),
+        # Linux
+        ("Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0", "linux"),
+        ("Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "linux"),
+        # Android
+        ("Mozilla/5.0 (Android 14; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0", "android"),
+        ("Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36", "android"),
+        # iOS
+        (
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+            "ios",
+        ),
+        ("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1", "ios"),
+        (
+            (
+                "Mozilla/5.0 (iPod touch; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 "
+                "(KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1"
+            ),
+            "ios",
+        ),
+        # ChromeOS
+        ("Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "chromebook"),
+        # Unknown / empty
+        ("", None),
+        ("SomeUnknownBot/1.0", None),
+    ),
+    ids=[
+        "windows-firefox",
+        "windows-chrome",
+        "windows-edge",
+        "mac-chrome",
+        "mac-firefox",
+        "mac-safari",
+        "linux-firefox",
+        "linux-chrome",
+        "android-firefox",
+        "android-chrome",
+        "ios-iphone",
+        "ios-ipad",
+        "ios-ipod",
+        "chromeos",
+        "empty-ua",
+        "unknown-bot",
+    ],
+)
+def test_detect_download_platform(ua, expected):
+    assert detect_download_platform(ua) == expected
+
+
+@pytest.mark.django_db
+class TestDownloadRedirect(TestCase):
+    def setUp(self):
+        self.rf = RequestFactory()
+
+    def _request(self, path="/download/", ua="", query=""):
+        url = f"{path}?{query}" if query else path
+        return self.rf.get(url, HTTP_USER_AGENT=ua)
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_windows_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gecko/20100101 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/windows/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_mac_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/mac/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_linux_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/linux/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_android_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (Android 14; Mobile; rv:128.0) Gecko/128.0 Firefox/128.0")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/android/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_ios_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/ios/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_chromebook_redirect(self):
+        req = self._request(ua="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) Chrome/125.0.0.0 Safari/537.36")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/chromebook/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_unknown_ua_redirects_to_all(self):
+        req = self._request(ua="")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/all/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_locale_prefix_preserved(self):
+        req = self._request(path="/en-US/download/", ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/en-US/download/windows/"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_query_string_preserved(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)", query="utm_source=foo&utm_medium=bar")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/download/windows/?utm_source=foo&utm_medium=bar"
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=True)
+    def test_not_cached_by_cdn(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert "no-store" in resp["Cache-Control"]
+        assert "private" in resp["Cache-Control"]
+
+    @override_switch("PLATFORM_DOWNLOAD_REDIRECTION", active=False)
+    def test_switch_off_redirects_to_homepage(self):
+        req = self._request(ua="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+        resp = download_redirect(req)
+        assert resp.status_code == 302
+        assert resp["Location"] == "/en-US/"

@@ -22,7 +22,7 @@
     <ul>
       {% for plat in builds -%}
         <li><a href="{{ plat.download_link_direct or plat.download_link }}"
-               class="download-link mzp-c-button mzp-t-product ga-product-download"
+               class="download-link mzp-c-button mzp-t-product ga-product-download fl-button"
                data-download-version="{{ plat.os }}"
                data-cta-text="Download Firefox for {{ plat.os_arch_pretty or plat.os_pretty }}"
                {% if plat.os == 'android' %}data-cta-type="firefox_mobile"
@@ -30,7 +30,7 @@
                {% else %}data-cta-type="firefox"{% endif %}>{{ plat.os_arch_pretty or plat.os_pretty }}
               <span class="mzp-c-button-icon-end">
                 <!-- TODO: replace with new protocol-assets version -->
-                <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+                 <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
               </span>
               </a>
         </li>
@@ -61,10 +61,10 @@
     {# ESR download buttons to display on unsupported systems: issue 13317 #}
     {% include 'firefox/includes/download-unsupported.html' %}
   {% endif %}
-  <ul class="download-list">
+  <ul class="download-list fl-download-list{%if force_arch %} force-{{ force_arch }}{% endif %}">
     {% for plat in builds %}
       <li class="os_{{ plat.os }}{% if plat.arch %} {{ plat.arch }}{% endif %}">
-        <a class="download-link button {{ button_class }} mzp-c-button mzp-t-product ga-product-download"
+        <a class="download-link button {{ button_class }} fl-button mzp-c-button mzp-t-product ga-product-download"
            id="{{ id }}-{{ plat.os }}"
            href="{{ plat.download_link }}"{% if plat.download_link_direct %}
            data-direct-link="{{ plat.download_link_direct }}"{% endif %}
@@ -95,6 +95,8 @@
                 {{ ftl('download-button-linux-32-v2') }}
               {% elif plat.os == 'linux64' %}
                 {{ ftl('download-button-linux-64-v2') }}
+              {% elif plat.os == 'linux64-aarch64' %}
+                {{ ftl('download-button-linux-arm64') }}
               {% else %}
                 {% if channel == 'beta' %}
                   {{ ftl('download-button-firefox-beta') }}
@@ -110,7 +112,7 @@
           </strong>
           <span class="mzp-c-button-icon-end">
             <!-- TODO: replace with new protocol-assets version -->
-            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="" />
+            <img src="{{ static('img/icons/m24-small/download-white.svg') }}" alt="">
           </span>
         </a>
       </li>

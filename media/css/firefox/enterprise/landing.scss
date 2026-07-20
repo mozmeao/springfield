@@ -2,15 +2,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-$font-path: '/media/protocol/fonts';
-$image-path: '/media/protocol/img';
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
-@import '~@mozilla-protocol/core/protocol/css/includes/lib';
-@import '~@mozilla-protocol/core/protocol/css/components/button';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark';
-@import '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
-@import '../../protocol/components/custom-menu-list';
-@import '../../protocol/components/sub-navigation';
+@use '~@mozilla-protocol/core/protocol/css/components/button';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/wordmark';
+@use '~@mozilla-protocol/core/protocol/css/components/logos/wordmark-product-firefox';
+@use '../../protocol/components/custom-menu-list';
+@use '../../protocol/components/sub-navigation';
 
 $color-charcoal: #333336;
 
@@ -255,101 +253,28 @@ $color-charcoal: #333336;
             grid-column-gap: $layout-md;
             grid-template-columns: repeat(3, 1fr);
             grid-template-areas:
-                'title-col1    title-col2    title-col3'
-                'list-col1     list-col2     list-col3'
-                'support-col1  support-col2  support-col3';
-            margin-bottom: $layout-md;
-        }
-
-        .enterprise-download-block {
-            display: contents;
+                'title-col1  title-col2  title-col3'
+                'list-col1   list-col2   list-col3';
             margin-bottom: 0;
-        }
-
-        .platform-win64 {
-            .enterprise-download-title {
-                grid-area: title-col1;
-            }
-
-            .mzp-c-menu-list {
-                grid-area: list-col1;
-            }
-
-            .enterprise-download-support {
-                grid-area: support-col1;
-            }
-        }
-
-        .platfom-mac {
-            .enterprise-download-title {
-                grid-area: title-col2;
-            }
-
-            .mzp-c-menu-list {
-                grid-area: list-col2;
-            }
-
-            .enterprise-download-support {
-                grid-area: support-col2;
-            }
-        }
-
-        .platform-win32 {
-            .enterprise-download-title {
-                grid-area: title-col3;
-            }
-
-            .mzp-c-menu-list {
-                grid-area: list-col3;
-            }
-
-            .enterprise-download-support {
-                grid-area: support-col3;
-            }
         }
     }
 }
 
 .enterprise-download-block {
     margin-bottom: $layout-lg;
+
+    // On wide viewports the platform columns share a single resources block
+    // below the grid, so the large per-column bottom spacing is only needed
+    // when the columns stack on narrow viewports.
+    @media #{$mq-md} {
+        margin-bottom: 0;
+    }
 }
 
 .enterprise-download-title {
-    @include bidi((
-        (padding-left, $layout-md, 0),
-        (padding-right, 0, $layout-md),
-    ));
     @include text-title-xs;
     margin-bottom: $spacing-lg;
     min-height: 40px;
-    position: relative;
-
-    &::before {
-        @include bidi(((left, 0, right, auto),));
-        background-position: center center;
-        background-repeat: no-repeat;
-        content: '';
-        display: block;
-        height: 40px;
-        position: absolute;
-        top: -8px;
-        width: 40px;
-    }
-
-    .platform-win64 &::before {
-        background-image: url('/media/img/firefox/enterprise/icon-win64.svg');
-        background-size: 35px 36px;
-    }
-
-    .platform-mac &::before {
-        background-image: url('/media/img/firefox/enterprise/icon-mac.svg');
-        background-size: 29px 36px;
-    }
-
-    .platform-win32 &::before {
-        background-image: url('/media/img/firefox/enterprise/icon-win32.svg');
-        background-size: 35px 36px;
-    }
 }
 
 .enterprise-download-support {
@@ -360,4 +285,28 @@ $color-charcoal: #333336;
 
 .enterprise-download-subtitle {
     @include text-title-2xs;
+    margin-bottom: $spacing-md;
+}
+
+// The resources list is a single shared block beneath all three platform
+// columns. Center it so it reads as intentional rather than a lone first
+// column with two others missing.
+.enterprise-download-resources {
+    text-align: center;
+
+    ul {
+        list-style: none;
+        margin-inline: 0;
+        padding-inline: 0;
+    }
+
+    li {
+        margin-bottom: $spacing-sm;
+    }
+}
+
+.mzp-c-menu-list.is-details .mzp-c-menu-list-title.is-summary button,
+.mzp-c-menu-list.is-details .mzp-c-menu-list-title.is-summary button:focus,
+.mzp-c-menu-list.is-details .mzp-c-menu-list-title.is-summary button[aria-expanded="true"] {
+    background-color: $color-white;
 }

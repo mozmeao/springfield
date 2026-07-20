@@ -7,6 +7,7 @@ import pytest
 from pages.firefox.browsers.desktop.platform import PlatformDownloadPage
 
 
+@pytest.mark.skip("Needs CMS page in non-prod first")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_windows_download_buttons_is_displayed(base_url, selenium):
@@ -14,6 +15,7 @@ def test_windows_download_buttons_is_displayed(base_url, selenium):
     assert page.is_windows_download_button_displayed
 
 
+@pytest.mark.skip("Needs CMS page in non-prod first")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_mac_download_buttons_is_displayed(base_url, selenium):
@@ -21,6 +23,7 @@ def test_mac_download_buttons_is_displayed(base_url, selenium):
     assert page.is_mac_download_button_displayed
 
 
+@pytest.mark.skip("Needs CMS page in non-prod first")
 @pytest.mark.smoke
 @pytest.mark.nondestructive
 def test_linux_download_buttons_is_displayed(base_url, selenium):

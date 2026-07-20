@@ -136,7 +136,8 @@
 
 {% macro sub_nav(
   title,
-  links
+  links,
+  force_dark_theme=False
 ) -%}
 {% if 'releasenotes' in request.path %}
   {# Map notes permalink to nav items for highlighting as current. #}

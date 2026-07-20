@@ -1,0 +1,49 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-set-as-default">
+  <include:conditional-display firefox_condition="not-firefox">
+    {{ object.not_firefox_content|richtext }}
+
+    <div class="fl-buttons is-horizontal extra-padding">
+      <include:download-firefox-button
+        analytics_id="set-default-download-firefox"
+        label="{{ ftl('download-button-download-firefox') }}"
+        cta_text="{{ ftl('download-button-download-firefox') }}"
+        block_position="primary cta"
+        exclude_unsupported_content="True"
+
+      />
+
+      <include:copy-to-clipboard-button
+        theme_class="button-secondary"
+        value="{{ request.build_absolute_uri() }}"
+        label="{{ object.copy_to_clipboard_label }}"
+        success_label="{{ object.copy_success_label }}"
+      />
+    </div>
+
+    <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
+      <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
+        {{ ftl('download-button-firefox-privacy-notice') }}
+      </a>
+    </small>
+  </include:conditional-display>
+
+  <include:conditional-display firefox_condition="is-firefox" default_browser_condition="is-not-default">
+    <include:conditional-display platform_conditions="{{ ['linux', 'windows', 'osx']}}" >
+      {{ object.not_default_desktop_content|richtext }}
+    </include:conditional-display>
+
+    <include:conditional-display platform_conditions="{{ ['android'] }}">
+      {{ object.not_default_android_content|richtext }}
+    </include:conditional-display>
+
+    <include:conditional-display platform_conditions="{{ ['ios'] }}">
+      {{ object.not_default_ios_content|richtext }}
+    </include:conditional-display>
+  </include:conditional-display>
+</div>

@@ -5,61 +5,29 @@
 #}
 
 {% set block_text =  value.headline|richtext|remove_tags %}
-{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
-{% set superheading_level = 'h' ~ (block_level + 2) if block_level else 'h4' %}
+{% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
 
-<include:illustration-card
-  expand_link="{{ card.settings.expand_link }}"
->
+<include:step-card expand_link="{{ value.settings.expand_link }}" step="{{ card_index }}">
   <content:media>
-    <div class="light-dark-display">
-      {% if value.dark_image %}
-        {{ srcset_image(
-            value.dark_image,
-            "width-{200,400,600,800,1000,1200,1400}",
-            sizes="
-              (min-width: 768px) 50vw,
-              (min-width: 1024px) 30vw,
-              (min-width: 1440px) 500px,
-              100vw
-            ",
-            width=(value.dark_image.width / 2)|round|int,
-            loading="lazy",
-            class="display-dark",
-          ) }}
-      {% endif %}
-      {{ srcset_image(
-          value.image,
-          "width-{200,400,600,800,1000,1200,1400}",
-          sizes="
-            (min-width: 768px) 50vw,
-            (min-width: 1024px) 30vw,
-            (min-width: 1440px) 500px,
-            100vw
-          ",
-          width=(value.image.width / 2)|round|int,
-          loading="lazy",
-          class="display-light",
-        ) }}
-    </div>
+    {% include_block value.image %}
   </content:media>
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
-      heading_size="fl-heading-size-3"
+      heading_size="fl-heading-size-{{ heading_level[1:] }}"
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
-      superheading_text="{{ ftl('block-step-card-step', number='{:02d}'.format(card_index)) }}"
+      superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
     />
   </content:heading>
   <content:body>
-    {{ value.content }}
+    {{ value.content|richtext }}
   </content:body>
-    {% if value.buttons %}
+  {% if value.buttons %}
     <content:buttons>
-          {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+      {% for button in value.buttons %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
+        {% include_block button %}
+      {% endfor %}
     </content:buttons>
-    {% endif %}
-</include:illustration-card>
+  {% endif %}
+</include:step-card>

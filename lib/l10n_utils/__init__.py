@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
 from os.path import splitext
 
 from django.conf import settings
@@ -18,6 +19,8 @@ from springfield.base.i18n import normalize_language, split_path_and_normalize_l
 from springfield.settings.base import language_url_map_with_fallbacks
 
 from .fluent import fluent_l10n, ftl_file_is_active, get_active_locales as ftl_active_locales
+
+log = logging.getLogger(__name__)
 
 
 def render_to_string(template_name, context=None, request=None, using=None, ftl_files=None):
@@ -109,6 +112,13 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
     l10n = None
     ftl_files = ftl_files or context.get("ftl_files")
     locale = get_locale(request)
+    # For alias fallback pages (for example, if a user requests /es-AR/somepage/,
+    # but a somepage does not exist in the es-AR locale, so the user is served
+    # a page from the fallback es-MX locale), the user-facing locale is the
+    # alias (es-AR), but the content locale is the fallback locale (es-MX).
+    # Use locale_in_url for URL prefix comparisons to avoid spurious redirects.
+    locale_in_url, _, _ = split_path_and_normalize_language(request.path)
+    locale_in_url = locale_in_url or locale
 
     # is this a non-locale page?
     name_prefix = request.path_info.split("/", 2)[1]
@@ -140,7 +150,7 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
     # if `active_locales` is given use it as the full list of active translations
     translations = []
 
-    if is_cms_page and request._locales_available_via_cms:
+    if is_cms_page and hasattr(request, "_locales_available_via_cms") and request._locales_available_via_cms:
         translations = request._locales_available_via_cms
     elif "active_locales" in context:
         translations = context["active_locales"]
@@ -160,9 +170,26 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
             del context["add_active_locales"]
 
         if not translations:
+            if is_cms_page and not hasattr(request, "_locales_available_via_cms"):
+                log.warning(
+                    "render(): is_cms_page is True but _locales_available_via_cms was not set "
+                    "on request — DB unavailable? Falling back to LANGUAGE_CODE."
+                )
             translations = [settings.LANGUAGE_CODE]
 
     context["translations"] = get_translations_native_names(translations)
+
+    # Content locales: locales with content (not including alias locales that
+    # serve another locale's content).
+    # For CMS pages, _content_locales_via_cms only includes aliases that have
+    # their own translated page.
+    # For non-CMS pages, translations already excludes aliases (they are added
+    # later by get_locale_options for the language picker only).
+    if is_cms_page:
+        content_locales = getattr(request, "_content_locales_via_cms", translations)
+    else:
+        content_locales = translations
+    context["content_locales"] = set(content_locales)
 
     # Ensure the path requires a locale prefix.
     if not non_locale_url:
@@ -177,10 +204,24 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
             # Redirect to the locale if:
             # - The URL is the root path but is missing the trailing slash OR
             # - The locale isn't the current prefix in the URL
-            if request.path == f"/{locale}" or locale != request.path.lstrip("/").partition("/")[0]:
-                return redirect_to_locale(request, locale)
+            # Note: to avoid confusing redirects when using a fallback locale,
+            # we use the locale_in_url variable (not the locale variable).
+            if request.path == f"/{locale_in_url}" or locale_in_url != request.path.lstrip("/").partition("/")[0]:
+                return redirect_to_locale(request, locale_in_url)
         else:
-            return redirect_to_best_locale(request, translations)
+            # Before redirecting, check if the URL locale is a configured alias
+            # (e.g. pt-PT → pt-BR) and the fallback locale has translations.
+            # If so, serve the fallback content transparently at the alias URL —
+            # consistent with how Wagtail pages are redirected.
+            fallback_locale = getattr(settings, "FALLBACK_LOCALES", {}).get(locale_in_url)
+            if fallback_locale and fallback_locale in translations and not is_root_path_with_no_language_clues(request):
+                request.content_locale = fallback_locale
+                locale = normalize_language(fallback_locale)
+                # Reload Fluent with the fallback locale so templates render the
+                # correct translations instead of falling back to en-US.
+                context["fluent_l10n"] = fluent_l10n([locale, "en"], ftl_files or settings.FLUENT_DEFAULT_FILES)
+            else:
+                return redirect_to_best_locale(request, translations)
 
         # Look for locale-specific template in app/templates/
         locale_tmpl = f".{locale}".join(splitext(template))
@@ -194,8 +235,10 @@ def render(request, template, context=None, ftl_files=None, activation_files=Non
 
 
 def get_locale(request):
+    # content_locale is set by CMSLocaleFallbackMiddleware when serving
+    # fallback content at an alias locale URL (e.g. es-MX content at /es-AR/).
     # request.locale is added in springfield.base.middleware.SpringfieldLangCodeFixupMiddleware
-    lang = getattr(request, "locale", None)
+    lang = getattr(request, "content_locale", None) or getattr(request, "locale", None)
     if not lang:
         lang = settings.LANGUAGE_CODE
     return normalize_language(lang)

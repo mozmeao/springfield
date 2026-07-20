@@ -9,7 +9,10 @@ import {
     dntEnabled,
     getConsentCookie,
     gpcEnabled,
-    isFirefoxDownloadThanks
+    isFirefoxDownloadThanks,
+    isPromotedPage,
+    setGtagAdsConsentMode,
+    setGtagAnalyticsConsentMode
 } from '../consent/utils.es6';
 
 const GTM_CONTAINER_ID = document
@@ -18,12 +21,62 @@ const GTM_CONTAINER_ID = document
 
 const GTMSnippet = {};
 
+if (typeof window.dataLayer === 'undefined') {
+    window.dataLayer = [];
+}
+
+/**
+ * Checks for marketing consent param from a promoted landing page.
+ * This means the user did not change opt-out checkbox default on that page.
+ * Only applies on the /thanks page.
+ * @returns {Boolean}
+ */
+GTMSnippet.hasLandingGetMarketingConsent = (href) => {
+    if (!GTMSnippet.isFirefoxDownloadThanks()) {
+        return false;
+    }
+
+    const url = new URL(href);
+    const params = new URLSearchParams(url.search);
+    return params.has('marketing_consent', 1);
+};
+
+/**
+ * Set Gtag consent defaults based on consent cookie or
+ * visitor region. Visitors outside EU/EAA default to
+ * granted analytics; visitors inside EU/EAA default to
+ * denied until explicit consent is given.
+ */
+GTMSnippet.setGtagConsentDefaults = () => {
+    const cookie = getConsentCookie();
+    const hasPref = cookie;
+
+    if (hasPref) {
+        setGtagAdsConsentMode(cookie.analytics, 'default');
+        setGtagAnalyticsConsentMode(cookie.analytics, 'default');
+    } else {
+        setGtagAdsConsentMode(
+            (GTMSnippet.isPromotedPage() && !consentRequired()) ||
+                GTMSnippet.hasLandingGetMarketingConsent(window.location.href),
+            'default'
+        );
+        setGtagAnalyticsConsentMode(!consentRequired(), 'default');
+    }
+};
+
 /**
  * Load the GTM snippet. Expects `GTM_CONTAINER_ID` to be
  * defined in the HTML tag via a data attribute.
  */
 GTMSnippet.loadSnippet = () => {
     if (GTM_CONTAINER_ID) {
+        window.gtag = function () {
+            window.dataLayer.push(arguments);
+        };
+        // first: set default consent
+        GTMSnippet.setGtagConsentDefaults();
+
+        // then: load GTM script (the order is important)
         // prettier-ignore
         (function(w,d,s,l,i,j,f,dl,k,q){
             w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});f=d.getElementsByTagName(s)[0];
@@ -42,11 +95,23 @@ GTMSnippet.isFirefoxDownloadThanks = () => {
 };
 
 /**
+ * Determine if the current page is a promoted landing page.
+ * @returns {Boolean}
+ */
+GTMSnippet.isPromotedPage = () => {
+    return isPromotedPage();
+};
+
+/**
  * Event handler for `mozConsentStatus` event.
  * @param {Object} e - Event object
  */
 GTMSnippet.handleConsent = (e) => {
     const hasConsent = e.detail.analytics;
+
+    // update gtag consent according to pref
+    setGtagAdsConsentMode(hasConsent);
+    setGtagAnalyticsConsentMode(hasConsent);
 
     if (hasConsent) {
         GTMSnippet.loadSnippet();

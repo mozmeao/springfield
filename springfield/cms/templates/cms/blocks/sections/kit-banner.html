@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_position = block_position or "banner" %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+
+<include:conditional-display
+  condition_settings="{{ value.settings.show_to }}">
+  <include:kit-banner
+    theme="{{ value.settings.theme }}"
+    background_theme="{{ value.settings.background_theme }}"
+    anchor_id="{{ value.settings.anchor_id }}"
+  >
+
+    <content:heading>
+      {% with heading_size="fl-heading-md fl-heading-condensed" %}
+        {% include_block value.heading %}
+      {% endwith %}
+    </content:heading>
+
+    {% if value.content %}
+      <content:content>
+        {% include_block value.content %}
+      </content:content>
+    {% endif %}
+  </include:kit-banner>
+
+</include:conditional-display>
