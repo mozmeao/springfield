@@ -1322,7 +1322,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
         content = blocks.StreamBlock(
             [
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
-                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
+                ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
                 (
                     "buttons",
