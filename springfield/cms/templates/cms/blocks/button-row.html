@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_position = block_position or "article" %}
+
+<div class="fl-button-row">
+  <div class="
+    fl-buttons
+    is-horizontal
+    {% if value.alignment %}is-{{ value.alignment }}{% else %}is-center{% endif %}
+    {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
+    {% for button in value.buttons %}
+      {% set block_position = block_position + "." + "button-" ~ loop.index %}
+      {% include_block button %}
+    {% endfor %}
+  </div>
+  {% if value.help_text %}
+    <div class="fl-button-row-help-text">{{ value.help_text|richtext }}</div>
+  {% endif %}
+</div>

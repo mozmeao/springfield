@@ -1,0 +1,41 @@
+{#
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props label="", icon_name="", icon_position="", theme_class="", disabled=0, analytics_text="", analytics_position="", analytics_id="", next_url="" #}
+
+<div class="ui-tour is-hidden">
+  <button
+    class="fl-button {{ theme_class }}"
+    type="button"
+    {% if disabled %}disabled{% endif %}
+    {% if analytics_text %}
+      data-cta-position="{{ analytics_position }}"
+      data-cta-text="{{ analytics_text|escape }}"
+      data-cta-uid="{{ analytics_id }}"
+    {% endif %}
+    {% if next_url %}
+      data-next-url="{{ next_url }}"
+    {% endif %}
+  >
+    {% if icon_name and icon_position == "left" %}
+      {% set extra_class = "fl-icon-left" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+    {{ label }}
+    {% if icon_name and icon_position == "right" %}
+      {% set extra_class = "fl-icon-right" %}
+      <include:icon
+        icon_name="{{ icon_name }}"
+        hidden=true
+        extra_class="{{ extra_class }}"
+      />
+    {% endif %}
+  </button>
+</div>

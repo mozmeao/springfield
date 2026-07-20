@@ -8,7 +8,7 @@
 footer-download = Download
 footer-download-auto = Download { -brand-name-firefox }
 footer-windows = Windows
-footer-mac = Mac
+footer-macos = macOS
 footer-ios = iOS
 footer-android = Android
 footer-linux = Linux
@@ -47,6 +47,8 @@ footer-learn = Learn
 footer-support = Support
 footer-addons = Add-ons
 footer-blog = Blog
+# Link to Mozilla's merch store. Link points to https://shop.mozilla.com/
+footer-merch-store = Merch store
 
 ## Links to social media
 
@@ -68,6 +70,7 @@ footer-logo-trademark-licensing = Logo Trademark Licensing
 
 footer-language = Language
 footer-go = Go
+footer-ask-question = Ask us a question!
 
 footer-firefox = { -brand-name-firefox }
 

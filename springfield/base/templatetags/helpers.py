@@ -22,6 +22,10 @@ from springfield.utils import expand_locale_groups
 from ..urlresolvers import reverse
 
 CSS_TEMPLATE = '<link href="%s" rel="stylesheet" type="text/css">'
+CSS_TEMPLATE_IE_LTE_9 = '<!--[if lte IE 9]><link href="%s" rel="stylesheet" type="text/css"><![endif]-->'
+CSS_TEMPLATE_IE_10_11 = (
+    '<!-- IE 10/11 only --><link href="%s" rel="stylesheet" type="text/css" media="all and (-ms-high-contrast: none)"><!-- end IE 10/11 only -->'
+)
 JS_TEMPLATE = '<script src="%s"></script>'
 log = logging.getLogger(__name__)
 
@@ -136,14 +140,27 @@ def js_bundle(name):
 
 
 @library.global_function
-def css_bundle(name):
+def css_bundle(name, target_old_ie=False):
     """Include a CSS bundle in the template.
 
     Bundles are defined in the "media/static-bundles.json" file.
+
+    Args:
+        name: The bundle name as defined in static-bundles.json
+        target_old_ie: If True, adds media="all and (-ms-high-contrast: none)" for conditional display to IE10/11
+                  and wraps in conditional comments for IE9 and lower
     """
     path = f"css/{name}.css"
     path = staticfiles_storage.url(path)
-    return Markup(CSS_TEMPLATE % path)
+
+    if target_old_ie:
+        # For IE10/11 with media query
+        ie_10_11_link = CSS_TEMPLATE_IE_10_11 % path
+        # For ≥ IE9 and lower with conditional comment
+        ie_GTE_9_link = CSS_TEMPLATE_IE_LTE_9 % path
+        return Markup(f"{ie_10_11_link}\n    {ie_GTE_9_link}")
+    else:
+        return Markup(CSS_TEMPLATE % path)
 
 
 @library.global_function
@@ -177,5 +194,18 @@ def get_locale_options(request, translations):
 
     if cms_locale_count > 0 and django_fallback_locale_count > 0:
         available_locales = get_translations_native_names(sorted(set(request._locales_available_via_cms + request._locales_for_django_fallback_view)))
+
+    # For pure Fluent pages, translations only reflects FTL-active locales and does not
+    # include alias locales. Add alias locales whose fallback canonical locale is already
+    # present. (CMS pages are already handled upstream by get_locales_for_cms_page().)
+    alias_additions = get_translations_native_names(
+        [
+            alias_code
+            for alias_code, fallback_code in getattr(settings, "FALLBACK_LOCALES", {}).items()
+            if fallback_code in available_locales and alias_code not in available_locales
+        ]
+    )
+    if alias_additions:
+        available_locales = {**available_locales, **alias_additions}
 
     return available_locales

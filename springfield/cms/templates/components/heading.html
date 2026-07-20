@@ -1,0 +1,27 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% if superheading_text or subheading_text %}
+  <hgroup class="fl-heading-group {{ alignment_class }}">
+    {% if superheading_text %}
+      <p class="fl-superheading">
+        {{ superheading_text }}
+      </p>
+    {% endif %}
+    {% if heading_text %}
+      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}" {% if id %}id="{{ id }}"{% endif %}>
+        {{ heading_text }}
+      </{{ level|default('h2') }}>
+    {% endif %}
+    {% if subheading_text %}
+      <p class="fl-subheading {{ subheading_size }} {{ alignment_class }}">{{ subheading_text }}</p>
+    {% endif %}
+  </hgroup>
+{% elif heading_text %}
+  <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
+    {{ heading_text }}
+  </{{ level|default('h2') }}>
+{% endif %}

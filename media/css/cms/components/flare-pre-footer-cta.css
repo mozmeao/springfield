@@ -1,0 +1,65 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-pre-footer-cta {
+    --kit-size: 100px;
+    display: flex;
+    justify-content: center;
+    padding-block: calc(var(--kit-size) + (var(--fl-section-v-padding) * 2))
+        var(--fl-section-v-padding);
+    padding-inline: var(--fl-section-h-padding);
+    position: relative;
+}
+
+.fl-pre-footer-cta-button {
+    align-items: center;
+    background-color: var(--token-color-light-purple);
+    border-radius: 2000px;
+    color: var(--token-color-white);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-headline);
+
+    /* fluid type: slope = (max - min) / (max-vw - min-vw) = (128 - 32) / (1100 - 600) = 19.2vw
+       intercept = min - slope * min-vw = 32 - (0.192 * 600) = -83.2px */
+    font-size: clamp(36px, calc(-83.2px + 19.2vw), 128px);
+    font-weight: var(--token-font-weight-bold);
+    justify-content: center;
+    letter-spacing: -0.005em;
+    line-height: 0.9;
+    padding: var(--token-layout-2xs) var(--token-layout-xs);
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--token-transition-fast);
+}
+
+.fl-pre-footer-cta-button::before {
+    background-image: url('/media/img/firefox/flare/sitting-kit-2.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    block-size: var(--kit-size);
+    content: '';
+    inline-size: var(--kit-size);
+    inset-block-end: calc(100% - 3.5%);
+    inset-inline-start: 50%;
+    position: absolute;
+    transform: translateX(-66%);
+}
+
+.fl-pre-footer-cta-button:hover {
+    background-color: var(--token-color-link-purple);
+}
+
+@media (--viewport-md-up) {
+    .fl-pre-footer-cta {
+        --kit-size: 180px;
+    }
+
+    .fl-pre-footer-cta-button {
+        padding: var(--token-layout-sm) var(--token-layout-lg);
+    }
+}

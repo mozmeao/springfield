@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set settings = value.settings.blocks_by_name("show_to") %}
+{% set show_to = settings[0].value if settings else {} %}
+<include:conditional-display condition_settings={{ show_to }}>
+  <include:pencil-banner
+    dismissable="{{ value.dismissable }}"
+    link="{{ value.link }}"
+    title="{{ value.title|richtext|remove_p_tag }}"
+    description="{{ value.description|richtext|remove_p_tag }}"
+  />
+</include:conditional-display>

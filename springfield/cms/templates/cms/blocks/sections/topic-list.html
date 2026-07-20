@@ -1,0 +1,51 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_position = block_position or "topic-list" %}
+
+<section class="fl-section">
+  <div class="fl-section-container">
+    <div class="fl-topic-list">
+      <div class="fl-topic-list-sidebar">
+        <ul>
+          {% for topic in value.topics %}
+            <li>
+              <a href="#{{ topic.anchor_id }}">
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="forward" />
+                </span>
+                {{ topic.short_title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="fl-topic-list-mobile-menu">
+        <ul>
+          {% for topic in value.topics %}
+            <li>
+              <a href="#{{ topic.anchor_id }}">
+                {{ topic.short_title }}
+                <span class="table-content-icon" aria-hidden="true">
+                  <include:icon icon_name="down" />
+                </span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="fl-topic-list-content">
+        {% for topic in value.topics %}
+          {% set block_position = block_position ~ '.topic-' ~ loop.index %}
+          {% include_block topic %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

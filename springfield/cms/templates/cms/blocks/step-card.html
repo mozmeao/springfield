@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text =  value.headline|richtext|remove_tags %}
+{% set heading_level = 'h' ~ block_level if block_level else 'h3' %}
+
+<include:step-card expand_link="{{ value.settings.expand_link }}" step="{{ card_index }}">
+  <content:media>
+    {% include_block value.image %}
+  </content:media>
+  <content:heading>
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-{{ heading_level[1:] }}"
+      heading_text="{{ value.headline|richtext|remove_p_tag }}"
+      superheading_text="{{ value.eyebrow|richtext|remove_p_tag }}"
+    />
+  </content:heading>
+  <content:body>
+    {{ value.content|richtext }}
+  </content:body>
+  {% if value.buttons %}
+    <content:buttons>
+      {% for button in value.buttons %}
+        {% set block_position = block_position ~ ".button-" ~ loop.index %}
+        {% include_block button %}
+      {% endfor %}
+    </content:buttons>
+  {% endif %}
+</include:step-card>

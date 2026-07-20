@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_title_full %}How Firefox Protects Your Data{% endblock %}
+{% block page_title %}How Firefox Protects Your Data{% endblock %}
+
+{% block page_desc %}
+  Firefox is built with privacy by default. Data is never sold, and users have the most choice to turn off what annoys them.
+{% endblock %}
+
+{% block body_class %}mzp-t-mozilla format-none{% endblock%}
+
+{% block page_css %}
+  {{ css_bundle('flare-user-privacy') }}
+{% endblock %}
+
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral' %}
+
+{% block main_class %}{% endblock %}
+{% block main_attrs %}{% endblock %}
+
+{% block content %}
+  {% include "firefox/data/data-flare.html" %}
+{% endblock %}
+
+{% block js %}
+  {{ js_bundle('data_protection') }}
+  {{ js_bundle('data_uitour') }}
+{% endblock %}

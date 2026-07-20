@@ -18,11 +18,10 @@ COPY requirements/prod.txt ./requirements/
 # Install Python deps
 RUN pip install --require-hashes --no-cache-dir -r requirements/prod.txt
 
-
 ########
 # assets builder and dev server
 #
-FROM node:22.15.0-slim AS assets
+FROM node:24-slim AS assets
 
 ENV PATH=/app/node_modules/.bin:$PATH
 WORKDIR /app
@@ -42,6 +41,7 @@ RUN npm ci --verbose
 
 # copy supporting files and media
 COPY eslint.config.js .stylelintrc .prettierrc.json .prettierignore webpack.config.js webpack.static.config.js ./
+COPY ./webpack ./webpack
 COPY ./media ./media
 COPY ./tests/unit ./tests/unit
 
@@ -100,11 +100,18 @@ RUN apt-install make
 COPY docker/bin/ssllabs-scan /usr/local/bin/ssllabs-scan
 COPY requirements/* ./requirements/
 RUN pip install --require-hashes --no-cache-dir -r requirements/dev.txt
-RUN pip install --require-hashes --no-cache-dir -r requirements/docs.txt
 COPY ./setup.cfg ./
 COPY ./pyproject.toml ./
 COPY ./.coveragerc ./
 COPY ./tests ./tests
+
+# ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
+# thumbnail_directory when the CMS blocks are imported, which happens during
+# `migrate` in run-sync-all.sh below. The icons resolve via assets/ (populated
+# from media/ by `npm run static`), which isn't in the image yet, so copy just
+# that directory first. Copying icons-only (not all of assets/) keeps the
+# expensive run-sync-all layer cached across unrelated asset changes.
+COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
 RUN bin/run-sync-all.sh
 
@@ -116,6 +123,10 @@ RUN touch /home/webdev/.pythonhist
 RUN chown -R webdev /home/webdev/
 
 USER webdev
+
+# media
+RUN mkdir -p /app/custom-media
+RUN chown -R webdev:webdev /app/custom-media
 
 # build args
 ARG GIT_SHA=latest
@@ -129,6 +140,14 @@ FROM app-base AS release
 
 ARG DEMO_SERVER_ADMIN_USERS
 ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
+
+# ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
+# thumbnail_directory when the CMS blocks are imported, which happens during
+# `migrate` in run-sync-all.sh below. The icons resolve via assets/ (populated
+# from media/ by `npm run static`), so the icon directory must be present before
+# run-sync-all runs. Copying icons-only (the full assets/ is copied below) keeps
+# the expensive run-sync-all layer cached across unrelated asset changes.
+COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
 RUN bin/run-sync-all.sh
 

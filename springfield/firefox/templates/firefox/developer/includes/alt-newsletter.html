@@ -17,7 +17,7 @@
 ) %}
   {% if LANG.startswith('en-') %}
   {{ email_newsletter_form(
-    'app-dev',
+    newsletters='app-dev',
     title='Mozilla Developer Newsletter',
     desc='Get developer news, tricks and resources sent straight to your inbox.'|safe,
     button_class='mzp-t-product mzp-t-lg',

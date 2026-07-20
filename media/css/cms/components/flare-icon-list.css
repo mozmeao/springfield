@@ -1,0 +1,27 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-icon-text-list {
+    columns: 24ch 2;
+    gap: var(--token-spacing-xl);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-icon-text-list li {
+    align-items: center;
+    break-inside: avoid;
+    display: flex;
+    gap: var(--token-layout-3xs);
+    margin-block-end: 0;
+    padding-block: var(--token-spacing-sm);
+}
+
+.fl-icon-text-list .fl-icon-wrap {
+    background: var(--icon-text-list-icon-bg);
+    color: var(--fl-theme-color-text);
+}

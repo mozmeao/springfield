@@ -5,16 +5,35 @@
 from unittest import mock
 
 from django.test import override_settings
+from django.utils import translation
 
 import pytest
-from wagtail.models import Page
+from bs4 import BeautifulSoup
+from wagtail.models import Locale, Page, Site
 
+from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
+    FreeFormPage2026,
     SimpleRichTextPage,
     StructuralPage,
+    Tag,
+    ThanksPage,
 )
-from springfield.cms.tests.factories import StructuralPageFactory
+from springfield.cms.tests.factories import (
+    ArticleDetailPageFactory,
+    ArticleIndexPageFactory,
+    ArticleThemePageFactory,
+    DownloadIndexPageFactory,
+    DownloadPageFactory,
+    FlareDocsIndexPageFactory,
+    FreeFormPage2026Factory,
+    LocaleFactory,
+    SimpleRichTextPageFactory,
+    StructuralPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
+)
 
 pytestmark = [
     pytest.mark.django_db,
@@ -100,9 +119,9 @@ def test_CMS_ALLOWED_PAGE_MODELS_controls_Page_can_create_at(
         assert page_class.can_create_at(home_page) == success_expected
 
 
-@mock.patch("springfield.cms.models.base.get_locales_for_cms_page")
+@mock.patch("springfield.cms.models.base.compute_cms_page_locales")
 def test__patch_request_for_springfield__locales_available_via_cms(
-    mock_get_locales_for_cms_page,
+    mock_compute_cms_page_locales,
     minimal_site,
     rf,
 ):
@@ -110,10 +129,11 @@ def test__patch_request_for_springfield__locales_available_via_cms(
 
     page = SimpleRichTextPage.objects.last()  # made by the minimal_site fixture
 
-    mock_get_locales_for_cms_page.return_value = ["en-US", "fr", "pt-BR"]
+    mock_compute_cms_page_locales.return_value = (["en-US", "fr", "pt-BR"], ["en-US", "fr", "pt-BR"])
 
     patched_request = page.specific._patch_request_for_springfield(request)
     assert sorted(patched_request._locales_available_via_cms) == ["en-US", "fr", "pt-BR"]
+    assert sorted(patched_request._content_locales_via_cms) == ["en-US", "fr", "pt-BR"]
 
 
 def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_site, rf):
@@ -124,3 +144,1339 @@ def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_sit
 
     patched_request = en_us_test_page.specific._patch_request_for_springfield(request)
     assert patched_request.is_cms_page is True
+
+
+# ---------------------------------------------------------------------------
+# get_active_locale_url
+# ---------------------------------------------------------------------------
+
+
+def test_get_active_locale_url_returns_original_url(tiny_localized_site):
+    """Page in the active locale: URL is returned as-is."""
+    page = Page.objects.get(locale__language_code="en-US", slug="child-page").specific
+    with translation.override("en-US"):
+        url = page.get_active_locale_url()
+    assert url == page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_get_active_locale_url_returns_original_url_if_no_fallback_locales(tiny_localized_site):
+    """No FALLBACK_LOCALES: URL retains the page's own locale prefix even when active lang differs."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("en-US"):
+        url = fr_page.get_active_locale_url()
+    assert url == fr_page.get_url()
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_url_with_fallback_locale(tiny_localized_site):
+    """Active language is alias (pt-PT → pt-BR): URL prefix is rewritten to pt-PT."""
+    LocaleFactory(language_code="pt-PT")
+    pt_br_page = Page.objects.get(locale__language_code="pt-BR", slug="child-page").specific
+    with translation.override("pt-PT"):
+        url = pt_br_page.get_active_locale_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_original_url_if_same_as_active_locale(tiny_localized_site):
+    """Active language is pt-PT but page is already in pt-PT locale: no substitution."""
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    site.root_page.copy_for_translation(pt_pt_locale)
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="test-page")
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.save_revision().publish()
+    with translation.override("pt-PT"):
+        url = pt_pt_page.specific.get_active_locale_url()
+    assert "/pt-PT/" in url
+    assert "/pt-BR/" not in url
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_active_locale_url_returns_original_url_if_active_language_not_in_fallback_locales(tiny_localized_site):
+    """Active language (fr) is not in FALLBACK_LOCALES: URL is unchanged."""
+    fr_page = Page.objects.get(locale__language_code="fr", slug="child-page").specific
+    with translation.override("fr"):
+        url = fr_page.get_active_locale_url()
+    assert "/fr/" in url
+    assert "/pt-BR/" not in url
+
+
+def test_whats_new_index_page_redirects_to_latest_whats_new(
+    minimal_site,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
+    v123_page.save()
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
+    v124_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v124_page.url)
+
+    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
+    v125_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v125_page.url)
+
+
+def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
+    minimal_site,
+    rf,
+):
+    """General WNP (slug='general') must not be treated as the 'latest' version.
+    The index page should redirect to the highest numeric version, not to the
+    general page (which sorts after digits lexicographically)."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew-2")
+
+    v150_page = WhatsNewPage2026Factory(parent=index_page, slug="150", version="150")
+    v150_page.save()
+
+    from springfield.cms.tests.factories import GeneralWhatsNewPage2026Factory
+
+    general_page = GeneralWhatsNewPage2026Factory(parent=index_page)
+    general_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v150_page.url)
+
+
+def test_whats_new_index_page_redirects_to_home_if_no_children(
+    minimal_site,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    request = rf.get(_relative_url)
+
+    # No WhatsNewPage exists yet, so should redirect to /
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/"
+
+
+def test_whats_new_index_page_redirects_to_locale_appropriate_child(
+    tiny_localized_site,
+    rf,
+):
+    site = Site.objects.get(is_default_site=True)
+    en_us_root_page = site.root_page
+
+    pt_br_locale = Locale.objects.get(language_code="pt-BR")
+    pt_br_root_page = en_us_root_page.get_translation(pt_br_locale)
+
+    assert pt_br_root_page
+
+    en_us_index_page = WhatsNewIndexPageFactory(parent=en_us_root_page, slug="whatsnew")
+    en_us_index_page.save()
+
+    pt_br_index_page = en_us_index_page.copy_for_translation(pt_br_locale)
+    pt_br_index_page.title = "O que há de novo no Firefox"
+    pt_br_index_page.save()
+    pt_br_index_page.save_revision().publish()
+
+    _en_us_relative_url = en_us_index_page.relative_url(tiny_localized_site)
+    assert _en_us_relative_url == "/en-US/whatsnew/"
+
+    _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
+    assert _pt_br_relative_url == "/pt-BR/whatsnew/"
+
+    en_us_v123_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page.save()
+    en_us_v124_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page.save()
+
+    pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
+    pt_br_v123_page.title = "O que tem de novo no Firefox 123"
+    pt_br_v123_page.save_revision().publish()
+
+    pt_br_v124_page = en_us_v124_page.copy_for_translation(pt_br_locale)
+    pt_br_v124_page.title = "O que tem de novo no Firefox 124"
+    pt_br_v124_page.save_revision().publish()
+
+    pt_br_index_page.refresh_from_db()
+
+    en_us_request = rf.get(_en_us_relative_url)
+
+    response = en_us_index_page.specific.serve(en_us_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(en_us_v124_page.url)
+
+    pt_br_request = rf.get(_pt_br_relative_url)
+    response = pt_br_index_page.specific.serve(pt_br_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(pt_br_v124_page.url)
+
+
+def test_freeform_page(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    page = FreeFormPage2026Factory(parent=root_page, slug="freeform-2026-page")
+    page.save()
+
+    _relative_url = page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/freeform-2026-page/"
+
+    request = rf.get(_relative_url)
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_article_index_and_detail_pages(minimal_site, rf):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="All the Articles",
+        sub_title="A collection of all articles.",
+        other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+        other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+    )
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/"
+
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    image, dark_image, mobile_image, mobile_dark_image = get_placeholder_images()
+
+    for i in range(1, 3):
+        tag = Tag.objects.create(name=f"Tag {i}", slug=f"tag-{i}", locale=index_page.locale)
+
+        featured_page = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Featured Article {i}",
+            slug=f"featured-article-{i}",
+            description=f"Description for Featured Article {i}",
+            featured=True,
+            image=image,
+            tag=tag,
+            sticker=dark_image,
+        )
+        featured_page.save()
+
+        _featured_relative_url = featured_page.relative_url(minimal_site)
+        assert _featured_relative_url == f"/en-US/articles/featured-article-{i}/"
+
+        featured_request = rf.get(_featured_relative_url)
+        featured_response = featured_page.specific.serve(featured_request)
+        assert featured_response.status_code == 200
+
+        article = ArticleDetailPageFactory(
+            parent=index_page,
+            title=f"Article {i}",
+            slug=f"article-{i}",
+            description=f"Description for Article {i}",
+            featured=False,
+            image=image,
+            tag=tag,
+            sticker=dark_image,
+        )
+        article.save()
+
+        _article_relative_url = article.relative_url(minimal_site)
+        assert _article_relative_url == f"/en-US/articles/article-{i}/"
+
+        article_request = rf.get(_article_relative_url)
+        article_response = article.specific.serve(article_request)
+        assert article_response.status_code == 200
+
+    index_page.refresh_from_db()
+    request = rf.get(_relative_url)
+    response = index_page.specific.serve(request)
+    page_content = response.content
+
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "All the Articles" in soup.find("h1").text
+
+    card_grids = soup.find_all("div", class_="fl-card-grid")
+    assert len(card_grids) == 2
+
+    featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
+    assert len(featured_cards) == 2
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        matching_card = next(c for c in featured_cards if f"Featured Article {i}" in c.find("h2").text)
+        assert f"Description for Featured Article {i}" in matching_card.text
+        assert matching_card.find("a")["href"].endswith(f"/en-US/articles/featured-article-{i}/")
+        superheading = matching_card.find(class_="fl-superheading")
+        assert superheading and f"Tag {i}" in superheading.text
+
+    sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
+    assert len(sticker_cards) == 2
+    # Articles are ordered by the first_published_at field in descending order,
+    # but in this test we only verify their presence on the page.
+    for i in range(1, 3):
+        card = next(c for c in sticker_cards if f"Article {i}" in c.find("h3").text)
+        assert f"Description for Article {i}" in card.text
+        assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
+
+
+def test_article_detail_content(minimal_site, rf):
+    image, _, _, _ = get_placeholder_images()
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="All the Articles",
+        sub_title="A collection of all articles.",
+        other_articles_heading="<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
+        other_articles_subheading="<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+    )
+    index_page.save()
+
+    article_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Test Article Detail Page",
+        slug="article-detail-page",
+        description="Test Article Description for Index Page",
+        content=[
+            {
+                "type": "text",
+                "value": f'<p>This is the content of the test article. With a link to the <a id="{index_page.id}" linktype="page">Index Page</a></p>',
+            },
+        ],
+        image=image,
+    )
+    article_page.save()
+
+    _relative_url = article_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/articles/article-detail-page/"
+
+    request = rf.get(_relative_url)
+    response = article_page.specific.serve(request)
+    assert response.status_code == 200
+
+    page_content = response.content
+    soup = BeautifulSoup(page_content, "html.parser")
+
+    assert "Test Article Detail Page" in soup.find("h1").text
+    content = soup.find("section", class_="fl-rich-text").find("p")
+    assert "This is the content of the test article. With a link to the Index Page" in content.text
+    link = content.find("a")
+    assert link["href"].endswith(index_page.url)
+
+
+def test_article_index_page_shows_sibling_and_child_articles(minimal_site, rf):
+    """ArticleIndexPage should include ArticleDetailPages that are siblings
+    (co-children of an ArticleThemePage) as well as its own children."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    theme_page = ArticleThemePageFactory(parent=root_page, slug="theme", title="Article Theme")
+    theme_page.save()
+
+    index_page = ArticleIndexPageFactory(
+        parent=theme_page,
+        slug="articles",
+        title="All the Articles",
+        other_articles_heading="<p>More Articles</p>",
+        show_sibling_detail_pages=True,
+    )
+    index_page.save()
+
+    image, _, _, _ = get_placeholder_images()
+
+    sibling_featured = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-featured",
+        title="Sibling Featured Article",
+        featured=True,
+        image=image,
+    )
+    sibling_featured.save()
+
+    sibling_article = ArticleDetailPageFactory(
+        parent=theme_page,
+        slug="sibling-article",
+        title="Sibling Article",
+        featured=False,
+        image=image,
+    )
+    sibling_article.save()
+
+    child_article = ArticleDetailPageFactory(
+        parent=index_page,
+        slug="child-article",
+        title="Child Article",
+        featured=False,
+        image=image,
+    )
+    child_article.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert sibling_featured in context["featured_articles"]
+    assert sibling_article in context["list_articles"]
+    assert child_article in context["list_articles"]
+
+
+@pytest.mark.parametrize(
+    "django_locale,expected_locale_code",
+    [
+        ("en-gb", "en-GB"),  # Lowercase from Django -> mixed-case
+        ("en-ca", "en-CA"),  # Another mixed-case example
+        ("pt-br", "pt-BR"),  # Another mixed-case example
+        ("de", "de"),  # Simple code stays the same
+        ("fr", "fr"),  # Simple code stays the same
+    ],
+)
+def test_springfield_locale_get_active_normalizes_case(django_locale, expected_locale_code):
+    """
+    Test that SpringfieldLocale.get_active() normalizes Django's lowercase
+    language codes to match Springfield's mixed-case Locale records.
+
+    This is a unit test for the SpringfieldLocale.get_active() method that
+    verifies it properly handles the case mismatch between Django's internal
+    lowercase language codes (e.g., 'en-gb') and Springfield's mixed-case
+    Locale records (e.g., 'en-GB').
+
+    Without this normalization, Wagtail's routing would fail to find the
+    correct Locale and fall back to the default locale.
+    """
+    # Create the Locale record with mixed-case code
+    locale = LocaleFactory(language_code=expected_locale_code)
+    assert locale.language_code == expected_locale_code
+
+    # Mock Django's translation.get_language() to return lowercase
+    with mock.patch("django.utils.translation.get_language", return_value=django_locale):
+        # Call SpringfieldLocale.get_active() (which is patched onto Locale)
+        active_locale = Locale.get_active()
+
+        # Verify it found the correct Locale despite the case mismatch
+        assert active_locale.id == locale.id
+        assert active_locale.language_code == expected_locale_code
+
+
+def test_springfield_locale_get_active_falls_back_to_default():
+    """
+    Test that SpringfieldLocale.get_active() falls back to the default locale
+    when the requested locale doesn't exist.
+    """
+    # Ensure en-US exists as the default
+    default_locale = Locale.objects.get(language_code="en-US")
+
+    # Mock Django returning a locale that doesn't exist
+    with mock.patch("django.utils.translation.get_language", return_value="xx-YY"):
+        active_locale = Locale.get_active()
+
+        # Should fall back to en-US
+        assert active_locale.id == default_locale.id
+        assert active_locale.language_code == "en-US"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_locale_get_active_uses_configured_fallback_locale():
+    """
+    When an alias locale (pt-PT) has no Locale DB record, get_active() should
+    return the configured fallback locale (pt-BR) rather than jumping straight
+    to en-US.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    # Deliberately do NOT create a pt-PT Locale record
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    # Django returns lowercase codes; pt-PT becomes "pt-pt"
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == pt_br_locale.id
+    assert active_locale.language_code == "pt-BR"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_springfield_locale_get_active_falls_back_to_default_when_fallback_locale_also_missing():
+    """
+    When the alias locale has no DB record and the configured fallback locale
+    also has no DB record, get_active() should still fall back safely to en-US.
+    """
+    # Neither pt-PT nor pt-BR exists
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+    assert not Locale.objects.filter(language_code="pt-BR").exists()
+
+    default_locale = Locale.objects.get(language_code="en-US")
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        active_locale = Locale.get_active()
+
+    assert active_locale.id == default_locale.id
+    assert active_locale.language_code == "en-US"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_fallback_locale_page_when_alias_locale_has_no_db_record():
+    """
+    When Django's active language is an alias locale (pt-PT) with no Locale DB
+    record, page.localized should return the fallback locale's (pt-BR)
+    translation rather than the en-US original.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    # copy_for_translation requires the parent to exist in the target locale
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-localized-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized = en_us_page.localized
+
+    assert localized.id == pt_br_page.id
+    assert localized.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_uses_fallback_locale_when_alias_locale_exists_but_no_translation():
+    """
+    When the alias locale (pt-PT) has a Locale DB record but the page has no
+    pt-PT translation, page.localized should return the fallback locale's (pt-BR)
+    translation rather than the en-US original.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")  # Locale exists in DB
+    # Deliberately do NOT create a pt-PT translation of the article
+
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-fallback-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == pt_br_page.id
+    assert result.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_translation_when_active_locale_has_one():
+    """
+    When the active locale (pt-BR) has a published translation, localized
+    returns it directly without consulting FALLBACK_LOCALES.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-normal-locale-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-br"):
+        result = en_us_page.localized
+
+    assert result.id == pt_br_page.id
+    assert result.locale == pt_br_locale
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_translation_when_fallback_locale_has_translation():
+    """
+    When the active locale (pt-PT) has a translation, localized returns the locale's translation.
+    """
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    site = Site.objects.get(is_default_site=True)
+    root_page = site.root_page
+    root_page.copy_for_translation(pt_br_locale)
+    root_page.copy_for_translation(pt_pt_locale)
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-normal-locale-test",
+        parent=root_page,
+    )
+    pt_br_page = en_us_page.copy_for_translation(pt_br_locale)
+    pt_br_page.title = "pt-BR Article"
+    pt_br_page.save_revision().publish()
+    pt_pt_page = en_us_page.copy_for_translation(pt_pt_locale)
+    pt_pt_page.title = "pt-PT Article"
+    pt_pt_page.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == pt_pt_page.id
+    assert result.locale == pt_pt_locale
+
+
+def test_page_localized_returns_self_when_no_translation_and_locale_not_in_fallback_locales():
+    """
+    When the active locale (fr) is not in FALLBACK_LOCALES and the page has no
+    French translation, localized returns the source page unchanged.
+    """
+    _fr_locale = LocaleFactory(language_code="fr")
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-no-fallback-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
+def test_page_localized_returns_self_for_source_locale():
+    """
+    When the active locale is the source locale (en-US), localized returns
+    the page unchanged without any extra lookups.
+    """
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-source-locale-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="en-us"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_page_localized_returns_self_when_fallback_locale_also_has_no_translation():
+    """
+    When the alias locale (pt-PT) maps to pt-BR via FALLBACK_LOCALES but the
+    page has no pt-BR translation either, localized returns the source page.
+    """
+    _pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    _pt_br_locale = LocaleFactory(language_code="pt-BR")
+    # No pt-PT or pt-BR translation created for the page
+
+    en_us_page = SimpleRichTextPageFactory(
+        title="en-US Article",
+        slug="en-us-article-no-fallback-translation-test",
+    )
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        result = en_us_page.localized
+
+    assert result.id == en_us_page.id
+    assert result.locale.language_code == "en-US"
+
+
+def test_thanks_page_get_template_default(rf):
+    page = ThanksPage()
+    request = rf.get("/thanks/")
+    assert page.get_template(request) == "cms/thanks_page.html"
+
+
+def test_thanks_page_get_template_direct(rf):
+    page = ThanksPage()
+    request = rf.get("/thanks/?s=direct")
+    assert page.get_template(request) == "firefox/download/rtamo.html"
+
+
+@pytest.mark.parametrize(
+    "s_value",
+    ["other", "", "DIRECT"],
+    ids=["other", "empty", "uppercase"],
+)
+def test_thanks_page_get_template_ignores_other_s_values(rf, s_value):
+    page = ThanksPage()
+    request = rf.get(f"/thanks/?s={s_value}")
+    assert page.get_template(request) == "cms/thanks_page.html"
+
+
+# ---- Image variant CSS class tests ----
+#
+# These tests verify that model-level image variant fields produce the correct
+# CSS display classes in the rendered HTML.
+def _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes):
+    """Assert img tags inside an image-variants-display container carry the expected CSS classes.
+
+    Pass None for a variant to assert it is absent.  Class strings use space-separated
+    BS4 multi-class matching, e.g. "display-dark display-sm-up".
+    """
+    if primary_classes:
+        assert container.find("img", class_=primary_classes), f"Primary img missing expected classes: '{primary_classes}'"
+
+    if dark_classes:
+        dark_img = container.find("img", class_=dark_classes)
+        assert dark_img is not None, f"Dark-mode desktop img missing expected classes: '{dark_classes}'"
+        # The dark-mode desktop image must never appear on mobile-sized viewports.
+        assert "display-xs" not in (dark_img.get("class") or []), "Dark-mode desktop img must not carry display-xs"
+
+    if mobile_classes:
+        assert container.find("img", class_=mobile_classes), f"Mobile img missing expected classes: '{mobile_classes}'"
+
+    if dark_mobile_classes:
+        assert container.find("img", class_=dark_mobile_classes), f"Dark-mode mobile img missing expected classes: '{dark_mobile_classes}'"
+
+
+_IMAGE_VARIANT_PARAMS = pytest.mark.parametrize(
+    "has_dark, has_mobile, has_dark_mobile, primary_classes, dark_classes, mobile_classes, dark_mobile_classes",
+    [
+        pytest.param(
+            True,
+            False,
+            False,
+            "display-light",  # primary: light-mode only, unrestricted size
+            "display-dark",  # dark: dark-mode only, unrestricted size
+            None,  # mobile: absent
+            None,  # dark-mobile: absent
+            id="dark-only",
+        ),
+        pytest.param(
+            False,
+            True,
+            False,
+            "display-sm-up",  # primary: shown on sm-and-up only
+            None,  # dark: absent
+            "display-xs",  # mobile: shown on xs only
+            None,  # dark-mobile: absent
+            id="mobile-only",
+        ),
+        pytest.param(
+            True,
+            True,
+            False,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up (must NOT be just "display-dark")
+            "display-xs",  # mobile: xs only (serves as fallback on dark mobile too)
+            None,  # dark-mobile: absent
+            id="dark-and-mobile",
+        ),
+        pytest.param(
+            True,
+            True,
+            True,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up
+            "display-light display-xs",  # mobile: light-mode, xs only
+            "display-dark display-xs",  # dark-mobile: dark-mode, xs only
+            id="all-variants",
+        ),
+        pytest.param(
+            False,
+            False,
+            False,
+            None,  # primary: no CSS classes (unrestricted, no variants to conflict with)
+            None,  # dark: absent
+            None,  # mobile: absent
+            None,  # dark-mobile: absent
+            id="primary-only",
+        ),
+        pytest.param(
+            False,
+            False,
+            True,
+            "display-sm-up",  # primary: restricted to sm-and-up because dark-mobile covers xs
+            None,  # dark: absent
+            None,  # mobile: absent (mobile variant not set, only dark-mobile is)
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="dark-mobile-only",
+        ),
+        pytest.param(
+            True,
+            False,
+            True,
+            "display-light display-sm-up",  # primary: light-mode, sm-and-up
+            "display-dark display-sm-up",  # dark desktop: dark-mode, sm-and-up (dark-mobile triggers sm-up)
+            None,  # mobile: absent
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="dark-and-dark-mobile",
+        ),
+        pytest.param(
+            False,
+            True,
+            True,
+            "display-sm-up",  # primary: sm-and-up (mobile variant covers xs)
+            None,  # dark: absent
+            "display-light display-xs",  # mobile: light-mode xs only
+            "display-dark display-xs",  # dark-mobile: dark-mode xs only
+            id="mobile-and-dark-mobile",
+        ),
+    ],
+)
+
+
+@_IMAGE_VARIANT_PARAMS
+def test_article_detail_page_image_variants(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """ArticleDetailPage.image and its variants are rendered with correct CSS classes."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="Articles",
+        other_articles_heading="<p>Other Articles</p>",
+    )
+    index_page.save()
+
+    kwargs = dict(parent=index_page, title="Test Article", slug="test-article", image=image)
+    if has_dark:
+        kwargs["image_dark_mode"] = dark_image
+    if has_mobile:
+        kwargs["image_mobile"] = mobile_image
+    if has_dark_mobile:
+        kwargs["image_dark_mode_mobile"] = dark_mobile_image
+
+    article_page = ArticleDetailPageFactory(**kwargs)
+    article_page.save()
+
+    request = rf.get(article_page.relative_url(minimal_site))
+    response = article_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    container = soup.find("div", class_="image-variants-display")
+    assert container is not None, "Expected image-variants-display container in article detail page"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(container.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+@_IMAGE_VARIANT_PARAMS
+def test_article_index_page_sticker_variants_flare(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """ArticleDetailPage sticker variants are rendered with correct CSS classes on the index page (flare)."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = ArticleIndexPageFactory(
+        parent=root_page,
+        slug="articles",
+        title="Articles",
+        other_articles_heading="<p>Other Articles</p>",
+    )
+    index_page.save()
+
+    sticker_kwargs = dict(sticker=image)
+    if has_dark:
+        sticker_kwargs["sticker_dark_mode"] = dark_image
+    if has_mobile:
+        sticker_kwargs["sticker_mobile"] = mobile_image
+    if has_dark_mobile:
+        sticker_kwargs["sticker_dark_mode_mobile"] = dark_mobile_image
+
+    featured_page = ArticleDetailPageFactory(
+        parent=index_page,
+        title="Featured Article",
+        slug="featured-article",
+        featured=True,
+        image=image,
+        **sticker_kwargs,
+    )
+    featured_page.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    # The featured card section is the first fl-card-grid.
+    featured_grid = soup.find("div", class_="fl-card-grid")
+    assert featured_grid is not None
+
+    featured_card = featured_grid.find(class_="fl-sticker-card")
+    assert featured_card is not None, "Expected a fl-sticker-card in the featured grid"
+
+    container = featured_card.find("div", class_="image-variants-display")
+    assert container is not None, "Expected image-variants-display in sticker card"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(container.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(container, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+@_IMAGE_VARIANT_PARAMS
+def test_download_page_featured_image_variants(
+    minimal_site,
+    rf,
+    has_dark,
+    has_mobile,
+    has_dark_mobile,
+    primary_classes,
+    dark_classes,
+    mobile_classes,
+    dark_mobile_classes,
+):
+    """DownloadPage.featured_image variants are rendered with correct CSS classes."""
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+
+    root_page = SimpleRichTextPage.objects.first()
+    download_index = DownloadIndexPageFactory(parent=root_page, slug="download-index")
+    download_index.save()
+
+    featured_image_kwargs = dict(featured_image=image)
+    if has_dark:
+        featured_image_kwargs["featured_image_dark_mode"] = dark_image
+    if has_mobile:
+        featured_image_kwargs["featured_image_mobile"] = mobile_image
+    if has_dark_mobile:
+        featured_image_kwargs["featured_image_dark_mode_mobile"] = dark_mobile_image
+
+    download_page = DownloadPageFactory(
+        parent=download_index,
+        slug="windows",
+        platform="windows",
+        **featured_image_kwargs,
+    )
+    download_page.save()
+
+    request = rf.get(download_page.relative_url(minimal_site))
+    response = download_page.specific.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    container = soup.find("div", class_="fl-download-intro-featured-image")
+    assert container is not None, "Expected fl-download-intro-featured-image section"
+
+    variants_div = container.find("div", class_="image-variants-display")
+    assert variants_div is not None, "Expected image-variants-display inside featured image section"
+
+    expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
+    assert len(variants_div.find_all("img")) == expected_img_count
+
+    _check_image_variant_classes(variants_div, primary_classes, dark_classes, mobile_classes, dark_mobile_classes)
+
+
+# Snippets
+def test_get_localized_snippet_returns_translation(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Extrait traduit"
+
+
+def test_get_localized_snippet_returns_none_if_translation_is_not_published(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    fr_locale = Locale.objects.get(language_code="fr")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(fr_locale)
+    translated_snippet.name = "Extrait traduit"
+    translated_snippet.live = False
+    translated_snippet.save()
+
+    with mock.patch("django.utils.translation.get_language", return_value="fr"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet is None
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+    translated_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    translated_snippet.name = "Snippet traduzido"
+    translated_snippet.save()
+    translated_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == translated_snippet.id
+        assert localized_snippet.name == "Snippet traduzido"
+
+
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_get_localized_snippet_returns_translation_translated_instance_despite_fallback(minimal_site):
+    en_us_locale = Locale.objects.get(language_code="en-US")
+    pt_br_locale = LocaleFactory(language_code="pt-BR")
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+
+    original_snippet = Tag.objects.create(name="Original Snippet", slug="original-snippet", locale=en_us_locale)
+
+    pt_br_snippet = original_snippet.copy_for_translation(pt_br_locale)
+    pt_br_snippet.name = "Snippet traduzido"
+    pt_br_snippet.save()
+    pt_br_snippet.save_revision().publish()
+
+    pt_pt_snippet = original_snippet.copy_for_translation(pt_pt_locale)
+    pt_pt_snippet.name = "Trecho traduzido"
+    pt_pt_snippet.save()
+    pt_pt_snippet.save_revision().publish()
+
+    with mock.patch("django.utils.translation.get_language", return_value="pt-pt"):
+        localized_snippet = original_snippet.get_localized()
+        assert localized_snippet.id == pt_pt_snippet.id
+        assert localized_snippet.name == "Trecho traduzido"
+
+
+# ---------------------------------------------------------------------------
+# FlareDocsIndexPage
+# ---------------------------------------------------------------------------
+
+
+def test_flare_docs_index_page_serves_200(minimal_site, rf):
+    """FlareDocsIndexPage should render successfully."""
+    root_page = SimpleRichTextPage.objects.first()
+    page = FlareDocsIndexPageFactory(parent=root_page, slug="docs-index")
+    page.save()
+
+    request = rf.get(page.relative_url(minimal_site))
+    response = page.specific.serve(request)
+    assert response.status_code == 200
+
+
+def test_flare_docs_index_page_get_context_sections_with_children(minimal_site, rf):
+    """Sections should group child pages and their grandchildren correctly."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Create a child FlareDocsIndexPage (acts as a section)
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Create grandchildren under the blocks page
+    gc1 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="intro-block",
+        title="Intro Block",
+    )
+    gc1.save()
+    gc2 = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="section-block",
+        title="Section Block",
+    )
+    gc2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    assert len(sections[0]["children"]) == 2
+
+    child_titles = [c["page"].title for c in sections[0]["children"]]
+    # Should be ordered by title
+    assert child_titles == ["Intro Block", "Section Block"]
+
+
+def test_flare_docs_index_page_get_context_leaf_sections(minimal_site, rf):
+    """Child pages without grandchildren should appear as leaf sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    # Two children with no grandchildren
+    child1 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="alpha",
+        title="Alpha Page",
+    )
+    child1.save()
+
+    child2 = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="beta",
+        title="Beta Page",
+    )
+    child2.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    assert len(sections) == 2
+    assert sections[0]["page"].title == "Alpha Page"
+    assert sections[0]["children"] == []
+    assert sections[1]["page"].title == "Beta Page"
+    assert sections[1]["children"] == []
+
+
+def test_flare_docs_index_page_excludes_unpublished_children(minimal_site, rf):
+    """Only live, public children and grandchildren appear in sections."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    # Live grandchild
+    live_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="live-page",
+        title="Live Page",
+    )
+    live_gc.save()
+
+    # Unlive grandchild
+    unlive_gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="unlive-page",
+        title="Unlive Page",
+        live=False,
+    )
+    unlive_gc.save()
+
+    # Unlive child
+    unlive_child = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="unlive-section",
+        title="Unlive Section",
+        live=False,
+    )
+    unlive_child.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    sections = context["sections"]
+    # Only the live child should appear
+    assert len(sections) == 1
+    assert sections[0]["page"].title == "Flare Docs - Blocks"
+    # Only the live grandchild should appear
+    assert len(sections[0]["children"]) == 1
+    assert sections[0]["children"][0]["page"].title == "Live Page"
+
+
+def test_flare_docs_index_page_empty_sections(minimal_site, rf):
+    """A docs index with no children should return an empty sections list."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    assert context["sections"] == []
+
+
+def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
+    """Serving the page should render child titles in the sidebar and content."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(
+        parent=root_page,
+        slug="docs",
+        title="Flare Docs - Index",
+    )
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="blocks",
+        title="Flare Docs - Blocks",
+    )
+    blocks_page.save()
+
+    gc = SimpleRichTextPageFactory(
+        parent=blocks_page,
+        slug="carousel-block",
+        title="Carousel Block",
+    )
+    gc.save()
+
+    standalone = FlareDocsIndexPageFactory(
+        parent=index_page,
+        slug="standalone",
+        title="Standalone Page",
+    )
+    standalone.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # Sidebar should contain the section title
+    sidebar = soup.find("nav", class_="fl-docs-index-sidebar")
+    assert sidebar is not None
+    assert "Blocks" in sidebar.text
+
+    # Content area should contain the grandchild
+    content = soup.find("div", class_="fl-docs-index-content")
+    assert content is not None
+    assert "Carousel Block" in content.text
+
+    # Leaf section (standalone) should appear in the other section
+    assert "Standalone Page" in content.text
+
+
+def test_flare_docs_index_page_renders_child_docs_field(minimal_site, rf):
+    """A FreeFormPage2026 grandchild's docs field should render inside the main content area."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="docs", title="Flare Docs - Index")
+    index_page.save()
+
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+
+    documented = FreeFormPage2026Factory(
+        parent=blocks_page,
+        slug="banner-demo",
+        title="Banner Demo",
+        docs="<p>Use the Banner block to introduce a major topic.</p>",
+    )
+    documented.save()
+    undocumented = FreeFormPage2026Factory(
+        parent=blocks_page,
+        slug="silent-demo",
+        title="Silent Demo",
+        docs="",
+    )
+    undocumented.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    content = soup.find("div", class_="fl-docs-index-content")
+    assert content is not None
+
+    # Documented child should produce a docs body containing the docs HTML
+    documented_entry = content.find("article", id="banner-demo")
+    assert documented_entry is not None
+    docs_body = documented_entry.find("div", class_="fl-docs-entry-body")
+    assert docs_body is not None
+    assert "introduce a major topic" in docs_body.text
+
+    # Undocumented child should still render its <article> heading but no docs body
+    undocumented_entry = content.find("article", id="silent-demo")
+    assert undocumented_entry is not None
+    assert undocumented_entry.find("div", class_="fl-docs-entry-body") is None
+
+
+def test_flare_docs_index_page_get_context_returns_specific_grandchildren(minimal_site, rf):
+    """get_context should return typed instances for grandchildren so the docs field is accessible."""
+    root_page = SimpleRichTextPage.objects.first()
+
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="docs", title="Flare Docs - Index")
+    index_page.save()
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+    gc = FreeFormPage2026Factory(parent=blocks_page, slug="demo", title="Demo", docs="<p>docs body</p>")
+    gc.save()
+
+    index_page.refresh_from_db()
+    request = rf.get(index_page.relative_url(minimal_site))
+    context = index_page.specific.get_context(request)
+
+    grandchild = context["sections"][0]["children"][0]["page"]
+    # Specific resolution means the FreeFormPage2026 subclass is returned, not the base Page,
+    # so subclass-only fields like ``docs`` are accessible without an extra .specific lookup.
+    assert grandchild.__class__ is FreeFormPage2026
+    assert grandchild.docs == "<p>docs body</p>"

@@ -1,0 +1,53 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False #}
+
+{% set closable = false if stacked else closable %}
+
+<div class="
+  fl-notification-wrapper
+  {% if theme and theme == 'light' %}fl-force-light-theme{% endif %}
+  {% if theme and theme == 'dark' %}fl-force-dark-theme{% endif %}
+
+">
+  <div class="
+    fl-notification
+    {% if color %}fl-notification-{{ color }}{% endif %}
+    {% if stacked %}fl-notification-stacked{% endif %}
+    {% if reverse_icon %}fl-notification-reverse-icon{% endif %}
+  ">
+    {% if icon %}
+      <div class="fl-notification-icon-section">
+        <include:icon
+          icon_name="{{ icon }}"
+          hidden=true
+          extra_class="fl-notification-icon" />
+      </div>
+    {% endif %}
+    <div class="fl-notification-content">
+      {% if contents.heading %}
+        <div class="fl-notification-heading">
+          {{ contents.heading }}
+        </div>
+        <p class="fl-notification-message">{{ contents }}</p>
+      {% else %}
+        <div class="fl-notification-heading">
+          {{ contents }}
+        </div>
+      {% endif %}
+    </div>
+    {% if closable %}
+      <button class="fl-notification-close" aria-label="Close notification">
+        <include:icon
+          icon_name="close"
+          hidden=true
+          extra_class="fl-notification-close-icon"
+        />
+      </button>
+    {% endif %}
+  </div>
+</div>

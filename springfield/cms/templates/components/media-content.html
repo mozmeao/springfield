@@ -1,0 +1,27 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props media_after="" narrow="" remove_border_radius=False #}
+
+<div
+  class="
+    fl-mediacontent
+    fl-mediacontent-feature
+    {% if media_after %}fl-mediacontent-reverse{% endif %}
+    {% if narrow %}is-narrow{% endif %}
+    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+  "
+>
+  {% if contents.media %}
+    <div class="fl-mediacontent-media">
+      {{ contents.media }}
+    </div>
+  {% endif %}
+  <div class="fl-mediacontent-content">
+    {{ contents.heading }}
+    {{ contents.content }}
+  </div>
+</div>

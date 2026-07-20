@@ -2,11 +2,90 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.contrib.auth import get_user_model
+from django.test import override_settings
+
 import pytest
 import wagtail_factories
-from wagtail.models import Locale, Site
+from wagtail.models import Locale, Page, Site
 
+from springfield.cms.blocks import DownloadFirefoxButtonBlock
+from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
+from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
+from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+
+User = get_user_model()
+
+
+@pytest.fixture
+def admin_client(client, db):
+    """Force-login a superuser using the ModelBackend rather than the project's
+    default SSO backend. Without the override, mozilla_django_oidc's
+    SessionRefresh middleware sees an OIDC-authenticated user with no OIDC
+    token in the session and redirects every admin GET to the auth0 login URL
+    (302) — which would break the 302/200 assertions below.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        admin = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+        )
+        client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
+
+
+@pytest.fixture
+def placeholder_images():
+    return get_placeholder_images()
+
+
+@pytest.fixture
+def index_page(minimal_site):
+    return get_flare_docs_index_page()
+
+
+@pytest.fixture
+def download_firefox_button_block():
+    return DownloadFirefoxButtonBlock()
+
+
+@pytest.fixture
+def pretranslated_phrase_snippet():
+    snippet, _ = PretranslatedPhrase.objects.update_or_create(
+        translation_key=PHRASES["get_firefox"]["translation_key"],
+        locale=Locale.get_default(),
+        defaults={"label": PHRASES["get_firefox"]["label"], "live": True},
+    )
+    return snippet
+
+
+@pytest.fixture(autouse=True)
+def clear_waffle_cache():
+    """Clear waffle's cache before each test so that switch overrides created by
+    @override_switch are not shadowed by stale cache entries."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+
+
+@pytest.fixture(autouse=True)
+def reset_translation():
+    """Reset Django's active language after each test.
+
+    Requests to locale-prefixed URLs (e.g. /pt-PT/...) call
+    translation.activate() inside the URL resolver. If not cleaned up, the
+    activated language leaks into subsequent tests and causes them to render
+    with the wrong locale."""
+    from django.utils import translation
+
+    yield
+    translation.deactivate()
 
 
 @pytest.fixture
@@ -119,7 +198,7 @@ def tiny_localized_site():
     pt_br_homepage.publish(rev)
 
     pt_br_child = fr_child.copy_for_translation(pt_br_locale)
-    pt_br_child.title = "Página Filho"
+    pt_br_child.title = "Página Filha"
     pt_br_child.save()
     rev = pt_br_child.save_revision()
     pt_br_child.publish(rev)
@@ -148,3 +227,210 @@ def tiny_localized_site():
     assert fr_homepage.live is True
     assert fr_child.live is True
     assert fr_grandchild.live is True
+
+
+@pytest.fixture
+def staff_user(base_url, request):
+    user = User.objects.create_user(username="testuser", email="test@example.com", password="testpass", is_staff=True)
+
+    return user
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages():
+    """
+    Generates a small site tree with home pages in the following languages:
+
+    en-US:
+        / [Page]
+    de:
+        / [Page]
+    fr:
+        / [Page]
+    it:
+        / [Page]
+    """
+    # Get or create locales
+    en_locale, created = Locale.objects.get_or_create(language_code="en-US")
+    de_locale, created = Locale.objects.get_or_create(language_code="de")
+    fr_locale, created = Locale.objects.get_or_create(language_code="fr")
+    it_locale, created = Locale.objects.get_or_create(language_code="it")
+
+    # Set default locale
+    if not Locale.objects.filter(language_code="en-US").exists():
+        Locale.objects.create(language_code="en-US")
+
+    # Get the English home page
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+
+    # Create German home page as a translation of the English home page
+    de_home = en_home.copy_for_translation(de_locale)
+    de_home.title = "German Home"
+    de_home.save_revision().publish()
+
+    # Create French home page as a translation of the English home page
+    fr_home = en_home.copy_for_translation(fr_locale)
+    fr_home.title = "French Home"
+    fr_home.save_revision().publish()
+
+    # Create Italian home page as a translation of the English home page
+    it_home = en_home.copy_for_translation(it_locale)
+    it_home.title = "Italian Home"
+    it_home.save_revision().publish()
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages_1_en_page(site_with_en_de_fr_it_homepages):
+    """
+    Generates a small site tree with homepages and 1 English page:
+
+    en-US:
+        / [Page]
+            /english-page [SimpleRichTextPage]
+    de:
+        / [Page]
+    fr:
+        / [Page]
+    it:
+        / [Page]
+    """
+    # Get the locales
+    en_locale = Locale.objects.get(language_code="en-US")
+
+    # Get the home pages
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+
+    # Create a page originally in English.
+    en_page = SimpleRichTextPageFactory(
+        title="English Original",
+        slug="english-page",
+        locale=en_locale,
+        content="English content",
+        parent=en_home,
+    )
+    en_page.save_revision().publish()
+
+
+@pytest.fixture
+def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_homepages):
+    """
+    Generates a small site tree with a few pages:
+
+    en-US:
+        / [Page]
+            /english-page [SimpleRichTextPage]
+    de:
+        / [Page]
+            /german-page [SimpleRichTextPage]
+            /english-page [SimpleRichTextPage] - translation of the en-US english-page
+    fr:
+        / [Page]
+            /french-page [SimpleRichTextPage]
+            /english-page [SimpleRichTextPage] - translation of the en-US english-page
+    it:
+        / [Page]
+            /french-page [SimpleRichTextPage] - translation of the fr french-page
+    """
+    # Get the locales
+    en_locale = Locale.objects.get(language_code="en-US")
+    de_locale = Locale.objects.get(language_code="de")
+    fr_locale = Locale.objects.get(language_code="fr")
+    it_locale = Locale.objects.get(language_code="it")
+
+    # Get the home pages
+    en_home = Page.objects.get(locale__language_code="en-US", slug="home")
+    de_home = Page.objects.get(locale__language_code="de", slug="home-de")
+    fr_home = Page.objects.get(locale__language_code="fr", slug="home-fr")
+
+    # Create a page originally in English.
+    en_page = SimpleRichTextPageFactory(
+        title="English Original",
+        slug="english-page",
+        locale=en_locale,
+        content="English content",
+        parent=en_home,
+    )
+    en_page.save_revision().publish()
+
+    # Create a page originally in German.
+    de_page = SimpleRichTextPageFactory(
+        title="German Original",
+        slug="german-page",
+        locale=de_locale,
+        content="German content",
+        parent=de_home,
+    )
+    de_page.save_revision().publish()
+
+    # Create a page originally in French.
+    fr_page = SimpleRichTextPageFactory(
+        title="French Original",
+        slug="french-page",
+        locale=fr_locale,
+        content="French content",
+        parent=fr_home,
+    )
+    fr_page.save_revision().publish()
+
+    # Create German and French translations for the en_page.
+    de_translation = en_page.copy_for_translation(de_locale)
+    de_translation.title = "German Translation"
+    de_translation.save_revision().publish()
+
+    fr_translation = en_page.copy_for_translation(fr_locale)
+    fr_translation.title = "French Translation"
+    fr_translation.save_revision().publish()
+
+    # Create Italian translations for the fr_page.
+    it_translation = fr_page.copy_for_translation(it_locale)
+    it_translation.title = "Italian Translation"
+    it_translation.save_revision().publish()
+
+
+@pytest.fixture
+def prod_shape_site():
+    """Site tree mirroring production's 3-level shape (see migration 0060).
+
+    - depth 1: Wagtail system root
+    - depth 2: 'Welcome to your new Wagtail site!' — the seeded default page,
+      demoted so it is NOT Site.root_page (mirrors production's per-locale
+      roots that sit above Site.root_page and have full_url=None)
+    - depth 3: Site.root_page — the localized homepage
+    - depth 4+: content pages
+
+    Use this to exercise regressions that only reproduce when a non-routable
+    ancestor sits above Site.root_page. The `tiny_localized_site` fixture
+    has Site.root_page at depth 2 and cannot catch such regressions.
+    """
+    default_seed_page = Page.objects.get(depth=2, slug="home")
+
+    homepage = SimpleRichTextPageFactory(
+        title="Firefox Home",
+        slug="firefox-home",
+        parent=default_seed_page,
+        live=True,
+    )
+
+    site = Site.objects.get(is_default_site=True)
+    site.root_page = homepage
+    site.save()
+
+    features = SimpleRichTextPageFactory(
+        title="Features",
+        slug="features",
+        parent=homepage,
+        live=True,
+    )
+    article = SimpleRichTextPageFactory(
+        title="Private Browsing",
+        slug="private-browsing",
+        parent=features,
+        live=True,
+    )
+
+    return {
+        "default_seed": default_seed_page,
+        "homepage": homepage,
+        "features": features,
+        "article": article,
+    }

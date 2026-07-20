@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+
+{% for variant in variants %}
+  <h2>{{ variant.title }}</h2>
+  {% for i in range(5) %}
+    {% set level = "h" ~ (i + 1) %}
+    {% set subheading_size = "subheading-" ~ (i + 1) %}
+    {% set text = variant.heading_text %}
+    <include:heading
+      level="{{ level }}"
+      heading_text="{{ text }}"
+      superheading_text="{{ variant.superheading_text }}"
+      subheading_text="{{ variant.subheading_text }}"
+      subheading_size="{{ subheading_size }}"
+      alignment_class="{{ variant.alignment_class }}"
+    />
+    <hr/>
+  {% endfor %}
+{% endfor %}

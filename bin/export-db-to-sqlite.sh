@@ -103,7 +103,10 @@ check_status_and_handle_failure "Dumping wagtailcore.Locale"
 # wagtailusers.UserProfile      # Excluded: PII
 # wagtailimages.Rendition       # Excluded: Renditions
 # wagtail_localize_smartling    # Excluded wholesale: translation data may leak draft content
-# wagtail_localize              # Excluded wholesale: translation data may leak draft content
+# wagtail_localize              # Excluded wholesale: translation data may leak draft content
+#                               # However, it is possible to link the translated pages and strings
+#                               # in the export by running the link_translations_after_export
+#                               # management command.
 # wagtailsearch.IndexEntry      # Excluded: WagtailSearch indices need rebuilding and search history is not important
 # wagtailcore.Locale            # Excluded: dumped separately
 # wagtailcore.ModelLogEntry     # Excluded: may contain PII
@@ -157,10 +160,37 @@ python manage.py dumpdata \
     waffle.Switch \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
+    cms.FreeFormPage2026 \
+    cms.SmartWindowPage \
+    cms.SmartWindowExplainerPage \
+    cms.WhatsNewIndexPage \
+    cms.WhatsNewPage2026 \
     cms.SpringfieldImage \
-    firefox.FeaturesCallToActionSnippet \
-    firefox.FeaturesDetailPage \
-    firefox.FeaturesIndexPage \
+    cms.ArticleIndexPage \
+    cms.ArticleDetailPage \
+    cms.ArticleThemePage \
+    cms.HomePage \
+    cms.DownloadPage \
+    cms.DownloadIndexPage \
+    cms.ThanksPage \
+    cms.BlogIndexPage \
+    cms.BlogArticlePage \
+    cms.RoadmapPage \
+    cms.ContactPage \
+    cms.BannerSnippet \
+    cms.PreFooterCTAFormSnippet \
+    cms.PreFooterCTASnippet \
+    cms.QRCodeFloatingSnippet \
+    cms.Tag \
+    cms.SetAsDefaultSnippet \
+    cms.PretranslatedPhrase \
+    cms.PencilBannerSnippet \
+    cms.QRCodeSnippet \
+    cms.ScrollToSeeMoreSnippet \
+    cms.PencilBannerPlacement \
+    cms.HomePagePencilBannerPlacement \
+    cms.ArticleThemePagePencilBannerPlacement \
+    cms.ArticleDetailPagePencilBannerPlacement \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \
@@ -180,6 +210,7 @@ export DATABASE_URL=sqlite:///$output_db  # Note that the three slashes is key 
 check_status_and_handle_failure "Setting up new output DB at $output_db"
 
 PROD_DETAILS_STORAGE=product_details.storage.PDFileStorage \
+SQLITE_EXPORT_MODE=True \
     python manage.py migrate || all_well=false
 
 check_status_and_handle_failure "Running Django migrations"
@@ -307,6 +338,13 @@ echo "Restored original DATABASE_URL to $DATABASE_URL"
 check_status_and_handle_failure "Checking all_well at the end of the run"
 
 echo "Export to $output_db successful"
+
+echo ""
+echo "NOTE: Translation linking is not run automatically."
+echo "To link translated pages so they appear connected in the Wagtail admin, run:"
+echo "  DATABASE_URL=sqlite:///$output_db python manage.py link_translations_after_export"
+echo "This takes a few minutes to complete."
+echo ""
 
 # If all is well, ping DMS to avoid an alert being raised.
 if [[ -n "${DB_EXPORT_SCRIPT_DMS_URL}" ]]; then

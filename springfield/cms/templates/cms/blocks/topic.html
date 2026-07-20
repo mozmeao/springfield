@@ -1,0 +1,34 @@
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set heading_level = 'h' ~ (block_level + 1) if block_level else 'h2' %}
+<include:topic
+  anchor_id="{{ value.anchor_id }}"
+>
+  <content:image>
+    {{ image(value.image, "width-400") }}
+  </content:image>
+  <content:heading>
+    <include:heading
+        level="{{ heading_level }}"
+        heading_size="fl-heading-sm"
+        heading_text="{{ value.heading.heading_text|richtext|remove_p_tag if value.heading.heading_text else ''}}"
+        superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag if value.heading.superheading_text else '' }}"
+        subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag if value.heading.subheading_text else '' }}"
+    />
+  </content:heading>
+  <content:content>
+    {{ value.content|richtext }}
+  </content:content>
+  <content:buttons>
+    {% for button in value.buttons %}
+      {% set block_position = block_position ~ ".button-" ~ loop.index %}
+      {% set block_text = value.heading.heading_text|richtext|remove_tags %}
+      {% include_block button %}
+    {% endfor %}
+  </content:buttons>
+</include:topic>

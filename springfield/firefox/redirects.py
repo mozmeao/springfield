@@ -46,7 +46,6 @@ def mobile_app(request, *args, **kwargs):
 
 
 redirectpatterns = (
-    redirect(r"^download/?$", "firefox"),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172
@@ -107,4 +106,31 @@ redirectpatterns = (
     ),
     # Bug 868182
     redirect(r"^mobile/faq/?$", firefox_mobile_faq, query=False),
+    redirect(
+        r"^ai/$",
+        "/smart-window/",
+        query={"view": "waitlist"},
+        permanent=False,
+        merge_query=False,
+    ),
+    redirect(r"^mobile/get-app/?$", "/mobile/", permanent=False),
+    # WT-1212: /school/ vanity URL always lands on the en-US page.
+    # `school` is in SUPPORTED_NONLOCALES so LangCodeFixupMiddleware won't
+    # prepend a locale before this pattern fires.
+    redirect(r"^school/?$", "/en-US/landing/school/", locale_prefix=False, permanent=False),
 )
+
+refresh_redirects = (
+    redirect(r"^browsers/desktop/windows/$", "/download/windows/", permanent=True),
+    redirect(r"^browsers/desktop/mac/$", "/download/mac/", permanent=True),
+    redirect(r"^browsers/desktop/linux/$", "/download/linux/", permanent=True),
+    redirect(r"^browsers/mobile/android/$", "/download/android/", permanent=True),
+    redirect(r"^browsers/mobile/ios/$", "/download/ios/", permanent=True),
+    redirect(r"^browsers/desktop/chromebook/$", "/download/chromebook/", permanent=True),
+    redirect(r"^browsers/unsupported-systems/$", "/download/unsupported-systems/", permanent=True),
+    redirect(r"^browsers/mobile/$", "/mobile/", permanent=True),
+    redirect(r"^browsers/mobile/focus/$", "/mobile/focus/", permanent=True),
+    redirect(r"^browsers/mobile/get-app/$", "/mobile/", permanent=True),
+)
+
+redirectpatterns = redirectpatterns + refresh_redirects

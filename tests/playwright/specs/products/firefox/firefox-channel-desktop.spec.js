@@ -6,6 +6,7 @@
 
 'use strict';
 
+const path = require('path');
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 const url = '/en-US/channel/desktop/';
@@ -97,21 +98,57 @@ test.describe(
             page,
             browserName
         }) => {
-            const linuxBetaDownload = page.getByTestId(
-                'desktop-beta-download-linux'
+            test.skip(
+                browserName === 'webkit',
+                'Safari not available on Linux'
             );
+
+            // Set Linux UA strings.
+            await page.addInitScript({
+                path: path.join(
+                    __dirname,
+                    `../../../scripts/useragent/linux/${browserName}.js`
+                )
+            });
+            await page.goto(url + '?automation=true');
+
+            // Linux 32 buttons disappearing in 145 (Issue #466)
+            const latest_firefox = await page.evaluate(
+                () =>
+                    document.documentElement
+                        .getAttribute('data-latest-firefox')
+                        .split('.')[0]
+            );
+            const nightly_linux_32 = latest_firefox < 143 ? true : false;
+            const dev_linux_32 = latest_firefox < 144 ? true : false;
+            const beta_linux_32 = latest_firefox < 144 ? true : false;
+
+            let linuxBetaDownload;
+            if (beta_linux_32) {
+                linuxBetaDownload = page.getByTestId(
+                    'desktop-beta-download-linux'
+                );
+            }
             const linux64BetaDownload = page.getByTestId(
                 'desktop-beta-download-linux64'
             );
-            const linuxDevDownload = page.getByTestId(
-                'desktop-developer-download-linux'
-            );
+
+            let linuxDevDownload;
+            if (dev_linux_32) {
+                linuxDevDownload = page.getByTestId(
+                    'desktop-developer-download-linux'
+                );
+            }
             const linux64DevDownload = page.getByTestId(
                 'desktop-developer-download-linux64'
             );
-            const linuxNightlyDownload = page.getByTestId(
-                'desktop-nightly-download-linux'
-            );
+
+            let linuxNightlyDownload;
+            if (nightly_linux_32) {
+                linuxNightlyDownload = page.getByTestId(
+                    'desktop-nightly-download-linux'
+                );
+            }
             const linux64NightlyDownload = page.getByTestId(
                 'desktop-nightly-download-linux64'
             );
@@ -135,43 +172,38 @@ test.describe(
                 'desktop-nightly-download-osx'
             );
 
-            test.skip(
-                browserName === 'webkit',
-                'Safari not available on Linux'
-            );
-
-            // Set Linux UA strings.
-            await page.addInitScript({
-                path: `./scripts/useragent/linux/${browserName}.js`
-            });
-            await page.goto(url + '?automation=true');
-
             // Assert Linux download buttons are displayed.
-            await expect(linuxBetaDownload).toBeVisible();
-            await expect(linuxBetaDownload).toHaveAttribute(
-                'href',
-                /\?product=firefox-beta-latest-ssl&os=linux/
-            );
+            if (beta_linux_32) {
+                await expect(linuxBetaDownload).toBeVisible();
+                await expect(linuxBetaDownload).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-beta-latest-ssl&os=linux/
+                );
+            }
             await expect(linux64BetaDownload).toBeVisible();
             await expect(linux64BetaDownload).toHaveAttribute(
                 'href',
                 /\?product=firefox-beta-latest-ssl&os=linux64/
             );
-            await expect(linuxDevDownload).toBeVisible();
-            await expect(linuxDevDownload).toHaveAttribute(
-                'href',
-                /\?product=firefox-devedition-latest-ssl&os=linux/
-            );
+            if (dev_linux_32) {
+                await expect(linuxDevDownload).toBeVisible();
+                await expect(linuxDevDownload).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-devedition-latest-ssl&os=linux/
+                );
+            }
             await expect(linux64DevDownload).toBeVisible();
             await expect(linux64DevDownload).toHaveAttribute(
                 'href',
                 /\?product=firefox-devedition-latest-ssl&os=linux64/
             );
-            await expect(linuxNightlyDownload).toBeVisible();
-            await expect(linuxNightlyDownload).toHaveAttribute(
-                'href',
-                /\?product=firefox-nightly-latest-ssl&os=linux/
-            );
+            if (nightly_linux_32) {
+                await expect(linuxNightlyDownload).toBeVisible();
+                await expect(linuxNightlyDownload).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-nightly-latest-ssl&os=linux/
+                );
+            }
             await expect(linux64NightlyDownload).toBeVisible();
             await expect(linux64NightlyDownload).toHaveAttribute(
                 'href',
@@ -232,7 +264,10 @@ test.describe(
             if (browserName === 'webkit') {
                 // Set macOS 10.14 UA strings.
                 await page.addInitScript({
-                    path: `./scripts/useragent/mac-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/mac-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 
@@ -262,7 +297,10 @@ test.describe(
             } else {
                 // Set Windows 8.1 UA string (64-bit).
                 await page.addInitScript({
-                    path: `./scripts/useragent/win-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/win-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 
@@ -290,62 +328,6 @@ test.describe(
                 );
                 await expect(winNightlyDownload).not.toBeVisible();
             }
-        });
-
-        test('Newsletter submit success', async ({ page, browserName }) => {
-            const newsletterForm = page.getByTestId('newsletter-form');
-            const newsletterSubmitButton = page.getByTestId(
-                'newsletter-submit-button'
-            );
-            const newsletterEmailInput = page.getByTestId(
-                'newsletter-email-input'
-            );
-            const newsletterPrivacyCheckbox = page.getByTestId(
-                'newsletter-privacy-checkbox'
-            );
-            const newsletterThanksMessage = page.getByTestId(
-                'newsletter-thanks-message'
-            );
-
-            await openPage(url, page, browserName);
-
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
-            await newsletterEmailInput.fill('success@example.com');
-            await newsletterPrivacyCheckbox.click();
-            await newsletterSubmitButton.click();
-            await expect(newsletterForm).not.toBeVisible();
-            await expect(newsletterThanksMessage).toBeVisible();
-        });
-
-        test('Newsletter submit failure', async ({ page, browserName }) => {
-            const newsletterSubmitButton = page.getByTestId(
-                'newsletter-submit-button'
-            );
-            const newsletterEmailInput = page.getByTestId(
-                'newsletter-email-input'
-            );
-            const newsletterPrivacyCheckbox = page.getByTestId(
-                'newsletter-privacy-checkbox'
-            );
-            const newsletterThanksMessage = page.getByTestId(
-                'newsletter-thanks-message'
-            );
-            const newsletterErrorMessage = page.getByTestId(
-                'newsletter-error-message'
-            );
-
-            await openPage(url, page, browserName);
-
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
-            await newsletterEmailInput.fill('failure@example.com');
-            await newsletterPrivacyCheckbox.click();
-            await newsletterSubmitButton.click();
-            await expect(newsletterErrorMessage).toBeVisible();
-            await expect(newsletterThanksMessage).not.toBeVisible();
         });
     }
 );

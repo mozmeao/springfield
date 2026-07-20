@@ -4,5 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// init menus on page
-window.MzpDetails.init('.mzp-c-menu-list-title');
+// init menus on page (FIXME: Protocol-version only)
+if (window.MzpDetails && document.querySelector('.mzp-c-menu-list-title')) {
+    window.MzpDetails.init('.mzp-c-menu-list-title');
+}

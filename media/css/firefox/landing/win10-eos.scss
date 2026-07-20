@@ -1,0 +1,125 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
+@use "~@mozilla-protocol/core/protocol/css/templates/multi-column";
+@use '../../protocol/components/video';
+@use "../whatsnew/includes/theme"; // keep Firefox theming
+
+// Protocol overrides
+
+@media #{$mq-xl} {
+    .mzp-l-content {
+      padding: var(--v-grid-md) var(--h-grid-md); // stick to md instead of xl
+    }
+}
+
+.c-logo-wrapper.mzp-l-content {
+    padding-bottom: 0;
+}
+
+.c-box-wrapper.mzp-l-columns {
+    display: grid; // keep gap on small screens when boxes stack
+    gap: $layout-sm;
+}
+
+.c-cta .mzp-c-split-container {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+// end Protocol overrides
+
+.c-logo-image {
+    @include image-replaced;
+    background: url('/media/img/logos/firefox/logo-word-hor.svg') no-repeat;
+    @include background-size(120px, 40px);
+    width: 120px;
+    height: 40px;
+}
+
+.c-main-title {
+    @include text-title-md;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: $content-xl;
+    text-align: center;
+}
+
+.c-box {
+    align-content: start;
+    background-color: $color-marketing-gray-10;
+    border-radius: $border-radius-md;
+    color: $color-black;
+    display: grid;
+    gap: $spacing-md;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: $content-sm;
+    padding: $layout-sm;
+}
+
+.c-box-title {
+    color: $color-black;
+    margin-bottom: 0; // controlled by grid gap
+}
+
+.c-box-body {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+.c-box-body-icon {
+    vertical-align: middle;
+}
+
+.c-cta {
+    border: 1px solid $color-dark-gray-60;
+    border-radius: $border-radius-md;
+    padding: $layout-xs $layout-sm;
+
+    @media (width < #{$screen-md}) {
+        text-align: center;
+        margin-right: auto;
+        margin-left: auto;
+        max-width: $content-sm;
+    }
+}
+
+.c-cta-image {
+    border-radius: $border-radius-lg;
+}
+
+.c-main-title,
+.c-box-wrapper {
+    margin-bottom: $layout-md;
+}
+
+.c-box-title,
+.c-cta-title {
+    @include text-title-2xs;
+}
+
+// Dark mode
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: $color-dark-gray-60;
+        color: $color-white;
+    }
+
+    h1, h2, h3, h4 {
+        color: $color-white;
+    }
+
+    .c-logo-image {
+        background: url('/media/img/logos/firefox/logo-word-hor-white.svg') no-repeat;
+        @include background-size(120px, 40px);
+    }
+
+    .c-cta {
+        border: 1px solid $color-light-gray-20;
+    }
+}

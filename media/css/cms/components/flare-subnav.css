@@ -1,0 +1,97 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-subnav {
+    align-items: center;
+    background: var(--fl-subnav-bg);
+    display: flex;
+    gap: var(--token-spacing-md);
+    justify-content: space-between;
+    padding: var(--token-spacing-md) var(--fl-section-h-padding);
+    position: relative; /* required for fl-subnav-list dropdown on mobile screen */
+}
+
+.fl-subnav > * {
+    position: relative;
+    z-index: 1;
+}
+
+.fl-subnav a {
+    color: var(--fl-theme-color-text);
+    text-decoration: none;
+}
+
+.fl-subnav a[aria-current='page'] {
+    font-weight: bold;
+}
+
+.fl-subnav a:hover {
+    text-decoration: underline;
+}
+
+.fl-subnav-heading {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: bold;
+    margin-block-end: 0;
+}
+
+.fl-subnav-list {
+    background: var(--fl-theme-background);
+    display: none;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    inset-block-start: 100%;
+    inset-inline: 0;
+    list-style: none;
+    margin: 0;
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    position: absolute;
+    z-index: 3;
+}
+
+:where(.fl-subnav-toggle[aria-expanded='true']) + .fl-subnav-list {
+    border-block-end: 2px solid var(--fl-subtle-border-color);
+    display: flex;
+}
+
+.fl-subnav-list li {
+    margin: 0;
+}
+
+.fl-subnav-toggle {
+    background: var(--fl-subnav-toggle-bg);
+    border-radius: var(--token-spacing-sm);
+    color: var(--fl-theme-color-text);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+    text-decoration: underline;
+}
+
+.fl-subnav-toggle:where([aria-expanded='true']) i {
+    transform: rotate(180deg);
+}
+
+@media (--viewport-md-up) {
+    .fl-subnav {
+        padding: var(--token-spacing-xl) var(--fl-section-h-padding);
+    }
+
+    .fl-subnav-toggle {
+        display: none;
+    }
+
+    .fl-subnav-list {
+        background: transparent;
+        border: none;
+        display: flex;
+        flex-direction: row;
+        padding: 0;
+        position: static;
+    }
+}

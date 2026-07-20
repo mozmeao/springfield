@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set campaign = (utm_parameters or {}).get("utm_campaign") %}
+{% if value.store == "android" %}
+  {% set android_url = play_store_url('firefox', campaign) %}
+  {{ google_play_button(href=android_url, class_name="fl-store-button fl-store-button-android") }}
+{% elif value.store == "ios" %}
+  {% set ios_url = app_store_url('firefox', campaign) %}
+  {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
+{% endif %}

@@ -1,9 +1,11 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 from django.urls import path, re_path
 
 import springfield.releasenotes.views
+from lib.l10n_utils import L10nTemplateView
 from springfield.base.util import page
 from springfield.cms.decorators import prefer_cms
 from springfield.firefox import views
@@ -22,7 +24,8 @@ ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
 
 
 urlpatterns = (
-    path("", views.DownloadView.as_view(), name="firefox"),
+    path("", prefer_cms(views.DownloadView.as_view()), name="firefox"),
+    path("download/", views.download_redirect, name="firefox.download"),
     path("download/all/", views.firefox_all, name="firefox.all"),
     path("download/all/<slug:product_slug>/", views.firefox_all, name="firefox.all.platforms"),
     path("download/all/<slug:product_slug>/<str:platform>/", views.firefox_all, name="firefox.all.locales"),
@@ -62,7 +65,7 @@ urlpatterns = (
     path(
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
-    path("thanks/", views.DownloadThanksView.as_view(), name="firefox.download.thanks"),
+    path("thanks/", prefer_cms(views.DownloadThanksView.as_view()), name="firefox.download.thanks"),
     path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes
     re_path(f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?notes/$", springfield.releasenotes.views.latest_notes, name="firefox.notes"),
@@ -100,59 +103,111 @@ urlpatterns = (
     page("landing/set-as-default/", "firefox/default/landing.html", ftl_files="firefox/set-as-default/landing"),
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
-    page("browsers/mobile/", "firefox/browsers/mobile/index.html", ftl_files=["firefox/browsers/mobile/index"]),
-    page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
-    page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
-    page("browsers/mobile/focus/", "firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-    path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
-    path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
-    path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
-    page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
-    page("browsers/mobile/get-app/", "firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
-    page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
-    page("landing/get/", "firefox/landing/get.html", ftl_files="firefox/download/desktop"),
+    # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
+    path("landing/get/", views.landing_get_page, name="landing.get"),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
+    # Issue #444 - US-only iOS landing page
     page(
-        "compare/",
-        "firefox/browsers/compare/index.html",
-        ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
+        "landing/ios-summarizer/",
+        "firefox/landing/ios-summarizer.html",
+        ftl_files=["firefox/browsers/mobile/ios-summarizer", "firefox/browsers/mobile/ios"],
+        active_locales="en-US",
+    ),
+    # Issue 487 - Win10 End of Service
+    page(
+        "landing/win-new-features/",
+        "firefox/landing/win10-eos.html",
+        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
+    ),
+    # Issue 606 - NA + DE Windows Defense/Josef Landing Page
+    page(
+        "landing/windows/",
+        "firefox/landing/windows.html",
+        active_locales=["en-US", "de"],
+        ftl_files=["firefox/download/desktop", "firefox/download/home"],
+    ),
+    # Issue 684 - Kit Landing page
+    page(
+        "kit/",
+        "firefox/landing/kit.html",
+        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
     page(
-        "compare/brave/",
-        "firefox/browsers/compare/brave.html",
-        ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
+        "landing/year-in-review-2025/",
+        "firefox/landing/year-in-review-2025.html",
+        url_name="firefox.year_in_review_2025",
     ),
-    page(
-        "compare/chrome/",
-        "firefox/browsers/compare/chrome.html",
-        ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
+    # START What's New Page (WNP) paths
+    # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
+    re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
+    # 2. New version format, which should be served from the CMS, but falls back to evergreen page
+    re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
+    # END What's New Page (WNP) paths
+)
+
+urlpatterns += (
+    path(
+        "user-privacy/",
+        prefer_cms(L10nTemplateView.as_view(template_name="firefox/data.html")),
+        name="firefox.user-privacy",
     ),
-    page(
-        "compare/edge/",
-        "firefox/browsers/compare/edge.html",
-        ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
+    path(
+        "download/android/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
+            fallback_ftl_files=["firefox/browsers/mobile/android"],
+        ),
+        name="firefox.browsers.mobile.android",
     ),
-    page(
-        "compare/opera/",
-        "firefox/browsers/compare/opera.html",
-        ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
+    path(
+        "download/ios/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
+            fallback_ftl_files=["firefox/browsers/mobile/ios"],
+        ),
+        name="firefox.browsers.mobile.ios",
     ),
-    page(
-        "compare/safari/",
-        "firefox/browsers/compare/safari.html",
-        ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
+    path(
+        "download/chromebook/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/desktop/chromebook.html", ftl_files=["firefox/browsers/desktop/chromebook"]),
+            fallback_ftl_files=["firefox/browsers/desktop/chromebook"],
+        ),
+        name="firefox.browsers.desktop.chromebook",
     ),
-    # bedrock Issue 8641
-    page("more/", "firefox/more/index.html", ftl_files=["firefox/more/more", "firefox/more/shared"]),
-    page("more/best-browser/", "firefox/more/best-browser.html", ftl_files=["firefox/more/best-browser", "firefox/more/shared"]),
-    page("more/browser-history/", "firefox/more/browser-history.html", ftl_files=["firefox/more/browser-history", "firefox/more/shared"]),
-    page("more/incognito-browser/", "firefox/more/incognito-browser.html"),
-    page("more/update-your-browser/", "firefox/more/update-browser.html"),
-    page("more/what-is-a-browser/", "firefox/more/what-is-a-browser.html", ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"]),
-    page("more/windows-64-bit/", "firefox/more/windows-64-bit.html", ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"]),
-    # Bedrock Issue #9490 - Evergreen Content for SEO
-    page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
+    path(
+        "download/linux/",
+        prefer_cms(views.PlatformViewLinux.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.linux",
+    ),
+    path(
+        "download/mac/",
+        prefer_cms(views.PlatformViewMac.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.mac",
+    ),
+    path(
+        "download/windows/",
+        prefer_cms(views.PlatformViewWindows.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.windows",
+    ),
+    path("download/unsupported-systems/", prefer_cms(L10nTemplateView.as_view(template_name="firefox/unsupported-systems.html"))),
+    path(
+        "mobile/",
+        prefer_cms(
+            views.MobileBrowsersView.as_view(),
+            fallback_ftl_files=["firefox/browsers/mobile/index"],
+        ),
+        name="firefox.browsers.mobile",
+    ),
+    path(
+        "mobile/focus/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+            fallback_ftl_files=["firefox/browsers/mobile/focus"],
+        ),
+        name="firefox.browsers.mobile.focus",
+    ),
 )

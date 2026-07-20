@@ -10,10 +10,13 @@ const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const postcssCustomMedia = require('postcss-custom-media');
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const staticBundles = require('./media/static-bundles.json');
 const webpack = require('webpack');
+const flareImportAnywhereLoader =
+    require.resolve('./webpack/flare-import-anywhere-loader.js');
 
 function resolveBundles(fileList) {
     return fileList.map((f) => {
@@ -76,6 +79,32 @@ module.exports = {
                 }
             },
             {
+                test: /\.css$/,
+                include: path.resolve(__dirname, 'media'),
+                exclude: /node_modules/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            url: false,
+                            import: false
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [postcssCustomMedia()]
+                            }
+                        }
+                    },
+                    {
+                        loader: flareImportAnywhereLoader
+                    }
+                ]
+            },
+            {
                 test: /\.scss$/,
                 include: path.resolve(__dirname, 'media'),
                 exclude: /node_modules/,
@@ -108,6 +137,7 @@ module.exports = {
     },
     devServer: {
         port: 8000,
+        allowedHosts: 'all',
         open: false,
         hot: false,
         static: false,

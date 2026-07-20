@@ -520,9 +520,11 @@ class TestAbsoluteURLFilter(TestCase):
 @pytest.mark.parametrize(
     "html, cleaned",
     [
-        ("pre <script>alert('oops')</script> post", "pre alert('oops') post"),
-        ("pre <script>alert('oops') post", "pre alert('oops') post"),
-        ("pre <style>body {background-color: red;}</style> post", "pre body {background-color: red;} post"),
+        # Script and style content is dropped entirely (more secure)
+        ("pre <script>alert('oops')</script> post", "pre  post"),
+        # Unclosed script tag: everything after <script> is treated as script content and dropped
+        ("pre <script>alert('oops') post", "pre "),
+        ("pre <style>body {background-color: red;}</style> post", "pre  post"),
         ("pre <div onclick='foo()'></div> post", "pre  post"),
         ("pre <p>foo &amp; bar</p> post", "pre foo & bar post"),
         ("pre <p>mid</p> post", "pre mid post"),
@@ -627,13 +629,11 @@ def test_csrf():
 class TestAppStoreURL(TestCase):
     rf = RequestFactory()
 
-    def _render(self, product, campaign, locale):
+    def _render(self, product, campaign, locale, ppid=None):
         req = self.rf.get("/")
         req.locale = locale
-        return render(
-            f"{{{{ app_store_url('{product}', '{campaign}') }}}}",
-            {"request": req},
-        )
+        template = "{{ app_store_url(product, campaign, ppid) }}"
+        return render(template, {"request": req, "product": product, "campaign": campaign, "ppid": ppid})
 
     def test_firefox_app_store_url_no_locale(self):
         """No locale, fallback to default URL"""
@@ -693,6 +693,20 @@ class TestAppStoreURL(TestCase):
         assert (
             self._render("vpn", "vpn-landing-page", "de")
             == "https://apps.apple.com/de/app/apple-store/id1489407738?mz_pr=vpn&amp;pt=373246&amp;ct=vpn-landing-page&amp;mt=8"
+        )
+
+    def test_firefox_app_store_url_localized_with_ppid_no_campaign(self):
+        """should append ppid when provided (no campaign)"""
+        assert (
+            self._render("firefox", "", "en-US", ppid="abcd1234")
+            == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;ppid=abcd1234"
+        )
+
+    def test_firefox_app_store_url_localized_with_campaign_and_ppid(self):
+        """should append ppid after campaign params"""
+        assert (
+            self._render("firefox", "firefox-home", "en-US", ppid="abcd1234")
+            == "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&amp;pt=373246&amp;ct=firefox-home&amp;mt=8&amp;ppid=abcd1234"
         )
 
 
@@ -883,8 +897,8 @@ class TestRelayFxAButton(TestCase):
             optional_attributes={"data-cta-text": "Sign In to Relay", "data-cta-type": "fxa-relay", "data-cta-position": "primary"},
         )
         expected = (
-            '<a href="https://relay.firefox.com/accounts/fxa/login/?process=login&entrypoint=mozilla.org-whatsnew&form_type=button'
-            '&utm_source=mozilla.org-whatsnew&utm_medium=referral&utm_campaign=whatsnew96" data-action="https://accounts.firefox.com/" '
+            '<a href="https://relay.firefox.com/accounts/fxa/login/?process=login&amp;entrypoint=mozilla.org-whatsnew&amp;form_type=button'
+            '&amp;utm_source=mozilla.org-whatsnew&amp;utm_medium=referral&amp;utm_campaign=whatsnew96" data-action="https://accounts.firefox.com/" '
             'class="js-fxa-cta-link js-fxa-product-button mzp-c-button mzp-t-product relay-main-cta-button" '
             'data-cta-text="Sign In to Relay" data-cta-type="fxa-relay" data-cta-position="primary">Sign In to Relay</a>'
         )
@@ -926,8 +940,8 @@ class TestMonitorFxAButton(TestCase):
             optional_attributes={"data-cta-text": "Sign In to Monitor", "data-cta-type": "fxa-monitor", "data-cta-position": "primary"},
         )
         expected = (
-            '<a href="https://monitor.mozilla.org/user/dashboard?entrypoint=mozilla.org-firefox-accounts&form_type=button'
-            '&utm_source=mozilla.org-firefox-accounts&utm_medium=referral&utm_campaign=skyline" '
+            '<a href="https://monitor.mozilla.org/user/dashboard?entrypoint=mozilla.org-firefox-accounts&amp;form_type=button'
+            '&amp;utm_source=mozilla.org-firefox-accounts&amp;utm_medium=referral&amp;utm_campaign=skyline" '
             'data-action="https://accounts.firefox.com/" class="js-fxa-cta-link js-fxa-product-button '
             'monitor-main-cta-button" data-cta-text="Sign In to Monitor" data-cta-type="fxa-monitor" '
             'data-cta-position="primary">Sign In to Monitor</a>'
@@ -972,8 +986,8 @@ class TestFxAButton(TestCase):
             optional_attributes={"data-cta-text": "Sign Up", "data-cta-type": "fxa-sync", "data-cta-position": "primary"},
         )
         expected = (
-            '<a href="https://accounts.firefox.com/signup?entrypoint=mozilla.org-firefox-whatsnew73&form_type=button'
-            '&utm_source=mozilla.org-firefox-whatsnew73&utm_medium=referral&utm_campaign=whatsnew73" '
+            '<a href="https://accounts.firefox.com/signup?entrypoint=mozilla.org-firefox-whatsnew73&amp;form_type=button'
+            '&amp;utm_source=mozilla.org-firefox-whatsnew73&amp;utm_medium=referral&amp;utm_campaign=whatsnew73" '
             'data-action="https://accounts.firefox.com/" class="js-fxa-cta-link js-fxa-product-button mzp-c-button mzp-t-product '
             'fxa-main-cta-button" data-cta-text="Sign Up" data-cta-type="fxa-sync" data-cta-position="primary">Sign Up</a>'
         )
@@ -992,8 +1006,8 @@ class TestFxAButton(TestCase):
             optional_attributes={"data-cta-text": "Sign In", "data-cta-type": "fxa-sync", "data-cta-position": "primary"},
         )
         expected = (
-            '<a href="https://accounts.firefox.com/signin?entrypoint=mozilla.org-firefox-whatsnew73&form_type=button'
-            '&utm_source=mozilla.org-firefox-whatsnew73&utm_medium=referral&utm_campaign=whatsnew73" '
+            '<a href="https://accounts.firefox.com/signin?entrypoint=mozilla.org-firefox-whatsnew73&amp;form_type=button'
+            '&amp;utm_source=mozilla.org-firefox-whatsnew73&amp;utm_medium=referral&amp;utm_campaign=whatsnew73" '
             'data-action="https://accounts.firefox.com/" class="js-fxa-cta-link js-fxa-product-button mzp-c-button mzp-t-product '
             'fxa-main-cta-button" data-cta-text="Sign In" data-cta-type="fxa-sync" data-cta-position="primary">Sign In</a>'
         )
@@ -1012,12 +1026,76 @@ class TestFxAButton(TestCase):
             optional_attributes={"data-cta-text": "Sign Up", "data-cta-type": "fxa-sync", "data-cta-position": "primary"},
         )
         expected = (
-            '<a href="https://accounts.firefox.com/?action=email&entrypoint=mozilla.org-firefox-whatsnew73&form_type=button'
-            '&utm_source=mozilla.org-firefox-whatsnew73&utm_medium=referral&utm_campaign=whatsnew73" '
+            '<a href="https://accounts.firefox.com/?action=email&amp;entrypoint=mozilla.org-firefox-whatsnew73&amp;form_type=button'
+            '&amp;utm_source=mozilla.org-firefox-whatsnew73&amp;utm_medium=referral&amp;utm_campaign=whatsnew73" '
             'data-action="https://accounts.firefox.com/" class="js-fxa-cta-link js-fxa-product-button mzp-c-button mzp-t-product '
             'fxa-main-cta-button" data-cta-text="Sign Up" data-cta-type="fxa-sync" data-cta-position="primary">Sign Up</a>'
         )
         self.assertEqual(markup, expected)
+
+
+@override_settings(FXA_ENDPOINT=TEST_FXA_ENDPOINT)
+class TestFxAButtonXSS(TestCase):
+    """Regression tests for stored XSS via CMS-controlled FxA button data.
+
+    A CMS editor can set a Firefox Account button label, and (via the
+    rich-text `<fxa>` tag in `cms_tags.richtext`) the `data-cta-*` attribute
+    values. Every value interpolated into the anchor must be contextually
+    escaped. Only the explicit `inner_html` slot is treated as trusted,
+    component-generated markup.
+    """
+
+    PRODUCT_URL = "https://accounts.firefox.com/signup"
+
+    def test_button_text_label_is_escaped(self):
+        """The button label (CMS-controlled) must not render as live HTML."""
+        markup = misc._fxa_product_button(
+            self.PRODUCT_URL,
+            "www.firefox.com-page",
+            button_text="<img src=x onerror=\"alert('XSS')\">",
+        )
+        assert "<img" not in markup
+        assert "&lt;img src=x" in markup
+
+    def test_optional_attribute_value_is_escaped(self):
+        """Attribute values must not break out of the attribute (e.g. the
+        rich-text `<fxa>` path passes `data-cta-text` here without escaping
+        it)."""
+        markup = misc._fxa_product_button(
+            self.PRODUCT_URL,
+            "www.firefox.com-page",
+            button_text="Sign In",
+            optional_attributes={"data-cta-text": '"><script>alert(1)</script>'},
+        )
+        assert "<script>" not in markup
+        assert "&lt;script&gt;" in markup
+
+    def test_label_in_href_entrypoint_is_escaped(self):
+        """In the default UTM path the label flows into `utm_campaign` and
+        `entrypoint`, and into the `href`, where it must not break out of the
+        `href` attribute value."""
+        entrypoint = "www.firefox.com-" + '"><img src=x onerror=alert(1)>'.lower().replace(" ", "_")
+        markup = misc._fxa_product_button(self.PRODUCT_URL, entrypoint, button_text="ok")
+        assert "<img" not in markup
+        assert '"><img' not in markup
+        assert "&lt;img_src=x" in markup
+
+    def test_trusted_inner_html_is_preserved(self):
+        """`inner_html` is the opt-in trusted slot: even a plain (non-safe)
+        string is rendered as-is. The icon path passes a plain `str` (icon SVG
+        plus an already-escaped label, see `test_blocks.py`), so it must not be
+        escaped. This guards the `mark_safe()` in the sink against an
+        over-escaping "tighten everything" change that would double-escape the
+        icon markup."""
+        markup = misc._fxa_product_button(
+            self.PRODUCT_URL,
+            "www.firefox.com-page",
+            button_text="should-be-ignored",
+            inner_html="<svg class='icon'></svg>&lt;img&gt;",
+        )
+        assert "<svg class='icon'></svg>" in markup  # raw SVG preserved, not escaped
+        assert "&lt;svg" not in markup  # ...confirming it was not run through `escape()`
+        assert "should-be-ignored" not in markup  # `button_text` overridden by `inner_html`
 
 
 @override_settings(FXA_ENDPOINT=TEST_FXA_ENDPOINT)
@@ -1090,3 +1168,17 @@ class TestFxALinkFragment(TestCase):
 def test_needs_data_consent(country_code, expected):
     template = "{{ needs_data_consent('%s') }}" % country_code
     assert render(template) == expected
+
+
+@pytest.mark.parametrize(
+    "country_code, domain, switch_on, expected",
+    [
+        ("DE", "firefox.com", True, True),
+        ("US", "firefox.com", True, False),
+        ("DE", "firefox.com", False, False),
+        ("DE", "", True, False),
+    ],
+)
+def test_plausible_enabled(country_code, domain, switch_on, expected):
+    with override_settings(PLAUSIBLE_DOMAIN=domain), patch.object(misc, "switch", return_value=switch_on):
+        assert misc.plausible_enabled(country_code) is expected

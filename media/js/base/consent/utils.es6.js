@@ -5,9 +5,78 @@
  */
 
 import MozAllowList from './allow-list.es6';
+import DownloadAttribution from '../download-attribution/download-attribution.es6';
 
 const COOKIE_ID = 'moz-consent-pref'; // Cookie name
 const COOKIE_EXPIRY_DAYS = 182; // 6 months expiry
+
+/**
+ * Sets GTAG ads consent mode
+ * @param {Boolean} hasConsent - if analytics pref is true or false
+ * @param {String} type - one of consent mode types (default|update)
+ * @returns {Boolean}
+ */
+function setGtagAdsConsentMode(hasConsent, type = 'update') {
+    // bail out if GTAG has not been created with GTMSnippet.loadSnippet
+    // this needs to run before GTM snippet loads to set proper defaults
+    if (typeof window.gtag === 'undefined') {
+        return false;
+    }
+    if (hasConsent) {
+        window.gtag('consent', type, {
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            ad_storage: 'granted'
+        });
+    } else {
+        window.gtag('consent', type, {
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            ad_storage: 'denied'
+        });
+    }
+    return true;
+}
+
+/**
+ * Sets GTAG analytics consent mode
+ * @param {Boolean} hasConsent - based on promoted page default or analytics cookie
+ * @param {String} type - one of consent mode types (default|update)
+ * @returns {Boolean}
+ */
+function setGtagAnalyticsConsentMode(hasConsent, type = 'update') {
+    // This must run before the gtag check to ensure we always update
+    // download analytics regardless of whether GTM has loaded on the page
+    // i.e. cookie settings page
+    setDownloadAttribution(hasConsent);
+
+    // bail out if GTAG has not been created with GTMSnippet.loadSnippet
+    // this needs to run before GTM snippet loads to set proper defaults
+    if (typeof window.gtag === 'undefined') {
+        return false;
+    }
+    if (hasConsent) {
+        window.gtag('consent', type, {
+            analytics_storage: 'granted'
+        });
+    } else {
+        window.gtag('consent', type, {
+            analytics_storage: 'denied'
+        });
+    }
+    return true;
+}
+
+/**
+ * Sets Mozilla Download Attribution analytics
+ * @param {Boolean} hasConsent - based on GTAG analytics consent
+ * @returns {Boolean}
+ */
+function setDownloadAttribution(hasConsent) {
+    DownloadAttribution.initAnalytics(hasConsent);
+
+    return true;
+}
 
 /**
  * Determines if the current page requires consent.
@@ -106,6 +175,9 @@ function setConsentCookie(data) {
             'lax'
         );
 
+        setGtagAdsConsentMode(data.analytics);
+        setGtagAnalyticsConsentMode(data.analytics);
+
         return true;
     } catch (e) {
         return false;
@@ -136,6 +208,16 @@ function isFirefoxDownloadThanks(location) {
 }
 
 /**
+ * Determine if the current page is a promoted landing page.
+ * Checks for the `data-promoted-page` attribute on the <html> element.
+ * @return {Boolean}.
+ */
+function isPromotedPage() {
+    const attr = document.documentElement.getAttribute('data-promoted-page');
+    return attr ? attr.toLowerCase() === 'true' : false;
+}
+
+/**
  * Determines if the current page URL contains a query string
  * that allows the consent banner to be displayed.
  * @param {String} search - The current page URL search string.
@@ -155,6 +237,11 @@ function isURLExceptionAllowed(search) {
  * @returns {Boolean}
  */
 function isURLPermitted(pathname) {
+    // Promoted pages are always permitted for the consent banner.
+    if (isPromotedPage()) {
+        return true;
+    }
+
     let currentPath = pathname;
 
     // Remove locale from current URL pathname;
@@ -230,7 +317,10 @@ export {
     gpcEnabled,
     hasConsentCookie,
     isFirefoxDownloadThanks,
+    isPromotedPage,
     isURLExceptionAllowed,
     isURLPermitted,
-    setConsentCookie
+    setConsentCookie,
+    setGtagAdsConsentMode,
+    setGtagAnalyticsConsentMode
 };

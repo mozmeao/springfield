@@ -7,6 +7,7 @@ jobs:
   create_issue:
     name: Create l10n cleanup issue
     runs-on: ubuntu-latest
+    if: github.repository == 'mozmeao/springfield'
     permissions:
       issues: write
     steps:
@@ -36,7 +37,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TITLE: "[bot] Remove obsolete l10n strings and ftl files"
           ASSIGNEES:
-          LABELS: L10n,Frontend
+          LABELS: L10N,Frontend
           BODY: |
             ### Remove obsolete strings
 

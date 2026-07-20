@@ -52,3 +52,11 @@ firefox-new-from-mozilla = from { -brand-name-mozilla }
 
 firefox-new-desc = { -brand-name-firefox-browser } is a free web browser with fast page loading, less memory usage, and lots of features - a project of the not-for-profit { -brand-name-mozilla }.
 firefox-new-download-a-different = Download a different platform or language
+
+# Download platforms
+firefox-new-platform-windows = Windows
+firefox-new-platform-macos = macOS
+firefox-new-platform-linux = Linux
+firefox-new-platform-android = Android
+firefox-new-platform-ios = iOS
+firefox-new-platform-chromebook = Chromebook

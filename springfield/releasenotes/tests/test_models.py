@@ -2,15 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-
 from itertools import chain
 from pathlib import Path
 from unittest.mock import call, patch
 
 from django.core.cache import caches
+from django.test.html import parse_html
 from django.test.utils import override_settings
 
 import markdown
+import pytest
 from product_details import product_details
 
 from springfield.base.tests import TestCase
@@ -18,6 +19,10 @@ from springfield.releasenotes import models
 
 RELEASES_PATH = str(Path(__file__).parent)
 release_cache = caches["release-notes"]
+
+
+def assert_html_equal(actual: str, expected: str) -> None:
+    assert parse_html(actual) == parse_html(expected)
 
 
 @patch("springfield.releasenotes.models.reverse")
@@ -129,8 +134,11 @@ class TestReleaseModel(TestCase):
             query = models.ProductRelease.objects.product(product_name="firefox", channel_name="esr")
 
         raw_query_as_str = str(query.query)
-        assert 'AND "releasenotes_productrelease"."channel" LIKE esr' in raw_query_as_str
-        assert 'AND "releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
+        # Check channel filter is applied (syntax varies by database: LIKE on SQLite, UPPER()=UPPER() on PostgreSQL)
+        assert '"releasenotes_productrelease"."channel"' in raw_query_as_str
+        assert "esr" in raw_query_as_str.lower()
+        # Check version filter uses the exact ESR version from product_details
+        assert '"releasenotes_productrelease"."version" = 999.76' in raw_query_as_str
 
     @override_settings(DEV=False)
     def test_is_public_query(self):
@@ -212,3 +220,242 @@ class StrikethroughExtensionTestCase(TestCase):
             markdown.markdown("*hello~~test~~*"),
             "<p><em>hello~~test~~</em></p>",
         )
+
+
+@pytest.mark.parametrize(
+    "input_md, expected",
+    (
+        ("basic test", "<p>basic test</p>"),
+        ("This is [a link](https://example.com)", '<p>This is <a href="https://example.com">a link</a></p>'),
+        (
+            (
+                "<video width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
+                "<source src='example.mp4' type='video/mp4' rel='prefetch' foo bar evilattribute/>"
+                "<source src='example.webm' type='video/webm' rel='prefetch' foo bar/>"
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+            (
+                '<video class="ga-video-engagement" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                '<source src="example.mp4" type="video/mp4" rel="prefetch">'
+                '<source src="example.webm" type="video/webm" rel="prefetch">'
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+        ),
+        (
+            (
+                "<video src='example.mp4' type='video/mp4' width='320' height='240' controls loop='true' preload='true' autoplay='true' muted='true' playsinline='true' poster='example.jpg' foo bar baz>"  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+            (
+                '<video class="ga-video-engagement" src="example.mp4" type="video/mp4" width="320" height="240" controls loop="true" preload="true" autoplay="true" muted="true" playsinline="true" poster="example.jpg">'  # noqa: E501
+                "Your browser does not support the video tag."
+                "</video>"
+            ),
+        ),
+    ),
+)
+def test_process_markdown(input_md, expected):
+    processed = models.process_markdown(input_md)
+    assert_html_equal(processed, expected)
+
+
+@pytest.mark.parametrize(
+    "input_html, expected_class",
+    [
+        (
+            '<video width="320" height="240"></video>',
+            "ga-video-engagement",
+        ),
+        (
+            '<video class="existing-class"></video>',
+            "existing-class ga-video-engagement",
+        ),
+        (
+            '<video class="ga-video-engagement"></video>',
+            "ga-video-engagement",
+        ),
+        (
+            "<video></video><video></video>",
+            "ga-video-engagement",
+        ),
+        (
+            "<div><video></video></div>",
+            "ga-video-engagement",
+        ),
+        (
+            '<video class="foo bar"></video>',
+            "foo bar ga-video-engagement",
+        ),
+    ],
+)
+def test_patch_html_adds_ga_video_engagement_class(input_html, expected_class):
+    patched = models._patch_html(input_html)
+    soup = models.BeautifulSoup(patched, "html.parser")
+    videos = soup.find_all("video")
+    assert videos, "No <video> tags found in patched HTML"
+    for video in videos:
+        classes = video.get("class", "")
+        # classes may be a string or list depending on BeautifulSoup version
+        if isinstance(classes, list):
+            classes = " ".join(classes)
+        # All expected classes should be present (order may vary)
+        for cls in expected_class.split():
+            assert cls in classes.split()
+        # No duplicates
+        assert len(classes.split()) == len(set(classes.split()))
+
+
+@pytest.mark.parametrize(
+    "input_html, patching, expected_html",
+    [
+        # Test adding a class to <video>
+        (
+            '<video width="320" height="240"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video width="320" height="240" class="ga-video-engagement"></video>',
+        ),
+        # Test adding a class to <video> with existing class
+        (
+            '<video class="existing-class"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="existing-class ga-video-engagement"></video>',
+        ),
+        # Test adding a class to <video> with duplicate class
+        (
+            '<video class="ga-video-engagement"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="ga-video-engagement"></video>',
+        ),
+        # Test replacing an attribute
+        (
+            '<video class="foo bar"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "replace",
+                    "value": "baz",
+                }
+            },
+            '<video class="baz"></video>',
+        ),
+        # Test deleting an attribute
+        (
+            '<video class="foo bar" width="320"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "delete",
+                }
+            },
+            '<video width="320"></video>',
+        ),
+        # Test deleting a non-existent attribute (should not error)
+        (
+            '<video width="320"></video>',
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "delete",
+                }
+            },
+            '<video width="320"></video>',
+        ),
+        # Test multiple <video> tags
+        (
+            "<video></video><video></video>",
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<video class="ga-video-engagement"></video><video class="ga-video-engagement"></video>',
+        ),
+        # Test nested <video> tag
+        (
+            "<div><video></video></div>",
+            {
+                "video": {
+                    "attribute": "class",
+                    "action": "add",
+                    "value": "ga-video-engagement",
+                }
+            },
+            '<div><video class="ga-video-engagement"></video></div>',
+        ),
+    ],
+)
+def test_patch_html_variants(input_html, patching, expected_html):
+    # Patch the HTML_PATCHING dict temporarily
+    orig_patching = models.HTML_PATCHING.copy()
+    models.HTML_PATCHING.clear()
+    models.HTML_PATCHING.update(patching)
+    try:
+        output = models._patch_html(input_html)
+        assert_html_equal(output, expected_html)
+    finally:
+        models.HTML_PATCHING.clear()
+        models.HTML_PATCHING.update(orig_patching)
+
+
+@pytest.mark.parametrize(
+    "input_html, rewrites, expected_html",
+    [
+        # Basic src rewrite
+        (
+            '<img src="https://www.mozilla.org/media/img/foo.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://www.firefox.com/media/img/foo.png">',
+        ),
+        # Video poster rewrite (note: video also gets ga-video-engagement class from HTML_PATCHING)
+        (
+            '<video poster="https://www.mozilla.org/media/poster.jpg"></video>',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<video class="ga-video-engagement" poster="https://www.firefox.com/media/poster.jpg"></video>',
+        ),
+        # srcset rewrite
+        (
+            '<img srcset="https://www.mozilla.org/media/1x.png 1x, https://www.mozilla.org/media/2x.png 2x">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img srcset="https://www.firefox.com/media/1x.png 1x, https://www.firefox.com/media/2x.png 2x">',
+        ),
+        # No match - unchanged
+        (
+            '<img src="https://example.com/img.png">',
+            [(r"www\.mozilla\.org/media/", "www.firefox.com/media/")],
+            '<img src="https://example.com/img.png">',
+        ),
+    ],
+)
+def test_url_rewrites(input_html, rewrites, expected_html):
+    orig_rewrites = models.URL_REWRITES.copy()
+    models.URL_REWRITES.clear()
+    models.URL_REWRITES.extend(rewrites)
+    try:
+        output = models._patch_html(input_html)
+        assert_html_equal(output, expected_html)
+    finally:
+        models.URL_REWRITES.clear()
+        models.URL_REWRITES.extend(orig_rewrites)

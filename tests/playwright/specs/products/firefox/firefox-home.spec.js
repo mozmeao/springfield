@@ -6,9 +6,10 @@
 
 'use strict';
 
+const path = require('path');
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
-const url = '/en-US/browsers/desktop/';
+const url = '/en-US/';
 
 test.describe(
     `${url} page`,
@@ -16,14 +17,18 @@ test.describe(
         tag: '@firefox'
     },
     () => {
-        test.beforeEach(async ({ page, browserName }) => {
-            await openPage(url, page, browserName);
-        });
+        test('Download Firefox (Windows, macOS)', async ({
+            page,
+            browserName
+        }) => {
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
-        test('Download Firefox desktop', async ({ page }) => {
-            // Click download button.
-            const downloadButton = page.getByTestId('firefox-desktop-download');
+            await openPage(url, page, browserName);
             await expect(downloadButton).toBeVisible();
+
+            // Click primary download button.
             await downloadButton.click();
             await page.waitForURL('**/thanks/', {
                 waitUntil: 'commit'
@@ -43,17 +48,135 @@ test.describe(
             await download.cancel();
         });
 
-        test('Account form sign up', async ({ page }) => {
-            const emailQueryString = /&email=success%40example.com/;
-            const accountButton = page.getByTestId('fxa-form-submit-button');
-            const emailField = page.getByTestId('fxa-form-email-field');
+        test('Download Firefox (Linux)', async ({ page, browserName }) => {
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
 
-            await emailField.fill('success@example.com');
-            await accountButton.click();
-            await page.waitForURL(emailQueryString, {
+            test.skip(
+                browserName === 'webkit',
+                'Safari not available on Linux'
+            );
+
+            // Set Linux UA strings.
+            await page.addInitScript({
+                path: path.join(
+                    __dirname,
+                    `../../../scripts/useragent/linux/${browserName}.js`
+                )
+            });
+            await page.goto(url + '?automation=true');
+            await expect(downloadButton).toBeVisible();
+
+            // Click primary download button.
+            await downloadButton.click();
+            await page.waitForURL('**/thanks/', {
                 waitUntil: 'commit'
             });
-            await expect(page).toHaveURL(emailQueryString);
+
+            // Assert Linux 64-bit / ARM64 choices are displayed.
+
+            // Linux 32 buttons disappearing in Release 145 (Issue #466)
+            const latest_firefox = await page.evaluate(
+                () =>
+                    document.documentElement
+                        .getAttribute('data-latest-firefox')
+                        .split('.')[0]
+            );
+            const release_linux_32 = latest_firefox < 145 ? true : false;
+
+            if (release_linux_32) {
+                const downloadButtonLinux32 = page.getByTestId(
+                    'thanks-download-button-linux-32'
+                );
+                await expect(downloadButtonLinux32).toBeVisible();
+                await expect(downloadButtonLinux32).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-latest-ssl&os=linux/
+                );
+            }
+            const downloadButtonLinux64 = page.getByTestId(
+                'download-button-desktop-release-linux-64'
+            );
+            await expect(downloadButtonLinux64).toBeVisible();
+            await expect(downloadButtonLinux64).toHaveAttribute(
+                'href',
+                /\?product=firefox-latest-ssl&os=linux64/
+            );
+            const downloadButtonLinuxArm64 = page.getByTestId(
+                'download-button-desktop-release-linux-64-aarch64'
+            );
+            await expect(downloadButtonLinuxArm64).toBeVisible();
+            await expect(downloadButtonLinuxArm64).toHaveAttribute(
+                'href',
+                /\?product=firefox-latest-ssl&os=linux64-aarch64/
+            );
+        });
+
+        test('Firefox unsupported OS version messaging (Win / Mac)', async ({
+            page,
+            browserName
+        }) => {
+            const downloadButton = page
+                .locator('.fl-home-intro')
+                .getByTestId('download-firefox-button__download-link');
+
+            const downloadOsxUnsupported = page.locator(
+                '.fl-home-intro .fx-unsupported-message.mac .download-link'
+            );
+
+            const downloadWinUnsupported64bit = page.locator(
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win64'
+            );
+
+            const downloadWinUnsupported32bit = page.locator(
+                '.fl-home-intro .fx-unsupported-message.win .download-link.os_win'
+            );
+
+            if (browserName === 'webkit') {
+                // Set macOS 10.14 UA strings.
+                await page.addInitScript({
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/mac-old/${browserName}.js`
+                    )
+                });
+                await page.goto(url + '?automation=true');
+
+                // Assert regular download button is not displayed.
+                await expect(downloadButton).not.toBeVisible();
+
+                // Assert Firefox ESR mac download button is displayed.
+                await expect(downloadOsxUnsupported).toBeVisible();
+                await expect(downloadOsxUnsupported).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-esr115-latest-ssl&os=osx/
+                );
+            } else {
+                // Set Windows 8.1 UA strings (64-bit).
+                await page.addInitScript({
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/win-old/${browserName}.js`
+                    )
+                });
+                await page.goto(url + '?automation=true');
+
+                // Assert regular download button is not displayed.
+                await expect(downloadButton).not.toBeVisible();
+
+                // Assert Firefox ESR windows download button is displayed.
+                await expect(downloadWinUnsupported64bit).toBeVisible();
+                await expect(downloadWinUnsupported64bit).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-esr115-latest-ssl&os=win64/
+                );
+                await expect(downloadWinUnsupported32bit).not.toBeVisible();
+                await expect(downloadWinUnsupported32bit).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-esr115-latest-ssl&os=win/
+                );
+            }
         });
     }
 );

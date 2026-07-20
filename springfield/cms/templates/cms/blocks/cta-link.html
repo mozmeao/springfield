@@ -1,0 +1,13 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<a class="fl-section-cta-link"
+  href="{{ value.link.get_url()|add_utm_parameters }}"
+  {% if value.link.new_window %}target="_blank" rel="external noopener"{% endif %}
+  data-cta-position="{{ block_position }}"
+  data-cta-text="{{ block_text + " - " + value.label }}"
+  data-cta-uid="{{ value.settings.analytics_id }}"
+>{{ value.label }}</a>

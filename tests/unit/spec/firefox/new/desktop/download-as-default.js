@@ -9,7 +9,7 @@
  * Sinon docs: http://sinonjs.org/docs/
  */
 
-import DownloadAsDefault from '../../../../../../media/js/firefox/download/desktop/download-as-default.es6';
+import DownloadAsDefault from '../../../../../../media/js/firefox/download/desktop/download-as-default-v2.es6';
 
 describe('download-as-default.es6.js', function () {
     beforeEach(function () {
@@ -59,12 +59,9 @@ describe('download-as-default.es6.js', function () {
         });
 
         it('should return false if attribution requirements are not satisfied', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(false);
             spyOn(
-                window.Mozilla.StubAttribution,
-                'meetsRequirements'
+                window.Mozilla.DownloadAttribution,
+                'meetsFunctionalRequirements'
             ).and.returnValue(false);
 
             const result = DownloadAsDefault.meetsRequirements();
@@ -76,111 +73,16 @@ describe('download-as-default.es6.js', function () {
             expect(result).toBeTrue();
         });
     });
-    describe('onlyEssential', function () {
-        it('with no consent signal - should return false', function () {
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeFalse();
-        });
-
-        it('with no other consent signal - should return true if GPC is enabled', function () {
-            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeTrue();
-            delete window.Mozilla.gpcEnabled;
-        });
-
-        it('with no other consent signal - should return true if DNT is enabled', function () {
-            window.Mozilla.dntEnabled = sinon.stub().returns(true);
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeTrue();
-            delete window.Mozilla.dntEnabled;
-        });
-
-        it('with no other consent signal - should return true if consent cookie rejects analytics', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(true);
-            spyOn(window.Mozilla.Cookies, 'getItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(
-                    JSON.stringify({
-                        analytics: false,
-                        preference: true
-                    })
-                );
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeTrue();
-        });
-
-        it('with no other consent signal - should return true if visitor is in EU/EAA country', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(false);
-
-            document
-                .getElementsByTagName('html')[0]
-                .setAttribute('data-needs-consent', 'True');
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeTrue();
-        });
-
-        it('with no other consent signal - should return false if consent cookie accepts analytics', function () {
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(true);
-            spyOn(window.Mozilla.Cookies, 'getItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(
-                    JSON.stringify({
-                        analytics: true,
-                        preference: true
-                    })
-                );
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeFalse();
-        });
-
-        it('despite other consent signals - should return true if consent cookie accepts analytics', function () {
-            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
-            window.Mozilla.dntEnabled = sinon.stub().returns(true);
-            document
-                .getElementsByTagName('html')[0]
-                .setAttribute('data-needs-consent', 'True');
-
-            spyOn(window.Mozilla.Cookies, 'hasItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(true);
-            spyOn(window.Mozilla.Cookies, 'getItem')
-                .withArgs('moz-consent-pref')
-                .and.returnValue(
-                    JSON.stringify({
-                        analytics: true,
-                        preference: true
-                    })
-                );
-
-            const result = DownloadAsDefault.onlyEssential();
-            expect(result).toBeFalse();
-            delete window.Mozilla.gpcEnabled;
-            delete window.Mozilla.dntEnabled;
-        });
-    });
     describe('init()', function () {
-        it('should refresh attribution data and and update URL when visitor unchecks input', function () {
+        it('should refresh attribution data when visitor unchecks input', function () {
             spyOn(DownloadAsDefault, 'meetsRequirements').and.returnValue(true);
-            spyOn(window.Mozilla.StubAttribution, 'removeAttributionData');
-            spyOn(window.Mozilla.StubAttribution, 'init').and.callFake(
-                (callback) => {
-                    callback();
-                }
-            );
-            spyOn(DownloadAsDefault, 'removeUTMParams').and.callThrough();
-            spyOn(window.history, 'replaceState');
+            spyOn(window.Mozilla.DownloadAttribution, 'removeAttributionData');
+            spyOn(
+                window.Mozilla.DownloadAttribution,
+                'initEssential'
+            ).and.callFake((campaign, successCallback) => {
+                successCallback();
+            });
 
             const result = DownloadAsDefault.init();
             expect(result).toBeTrue();
@@ -191,13 +93,14 @@ describe('download-as-default.es6.js', function () {
             expect(checkboxes.length).toEqual(2);
 
             document.getElementById('default-opt-out-primary').click();
-            expect(
-                window.Mozilla.StubAttribution.removeAttributionData
-            ).toHaveBeenCalled();
 
-            expect(DownloadAsDefault.removeUTMParams).toHaveBeenCalled();
-            expect(window.history.replaceState).toHaveBeenCalled();
-            expect(window.Mozilla.StubAttribution.init).toHaveBeenCalled();
+            expect(
+                window.Mozilla.DownloadAttribution.initEssential
+            ).toHaveBeenCalledWith(
+                null,
+                jasmine.any(Function),
+                jasmine.any(Function)
+            );
 
             checkboxes = document.querySelectorAll(
                 '.default-browser-checkbox:checked'
@@ -205,20 +108,26 @@ describe('download-as-default.es6.js', function () {
             expect(checkboxes.length).toEqual(0);
         });
 
-        it('should opt back into analytics and init attribution if visitor re-checks input', function () {
+        it('should opt back into essential attribution if visitor re-checks input', function () {
             spyOn(DownloadAsDefault, 'meetsRequirements').and.returnValue(true);
-            spyOn(window.Mozilla.StubAttribution, 'removeAttributionData');
-            spyOn(window.Mozilla.StubAttribution, 'init').and.callFake(
-                (callback) => {
-                    callback();
-                }
-            );
-            spyOn(DownloadAsDefault, 'addUTMParams').and.callThrough();
-            spyOn(DownloadAsDefault, 'removeUTMParams').and.callThrough();
-            spyOn(window.history, 'replaceState');
+            spyOn(window.Mozilla.DownloadAttribution, 'removeAttributionData');
+            spyOn(
+                window.Mozilla.DownloadAttribution,
+                'initEssential'
+            ).and.callFake((campaign, successCallback) => {
+                successCallback();
+            });
 
             const result = DownloadAsDefault.init();
             expect(result).toBeTrue();
+
+            expect(
+                window.Mozilla.DownloadAttribution.initEssential
+            ).toHaveBeenCalledWith(
+                'SET_DEFAULT_BROWSER',
+                jasmine.any(Function),
+                jasmine.any(Function)
+            );
 
             let checkboxes = document.querySelectorAll(
                 '.default-browser-checkbox:checked'
@@ -227,6 +136,13 @@ describe('download-as-default.es6.js', function () {
 
             // Opt out
             document.getElementById('default-opt-out-primary').click();
+            expect(
+                window.Mozilla.DownloadAttribution.initEssential
+            ).toHaveBeenCalledWith(
+                null,
+                jasmine.any(Function),
+                jasmine.any(Function)
+            );
 
             checkboxes = document.querySelectorAll(
                 '.default-browser-checkbox:checked'
@@ -235,70 +151,18 @@ describe('download-as-default.es6.js', function () {
 
             // Opt in
             document.getElementById('default-opt-out-secondary').click();
-
             expect(
-                window.Mozilla.StubAttribution.removeAttributionData
-            ).toHaveBeenCalledTimes(3);
-            expect(DownloadAsDefault.removeUTMParams).toHaveBeenCalledTimes(3);
-            expect(DownloadAsDefault.addUTMParams).toHaveBeenCalledTimes(2);
-            expect(window.history.replaceState).toHaveBeenCalledTimes(3);
-            expect(window.Mozilla.StubAttribution.init).toHaveBeenCalledTimes(
-                3
+                window.Mozilla.DownloadAttribution.initEssential
+            ).toHaveBeenCalledWith(
+                'SET_DEFAULT_BROWSER',
+                jasmine.any(Function),
+                jasmine.any(Function)
             );
 
             checkboxes = document.querySelectorAll(
                 '.default-browser-checkbox:checked'
             );
             expect(checkboxes.length).toEqual(2);
-        });
-    });
-
-    describe('removeUTMParams', function () {
-        it('should remove UTM parameters from a URL as expected', function () {
-            const href =
-                'https://www.mozilla.org/en-US/firefox/new/?experiment=download-as-default&variation=treatment&utm_source=www.mozilla.org&utm_campaign=SET_DEFAULT_BROWSER';
-            const expected = 'https://www.mozilla.org/en-US/firefox/new/';
-            const result = DownloadAsDefault.removeUTMParams(href);
-            expect(result).toEqual(expected);
-
-            const href2 =
-                'https://www.mozilla.org/en-US/firefox/new/?experiment=download-as-default&variation=treatment';
-            const expected2 = 'https://www.mozilla.org/en-US/firefox/new/';
-            const result2 = DownloadAsDefault.removeUTMParams(href2);
-            expect(result2).toEqual(expected2);
-
-            const href3 = 'https://www.mozilla.org/en-US/firefox/new/';
-            const result3 = DownloadAsDefault.removeUTMParams(href3);
-            expect(result3).toEqual(href3);
-
-            const href4 =
-                'https://www.mozilla.org/en-US/firefox/new/?experiment=download-as-default&variation=treatment&utm_source=www.mozilla.org&utm_campaign=SET_DEFAULT_BROWSER#download';
-            const expected4 =
-                'https://www.mozilla.org/en-US/firefox/new/#download';
-            const result4 = DownloadAsDefault.removeUTMParams(href4);
-            expect(result4).toEqual(expected4);
-        });
-    });
-
-    describe('addUTMParams', function () {
-        it('should add UTM parameters to a URL as expected', function () {
-            const href = 'https://www.mozilla.org/en-US/firefox/new/';
-            const expected =
-                'https://www.mozilla.org/en-US/firefox/new/?utm_campaign=SET_DEFAULT_BROWSER';
-            const result = DownloadAsDefault.addUTMParams(href);
-            expect(result).toEqual(expected);
-
-            const href2 = 'https://www.mozilla.org/en-US/firefox/new/';
-            const expected2 =
-                'https://www.mozilla.org/en-US/firefox/new/?utm_campaign=SET_DEFAULT_BROWSER';
-            const result2 = DownloadAsDefault.addUTMParams(href2);
-            expect(result2).toEqual(expected2);
-
-            const href3 = 'https://www.mozilla.org/en-US/firefox/new/#download';
-            const expected3 =
-                'https://www.mozilla.org/en-US/firefox/new/?utm_campaign=SET_DEFAULT_BROWSER#download';
-            const result3 = DownloadAsDefault.addUTMParams(href3);
-            expect(result3).toEqual(expected3);
         });
     });
 });

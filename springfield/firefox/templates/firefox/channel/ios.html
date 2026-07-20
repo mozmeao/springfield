@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "firefox/channel/base.html" %}
+{% extends "firefox/channel/base-flare.html" %}
+
+{% from "macros-protocol.html" import callout_compact with context %}
 
 {% block page_title %}
   {{ ftl('firefox-channel-try-new-features-in-a-pre-release', fallback='firefox-channel-download-and-test-future') }}
@@ -17,7 +19,7 @@
 {% block page_og_desc %}{{ self.page_desc() }}{% endblock %}
 
 {% block channels %}
-<section id="testflight" class="mzp-is-anchor-link">
+<section id="testflight" class="fl-section mzp-is-anchor-link">
   {% call callout_compact(
     title=ftl('firefox-channel-test-flight'),
     desc=ftl('firefox-channel-test-beta-versions-of-firefox-ios'),
@@ -27,10 +29,15 @@
     brand_type='logo',
     brand_size='xl') %}
 
-    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta">{{ ftl('firefox-channel-sign-up-now') }}</a>
-    <small class="learn-more">
-      <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
-    </small>
+    <div class="fl-channel-cta">
+    <a href="{{ url('firefox.ios.testflight') }}" class="mzp-c-button mzp-t-product testflight-cta fl-button">
+      {{ ftl('firefox-channel-sign-up-now') }}</a>
+    <p>
+      <small class="learn-more">
+        <a href="{{ url('firefox.browsers.mobile.ios') }}">{{ ftl('ui-learn-more') }}</a>
+      </small>
+    </p>
+  </div>
   {% endcall %}
 </section>
 {% endblock %}

@@ -10,6 +10,7 @@ features-translate-translate-the-web = Translate the web
 
 # HTML page description
 features-translate-firefox-translations-is-a-built-in-v2 = { -brand-name-firefox-translations } is a built-in translation feature that allows you to easily browse the web in your preferred language. Learn more about how this feature in { -brand-name-firefox } works, and how { -brand-name-mozilla } helps keep what you translate private.
+
 features-translate-one-of-the-best-things-about = One of the best things about the internet is that we can access content worldwide. Whether it’s news articles, blogs, or even a review of your latest tech gadget, you can find it all on the seemingly never-ending web. With { -brand-name-firefox }’s latest translation feature, this tool will continuously translate a webpage in real-time.
 features-translate-while-other-browsers-rely-on-v2 = While other browsers rely on cloud services, the { -brand-name-firefox-translations } language models are downloaded on the user’s browser and translations are done locally, so { -brand-name-mozilla } doesn’t record what webpages you translate.
 features-translate-when-you-translate-a-webpage = When you translate a webpage, it stays private
@@ -22,5 +23,7 @@ features-translate-and-more-languages-are-in = And more languages are in develop
 features-translate-firefox-speaks-your-language = { -brand-name-firefox } speaks your language
 
 # Variables:
-#   $download (url) = link to https://www.firefox.com/
+#   $download (url) = link to https://www.firefox.com/thanks/
 features-translate-the-firefox-translations-feature-v2 = The { -brand-name-firefox-translations } feature is another way { -brand-name-mozilla } keeps your internet personalized and more private. { -brand-name-mozilla } doesn’t track what webpages you translate. With millions of users worldwide, { -brand-name-mozilla } wants to ensure that those who use { -brand-name-firefox } are learning, communicating, sharing, and staying informed on their own terms. <a { $download }>Get started in your preferred language by downloading { -brand-name-firefox }.</a>
+
+features-translate-get-started-in-your-preferred = Get started in your preferred language by downloading { -brand-name-firefox }

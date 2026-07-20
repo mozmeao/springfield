@@ -8,6 +8,7 @@ newsletter-form-your-email-address = Your email address
 newsletter-form-we-are-sorry-but-there = We are sorry, but there was a problem with our system. Please try again later!
 newsletter-form-please-select-country = Please select a country or region
 newsletter-form-please-select-language = Please select a language
+newsletter-form-button-cta = Sign up
 
 # Only localize "yourname". Do not change "@example.com".
 newsletter-form-yournameexamplecom = yourname@example.com
@@ -35,6 +36,9 @@ newsletter-form-sign-up-now = Sign Up Now
 newsletter-form-thanks = Thanks!
 newsletter-form-yes = Yes
 newsletter-form-no = No
+
+# Alt text for SVG animation indicating the form has submitted and is waiting for response
+newsletter-form-submit-sending = Sending
 
 multi-newsletter-form-checkboxes-legend = I want information about:
 multi-newsletter-form-checkboxes-label-mozilla = { -brand-name-mozilla-foundation }

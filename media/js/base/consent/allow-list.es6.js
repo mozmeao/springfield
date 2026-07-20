@@ -12,7 +12,8 @@ const MozAllowList = [
     '/landing/set-as-default/thanks/',
     '/landing/education/',
     '/landing/gaming/',
-    '/landing/tech/'
+    '/landing/tech/',
+    '/landing/windows/'
 ];
 
 export default MozAllowList;

@@ -13,14 +13,17 @@ from django.contrib.staticfiles.finders import find as find_static
 from django.template.defaultfilters import slugify as django_slugify
 from django.template.defaulttags import CsrfTokenNode
 from django.utils.encoding import smart_str
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 
-import bleach
 import jinja2
 from django_jinja import library
 from markupsafe import Markup
 from product_details import product_details
 
+from springfield.base.sanitization import strip_all_tags
 from springfield.base.templatetags.helpers import static, urlparams
+from springfield.base.waffle import switch
 
 ALL_FX_PLATFORMS = ("windows", "linux", "mac", "android", "ios")
 
@@ -33,6 +36,16 @@ def needs_data_consent(country_code):
     """
     country_list = settings.DATA_CONSENT_COUNTRIES
     return country_code in country_list
+
+
+@library.global_function
+def plausible_enabled(country_code):
+    """
+    Global helper that determines whether the Plausible analytics script
+    should be injected. Plausible is loaded only for EU/consent countries
+    when the `plausible` switch is on and a domain is configured.
+    """
+    return bool(settings.PLAUSIBLE_DOMAIN and needs_data_consent(country_code) and switch("plausible"))
 
 
 def _strip_img_prefix(url):
@@ -419,7 +432,11 @@ def slugify(text):
 
 @library.filter
 def bleach_tags(text):
-    return bleach.clean(text, tags=set(), strip=True).replace("&amp;", "&")
+    """Strip all HTML tags and convert entities to characters for plain text output.
+
+    Used in .txt email templates where HTML entities should become real characters.
+    """
+    return strip_all_tags(text).replace("&amp;", "&")
 
 
 # from jingo
@@ -462,7 +479,7 @@ def ifeq(a, b, text):
 
 @library.global_function
 @jinja2.pass_context
-def app_store_url(ctx, product, campaign=None):
+def app_store_url(ctx, product, campaign=None, ppid=None):
     """Returns a localised app store URL for a given product"""
     locale = getattr(ctx["request"], "locale", "en-US")
     countries = settings.APPLE_APPSTORE_COUNTRY_MAP
@@ -492,9 +509,15 @@ def app_store_url(ctx, product, campaign=None):
         base_url = base_url + params.format(tp=tracking_product)
 
     if locale in countries:
-        return base_url.format(country=countries[locale])
+        base_url = base_url.format(country=countries[locale])
     else:
-        return base_url.replace("/{country}/", "/")
+        base_url = base_url.replace("/{country}/", "/")
+
+    # ppid stands for Product Page ID and is a parameter added to target a custom product page on the apple app store.
+    if ppid:
+        base_url = base_url + f"&ppid={ppid}"
+
+    return base_url
 
 
 @library.global_function
@@ -589,13 +612,10 @@ def _fxa_product_button(
     include_metrics=True,
     optional_parameters=None,
     optional_attributes=None,
+    inner_html=None,  # override button_text with trusted, component-generated inner HTML
 ):
     href = _fxa_product_url(product_url, entrypoint, optional_parameters)
     css_class = "js-fxa-cta-link"
-    attrs = ""
-
-    if optional_attributes:
-        attrs += " ".join(f'{attr}="{val}"' for attr, val in optional_attributes.items())
 
     if include_metrics:
         css_class += " js-fxa-product-button"
@@ -606,7 +626,23 @@ def _fxa_product_button(
     if class_name:
         css_class += f" {class_name}"
 
-    markup = f'<a href="{href}" data-action="{settings.FXA_ENDPOINT}" class="{css_class}" {attrs}>{button_text}</a>'
+    # Build the anchor with contextual escaping. `button_text`, the optional
+    # attribute values and the href can all carry CMS- or caller-supplied data
+    # (e.g. a Firefox Account button label that flows into the body, into
+    # data-cta-* attributes and into the entrypoint/utm_campaign of the href),
+    # so every interpolated value must be escaped to prevent stored XSS.
+    # `inner_html` is the explicit opt-in slot for trusted, component-generated
+    # markup (an icon plus an already-escaped label) and is rendered as-is.
+    attrs = format_html_join(" ", '{}="{}"', (optional_attributes or {}).items())
+    body = mark_safe(inner_html) if inner_html else button_text
+    markup = format_html(
+        '<a href="{}" data-action="{}" class="{}" {}>{}</a>',
+        href,
+        settings.FXA_ENDPOINT,
+        css_class,
+        attrs,
+        body,
+    )
 
     return Markup(markup)
 
@@ -695,6 +731,7 @@ def fxa_button(
     include_metrics=True,
     optional_parameters=None,
     optional_attributes=None,
+    inner_html=None,  # override button_text with custom inner HTML
 ):
     """
     Render a accounts.firefox.com link with required params for Mozilla account authentication.
@@ -716,5 +753,13 @@ def fxa_button(
     optional_attributes = optional_attributes or {}
 
     return _fxa_product_button(
-        product_url, entrypoint, button_text, class_name, is_button_class, include_metrics, optional_parameters, optional_attributes
+        product_url=product_url,
+        entrypoint=entrypoint,
+        button_text=button_text,
+        class_name=class_name,
+        is_button_class=is_button_class,
+        include_metrics=include_metrics,
+        optional_parameters=optional_parameters,
+        optional_attributes=optional_attributes,
+        inner_html=inner_html,
     )

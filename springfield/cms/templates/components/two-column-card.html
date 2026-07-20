@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-two-column-card-wrapper">
+  {% if tag %}
+    <span class="fl-card-tag">
+      <include:tag
+        corners="rounded"
+        color="purple"
+        text="{{ tag }}"
+      />
+    </span>
+  {% endif %}
+  <div class="fl-two-column-card {% if image_position %}image-is-stuck-{{ image_position }}{% endif %}">
+    <div class="fl-two-column-card-content {% if theme == 'light-dark' and card_index > 1 %}fl-force-dark-theme{% endif %}">{{ contents }}</div>
+  </div>
+</div>

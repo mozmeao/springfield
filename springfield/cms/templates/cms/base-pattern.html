@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{# Avoid referencing `page` which isn't provided by the pattern library #}
+{% block page_title %}{{ pattern_name }} | Pattern preview{% endblock %}
+{% block flare_header %}{% endblock %}
+{% block consent_banner %}{% endblock %}
+
+{% block page_css %}
+{{ css_bundle('pattern_library') }}
+{% endblock %}
+
+{% block content %}
+  <div class="pl-wrapper">
+    {{ pattern_library_rendered_pattern }}
+  </div>
+{% endblock %}
+
+{% block pre_footer %}{% endblock %}
+
+{% block flare_footer %}{% endblock %}

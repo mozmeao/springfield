@@ -35,6 +35,9 @@ firefox-home-swear-off = Swear off distractions
 firefox-home-stay-focused = Stay focused with extensions like <a { $tomato_clock_attrs }>Tomato Clock</a> and <a { $turn_off_the_lights_attrs }>Turn Off the Lights</a> — they’re Recommended, which is like our gold star for having exceptional security and functionality.
 firefox-home-your-stuff = Your stuff, on all your screens
 firefox-home-get-firefox-mobile = Get { -brand-name-firefox } mobile so your passwords, tabs and history — and the privacy and security you rely on — go with you wherever you go.
+firefox-home-privacy-built-in = Privacy built in
+firefox-home-personal-data-not-for-sale = Your personal data isn’t for sale. Trackers and 3rd party cookies are blocked by default, so you can just … browse.
+firefox-home-learn-data-protection = Learn how { -brand-name-firefox } protects your data
 
 ## Customization
 
@@ -63,5 +66,6 @@ firefox-home-lots-of-open = Lots of open tabs.
 firefox-home-shield-and-hand = Shield and hand protecting a browser tab.
 firefox-home-a-human-brain = A human brain connected to the world.
 firefox-home-desktop-laptop-and-phone = Desktop, laptop, and phone.
+firefox-home-browser-window-with-lock = Browser window with lock and shield icons.
 firefox-home-firefox-in-dark = { -brand-name-firefox } in dark mode.
 firefox-home-firefox-on-a-desktop = { -brand-name-firefox } on a desktop.

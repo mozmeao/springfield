@@ -1,0 +1,46 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props theme="" background_theme="" qr_code=None anchor_id="" #}
+{# themes = ["filled-small", "filled-large", "filled-face", "filled-tail", "filled-diving-in", "filled-with-qr"] #}
+{# themes_2026 = ["diving-in", "with-qr"] #}
+
+<div class="fl-banner-container" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
+  {% set theme = (theme or "").replace("filled-", "").replace("filled", "") %}
+  <div
+    class="
+      fl-banner fl-banner-kit fl-force-dark-theme
+      {% if contents.animation %}fl-banner-kit-animation{% elif theme %}fl-banner-kit-{{ theme }}{% endif %}
+      {% if background_theme and background_theme == 'dark-purple-gradient' %}fl-banner-dark-purple-gradient{% endif %}
+      {% if theme and theme != 'small' and theme != 'diving-in' and theme != 'with-qr' %}align-start-on-desktop{% else %}align-center-on-desktop{% endif %}"
+    aria-labelledby="fl-banner-heading"
+    >
+    {% if qr_code and qr_code.strip() %}
+      <div class="fl-banner-kit-qr" role="img" aria-label="QR Code">
+        {{ qrcode(qr_code, 12) }}
+      </div>
+    {% endif %}
+    <div class="fl-banner-content">
+      <div class="fl-banner-content-inner">
+        {{ contents.heading }}
+        {{ contents.content }}
+      </div>
+    </div>
+    {% if theme == "curious-animation" %}
+      <div class="fl-banner-animation">
+        <include:animation
+          video_url="https://assets.mozilla.net/video/kit/pop-up-1480.webm"
+          alt="Animated Curious Kit"
+          poster="/media/img/firefox/flare/fox-brand-confused.svg"
+          playback="autoplay_loop"
+          show_pause_button="true"
+        />
+      </div>
+    {% else %}
+    <div class="fl-banner-decoration"></div>
+    {% endif %}
+  </div>
+</div>

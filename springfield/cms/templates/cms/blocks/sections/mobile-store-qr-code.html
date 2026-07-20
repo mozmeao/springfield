@@ -1,0 +1,40 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+
+{% set block_position = block_position or "mobile-store-qr" %}
+
+<include:mobile-store-qr-code
+  block_position="{{ block_position }}"
+  qr_code_data="{{ value.qr_code_data }}"
+>
+  <content:heading>
+    {% set heading_level = "h" ~ block_level if block_level else "h2" %}
+    <include:heading
+      level="{{ heading_level }}"
+      heading_size="fl-heading-size-1"
+      alignment_class="fl-text-align-center"
+      superheading_text="{{ value.heading.superheading_text|richtext|remove_p_tag if value.heading.superheading_text else '' }}"
+      heading_text="{{ value.heading.heading_text|richtext|remove_p_tag }}"
+      subheading_text="{{ value.heading.subheading_text|richtext|remove_p_tag if value.heading.subheading_text else '' }}"
+    />
+  </content:heading>
+  <content:store_buttons>
+    {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
+    {% set android_url = play_store_url('firefox', campaign) %}
+    {% set ios_url = app_store_url('firefox', campaign) %}
+    {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+    {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+  </content:store_buttons>
+  <content:mobile_image>
+    {{ srcset_image(
+        value.mobile_image,
+        "width-{200,400,600,800,1000,1200}",
+        loading="lazy",
+    ) }}
+  </content:mobile_image>
+</include:mobile-store-qr-code>

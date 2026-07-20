@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+from django.test import override_settings
 from django.urls import path
 
 import pytest
@@ -125,6 +126,7 @@ def test_decorating_django_view(lang_code_prefix, minimal_site, client):
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_decorating_django_view__passing_fallback_lang_codes(
     lang_code_prefix,
     minimal_site,
@@ -150,12 +152,14 @@ def test_decorating_django_view__passing_fallback_lang_codes(
     assert resp.status_code == 200
     # Show that the expected locales are annotated onto the request
     assert resp.wsgi_request._locales_for_django_fallback_view == ["fr-CA", "es-MX", "sco"]
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of strings" in resp.text
 
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_decorating_django_view__passing_callable_for_locales(
     lang_code_prefix,
     minimal_site,
@@ -181,12 +185,14 @@ def test_decorating_django_view__passing_callable_for_locales(
     assert resp.status_code == 200
     # Show that the expected locales are annotated onto the request
     assert resp.wsgi_request._locales_for_django_fallback_view == ["sco", "es-ES"]
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of a-slug-here" in resp.text
 
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_decorating_django_view__passing_ftl_files(lang_code_prefix, minimal_site, client, mocker):
     mock_get_active_locales = mocker.patch("springfield.cms.decorators.get_active_locales")
     mock_get_active_locales.return_value = ["sco", "es-ES", "fr-CA"]
@@ -223,7 +229,8 @@ def test_decorating_django_view__passing_ftl_files(lang_code_prefix, minimal_sit
         ["test/fluentA", "test/fluentB"],
         force=True,
     )
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of files" in resp.text
 
 
@@ -249,6 +256,7 @@ def test_patching_in_urlconf__standard_django_view(lang_code_prefix, minimal_sit
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_patching_in_urlconf__standard_django_view__with_locale_list(
     lang_code_prefix,
     minimal_site,
@@ -274,12 +282,14 @@ def test_patching_in_urlconf__standard_django_view__with_locale_list(
     assert resp.status_code == 200
     # Show that the expected locales are annotated onto the request
     assert resp.wsgi_request._locales_for_django_fallback_view == ["fr-CA", "es-MX", "sco"]
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of strings" in resp.text
 
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_patching_in_urlconf__standard_django_view__with_callback_for_locales(
     lang_code_prefix,
     minimal_site,
@@ -305,12 +315,14 @@ def test_patching_in_urlconf__standard_django_view__with_callback_for_locales(
     assert resp.status_code == 200
     # Show that the expected locales are annotated onto the request
     assert resp.wsgi_request._locales_for_django_fallback_view == ["sco", "es-ES"]
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of a-slug-here" in resp.text
 
 
 @pytest.mark.urls(__name__)
 @pytest.mark.parametrize("lang_code_prefix", ("", "/en-US"))
+@override_settings(FALLBACK_LOCALES={"en-GB": "en-US", "en-CA": "en-US"})
 def test_patching_in_urlconf__standard_django_view__with_fluent_files(
     lang_code_prefix,
     minimal_site,
@@ -352,7 +364,8 @@ def test_patching_in_urlconf__standard_django_view__with_fluent_files(
     )
 
     assert resp.wsgi_request._locales_for_django_fallback_view == ["sco", "es-ES", "fr-CA"]
-    assert resp.wsgi_request._locales_available_via_cms == ["en-US"]
+    # This includes the "en-US" locale, and also the aliases that it's a fallback locale for.
+    assert resp.wsgi_request._locales_available_via_cms == ["en-US", "en-GB", "en-CA"]
     assert "This is a CMS page now, with the slug of files" in resp.text
 
 

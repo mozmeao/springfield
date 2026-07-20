@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props text, color="", corners="", is_small=0, is_uppercase=0, is_selected=0, before_icon="", after_icon="" #}
+
+<span
+  class="
+    fl-tag
+    {% if color %}fl-tag-{{ color }}{% endif %}
+    {% if corners %}fl-tag-{{ corners }}{% endif %}
+    {% if is_small %}is-small{% endif %}
+    {% if is_uppercase %}is-uppercase{% endif %}
+    {% if is_selected %}is-selected{% endif %}
+  "
+>
+  {% if before_icon %}
+    <include:icon
+      icon_name="{{ before_icon }}"
+      hidden=true
+      extra_class="icon-left"
+    />
+  {% endif %}
+  {{ text }}
+  {% if after_icon %}
+    <include:icon
+      icon_name="{{ after_icon }}"
+      hidden=true
+      extra_class="icon-right"
+    />
+  {% endif %}
+</span>

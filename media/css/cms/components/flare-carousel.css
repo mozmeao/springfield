@@ -1,0 +1,209 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-carousel {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+
+    --counter-size: 36px;
+    --spinner-width: 6px;
+}
+
+.fl-carousel-heading {
+    max-inline-size: var(--token-width-desktop-content);
+    text-align: center;
+}
+
+.fl-carousel-heading .fl-heading-group {
+    margin-block-end: var(--fl-section-heading-margin-bottom);
+}
+
+.fl-carousel-heading .fl-buttons {
+    justify-content: center;
+}
+
+.fl-carousel.fl-carousel-has-kit {
+    gap: calc(var(--token-spacing-2xl) + 100px);
+}
+
+.fl-carousel-has-kit .fl-carousel-slides {
+    position: relative;
+}
+
+.fl-carousel-has-kit .fl-carousel-slides::before {
+    background: url('/media/img/firefox/flare/fox-brand-curious.svg') bottom
+        center no-repeat;
+    background-size: contain;
+    block-size: 100px;
+    content: '';
+    display: block;
+    inline-size: 200px;
+    inset-block-start: -100px;
+    inset-inline-start: calc(50% - 100px);
+    position: absolute;
+}
+
+.fl-carousel-slides {
+    background: var(--token-gradient-purple);
+    border-radius: var(--token-border-radius-md) var(--token-border-radius-md) 0
+        0;
+    inline-size: fit-content;
+    margin-block-end: calc(var(--fl-section-v-padding) * -1);
+    max-inline-size: 100%;
+    padding: var(--token-layout-xs) var(--token-layout-xs) 0;
+}
+
+.fl-carousel-control {
+    align-items: center;
+    counter-reset: items;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+    inline-size: 100%;
+    justify-content: center;
+    list-style: none;
+    margin: 0 0 var(--token-spacing-md) 0;
+    max-inline-size: 100%;
+}
+
+.fl-carousel-control-item {
+    align-items: center;
+    color: var(--token-color-white);
+    cursor: pointer;
+    display: flex;
+    inline-size: 100%;
+    min-block-size: calc(var(--counter-size) + 8px);
+    padding-inline-start: calc(
+        var(--counter-size) + (var(--spinner-width) * 2) +
+            var(--token-spacing-md)
+    );
+    position: relative;
+}
+
+.fl-carousel-control-item-text {
+    flex: none;
+    max-inline-size: 200px;
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+}
+
+.fl-carousel-control-item::before,
+.fl-carousel-control-item::after {
+    align-items: center;
+    background-color: var(--token-color-dark-purple-30);
+    block-size: var(--counter-size);
+    border-radius: 50%;
+    color: var(--token-color-white);
+    display: flex;
+    flex-shrink: 0;
+    font-weight: var(--token-font-weight-bold);
+    inline-size: var(--counter-size);
+    inset-block-start: var(--spinner-width);
+    inset-inline-start: var(--spinner-width);
+    justify-content: center;
+    position: absolute;
+    z-index: 1;
+}
+
+.fl-carousel-control-item::before {
+    content: counter(items, decimal-leading-zero);
+    counter-increment: items;
+}
+
+.fl-carousel-control-item::after {
+    background: transparent;
+    content: '';
+}
+
+.fl-carousel-control-item.active::before {
+    background-color: var(--token-color-white);
+    color: var(--token-color-dark-purple);
+}
+
+.fl-carousel-control-item.active::after {
+    animation: progress-circle 4000ms linear forwards;
+    background: rgba(255, 255, 255, 0.6);
+    block-size: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    content: '';
+    inline-size: calc(var(--counter-size) + (var(--spinner-width) * 2));
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 0;
+}
+
+.fl-carousel.is-paused .fl-carousel-control-item.active::after {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-carousel-control-item.active::after {
+        animation: none;
+    }
+}
+
+.fl-carousel-images {
+    aspect-ratio: 2 / 1;
+    inline-size: 100%;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-content);
+    overflow: hidden;
+    position: relative;
+}
+
+.fl-carousel-viewport {
+    overflow: hidden;
+    position: relative;
+}
+
+.fl-carousel-container {
+    block-size: 100%;
+    display: flex;
+}
+
+.fl-carousel-slide {
+    align-items: center;
+    display: flex;
+    flex: 0 0 100%;
+    justify-content: center;
+    min-inline-size: 0;
+}
+
+.fl-carousel-image {
+    align-items: center;
+    block-size: 100%;
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+}
+
+.fl-carousel-image img {
+    block-size: auto;
+    inline-size: auto;
+    margin: 0;
+    max-block-size: 100%;
+    max-inline-size: 100%;
+    object-fit: contain;
+}
+
+@media (--viewport-md-up) {
+    .fl-carousel-control {
+        flex-direction: row;
+        gap: var(--token-spacing-3xl);
+    }
+
+    .fl-carousel-control-item {
+        flex: 1 1 0;
+        inline-size: auto;
+    }
+
+    .fl-carousel-slides {
+        border-radius: var(--token-border-radius-md);
+        margin-block-end: 0;
+    }
+}

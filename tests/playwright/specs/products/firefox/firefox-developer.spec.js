@@ -6,6 +6,7 @@
 
 'use strict';
 
+const path = require('path');
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 const url = '/en-US/channel/desktop/developer/';
@@ -85,26 +86,46 @@ test.describe(
 
             // Set Linux UA strings.
             await page.addInitScript({
-                path: `./scripts/useragent/linux/${browserName}.js`
+                path: path.join(
+                    __dirname,
+                    `../../../scripts/useragent/linux/${browserName}.js`
+                )
             });
             await page.goto(url + '?automation=true');
 
             // Assert Linux download buttons are displayed.
-            await expect(introDownloadLinux).toBeVisible();
-            await expect(introDownloadLinux).toHaveAttribute(
-                'href',
-                /\?product=firefox-devedition-latest-ssl&os=linux/
+
+            // Linux 32 buttons disappearing in release 145 (Release will be at 144 when Dev ed is at 145) (Issue #466)
+            const latest_firefox = await page.evaluate(
+                () =>
+                    document.documentElement
+                        .getAttribute('data-latest-firefox')
+                        .split('.')[0]
             );
+            const dev_linux_32 = latest_firefox < 144 ? true : false;
+
+            if (dev_linux_32) {
+                await expect(introDownloadLinux).toBeVisible();
+                await expect(introDownloadLinux).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-devedition-latest-ssl&os=linux/
+                );
+            }
+
             await expect(introDownloadLinux64).toBeVisible();
             await expect(introDownloadLinux64).toHaveAttribute(
                 'href',
                 /\?product=firefox-devedition-latest-ssl&os=linux64/
             );
-            await expect(footerDownloadLinux).toBeVisible();
-            await expect(footerDownloadLinux).toHaveAttribute(
-                'href',
-                /\?product=firefox-devedition-latest-ssl&os=linux/
-            );
+
+            if (dev_linux_32) {
+                await expect(footerDownloadLinux).toBeVisible();
+                await expect(footerDownloadLinux).toHaveAttribute(
+                    'href',
+                    /\?product=firefox-devedition-latest-ssl&os=linux/
+                );
+            }
+
             await expect(footerDownloadLinux64).toBeVisible();
             await expect(footerDownloadLinux64).toHaveAttribute(
                 'href',
@@ -146,7 +167,10 @@ test.describe(
             if (browserName === 'webkit') {
                 // Set macOS 10.14 UA strings.
                 await page.addInitScript({
-                    path: `./scripts/useragent/mac-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/mac-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 
@@ -168,7 +192,10 @@ test.describe(
             } else {
                 // Set Windows 8.1 UA string (64-bit).
                 await page.addInitScript({
-                    path: `./scripts/useragent/win-old/${browserName}.js`
+                    path: path.join(
+                        __dirname,
+                        `../../../scripts/useragent/win-old/${browserName}.js`
+                    )
                 });
                 await page.goto(url + '?automation=true');
 
@@ -201,17 +228,20 @@ test.describe(
             const newsletterPrivacyCheckbox = page.getByTestId(
                 'newsletter-privacy-checkbox'
             );
+
+            const newsletterCountrySelect = page.getByTestId(
+                'newsletter-country-select'
+            );
             const newsletterSubmitButton = page.getByTestId(
                 'newsletter-submit-button'
             );
 
             await openPage(url, page, browserName);
 
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
             await newsletterEmailInput.fill('success@example.com');
+            await newsletterCountrySelect.selectOption('us');
             await newsletterPrivacyCheckbox.click();
+
             await newsletterSubmitButton.click();
             await expect(newsletterForm).not.toBeVisible();
             await expect(newsletterThanksMessage).toBeVisible();
@@ -227,6 +257,9 @@ test.describe(
             const newsletterEmailInput = page.getByTestId(
                 'newsletter-email-input'
             );
+            const newsletterCountrySelect = page.getByTestId(
+                'newsletter-country-select'
+            );
             const newsletterPrivacyCheckbox = page.getByTestId(
                 'newsletter-privacy-checkbox'
             );
@@ -236,11 +269,10 @@ test.describe(
 
             await openPage(url, page, browserName);
 
-            // expand form before running test
-            await newsletterSubmitButton.click();
-
-            await newsletterEmailInput.fill('failure@example.com');
+            await newsletterEmailInput.fill('failure@example');
+            await newsletterCountrySelect.selectOption('us');
             await newsletterPrivacyCheckbox.click();
+
             await newsletterSubmitButton.click();
             await expect(newsletterErrorMessage).toBeVisible();
             await expect(newsletterThanksMessage).not.toBeVisible();

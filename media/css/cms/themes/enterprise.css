@@ -1,0 +1,176 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+/* Enterprise theme styles */
+@layer page {
+:root,
+.fl-split-page-upper .fl-force-light-theme,
+.fl-force-light-theme {
+    --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise.svg");
+    --upper-page-theme-color: white;
+
+    /* colors */
+    --token-color-enterprise-blue: #025289;
+    --token-color-enterprise-blue-hover: #01416b;
+
+    /* button overrides */
+
+    --button-bg-color: var(--token-color-enterprise-blue);
+    --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+    --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
+    --button-text-color-disabled: var(--token-color-enterprise-blue);
+
+    /* blue tokens from Figma. WIP, maybe orange? */
+
+    --token-color-dark-blue: #031B40;
+    --token-color-dark-blue-22: rgba(3,27,64,.22);
+    --token-color-dark-blue-30: rgba(3,27,64,.3);
+    --token-color-dark-blue-50: rgba(3,27,64,.4);
+    --token-color-dark-blue-2: #020F26;
+    --token-color-dark-blue-2-40: rgba(2,15,38,.4);
+    --token-color-blue: #0F386E;
+    --token-color-medium-blue: #245589;
+    --token-color-link-blue: #327CBC;
+    --token-color-nav-icon-blue: #89CCFF;
+    --token-color-light-blue: #dff0ff;
+    --token-color-light-blue-20: rgba(223, 240, 255,.2);
+    --token-color-light-blue-40: rgba(223, 240, 255,.4);
+    --token-color-light-blue-60: rgba(223, 240, 255,.6);
+    --token-color-light-blue-80: rgba(223, 240, 255,.8);
+    --token-color-soft-blue: #E7ECF8;
+    --token-color-soft-blue-2: #D8ECFC;
+    --token-color-soft-blue-3: #C9E3FF;
+    --token-color-soft-blue-4: #A8D6FF;
+    --token-color-soft-blue-5: #8ACDFF ;
+    --token-color-soft-blue-6: #68C1FF;
+    --token-color-soft-blue-40: rgba(231,236,248,.4);
+    --token-color-soft-blue-64: rgba(231,236,248,.64);
+    --token-gradient-privacy: linear-gradient(90deg,#61B4FF 0%,var(--token-color-dark-blue) 100%);
+    --token-gradient-blue: radial-gradient(135.31% 135.31% at 50% 0%, var(--token-color-light-blue) 0%, #61B4FF 100%);
+    --token-gradient-subnav-dark: linear-gradient(0deg,var(--token-color-dark-blue) 0%,var(--token-color-blue) 100%);
+    --token-gradient-dark-blue: linear-gradient(to bottom,var(--token-color-dark-blue-50) 0%,var(--token-color-dark-blue-22) 100%);
+    --token-gradient-soft-blue: linear-gradient(180deg,var(--token-color-soft-blue-64) 0%,var(--token-color-white) 100%);
+    --token-gradient-radial-blue: radial-gradient(74.06% 118.24% at 50% -18.24%,var(--token-color-light-blue) 0%,var(--token-color-dark-blue) 100%);
+    --token-gradient-blurred-bg: radial-gradient( oklch(61.48% 0.1284 246.95deg) 0%, oklch(55.29% 0.1234 249.43deg) 8%, oklch(45.9% 0.1139 252.93deg) 18%, oklch(36.64% 0.1039 256.12deg) 30%, oklch(28.6% 0.0946 258.6deg) 42%, oklch(24.67% 0.0885 259.38deg) 54%, oklch(23.64% 0.084 258.65deg) 68%, oklch(23.5% 0.0804 258.63deg) 82%, oklch(22.96% 0.0771 258.36deg) 100%);
+    --notification-box-shadow: 0px 0px 24px 2px rgba(67,158,227,.2);
+
+
+
+
+    /* overriding purple tokens with blue tokens. little hacky, but lets experiment. */
+
+    --token-color-dark-purple: var(--token-color-dark-blue);
+    --token-color-dark-purple-22: var(--token-color-dark-blue-22);
+    --token-color-dark-purple-30: var(--token-color-dark-blue-30);
+    --token-color-dark-purple-50: var(--token-color-dark-blue-50);
+    --token-color-dark-purple-2: var(--token-color-dark-blue-2);
+    --token-color-dark-purple-2-40: var(--token-color-dark-blue-2-40);
+    --token-color-purple: var(--token-color-blue);
+    --token-color-medium-purple: var(--token-color-medium-blue);
+    --token-color-link-purple: var(--token-color-link-blue);
+    --token-color-nav-icon-purple: var(--token-color-nav-icon-blue);
+    --token-color-light-purple: var(--token-color-light-blue);
+    --token-color-light-purple-20: var(--token-color-light-blue-20);
+    --token-color-light-purple-40: var(--token-color-light-blue-40);
+    --token-color-light-purple-60: var(--token-color-light-blue-60);
+    --token-color-light-purple-80: var(--token-color-light-blue-80);
+    --token-color-cream: var(--token-color-cream);
+    --token-color-soft-purple: var(--token-color-soft-blue);
+    --token-color-soft-purple-2: var(--token-color-soft-blue-2);
+    --token-color-soft-purple-3: var(--token-color-soft-blue-3);
+    --token-color-soft-purple-4: var(--token-color-soft-blue-4);
+    --token-color-soft-purple-5: var(--token-color-soft-blue-5);
+    --token-color-soft-purple-6: var(--token-color-soft-blue-6);
+    --token-color-soft-purple-40: var(--token-color-soft-blue-40);
+    --token-color-soft-purple-64: var(--token-color-soft-blue-64);
+    --token-gradient-purple: var(--token-gradient-blue);
+    --token-gradient-dark-purple: var(--token-gradient-dark-blue);
+    --token-gradient-soft-purple: var(--token-gradient-soft-blue);
+    --token-gradient-radial-purple: var(--token-gradient-radial-blue);
+
+    /* two-card color deviations */
+    --two-column-light-light-first-card-bg: var(--token-color-light-blue);
+    --two-column-light-light-second-card-bg: var(--token-color-grey-1);
+}
+
+.fl-section-container > .fl-heading,
+.fl-section-container > .fl-heading-group {
+    max-width: var(--token-width-desktop-content-lg);
+    margin-inline: auto;
+}
+
+.fl-section-container > .fl-heading-group .fl-subheading {
+    text-wrap: balance;
+}
+
+.fl-force-dark-theme {
+    --fl-logo-url: url("/media/img/logos/firefox-enterprise/firefox-enterprise-dark.svg");
+}
+
+.fl-featured-image-section {
+    background: var(--fl-theme-background);
+}
+
+.has-gradient-bottom::before {
+    content: "";
+    background-image: linear-gradient(0deg, var(--token-color-soft-blue-5) 0%, #8accff00 64%);
+}
+
+.fl-logo-fx {
+    inline-size: 200px;
+    background-size: 200px 40px;
+}
+
+/* footer overrides  */
+
+.fl-newsletterform-cta.fl-force-dark-theme,
+.fl-footer,
+body {
+    background: var(--fl-theme-background);
+    color: var(--fl-theme-color-text);
+}
+
+.fl-footer a:link:not(.fl-button), .fl-footer a:visited:not(.fl-button) {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-language-switcher::before,
+.fl-language-switcher-select-wrapper {
+   color: var(--fl-theme-color-text);
+}
+
+.fl-language-switcher-select {
+    background: var(--fl-theme-background);
+    color: var(--fl-theme-color-text);
+    border-color: var(--fl-subtle-border-color);
+}
+}
+
+.fl-button.button-secondary {
+    --button-border-color: var(--token-color-enterprise-blue);
+    --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
+}
+
+.fl-banner.fl-banner-purple-radial-gradient,
+.fl-banner.fl-banner-dark-purple-gradient {
+    --fl-theme-color-text: var(--fl-theme-color-text);
+}
+
+.fl-banner-dark-purple-gradient {
+    background-color: var(--token-color-light-blue);
+    background-image: none;
+}
+
+
+@media (--viewport-md-up) {
+    .fl-logo-fx {
+        inline-size: 237px;
+        background-size: 237px 36px;
+    }
+}

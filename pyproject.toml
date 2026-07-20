@@ -1,7 +1,7 @@
 [tool.ruff]
 line-length = 150
 target-version = 'py313'
-extend-exclude = ["docs", "assets", "static"]
+extend-exclude = ["assets", "static"]
 
 [tool.ruff.lint]
 # Set what ruff should check for.
