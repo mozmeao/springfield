@@ -1437,6 +1437,8 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "ol",
     "ul",
     "image",
+    "fxa",
+    "fx-logo",
 ]
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
