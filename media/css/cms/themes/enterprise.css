@@ -122,6 +122,7 @@
 }
 
 .has-gradient-bottom::before {
+    --gradient-height: 100vh;
     content: "";
     background-image: linear-gradient(0deg, var(--token-color-soft-blue-5) 0%, #8accff00 64%);
 }
@@ -135,13 +136,13 @@
 
 body {
     background: var(--token-color-black-4);
-    color: var(--token-color-white);
 }
 
 .fl-newsletterform-cta.fl-force-dark-theme,
 .fl-footer {
     --fl-theme-color-text: var(--token-color-white);
     --fl-theme-background: var(--token-color-black-4);
+    background: var(--fl-theme-background);
 }
 
 .fl-footer a:link:not(.fl-button), .fl-footer a:visited:not(.fl-button) {
@@ -160,6 +161,8 @@ body {
 }
 }
 
+/* Other components */
+
 .fl-button.button-secondary {
     --button-border-color: var(--token-color-enterprise-blue);
     --button-bg-color-hover: var(--token-color-enterprise-blue-hover);
@@ -175,6 +178,9 @@ body {
     background-image: none;
 }
 
+.fl-button-row-help-text {
+    --fl-theme-color-link: var(--fl-theme-color-text);
+}
 
 @media (--viewport-md-up) {
     .fl-logo-fx {
