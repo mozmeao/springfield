@@ -1318,7 +1318,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        heading = HeadingBlock()
+        heading = HeadingBlock(required=False)
         content = blocks.StreamBlock(
             [
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
