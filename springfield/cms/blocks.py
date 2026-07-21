@@ -1654,24 +1654,6 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
-class CardIconBlock(blocks.StructBlock):
-    icon = IconChoiceBlock()
-
-    class Meta:
-        template = "cms/blocks/card-icon.html"
-        label = "Icon"
-        label_format = "{icon}"
-
-
-class CardPictogramBlock(blocks.StructBlock):
-    image = ImageVariantsBlock()
-
-    class Meta:
-        template = "cms/blocks/card-pictogram.html"
-        label = "Pictogram"
-        label_format = "Pictogram - {image}"
-
-
 class CardTestimonialBlock(blocks.StructBlock):
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)
     attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1682,6 +1664,16 @@ class CardTestimonialBlock(blocks.StructBlock):
         template = "cms/blocks/card-testimonial.html"
         label = "Testimonial"
         label_format = "Testimonial - {attribution}"
+
+
+class CardMediaBlock(blocks.StreamBlock):
+    icon = IconChoiceBlock(template="cms/blocks/card-icon.html", label="Icon")
+    pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html")
+    media = MediaBlock(max_num=1)
+
+    class Meta:
+        max_num = 1
+        label = "Media"
 
 
 def CardBlock(allow_uitour=False, *args, **kwargs):
@@ -1725,14 +1717,13 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
 
     class _CardBlock(blocks.StructBlock):
         settings = _CardSettings()
+        media = CardMediaBlock(required=False)
         content = blocks.StreamBlock(
             [
                 ("heading", HeadingBlock()),
                 ("tags_list", TagsBlock(min_num=0, max_num=3, default=[])),
                 ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
-                ("icon", CardIconBlock()),
-                ("media", MediaBlock()),
-                ("pictogram", CardPictogramBlock()),
+                ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html")),
                 ("testimonial", CardTestimonialBlock()),
                 ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
             ]

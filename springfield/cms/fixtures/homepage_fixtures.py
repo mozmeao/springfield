@@ -41,13 +41,14 @@ def _pictogram_card(card_id, superheading, headline, content, image_id, dark_ima
         "type": "card",
         "value": {
             "settings": {"variant": "filled", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL},
+            "media": [],
             "content": [
                 {
                     "type": "heading",
                     "value": {"superheading_text": superheading, "heading_text": headline, "subheading_text": ""},
                     "id": f"{card_id[:8]}-0000-0000-0000-000000000001",
                 },
-                {"type": "pictogram", "value": {"image": _image}, "id": f"{card_id[:8]}-0000-0000-0000-000000000002"},
+                {"type": "pictogram", "value": _image, "id": f"{card_id[:8]}-0000-0000-0000-000000000002"},
                 {"type": "content", "value": content, "id": f"{card_id[:8]}-0000-0000-0000-000000000003"},
             ],
         },

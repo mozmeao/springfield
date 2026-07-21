@@ -50,12 +50,8 @@ def get_icon_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "activity", "id": "2026kc01-0001-0000-0000-000000000001"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "activity"},
-                        "id": "2026kc01-0001-0000-0000-000000000001",
-                    },
                     {
                         "type": "heading",
                         "value": {
@@ -78,12 +74,8 @@ def get_icon_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "android", "id": "2026kc01-0002-0000-0000-000000000001"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "android"},
-                        "id": "2026kc01-0002-0000-0000-000000000001",
-                    },
                     {
                         "type": "heading",
                         "value": {
@@ -111,12 +103,8 @@ def get_icon_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "apple", "id": "2026kc01-0003-0000-0000-000000000001"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "apple"},
-                        "id": "2026kc01-0003-0000-0000-000000000001",
-                    },
                     {
                         "type": "heading",
                         "value": {
@@ -144,12 +132,8 @@ def get_icon_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "add-circle-fill", "id": "2026kc01-0004-0000-0000-000000000001"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "add-circle-fill"},
-                        "id": "2026kc01-0004-0000-0000-000000000001",
-                    },
                     {
                         "type": "heading",
                         "value": {

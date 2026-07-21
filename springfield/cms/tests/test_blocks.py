@@ -738,6 +738,9 @@ def assert_media_block(element: BeautifulSoup, block_data: dict):
     if first_item["type"] == "image":
         images_el = element.find("div", class_="image-variants-display")
         assert_image_variants_attributes(images_element=images_el, images_value=first_item["value"])
+    elif first_item["type"] == "video":
+        video_el = element.find("div", class_="fl-video")
+        assert_video_attributes(video_element=video_el, video_data=first_item)
 
 
 class TestDownloadFirefoxButtonBlock:
@@ -4189,6 +4192,22 @@ def assert_card_block(card_el, card_data, context, region_name, heading_tag, blo
     else:
         assert "fl-card-expand-link" not in classes
 
+    top_media = value.get("media", [])
+    if top_media:
+        top_item = top_media[0]
+        if top_item["type"] == "icon":
+            icon_wrapper = card_el.find("div", class_="fl-card-media-icon")
+            assert icon_wrapper
+            icon_name = top_item["value"]
+            icon_el = icon_wrapper.find("span", class_="fl-icon")
+            assert icon_el and f"fl-icon-{icon_name}" in icon_el.get("class", [])
+        elif top_item["type"] == "pictogram":
+            pictogram_wrapper = card_el.find("div", class_="fl-card-media-pictogram")
+            assert_image_variants_attributes(images_element=pictogram_wrapper, images_value=top_item["value"])
+        elif top_item["type"] == "media":
+            top_media_el = card_el.find("div", class_="fl-card-top-media")
+            assert_media_block(top_media_el, top_item)
+
     content_items = value["content"]
     block_text = ""
     for item in content_items:
@@ -4215,19 +4234,9 @@ def assert_card_block(card_el, card_data, context, region_name, heading_tag, blo
             content_text = BeautifulSoup(content_item["value"], "html.parser").get_text()
             assert content_text in card_el.get_text()
 
-        elif block_type == "icon":
-            icon_wrapper = card_el.find("div", class_="fl-card-media-icon")
-            assert icon_wrapper
-            icon_name = content_item["value"]["icon"]
-            icon_el = icon_wrapper.find("span", class_="fl-icon")
-            assert icon_el and f"fl-icon-{icon_name}" in icon_el.get("class", [])
-
         elif block_type == "pictogram":
             pictogram_wrapper = card_el.find("div", class_="fl-card-media-pictogram")
-            assert pictogram_wrapper and pictogram_wrapper.find("img")
-
-        elif block_type == "media":
-            assert card_el.find("img") or card_el.find("video")
+            assert_image_variants_attributes(images_element=pictogram_wrapper, images_value=content_item["value"])
 
         elif block_type == "tags_list":
             for tag in content_item["value"]:

@@ -66,11 +66,12 @@ def _cards_list(cards, settings=None, block_id=""):
     }
 
 
-def _card(card_id, settings, content):
+def _card(card_id, settings, content, media=None):
     return {
         "type": "card",
         "value": {
             "settings": settings,
+            "media": media or [],
             "content": content,
         },
         "id": card_id,
@@ -104,7 +105,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026sc01-0001-0000-0000-000000000002",
                 },
                 {
@@ -135,7 +136,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026sc01-0002-0000-0000-000000000002",
                 },
                 {
@@ -165,7 +166,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026sc01-0003-0000-0000-000000000002",
                 },
                 {
@@ -195,7 +196,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026sc01-0004-0000-0000-000000000002",
                 },
                 {
@@ -326,11 +327,6 @@ def get_illustration_card_variants() -> list[dict]:
             _settings(),
             [
                 {
-                    "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
-                    "id": "2026ic01-0001-0000-0000-000000000002",
-                },
-                {
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
@@ -350,16 +346,18 @@ def get_illustration_card_variants() -> list[dict]:
                     "id": "2026ic01-0001-0000-0000-000000000005",
                 },
             ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
+                    "id": "2026ic01-0001-0000-0000-000000000002",
+                }
+            ],
         ),
         _card(
             "2026ic01-0000-0000-0000-000000000002",
             _settings(),
             [
-                {
-                    "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
-                    "id": "2026ic01-0002-0000-0000-000000000002",
-                },
                 {
                     "type": "heading",
                     "value": {
@@ -380,16 +378,18 @@ def get_illustration_card_variants() -> list[dict]:
                     "id": "2026ic01-0002-0000-0000-000000000005",
                 },
             ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
+                    "id": "2026ic01-0002-0000-0000-000000000002",
+                }
+            ],
         ),
         _card(
             "2026ic01-0000-0000-0000-000000000003",
             _settings(),
             [
-                {
-                    "type": "media",
-                    "value": [videos["youtube"]],
-                    "id": "2026ic01-0003-0000-0000-000000000001",
-                },
                 {
                     "type": "heading",
                     "value": {
@@ -410,16 +410,18 @@ def get_illustration_card_variants() -> list[dict]:
                     "id": "2026ic01-0003-0000-0000-000000000004",
                 },
             ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [videos["youtube"]],
+                    "id": "2026ic01-0003-0000-0000-000000000001",
+                }
+            ],
         ),
         _card(
             "2026ic01-0000-0000-0000-000000000004",
             _settings(),
             [
-                {
-                    "type": "media",
-                    "value": [videos["animation"]],
-                    "id": "2026ic01-0004-0000-0000-000000000001",
-                },
                 {
                     "type": "heading",
                     "value": {
@@ -439,6 +441,13 @@ def get_illustration_card_variants() -> list[dict]:
                     "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
                     "id": "2026ic01-0004-0000-0000-000000000004",
                 },
+            ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [videos["animation"]],
+                    "id": "2026ic01-0004-0000-0000-000000000001",
+                }
             ],
         ),
     ]
@@ -673,7 +682,7 @@ def get_outlined_card_variants() -> list[dict]:
             [
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026oc01-0002-0000-0000-000000000001",
                 },
                 {
@@ -729,7 +738,7 @@ def get_outlined_card_variants() -> list[dict]:
             [
                 {
                     "type": "pictogram",
-                    "value": {"image": _IMAGE_VARIANTS},
+                    "value": _IMAGE_VARIANTS,
                     "id": "2026oc01-0004-0000-0000-000000000001",
                 },
                 {

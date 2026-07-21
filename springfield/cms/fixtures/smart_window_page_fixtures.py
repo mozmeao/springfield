@@ -147,12 +147,14 @@ def get_smart_window_illustration_cards() -> dict:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
-                "content": [
+                "media": [
                     {
                         "type": "media",
                         "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000011")],
                         "id": "swpic01-0000-0000-0000-000000000012",
-                    },
+                    }
+                ],
+                "content": [
                     {
                         "type": "heading",
                         "value": {
@@ -175,12 +177,14 @@ def get_smart_window_illustration_cards() -> dict:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
-                "content": [
+                "media": [
                     {
                         "type": "media",
                         "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000021")],
                         "id": "swpic01-0000-0000-0000-000000000022",
-                    },
+                    }
+                ],
+                "content": [
                     {
                         "type": "heading",
                         "value": {
@@ -203,12 +207,14 @@ def get_smart_window_illustration_cards() -> dict:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
-                "content": [
+                "media": [
                     {
                         "type": "media",
                         "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000031")],
                         "id": "swpic01-0000-0000-0000-000000000032",
-                    },
+                    }
+                ],
+                "content": [
                     {
                         "type": "heading",
                         "value": {

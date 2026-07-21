@@ -30,7 +30,6 @@ _IMAGE_MEDIA = [
 
 def _illustration_card(card_id, eyebrow, headline, content, media, buttons):
     card_content = [
-        {"type": "media", "value": media, "id": f"{card_id[:8]}-0000-0000-0000-000000000001"},
         {
             "type": "heading",
             "value": {"superheading_text": eyebrow, "heading_text": headline, "subheading_text": ""},
@@ -50,6 +49,7 @@ def _illustration_card(card_id, eyebrow, headline, content, media, buttons):
         "type": "card",
         "value": {
             "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
+            "media": [{"type": "media", "value": media, "id": f"{card_id[:8]}-0000-0000-0000-000000000001"}],
             "content": card_content,
         },
         "id": card_id,

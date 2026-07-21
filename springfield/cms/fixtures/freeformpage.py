@@ -93,12 +93,8 @@ def get_mobile_browsers_cards():
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
+                "media": [{"type": "media", "value": image_block, "id": f"{card_id[:8]}-0000-0000-0000-000000000001"}],
                 "content": [
-                    {
-                        "type": "media",
-                        "value": image_block,
-                        "id": f"{card_id[:8]}-0000-0000-0000-000000000001",
-                    },
                     {
                         "type": "heading",
                         "value": {"superheading_text": "", "heading_text": headline, "subheading_text": ""},

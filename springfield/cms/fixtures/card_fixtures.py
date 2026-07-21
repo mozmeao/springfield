@@ -74,12 +74,8 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_DEFAULT,
+                "media": [{"type": "icon", "value": "globe", "id": "card0001-0000-0000-0000-000000000011"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "globe"},
-                        "id": "card0001-0000-0000-0000-000000000011",
-                    },
                     {
                         "type": "heading",
                         "value": {
@@ -112,10 +108,11 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_OUTLINE,
+                "media": [],
                 "content": [
                     {
                         "type": "pictogram",
-                        "value": {"image": _IMAGE_VARIANTS},
+                        "value": _IMAGE_VARIANTS,
                         "id": "card0001-0000-0000-0000-000000000021",
                     },
                     {
@@ -141,6 +138,7 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_FILLED,
+                "media": [],
                 "content": [
                     {
                         "type": "heading",
@@ -153,7 +151,7 @@ def get_card_variants() -> list[dict]:
                     },
                     {
                         "type": "pictogram",
-                        "value": {"image": _IMAGE_VARIANTS},
+                        "value": _IMAGE_VARIANTS,
                         "id": "card0001-0000-0000-0000-000000000035",
                     },
                     {
@@ -179,12 +177,14 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_CENTER,
-                "content": [
+                "media": [
                     {
                         "type": "media",
                         "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "card0001-0000-0000-0000-000000000041"}],
                         "id": "card0001-0000-0000-0000-000000000042",
-                    },
+                    }
+                ],
+                "content": [
                     {
                         "type": "heading",
                         "value": {
@@ -208,6 +208,7 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_OUTLINE,
+                "media": [],
                 "content": [
                     {
                         "type": "testimonial",
@@ -228,6 +229,7 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_END,
+                "media": [],
                 "content": [
                     {
                         "type": "tags_list",
@@ -260,6 +262,7 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_OUTLINE,
+                "media": [],
                 "content": [
                     {
                         "type": "testimonial",
@@ -280,6 +283,7 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_OUTLINE,
+                "media": [],
                 "content": [
                     {
                         "type": "testimonial",
@@ -301,12 +305,8 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "shield", "id": "card0001-0000-0000-0000-000000000071"}],
                 "content": [
-                    {
-                        "type": "icon",
-                        "value": {"icon": "shield"},
-                        "id": "card0001-0000-0000-0000-000000000071",
-                    },
                     {
                         "type": "heading",
                         "value": {
