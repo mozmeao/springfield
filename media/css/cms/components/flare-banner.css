@@ -276,6 +276,12 @@
         text-align: initial;
     }
 
+    .fl-banner.fl-banner-purple-radial-gradient,
+    .fl-banner.fl-banner-dark-purple-gradient,
+    .fl-banner.fl-banner-dark-purple-gradient-inverted {
+        --fl-banner-padding: var(--token-layout-md);
+    }
+
     .fl-banner-container {
         padding: var(--token-spacing-3xl);
     }
