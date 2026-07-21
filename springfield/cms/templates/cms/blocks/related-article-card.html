@@ -14,23 +14,21 @@
         <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
       {% endif %}
     </div>
-    <div class="fl-card-content">
-      {% set superheading = value.get_superheading() %}
-      <hgroup class="fl-heading-group">
-        {% if superheading %}
-          <p class="fl-superheading">{{ superheading }}</p>
-        {% endif %}
-        <h3 class="fl-heading">
-          <a href="{{ value.get_link_url() }}">{{ value.get_title() }}</a>
-        </h3>
-      </hgroup>
-      {% if value.tags %}
-        <div>
-          {% for tag in value.tags %}
-            {% include_block tag %}
-          {% endfor %}
-        </div>
+    {% set superheading = value.get_superheading() %}
+    <hgroup class="fl-heading-group">
+      {% if superheading %}
+        <p class="fl-superheading">{{ superheading }}</p>
       {% endif %}
-    </div>
+      <h3 class="fl-heading">
+        <a href="{{ value.get_link_url() }}">{{ value.get_title() }}</a>
+      </h3>
+    </hgroup>
+    {% if value.tags %}
+      <div>
+        {% for tag in value.tags %}
+          {% include_block tag %}
+        {% endfor %}
+      </div>
+    {% endif %}
   </content:body>
 </include:card>

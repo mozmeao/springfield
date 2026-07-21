@@ -172,30 +172,26 @@
               <include:cards-list container_width="fill">
                 {% for block in page.featured_articles[4:] %}
                   <include:card expand_link="true">
+                    <content:media>{{ illustration_card_media(block.value, list_size) }}</content:media>
                     <content:body>
-                      <div class="fl-card-media">
-                        {{ illustration_card_media(block.value, list_size) }}
-                      </div>
-                      <div class="fl-card-content">
-                        <hgroup class="fl-heading-group">
-                          <p class="fl-superheading">{{ block.value.get_topic() }}</p>
-                          <h2 class="fl-heading fl-heading-size-3">
-                            <a href="{{ block.value.get_url() }}" class="fl-card-heading-link fl-link-expand">
-                              {{ block.value.get_title() }}
-                            </a>
-                          </h2>
-                        </hgroup>
-                        <div class="fl-body">
-                          <p>{{ block.value.get_description() }}</p>
-                          {% set tags = block.value.get_tags() %}
-                          {% if tags %}
-                            <div class="fl-card-tags">
-                              {% for tag in tags %}
-                                <include:tag text="{{ tag }}" color="purple" corners="round" />
-                              {% endfor %}
-                            </div>
-                          {% endif %}
-                        </div>
+                      <hgroup class="fl-heading-group">
+                        <p class="fl-superheading">{{ block.value.get_topic() }}</p>
+                        <h2 class="fl-heading fl-heading-size-3">
+                          <a href="{{ block.value.get_url() }}" class="fl-card-heading-link fl-link-expand">
+                            {{ block.value.get_title() }}
+                          </a>
+                        </h2>
+                      </hgroup>
+                      <div class="fl-body">
+                        <p>{{ block.value.get_description() }}</p>
+                        {% set tags = block.value.get_tags() %}
+                        {% if tags %}
+                          <div class="fl-card-tags">
+                            {% for tag in tags %}
+                              <include:tag text="{{ tag }}" color="purple" corners="round" />
+                            {% endfor %}
+                          </div>
+                        {% endif %}
                       </div>
                     </content:body>
                   </include:card>
@@ -227,29 +223,25 @@
               <include:cards-list container_width="fill">
                 {% for article_block in block.value.articles %}
                   <include:card expand_link="true">
+                    <content:media>{{ illustration_card_media(article_block, list_size) }}</content:media>
                     <content:body>
-                      <div class="fl-card-media">
-                        {{ illustration_card_media(article_block, list_size) }}
-                      </div>
-                      <div class="fl-card-content">
-                        <hgroup class="fl-heading-group">
-                          <p class="fl-superheading">{{ article_block.get_topic() }}</p>
-                          <h4 class="fl-heading fl-heading-size-3">
-                            <a href="{{ article_block.get_url() }}" class="fl-card-heading-link fl-link-expand">
-                              {{ article_block.get_title() }}
-                            </a>
-                          </h4>
-                        </hgroup>
-                        <div class="fl-body">
-                          <p>{{ article_block.get_description() }}</p>
-                          {% if article_block.get_tags() %}
-                            <div class="fl-card-tags">
-                              {% for tag in article_block.get_tags() %}
-                                <include:tag text="{{ tag }}" color="purple" corners="round" />
-                              {% endfor %}
-                            </div>
-                          {% endif %}
-                        </div>
+                      <hgroup class="fl-heading-group">
+                        <p class="fl-superheading">{{ article_block.get_topic() }}</p>
+                        <h4 class="fl-heading fl-heading-size-3">
+                          <a href="{{ article_block.get_url() }}" class="fl-card-heading-link fl-link-expand">
+                            {{ article_block.get_title() }}
+                          </a>
+                        </h4>
+                      </hgroup>
+                      <div class="fl-body">
+                        <p>{{ article_block.get_description() }}</p>
+                        {% if article_block.get_tags() %}
+                          <div class="fl-card-tags">
+                            {% for tag in article_block.get_tags() %}
+                              <include:tag text="{{ tag }}" color="purple" corners="round" />
+                            {% endfor %}
+                          </div>
+                        {% endif %}
                       </div>
                     </content:body>
                   </include:card>

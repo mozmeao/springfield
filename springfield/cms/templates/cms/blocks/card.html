@@ -6,29 +6,8 @@
 
 {% set block_level = block_level or 1 %}
 
-{# Extract the text of the first heading for accessible/meta use #}
-{% set first_heading = value.content | selectattr("block_type", "equalto", "heading") | first | default(none) %}
+{% set first_heading = value.content.first_block_by_name("heading") %}
 {% set block_text = first_heading.value.heading_text | richtext | remove_tags if first_heading else "" %}
-
-{# Group consecutive blocks into "media" vs "content" segments.
-   Media blocks render in their own wrapper; everything else shares a content wrapper. #}
-{% set grouping = namespace(segments=[], current_segment_blocks=[], current_segment_type="") %}
-
-{% for content_block in value.content %}
-  {% set content_block_category = "media" if content_block.block_type == "media" else "content" %}
-
-  {% if content_block_category != grouping.current_segment_type and grouping.current_segment_blocks %}
-    {% set grouping.segments = grouping.segments + [(grouping.current_segment_type, grouping.current_segment_blocks)] %}
-    {% set grouping.current_segment_blocks = [] %}
-  {% endif %}
-
-  {% set grouping.current_segment_blocks = grouping.current_segment_blocks + [(content_block, loop.index)] %}
-  {% set grouping.current_segment_type = content_block_category %}
-{% endfor %}
-
-{% if grouping.current_segment_blocks %}
-  {% set grouping.segments = grouping.segments + [(grouping.current_segment_type, grouping.current_segment_blocks)] %}
-{% endif %}
 
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
@@ -36,36 +15,20 @@
     variant="{{ value.settings.variant }}"
     align="{{ value.settings.align or 'start' }}"
     expand_link="{{ value.settings.expand_link }}">
+    {% if value.media %}
+      <content:media>{% include_block value.media %}</content:media>
+    {% endif %}
     <content:body>
-      {% with align = value.settings.align %}
-        {% for segment_type, segment_blocks in grouping.segments %}
-
-          {% if segment_type == "media" %}
-            {% for content_block, original_index in segment_blocks %}
-              {% set block_position = block_position ~ ".item-" ~ original_index ~ "-" ~ content_block.block_type %}
-
-              <div class="fl-card-media">
-                {% include_block content_block %}
-              </div>
-            {% endfor %}
-          {% else %}
-            <div class="fl-card-content">
-              {% for content_block, original_index in segment_blocks %}
-                {% set block_position = block_position ~ ".item-" ~ original_index ~ "-" ~ content_block.block_type %}
-
-                {% if content_block.block_type == "heading" %}
-                  {# Force heading size so card headings are visually consistent regardless of nesting depth #}
-                  {% with heading_size = "fl-heading-size-3" %}
-                    {% include_block content_block %}
-                  {% endwith %}
-                {% else %}
-                  {% include_block content_block %}
-                {% endif %}
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endfor %}
-      {% endwith %}
+      {% for content_block in value.content %}
+        {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
+        {% if content_block.block_type == "heading" %}
+          {% with heading_size = "fl-heading-size-3" %}
+            {% include_block content_block %}
+          {% endwith %}
+        {% else %}
+          {% include_block content_block %}
+        {% endif %}
+      {% endfor %}
     </content:body>
   </include:card>
 </include:conditional-display>
