@@ -9,8 +9,8 @@
 {% block body_class %}fl-article-body{% endblock %}
 
 {% block flare_header %}
-  {% set header_theme = "dark" if page.upper_content|length %}
-  <include:flare-header theme="{{ header_theme }}" />
+  {% set theme = "dark" if page.upper_content|length else None %}
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

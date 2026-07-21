@@ -177,6 +177,8 @@ python manage.py dumpdata \
     cms.BlogArticlePage \
     cms.RoadmapPage \
     cms.ContactPage \
+    cms.ReferralHubPage \
+    cms.ReferralGetFirefoxPage \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
@@ -187,6 +189,7 @@ python manage.py dumpdata \
     cms.PencilBannerSnippet \
     cms.QRCodeSnippet \
     cms.ScrollToSeeMoreSnippet \
+    cms.NavigationSnippet \
     cms.PencilBannerPlacement \
     cms.HomePagePencilBannerPlacement \
     cms.ArticleThemePagePencilBannerPlacement \

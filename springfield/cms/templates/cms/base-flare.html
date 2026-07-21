@@ -148,13 +148,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
   </head>
 
-  {% set is_inline_frame = request.GET.fl_docs_inline and request.META.get('HTTP_SEC_FETCH_DEST') == 'iframe' and page and page.docs %}
-
   <body
     {% if self.body_id() %}id="{% block body_id %}{% endblock %}" {% endif %}
     class="
       html-{{ DIR }}
-      {% if is_inline_frame %}fl-docs-inline{% endif %}
       {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}
       {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}
     "
@@ -170,11 +167,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       {% endif %}
     {% endblock %}
 
-    {% if not is_inline_frame %}
     {% block flare_header %}
-    <include:flare-header />
+      {% include 'cms/includes/site-header.html' %}
     {% endblock %}
-    {% endif %}
 
     {% block sub_navigation %}
     {% endblock %}
@@ -209,7 +204,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
         {% set analytics_position = "pre-footer-cta-form" %}
         {% set analytics_id = pre_footer_cta_form.analytics_id %}
           <include:conditional-display firefox_condition="is-firefox">
-            <include:newsletter-form theme="dark">
+            <include:newsletter-form theme="dark" illustration="{{ page.pre_footer_image|default('kit', true) }}">
               <include:heading
                 level="h2"
                 heading_size="fl-heading-size-3"
@@ -223,11 +218,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock pre_footer %}
     </main>
 
-    {% if not is_inline_frame %}
     {% block flare_footer %}
       <include:flare-footer />
     {% endblock %}
-    {% endif %}
 
     {% block consent_banner %}
       {% include 'includes/banners/consent-banner-flare.html' %}
@@ -264,6 +257,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {{ js_bundle('ui-tour-buttons') }}
     {{ js_bundle('flare-navigation') }}
     {{ js_bundle('flare-lang-switcher') }}
+    {% if switch('easter-egg-logo') %}
+    {{ js_bundle('easter-egg-logo') }}
+    {% endif %}
     {% endblock %}
 
     {% block consent_banner_js %}

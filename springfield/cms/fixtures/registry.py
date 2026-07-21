@@ -14,6 +14,7 @@ from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.button_row_fixtures import get_button_row_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_test_page
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page
 from springfield.cms.fixtures.cards_fixtures import (
@@ -30,6 +31,7 @@ from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
     get_banner_snippet_test_page,
+    get_custom_navigation_snippet_test_page,
     get_freeform_page_test_page,
     get_freeform_page_with_floating_qr_snippet,
     get_freeform_page_with_qr_snippet,
@@ -93,6 +95,7 @@ PAGE_FIXTURES = [
     get_kit_banner_test_page,
     get_conditional_display_test_page,
     get_buttons_test_page,
+    get_button_row_test_page,
     get_carousel_test_page,
     get_sliding_carousel_test_page,
     get_featured_image_section_test_page,
@@ -114,4 +117,5 @@ PAGE_FIXTURES = [
     get_pencil_banner_snippet_test_page,
     get_pre_footer_cta_snippet_test_page,
     get_scroll_to_see_more_snippet_test_page,
+    get_custom_navigation_snippet_test_page,
 ]

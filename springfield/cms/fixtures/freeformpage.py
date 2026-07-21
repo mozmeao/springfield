@@ -12,6 +12,7 @@ from springfield.cms.fixtures.base_fixtures import (
     get_placeholder_images,
     with_fresh_ids,
 )
+from springfield.cms.fixtures.navigation_fixtures import get_navigation_snippet
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
     get_floating_qr_code_snippet,
@@ -484,6 +485,63 @@ def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
         "blocks &mdash; for instance, the Featured Image Section block accepts a Scroll-to-See-More snippet setting.</p>"
         "<p>Use only on landing-style pages with substantial below-the-fold content. It adds visual noise on short pages and "
         "should not be enabled by default.</p>"
+    )
+    page.save_revision().publish()
+    return page
+
+
+def get_custom_navigation_snippet_test_page() -> FreeFormPage2026:
+    snippet = get_navigation_snippet()
+    index_page = get_flare_snippets_docs_page()
+
+    slug = "custom-navigation-snippet"
+    page = get_or_create_page(
+        FreeFormPage2026,
+        slug=slug,
+        parent=index_page,
+        defaults={
+            "title": "Custom Navigation Snippet",
+        },
+    )
+
+    page.custom_navigation = snippet
+    page.content = [
+        {
+            "type": "intro",
+            "value": {
+                "settings": {
+                    "layout": "vertical",
+                    "slim": False,
+                    "anchor_id": "",
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="navh01">Look up &mdash; this page uses a custom navigation</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "value": (
+                            '<p data-block-key="navc01">The header on this page is driven by a Navigation Snippet instead of the '
+                            "built-in navigation. It replaces the menu with the snippet&rsquo;s Browser / Features / Resources folders "
+                            "and Pricing link, its logo, and its call-to-action button.</p>"
+                        ),
+                        "id": "navdocs1-0000-0000-0000-000000000002",
+                    }
+                ],
+            },
+            "id": "navdocs1-0000-0000-0000-000000000001",
+        }
+    ]
+    page.docs = (
+        "<p>The Navigation Snippet is a reusable, CMS-editable header navigation &mdash; folders, links, separators, a logo, and a "
+        "call-to-action button. A page opts into a custom navigation via the Custom Navigation field in its settings panel; this "
+        "page points at the placeholder &lsquo;Main navigation&rsquo; snippet.</p>"
+        "<p>Navigation resolves in order: the page&rsquo;s own custom navigation, then the nearest ancestor&rsquo;s, then the site "
+        "default navigation, then the built-in navigation. Edit the snippet in the Snippets admin to change the menu shown on every "
+        "page that references it.</p>"
     )
     page.save_revision().publish()
     return page

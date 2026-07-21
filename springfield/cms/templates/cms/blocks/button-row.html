@@ -5,10 +5,14 @@
 #}
 
 {% set block_position = block_position or "article" %}
+{% set orientation = value.orientation or 'horizontal' %}
 
 <div class="fl-button-row">
-  {% set orientation = value.orientation or 'horizontal' %}
-  <div class="fl-buttons is-{{ orientation }}{% if orientation == 'horizontal' %} is-{{ align or 'center' }}{% endif %} {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
+  <div class="
+    fl-buttons
+    is-{{ orientation }}
+    {% if value.alignment %}is-{{ value.alignment }}{% else %}is-center{% endif %}
+    {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
     {% for button in value.buttons %}
       {% set block_position = block_position + "." + "button-" ~ loop.index %}
       {% include_block button %}

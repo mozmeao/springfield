@@ -14,6 +14,7 @@ from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail import blocks
 from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
@@ -32,6 +33,8 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
+    IconChoiceBlock,
+    IconListItemValue,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -40,6 +43,7 @@ from springfield.cms.blocks import (
     UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
+    icon_display_label,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -131,6 +135,7 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_variants, get_topic_list_test_page, get_topic_list_upper_variants
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
+from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -2069,7 +2074,7 @@ def test_icon_card_renders_article_icon_without_override(index_page, rf):
 
     articles = get_article_pages()
 
-    # Card at index 1 has overrides.icon = "" (articles[2] = regular_article_1, icon="apple"),
+    # Card at index 1 has overrides.icon = "" (articles[2] = regular_article_1),
     # so it should fall back to the article's icon, not the default "globe"
     card_element = icon_card_articles[1]
     article = articles[2]
@@ -2792,6 +2797,12 @@ def test_showcase_block(index_page, placeholder_images, rf):
 
             caption_description_text = BeautifulSoup(variant["value"]["caption_description"], "html.parser").get_text()
             assert caption_description_text in caption.get_text()
+
+            cta = showcase_el.find("div", class_="fl-showcase-cta")
+            if variant["value"].get("cta"):
+                assert cta, "Expected .fl-showcase-cta to be present when CTA buttons are set"
+            else:
+                assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
 
 
 def test_card_gallery_block(index_page, placeholder_images, rf):
@@ -3678,6 +3689,84 @@ def test_uuid_block_is_not_translatable():
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
 
 
+class TestIconDisplayLabel:
+    def test_default_label(self):
+        """The icon_display_label() function returns all characters in title case."""
+        assert icon_display_label("arrow-clockwise-16") == "Arrow Clockwise"
+
+    def test_screenshot_camera_override(self):
+        """For an exception, icon_display_label() returns the expected value."""
+        assert icon_display_label("screenshot-camera-16") == "Camera (Screenshot)"
+
+
+class TestIconValueFn:
+    def test_strips_directory_and_size_suffix(self):
+        assert icon_value_fn("desktop-16/arrows-and-chevrons/forward-16") == "forward"
+
+    def test_strips_directory_only_when_no_size_suffix(self):
+        assert icon_value_fn("desktop-16/permissions/auto-play-false") == "auto-play-false"
+
+    def test_flat_path_strips_size_suffix(self):
+        assert icon_value_fn("activity-16") == "activity"
+
+    def test_flat_path_no_suffix_unchanged(self):
+        assert icon_value_fn("globe") == "globe"
+
+    def test_screenshot_camera_mapping(self):
+        assert icon_value_fn("desktop-16/screenshot/screenshot-camera-16") == "screenshot-camera"
+
+    def test_colliding_path_returns_dash_joined_value(self):
+        assert icon_value_fn("mobile-24/arrows-chevrons/forward-24") == "mobile-24-arrows-chevrons-forward-24"
+
+    def test_non_colliding_path_returns_css_name(self):
+        assert icon_value_fn("mobile-24/cursors/cursors-24") == "cursors"
+
+
+def _make_icon_list_item_value(icon_name, thumbnail_url=None):
+    """Build an IconListItemValue without triggering a filesystem scan."""
+    # Use __new__ to skip __init__ on both classes, avoiding the directory scan.
+    block = blocks.StructBlock.__new__(blocks.StructBlock)
+    icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+    icon_block._thumbnails_source = {icon_name: thumbnail_url or f"/static/icons/{icon_name}.svg"}
+    block.child_blocks = {"icon": icon_block}
+
+    value = IconListItemValue(block, [("icon", icon_name), ("text", "<p>hello</p>")])
+    return value
+
+
+class TestIconListItemValue:
+    """Tests for IconListItemValue computed properties."""
+
+    def test_icon_name_returns_stored_value(self):
+        value = _make_icon_list_item_value("arrow-clockwise")
+        assert value.icon_name == "arrow-clockwise"
+
+    def test_icon_name_empty_string(self):
+        value = _make_icon_list_item_value("")
+        assert value.icon_name == ""
+
+    def test_icon_url_looks_up_from_thumbnail_source(self):
+        expected_url = "/static/img/firefox/flare/icons/desktop-16/activity/activity-16.svg"
+        value = _make_icon_list_item_value("activity", thumbnail_url=expected_url)
+        assert value.icon_url == expected_url
+
+    def test_icon_url_returns_empty_for_unknown_icon(self):
+        block = blocks.StructBlock.__new__(blocks.StructBlock)
+        icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+        icon_block._thumbnails_source = {"activity": "/some/url.svg"}
+        block.child_blocks = {"icon": icon_block}
+        value = IconListItemValue(block, [("icon", "unknown"), ("text", "<p>hello</p>")])
+        assert value.icon_url == ""
+
+    def test_icon_url_returns_empty_for_empty_icon(self):
+        block = blocks.StructBlock.__new__(blocks.StructBlock)
+        icon_block = IconChoiceBlock.__new__(IconChoiceBlock)
+        icon_block._thumbnails_source = {"activity": "/some/url.svg"}
+        block.child_blocks = {"icon": icon_block}
+        value = IconListItemValue(block, [("icon", ""), ("text", "<p>hello</p>")])
+        assert value.icon_url == ""
+
+
 def test_untranslatable_char_block_excludes_content_from_translation():
     """
     UntranslatableCharBlock holds internal/config values (field identifiers, hidden
@@ -3836,6 +3925,57 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
     assert "uitour_button" in button_types_with
     assert "uitour_button" not in button_types_without
+
+
+def _make_button_row_raw(count=1, spacing="", alignment="", help_text=""):
+    variants = get_button_variants()
+    buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
+    return {"spacing": spacing, "alignment": alignment, "buttons": buttons, "help_text": help_text}
+
+
+def _render_button_row(raw_value, rf):
+    request = rf.get("/en-US/")
+    block = ButtonRowBlock()
+    bound = block.to_python(raw_value)
+    return block.render(bound, context=_render_context(request))
+
+
+def test_button_row_renders_center_class_by_default(rf):
+    html = _render_button_row(_make_button_row_raw(alignment=""), rf)
+    assert "is-center" in html
+
+
+def test_button_row_renders_start_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="start"), rf)
+    assert "is-start" in html
+
+
+def test_button_row_renders_end_alignment(rf):
+    html = _render_button_row(_make_button_row_raw(alignment="end"), rf)
+    assert "is-end" in html
+
+
+@pytest.mark.parametrize("spacing", ["small", "large"])
+def test_button_row_renders_spacing_class(spacing, rf):
+    html = _render_button_row(_make_button_row_raw(spacing=spacing), rf)
+    assert f"fl-buttons-spacing-{spacing}" in html
+
+
+def test_button_row_no_spacing_class_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(spacing=""), rf)
+    assert "fl-buttons-spacing" not in html
+
+
+def test_button_row_renders_help_text(rf):
+    raw = _make_button_row_raw(help_text='<p data-block-key="test">Help text here.</p>')
+    html = _render_button_row(raw, rf)
+    assert "fl-button-row-help-text" in html
+    assert "Help text here." in html
+
+
+def test_button_row_omits_help_text_div_when_empty(rf):
+    html = _render_button_row(_make_button_row_raw(help_text=""), rf)
+    assert "fl-button-row-help-text" not in html
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

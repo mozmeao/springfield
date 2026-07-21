@@ -1437,6 +1437,8 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "ol",
     "ul",
     "image",
+    "fxa",
+    "fx-logo",
 ]
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
@@ -1502,6 +1504,8 @@ _allowed_page_models = [
     "cms.BlogArticlePage",
     "cms.RoadmapPage",
     "cms.ContactPage",
+    "cms.ReferralHubPage",
+    "cms.ReferralGetFirefoxPage",
 ]
 
 if DEV is True:

@@ -105,6 +105,14 @@ COPY ./pyproject.toml ./
 COPY ./.coveragerc ./
 COPY ./tests ./tests
 
+# ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
+# thumbnail_directory when the CMS blocks are imported, which happens during
+# `migrate` in run-sync-all.sh below. The icons resolve via assets/ (populated
+# from media/ by `npm run static`), which isn't in the image yet, so copy just
+# that directory first. Copying icons-only (not all of assets/) keeps the
+# expensive run-sync-all layer cached across unrelated asset changes.
+COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
+
 RUN bin/run-sync-all.sh
 
 RUN chown webdev:webdev -R .
@@ -132,6 +140,14 @@ FROM app-base AS release
 
 ARG DEMO_SERVER_ADMIN_USERS
 ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
+
+# ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
+# thumbnail_directory when the CMS blocks are imported, which happens during
+# `migrate` in run-sync-all.sh below. The icons resolve via assets/ (populated
+# from media/ by `npm run static`), so the icon directory must be present before
+# run-sync-all runs. Copying icons-only (the full assets/ is copied below) keeps
+# the expensive run-sync-all layer cached across unrelated asset changes.
+COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
 RUN bin/run-sync-all.sh
 

@@ -85,6 +85,20 @@ html {
     z-index: 1;
 }
 
+/* A custom navigation snippet supplies its own logo image(s) instead of the theme's CSS logo.  */
+.fl-logo-fx-custom {
+    align-items: center;
+    background-image: none;
+    display: flex;
+    inline-size: auto;
+    text-indent: 0;
+}
+
+.fl-logo-fx-custom img {
+    margin: 0;
+    max-block-size: 100%;
+}
+
 /* ================================================
    Show Mobile Menu Button
    ================================================ */
@@ -138,6 +152,14 @@ html {
 
 [dir='rtl'] .fl-nav a[href^='http']::after {
     transform: scaleX(-1);
+}
+
+/* The CMS-driven nav decides which links are external in the backend and
+   renders the up-right arrow icon explicitly. Its page links resolve to
+   absolute http URLs, so the href-based auto arrow above would mis-flag
+   internal links — suppress it here and rely on the backend-driven icon. */
+.fl-nav .fl-nav-menu-cms a[href^='http']::after {
+    content: none;
 }
 
 .fl-nav-menu {
@@ -286,7 +308,7 @@ html {
     max-inline-size: var(--token-width-desktop-layout);
 }
 
-.fl-menu-panel-content .fl-icon {
+.fl-menu-panel-content .fl-icon:not(.fl-nav-icon-up-right-arrow) {
     color: var(--token-color-nav-icon-purple);
 }
 
@@ -392,6 +414,10 @@ html {
     .fl-hamburger.is-open::before,
     .fl-hamburger.is-open::after {
         content: none;
+    }
+
+    .fl-nav-mobile-download-link .fl-button {
+        inline-size: 100%;
     }
 }
 

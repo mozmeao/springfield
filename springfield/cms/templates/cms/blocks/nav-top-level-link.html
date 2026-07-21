@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set utm_parameters = utm_parameters or {
+    "utm_source": "www.firefox.com",
+    "utm_medium": "referral",
+    "utm_campaign": "nav",
+    "utm_content": "topnav"
+} %}
+
+{% do utm_parameters.update({"utm_content": button_label|slugify}) %}
+
+<include:nav-top-level-link
+  label="{{ button_label }}"
+  href="{{ value.link.get_url()|add_utm_parameters }}"
+  external="{{ value.is_external() }}"
+  new_window="{{ value.link.new_window }}"
+  analytics_id="{{ value.analytics_id }}"
+  analytics_text="{{ button_label }}"
+  analytics_position="{{ block_position }}"
+/>
