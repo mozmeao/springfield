@@ -1062,6 +1062,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 group="Banners",
             ),
         ),
+        (
+            "rich_text",
+            RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
+        ),
     ]
     if allow_kit_intro:
         return base_blocks + [
@@ -2380,3 +2384,36 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
 
         context["sections"] = [build_node(child) for child in children]
         return context
+
+
+class ReferralHubPage(AbstractSpringfieldCMSPage):
+    """Page where a user gets their invitation link and
+    can monitor their invites' impact (an anonymous install count)
+    """
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/referral_hub_page.html"
+
+    class Meta:
+        verbose_name = "Referral Program: Referral Hub Page"
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+
+        context["invite_url"] = "https://example.com/invite-link-still-to-come"
+
+        return context
+
+
+class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
+    """Landing page for an invitee, from which they can download Firefox.
+
+    Will use custom, privacy-respecting attribution so we can tally up
+    how many people install via the invite code used to open this page.
+    """
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/referral_get_firefox_page.html"
+
+    class Meta:
+        verbose_name = "Referral Program: Invitee / Get Firefox Page"
