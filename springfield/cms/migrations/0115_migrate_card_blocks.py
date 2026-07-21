@@ -45,9 +45,11 @@ def migrate_icon_card(block):
     value = block.get("value", {})
     settings = value.get("settings", {})
 
-    content = []
+    media = []
     if icon := value.get("icon"):
-        content.append({"type": "icon", "value": {"icon": icon}, "id": _uid()})
+        media.append({"type": "icon", "value": icon, "id": _uid()})
+
+    content = []
     if headline := value.get("headline"):
         content.append(
             {
@@ -70,6 +72,7 @@ def migrate_icon_card(block):
                 "expand_link": settings.get("expand_link", False),
                 "show_to": settings.get("show_to", _EMPTY_SHOW_TO),
             },
+            "media": media,
             "content": content,
         },
         "id": block.get("id", _uid()),
@@ -93,7 +96,7 @@ def migrate_sticker_card(block):
         }
     )
     if image := value.get("image"):
-        content.append({"type": "pictogram", "value": {"image": image}, "id": _uid()})
+        content.append({"type": "pictogram", "value": image, "id": _uid()})
     if body := value.get("content"):
         content.append({"type": "content", "value": body, "id": _uid()})
     if buttons := value.get("buttons"):
@@ -108,6 +111,7 @@ def migrate_sticker_card(block):
                 "expand_link": settings.get("expand_link", False),
                 "show_to": settings.get("show_to", _EMPTY_SHOW_TO),
             },
+            "media": [],
             "content": content,
         },
         "id": block.get("id", _uid()),
@@ -118,9 +122,11 @@ def migrate_illustration_card(block):
     value = block.get("value", {})
     settings = value.get("settings", {})
 
-    content = []
+    top_media = []
     if media := value.get("media"):
-        content.append({"type": "media", "value": media, "id": _uid()})
+        top_media.append({"type": "media", "value": media, "id": _uid()})
+
+    content = []
     content.append(
         {
             "type": "heading",
@@ -146,6 +152,7 @@ def migrate_illustration_card(block):
                 "expand_link": settings.get("expand_link", False),
                 "show_to": settings.get("show_to", _EMPTY_SHOW_TO),
             },
+            "media": top_media,
             "content": content,
         },
         "id": block.get("id", _uid()),
@@ -170,7 +177,7 @@ def migrate_outlined_card(block):
     )
     sticker = value.get("sticker", {})
     if sticker and sticker.get("image"):
-        content.append({"type": "pictogram", "value": {"image": sticker}, "id": _uid()})
+        content.append({"type": "pictogram", "value": sticker, "id": _uid()})
     if body := value.get("content"):
         content.append({"type": "content", "value": body, "id": _uid()})
     if buttons := value.get("buttons"):
@@ -185,6 +192,7 @@ def migrate_outlined_card(block):
                 "expand_link": settings.get("expand_link", False),
                 "show_to": settings.get("show_to", _EMPTY_SHOW_TO),
             },
+            "media": [],
             "content": content,
         },
         "id": block.get("id", _uid()),
@@ -211,6 +219,7 @@ def migrate_testimonial_card(block):
                 "expand_link": False,
                 "show_to": settings.get("show_to", _EMPTY_SHOW_TO),
             },
+            "media": [],
             "content": [{"type": "testimonial", "value": testimonial, "id": _uid()}],
         },
         "id": block.get("id", _uid()),
