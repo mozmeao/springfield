@@ -869,7 +869,6 @@ def _support_content(contact_page):
                 "with our highest tier of support included. No separate support contract."
             ),
             body_blocks=[
-                _rich_text("supp-feature-body1", '<p data-block-key="suppfb1">24×7 coverage</p>'),
                 _rich_text(
                     "supp-feature-body2",
                     '<ul><li data-block-key="suppfb2a">24×7 coverage</li>'
@@ -909,7 +908,6 @@ def _support_content(contact_page):
                     page=contact_page,
                 )
             ],
-            slim=True,
         ),
     ]
 
