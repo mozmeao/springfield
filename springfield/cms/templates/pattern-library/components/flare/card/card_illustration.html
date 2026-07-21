@@ -12,39 +12,41 @@
       <div data-testid="{{ card.testid }}">
         <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
         <include:card expand_link="{{ card.expand_link }}">
-          <content:body>
-            {% if card.icon %}
+          {% if card.icon %}
+            <content:media>
               <div class="fl-card-media fl-card-media-icon">
                 <include:icon icon_name="{{ card.icon }}" hidden=true />
               </div>
-            {% elif card.variant == "pictogram" %}
+            </content:media>
+          {% elif card.variant == "pictogram" %}
+            <content:media>
               <div class="fl-card-media fl-card-media-pictogram">
                 <img src="{{ card.image }}" alt="" loading="lazy" />
               </div>
-            {% else %}
-              <div class="fl-card-media">
-                <img src="{{ card.image }}" alt="" loading="lazy" />
+            </content:media>
+          {% else %}
+            <content:media>
+              <img src="{{ card.image }}" alt="" loading="lazy" />
+            </content:media>
+          {% endif %}
+          <content:body>
+            <include:heading
+              level="h3"
+              heading_size="fl-heading-size-3"
+              heading_text="{{ card.heading }}"
+            />
+            <div class="fl-body">{{ card.body }}</div>
+            {% if card.buttons %}
+              <div class="fl-buttons">
+                {% for button in card.buttons %}
+                  <include:button
+                    label="{{ button.label }}"
+                    link="{{ button.link }}"
+                    theme_class="{{ button.theme_class }}"
+                  />
+                {% endfor %}
               </div>
             {% endif %}
-            <div class="fl-card-content">
-              <include:heading
-                level="h3"
-                heading_size="fl-heading-size-3"
-                heading_text="{{ card.heading }}"
-              />
-              <div class="fl-body">{{ card.body }}</div>
-              {% if card.buttons %}
-                <div class="fl-buttons">
-                  {% for button in card.buttons %}
-                    <include:button
-                      label="{{ button.label }}"
-                      link="{{ button.link }}"
-                      theme_class="{{ button.theme_class }}"
-                    />
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
           </content:body>
         </include:card>
       </div>
