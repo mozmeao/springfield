@@ -291,6 +291,7 @@
 }
 
 .fl-blog-index-body .fl-card {
+    align-content: start;
     display: grid;
     gap: unset; /* let subgrid inherit the parent card-grid's row gap */
     grid-row: span 2;

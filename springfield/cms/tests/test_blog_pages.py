@@ -217,7 +217,7 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     for fixture_article, card in zip(all_articles[4:8], cards):
         assert "fl-card-expand-link" in card.get("class", [])
 
-        media = card.find("div", class_="fl-card-media")
+        media = card.find("div", class_="fl-card-top-media")
         assert media and media.find("img")
 
         topic = card.find("p", class_="fl-superheading")
@@ -251,7 +251,7 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
         for card in cards:
             assert "fl-card-expand-link" in card.get("class", [])
 
-            media = card.find("div", class_="fl-card-media")
+            media = card.find("div", class_="fl-card-top-media")
             assert media and media.find("img")
 
             assert card.find("p", class_="fl-superheading")
