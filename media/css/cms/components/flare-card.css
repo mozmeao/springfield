@@ -153,6 +153,7 @@ Basic Card
 ===================================================================== */
 
 .fl-card {
+    contain: paint;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -187,31 +188,29 @@ Basic Card
 }
 
 /* Default card variant: illustration card look.
-   fl-card-media sits at top, fl-card-content wraps heading/body/buttons.
+   fl-card-media/fl-card-top-media sits at top, fl-card-content wraps heading/body/buttons.
    Only applied when not an outline or filled variant. */
-.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media {
+.fl-card .fl-card-top-media {
     margin-block-end: var(--token-spacing-xl);
 }
 
-/* Icon and pictogram variants get extra article gap (xl) to match illustration card */
-.fl-card:not(.fl-card-outline, .fl-card-filled):has(.fl-card-media-icon),
-.fl-card:not(.fl-card-outline, .fl-card-filled):has(.fl-card-media-pictogram) {
-    gap: var(--token-spacing-xl);
-}
-
-.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media-icon,
-.fl-card:not(.fl-card-outline, .fl-card-filled) > .fl-card-media-pictogram {
+.fl-card .fl-card-top-media .fl-card-media-icon,
+.fl-card .fl-card-top-media .fl-card-media-pictogram {
     margin-block-end: var(--token-spacing-lg);
 }
 
-.fl-card > .fl-card-content {
+.fl-card .fl-card-content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     gap: var(--token-spacing-lg);
 }
 
-.fl-card > .fl-card-content .fl-heading-group {
+.fl-card .fl-card-content > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-card .fl-card-content .fl-heading-group {
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-lg);
@@ -247,25 +246,12 @@ Outlined Card variant
     transition: transform var(--token-transition-base);
 }
 
-.fl-card.fl-card-outline .fl-heading-group {
-    gap: unset;
-}
-
 .fl-card-heading-group .fl-card-media-pictogram {
     margin-block-end: var(--token-spacing-md);
 }
 
 .fl-card-heading-group > *:last-child {
     margin-block-end: 0;
-}
-
-/* Drop backdrop-filter for users who prefer reduced transparency or motion —
-   both are signals that the OS is running in a low-power or accessibility mode. */
-@media (prefers-reduced-transparency: reduce),
-    (prefers-reduced-motion: reduce) {
-    .fl-card {
-        backdrop-filter: none;
-    }
 }
 
 /* Transitioning box-shadow causes a repaint every frame. Instead, we place
@@ -303,15 +289,14 @@ Filled Card variant
     border-radius: var(--token-border-radius-md);
     box-shadow: var(--fl-theme-shadow-card);
     color: var(--token-color-black-4);
-    gap: var(--token-spacing-xl);
     min-block-size: 316px;
     padding: var(--token-spacing-3xl) var(--token-spacing-xl);
     text-align: center;
     transition: transform var(--token-transition-base);
 }
 
-.fl-card.fl-card-filled > *:last-child {
-    margin-block-end: 0;
+.fl-card.fl-card-filled .fl-card-content {
+    gap: var(--token-spacing-xl);
 }
 
 .fl-card.fl-card-filled .fl-heading {
@@ -343,14 +328,11 @@ Filled Card variant
 
 /* Pictogram in filled card: no squircle bg */
 .fl-card.fl-card-filled .fl-card-media-pictogram {
-    align-items: center;
     background-color: transparent;
     block-size: auto;
     border-radius: 0;
-    display: flex;
     flex: 1 1 auto;
     inline-size: auto;
-    justify-content: center;
     min-block-size: unset;
     min-inline-size: unset;
     padding: 0;
@@ -362,16 +344,6 @@ Filled Card variant
     font-weight: var(--token-font-weight-regular);
     line-height: 1.4;
     text-wrap: balance;
-}
-
-.fl-card.fl-card-filled > .fl-button-row,
-.fl-card.fl-card-filled > .fl-buttons {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--token-spacing-lg);
-    justify-content: center;
-    margin-block-start: auto;
 }
 
 /* =====================================================================
@@ -484,30 +456,49 @@ Alignment modifiers
     justify-content: flex-end;
 }
 
+/* Filled cards always centre their buttons regardless of the alignment modifier */
+.fl-card.fl-card-filled .fl-button-row,
+.fl-card.fl-card-filled .fl-buttons {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-lg);
+    justify-content: center;
+}
+
 /* =====================================================================
 Card media containers
 ===================================================================== */
 
-/* General media: full-width image (like illustration card default).
-   Excludes icon and pictogram containers which manage their own sizing. */
-.fl-card .fl-card-media:not(.fl-card-media-icon, .fl-card-media-pictogram) {
+/* Full-bleed top media: MediaBlock used in the card's top-level media field.
+   Default (no-variant) cards get uniform border-radius to match the old fl-card-media look.
+   Icon and pictogram manage their own sizing via fl-card-media-icon/pictogram. */
+
+.fl-card-top-media img {
     border-radius: var(--token-border-radius-sm);
+    display: block;
     inline-size: 100%;
+    margin: 0;
 }
 
-.fl-card .fl-card-media:not(.fl-card-media-icon, .fl-card-media-pictogram) img {
-    border-radius: var(--token-border-radius-sm);
-    inline-size: 100%;
-    margin-block-end: 0;
-}
-
-.fl-card .fl-card-media .fl-video {
+.fl-card-top-media .fl-video {
     aspect-ratio: 17/20;
-    border-radius: var(--token-border-radius-sm);
 }
 
-.fl-card .fl-card-media .fl-video video {
+.fl-card-top-media .fl-video video {
+    border-radius: var(--token-border-radius-sm);
     object-fit: cover;
+}
+
+/* Outline/filled cards: break out of padding, clip to top card corners only. */
+.fl-card.fl-card-outline .fl-card-top-media {
+    margin-block-start: calc(var(--token-spacing-2xl) * -1);
+    margin-inline: calc(var(--token-spacing-2xl) * -1);
+}
+
+.fl-card.fl-card-filled .fl-card-top-media {
+    margin-block-start: calc(var(--token-spacing-3xl) * -1);
+    margin-inline: calc(var(--token-spacing-xl) * -1);
 }
 
 /* Shared layout for icon and pictogram media containers */
@@ -525,7 +516,7 @@ Card media containers
     padding: var(--media-padding);
 }
 
-/* Icon media container (48px with light bg, like fl-illustration-icon-card) */
+/* Icon media container: 48px with light squircle bg */
 .fl-card .fl-card-media-icon {
     --media-size: 48px;
     --media-border-radius: var(--token-border-radius-2xs);
