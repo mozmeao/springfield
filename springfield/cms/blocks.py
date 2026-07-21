@@ -351,6 +351,12 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
             **kwargs,
         )
 
+    def get_thumbnail_url(self, icon_name):
+        if not icon_name:
+            return ""
+        thumbnails = self._resolve_callable(self._thumbnails_source) or {}
+        return thumbnails.get(icon_name, "")
+
 
 class ConditionalDisplayBlock(blocks.StructBlock):
     platforms = blocks.MultipleChoiceBlock(
