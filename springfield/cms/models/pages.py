@@ -2017,7 +2017,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
-class ContactPage(AbstractSpringfieldCMSPage):
+class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
 
     template = "cms/contact_page.html"
@@ -2083,6 +2083,12 @@ class ContactPage(AbstractSpringfieldCMSPage):
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        MultiFieldPanel(
+            [
+                *PageThemeMixin.theme_panels,
+            ],
+            heading="Appearance",
+        ),
         MultiFieldPanel(
             [
                 FieldPanel("to_email_address"),
