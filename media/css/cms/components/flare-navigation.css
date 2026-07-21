@@ -96,6 +96,7 @@ html {
 
 .fl-logo-fx-custom img {
     margin: 0;
+    max-block-size: 100%;
 }
 
 /* ================================================
