@@ -5,9 +5,10 @@
 #}
 
 <dialog id="{{ id }}" class="fl-dialog" closedby="any"
-  {% if label %}aria-label="{{ label }}"{% endif %}
-  {% if aria_labelledby %}aria-labelledby="{{ aria_labelledby }}"{% endif %}
-  {% if testid %}data-testid="{{ testid }}"{% endif %}>
+  {%- if label %} aria-label="{{ label }}"{% endif -%}
+  {%- if aria_labelledby %} aria-labelledby="{{ aria_labelledby }}"{% endif -%}
+  {%- if testid %} data-testid="{{ testid }}"{% endif -%}
+>
 
   <button type="button" class="fl-dialog-close-button" aria-label="Close">
     <include:icon icon_name="close" />
