@@ -43,8 +43,7 @@ def plausible_enabled(country_code):
     """
     Global helper that determines whether the Plausible analytics script
     should be injected. Plausible is loaded for EU/consent countries, plus
-    any extra countries listed in PLAUSIBLE_EXTRA_COUNTRIES (e.g. Brazil for
-    a temporary comparison against GA), when the `plausible` switch is on and
+    any extra countries listed in PLAUSIBLE_EXTRA_COUNTRIES, when the `plausible` switch is on and
     a domain is configured. The extra-country clause is additive and does not
     affect the cookie-consent banner or GA consent-mode behavior.
     """
