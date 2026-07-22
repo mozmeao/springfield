@@ -1186,10 +1186,25 @@ DATA_CONSENT_COUNTRIES = [
 ]
 
 # Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
-# analytics script should load. This is intentionally env-driven: set the
-# PLAUSIBLE_EXTRA_COUNTRIES env var (comma-separated ISO codes, e.g. "BR")
-# to enable or disable per environment.
-PLAUSIBLE_EXTRA_COUNTRIES = config("PLAUSIBLE_EXTRA_COUNTRIES", default="", parser=ListOf(str))
+# analytics script should load. This is intentionally env-driven so we can
+# turn a country on or off per environment (dev/stage/prod) without a code
+# change or deploy, and so it can be reverted instantly if needed. Additionally,
+# this is likely a temporary measurement addition.
+# Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
+# ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
+# Empty by default (no extra countries). filter(None, ...) drops empty tokens
+# (e.g. a trailing comma) so the list never contains an empty string that
+# could match a blank country code.
+PLAUSIBLE_EXTRA_COUNTRIES = list(
+    filter(
+        None,
+        config(
+            "PLAUSIBLE_EXTRA_COUNTRIES",
+            default="",
+            parser=ListOf(str, allow_empty=True),
+        ),
+    )
+)
 
 
 # RELAY =========================================================================================
