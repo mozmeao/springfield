@@ -20,36 +20,43 @@
         {% for error in validation_errors %}<li>{{ error }}</li>{% endfor %}
       </ul>
     {% else %}
-      <h2>Proposed forward</h2>
-      {% if proposed %}
-        <p><a href="{{ proposed }}">{{ proposed }}</a></p>
-      {% elif error_reason == 'language' %}
-        <p>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}.</p>
-      {% else %}
-        <p>{{ channel_label }} on {{ os_label }} is not available in {{ action_label }}.</p>
-      {% endif %}
+      <h2 class="fl-heading-lg">{{ channel_label }} for {{ os_label }}</h2>
 
-      <h2>Matching product links</h2>
-      <p>Direct Download: {% if download_url %}<a href="{{ download_url }}">{{ download_url }}</a>{% else %}None{% endif %}</p>
-      {% if apk_url %}<p>APK: <a href="{{ apk_url }}">{{ apk_url }}</a></p>{% endif %}
-      {% if apt_url %}<p>APT: <a href="{{ apt_url }}">{{ apt_url }}</a></p>{% endif %}
-      {% if store_url %}<p>Store: <a href="{{ store_url }}">{{ store_url }}</a></p>{% endif %}
+      {% set has_any = download_url or store_url or apk_url or apt_url %}
+
+      {% if not has_any %}
+        {% if language_valid is false %}
+          <p>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}.</p>
+        {% else %}
+          <p>{{ channel_label }} is not available for {{ os_label }}.</p>
+        {% endif %}
+      {% else %}
+        <ul>
+          {% if download_url %}
+            <li><a href="{{ download_url }}">Download</a></li>
+          {% elif language_valid is false %}
+            <li>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}. Direct download unavailable.</li>
+          {% endif %}
+          {% if store_url %}<li><a href="{{ store_url }}">{{ store_label }}</a></li>{% endif %}
+          {% if apk_url %}<li><a href="{{ apk_url }}">APK</a></li>{% endif %}
+          {% if apt_url %}<li><a href="{{ apt_url }}">APT</a></li>{% endif %}
+        </ul>
+      {% endif %}
     {% endif %}
 
-    <h2>Form values</h2>
+    <h2 class="fl-heading-sm">Form values</h2>
     {% if form_data %}
       <dl>
         {% for key, value in form_data.items() %}
-          <dt><strong>{{ key }}</strong></dt>
-          <dd>
-            {{ value }}
+          <dt><strong>{{ key }}</strong>
             {% if key == 'language' and not validation_errors %}
               {% if language_valid is none %}(not validated — universal build)
               {% elif language_valid %}(validated)
               {% else %}(not available)
               {% endif %}
             {% endif %}
-          </dd>
+          </dt>
+          <dd><pre>{{ value }}</pre></dd>
         {% endfor %}
       </dl>
     {% else %}

@@ -197,6 +197,11 @@ _ANDROID_CHANNEL_MAP = {
     "firefox-nightly-latest-ssl": "nightly",
 }
 
+# iOS Firefox is release-only on the App Store.
+_IOS_CHANNEL_MAP = {
+    "firefox-latest-ssl": "release",
+}
+
 # Settings key for each Android channel's Play Store URL (different package IDs per channel).
 _ANDROID_PLAY_STORE_SETTING = {
     "release": "GOOGLE_PLAY_FIREFOX_LINK",
@@ -268,6 +273,8 @@ def get_store_url(os_slug, release):
         # No hl= param: Play Store detects language from the browser's Accept-Language header.
         return f"{base_url}&referrer={referrer}"
     if os_slug == "ios":
+        if not _IOS_CHANNEL_MAP.get(release):
+            return None
         # Country-less App Store URL: Apple routes by the user's Apple Account region
         base_url = settings.APPLE_APPSTORE_FIREFOX_LINK.replace("/{country}/", "/")
         return f"{base_url}?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8"
