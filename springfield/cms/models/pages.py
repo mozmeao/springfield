@@ -1062,6 +1062,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 group="Banners",
             ),
         ),
+        (
+            "rich_text",
+            RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
+        ),
     ]
     if allow_kit_intro:
         return base_blocks + [
