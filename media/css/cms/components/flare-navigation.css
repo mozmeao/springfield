@@ -193,6 +193,10 @@ html {
     color: var(--fl-theme-color-text);
 }
 
+.fl-header .fl-menu-top-level-link:hover {
+    text-decoration: none;
+}
+
 /* ================================================
    Menu Panel Styles
    ================================================ */
