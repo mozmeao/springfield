@@ -2157,22 +2157,22 @@ def test_enterprise_download_block(index_page, rf):
         assert download_section, "Enterprise download section should render"
         assert "Enterprise downloads" in download_section.get_text()
 
-        platform_blocks = download_section.find_all("section", class_="enterprise-download-block")
-        platform_classes = [cls for block in platform_blocks for cls in block["class"]]
-        assert "platform-win64" in platform_classes
-        assert "platform-mac" in platform_classes
-        assert "platform-linux" in platform_classes
+        download_lists = download_section.find("div", class_="fl-enterprise-download-lists")
+        assert download_lists, "Download lists container should render"
+        assert download_lists.find("section", class_="fl-enterprise-download-win64"), "Windows section should render"
+        assert download_lists.find("section", class_="fl-enterprise-download-mac"), "macOS section should render"
+        assert download_lists.find("section", class_="fl-enterprise-download-linux"), "Linux section should render"
 
-        win64_links = download_section.find("div", id="win64-download-list").find_all("a", class_="download-link")
+        win64_links = download_section.find(id="win64-download-list").find_all("a", class_="download-link")
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=win64") for link in win64_links)
 
-        mac_links = download_section.find("div", id="mac-download-list").find_all("a", class_="download-link")
+        mac_links = download_section.find(id="mac-download-list").find_all("a", class_="download-link")
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=osx") for link in mac_links)
 
-        linux_links = download_section.find("div", id="linux-download-list").find_all("a", class_="download-link")
+        linux_links = download_section.find(id="linux-download-list").find_all("a", class_="download-link")
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
 
-        resources = download_section.find("div", class_="enterprise-download-resources")
+        resources = download_section.find("div", class_="fl-enterprise-download-resources")
         assert resources, "Resources block should render"
         assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
         assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
