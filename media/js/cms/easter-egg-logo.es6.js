@@ -58,10 +58,10 @@ const setupEasterEggLogo = () => {
     const activate = () => {
         if (teardown) return;
 
-        const existingLogo = logoLink.querySelector('img');
-        if (existingLogo) existingLogo.remove();
-
-        // Hide the wordmark that .fl-logo-fx paints as a background.
+        // Hide the wordmark that .fl-logo-fx paints as a background. The static
+        // <img> logo is left in the DOM and hidden via CSS
+        // (.fl-logo-fx:has(.fl-video-ready) img) so teardown restores it for
+        // free — no need to remove and re-insert the node here.
         logoLink.style.backgroundImage = 'none';
         // Widen the logo container so the WebM's flame lands at the same visual
         // size as the SVG wordmark, and shift it back so the layout doesn't move.
@@ -94,6 +94,10 @@ const setupEasterEggLogo = () => {
         video.addEventListener(
             'canplaythrough',
             () => {
+                // Signal to CSS that the video is showing its first frame, so
+                // the static wordmark <img> can be hidden.
+                wrapper.classList.add('fl-video-ready');
+
                 video.addEventListener('mouseover', () => {
                     if (isPlaying || hoverTimer) return;
                     if (Date.now() < cooldownUntil) return;

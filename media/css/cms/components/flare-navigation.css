@@ -85,6 +85,12 @@ html {
     z-index: 1;
 }
 
+/* Easter egg: once the hover WebM has buffered (JS adds .fl-video-ready), hide
+   the static wordmark <img>. Removing the video on teardown reverses this. */
+.fl-logo-fx:has(.fl-video-ready) img {
+    display: none;
+}
+
 /* A custom navigation snippet supplies its own logo image(s) instead of the theme's CSS logo.  */
 .fl-logo-fx-custom {
     align-items: center;
