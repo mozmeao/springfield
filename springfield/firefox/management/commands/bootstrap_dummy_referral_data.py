@@ -24,7 +24,7 @@ DUMMY_ROWS = [
     ("TESTFFFFFF", 4321),
 ]
 
-REFERRAL_HUB_URL_TEMPLATE = "http://localhost:8000/en-US/invite/?code={referral_id}"
+REFERRAL_HUB_URL_TEMPLATE = "http://localhost:8000/en-US/invite/?ref_key={referral_id}"
 
 
 class Command(BaseCommand):
