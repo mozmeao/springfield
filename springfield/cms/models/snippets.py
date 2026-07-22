@@ -411,8 +411,8 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
     def build_context(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict:
         """Build the floating_qr_snippet context dict for template rendering."""
         return {
-            "heading": self.heading,
-            "content": self.content,
+            "heading": getattr(page, "floating_qr_title", "") or self.heading,
+            "content": getattr(page, "floating_qr_content", "") or self.content,
             "qr": self.resolve_qr_source(page, request),
         }
 

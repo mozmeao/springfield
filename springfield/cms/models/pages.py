@@ -332,6 +332,12 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Override Floating QR Code Default Open",
         help_text="Override the default open state of the Floating QR code snippet.",
     )
+    floating_qr_title = models.CharField(
+        blank=True, verbose_name="Override Floating QR Code Title", help_text="Override the title of the Floating QR code snippet."
+    )
+    floating_qr_content = models.CharField(
+        blank=True, verbose_name="Override Floating QR Code Content", help_text="Override the content of the Floating QR code snippet."
+    )
 
     floating_qr_panels = [
         FieldPanel("show_qr_code_snippet"),
@@ -345,6 +351,8 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
                         FieldPanel("floating_qr_default_open"),
                     ]
                 ),
+                FieldPanel("floating_qr_title"),
+                FieldPanel("floating_qr_content"),
             ],
             heading="QR Code Floating Button",
             classname="collapsed",
@@ -443,7 +451,7 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
 
     ftl_files = [
@@ -537,6 +545,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             classname="collapsed",
         ),
         FieldPanel("content"),
+        *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -547,7 +556,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     ]
 
     override_translatable_fields = [
-        *AbstractSpringfieldCMSPage.override_translatable_fields,
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:
