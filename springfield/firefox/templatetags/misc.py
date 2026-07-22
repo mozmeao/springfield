@@ -42,10 +42,14 @@ def needs_data_consent(country_code):
 def plausible_enabled(country_code):
     """
     Global helper that determines whether the Plausible analytics script
-    should be injected. Plausible is loaded only for EU/consent countries
-    when the `plausible` switch is on and a domain is configured.
+    should be injected. Plausible is loaded for EU/consent countries, plus
+    any extra countries listed in PLAUSIBLE_EXTRA_COUNTRIES (e.g. Brazil for
+    a temporary comparison against GA), when the `plausible` switch is on and
+    a domain is configured. The extra-country clause is additive and does not
+    affect the cookie-consent banner or GA consent-mode behavior.
     """
-    return bool(settings.PLAUSIBLE_DOMAIN and needs_data_consent(country_code) and switch("plausible"))
+    plausible_country = needs_data_consent(country_code) or country_code in settings.PLAUSIBLE_EXTRA_COUNTRIES
+    return bool(settings.PLAUSIBLE_DOMAIN and plausible_country and switch("plausible"))
 
 
 def _strip_img_prefix(url):

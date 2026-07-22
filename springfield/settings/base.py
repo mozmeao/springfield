@@ -1185,6 +1185,12 @@ DATA_CONSENT_COUNTRIES = [
     "GB",  # United Kingdom
 ]
 
+# Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
+# analytics script should load. This is intentionally env-driven: set the
+# PLAUSIBLE_EXTRA_COUNTRIES env var (comma-separated ISO codes, e.g. "BR")
+# to enable or disable per environment.
+PLAUSIBLE_EXTRA_COUNTRIES = config("PLAUSIBLE_EXTRA_COUNTRIES", default="", parser=ListOf(str))
+
 
 # RELAY =========================================================================================
 
