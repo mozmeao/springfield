@@ -28,6 +28,7 @@ from springfield.cms.fixtures.conditional_display_fixtures import get_conditiona
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
+from springfield.cms.fixtures.enterprise_page_fixtures import get_enterprise_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
 from springfield.cms.fixtures.freeformpage import (
     get_banner_snippet_test_page,
@@ -103,6 +104,7 @@ PAGE_FIXTURES = [
     get_topic_list_test_page,
     get_download_pages,
     get_enterprise_download_test_page,
+    get_enterprise_pages,
     get_thanks_page,
     get_contact_test_page,
     get_article_index_test_page,

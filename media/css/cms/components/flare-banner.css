@@ -103,15 +103,10 @@
 
 /* When a banner is the last item on the page, affix it to the bottom */
 .fl-split-page-lower > .fl-banner-container:last-child,
-.fl-split-page-lower .fl-banner-container.is-last-visible {
+.fl-split-page-lower .fl-banner-container.is-last-visible,
+.fl-main > .fl-banner-container.is-last-visible {
     max-inline-size: none;
     padding: var(--fl-section-v-padding) var(--token-spacing-lg) 0;
-}
-
-.fl-main:not(:has(.fl-split-page-lower)) .fl-banner-container.is-last-visible {
-    max-inline-size: none;
-    padding: var(--fl-section-v-padding) var(--token-spacing-lg)
-        var(--token-spacing-lg);
 }
 
 /* This one isn't used on kit banners, and will need some adjustments if those need to be combined. */
@@ -237,7 +232,7 @@
     flex-direction: column;
     inline-size: 100%;
     justify-content: center;
-    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
+    margin-block: var(--token-spacing-xl) var(--token-spacing-lg);
     min-inline-size: 0;
 }
 
@@ -261,15 +256,9 @@
 /* These two together make a while border around the last banner on the page. Used on /channel/desktop */
 .fl-main:has(.fl-split-page-lower > .fl-banner:last-child),
 .fl-main:has(.fl-split-page-lower > .fl-banner-container:last-child),
-.fl-main:has(.fl-split-page-lower .fl-banner-container.is-last-visible) {
+.fl-main:has(.fl-split-page-lower .fl-banner-container.is-last-visible),
+.fl-main:has(> .fl-banner-container.is-last-visible) {
     padding-block-end: var(--token-spacing-lg);
-}
-
-.fl-split-page-lower > .fl-banner:last-child {
-    --fl-banner-border-radius: calc(
-        var(--token-border-radius-xl) - var(--token-spacing-lg)
-    );
-    margin-inline: var(--token-spacing-lg);
 }
 
 @media (--viewport-xs) {
@@ -285,6 +274,12 @@
         align-items: initial;
         justify-content: initial;
         text-align: initial;
+    }
+
+    .fl-banner.fl-banner-purple-radial-gradient,
+    .fl-banner.fl-banner-dark-purple-gradient,
+    .fl-banner.fl-banner-dark-purple-gradient-inverted {
+        --fl-banner-padding: var(--token-layout-md);
     }
 
     .fl-banner-container {
@@ -365,6 +360,14 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+    }
+
+    .fl-split-page-lower > .fl-banner-container:last-child > .fl-banner,
+    .fl-split-page-lower > .fl-banner-container.is-last-visible > .fl-banner,
+    .fl-main > .fl-banner-container.is-last-visible > .fl-banner {
+        --fl-banner-border-radius: calc(
+            var(--token-border-radius-xl) - var(--token-spacing-lg)
+        );
     }
 }
 
