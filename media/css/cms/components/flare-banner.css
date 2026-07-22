@@ -232,7 +232,7 @@
     flex-direction: column;
     inline-size: 100%;
     justify-content: center;
-    margin-block: var(--token-spacing-2xl) var(--token-spacing-lg);
+    margin-block: var(--token-spacing-xl) var(--token-spacing-lg);
     min-inline-size: 0;
 }
 
