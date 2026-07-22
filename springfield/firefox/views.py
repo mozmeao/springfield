@@ -452,12 +452,10 @@ def firefox_all_form_result(request):
     os_slug = request.GET.get("os", "")
     release = request.GET.get("release", "")
     language = request.GET.get("language", "")
-    action = request.GET.get("action", "")
     form_data = {key: request.GET.get(key) for key in request.GET}
 
     installers = all_form.get_installers()
     release_types = all_form.get_release_types()
-    valid_actions = frozenset({"download", "store", "apk", "apt"})
 
     validation_errors = []
     if not os_slug:
@@ -468,12 +466,8 @@ def firefox_all_form_result(request):
         validation_errors.append("No release type selected.")
     elif release not in {val for val, _ in release_types}:
         validation_errors.append(f"'{release}' is not a recognised release type.")
-    if not language:
+    if not language and os_slug not in ("android", "ios"):
         validation_errors.append("No language selected.")
-    if not action:
-        validation_errors.append("No action selected.")
-    elif action not in valid_actions:
-        validation_errors.append(f"'{action}' is not a recognised action.")
 
     ctx = {"form_data": form_data, "validation_errors": validation_errors, "language_valid": None}
 
@@ -489,37 +483,25 @@ def firefox_all_form_result(request):
         apk_url = all_form.get_android_apk_url(release) if os_slug == "android" else None
         apt_url = all_form.get_apt_url(os_slug, release)
 
-        proposed = {"download": download_url, "store": store_url, "apk": apk_url, "apt": apt_url}.get(action)
-
-        if action == "store":
-            action_label = {
-                "android": "Play Store",
-                "ios": "App Store",
-                "win": "Microsoft Store",
-                "win64": "Microsoft Store",
-                "win64-aarch64": "Microsoft Store",
-            }.get(os_slug, "Store")
-        else:
-            action_label = {"download": "Direct download", "apk": "APK", "apt": "APT"}.get(action, action)
-
-        if proposed is None:
-            error_reason = "language" if language_valid is False and action == "download" else "channel"
-        else:
-            error_reason = None
+        store_label = {
+            "android": "Play Store",
+            "ios": "App Store",
+            "win": "Microsoft Store",
+            "win64": "Microsoft Store",
+            "win64-aarch64": "Microsoft Store",
+        }.get(os_slug, "Store")
 
         ctx.update(
             {
-                "action_label": action_label,
-                "proposed": proposed,
-                "error_reason": error_reason,
                 "os_label": os_label,
                 "channel_label": channel_label,
                 "language_label": language_label,
+                "language_valid": language_valid,
                 "download_url": download_url,
                 "store_url": store_url,
+                "store_label": store_label,
                 "apk_url": apk_url,
                 "apt_url": apt_url,
-                "language_valid": language_valid,
             }
         )
 
