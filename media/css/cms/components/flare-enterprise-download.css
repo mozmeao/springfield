@@ -1,0 +1,77 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-section.fl-enterprise-download {
+    inline-size: 100%;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding: 0 var(--token-layout-xs);
+}
+
+.fl-enterprise-download > .fl-heading {
+    margin-block: var(--token-spacing-2xl);
+    text-align: center;
+}
+
+.fl-enterprise-download-lists {
+    display: grid;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: 1fr;
+    margin-block-end: var(--token-spacing-2xl);
+}
+
+@media (--viewport-md-up) {
+    .fl-enterprise-download-lists {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.fl-enterprise-download-os-title {
+    font-family: var(--token-font-family-mozilla-text);
+    font-size: var(--token-font-size-md);
+    font-weight: var(--token-font-weight-bold);
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-enterprise-download-resources {
+    border-block-start: 1px solid var(--fl-subtle-border-color);
+    margin-block-end: var(--token-spacing-2xl);
+    padding-block-start: var(--token-spacing-2xl);
+    text-align: center;
+}
+
+.fl-enterprise-download-resources ul {
+    list-style: none;
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-enterprise-download-resources li {
+    margin-block-end: 0;
+}
+
+.fl-enterprise-download a {
+    color: var(--fl-theme-color-text);
+    text-decoration: underline;
+}
+
+.fl-enterprise-download a:hover {
+    text-decoration: none;
+}
+
+.fl-enterprise-download .fl-dropdown-panel a {
+    text-decoration: none;
+}
+
+.fl-enterprise-download-resources-title {
+    font-family: var(--token-font-family-mozilla-text);
+    font-size: var(--token-font-size-md);
+    font-weight: var(--token-font-weight-bold);
+    margin-block-end: var(--token-spacing-md);
+}
+
+.fl-enterprise-download .fl-body {
+    padding-block-end: var(--token-spacing-2xl);
+}
