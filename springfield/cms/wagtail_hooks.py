@@ -704,6 +704,10 @@ class UserRoutingViewSet(SnippetViewSet):
     list_filter = ["status", "parent_page"]
     search_fields = ["name"]
 
+    # Custom template extends Wagtail's default snippet index and prepends
+    # a note about the two "draft" concepts — page revision vs. rule.status.
+    index_template_name = "cms/routing/admin/rules_index.html"
+
     def get_urlpatterns(self):
         # Drop the ``add/`` path so the standalone snippet Add form is
         # unreachable. InlinePanel creation on the parent page still works
