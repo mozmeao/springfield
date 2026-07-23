@@ -1034,6 +1034,15 @@ def wnp_dispatch(request, *args, **kwargs):
     if request.GET.get(trigger_param) != trigger_value:
         return _fallback()
 
+    # Loop-breaker: if the request already carries ``routed_mode``, routing
+    # has already run for this navigation (either the client resolved to
+    # canonical with ``routed_mode=none``, or a downstream link cycled
+    # back through the WNP URL). Re-entering the router would render the
+    # resolver again → the client would re-navigate → infinite loop.
+    # See dispatcher.ROUTED_MODE_NONE for the fallback attribution.
+    if request.GET.get("routed_mode"):
+        return _fallback()
+
     response = dispatch_for_canonical(request, canonical)
     if response is not None:
         return response

@@ -16,14 +16,25 @@
  * Without this, the valid-values list is only surfaced by validation errors
  * after save — a poor authoring experience.
  *
- * Reads the signal metadata from ``window.SPRINGFIELD_ROUTING_SIGNALS``,
- * populated by an ``insert_global_admin_js`` hook in wagtail_hooks.py.
+ * Reads the signal metadata from the JSON blob emitted by
+ * ``wagtail_hooks.user_routing_condition_help_js`` — a
+ * ``<script type="application/json" id="springfield-routing-signals">``
+ * block. Emitting as a JSON block (rather than a raw
+ * ``window.SPRINGFIELD_ROUTING_SIGNALS = ...`` assignment) means
+ * admin-editable content in the payload can't escape the tag.
  */
 
 (function () {
     'use strict';
 
-    var SIGNALS = window.SPRINGFIELD_ROUTING_SIGNALS;
+    var signalsNode = document.getElementById('springfield-routing-signals');
+    if (!signalsNode) return;
+    var SIGNALS;
+    try {
+        SIGNALS = JSON.parse(signalsNode.textContent);
+    } catch (e) {
+        return;
+    }
     if (!SIGNALS) return;
 
     // Selector for the inline condition rows Wagtail renders. Each row has
