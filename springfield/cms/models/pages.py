@@ -91,7 +91,7 @@ from springfield.cms.rich_text import RichTextBlock, RichTextField
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
 if TYPE_CHECKING:
-    from springfield.cms.models import Author, Tag
+    from springfield.cms.models import Tag
 
 
 BASE_UTM_PARAMETERS = {
