@@ -1,0 +1,16 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 40C0 17.9086 17.9086 0 40 0H120C142.091 0 160 17.9086 160 40V120C160 142.091 142.091 160 120 160H40C17.9086 160 0 142.091 0 120V40Z" fill="#3A0F6E"/>
+<path d="M116 60L116 68" stroke="#C7A8FF" stroke-width="2" stroke-linecap="round"/>
+<path d="M116 92L116 100" stroke="#C7A8FF" stroke-width="2" stroke-linecap="round"/>
+<path d="M44 92L44 100" stroke="#C7A8FF" stroke-width="2" stroke-linecap="round"/>
+<path d="M44 60L44 68" stroke="#C7A8FF" stroke-width="2" stroke-linecap="round"/>
+<rect x="30" y="36" width="100" height="24" rx="2" fill="#6132BC"/>
+<rect x="30" y="36" width="100" height="24" rx="2" stroke="#F1E7F8" stroke-width="2"/>
+<circle cx="44" cy="48" r="5" fill="#9468FF" stroke="#F1E7F8" stroke-width="2"/>
+<rect x="30" y="68" width="100" height="24" rx="2" fill="#6132BC"/>
+<rect x="30" y="68" width="100" height="24" rx="2" stroke="#F1E7F8" stroke-width="2"/>
+<circle cx="44" cy="80" r="5" fill="#9468FF" stroke="#F1E7F8" stroke-width="2"/>
+<rect x="30" y="100" width="100" height="24" rx="2" fill="#6132BC"/>
+<rect x="30" y="100" width="100" height="24" rx="2" stroke="#F1E7F8" stroke-width="2"/>
+<circle cx="44" cy="112" r="5" fill="#9468FF" stroke="#F1E7F8" stroke-width="2"/>
+</svg>
