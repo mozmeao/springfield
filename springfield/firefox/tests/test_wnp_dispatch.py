@@ -20,6 +20,8 @@ Preview URL params keep their behavior:
 import json
 import re
 
+from django.test import override_settings
+
 import pytest
 from wagtail.models import Locale, Page
 
@@ -84,8 +86,24 @@ def _make_rule(
     return rule
 
 
-def _admin_user(django_user_model):
-    return django_user_model.objects.create_user(username="preview-admin", password="x", is_staff=True)
+@pytest.fixture
+def _admin_client(client, django_user_model, db):
+    """Yield a Django test ``client`` authenticated as a staff user.
+
+    Wraps login in ``override_settings(AUTHENTICATION_BACKENDS=(ModelBackend,),
+    USE_SSO_AUTH=False)`` — otherwise ``mozilla_django_oidc.middleware.SessionRefresh``
+    sees a logged-in user with no OIDC token in the session and 302s every
+    admin request to the Auth0 login URL, defeating the preview-flow
+    assertions. Mirrors the ``admin_client`` fixture in
+    ``springfield/cms/tests/conftest.py``.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        user = django_user_model.objects.create_user(username="preview-admin", password="x", is_staff=True)
+        client.force_login(user, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
 
 
 def _parse_json_blob(body: str, element_id: str):
@@ -454,7 +472,7 @@ class TestResolverPage:
 
 class TestPreviewRule:
     @pytest.mark.django_db
-    def test_preview_rule_forces_redirect_regardless_of_signals(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_rule_forces_redirect_regardless_of_signals(self, _admin_client, _canonical_and_variants):
         # ``?preview_rule={id}`` from an admin session redirects to that
         # rule's target without evaluating signals. Applies even to draft
         # rules — marketing needs to eyeball unpublished variants.
@@ -465,8 +483,7 @@ class TestPreviewRule:
             status=RULE_STATUS_DRAFT,
             name="draft-not-live",
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
+        response = _admin_client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
         assert response.status_code in (301, 302)
         assert "/156/lapsed" in response["Location"]
         assert response.get("Cache-Control") == "no-store"
@@ -488,7 +505,7 @@ class TestPreviewRule:
         assert 'id="user-routing-rules"' not in body
 
     @pytest.mark.django_db
-    def test_preview_rule_scoped_to_this_canonical(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_rule_scoped_to_this_canonical(self, _admin_client, _canonical_and_variants):
         # A rule ID that belongs to a DIFFERENT canonical must NOT be
         # previewable via this canonical's URL.
         other_canonical = WhatsNewPage2026Factory(
@@ -508,13 +525,12 @@ class TestPreviewRule:
             other_variant,
             condition={"signal": "lapsed_user", "equals": True},
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get(f"/en-US/whatsnew/156/?preview_rule={other_rule.pk}&utm_source=update")
+        response = _admin_client.get(f"/en-US/whatsnew/156/?preview_rule={other_rule.pk}&utm_source=update")
         location = response.get("Location", "") or ""
         assert "/157/variant" not in location
 
     @pytest.mark.django_db
-    def test_preview_rule_bypasses_pause(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_rule_bypasses_pause(self, _admin_client, _canonical_and_variants):
         # Preview intentionally ignores routing_paused so authors can verify
         # while production routing is halted.
         canonical = _canonical_and_variants["canonical"]
@@ -525,8 +541,7 @@ class TestPreviewRule:
         )
         canonical.routing_paused = True
         canonical.save(update_fields=["routing_paused"])
-        client.force_login(_admin_user(django_user_model))
-        response = client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
+        response = _admin_client.get(f"/en-US/whatsnew/156/?preview_rule={rule.pk}&utm_source=update")
         assert response.status_code in (301, 302)
         assert "/156/lapsed" in response["Location"]
 
@@ -538,14 +553,13 @@ class TestPreviewRule:
 
 class TestPreviewSignal:
     @pytest.mark.django_db
-    def test_preview_signal_embedded_in_resolver(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_signal_embedded_in_resolver(self, _admin_client, _canonical_and_variants):
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
         assert response.status_code == 200
         preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
         assert preview == {"lapsed_user": True}
@@ -554,7 +568,7 @@ class TestPreviewSignal:
         assert response.get("Cache-Control") == "no-store"
 
     @pytest.mark.django_db
-    def test_preview_signal_bypasses_pause(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_signal_bypasses_pause(self, _admin_client, _canonical_and_variants):
         # An admin previewing must still see the resolver page even when
         # routing_paused is on, so they can verify their fix before flipping
         # pause off.
@@ -566,8 +580,7 @@ class TestPreviewSignal:
         )
         canonical.routing_paused = True
         canonical.save(update_fields=["routing_paused"])
-        client.force_login(_admin_user(django_user_model))
-        response = client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_signal=lapsed_user:true&utm_source=update")
         assert response.status_code == 200
         body = response.content.decode("utf-8")
         assert 'id="user-routing-rules"' in body
@@ -591,7 +604,7 @@ class TestPreviewSignal:
         assert response.get("Cache-Control") != "no-store"
 
     @pytest.mark.django_db
-    def test_preview_signal_accepts_admin_bool_vocabulary(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_signal_accepts_admin_bool_vocabulary(self, _admin_client, _canonical_and_variants):
         # true / false / yes / no coerce to Python bools so preview URLs
         # built with admin-side values match rules the admin authored.
         # ``1`` / ``0`` are deliberately NOT in this list — they coerce to
@@ -601,15 +614,14 @@ class TestPreviewSignal:
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
         )
-        client.force_login(_admin_user(django_user_model))
         for truthy in ("true", "yes"):
-            response = client.get(f"/en-US/whatsnew/156/?preview_signal=lapsed_user:{truthy}&utm_source=update")
+            response = _admin_client.get(f"/en-US/whatsnew/156/?preview_signal=lapsed_user:{truthy}&utm_source=update")
             assert response.status_code == 200, truthy
             preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
             assert preview == {"lapsed_user": True}, truthy
 
     @pytest.mark.django_db
-    def test_preview_signal_int_values_stay_int(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_signal_int_values_stay_int(self, _admin_client, _canonical_and_variants):
         # INT-typed signals (firefox_version, profile_age_days) need int
         # preview values. Regression guard for the earlier bool-first
         # coercion order that silently mapped ``1`` to True and broke
@@ -619,29 +631,27 @@ class TestPreviewSignal:
             _canonical_and_variants["lapsed"],
             condition={"signal": "firefox_version", "equals": 151},
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:151&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:151&utm_source=update")
         preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
         assert preview == {"firefox_version": 151}
         # Edge case: ``firefox_version:1`` must be int 1, not True.
-        response = client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:1&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:1&utm_source=update")
         preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
         assert preview == {"firefox_version": 1}
 
     @pytest.mark.django_db
-    def test_preview_signal_supports_string_values(self, client, _canonical_and_variants, django_user_model):
+    def test_preview_signal_supports_string_values(self, _admin_client, _canonical_and_variants):
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["signed_in"],
             condition={"signal": "ai_controls", "equals": "available"},
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get("/en-US/whatsnew/156/?preview_signal=ai_controls:available&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_signal=ai_controls:available&utm_source=update")
         preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
         assert preview == {"ai_controls": "available"}
 
     @pytest.mark.django_db
-    def test_invalid_preview_rule_still_marks_no_store_on_resolver(self, client, _canonical_and_variants, django_user_model):
+    def test_invalid_preview_rule_still_marks_no_store_on_resolver(self, _admin_client, _canonical_and_variants):
         # A bogus preview_rule ID should silently miss but the request is
         # still an admin preview, so the resolver response (rendered because
         # a real live rule exists) still gets Cache-Control: no-store.
@@ -650,7 +660,6 @@ class TestPreviewSignal:
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
         )
-        client.force_login(_admin_user(django_user_model))
-        response = client.get("/en-US/whatsnew/156/?preview_rule=999999&oldversion=149&utm_source=update")
+        response = _admin_client.get("/en-US/whatsnew/156/?preview_rule=999999&oldversion=149&utm_source=update")
         assert response.status_code == 200
         assert response.get("Cache-Control") == "no-store"
