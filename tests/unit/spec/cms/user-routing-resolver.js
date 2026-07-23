@@ -136,11 +136,150 @@ describe('user-routing-resolver.js', function () {
     });
 
     // -------------------------------------------------------------------
-    // evaluate() closes over the module-scope rules array populated at
-    // boot. It's covered indirectly by the ruleMatches tests above and by
-    // the integration tests that exercise the full boot lifecycle
-    // (springfield/firefox/tests/test_wnp_dispatch.py checks the JSON
-    // contract the browser resolver consumes).
+    // evaluate — priority-strict OR across rules, tri-state result
+    // -------------------------------------------------------------------
+
+    describe('evaluate', function () {
+        it('returns the matching rule when only one rule matches', function () {
+            const rules = [
+                {
+                    name: 'r1',
+                    priority: 100,
+                    conditions: [
+                        { signal: 'country', op: 'is', values: ['US'] }
+                    ]
+                }
+            ];
+            const result = ns.evaluate(rules, { country: 'US' });
+            expect(result.matched).toBe(rules[0]);
+        });
+
+        it('sorts by priority ascending (lower number wins)', function () {
+            // Both rules match; the lower-priority-number rule (higher in
+            // the drag-to-reorder list) wins.
+            const winner = {
+                name: 'winner',
+                priority: 50,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const loser = {
+                name: 'loser',
+                priority: 100,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            // Pass loser first to confirm evaluate sorts internally.
+            const result = ns.evaluate([loser, winner], { country: 'US' });
+            expect(result.matched).toBe(winner);
+        });
+
+        it('holds the decision when a higher-priority rule is pending (priority-strict gate)', function () {
+            // R1 (priority 50) uses ai_controls — not yet resolved → pending.
+            // R2 (priority 100) definitively matches on country. Under
+            // priority-strict evaluation, R2 must NOT win — the client has to
+            // wait for ai_controls to settle before deciding.
+            const r1 = {
+                name: 'higher-pending',
+                priority: 50,
+                conditions: [
+                    { signal: 'ai_controls', op: 'is', values: ['available'] }
+                ]
+            };
+            const r2 = {
+                name: 'lower-matched',
+                priority: 100,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const result = ns.evaluate([r1, r2], { country: 'US' });
+            expect(result.pending).toBe(true);
+            expect(result.matched).toBeUndefined();
+        });
+
+        it('lets a lower-priority rule win once every higher-priority rule is definitively decided', function () {
+            // R1 (higher priority) definitively fails (country doesn't match).
+            // R2 (lower priority) definitively matches. Since R1 is decided
+            // (not pending), R2 wins.
+            const r1 = {
+                name: 'higher-fail',
+                priority: 50,
+                conditions: [{ signal: 'country', op: 'is', values: ['DE'] }]
+            };
+            const r2 = {
+                name: 'lower-match',
+                priority: 100,
+                conditions: [
+                    { signal: 'lapsed_user', op: 'is', values: [true] }
+                ]
+            };
+            const result = ns.evaluate([r1, r2], {
+                country: 'US',
+                lapsed_user: true
+            });
+            expect(result.matched).toBe(r2);
+        });
+
+        it('returns pending when no rule matches but at least one is unresolved', function () {
+            const r1 = {
+                name: 'pending',
+                priority: 100,
+                conditions: [
+                    { signal: 'ai_controls', op: 'is', values: ['available'] }
+                ]
+            };
+            const result = ns.evaluate([r1], {});
+            expect(result.pending).toBe(true);
+        });
+
+        it('returns definitively_none when every rule has definitively failed', function () {
+            const r1 = {
+                name: 'r1',
+                priority: 100,
+                conditions: [{ signal: 'country', op: 'is', values: ['DE'] }]
+            };
+            const r2 = {
+                name: 'r2',
+                priority: 200,
+                conditions: [{ signal: 'country', op: 'is', values: ['CA'] }]
+            };
+            const result = ns.evaluate([r1, r2], { country: 'US' });
+            expect(result.definitively_none).toBe(true);
+        });
+
+        it('does not mutate the caller-provided rules array', function () {
+            // Guard against a regression to in-place `rules.sort(...)` on
+            // the shared array — that would couple caller state to the
+            // evaluator's sort order.
+            const r_low = {
+                name: 'low',
+                priority: 200,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const r_high = {
+                name: 'high',
+                priority: 50,
+                conditions: [{ signal: 'country', op: 'is', values: ['DE'] }]
+            };
+            const input = [r_low, r_high];
+            const before = input.slice();
+            ns.evaluate(input, { country: 'US' });
+            expect(input).toEqual(before);
+        });
+
+        it('treats missing priority as 0', function () {
+            // Two rules, no priority set → both treated as 0 → order
+            // preserved (stable sort). First rule that matches wins.
+            const r1 = {
+                name: 'r1',
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const r2 = {
+                name: 'r2',
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const result = ns.evaluate([r1, r2], { country: 'US' });
+            expect(result.matched).toBe(r1);
+        });
+    });
+
     // -------------------------------------------------------------------
     // SYNC_RESOLVERS — DOM / URL / Mozilla.Client readers
     // -------------------------------------------------------------------
@@ -335,6 +474,24 @@ describe('user-routing-resolver.js', function () {
         it('returns undefined when the field is missing', function () {
             expect(ns.UITOUR_EXTRACTORS.default_browser({})).toBeUndefined();
             expect(ns.UITOUR_EXTRACTORS.default_browser(null)).toBeUndefined();
+        });
+
+        it('returns undefined when the field is null or non-bool', function () {
+            // Regression guard: some Firefox forks / older builds have been
+            // observed returning null or a string for defaultBrowser. Coercing
+            // those to false via `=== true` would flip an is_not:[true] rule
+            // to match users whose Firefox never reported non-default. The
+            // extractor must return undefined so the condition stays pending
+            // or falls through unresolved.
+            expect(
+                ns.UITOUR_EXTRACTORS.default_browser({ defaultBrowser: null })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.default_browser({ defaultBrowser: 'yes' })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.default_browser({ defaultBrowser: 1 })
+            ).toBeUndefined();
         });
     });
 

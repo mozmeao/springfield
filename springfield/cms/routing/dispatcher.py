@@ -50,9 +50,14 @@ RESOLVER_TEMPLATE = "cms/routing/resolver.html"
 # them on load and fires whatever analytics event MarTech has configured.
 ROUTED_FROM_PARAM = "routed_from"  # slug of the canonical page that routed
 ROUTED_RULE_PARAM = "routed_rule"  # name of the rule that matched
-ROUTED_MODE_PARAM = "routed_mode"  # "server" or "client"
+ROUTED_MODE_PARAM = "routed_mode"  # "server", "client", or "none"
 ROUTED_MODE_SERVER = "server"
 ROUTED_MODE_CLIENT = "client"
+# "none" tags the client-side fallback URL when the resolver evaluated
+# rules and none matched. Same URL as canonical + the WNP trigger param,
+# so the WNP wrapper needs an explicit check for ``routed_mode`` presence
+# to break the resolver → canonical → resolver loop.
+ROUTED_MODE_NONE = "none"
 
 # Reserved query-param names the framework emits itself. Any pre-existing
 # incoming values for these params are stripped before we append our own —
@@ -166,7 +171,10 @@ def dispatch_for_canonical(
     if getattr(canonical, "routing_paused", False) and not is_preview_request:
         return None
 
-    live_rules = list(canonical.routing_rules.filter(status=RULE_STATUS_LIVE).select_related("target_page"))
+    # ``prefetch_related("conditions")`` avoids N+1: the resolver page render
+    # iterates live_rules and calls rule.conditions_as_dicts() on each, which
+    # otherwise fires a separate SELECT per rule on the hot Balrog path.
+    live_rules = list(canonical.routing_rules.filter(status=RULE_STATUS_LIVE).select_related("target_page").prefetch_related("conditions"))
     if not live_rules:
         return None
 
@@ -275,20 +283,21 @@ def _coerce_preview_value(text: str) -> Any:
     """Coerce a preview-signal string value to a Python type the evaluator
     understands.
 
-    Accepts the same boolean vocabulary the admin form stores (``true`` /
-    ``yes`` / ``1`` for True; ``false`` / ``no`` / ``0`` for False) so a
-    preview URL built with admin-side values behaves the same as the rule
-    it's previewing. Integer strings coerce to ``int``; anything else stays
-    a string.
+    Strict bool vocabulary (``true``/``false``/``yes``/``no``, case-
+    insensitive) coerces to Python bool. Numeric strings coerce to ``int``
+    so preview URLs for INT signals like ``firefox_version:151`` behave
+    correctly. Anything else stays a string.
 
-    Note: the bool-check runs BEFORE the int-check so ``"1"`` and ``"0"``
-    resolve to ``True``/``False`` (matching the admin vocabulary) rather
-    than to the ints ``1`` and ``0``.
+    Design choice: ``"1"`` and ``"0"`` are treated as ints, NOT bools.
+    Admin bool inputs use ``true``/``false``; a marketing author typing
+    ``preview_signal=firefox_version:1`` reasonably expects the int 1, not
+    True. Rules stored via the admin form persist bools via the
+    ``true``/``false`` tokens, so preview URL semantics match.
     """
     lower = text.lower()
-    if lower in ("true", "yes", "1"):
+    if lower in ("true", "yes"):
         return True
-    if lower in ("false", "no", "0"):
+    if lower in ("false", "no"):
         return False
     try:
         return int(text)
@@ -398,6 +407,23 @@ def _render_resolver_page(request, canonical, live_rules, *, registry, preview_s
 
     canonical_slug = getattr(canonical, "slug", "") or ""
 
+    # Client falls back to this URL when no rule matches. The URL still
+    # carries whatever gated the router (e.g. WNP's ``utm_source=update``),
+    # so appending ``routed_mode=none`` gives the WNP wrapper a marker to
+    # short-circuit and skip re-entering the router — otherwise the
+    # browser navigates back to the resolver page for another round in an
+    # infinite loop. Also tags the canonical landing with an analytics
+    # attribution so no-match traffic can be distinguished from organic.
+    canonical_fallback_url = _append_qs(
+        canonical_url_with_qs,
+        urlencode(
+            {
+                ROUTED_FROM_PARAM: canonical_slug,
+                ROUTED_MODE_PARAM: ROUTED_MODE_NONE,
+            }
+        ),
+    )
+
     serialized_rules = []
     required_signal_names: set[str] = set()
 
@@ -459,7 +485,10 @@ def _render_resolver_page(request, canonical, live_rules, *, registry, preview_s
     # signal maps to. Signals resolved via DOM / UA / Mozilla.Client don't
     # need per-request metadata — the client has a static map for those.
     signal_metadata: dict[str, dict[str, str]] = {}
-    for signal_name in required_signal_names:
+    # sorted() so the emitted JSON blob is byte-stable request-to-request —
+    # a set's iteration order depends on PYTHONHASHSEED, which would defeat
+    # any downstream ETag caching or byte-identical snapshot testing.
+    for signal_name in sorted(required_signal_names):
         signal = registry.get(signal_name)
         if signal is None or not signal.uitour_key:
             continue
@@ -472,10 +501,14 @@ def _render_resolver_page(request, canonical, live_rules, *, registry, preview_s
             # canonical_url is emitted as JSON (not raw text) so Jinja
             # autoescape can't corrupt ampersands into &amp;amp; inside the
             # <script> block — the client parses the JSON to get a clean URL.
-            "canonical_url_json": _json_for_script(canonical_url_with_qs),
-            # Same URL, un-JSON-wrapped, for the <noscript> meta-refresh
-            # fallback in the template (JS-disabled visitors go here).
-            "canonical_url_raw": canonical_url_with_qs,
+            # Uses the fallback variant (with ``routed_mode=none`` appended)
+            # so a no-match navigation carries a loop-breaker for the WNP
+            # wrapper.
+            "canonical_url_json": _json_for_script(canonical_fallback_url),
+            # Same fallback URL, un-JSON-wrapped, for the <noscript>
+            # meta-refresh fallback in the template. JS-disabled visitors
+            # also need the loop-breaker.
+            "canonical_url_raw": canonical_fallback_url,
             "rules_json": _json_for_script(serialized_rules),
             "signal_metadata_json": _json_for_script(signal_metadata),
             # Preview overrides (admin-only). Empty dict in production traffic.

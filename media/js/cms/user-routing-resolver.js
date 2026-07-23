@@ -148,9 +148,9 @@
     var UITOUR_EXTRACTORS = {
         // getConfiguration('appinfo')
         default_browser: function (data) {
-            if (!data || typeof data.defaultBrowser === 'undefined')
+            if (!data || typeof data.defaultBrowser !== 'boolean')
                 return undefined;
-            return data.defaultBrowser === true;
+            return data.defaultBrowser;
         },
         firefox_pinned: function (data) {
             if (!data) return undefined;
@@ -183,8 +183,8 @@
 
         // getConfiguration('fxa')
         fxa_signed_in: function (data) {
-            if (!data || typeof data.setup === 'undefined') return undefined;
-            return data.setup === true;
+            if (!data || typeof data.setup !== 'boolean') return undefined;
+            return data.setup;
         },
 
         // getConfiguration('aiControls')
@@ -275,20 +275,25 @@
         return true;
     }
 
-    function evaluate(resolved) {
+    function evaluate(ruleList, resolved) {
         // Priority-strict: a lower-priority rule can only "win" once every
         // higher-priority rule has been definitively decided (matched or
         // not-matched). If any earlier-in-priority rule is still pending,
         // hold the decision.
+        //
+        // Takes ``ruleList`` as an argument (rather than reading a closure)
+        // so the pure evaluator is testable in isolation. Boot callers pass
+        // the module-scope ``rules`` array; tests pass constructed rule
+        // lists.
         var pending = false;
-        rules.sort(function (a, b) {
+        var sorted = ruleList.slice().sort(function (a, b) {
             return (a.priority || 0) - (b.priority || 0);
         });
-        for (var i = 0; i < rules.length; i++) {
-            var m = ruleMatches(rules[i], resolved);
+        for (var i = 0; i < sorted.length; i++) {
+            var m = ruleMatches(sorted[i], resolved);
             if (m === true) {
                 if (pending) return { pending: true };
-                return { matched: rules[i] };
+                return { matched: sorted[i] };
             }
             if (m === null) pending = true;
         }
@@ -303,7 +308,7 @@
     var resolvedSignals = {};
 
     function onSignalUpdate() {
-        var result = evaluate(resolvedSignals);
+        var result = evaluate(rules, resolvedSignals);
         if (result.matched) {
             done(result.matched.target_url);
         } else if (result.definitively_none) {
@@ -450,12 +455,29 @@
         return;
     }
 
+    // Mark every UITour-needed signal ``undefined`` (= "fetched, no answer")
+    // before short-circuiting to canonical below. Otherwise a rule whose
+    // conditions include a UITour signal stays pending forever, and — under
+    // priority-strict evaluation — a lower-priority sync-only rule that
+    // definitively matches is silently discarded. Explicitly resolving to
+    // undefined lets that rule win.
+    function abandonUITourSignals() {
+        for (var i = 0; i < uitourNeeded.length; i++) {
+            if (!(uitourNeeded[i] in resolvedSignals)) {
+                resolvedSignals[uitourNeeded[i]] = undefined;
+            }
+        }
+    }
+
     // UITour is required for at least one signal. Verify availability, then fetch.
     if (
         !window.Mozilla ||
         !window.Mozilla.UITour ||
         typeof window.Mozilla.UITour.ping !== 'function'
     ) {
+        abandonUITourSignals();
+        onSignalUpdate();
+        if (navigated) return;
         done(canonicalUrl);
         return;
     }
@@ -466,6 +488,9 @@
     var pingTimer = window.setTimeout(function () {
         if (pingSettled) return;
         pingSettled = true;
+        abandonUITourSignals();
+        onSignalUpdate();
+        if (navigated) return;
         done(canonicalUrl);
     }, PING_TIMEOUT_MS);
 
@@ -492,6 +517,9 @@
         if (pingSettled) return;
         pingSettled = true;
         window.clearTimeout(pingTimer);
+        abandonUITourSignals();
+        onSignalUpdate();
+        if (navigated) return;
         done(canonicalUrl);
     }
 })();

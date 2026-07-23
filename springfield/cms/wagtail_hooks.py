@@ -163,11 +163,19 @@ def user_routing_condition_help_js():
     Signal name is picked (instead of only after a save-time validation
     error). Loaded on every admin page — the JS is a no-op unless it finds
     a signal_name select on the page.
+
+    The metadata is emitted as a ``<script type="application/json">`` block
+    (not raw JS assignment), so admin-editable content in the payload can't
+    escape the script tag — the browser parses it as inert JSON regardless
+    of what characters are in the values. Django's ``json_script`` filter
+    does the same escaping on Django-template pages; here we're generating
+    inline HTML from Python so we call the equivalent helper directly.
     """
 
     # Local import — springfield.cms.routing pulls in models and cannot
     # safely import at wagtail_hooks module top.
     from springfield.cms.routing import registry
+    from springfield.cms.routing.dispatcher import _json_for_script
 
     metadata = {}
     for signal in registry.all():
@@ -177,8 +185,8 @@ def user_routing_condition_help_js():
         }
 
     return format_html(
-        '<script>window.SPRINGFIELD_ROUTING_SIGNALS = {};</script><script src="{}"></script>',
-        mark_safe(json.dumps(metadata)),
+        '<script id="springfield-routing-signals" type="application/json">{}</script><script src="{}"></script>',
+        mark_safe(_json_for_script(metadata)),
         static("js/wagtailadmin-user-routing-condition-help.js"),
     )
 

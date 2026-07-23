@@ -247,8 +247,16 @@ class RoutingRule(Orderable, ClusterableModel):
         Each dict has the shape ``{"signal": ..., "op": ..., "values": [...]}``.
         Order is deterministic (by ``sort_order``, then ``id``) so client-side
         replay of the rule sees the same ordering the server did.
+
+        Empty (``{}``) dicts — emitted by ``as_dict()`` when a condition's
+        ``signal_name`` is blank (partially-drafted state) — are filtered
+        out. Otherwise they'd flow to the client where ``conditionMatches``
+        treats them as hard-false and, under AND semantics, silently drops
+        the whole rule. Filtering here means a rule with N valid conditions
+        plus one blank draft condition still matches when the N valid
+        conditions match.
         """
-        return [c.as_dict() for c in self.conditions.all()]
+        return [d for d in (c.as_dict() for c in self.conditions.all()) if d]
 
     # ------------------------------------------------------------------
 

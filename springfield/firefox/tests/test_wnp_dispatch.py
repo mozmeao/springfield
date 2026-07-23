@@ -125,6 +125,21 @@ class TestDispatchGate:
         assert self._no_resolver(response)
 
     @pytest.mark.django_db
+    def test_routed_mode_param_short_circuits(self, client, _canonical_and_variants):
+        # Loop-breaker: a request that already carries ``routed_mode`` has
+        # been through routing once. Re-running the router would render the
+        # resolver again → client navigates back with the same URL → infinite
+        # loop. wnp_dispatch must skip routing when routed_mode is present,
+        # regardless of value.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update&routed_mode=none")
+        assert self._no_resolver(response)
+
+    @pytest.mark.django_db
     def test_draft_rule_ignored(self, client, _canonical_and_variants):
         _make_rule(
             _canonical_and_variants["canonical"],
@@ -316,14 +331,16 @@ class TestResolverPage:
     def test_spoofed_routed_params_stripped_from_target_urls(self, client, _canonical_and_variants):
         # A hostile / curious user putting ?routed_from=fake on the incoming
         # URL must not shadow the framework-emitted attribution on the target
-        # URLs the client will navigate to.
+        # URLs the client will navigate to. (Spoofed ``routed_mode`` is
+        # handled separately by the WNP loop-breaker — that request never
+        # reaches the resolver at all; see test_routed_mode_param_short_circuits.)
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
             name="real-rule",
         )
-        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update&routed_from=fake&routed_rule=fake-rule&routed_mode=server")
+        response = client.get("/en-US/whatsnew/156/?oldversion=149&utm_source=update&routed_from=fake&routed_rule=fake-rule")
         rules = _parse_json_blob(response.content.decode("utf-8"), "user-routing-rules")
         target_url = rules[0]["target_url"]
         assert "routed_from=156" in target_url
@@ -331,7 +348,6 @@ class TestResolverPage:
         assert "routed_mode=client" in target_url
         assert "routed_from=fake" not in target_url
         assert "routed_rule=fake-rule" not in target_url
-        assert "routed_mode=server" not in target_url
 
     @pytest.mark.django_db
     def test_resolver_page_has_noscript_meta_refresh(self, client, _canonical_and_variants):
@@ -388,6 +404,47 @@ class TestResolverPage:
         body = response.content.decode("utf-8")
         preview = _parse_json_blob(body, "user-routing-preview-signals")
         assert preview == {}
+
+    @pytest.mark.django_db
+    def test_canonical_url_blob_carries_loop_breaker(self, client, _canonical_and_variants):
+        # The client falls back to this URL when no rule matches. The URL
+        # must carry ``routed_mode=none`` so the WNP wrapper's loop-breaker
+        # trips and skips re-entering the router. Also asserts the canonical
+        # slug attribution rides along for no-match analytics.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update&oldversion=149")
+        body = response.content.decode("utf-8")
+        canonical_url = _parse_json_blob(body, "user-routing-canonical-url")
+        assert "routed_mode=none" in canonical_url
+        assert "routed_from=156" in canonical_url
+        # Original querystring survives so the loop-breaker doesn't wipe
+        # legitimate params (utm_source is what got us into the router).
+        assert "utm_source=update" in canonical_url
+        assert "oldversion=149" in canonical_url
+
+    @pytest.mark.django_db
+    def test_empty_condition_does_not_kill_rule(self, client, _canonical_and_variants):
+        # A rule with N valid conditions plus one draft (blank signal_name)
+        # condition should still match when the N valid conditions match.
+        # RoutingCondition.as_dict() returns {} for blank signals; if those
+        # empties reach the client, the whole rule silently fails via AND.
+        rule = _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "lapsed_user", "equals": True},
+        )
+        # Add a blank draft condition alongside the valid one.
+        RoutingCondition.objects.create(rule=rule, signal_name="", operator="is", expected_values="")
+        response = client.get("/en-US/whatsnew/156/?utm_source=update&oldversion=149")
+        rules = _parse_json_blob(response.content.decode("utf-8"), "user-routing-rules")
+        assert len(rules) == 1
+        # Only the non-empty condition survives serialization.
+        assert len(rules[0]["conditions"]) == 1
+        assert rules[0]["conditions"][0]["signal"] == "lapsed_user"
 
 
 # ---------------------------------------------------------------------------
@@ -535,19 +592,41 @@ class TestPreviewSignal:
 
     @pytest.mark.django_db
     def test_preview_signal_accepts_admin_bool_vocabulary(self, client, _canonical_and_variants, django_user_model):
-        # true / yes / 1 all coerce to Python True so preview URLs built
-        # with admin-side values match rules the admin authored.
+        # true / false / yes / no coerce to Python bools so preview URLs
+        # built with admin-side values match rules the admin authored.
+        # ``1`` / ``0`` are deliberately NOT in this list — they coerce to
+        # integers so INT-typed signal previews (firefox_version:151) work.
         _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
         )
         client.force_login(_admin_user(django_user_model))
-        for truthy in ("true", "yes", "1"):
+        for truthy in ("true", "yes"):
             response = client.get(f"/en-US/whatsnew/156/?preview_signal=lapsed_user:{truthy}&utm_source=update")
             assert response.status_code == 200, truthy
             preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
             assert preview == {"lapsed_user": True}, truthy
+
+    @pytest.mark.django_db
+    def test_preview_signal_int_values_stay_int(self, client, _canonical_and_variants, django_user_model):
+        # INT-typed signals (firefox_version, profile_age_days) need int
+        # preview values. Regression guard for the earlier bool-first
+        # coercion order that silently mapped ``1`` to True and broke
+        # int-signal previews.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["lapsed"],
+            condition={"signal": "firefox_version", "equals": 151},
+        )
+        client.force_login(_admin_user(django_user_model))
+        response = client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:151&utm_source=update")
+        preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
+        assert preview == {"firefox_version": 151}
+        # Edge case: ``firefox_version:1`` must be int 1, not True.
+        response = client.get("/en-US/whatsnew/156/?preview_signal=firefox_version:1&utm_source=update")
+        preview = _parse_json_blob(response.content.decode("utf-8"), "user-routing-preview-signals")
+        assert preview == {"firefox_version": 1}
 
     @pytest.mark.django_db
     def test_preview_signal_supports_string_values(self, client, _canonical_and_variants, django_user_model):
