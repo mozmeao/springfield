@@ -1,0 +1,93 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ User Routing resolver page.
+
+ Rendered by ``springfield.cms.routing.dispatcher._render_resolver_page``
+ when a request needs client-side signal resolution to decide which
+ variant to serve. Not directly linked from anywhere — reached only by
+ the dispatcher during Balrog-style update flows.
+
+ Deliberately standalone (no ``base-protocol.html`` extension): the page
+ is a transient loading screen — it must not carry site chrome, cookie
+ banners, analytics, or anything else that would delay the resolver or
+ push its own content in front of the reading surface. The bundle it
+ loads (`user_routing_resolver`) is the only thing on the page.
+
+ Embeds four data blobs the resolver JS reads by ID:
+   #user-routing-rules            — array of live rules
+   #user-routing-signal-metadata  — {signal: {uitour_key: ...}} for UITour-resolved signals
+   #user-routing-canonical-url    — fallback URL
+   #user-routing-preview-signals  — {signal: value} admin preview overrides (empty in prod)
+
+ ``data-country-code`` on the <html> tag mirrors the site-wide pattern
+ (see ``base-protocol.html``): Fastly injects the country on the request
+ header, Django's ``geo`` context processor exposes it as ``country_code``,
+ the template renders it here. Client resolver reads it via
+ ``document.documentElement.dataset.countryCode``.
+#}
+<!DOCTYPE html>
+<html lang="{{ LANG|default('en') }}" dir="{{ DIR|default('ltr') }}" data-country-code="{{ country_code|default('') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  {# JS-disabled fallback: meta-refresh redirects to the canonical URL so
+     users without JavaScript still land on a real page instead of staring
+     at the transient "Preparing…" loading screen forever. The canonical
+     URL is server-rendered here (not read from the JSON blob below) since
+     no JS is available to parse the blob. #}
+  <noscript>
+    <meta http-equiv="refresh" content="0;url={{ canonical_url_raw|e }}">
+  </noscript>
+  <title>Preparing your page…</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #333;
+      background: #fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { color: #eee; background: #1a1a1a; }
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-block: 6rem 4rem;
+      padding-inline: 1.5rem;
+      text-align: center;
+    }
+    #user-routing-status {
+      color: #666;
+      font-size: 0.9375rem;
+      margin: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      #user-routing-status { color: #aaa; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p id="user-routing-status">Preparing your page…</p>
+  </main>
+
+  {# All blobs are pre-escaped by dispatcher._json_for_script — the
+     `</` sequence and comment openers are neutralized before render, so
+     admin-editable strings can't break out of the <script> tag. Using
+     |safe here bypasses Jinja autoescape (which would double-encode &
+     inside script raw text and break URL parsing). #}
+  <script id="user-routing-rules" type="application/json">{{ rules_json|safe }}</script>
+  <script id="user-routing-signal-metadata" type="application/json">{{ signal_metadata_json|safe }}</script>
+  <script id="user-routing-canonical-url" type="application/json">{{ canonical_url_json|safe }}</script>
+  <script id="user-routing-preview-signals" type="application/json">{{ preview_signals_json|safe }}</script>
+
+  {{ js_bundle('user_routing_resolver') }}
+</body>
+</html>

@@ -807,6 +807,15 @@
     },
     {
       "files": [
+        "js/base/uitour-lib.js",
+        "js/base/site.js",
+        "js/base/mozilla-client.js",
+        "js/cms/user-routing-resolver.js"
+      ],
+      "name": "user_routing_resolver"
+    },
+    {
+      "files": [
         "js/data/data-uitour.es6.js"
       ],
       "name": "data_uitour"
@@ -846,6 +855,12 @@
         "js/cms/wagtailadmin-locale-badges.js"
       ],
       "name": "wagtailadmin-locale-badges"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-user-routing-condition-help.js"
+      ],
+      "name": "wagtailadmin-user-routing-condition-help"
     },
     {
       "files": [

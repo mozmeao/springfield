@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import hashlib
 import hmac
+import logging
 import re
 from collections import OrderedDict
 from urllib.parse import urlparse
@@ -31,6 +32,8 @@ from springfield.firefox.firefox_details import (
 from springfield.firefox.redirects import validate_param_value
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
+
+logger = logging.getLogger(__name__)
 
 UA_REGEXP = re.compile(r"Firefox/(%s)" % version_re)
 
@@ -938,6 +941,115 @@ def detect_channel(version):
     return "unknown"
 
 
+#: Query-parameter marker that indicates a Balrog post-update redirect.
+#: See ``browser/config/whats_new_page.yml`` in mozilla-central — Balrog
+#: appends ``utm_source=update`` to every WNP URL it opens after an update.
+WNP_UPDATE_FLOW_MARKER = ("utm_source", "update")
+
+
+def wnp_dispatch(request, *args, **kwargs):
+    """
+    Front-of-flow dispatcher for /whatsnew/{version}/.
+
+    Runs BEFORE prefer_cms so that routing decisions can 302 to a variant
+    page without prefer_cms's response-code filter swallowing the redirect.
+
+    This is a thin, WNP-specific adapter around the generic User Routing
+    dispatcher in ``springfield.cms.routing.dispatcher``. The WNP-specific
+    bits enforced here (and NOT in the generic dispatcher, so other page
+    types remain free to route on every request):
+
+    * **Locate the canonical** by ``(locale, slug=version)``.
+    * **Only route on Balrog-flow requests.** The plan doc's framing is
+      that WNP variants exist for the post-update window; organic
+      visitors to ``/whatsnew/151/`` see the canonical archive record.
+      Enforced by checking ``utm_source=update``.
+    * **Fall back** to ``prefer_cms(WhatsnewView)`` for the legacy Fluent
+      evergreen story when no CMS canonical exists.
+
+    Everything else (rule filtering, evaluation, resolver page rendering)
+    is generic and reused by any future page-type consumer.
+    """
+    from springfield.cms.decorators import prefer_cms
+    from springfield.cms.models.pages import WhatsNewIndexPage
+    from springfield.cms.routing import dispatch_for_canonical
+
+    version = kwargs.get("version") or ""
+    lang_code = request.LANGUAGE_CODE
+
+    def _fallback():
+        return prefer_cms(WhatsnewView.as_view())(request, *args, **kwargs)
+
+    # Use ``.filter().first()`` rather than ``.get()`` so a Locale table with
+    # a duplicate row (data-import race, manual DB edit) still falls through
+    # to the Fluent evergreen path instead of 500-ing on MultipleObjectsReturned.
+    # The fallback is deliberately catch-all here — the whole point of the
+    # try block is "don't let locale lookup take down the WNP path."
+    locale = WagtailLocale.objects.filter(language_code=lang_code).first()
+    if locale is None:
+        return _fallback()
+
+    # Scope the canonical lookup to direct children of a WhatsNewIndexPage.
+    # WhatsNewPage2026.parent_page_types now includes itself (so variants can
+    # nest under canonicals), meaning a variant slugged as a version number
+    # (e.g. someone creating a "156" variant under a different canonical)
+    # would false-positive on the unscoped filter and be treated as canonical.
+    # Filtering by ``depth=index.depth + 1`` + ``path__startswith=index.path``
+    # keeps dispatch honest — only direct children of the WNP index qualify.
+    #
+    # Same pattern as :meth:`WhatsnewView._get_evergreen_wnp_redirect`.
+    index = WhatsNewIndexPage.objects.filter(locale=locale).order_by("path").first()
+    if index is None:
+        # Log if a slug-matching WNP exists in this locale but the index
+        # doesn't — the pre-scoping code would have picked it up as
+        # canonical; the new scoping makes it unreachable. Silent behavior
+        # change without this log; painful to diagnose otherwise.
+        if WhatsNewPage2026.objects.live().public().filter(locale=locale, slug=version).exists():
+            logger.info(
+                "wnp_dispatch: locale=%r has a WhatsNewPage2026 slugged %r but no WhatsNewIndexPage; falling through to legacy path.",
+                lang_code,
+                version,
+            )
+        return _fallback()
+
+    canonical = (
+        WhatsNewPage2026.objects.live()
+        .public()
+        .filter(
+            locale=locale,
+            slug=version,
+            path__startswith=index.path,
+            depth=index.depth + 1,
+        )
+        .first()
+    )
+    if canonical is None:
+        return _fallback()
+
+    # WNP-specific policy: routing is scoped to the Balrog post-update flow.
+    # Organic visitors always see the canonical. If a future consumer of
+    # the generic dispatcher wants universal routing, they just skip this
+    # check in their own wrapper.
+    trigger_param, trigger_value = WNP_UPDATE_FLOW_MARKER
+    if request.GET.get(trigger_param) != trigger_value:
+        return _fallback()
+
+    # Loop-breaker: if the request already carries ``routed_mode``, routing
+    # has already run for this navigation (either the client resolved to
+    # canonical with ``routed_mode=none``, or a downstream link cycled
+    # back through the WNP URL). Re-entering the router would render the
+    # resolver again → the client would re-navigate → infinite loop.
+    # See dispatcher.ROUTED_MODE_NONE for the fallback attribution.
+    if request.GET.get("routed_mode"):
+        return _fallback()
+
+    response = dispatch_for_canonical(request, canonical)
+    if response is not None:
+        return response
+
+    return _fallback()
+
+
 class WhatsnewView(L10nTemplateView):
     # The 3-digit Whats New route in urls.py is decorated with prefer_cms, so requests
     # like /en-US/whatsnew/150/ will only reach this view when there is not already a
@@ -1020,12 +1132,35 @@ class WhatsnewView(L10nTemplateView):
         if not locale_codes_to_check:
             return None
 
+        # Scope the slug lookup to the WhatsNewIndexPage's direct children.
+        # Since WhatsNewPage2026.parent_page_types now includes itself (so
+        # variants can nest under canonicals), a variant slugged 'general' /
+        # 'nightly' / 'developer' / 'beta' would false-positive on the
+        # unscoped filter and drive a bogus redirect to /whatsnew/{slug}/.
+        # Filtering by ``depth=index.depth + 1`` keeps evergreen resolution
+        # honest — only pages directly under the index qualify.
+        from springfield.cms.models.pages import WhatsNewIndexPage
+
+        # Do NOT filter the index by ``.live()``: whether the index is
+        # published or a draft, its subtree still contains live evergreen
+        # pages that should be reachable. Order by path so the lookup is
+        # deterministic if a data glitch has produced more than one index
+        # for a locale (the class docstring says "only one should exist"
+        # but nothing enforces it at the DB level).
         for locale_code in locale_codes_to_check:
             try:
                 locale = WagtailLocale.objects.get(language_code=locale_code)
             except WagtailLocale.DoesNotExist:
                 continue
-            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
+            index = WhatsNewIndexPage.objects.filter(locale=locale).order_by("path").first()
+            if index is None:
+                continue
+            if (
+                WhatsNewPage2026.objects.live()
+                .public()
+                .filter(slug=wnp_slug, locale=locale, path__startswith=index.path, depth=index.depth + 1)
+                .exists()
+            ):
                 break
         else:
             return None

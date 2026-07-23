@@ -1,0 +1,154 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "wagtailadmin/base.html" %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+User Routing — signals reference page for the Wagtail admin.
+
+Auto-generated table listing every signal the routing engine knows about.
+Reads from springfield.cms.routing.registry at request time, so it
+always reflects what marketing can actually use in a rule right now.
+
+This is a Django template (extends wagtailadmin/base). Comment syntax is
+the Django comment tag, not Jinja's hash-brace form. Extends must be the
+first tag in the file — the license comment lives right below it.
+{% endcomment %}
+
+{% block titletag %}User Routing signals reference{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style>
+    .user-routing-signals-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+    .user-routing-signals-table th,
+    .user-routing-signals-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(150, 150, 150, 0.2);
+      vertical-align: top;
+      text-align: left;
+    }
+    .user-routing-signals-table th {
+      font-weight: 600;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+    }
+    .user-routing-signals-table code {
+      font-family: SFMono-Regular, Consolas, monospace;
+      font-size: 0.875rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      background: rgba(150, 150, 150, 0.15);
+    }
+    .user-routing-signal-name {
+      font-family: SFMono-Regular, Consolas, monospace;
+      font-weight: 600;
+    }
+    .user-routing-badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .user-routing-badge-source {
+      background: rgba(46, 132, 76, 0.18);
+      color: #1e6a3a;
+    }
+    .user-routing-badge-source-uitour {
+      background: rgba(215, 138, 20, 0.18);
+      color: #8a5100;
+    }
+    .user-routing-values {
+      font-family: SFMono-Regular, Consolas, monospace;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      max-width: 22rem;
+    }
+    .user-routing-values .any {
+      font-style: italic;
+      opacity: 0.65;
+    }
+    .user-routing-intro {
+      max-width: 44rem;
+      color: #444;
+      line-height: 1.5;
+    }
+    @media (prefers-color-scheme: dark) {
+      .user-routing-signals-table th { color: #b7b7b7; }
+      .user-routing-intro { color: #ccc; }
+      .user-routing-badge-source { background: rgba(80, 200, 120, 0.2); color: #7dd39e; }
+      .user-routing-badge-source-uitour { background: rgba(240, 173, 60, 0.2); color: #ffc06b; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title="User Routing signals reference" icon="help" %}
+
+  <div class="nice-padding">
+    <p class="user-routing-intro">
+      These are the signals that User Routing rules can check. When you're
+      editing a rule and pick a <strong>Signal name</strong>, use the
+      <strong>Valid values</strong> column below to know what to type in
+      <strong>Expected values</strong>. This page is generated live from the
+      registry, so it always reflects what rules can use right now.
+    </p>
+    <p class="user-routing-intro">
+      The <strong>Source</strong> column shows where each signal's value
+      comes from. Signals sourced from <strong>UITour</strong> add a small
+      (~500 ms) delay for matched users because the browser has to answer;
+      everything else is read immediately as the page loads.
+    </p>
+
+    <table class="user-routing-signals-table">
+      <thead>
+        <tr>
+          <th>Signal name</th>
+          <th>Source</th>
+          <th>Value type</th>
+          <th>Valid values</th>
+          <th>What it means</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for signal in signals %}
+          <tr>
+            <td class="user-routing-signal-name">{{ signal.name }}</td>
+            <td>
+              <span class="user-routing-badge {% if signal.is_uitour %}user-routing-badge-source-uitour{% else %}user-routing-badge-source{% endif %}">
+                {{ signal.source }}
+              </span>
+            </td>
+            <td><code>{{ signal.value_type }}</code></td>
+            <td class="user-routing-values">
+              {% if signal.enum_values %}
+                {% for value in signal.enum_values %}<code>{{ value }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+              {% elif signal.value_type == "bool" %}
+                <code>true</code> or <code>false</code>
+              {% elif signal.value_type == "int" %}
+                <span class="any">any number</span>
+              {% else %}
+                <span class="any">any string</span>
+              {% endif %}
+            </td>
+            <td>{{ signal.description }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

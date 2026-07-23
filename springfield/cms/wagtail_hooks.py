@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
-from wagtail.admin.menu import MenuItem
+from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     ExternalLinkElementHandler,
     InlineEntityElementHandler,
@@ -44,6 +44,7 @@ from springfield.cms.models import (
     PretranslatedPhrase,
     QRCodeFloatingSnippet,
     QRCodeSnippet,
+    RoutingRule,
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     Tag,
@@ -58,6 +59,19 @@ def register_content_search_url():
     ]
 
 
+@hooks.register("register_admin_urls")
+def register_user_routing_admin_urls():
+    """Register the User Routing signals reference view under the Wagtail
+    admin URL space so it inherits admin authentication."""
+    from django.urls import path
+
+    from springfield.cms.routing.admin_views import signals_reference
+
+    return [
+        path("user-routing/signals/", signals_reference, name="user_routing_signals_reference"),
+    ]
+
+
 @hooks.register("register_admin_menu_item")
 def register_content_search_link():
     return MenuItem(
@@ -65,6 +79,50 @@ def register_content_search_link():
         reverse("cms_content_search"),
         icon_name="search",
         order=2,
+    )
+
+
+# ---------------------------------------------------------------------------
+# User Routing submenu
+#
+# One top-level "User Routing" sidebar entry expands to a submenu with:
+#   * "Rules"              — the RoutingRule snippet listing
+#   * "Signals reference"  — the auto-generated signal catalog
+#
+# Both live inside the same admin group so marketing has one entry point.
+# ---------------------------------------------------------------------------
+
+user_routing_menu = Menu(
+    register_hook_name="register_user_routing_menu_item",
+    construct_hook_name="construct_user_routing_menu",
+)
+
+
+@hooks.register("register_admin_menu_item")
+def register_user_routing_submenu():
+    return SubmenuMenuItem(
+        "User Routing",
+        user_routing_menu,
+        icon_name="site",
+        order=250,
+    )
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_user_routing_rules_link():
+    return MenuItem(
+        "Rules",
+        reverse("wagtailsnippets_cms_routingrule:list"),
+        icon_name="list-ul",
+    )
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_user_routing_signals_link():
+    return MenuItem(
+        "Signals reference",
+        reverse("user_routing_signals_reference"),
+        icon_name="help",
     )
 
 
@@ -96,6 +154,41 @@ def global_admin_css():
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
+
+
+@hooks.register("insert_global_admin_js")
+def user_routing_condition_help_js():
+    """Emit a per-signal metadata blob + a small JS helper so the inline
+    Condition editor shows valid values under Expected values as soon as a
+    Signal name is picked (instead of only after a save-time validation
+    error). Loaded on every admin page — the JS is a no-op unless it finds
+    a signal_name select on the page.
+
+    The metadata is emitted as a ``<script type="application/json">`` block
+    (not raw JS assignment), so admin-editable content in the payload can't
+    escape the script tag — the browser parses it as inert JSON regardless
+    of what characters are in the values. Django's ``json_script`` filter
+    does the same escaping on Django-template pages; here we're generating
+    inline HTML from Python so we call the equivalent helper directly.
+    """
+
+    # Local import — springfield.cms.routing pulls in models and cannot
+    # safely import at wagtail_hooks module top.
+    from springfield.cms.routing import registry
+    from springfield.cms.routing.dispatcher import _json_for_script
+
+    metadata = {}
+    for signal in registry.all():
+        metadata[signal.name] = {
+            "value_type": signal.value_type.value,
+            "enum_values": list(signal.enum_values) if signal.enum_values else None,
+        }
+
+    return format_html(
+        '<script id="springfield-routing-signals" type="application/json">{}</script><script src="{}"></script>',
+        mark_safe(_json_for_script(metadata)),
+        static("js/wagtailadmin-user-routing-condition-help.js"),
+    )
 
 
 @hooks.register("insert_global_admin_js")
@@ -593,6 +686,54 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class UserRoutingViewSet(SnippetViewSet):
+    """Global cross-reference view of User Routing rules across the site.
+
+    Marketing primarily edits rules from the "User Routing" tab on each
+    canonical page (via ``InlinePanel``). This standalone list exists as an
+    aggregation surface — "show me every rule using this signal", "every
+    draft rule", "every rule targeting this variant".
+
+    Add is intentionally disabled here: rules must be created inline on
+    the canonical page's User Routing tab so they attach to a valid
+    ``parent_page`` scope. A standalone Add flow would produce orphaned
+    rules with no reasonable canonical to route from.
+
+    NOT added to the admin menu directly — a ``SubmenuMenuItem`` groups
+    this listing with the Signals reference under a single top-level
+    "User Routing" entry (see below).
+    """
+
+    model = RoutingRule
+    menu_label = "Rules"
+    menu_name = "user_routing_rules"
+    icon = "site"
+    list_display = ["name", "sort_order", "parent_page", "target_page", "status"]
+    list_filter = ["status", "parent_page"]
+    search_fields = ["name"]
+
+    # Custom template extends Wagtail's default snippet index and prepends
+    # a note about the two "draft" concepts — page revision vs. rule.status.
+    index_template_name = "cms/routing/admin/rules_index.html"
+
+    def get_urlpatterns(self):
+        # Drop the ``add/`` path so the standalone snippet Add form is
+        # unreachable. InlinePanel creation on the parent page still works
+        # — that path saves the whole cluster via the parent page's edit
+        # view, which doesn't route through this URL.
+        return [p for p in super().get_urlpatterns() if p.name != "add"]
+
+    def get_common_view_kwargs(self, **kwargs):
+        # The parent ``ModelViewSet`` unconditionally sets
+        # ``add_url_name=self.get_url_name("add")`` on every constructed
+        # view. That kwarg overrides any class-level default the view
+        # class declares. Force it to None so the IndexView's Add header
+        # button doesn't render, and the edit view's "Copy as new" (etc.)
+        # skip too. Downstream ``reverse()`` calls guard on truthiness of
+        # ``add_url_name`` and short-circuit cleanly.
+        return super().get_common_view_kwargs(add_url_name=None, **kwargs)
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -605,6 +746,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    UserRoutingViewSet,
 ):
     register_snippet(_viewset)
 

@@ -27,7 +27,7 @@ import requests
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
@@ -1292,10 +1292,22 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
 
 
 class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
-    """A 2026 version of the What's New page with optional upper/lower split layout."""
+    """A 2026 version of the What's New page with optional upper/lower split layout.
 
-    parent_page_types = ["cms.WhatsNewIndexPage"]
-    subpage_types = []
+    Two roles in the page tree:
+
+    * **Canonical** — direct child of ``WhatsNewIndexPage`` at
+      ``/whatsnew/<version>/``. Rendered to organic traffic and to any
+      Balrog-flow user whose request doesn't match a routing rule.
+    * **Variant** — child of a canonical WNP at
+      ``/whatsnew/<version>/<variant-slug>/``. Reached only via a routing
+      rule 302 (server-side) or the resolver page (client-side, Step 3b).
+
+    Both are the same model — the position in the tree distinguishes them.
+    """
+
+    parent_page_types = ["cms.WhatsNewIndexPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     ftl_files = ["firefox/whatsnew/evergreen"]
 
@@ -1313,6 +1325,17 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     content = StreamField(
         LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
+    )
+
+    routing_paused = models.BooleanField(
+        default=False,
+        verbose_name="Pause routing",
+        help_text=(
+            "Emergency kill switch — when on, the dispatcher short-circuits "
+            "and canonical serves regardless of rule state. Use to stop all "
+            "routing behavior without unpublishing or archiving individual "
+            "rules. Flip back off to resume."
+        ),
     )
 
     content_panels = [
@@ -1348,9 +1371,43 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+    # Panels for the User Routing tab (see edit_handler below).
+    # Rules attached here are evaluated when this page is the canonical for a
+    # /whatsnew/{version}/ request. Variants (children of a canonical) may
+    # also technically render this tab today; rules on variants are inert
+    # because dispatch only queries rules attached to the canonical.
+    user_routing_panels = [
+        HelpPanel(
+            content=(
+                "<p>Rules here apply when <strong>this page is the canonical "
+                "for a release</strong> (a direct child of the What's New Index). "
+                "Adding a rule on a variant page is rejected at save time — "
+                "attach rules to the canonical instead. "
+                "See the <em>User Routing</em> section in the sidebar for a "
+                "global cross-reference of rules across the site.</p>"
+            ),
+        ),
+        FieldPanel("routing_paused"),
+        InlinePanel(
+            "routing_rules",
+            label="User Routing rule",
+            heading="Rules for this release",
+        ),
     ]
+
+    # The Promote tab must reference ``UTMParamsMixin.promote_panels`` (not
+    # the AbstractSpringfieldCMSPage base) so the mixin's "Stub Attribution
+    # UTM Parameters" panel stays visible — MRO would resolve the model-level
+    # ``promote_panels`` attribute to the mixin, but TabbedInterface can't
+    # depend on that resolution because it runs inside the class body.
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(UTMParamsMixin.promote_panels, heading="Promote"),
+            ObjectList(user_routing_panels, heading="User Routing"),
+            ObjectList(settings_panels, heading="Settings"),
+        ]
+    )
 
     class Meta:
         indexes = [
@@ -1368,6 +1425,64 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     @property
     def noindex(self):
         return True
+
+    @staticmethod
+    def _is_canonical_wnp(page):
+        """Single-source-of-truth for 'is ``page`` a canonical WNP?' — a
+        WhatsNewPage2026 whose direct parent is a WhatsNewIndexPage
+        (i.e., depth-2 in the /whatsnew/ subtree, the shape Balrog targets).
+
+        Consumed by :meth:`can_create_at` (rejecting variants-of-variants),
+        :meth:`can_move_to` (same for moves), and
+        :meth:`can_host_routing_rules` (framework hook). Any future
+        refactor that widens/narrows the canonical definition changes one
+        place and all three checks stay in lockstep.
+        """
+        if page is None or not isinstance(page.specific, WhatsNewPage2026):
+            return False
+        parent = page.get_parent()
+        return parent is not None and isinstance(parent.specific, WhatsNewIndexPage)
+
+    @classmethod
+    def can_create_at(cls, parent):
+        """Restrict variant nesting to depth 1.
+
+        WhatsNewPage2026 is a two-role page: canonical (child of an index)
+        or variant (child of a canonical). Nesting variants under variants
+        isn't a valid shape — routing rules attach to the canonical and
+        variants are the direct targets. Reject creating a WNP under a WNP
+        that is itself a variant (i.e., not itself a canonical).
+        """
+        if not super().can_create_at(parent):
+            return False
+        if isinstance(parent.specific, WhatsNewPage2026) and not cls._is_canonical_wnp(parent):
+            return False
+        return True
+
+    def can_move_to(self, parent):
+        """Mirror :meth:`can_create_at` for the Wagtail move flow.
+
+        Without this, an editor can drag an existing WNP under a variant
+        via the admin's move UI (or a script calling ``.move()``) and
+        produce the depth-2 nested-variant shape :meth:`can_create_at`
+        rejects at creation. Same predicate, same rejection.
+        """
+        if not super().can_move_to(parent):
+            return False
+        if isinstance(parent.specific, WhatsNewPage2026) and not self._is_canonical_wnp(parent):
+            return False
+        return True
+
+    def can_host_routing_rules(self):
+        """Framework hook (see ``RoutingRule.clean()``): only canonical WNPs
+        can host rules.
+
+        The hook is consumer-defined so the User Routing framework doesn't
+        need to know anything about WNP-specific tree structure — a future
+        consumer implements its own ``can_host_routing_rules()`` on its
+        canonical page class.
+        """
+        return self._is_canonical_wnp(self)
 
 
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
