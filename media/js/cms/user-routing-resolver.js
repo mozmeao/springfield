@@ -155,16 +155,20 @@
         firefox_pinned: function (data) {
             if (!data) return undefined;
             // Firefox exposes needsPin on modern builds; older builds used
-            // pinnedToTaskbar / pinned. Try all three.
-            if (typeof data.needsPin !== 'undefined') {
+            // pinnedToTaskbar / pinned. Try all three. Each guard checks
+            // ``typeof === 'boolean'`` (not ``!== 'undefined'``), so a null
+            // or non-bool value stays unresolved instead of coercing to
+            // false and flipping ``is_not:[true]`` rules on users whose
+            // Firefox never reported pin state definitively.
+            if (typeof data.needsPin === 'boolean') {
                 // needsPin is TRUE when NOT pinned — invert the semantic.
                 return data.needsPin === false;
             }
-            if (typeof data.pinnedToTaskbar !== 'undefined') {
-                return data.pinnedToTaskbar === true;
+            if (typeof data.pinnedToTaskbar === 'boolean') {
+                return data.pinnedToTaskbar;
             }
-            if (typeof data.pinned !== 'undefined') {
-                return data.pinned === true;
+            if (typeof data.pinned === 'boolean') {
+                return data.pinned;
             }
             return undefined;
         },

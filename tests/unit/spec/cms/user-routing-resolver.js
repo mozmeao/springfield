@@ -524,6 +524,25 @@ describe('user-routing-resolver.js', function () {
             expect(ns.UITOUR_EXTRACTORS.firefox_pinned({})).toBeUndefined();
             expect(ns.UITOUR_EXTRACTORS.firefox_pinned(null)).toBeUndefined();
         });
+
+        it('returns undefined when the field is null or non-bool', function () {
+            // Same class of bug as default_browser: earlier code used
+            // ``typeof !== 'undefined'`` guards which pass for null, then
+            // coerced ``null === false`` → false, flipping is_not:[true]
+            // rules. Each branch now guards on ``typeof === 'boolean'``.
+            expect(
+                ns.UITOUR_EXTRACTORS.firefox_pinned({ needsPin: null })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.firefox_pinned({ pinnedToTaskbar: null })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.firefox_pinned({ pinned: 'yes' })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.firefox_pinned({ needsPin: 1 })
+            ).toBeUndefined();
+        });
     });
 
     describe('UITOUR_EXTRACTORS.fxa_signed_in', function () {
