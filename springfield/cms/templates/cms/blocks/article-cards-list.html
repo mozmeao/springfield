@@ -28,12 +28,14 @@
     {% for card in value.cards %}
       <include:card>
         <content:media>
-          {% set img = card.get_pictogram() %}
-          {% if img %}
-            {{ image(img, "width-400") }}
-          {% else %}
-            <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
-          {% endif %}
+          <div class="fl-card-media fl-card-media-pictogram">
+            {% set img = card.get_pictogram() %}
+            {% if img %}
+              {{ image(img, "width-400") }}
+            {% else %}
+              <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
+            {% endif %}
+          </div>
         </content:media>
         <content:body>
           <include:heading
@@ -55,11 +57,11 @@
     {% for card in value.cards %}
       <include:card>
         <content:media>
-          <include:icon icon_name="{{ card.get_icon() }}" hidden="true" />
+          <div class="fl-card-media fl-card-media-icon">
+            <include:icon icon_name="{{ card.get_icon() }}" hidden="true" />
+          </div>
         </content:media>
         <content:body>
-          <div class="fl-card-media fl-card-media-icon">
-          </div>
           <include:heading
             level="h3"
             heading_size="fl-heading-sm"
