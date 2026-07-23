@@ -258,6 +258,31 @@ class RoutingRule(Orderable, ClusterableModel):
         if self.parent_page_id and self.target_page_id and self.parent_page_id == self.target_page_id:
             raise ValidationError({"target_page": "A rule cannot target the same page it attaches to."})
 
+        # Rules must attach to a page the consumer considers a "canonical"
+        # for routing. The consumer defines what canonical means via a
+        # ``can_host_routing_rules()`` method on the parent page class —
+        # WNP interprets it as "direct child of a WhatsNewIndexPage"; a
+        # future consumer (landing pages, downloads) picks whatever fits
+        # their tree shape. Framework model deliberately doesn't know about
+        # any specific page class here.
+        #
+        # If the parent's page class hasn't opted in with the hook, the
+        # check is skipped — treated as "framework doesn't have an opinion,
+        # trust the InlinePanel wiring." Safer default than defaulting to
+        # rejection because the ParentalKey to WhatsNewPage2026 already
+        # constrains what CAN attach at the schema level.
+        if self.parent_page_id:
+            parent = self.parent_page.specific
+            can_host = getattr(parent, "can_host_routing_rules", None)
+            if callable(can_host) and not can_host():
+                raise ValidationError(
+                    {
+                        "parent_page": (
+                            "This page isn't eligible to host routing rules for its page class. Attach the rule to the appropriate host page instead."
+                        )
+                    }
+                )
+
         # Target page must be a descendant of the canonical (parent) page.
         # This matches the WNP convention (variants are children of the
         # canonical) and prevents accidental cross-linking to unrelated

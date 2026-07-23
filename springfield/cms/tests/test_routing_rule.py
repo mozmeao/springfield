@@ -8,6 +8,7 @@ import pytest
 from wagtail.models import Page
 
 from springfield.cms.models import RoutingCondition, RoutingRule
+from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.cms.models.routing import RULE_STATUS_DRAFT
 from springfield.cms.tests.factories import (
     WhatsNewIndexPageFactory,
@@ -302,6 +303,44 @@ class TestRoutingRuleModel:
         rule.full_clean()  # should not raise
 
     @pytest.mark.django_db
+    def test_clean_skips_host_check_when_parent_lacks_hook(self, _wnp_tree, monkeypatch):
+        # Framework contract: if the parent page doesn't implement
+        # ``can_host_routing_rules``, RoutingRule.clean() must silently
+        # skip the check rather than raise or reject. That's the safer
+        # default that lets consumers opt in without breaking existing
+        # rules on page classes that never adopted the hook.
+        rule = _make_rule(_wnp_tree, save=True)
+        # Simulate a consumer's page class that doesn't provide the hook.
+        # Removing the attribute from the instance's class is invasive —
+        # use monkeypatch to delete on the parent's class only for this test.
+        monkeypatch.delattr(type(_wnp_tree["canonical"]), "can_host_routing_rules")
+        rule.full_clean()  # should not raise
+
+    @pytest.mark.django_db
+    def test_clean_rejects_rule_attached_to_variant(self, _wnp_tree):
+        # Rules must attach to a canonical (direct child of WhatsNewIndexPage),
+        # not to a variant. Attempting to attach a rule to `_wnp_tree["variant"]`
+        # (which is a child of canonical, i.e. a variant) should raise.
+        variant = _wnp_tree["variant"]
+        deeper_target = WhatsNewPage2026Factory(
+            parent=variant,
+            title="Would-be-variant-of-variant",
+            slug="deeper",
+            version="156",
+        )
+        rule = RoutingRule(
+            name="illegal-variant-rule",
+            sort_order=100,
+            parent_page=variant,  # attaching to variant, not canonical
+            target_page=deeper_target,
+            status=RULE_STATUS_DRAFT,
+        )
+        rule.save()
+        RoutingCondition.objects.create(rule=rule, signal_name="lapsed_user", operator="is", expected_values="true")
+        with pytest.raises(ValidationError, match="eligible to host routing rules"):
+            rule.full_clean()
+
+    @pytest.mark.django_db
     def test_target_page_protect_prevents_delete(self, _wnp_tree):
         from django.db.models import ProtectedError
 
@@ -441,3 +480,46 @@ class TestAndSemantics:
         result = evaluate_rules([rule], {"country": "DE"})
         assert result.matched is None
         assert rule not in result.unresolved
+
+
+# ---------------------------------------------------------------------------
+# WhatsNewPage2026 tree depth constraint
+# ---------------------------------------------------------------------------
+
+
+class TestWhatsNewPage2026TreeDepth:
+    """Variants are limited to depth 1 under a canonical — nested variants
+    (variants-of-variants) don't fit the routing model and are rejected by
+    ``WhatsNewPage2026.can_create_at``."""
+
+    @pytest.mark.django_db
+    def test_can_create_canonical_under_index(self, _wnp_tree):
+        assert WhatsNewPage2026.can_create_at(_wnp_tree["index"]) is True
+
+    @pytest.mark.django_db
+    def test_can_create_variant_under_canonical(self, _wnp_tree):
+        assert WhatsNewPage2026.can_create_at(_wnp_tree["canonical"]) is True
+
+    @pytest.mark.django_db
+    def test_cannot_create_nested_variant(self, _wnp_tree):
+        # ``variant`` is itself a child of canonical (i.e., a depth-1 variant).
+        # Creating another WNP under it would be a depth-2 nested variant,
+        # which the constraint rejects.
+        assert WhatsNewPage2026.can_create_at(_wnp_tree["variant"]) is False
+
+    @pytest.mark.django_db
+    def test_can_move_to_mirrors_can_create_at(self, _wnp_tree):
+        # ``can_create_at`` guards new-page creation; ``can_move_to`` must
+        # apply the same predicate for the move flow. Without this, an
+        # admin could drag an existing WNP under a variant and produce
+        # depth-2 nesting the class docstring says can't exist.
+        movable = WhatsNewPage2026Factory(
+            parent=_wnp_tree["canonical"],
+            title="Another variant",
+            slug="another",
+            version="156",
+        )
+        # Can move under canonical (depth-1 variant) — allowed.
+        assert movable.can_move_to(_wnp_tree["canonical"]) is True
+        # Cannot move under an existing variant (would be depth-2 nested).
+        assert movable.can_move_to(_wnp_tree["variant"]) is False

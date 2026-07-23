@@ -807,6 +807,7 @@
     },
     {
       "files": [
+        "js/base/uitour-lib.js",
         "js/cms/user-routing-resolver.js"
       ],
       "name": "user_routing_resolver"

@@ -105,6 +105,34 @@ class TestWnpDispatch:
         assert self._did_not_route_to_variant(response)
 
     @pytest.mark.django_db
+    def test_dispatch_scoped_to_wnp_index_children(self, client, _canonical_and_variants):
+        # Regression: a variant slugged like a version number (e.g. someone
+        # creates "999" as a child of an existing canonical) must NOT be
+        # picked up as a canonical when dispatch runs for /whatsnew/999/.
+        # The scope filter (path__startswith=index.path + depth=index.depth+1)
+        # limits canonical lookup to direct children of a WhatsNewIndexPage.
+        canonical = _canonical_and_variants["canonical"]
+        WhatsNewPage2026Factory(
+            parent=canonical,
+            title="Variant slugged as version",
+            slug="999",
+            version="999",
+            locale=canonical.locale,
+        )
+        # Rule attached to the trapdoor variant with a real target — if the
+        # variant were mistakenly picked up as canonical for /whatsnew/999/,
+        # dispatch would evaluate this rule and 302.
+        # (Note: since the variant is under a canonical, target must be a
+        # descendant. We won't actually attach a rule here — the presence
+        # of the trap slug is enough. dispatch_for_canonical won't run at
+        # all if canonical lookup returns None.)
+        response = client.get("/en-US/whatsnew/999/?utm_source=update")
+        # Falls through to legacy fallback since no CMS canonical matches
+        # at depth 1. Status can be 200 (rendered by fallback) or a locale
+        # redirect; the key assertion is we did NOT match the variant.
+        assert self._did_not_route_to_variant(response)
+
+    @pytest.mark.django_db
     def test_lapsed_rule_matches_and_302s(self, client, _canonical_and_variants):
         _make_rule(
             _canonical_and_variants["canonical"],
@@ -278,6 +306,23 @@ class TestWnpDispatch:
         link_header = response.get("Link", "")
         assert 'rel="canonical"' in link_header
         assert "/whatsnew/156/" in link_header
+
+    @pytest.mark.django_db
+    def test_resolver_page_has_noscript_meta_refresh(self, client, _canonical_and_variants):
+        # JS-disabled visitors: a <noscript><meta http-equiv="refresh"...>
+        # sends them to the canonical URL instead of stranding them on the
+        # transient "Preparing…" loading screen.
+        _make_rule(
+            _canonical_and_variants["canonical"],
+            _canonical_and_variants["signed_in"],
+            condition={"signal": "ai_controls", "equals": "available"},
+        )
+        response = client.get("/en-US/whatsnew/156/?utm_source=update")
+        body = response.content.decode("utf-8")
+        assert "<noscript>" in body
+        assert 'http-equiv="refresh"' in body
+        # Refresh target must be the canonical URL (not a variant).
+        assert "/whatsnew/156/" in body
 
     @pytest.mark.django_db
     def test_resolver_page_has_canonical_link_header(self, client, _canonical_and_variants):

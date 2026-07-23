@@ -497,6 +497,10 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             # autoescape can't corrupt ampersands into &amp;amp; inside the
             # <script> block — the client parses the JSON to get a clean URL.
             "canonical_url_json": _json_for_script(canonical_url_with_qs),
+            # Same URL, un-JSON-wrapped, for the <noscript> meta-refresh
+            # fallback in the template (JS-disabled visitors go here).
+            # Template applies Jinja's ``|e`` escape for attribute-safe HTML.
+            "canonical_url_raw": canonical_url_with_qs,
             "rules_json": _json_for_script(serialized_rules),
             "signal_metadata_json": _json_for_script(signal_metadata),
         },

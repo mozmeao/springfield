@@ -29,6 +29,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
+  {# JS-disabled fallback: meta-refresh redirects to the canonical URL so
+     users without JavaScript still land on a real page instead of staring
+     at the transient "Preparing…" loading screen forever. The canonical
+     URL is server-rendered here (not read from the JSON blob below) since
+     no JS is available to parse the blob. #}
+  <noscript>
+    <meta http-equiv="refresh" content="0;url={{ canonical_url_raw|e }}">
+  </noscript>
   <title>Preparing your page…</title>
   <style>
     :root { color-scheme: light dark; }
