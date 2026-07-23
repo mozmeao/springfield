@@ -327,7 +327,7 @@ def update_pages(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0114_merge_20260714_1149"),
+        ("cms", "0121_contactpage_body_class_contactpage_extra_js_and_more"),
     ]
 
     operations = [

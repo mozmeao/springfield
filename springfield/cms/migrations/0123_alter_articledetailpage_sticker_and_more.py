@@ -10,7 +10,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0115_migrate_card_blocks"),
+        ("cms", "0122_migrate_card_blocks"),
     ]
 
     operations = [
