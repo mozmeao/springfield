@@ -1192,19 +1192,10 @@ DATA_CONSENT_COUNTRIES = [
 # this is likely a temporary measurement addition.
 # Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
 # ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
-# Empty by default (no extra countries). filter(None, ...) drops empty tokens
-# (e.g. a trailing comma) so the list never contains an empty string that
-# could match a blank country code.
-PLAUSIBLE_EXTRA_COUNTRIES = list(
-    filter(
-        None,
-        config(
-            "PLAUSIBLE_EXTRA_COUNTRIES",
-            default="",
-            parser=ListOf(str, allow_empty=True),
-        ),
-    )
-)
+# Empty by default (no extra countries). The `if c.strip()` guard drops empty
+# tokens (e.g. a trailing comma) so the set never contains a blank string that
+# could match an empty country code.
+PLAUSIBLE_EXTRA_COUNTRIES = {c.strip() for c in config("PLAUSIBLE_EXTRA_COUNTRIES", default="").split(",") if c.strip()}
 
 
 # RELAY =========================================================================================
