@@ -1674,7 +1674,7 @@ class CardTestimonialBlock(blocks.StructBlock):
 
 class CardMediaBlock(blocks.StreamBlock):
     icon = IconChoiceBlock(template="cms/blocks/card-icon.html", label="Icon")
-    pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html")
+    pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")
     media = MediaBlock(max_num=1)
 
     class Meta:

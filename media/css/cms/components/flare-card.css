@@ -291,7 +291,6 @@ Filled Card variant
     color: var(--token-color-black-4);
     min-block-size: 316px;
     padding: var(--token-spacing-3xl) var(--token-spacing-xl);
-    text-align: center;
     transition: transform var(--token-transition-base);
 }
 
@@ -456,16 +455,6 @@ Alignment modifiers
     justify-content: flex-end;
 }
 
-/* Filled cards always centre their buttons regardless of the alignment modifier */
-.fl-card.fl-card-filled .fl-button-row,
-.fl-card.fl-card-filled .fl-buttons {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--token-spacing-lg);
-    justify-content: center;
-}
-
 /* =====================================================================
 Card media containers
 ===================================================================== */
@@ -491,12 +480,13 @@ Card media containers
 }
 
 /* Outline/filled cards: break out of padding, clip to top card corners only. */
-.fl-card.fl-card-outline .fl-card-top-media {
+.fl-card.fl-card-outline
+    .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
     margin-block-start: calc(var(--token-spacing-2xl) * -1);
     margin-inline: calc(var(--token-spacing-2xl) * -1);
 }
 
-.fl-card.fl-card-filled .fl-card-top-media {
+.fl-card.fl-card-filled .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
     margin-block-start: calc(var(--token-spacing-3xl) * -1);
     margin-inline: calc(var(--token-spacing-xl) * -1);
 }
