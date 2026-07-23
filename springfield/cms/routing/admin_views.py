@@ -16,7 +16,7 @@ Routing rule.
 
 from django.template.response import TemplateResponse
 
-from .signals import ResolverType, registry
+from .signals import registry
 
 
 def signals_reference(request):
@@ -26,16 +26,24 @@ def signals_reference(request):
     Wagtail's admin URL space via ``register_admin_urls``, which is
     already gated by Wagtail's admin login middleware.
     """
+
+    # Sort so UITour signals (delayed) group at the bottom and everything
+    # else (immediate) sorts by name up top — matches the mental model of
+    # "fast on the top, slow on the bottom" without needing a separate
+    # category column.
+    def _sort_key(signal):
+        return (signal.source == "UITour", signal.source, signal.name)
+
     signals = []
-    for signal in sorted(registry.all(), key=lambda s: (s.resolver_type.value, s.name)):
+    for signal in sorted(registry.all(), key=_sort_key):
         signals.append(
             {
                 "name": signal.name,
                 "description": signal.description,
-                "resolver_type": "server" if signal.resolver_type == ResolverType.SERVER_SIDE else "browser",
+                "source": signal.source or "—",
+                "is_uitour": signal.source == "UITour",
                 "value_type": signal.value_type.value,
                 "enum_values": list(signal.enum_values) if signal.enum_values else None,
-                "cache_safe": signal.cache_safe,
             }
         )
     # Force the Django Templates backend — this template extends
