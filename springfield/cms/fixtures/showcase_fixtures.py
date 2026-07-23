@@ -32,6 +32,7 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "default"},
                 "headline": '<p data-block-key="2026sh1h">Showcase - Default Layout</p>',
+                "description": '<p data-block-key="2026sh1x">A short description below the headline.</p>',
                 "media": _IMAGE_MEDIA,
                 "caption_title": '<p data-block-key="2026sh1t">With caption title.</p>',
                 "caption_description": '<p data-block-key="2026sh1d">The default layout places the image on one side '
@@ -44,6 +45,7 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="2026sh2h">Showcase - Expanded Layout</p>',
+                "description": "",
                 "media": _IMAGE_MEDIA,
                 "caption_title": "",
                 "caption_description": '<p data-block-key="2026sh2d">The expanded layout gives more space to the image. '
@@ -56,6 +58,7 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "full"},
                 "headline": '<p data-block-key="2026sh3h">Showcase - Full Width Layout</p>',
+                "description": '<p data-block-key="2026sh3x">A rich text description spanning the full width.</p>',
                 "media": _IMAGE_MEDIA,
                 "caption_title": '<p data-block-key="2026sh3t">Full width caption title.</p>',
                 "caption_description": '<p data-block-key="2026sh3d">The full layout spans the entire width of the container.</p>',
@@ -67,9 +70,10 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "default"},
                 "headline": '<p data-block-key="2026sh4h">Showcase - With CTA</p>',
+                "description": "",
                 "media": _IMAGE_MEDIA,
                 "caption_title": "",
-                "caption_description": '<p data-block-key="2026sh4d">This variant includes a CTA button row below the image.</p>',
+                "caption_description": "",
                 "cta": [dict(buttons["primary"], id="2026sh04-0000-0000-0000-000000000001")],
             },
             "id": "2026sh01-0000-0000-0000-000000000004",

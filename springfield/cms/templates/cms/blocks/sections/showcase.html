@@ -14,6 +14,9 @@
       heading_size="{{ 'fl-heading-size-' ~ block_level if block_level else 'fl-heading-size-2' }}"
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
     />
+    {% if value.description %}
+      <div class="fl-showcase-description">{{ value.description|richtext }}</div>
+    {% endif %}
   </content:heading>
   <content:image>
     {% if value.settings.layout == "default" %}
@@ -33,7 +36,9 @@
     {% if value.caption_title %}
       <{{ subheading_level}} class="fl-subheading">{{ value.caption_title|richtext|remove_p_tag }}</{{ subheading_level}}>
     {% endif %}
-    {{ value.caption_description|richtext }}
+    {% if value.caption_description %}
+      {{ value.caption_description|richtext }}
+    {% endif %}
   </content:caption>
   {% if value.cta %}
   <content:cta>

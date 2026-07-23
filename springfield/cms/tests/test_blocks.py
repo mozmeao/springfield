@@ -4,7 +4,7 @@
 
 import re
 from unittest import mock
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -31,14 +31,17 @@ from springfield.cms.blocks import (
     BaseArticleValue,
     ButtonBlock,
     ButtonRowBlock,
+    CardsListBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
     IconListItemValue,
+    ImpactDashBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     SpringfieldLinkBlock,
+    TabBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -2669,6 +2672,14 @@ def test_showcase_block(index_page, placeholder_images, rf):
             heading = showcase_el.find(heading_tag, class_="fl-heading")
             assert heading and headline_text in heading.get_text()
 
+            description = showcase_el.find("div", class_="fl-showcase-description")
+            if variant["value"].get("description"):
+                description_text = BeautifulSoup(variant["value"]["description"], "html.parser").get_text()
+                assert description, "Expected .fl-showcase-description to be present when description is set"
+                assert description_text in description.get_text()
+            else:
+                assert not description, "Expected .fl-showcase-description to be absent when no description is set"
+
             figure = showcase_el.find("figure", class_="fl-showcase-image")
             assert figure
 
@@ -2692,8 +2703,9 @@ def test_showcase_block(index_page, placeholder_images, rf):
                 caption_title_text = BeautifulSoup(variant["value"]["caption_title"], "html.parser").get_text()
                 assert caption_title_text in caption.get_text()
 
-            caption_description_text = BeautifulSoup(variant["value"]["caption_description"], "html.parser").get_text()
-            assert caption_description_text in caption.get_text()
+            if variant["value"].get("caption_description"):
+                caption_description_text = BeautifulSoup(variant["value"]["caption_description"], "html.parser").get_text()
+                assert caption_description_text in caption.get_text()
 
             cta = showcase_el.find("div", class_="fl-showcase-cta")
             if variant["value"].get("cta"):
@@ -3828,6 +3840,23 @@ def test_button_row_block_four_buttons_raises():
         block.clean(_make_button_row_value(4))
 
 
+def test_button_row_block_honours_max_buttons_override():
+    block = ButtonRowBlock(max_buttons=5)
+    block.clean(_make_button_row_value(5))
+
+    with pytest.raises(StructBlockValidationError):
+        block.clean(_make_button_row_value(6))
+
+
+def test_cards_list_block_passes_max_buttons_down_to_cards():
+    """The Referral Hub page raises its cards' button limit to 5 this way."""
+    block = CardsListBlock(max_buttons=5)
+    card = block.child_blocks["cards"].child_blocks["card"]
+    button_row = card.child_blocks["content"].child_blocks["buttons"]
+
+    assert button_row.child_blocks["buttons"].meta.max_num == 5
+
+
 def test_section_block_accepts_button_row():
     block = SectionBlock(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
@@ -4351,3 +4380,682 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
         if expected_link:
             assert rendered_link["href"] == add_utm_parameters(context, expected_link["href"])
             assert rendered_link.get_text() == expected_link.get_text()
+
+
+# Referral controls (inside TabBlock)
+
+REFERRAL_CONTROLS_LABELS = {
+    "copy_label": "Grab your link",
+    "copy_success_label": "Got it!",
+    "email_label": "Send an email",
+    "email_subject": "Firefox is worth a look",
+    "email_body": "Try this browser. {invite link} Hope you like it.",
+    "qr_label": "Point a camera at this",
+}
+
+# The referral program has two distinct URLs, and the controls must share the
+# second one, never the first:
+#
+#   Hub    /invite/?ref_key=TEST23456X000000            the referrer's private page
+#   Invite /get-firefox/?invitation=1ABCDEFGHJKMNPQRS   the link handed to friends
+#
+# ReferralHubPage.get_context maps ref_key -> invite_url through
+# springfield.firefox.referral.crypto: a 16-character Crockford base32 referral
+# ID becomes a key-version character plus its FF1 ciphertext. These tests only
+# need a code of the right shape -- the real mapping is covered by
+# test_referral_pages and the referral crypto tests -- so INVITE_CODE is a
+# stand-in rather than a cipher output.
+# TEST23456X000000 is a real dummy ref_key from bootstrap_dummy_referral_data.
+REFERRAL_HUB_URL = "/invite/?ref_key=TEST23456X000000"
+INVITE_CODE = "1ABCDEFGHJKMNPQRS"
+INVITE_URL = f"http://testserver/get-firefox/?invitation={INVITE_CODE}"
+
+
+def _tab_value(referral_controls=True, **overrides):
+    """Build a TabBlock value.
+
+    ``referral_controls`` takes True for the default labels, False for a tab
+    without controls, or an explicit raw stream list to vary a single field.
+    """
+    raw = {
+        "tab_name": "First tab",
+        "heading": "<p>Tab heading</p>",
+        "description": "<p>Tab description</p>",
+        "note": "<p>Tab note</p>",
+        "referral_controls": [],
+    }
+    if referral_controls is True:
+        raw["referral_controls"] = [{"type": "referral_controls", "value": dict(REFERRAL_CONTROLS_LABELS)}]
+    elif referral_controls:
+        raw["referral_controls"] = referral_controls
+    raw.update(overrides)
+    return TabBlock().to_python(raw)
+
+
+_UNSET = object()
+
+
+def _render_tab(referral_controls=True, invite_url=INVITE_URL, install_count=_UNSET, **overrides):
+    """Render a TabBlock.
+
+    ``install_count`` defaults to being absent from the context entirely, which
+    is the situation on every page type other than the Referral Hub.
+    """
+    block = TabBlock()
+    value = _tab_value(referral_controls=referral_controls, **overrides)
+    context = {"invite_url": invite_url, "section_id": "hub", "tab_index": 1}
+    if install_count is not _UNSET:
+        context["install_count"] = install_count
+    return block.render(value, context=context)
+
+
+def test_tab_block_renders_referral_controls_with_all_labels():
+    soup = BeautifulSoup(_render_tab(), "html.parser")
+
+    controls = soup.find("div", class_="fl-referral-controls")
+    assert controls is not None
+
+    copy_button = controls.find("button", attrs={"data-js": "fl-copy-to-clipboard"})
+    assert copy_button["data-copy-value"] == INVITE_URL
+    assert copy_button["data-label-success"] == REFERRAL_CONTROLS_LABELS["copy_success_label"]
+    assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == (REFERRAL_CONTROLS_LABELS["copy_label"])
+    assert (
+        copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == (REFERRAL_CONTROLS_LABELS["copy_success_label"])
+    )
+
+    email_link = controls.find("a", class_="fl-referral-controls-share-email")
+    assert REFERRAL_CONTROLS_LABELS["email_label"] in email_link.get_text(strip=True)
+    assert email_link["href"].startswith("mailto:?subject=")
+
+    assert controls.find("p", class_="fl-referral-controls-qr-label").get_text(strip=True) == (REFERRAL_CONTROLS_LABELS["qr_label"])
+
+
+def _email_href(html):
+    return BeautifulSoup(html, "html.parser").find("a", class_="fl-referral-controls-share-email")["href"]
+
+
+def _email_params(html):
+    """Read the mailto: params the way a mail client does.
+
+    Deliberately percent-decode only, rather than using parse_qs: parse_qs also
+    turns "+" into a space, which would mask the difference between RFC 6068
+    percent-encoding and form encoding. A mail client treats "+" literally, so a
+    body encoded with quote_plus shows up full of plus signs.
+    """
+    href = _email_href(html)
+    # mailto: has no netloc, so the params live in the path; split it by hand.
+    query = href.split("?", 1)[1]
+    return {key: unquote(raw) for key, raw in (param.split("=", 1) for param in query.split("&"))}
+
+
+def test_tab_block_referral_controls_email_body_uses_percent_encoded_spaces():
+    """Spaces must be %20, never "+", or mail clients render the plus signs."""
+    href = _email_href(_render_tab())
+
+    assert "+" not in href
+    assert "%20" in href
+
+
+def test_tab_block_referral_controls_email_href_encodes_subject_and_body():
+    params = _email_params(_render_tab())
+
+    assert params["subject"] == REFERRAL_CONTROLS_LABELS["email_subject"]
+    # The {invite link} placeholder is replaced in place, keeping the copy
+    # written around it on both sides.
+    assert params["body"] == f"Try this browser. {INVITE_URL} Hope you like it."
+
+
+def test_tab_block_referral_controls_email_body_appends_link_when_placeholder_removed():
+    """The link must survive an editor deleting the {invite link} placeholder."""
+    labels = dict(REFERRAL_CONTROLS_LABELS, email_body="Just some copy with no placeholder.")
+    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+
+    assert _email_params(html)["body"] == f"Just some copy with no placeholder.\n\n{INVITE_URL}"
+
+
+def test_tab_block_referral_controls_email_body_replaces_every_placeholder():
+    labels = dict(REFERRAL_CONTROLS_LABELS, email_body="{invite link} or later: {invite link}")
+    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+
+    assert _email_params(html)["body"] == f"{INVITE_URL} or later: {INVITE_URL}"
+    assert "{invite link}" not in html
+
+
+def test_tab_block_referral_controls_email_body_encodes_ampersands_in_the_invite_url():
+    """An unencoded & in the body would truncate it and inject a mailto header."""
+    invite_url = f"{INVITE_URL}&utm_source=referral"
+    html = _render_tab(invite_url=invite_url)
+    params = _email_params(html)
+
+    # The whole URL survives, and the body is not cut off at the "&"...
+    assert params["body"] == f"Try this browser. {invite_url} Hope you like it."
+    # ...nor did the tail leak out as a separate mailto header.
+    assert set(params) == {"subject", "body"}
+
+
+def test_tab_block_referral_controls_qr_code_encodes_invite_url():
+    soup = BeautifulSoup(_render_tab(), "html.parser")
+    qr = soup.find("div", class_="fl-referral-controls-qr-code")
+
+    # The QR is decorative: the copy button already exposes the link.
+    assert qr["aria-hidden"] == "true"
+    assert qr.find("svg") is not None
+
+
+def test_tab_block_referral_controls_never_expose_the_hub_url():
+    """The controls share the invite link, never the referrer's own hub URL.
+
+    Sharing the hub URL would hand a friend the referrer's private dashboard
+    (and their ref_key) instead of a Firefox download page.
+    """
+    html = _render_tab()
+    controls = BeautifulSoup(html, "html.parser").find("div", class_="fl-referral-controls")
+    rendered = str(controls)
+
+    assert "ref_key" not in rendered
+    assert "/invite/" not in rendered
+    assert "TEST23456X000000" not in rendered
+    # ...and the invite link is what actually reaches both share affordances.
+    # Asserted per affordance rather than as an occurrence count, so that adding
+    # or removing a display of the link cannot break this test -- and so the
+    # assertions above cannot pass vacuously on controls that rendered nothing.
+    assert controls.find("button", attrs={"data-js": "fl-copy-to-clipboard"})["data-copy-value"] == INVITE_URL
+    assert INVITE_URL in _email_params(html)["body"]
+
+
+def test_tab_block_omits_referral_controls_when_not_added():
+    soup = BeautifulSoup(_render_tab(referral_controls=False), "html.parser")
+
+    assert soup.find("div", class_="fl-referral-controls") is None
+
+
+def test_tab_block_renders_when_referral_controls_key_absent_from_stored_json():
+    """Tabs saved before referral_controls existed have no such key at all.
+
+    tab.html includes the field unguarded, which is only safe because
+    StructBlock.to_python falls back to the child's get_default() for missing
+    keys, and an empty StreamValue renders to nothing. Guards against a future
+    swap to a plain StructBlock, whose StructValue would always be truthy and
+    would start rendering controls on every pre-existing tab.
+    """
+    block = TabBlock()
+    legacy_raw = {
+        "tab_name": "Legacy tab",
+        "heading": "<p>Legacy heading</p>",
+        "description": "<p>Legacy description</p>",
+        "note": "<p>Legacy note</p>",
+    }
+    value = block.to_python(legacy_raw)
+
+    assert len(value["referral_controls"]) == 0
+
+    html = block.render(value, context={"invite_url": INVITE_URL, "section_id": "hub", "tab_index": 1})
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("div", class_="fl-referral-controls") is None
+    # The rest of the panel still renders.
+    assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
+
+
+def test_tab_block_omits_referral_controls_when_invite_url_missing():
+    """A Referral Hub page opened without ?ref_key= has an empty invite_url."""
+    soup = BeautifulSoup(_render_tab(invite_url=""), "html.parser")
+
+    assert soup.find("div", class_="fl-referral-controls") is None
+    assert soup.find("button", attrs={"data-js": "fl-copy-to-clipboard"}) is None
+
+
+def test_tab_block_renders_referral_controls_between_description_and_note():
+    soup = BeautifulSoup(_render_tab(), "html.parser")
+    panel = soup.find("div", class_="fl-tab")
+
+    order = []
+    for child in panel.find_all(["p", "small", "div"], recursive=True):
+        classes = child.get("class") or []
+        if "fl-tab-description" in classes:
+            order.append("description")
+        elif "fl-referral-controls" in classes:
+            order.append("controls")
+        elif "fl-tab-note" in classes:
+            order.append("note")
+
+    assert order == ["description", "controls", "note"]
+
+
+# Impact dashboard / badges (inside TabBlock)
+
+
+def _badge(number, singular="person", plural="people", badge_name="Connector", message=None):
+    """A raw badge dict. ``message`` is left out entirely unless given."""
+    badge = {
+        "number": number,
+        "singular_label": singular,
+        "plural_label": plural,
+        "badge_name": badge_name,
+    }
+    if message is not None:
+        badge["message"] = message
+    return badge
+
+
+def _impact_dash(badges, locked_summary=None):
+    """A raw impact_dash stream value holding one dashboard with these badges.
+
+    ``locked_summary`` defaults to being absent from the stored JSON entirely,
+    which is both a dashboard saved before the field existed and one an editor
+    left blank.
+    """
+    value = {"badges": badges}
+    if locked_summary is not None:
+        value["locked_summary"] = locked_summary
+    return [{"type": "impact_dash", "value": value}]
+
+
+def _render_impact_dash(numbers=(1, 5, 25), install_count=_UNSET, badges=None, locked_summary=None):
+    html = _render_tab(
+        referral_controls=False,
+        install_count=install_count,
+        impact_dash=_impact_dash(
+            badges if badges is not None else [_badge(n) for n in numbers],
+            locked_summary=locked_summary,
+        ),
+    )
+    return BeautifulSoup(html, "html.parser")
+
+
+def _badge_elements(soup):
+    return soup.select("ul.fl-impact-dash li.fl-badge")
+
+
+def _summary_element(soup):
+    return soup.find("p", class_="fl-impact-dash-summary")
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (None, 0),
+        ("", 0),
+        ("abc", 0),
+        ([], 0),
+        (-5, 0),
+        (0, 0),
+        (7, 7),
+        ("7", 7),
+        (7.9, 7),
+    ],
+)
+def test_impact_dash_coerce_count(raw, expected):
+    """A missing or junk context value must degrade to 0, never raise."""
+    assert ImpactDashBlock._coerce_count(raw) == expected
+
+
+@pytest.mark.parametrize(
+    ("install_count", "number", "is_achieved"),
+    [
+        (0, 1, False),
+        (4, 5, False),
+        (5, 5, True),  # the boundary: >= not >
+        (6, 5, True),
+        (342, 25, True),
+    ],
+)
+def test_impact_dash_badge_achieved_at_threshold_boundary(install_count, number, is_achieved):
+    resolved = ImpactDashBlock._badge_context(_badge(number), install_count)
+
+    assert resolved["is_achieved"] is is_achieved
+
+
+@pytest.mark.parametrize("number", [0, -5, None])
+def test_impact_dash_badge_below_one_is_clamped_and_not_achieved(number):
+    """Legacy JSON only, but a 0 threshold must not unlock for every visitor."""
+    resolved = ImpactDashBlock._badge_context(_badge(number), install_count=0)
+
+    assert resolved["number"] == 1
+    assert resolved["is_achieved"] is False
+    assert ImpactDashBlock._badge_context(_badge(number), install_count=1)["is_achieved"] is True
+
+
+@pytest.mark.parametrize(
+    ("number", "expected"),
+    [
+        (0, "person"),
+        (1, "person"),
+        (2, "people"),
+        (342, "people"),
+    ],
+)
+def test_impact_dash_label_is_singular_only_for_exactly_one(number, expected):
+    """The label agrees with the badge's own number, not the install count."""
+    assert ImpactDashBlock._badge_context(_badge(number), install_count=1)["label"] == expected
+
+
+def test_impact_dash_label_falls_back_to_singular_when_plural_blank():
+    """Only reachable via legacy JSON, but must never render a bare number."""
+    resolved = ImpactDashBlock._badge_context(_badge(5, plural="  "), install_count=0)
+
+    assert resolved["label"] == "person"
+
+
+def test_tab_block_renders_one_badge_per_entry_in_order():
+    badges = _badge_elements(_render_impact_dash(numbers=(1, 5, 25), install_count=0))
+
+    assert len(badges) == 3
+    assert [b.find("span", class_="fl-badge-number").get_text(strip=True) for b in badges] == ["1", "5", "25"]
+
+
+def test_tab_block_renders_badge_number_and_label():
+    badges = _badge_elements(_render_impact_dash(numbers=(1, 5), install_count=0))
+
+    assert badges[0].find("span", class_="fl-badge-label").get_text(strip=True) == "person"
+    assert badges[1].find("span", class_="fl-badge-label").get_text(strip=True) == "people"
+
+
+def test_tab_block_marks_only_achieved_badges():
+    """Guards the includecontents bool-prop footgun.
+
+    If is_achieved reached the component as the string "False" it would be
+    truthy and every badge would render achieved.
+    """
+    badges = _badge_elements(_render_impact_dash(numbers=(1, 5, 25), install_count=5))
+
+    assert [b.get("data-achieved") for b in badges] == ["true", "true", "false"]
+    assert ["is-achieved" in b["class"] for b in badges] == [True, True, False]
+
+
+def test_tab_block_impact_dash_locked_when_install_count_absent_from_context():
+    """TabBlock is reachable from MediaBlock on pages that never set the count."""
+    soup = _render_impact_dash(numbers=(1, 5), install_count=_UNSET)
+
+    assert len(_badge_elements(soup)) == 2
+    assert soup.select("li.fl-badge.is-achieved") == []
+
+
+@pytest.mark.parametrize("install_count", [None, "", "abc"])
+def test_tab_block_impact_dash_locked_when_install_count_not_numeric(install_count):
+    soup = _render_impact_dash(numbers=(1, 5), install_count=install_count)
+
+    assert soup.select("li.fl-badge.is-achieved") == []
+
+
+def test_tab_block_omits_impact_dash_when_not_added():
+    soup = BeautifulSoup(_render_tab(referral_controls=False, impact_dash=[]), "html.parser")
+
+    assert soup.find("ul", class_="fl-impact-dash") is None
+
+
+def test_tab_block_renders_when_impact_dash_key_absent_from_stored_json():
+    """Tabs saved before impact_dash existed have no such key at all."""
+    block = TabBlock()
+    value = block.to_python({"tab_name": "Legacy tab", "description": "<p>Legacy description</p>"})
+
+    assert len(value["impact_dash"]) == 0
+
+    html = block.render(value, context={"section_id": "hub", "tab_index": 1})
+    soup = BeautifulSoup(html, "html.parser")
+
+    assert soup.find("ul", class_="fl-impact-dash") is None
+    assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
+
+
+def test_tab_block_renders_badge_without_image():
+    soup = _render_impact_dash(numbers=(5,), install_count=0)
+
+    assert _badge_elements(soup)[0].find("div", class_="fl-badge-media") is None
+
+
+def test_tab_block_renders_impact_dash_between_referral_controls_and_note():
+    html = _render_tab(install_count=5, impact_dash=_impact_dash([_badge(1)]))
+    panel = BeautifulSoup(html, "html.parser").find("div", class_="fl-tab")
+
+    order = []
+    for child in panel.find_all(["p", "small", "div", "ul"], recursive=True):
+        classes = child.get("class") or []
+        if "fl-tab-description" in classes:
+            order.append("description")
+        elif "fl-referral-controls" in classes:
+            order.append("controls")
+        elif "fl-impact-dash" in classes:
+            order.append("impact_dash")
+        elif "fl-tab-note" in classes:
+            order.append("note")
+
+    assert order == ["description", "controls", "impact_dash", "note"]
+
+
+@pytest.mark.django_db
+def test_tab_block_renders_badge_image(placeholder_images):
+    image = placeholder_images[0]
+    badges = [{"number": 5, "singular_label": "person", "plural_label": "people", "image": image.pk}]
+    soup = _render_impact_dash(install_count=0, badges=badges)
+
+    media = _badge_elements(soup)[0].find("div", class_="fl-badge-media")
+    assert media is not None
+    # Decorative: the number and label already carry the meaning.
+    assert media["aria-hidden"] == "true"
+
+    img = media.find("img", class_="fl-badge-image")
+    assert img["alt"] == ""
+    assert img["loading"] == "lazy"
+    assert "srcset" in img.attrs
+
+
+def test_tab_block_renders_badge_name_below_the_number_and_label():
+    badges = _badge_elements(_render_impact_dash(numbers=(5,), install_count=0))
+
+    name = badges[0].find("p", class_="fl-badge-name")
+    assert name.get_text(strip=True) == "Connector"
+
+    # The name must follow the number/label pair, not precede it.
+    children = [el for el in badges[0].find_all(["p", "div"], recursive=False)]
+    classes = [c for el in children for c in (el.get("class") or [])]
+    assert classes.index("fl-badge-value") < classes.index("fl-badge-name")
+
+
+def test_tab_block_renders_distinct_badge_name_per_badge():
+    badges = _badge_elements(
+        _render_impact_dash(
+            install_count=0,
+            badges=[_badge(1, badge_name="Connector"), _badge(5, badge_name="Supporter")],
+        )
+    )
+
+    assert [b.find("p", class_="fl-badge-name").get_text(strip=True) for b in badges] == ["Connector", "Supporter"]
+
+
+def test_tab_block_omits_badge_name_element_when_blank():
+    """Blank is only reachable via legacy JSON, but must not leave an empty tag."""
+    badges = _badge_elements(_render_impact_dash(install_count=0, badges=[_badge(5, badge_name="   ")]))
+
+    assert badges[0].find("p", class_="fl-badge-name") is None
+    # The rest of the badge still renders.
+    assert badges[0].find("span", class_="fl-badge-number").get_text(strip=True) == "5"
+
+
+def test_impact_dash_badge_context_strips_the_badge_name():
+    resolved = ImpactDashBlock._badge_context(_badge(5, badge_name="  Supporter  "), install_count=0)
+
+    assert resolved["badge_name"] == "Supporter"
+
+
+# Impact dashboard summary: one line above the badges, picked by progress
+
+
+def _summary_source(install_count, badges, locked_summary=""):
+    """_summary_source over raw badge dicts, resolved at this install count."""
+    resolved = [ImpactDashBlock._badge_context(badge, install_count) for badge in badges]
+
+    return ImpactDashBlock._summary_source({"locked_summary": locked_summary}, resolved)
+
+
+# Deliberately not in ascending order: the message must be chosen by number, not
+# by position in the editor's list.
+_MESSAGE_BADGES = [
+    _badge(1, message="first friend"),
+    _badge(25, message="twenty-five friends"),
+    _badge(5, message="five friends"),
+]
+
+
+@pytest.mark.parametrize(
+    ("install_count", "expected"),
+    [
+        (1, "first friend"),
+        (4, "first friend"),
+        (5, "five friends"),  # the boundary: the 5 badge is unlocked at exactly 5
+        (24, "five friends"),
+        (25, "twenty-five friends"),
+        (342, "twenty-five friends"),  # nothing beyond the top badge to move on to
+    ],
+)
+def test_impact_dash_summary_comes_from_the_furthest_badge_unlocked(install_count, expected):
+    assert _summary_source(install_count, _MESSAGE_BADGES) == expected
+
+
+def test_impact_dash_summary_falls_back_to_locked_summary_when_nothing_unlocked():
+    source = _summary_source(0, _MESSAGE_BADGES, locked_summary="Invite your first friend.")
+
+    assert source == "Invite your first friend."
+
+
+def test_impact_dash_summary_is_empty_when_nothing_unlocked_and_no_locked_summary():
+    assert _summary_source(0, _MESSAGE_BADGES) == ""
+
+
+def test_impact_dash_summary_is_empty_when_the_unlocked_badge_has_no_message():
+    """Blank means silence, not the locked copy, which would deny the milestone."""
+    badges = [_badge(1, message="first friend"), _badge(5, message="   ")]
+
+    assert _summary_source(5, badges, locked_summary="Invite your first friend.") == ""
+
+
+def test_impact_dash_summary_prefers_the_first_of_duplicate_thresholds():
+    """Two badges at the same number is editor error, but must be deterministic."""
+    badges = [_badge(5, message="first five"), _badge(5, message="second five")]
+
+    assert _summary_source(5, badges) == "first five"
+
+
+def test_impact_dash_summary_ignores_messages_on_still_locked_badges():
+    badges = [_badge(1, message="first friend"), _badge(5, message="five friends")]
+
+    assert _summary_source(1, badges) == "first friend"
+
+
+@pytest.mark.parametrize("raw", [None, "", "   ", "\n"])
+def test_impact_dash_resolve_summary_is_empty_when_not_filled_in(raw):
+    assert ImpactDashBlock._resolve_summary(raw, install_count=5) == ""
+
+
+def test_impact_dash_resolve_summary_replaces_every_token():
+    resolved = ImpactDashBlock._resolve_summary("{install count} down, {install count} to go", install_count=7)
+
+    assert resolved == "7 down, 7 to go"
+
+
+def test_impact_dash_resolve_summary_keeps_copy_without_the_token():
+    """The token is optional: nothing is appended, unlike the invite link."""
+    assert ImpactDashBlock._resolve_summary("Thanks for spreading the word.", install_count=7) == "Thanks for spreading the word."
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("{install_count}", "{install_count}"),  # underscored: not the token
+        ("{installs}", "{installs}"),
+        ("{ install count }", "{ install count }"),
+        ("100% of {install count} friends", "100% of 7 friends"),
+        ("{{install count}}", "{7}"),
+    ],
+)
+def test_impact_dash_resolve_summary_leaves_other_braces_alone(raw, expected):
+    """A literal replace, so stray braces cannot raise the way str.format would."""
+    assert ImpactDashBlock._resolve_summary(raw, install_count=7) == expected
+
+
+def test_impact_dash_resolve_summary_substitutes_zero():
+    """A referrer with no installs yet still gets a sentence, not a blank."""
+    assert ImpactDashBlock._resolve_summary("You have {install count} installs", install_count=0) == "You have 0 installs"
+
+
+def test_tab_block_renders_the_unlocked_badge_message_with_the_count_substituted():
+    soup = _render_impact_dash(
+        install_count=342,
+        badges=[
+            _badge(1, message="Off the mark with {install count}."),
+            _badge(25, message="You have helped {install count} people switch to Firefox."),
+        ],
+        locked_summary="Invite your first friend.",
+    )
+
+    assert _summary_element(soup).get_text(strip=True) == "You have helped 342 people switch to Firefox."
+
+
+def test_tab_block_renders_the_locked_summary_before_any_badge_is_unlocked():
+    soup = _render_impact_dash(
+        install_count=0,
+        badges=[_badge(1, message="first friend")],
+        locked_summary="Nobody yet -- invite your first friend.",
+    )
+
+    assert _summary_element(soup).get_text(strip=True) == "Nobody yet -- invite your first friend."
+
+
+def test_tab_block_renders_the_locked_summary_when_install_count_absent_from_context():
+    """TabBlock is reachable from MediaBlock on pages that never set the count."""
+    soup = _render_impact_dash(
+        install_count=_UNSET,
+        badges=[_badge(1, message="first friend")],
+        locked_summary="{install count} so far",
+    )
+
+    assert _summary_element(soup).get_text(strip=True) == "0 so far"
+
+
+def test_tab_block_omits_summary_element_when_the_chosen_message_is_blank():
+    soup = _render_impact_dash(numbers=(1, 5), install_count=5, locked_summary="   ")
+
+    assert _summary_element(soup) is None
+    # The badges are unaffected by there being no message to show.
+    assert len(_badge_elements(soup)) == 2
+
+
+def test_tab_block_renders_impact_dash_saved_before_the_message_fields_existed():
+    soup = _render_impact_dash(numbers=(1, 5), install_count=5)
+
+    assert _summary_element(soup) is None
+    assert len(_badge_elements(soup)) == 2
+
+
+def test_tab_block_renders_summary_above_the_badge_list():
+    html = _render_tab(
+        referral_controls=False,
+        install_count=5,
+        impact_dash=_impact_dash([_badge(1, message="{install count} installs")]),
+    )
+    panel = BeautifulSoup(html, "html.parser").find("div", class_="fl-tab")
+
+    order = [c for el in panel.find_all(["p", "ul"]) for c in (el.get("class") or []) if c in {"fl-impact-dash-summary", "fl-impact-dash"}]
+    assert order == ["fl-impact-dash-summary", "fl-impact-dash"]
+
+
+def test_tab_block_does_not_render_the_message_on_the_badge_itself():
+    """The message is the dashboard's summary line, not badge copy."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="five friends")])
+
+    assert "five friends" not in _badge_elements(soup)[0].get_text()
+
+
+def test_tab_block_escapes_html_typed_into_a_message():
+    """A CharBlock is plain text; markup in it must never reach the DOM as markup."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="<b>{install count}</b> installs")])
+
+    summary = _summary_element(soup)
+    assert summary.find("b") is None
+    assert summary.get_text(strip=True) == "<b>5</b> installs"
+
+
+def test_impact_dash_badge_context_strips_the_message():
+    resolved = ImpactDashBlock._badge_context(_badge(5, message="  five friends  "), install_count=5)
+
+    assert resolved["message"] == "five friends"

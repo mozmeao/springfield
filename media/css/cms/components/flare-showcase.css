@@ -22,6 +22,10 @@
     text-align: start;
 }
 
+.fl-showcase-description {
+    color: var(--fl-theme-color-text);
+}
+
 .fl-showcase-image {
     margin: 0 auto;
 }
