@@ -320,6 +320,7 @@ def update_pages(apps, schema_editor):
 
         print(f"Migrating current {model_name} pages...")
         for page in Model.objects.all().iterator():
+            _migrate_page(page, field_names)
 
     print("Card block migration complete!")
 

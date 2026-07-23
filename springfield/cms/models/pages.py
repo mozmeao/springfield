@@ -670,6 +670,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     # NOTE: stored DB value remains "sticker_card" for backwards compatibility.
     INDEX_CARD_PICTOGRAM = "sticker_card"
+    INDEX_CARD_OUTLINE = "outline_card"
     INDEX_CARD_ILLUSTRATION = "illustration_card"
 
     INDEX_CARD_TYPE_CHOICES = (
