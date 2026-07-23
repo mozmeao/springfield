@@ -1,0 +1,35 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+ User Routing — Rules snippet listing.
+
+ Extends Wagtail's default snippet index template and prepends a note
+ above the results table explaining the two "draft" concepts (page
+ revision vs. rule.status) that determine whether a rule appears here.
+ Prevents the common confusion of "I added a rule but the sidebar says
+ no rules."
+#}
+{% extends "wagtailsnippets/snippets/index.html" %}
+{% load i18n %}
+
+{% block listing %}
+    <div class="nice-padding" style="max-width: 44rem; padding-block: 0.75rem 1rem; color: #666;">
+        <p style="margin: 0; line-height: 1.5;">
+            Rules appear here once their parent canonical page has been
+            <strong>published</strong>. Draft-only pages hold their rules in a
+            page revision, not in this table. A rule's own <em>status</em>
+            (Draft / Live / Archived) is separate — only <strong>Live</strong>
+            rules are actually evaluated by the router; Draft and Archived
+            rules still show here so authors can find and edit them.
+        </p>
+    </div>
+    {{ block.super }}
+{% endblock %}
