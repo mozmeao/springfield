@@ -18,13 +18,20 @@
  push its own content in front of the reading surface. The bundle it
  loads (`user_routing_resolver`) is the only thing on the page.
 
- Embeds three data blobs the resolver JS reads by ID:
-   #user-routing-rules            — array of client-side rules
-   #user-routing-signal-metadata  — {signal: {uitour_key: ...}}
+ Embeds four data blobs the resolver JS reads by ID:
+   #user-routing-rules            — array of live rules
+   #user-routing-signal-metadata  — {signal: {uitour_key: ...}} for UITour-resolved signals
    #user-routing-canonical-url    — fallback URL
+   #user-routing-preview-signals  — {signal: value} admin preview overrides (empty in prod)
+
+ ``data-country-code`` on the <html> tag mirrors the site-wide pattern
+ (see ``base-protocol.html``): Fastly injects the country on the request
+ header, Django's ``geo`` context processor exposes it as ``country_code``,
+ the template renders it here. Client resolver reads it via
+ ``document.documentElement.dataset.countryCode``.
 #}
 <!DOCTYPE html>
-<html lang="{{ LANG|default('en') }}" dir="{{ DIR|default('ltr') }}">
+<html lang="{{ LANG|default('en') }}" dir="{{ DIR|default('ltr') }}" data-country-code="{{ country_code|default('') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -71,7 +78,7 @@
     <p id="user-routing-status">Preparing your page…</p>
   </main>
 
-  {# All three blobs are pre-escaped by dispatcher._json_for_script — the
+  {# All blobs are pre-escaped by dispatcher._json_for_script — the
      `</` sequence and comment openers are neutralized before render, so
      admin-editable strings can't break out of the <script> tag. Using
      |safe here bypasses Jinja autoescape (which would double-encode &
@@ -79,6 +86,7 @@
   <script id="user-routing-rules" type="application/json">{{ rules_json|safe }}</script>
   <script id="user-routing-signal-metadata" type="application/json">{{ signal_metadata_json|safe }}</script>
   <script id="user-routing-canonical-url" type="application/json">{{ canonical_url_json|safe }}</script>
+  <script id="user-routing-preview-signals" type="application/json">{{ preview_signals_json|safe }}</script>
 
   {{ js_bundle('user_routing_resolver') }}
 </body>

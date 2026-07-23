@@ -5,61 +5,160 @@
  */
 
 /*
- * User Routing — client-side resolver library.
+ * User Routing — client-side resolver.
  *
- * Reads three JSON blobs embedded in the resolver page (all three are
- * application/json script elements — they must survive HTML autoescape
- * cleanly, so the server pre-escapes </-sequences too):
- *   #user-routing-rules            — array of rules the client must evaluate
- *   #user-routing-signal-metadata  — {signal_name: {uitour_key}} for required signals
- *   #user-routing-canonical-url    — fallback URL string
+ * Runs the full rule evaluator. The server does no rule matching under
+ * this architecture — it just ships the resolver page with:
+ *   #user-routing-rules            — array of live rules
+ *   #user-routing-signal-metadata  — {signal_name: {uitour_key}} for UITour-resolved signals
+ *   #user-routing-canonical-url    — fallback URL
+ *   #user-routing-preview-signals  — {signal_name: value} admin overrides (empty in prod)
  *
  * Contract for a rule:
  *   { name, priority, conditions: [{signal, op, values}, ...], target_url }
  *
- * A rule contains one or more conditions joined by AND — the rule matches
- * only when every condition matches. Cross-rule evaluation stays OR
- * (priority-ordered).
+ * A rule matches iff every condition matches (AND). Cross-rule evaluation
+ * stays OR (priority-ordered).
  *
- * Contract for signal metadata:
- *   { <signal_name>: { uitour_key: '<key>' } }
+ * Signal resolution paths:
+ *   - DOM data attribute      — country
+ *   - URL / <html> attributes — locale, lapsed_user
+ *   - Mozilla.Client (UA)     — platform, is_firefox, firefox_version, os_version
+ *   - UITour (async)          — default_browser, firefox_pinned, profile_age_days,
+ *                               fxa_signed_in, ai_controls
  *
- * The client-side EXTRACTORS map (below) knows how to turn a UITour
- * getConfiguration payload into a signal value for each supported signal.
- * Signal names here match the entries in springfield.cms.routing.__init__.
- *
- * Timing model:
- *   - Global timeout: fall back to canonical if we can't decide overall.
- *   - Per-signal timeout: one hanging UITour key doesn't stall the resolver.
- *   - Short-circuit: navigate as soon as a rule fully matches, even if
- *     other signals are still resolving.
+ * Optimizations:
+ *   - Sync signals (DOM / UA) are resolved before any async work — most
+ *     evaluations can complete instantly.
+ *   - UITour is only invoked when at least one rule references a UITour-resolved
+ *     signal. Pure-sync-signal rulesets never wait on UITour.
+ *   - Global timeout falls back to canonical if the resolver can't decide.
+ *   - Per-signal timeout for UITour so one hanging key doesn't stall the flow.
+ *   - Priority-strict: a lower-priority rule can only win once every higher-priority
+ *     rule has been definitively decided.
  */
 
 (function () {
     'use strict';
 
-    // Tuning — matches the plan doc's design budget.
-    // Global upper bound before the resolver gives up and falls back to canonical.
     var GLOBAL_TIMEOUT_MS = 1500;
-
-    // Per-signal upper bound. Some UITour keys have been observed to hang on
-    // certain Firefox builds; a bounded worst case protects the whole flow.
     var SIGNAL_TIMEOUT_MS = 500;
-
-    // UITour ping timeout. Cheap in practice (~2ms) but must be bounded.
     var PING_TIMEOUT_MS = 800;
 
+    var LAPSED_MIN_GAP = 5;
+
+    // Tests set ``window.Mozilla.UserRoutingResolver = { autoboot: false }``
+    // before this script loads to prevent the boot lifecycle from running
+    // (which would read DOM blobs, mutate window.location, etc.). Pure
+    // functions are still exposed on the namespace for unit-level tests.
+    if (!window.Mozilla) window.Mozilla = {};
+    var ns = window.Mozilla.UserRoutingResolver || {};
+    window.Mozilla.UserRoutingResolver = ns;
+
     // -----------------------------------------------------------------------
-    // Extractors: signal_name → (UITour data) → value
+    // Sync signal resolvers — return a value immediately, or ``undefined``
+    // when the signal isn't determinable on this request. Undefined values
+    // are treated as "fetched but no answer" (rule condition can't match),
+    // NOT as "still pending."
+    // -----------------------------------------------------------------------
+
+    var SYNC_RESOLVERS = {
+        // Server-rendered onto <html data-country-code="...">. Empty attribute
+        // (no country detected server-side) → undefined.
+        country: function () {
+            var v = document.documentElement.getAttribute('data-country-code');
+            return v ? v.toUpperCase() : undefined;
+        },
+
+        // <html lang="en-US"> — set by every Django template via LANG context.
+        locale: function () {
+            var v = document.documentElement.getAttribute('lang');
+            return v || undefined;
+        },
+
+        // Derived: (target_version from URL path) - (oldversion from query) >= LAPSED_MIN_GAP.
+        // Target version comes from the ``/whatsnew/{version}/`` URL segment.
+        // ``oldversion`` accepts an optional ``rv:`` prefix (matches the shape
+        // some Gecko builds emit in UA strings) — the deleted server resolver
+        // stripped it, so we keep parity here.
+        lapsed_user: function () {
+            var pathMatch =
+                window.location.pathname.match(/\/whatsnew\/(\d+)\//);
+            if (!pathMatch) return undefined;
+            var target = parseInt(pathMatch[1], 10);
+            if (isNaN(target)) return undefined;
+            var params = new window.URLSearchParams(window.location.search);
+            var oldRaw = params.get('oldversion');
+            if (!oldRaw) return undefined;
+            var oldMatch = /^(?:rv:)?(\d{1,3})/.exec(oldRaw);
+            if (!oldMatch) return undefined;
+            var old = parseInt(oldMatch[1], 10);
+            if (isNaN(old)) return undefined;
+            return target - old >= LAPSED_MIN_GAP;
+        },
+
+        // Mozilla.Client is loaded on the resolver page via the resolver bundle
+        // (see media/static-bundles.json). All Mozilla.Client sync properties
+        // read navigator.userAgent + navigator.platform + Client Hints — no
+        // UITour dependency, available as soon as the script loads.
+        platform: function () {
+            if (!window.Mozilla || !window.Mozilla.Client) return undefined;
+            var p = window.Mozilla.Client.platform;
+            if (!p) return undefined;
+            // site.js emits ``"other"`` for unrecognized OSes; the admin
+            // dropdown uses the ``"other-os"`` label from the CMS blocks
+            // module. Coerce so a marketer's ``platform is other-os`` rule
+            // still matches the audience the label implies.
+            return p === 'other' ? 'other-os' : p;
+        },
+        // Note: ``is_firefox`` includes iOS Firefox (FxiOS). Mozilla.Client
+        // treats FxiOS as Firefox; the deleted server resolver only matched
+        // the literal string "Firefox" in the UA and excluded FxiOS. The
+        // client's answer is arguably more correct — but rules that want to
+        // exclude iOS should combine ``is_firefox=true`` with
+        // ``platform is [osx, linux, windows, android]``.
+        is_firefox: function () {
+            if (!window.Mozilla || !window.Mozilla.Client) return undefined;
+            // Coerce to real bool — the raw property is truthy/falsy.
+            return window.Mozilla.Client.isFirefox === true;
+        },
+        // Guard: Mozilla.Client.FirefoxMajorVersion returns 0 (not undefined)
+        // on non-Firefox and iOS Firefox UAs. Bare 0 would trip rules that
+        // use ``is_not`` without an ``is_firefox`` guard, so we treat "no
+        // Firefox at all" as unresolved (matching the deleted server
+        // resolver's behavior).
+        firefox_version: function () {
+            if (!window.Mozilla || !window.Mozilla.Client) return undefined;
+            if (window.Mozilla.Client.isFirefox !== true) return undefined;
+            var v = window.Mozilla.Client.FirefoxMajorVersion;
+            if (typeof v !== 'number' || isNaN(v) || v === 0) return undefined;
+            return v;
+        },
+        // From window.site.platformVersion — populated by media/js/base/site.js.
+        // Only surfaces a value for the Windows 10+ bucket today (matches the
+        // server-side resolver's behavior on the pre-refactor branch).
+        os_version: function () {
+            if (!window.site) return undefined;
+            var platform = window.site.platform;
+            var version = window.site.platformVersion;
+            if (platform === 'windows' && parseFloat(version) >= 10.0) {
+                return 'windows-10-plus';
+            }
+            return undefined;
+        }
+    };
+
+    // -----------------------------------------------------------------------
+    // UITour extractors — signal_name → (UITour data) → value.
     //
     // Keys here MUST match the signal names registered in
-    // springfield/cms/routing/__init__.py. If a rule references a signal
-    // that isn't in this map, its value stays undefined and the rule is
-    // treated as unresolved (and thus falls to canonical via the global
-    // timeout).
+    // springfield/cms/routing/__init__.py. A signal referenced by a rule but
+    // NOT present in either SYNC_RESOLVERS or UITOUR_EXTRACTORS stays
+    // unresolved and its rule falls to canonical via the global timeout.
     // -----------------------------------------------------------------------
-    var EXTRACTORS = {
-        // From getConfiguration('appinfo')
+
+    var UITOUR_EXTRACTORS = {
+        // getConfiguration('appinfo')
         default_browser: function (data) {
             if (!data || typeof data.defaultBrowser === 'undefined')
                 return undefined;
@@ -67,8 +166,12 @@
         },
         firefox_pinned: function (data) {
             if (!data) return undefined;
-            // Different Firefox versions expose the pin state under different
-            // keys — try the ones we've seen in the wild.
+            // Firefox exposes needsPin on modern builds; older builds used
+            // pinnedToTaskbar / pinned. Try all three.
+            if (typeof data.needsPin !== 'undefined') {
+                // needsPin is TRUE when NOT pinned — invert the semantic.
+                return data.needsPin === false;
+            }
             if (typeof data.pinnedToTaskbar !== 'undefined') {
                 return data.pinnedToTaskbar === true;
             }
@@ -83,7 +186,6 @@
                 return data.profileCreatedWeeksAgo * 7;
             }
             if (typeof data.profileAgeCreated === 'number') {
-                // Milliseconds since epoch → days ago.
                 return Math.floor(
                     (Date.now() - data.profileAgeCreated) / 86400000
                 );
@@ -91,21 +193,15 @@
             return undefined;
         },
 
-        // From getConfiguration('fxa')
+        // getConfiguration('fxa')
         fxa_signed_in: function (data) {
             if (!data || typeof data.setup === 'undefined') return undefined;
             return data.setup === true;
         },
 
-        // From getConfiguration('aiControls')
+        // getConfiguration('aiControls')
         ai_controls: function (data) {
-            // Consistent typeof guard (like the other extractors) — using
-            // `data.default || undefined` would coerce any legitimate falsy
-            // value ('', false, 0) to undefined and mask real answers.
-            if (!data || typeof data.default === 'undefined') {
-                return undefined;
-            }
-            // The tri-state that ships today: 'enabled' | 'available' | 'blocked'.
+            if (!data || typeof data.default === 'undefined') return undefined;
             return data.default;
         }
     };
@@ -126,11 +222,8 @@
 
     var rules = readJSON('user-routing-rules') || [];
     var signalMetadata = readJSON('user-routing-signal-metadata') || {};
-    // Canonical URL is emitted as a JSON string so the server-side escape
-    // path is the same for all three blobs and & doesn't get autoescaped.
-    // Fall back to the site root if the blob is missing or unparseable —
-    // never navigate('') which would reload the same URL and loop.
     var canonicalUrl = readJSON('user-routing-canonical-url') || '/';
+    var previewSignals = readJSON('user-routing-preview-signals') || {};
     var status = document.getElementById('user-routing-status');
 
     function setStatus(text) {
@@ -163,34 +256,12 @@
     }
 
     // -----------------------------------------------------------------------
-    // Rule evaluation
-    //
-    // Condition shape (matches the server-side dispatcher's serialization):
-    //   { signal: '<name>', op: 'is' | 'is_not', values: [<v1>, <v2>, ...] }
-    //
-    // Rule shape:
-    //   { conditions: [<condition>, ...], ... }
-    //
-    // A rule matches iff every condition matches (AND). Per-condition
-    // tri-state combines as:
-    //   any false     → rule is false (short-circuit — one failing AND-clause
-    //                    is enough to reject, regardless of unresolved others)
-    //   else any null → rule is null (need to wait for more signals)
-    //   else          → rule is true
-    //
-    // conditionMatches / ruleMatches both return:
-    //   true  → matched
-    //   false → definitively did not match
-    //   null  → cannot decide yet (signal unresolved)
+    // Rule evaluation — tri-state, AND-within-rule, OR-across-rules
     // -----------------------------------------------------------------------
 
     function conditionMatches(condition, resolved) {
         var c = condition || {};
         if (!c.signal) return false;
-        // Distinguish 'signal not fetched yet' from 'fetched but no value':
-        //   not in resolved                → null   (still pending)
-        //   in resolved but value=undefined → false (fetched and failed;
-        //                                           condition can't match)
         if (!(c.signal in resolved)) return null;
         var v = resolved[c.signal];
         if (typeof v === 'undefined') return false;
@@ -217,12 +288,10 @@
     }
 
     function evaluate(resolved) {
-        // Priority requires strict ordering: a lower-priority rule can
-        // only "win" once every higher-priority rule has been definitively
-        // decided (matched or not-matched). If any earlier-in-priority
-        // rule is still pending, we hold the decision — otherwise a slow
-        // signal on rule A could let rule B claim traffic that A would
-        // have taken as soon as its signal resolved.
+        // Priority-strict: a lower-priority rule can only "win" once every
+        // higher-priority rule has been definitively decided (matched or
+        // not-matched). If any earlier-in-priority rule is still pending,
+        // hold the decision.
         var pending = false;
         rules.sort(function (a, b) {
             return (a.priority || 0) - (b.priority || 0);
@@ -252,27 +321,68 @@
         } else if (result.definitively_none) {
             done(canonicalUrl);
         }
-        // Otherwise still pending — wait for more signals or the global timeout.
+        // Otherwise still pending — wait for more signals or global timeout.
     }
 
-    // Group required signals by their UITour key so we call getConfiguration
-    // exactly once per key even if multiple signals derive from the same
-    // underlying data.
-    function groupByUITourKey() {
+    // Collect every signal name referenced by any rule's condition. Signals
+    // not referenced don't need resolving — a rule that doesn't need a
+    // UITour signal shouldn't drag every user through a UITour ping.
+    function collectReferencedSignals() {
+        var names = {};
+        for (var i = 0; i < rules.length; i++) {
+            var conditions = rules[i].conditions || [];
+            for (var j = 0; j < conditions.length; j++) {
+                var name = conditions[j].signal;
+                if (name) names[name] = true;
+            }
+        }
+        return Object.keys(names);
+    }
+
+    // Resolve every sync signal (DOM / URL / Mozilla.Client) up front.
+    // Apply preview_signal overrides on top.
+    function resolveSyncSignals(referenced) {
+        referenced.forEach(function (name) {
+            if (SYNC_RESOLVERS[name]) {
+                try {
+                    resolvedSignals[name] = SYNC_RESOLVERS[name]();
+                } catch (e) {
+                    resolvedSignals[name] = undefined;
+                }
+            }
+        });
+        // Preview signal overrides take precedence over any resolved value.
+        // Applies to sync AND UITour signals — overrides an as-yet-unresolved
+        // UITour signal too, so preview URLs don't wait on UITour.
+        Object.keys(previewSignals).forEach(function (name) {
+            resolvedSignals[name] = previewSignals[name];
+        });
+    }
+
+    // Which of the referenced signals need UITour (i.e. are UITour-only
+    // signals AND haven't been overridden by preview_signal)?
+    function signalsNeedingUITour(referenced) {
+        return referenced.filter(function (name) {
+            if (name in previewSignals) return false; // preview override — skip UITour
+            if (SYNC_RESOLVERS[name]) return false; // sync-resolvable
+            return name in UITOUR_EXTRACTORS;
+        });
+    }
+
+    // Group UITour-required signals by their config key so we call
+    // getConfiguration exactly once per key.
+    function groupByUITourKey(names) {
         var byKey = {};
-        Object.keys(signalMetadata).forEach(function (signalName) {
-            if (!EXTRACTORS[signalName]) {
-                // No extractor registered — signal stays unresolved.
-                resolvedSignals[signalName] = undefined;
+        names.forEach(function (name) {
+            var meta = signalMetadata[name];
+            var key = meta && meta.uitour_key;
+            if (!key) {
+                // No metadata for this signal — mark unresolved.
+                resolvedSignals[name] = undefined;
                 return;
             }
-            var uitourKey = signalMetadata[signalName].uitour_key;
-            if (!uitourKey) {
-                resolvedSignals[signalName] = undefined;
-                return;
-            }
-            if (!byKey[uitourKey]) byKey[uitourKey] = [];
-            byKey[uitourKey].push(signalName);
+            if (!byKey[key]) byKey[key] = [];
+            byKey[key].push(name);
         });
         return byKey;
     }
@@ -296,7 +406,7 @@
                 window.clearTimeout(timer);
                 signalNames.forEach(function (name) {
                     try {
-                        resolvedSignals[name] = EXTRACTORS[name](data);
+                        resolvedSignals[name] = UITOUR_EXTRACTORS[name](data);
                     } catch (e) {
                         resolvedSignals[name] = undefined;
                     }
@@ -315,6 +425,20 @@
     }
 
     // -----------------------------------------------------------------------
+    // Expose pure functions for testing. Boot lifecycle below can be
+    // skipped by setting ``ns.autoboot = false`` before this script loads.
+    // -----------------------------------------------------------------------
+
+    ns.conditionMatches = conditionMatches;
+    ns.ruleMatches = ruleMatches;
+    ns.evaluate = evaluate;
+    ns.SYNC_RESOLVERS = SYNC_RESOLVERS;
+    ns.UITOUR_EXTRACTORS = UITOUR_EXTRACTORS;
+    ns.LAPSED_MIN_GAP = LAPSED_MIN_GAP;
+
+    if (ns.autoboot === false) return;
+
+    // -----------------------------------------------------------------------
     // Entry
     // -----------------------------------------------------------------------
 
@@ -323,14 +447,27 @@
         return;
     }
 
+    var referenced = collectReferencedSignals();
+    resolveSyncSignals(referenced);
+
+    // Quick pass: sync signals may already give us a definitive answer.
+    onSignalUpdate();
+    if (navigated) return;
+
+    var uitourNeeded = signalsNeedingUITour(referenced);
+    if (!uitourNeeded.length) {
+        // Rules only need sync signals, and none of them matched (or all
+        // were unresolved for other reasons). Fall back to canonical.
+        done(canonicalUrl);
+        return;
+    }
+
+    // UITour is required for at least one signal. Verify availability, then fetch.
     if (
         !window.Mozilla ||
         !window.Mozilla.UITour ||
         typeof window.Mozilla.UITour.ping !== 'function'
     ) {
-        // UITour not exposed on this browser (non-Firefox, or not on the
-        // allowlisted origin). Every client-side rule is unresolvable →
-        // fall back to canonical.
         done(canonicalUrl);
         return;
     }
@@ -344,11 +481,6 @@
         done(canonicalUrl);
     }, PING_TIMEOUT_MS);
 
-    // Wrap ping() the same way fetchUITourKey wraps getConfiguration —
-    // a synchronous throw (e.g. UITour present but origin not allowlisted
-    // for this call) shouldn't escape the IIFE. The pingTimer will still
-    // fire eventually, so we don't need to signal completion here; just
-    // avoid the console noise from an uncaught error.
     try {
         window.Mozilla.UITour.ping(function () {
             if (pingSettled) return;
@@ -357,7 +489,7 @@
 
             setStatus('Checking your settings…');
 
-            var byKey = groupByUITourKey();
+            var byKey = groupByUITourKey(uitourNeeded);
 
             // A quick pass in case groupByUITourKey resolved everything as
             // unknown up front — we may already have enough to decide.

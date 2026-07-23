@@ -808,6 +808,8 @@
     {
       "files": [
         "js/base/uitour-lib.js",
+        "js/base/site.js",
+        "js/base/mozilla-client.js",
         "js/cms/user-routing-resolver.js"
       ],
       "name": "user_routing_resolver"
