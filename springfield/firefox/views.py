@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import hashlib
 import hmac
+import logging
 import re
 from collections import OrderedDict
 from urllib.parse import urlparse
@@ -31,6 +32,8 @@ from springfield.firefox.firefox_details import (
 from springfield.firefox.redirects import validate_param_value
 from springfield.newsletter.forms import NewsletterFooterForm
 from springfield.releasenotes import version_re
+
+logger = logging.getLogger(__name__)
 
 UA_REGEXP = re.compile(r"Firefox/(%s)" % version_re)
 
@@ -968,6 +971,7 @@ def wnp_dispatch(request, *args, **kwargs):
     is generic and reused by any future page-type consumer.
     """
     from springfield.cms.decorators import prefer_cms
+    from springfield.cms.models.pages import WhatsNewIndexPage
     from springfield.cms.routing import dispatch_for_canonical
 
     version = kwargs.get("version") or ""
@@ -985,7 +989,40 @@ def wnp_dispatch(request, *args, **kwargs):
     if locale is None:
         return _fallback()
 
-    canonical = WhatsNewPage2026.objects.live().public().filter(locale=locale, slug=version).first()
+    # Scope the canonical lookup to direct children of a WhatsNewIndexPage.
+    # WhatsNewPage2026.parent_page_types now includes itself (so variants can
+    # nest under canonicals), meaning a variant slugged as a version number
+    # (e.g. someone creating a "156" variant under a different canonical)
+    # would false-positive on the unscoped filter and be treated as canonical.
+    # Filtering by ``depth=index.depth + 1`` + ``path__startswith=index.path``
+    # keeps dispatch honest — only direct children of the WNP index qualify.
+    #
+    # Same pattern as :meth:`WhatsnewView._get_evergreen_wnp_redirect`.
+    index = WhatsNewIndexPage.objects.filter(locale=locale).order_by("path").first()
+    if index is None:
+        # Log if a slug-matching WNP exists in this locale but the index
+        # doesn't — the pre-scoping code would have picked it up as
+        # canonical; the new scoping makes it unreachable. Silent behavior
+        # change without this log; painful to diagnose otherwise.
+        if WhatsNewPage2026.objects.live().public().filter(locale=locale, slug=version).exists():
+            logger.info(
+                "wnp_dispatch: locale=%r has a WhatsNewPage2026 slugged %r but no WhatsNewIndexPage; falling through to legacy path.",
+                lang_code,
+                version,
+            )
+        return _fallback()
+
+    canonical = (
+        WhatsNewPage2026.objects.live()
+        .public()
+        .filter(
+            locale=locale,
+            slug=version,
+            path__startswith=index.path,
+            depth=index.depth + 1,
+        )
+        .first()
+    )
     if canonical is None:
         return _fallback()
 
