@@ -157,6 +157,33 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def user_routing_condition_help_js():
+    """Emit a per-signal metadata blob + a small JS helper so the inline
+    Condition editor shows valid values under Expected values as soon as a
+    Signal name is picked (instead of only after a save-time validation
+    error). Loaded on every admin page — the JS is a no-op unless it finds
+    a signal_name select on the page.
+    """
+
+    # Local import — springfield.cms.routing pulls in models and cannot
+    # safely import at wagtail_hooks module top.
+    from springfield.cms.routing import registry
+
+    metadata = {}
+    for signal in registry.all():
+        metadata[signal.name] = {
+            "value_type": signal.value_type.value,
+            "enum_values": list(signal.enum_values) if signal.enum_values else None,
+        }
+
+    return format_html(
+        '<script>window.SPRINGFIELD_ROUTING_SIGNALS = {};</script><script src="{}"></script>',
+        mark_safe(json.dumps(metadata)),
+        static("js/wagtailadmin-user-routing-condition-help.js"),
+    )
+
+
+@hooks.register("insert_global_admin_js")
 def mark_locale_roles_in_admin():
     """Adds 'alias → X' badges next to alias locale names on the locales list page.
 
@@ -659,6 +686,11 @@ class UserRoutingViewSet(SnippetViewSet):
     aggregation surface — "show me every rule using this signal", "every
     draft rule", "every rule targeting this variant".
 
+    Add is intentionally disabled here: rules must be created inline on
+    the canonical page's User Routing tab so they attach to a valid
+    ``parent_page`` scope. A standalone Add flow would produce orphaned
+    rules with no reasonable canonical to route from.
+
     NOT added to the admin menu directly — a ``SubmenuMenuItem`` groups
     this listing with the Signals reference under a single top-level
     "User Routing" entry (see below).
@@ -671,6 +703,23 @@ class UserRoutingViewSet(SnippetViewSet):
     list_display = ["name", "sort_order", "parent_page", "target_page", "status"]
     list_filter = ["status", "parent_page"]
     search_fields = ["name"]
+
+    def get_urlpatterns(self):
+        # Drop the ``add/`` path so the standalone snippet Add form is
+        # unreachable. InlinePanel creation on the parent page still works
+        # — that path saves the whole cluster via the parent page's edit
+        # view, which doesn't route through this URL.
+        return [p for p in super().get_urlpatterns() if p.name != "add"]
+
+    def get_common_view_kwargs(self, **kwargs):
+        # The parent ``ModelViewSet`` unconditionally sets
+        # ``add_url_name=self.get_url_name("add")`` on every constructed
+        # view. That kwarg overrides any class-level default the view
+        # class declares. Force it to None so the IndexView's Add header
+        # button doesn't render, and the edit view's "Copy as new" (etc.)
+        # skip too. Downstream ``reverse()`` calls guard on truthiness of
+        # ``add_url_name`` and short-circuit cleanly.
+        return super().get_common_view_kwargs(add_url_name=None, **kwargs)
 
 
 for _viewset in (

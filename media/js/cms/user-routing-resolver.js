@@ -23,7 +23,7 @@
  * Signal resolution paths:
  *   - DOM data attribute      — country
  *   - URL / <html> attributes — locale, lapsed_user
- *   - Mozilla.Client (UA)     — platform, is_firefox, firefox_version, os_version
+ *   - Mozilla.Client (UA)     — platform, is_firefox, firefox_version
  *   - UITour (async)          — default_browser, firefox_pinned, profile_age_days,
  *                               fxa_signed_in, ai_controls
  *
@@ -133,18 +133,6 @@
             var v = window.Mozilla.Client.FirefoxMajorVersion;
             if (typeof v !== 'number' || isNaN(v) || v === 0) return undefined;
             return v;
-        },
-        // From window.site.platformVersion — populated by media/js/base/site.js.
-        // Only surfaces a value for the Windows 10+ bucket today (matches the
-        // server-side resolver's behavior on the pre-refactor branch).
-        os_version: function () {
-            if (!window.site) return undefined;
-            var platform = window.site.platform;
-            var version = window.site.platformVersion;
-            if (platform === 'windows' && parseFloat(version) >= 10.0) {
-                return 'windows-10-plus';
-            }
-            return undefined;
         }
     };
 

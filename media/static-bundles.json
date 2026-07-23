@@ -858,6 +858,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-user-routing-condition-help.js"
+      ],
+      "name": "wagtailadmin-user-routing-condition-help"
+    },
+    {
+      "files": [
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"

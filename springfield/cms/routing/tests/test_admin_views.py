@@ -45,7 +45,6 @@ class TestSignalsReferenceView:
             "locale",
             "lapsed_user",
             "platform",
-            "os_version",
             "is_firefox",
             "firefox_version",
             "default_browser",
@@ -74,16 +73,21 @@ class TestSignalsReferenceView:
         # false" hint rather than an enum list.
         assert "<code>true</code> or <code>false</code>" in body
 
-    def test_server_vs_browser_badges(self):
+    def test_source_column_present(self):
         body = self._render()
-        # Both kinds should appear in the resulting table.
-        assert "user-routing-badge-server" in body
-        assert "user-routing-badge-browser" in body
+        # The Source column replaces the previous Kind / Cache-safe columns.
+        # Both badge variants (UITour vs. everything else) must be present.
+        assert ">Source<" in body
+        assert "user-routing-badge-source-uitour" in body  # UITour signals
+        assert "user-routing-badge-source" in body  # other sources
 
-    def test_cache_safe_column_present(self):
+    def test_source_labels_appear(self):
         body = self._render()
-        # The reference page includes a cache-safe column so authors can
-        # see which server signals still need infra coordination before use.
-        assert "Cache-safe" in body
-        assert "user-routing-badge-cachesafe-yes" in body  # client signals
-        assert "user-routing-badge-cachesafe-no" in body  # country et al.
+        # Each distinct source label surfaces exactly as marketing sees it.
+        for label in (
+            "UITour",
+            "CDN geo header",
+            "User-Agent",
+            "URL",
+        ):
+            assert label in body, f"source label {label!r} missing from reference page"

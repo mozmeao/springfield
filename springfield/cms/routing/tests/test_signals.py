@@ -102,13 +102,13 @@ class TestSignalRegistry:
                 )
             )
 
-    def test_cache_safe_defaults_to_false(self):
+    def test_source_defaults_to_empty(self):
         signal = self._server_signal()
-        assert signal.cache_safe is False
+        assert signal.source == ""
 
-    def test_cache_safe_can_be_set(self):
-        signal = self._server_signal(cache_safe=True)
-        assert signal.cache_safe is True
+    def test_source_can_be_set(self):
+        signal = self._server_signal(source="URL")
+        assert signal.source == "URL"
 
     def test_clear_empties_registry(self):
         reg = self._make_registry()
@@ -129,7 +129,6 @@ class TestDefaultRegistrations:
         "locale",
         "lapsed_user",
         "platform",
-        "os_version",
         "is_firefox",
         "firefox_version",
     }
@@ -160,18 +159,17 @@ class TestDefaultRegistrations:
             assert signal.uitour_key, name
             assert signal.uitour_extractor, name
 
-    def test_all_client_side_signals_are_cache_safe(self):
-        # Client-side signals resolve after the response is served — they
-        # never affect what Fastly caches, so they're inherently cache-safe.
+    def test_all_client_side_signals_source_is_uitour(self):
+        # UITour is the only source that adds a delay for matched users.
+        # Guard against a new UITour signal being registered without its
+        # source label — the admin reference page relies on the label to
+        # warn authors about the delay.
         for name in self.EXPECTED_CLIENT_SIDE:
             signal = registry.get(name)
-            assert signal is not None and signal.cache_safe is True, name
+            assert signal is not None and signal.source == "UITour", name
 
-    def test_country_is_not_cache_safe(self):
-        # Country is the highest-cardinality server signal. Server-side use
-        # of geo requires Fastly VCL cache-key extension — keep the flag
-        # opt-in even under the client-side architecture so a future consumer
-        # doesn't accidentally mark it cache_safe without VCL work.
-        country = registry.get("country")
-        assert country is not None
-        assert country.cache_safe is False
+    def test_all_signals_declare_a_source(self):
+        # Every default registration must declare a source so the reference
+        # page never renders a blank cell for a shipped signal.
+        for signal in registry.all():
+            assert signal.source, f"signal {signal.name!r} has no source label"

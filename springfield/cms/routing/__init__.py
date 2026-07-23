@@ -76,7 +76,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             value_type=SignalValueType.STRING,
             enum_values=country_enum,
-            cache_safe=False,
+            source="CDN geo header",
         )
     )
     registry.register(
@@ -87,6 +87,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             value_type=SignalValueType.STRING,
+            source="URL / <html lang>",
         )
     )
     registry.register(
@@ -100,6 +101,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             value_type=SignalValueType.BOOL,
+            source="URL",
         )
     )
     registry.register(
@@ -111,17 +113,7 @@ def _register_default_signals() -> None:
             supports_in_page_swap=True,
             value_type=SignalValueType.STRING,
             enum_values=("osx", "linux", "windows", "android", "ios", "other-os"),
-        )
-    )
-    registry.register(
-        Signal(
-            name="os_version",
-            description="OS-version refinement (currently: windows-10-plus).",
-            resolver_type=ResolverType.SERVER_SIDE,
-            supports_routing=True,
-            supports_in_page_swap=True,
-            value_type=SignalValueType.STRING,
-            enum_values=("windows-10-plus",),
+            source="User-Agent",
         )
     )
     registry.register(
@@ -132,6 +124,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             value_type=SignalValueType.BOOL,
+            source="User-Agent",
         )
     )
     registry.register(
@@ -142,6 +135,7 @@ def _register_default_signals() -> None:
             supports_routing=True,
             supports_in_page_swap=True,
             value_type=SignalValueType.INT,
+            source="User-Agent",
         )
     )
 
@@ -150,10 +144,6 @@ def _register_default_signals() -> None:
     # via ``Mozilla.UITour.getConfiguration()``. ``uitour_extractor`` names a
     # client-side extractor function; the JS-side resolver library maintains
     # the name → function mapping.
-    #
-    # These signals are inherently ``cache_safe=True``: they don't affect the
-    # Fastly cache key because they resolve AFTER the response is served (in
-    # the browser, not by the CDN).
     registry.register(
         Signal(
             name="default_browser",
@@ -164,7 +154,7 @@ def _register_default_signals() -> None:
             uitour_key="appinfo",
             uitour_extractor="default_browser",
             value_type=SignalValueType.BOOL,
-            cache_safe=True,
+            source="UITour",
         )
     )
     registry.register(
@@ -177,7 +167,7 @@ def _register_default_signals() -> None:
             uitour_key="appinfo",
             uitour_extractor="firefox_pinned",
             value_type=SignalValueType.BOOL,
-            cache_safe=True,
+            source="UITour",
         )
     )
     registry.register(
@@ -190,7 +180,7 @@ def _register_default_signals() -> None:
             uitour_key="appinfo",
             uitour_extractor="profile_age_days",
             value_type=SignalValueType.INT,
-            cache_safe=True,
+            source="UITour",
         )
     )
     registry.register(
@@ -203,7 +193,7 @@ def _register_default_signals() -> None:
             uitour_key="fxa",
             uitour_extractor="fxa_signed_in",
             value_type=SignalValueType.BOOL,
-            cache_safe=True,
+            source="UITour",
         )
     )
     registry.register(
@@ -217,7 +207,7 @@ def _register_default_signals() -> None:
             uitour_extractor="ai_controls",
             value_type=SignalValueType.STRING,
             enum_values=("enabled", "available", "blocked"),
-            cache_safe=True,
+            source="UITour",
         )
     )
 

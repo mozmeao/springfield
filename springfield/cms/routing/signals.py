@@ -88,11 +88,11 @@ class Signal:
             values (e.g. ``ai_controls`` returns one of "enabled" /
             "available" / "blocked"). Used by the admin to render a
             dropdown instead of a free-text input.
-        cache_safe: Documentation-only under the client-side architecture.
-            Marks whether the signal's value can affect what Fastly caches
-            for this request (currently only ``country`` via the site-wide
-            ``data-country-code`` pattern — Fastly cache-key discipline for
-            geo is handled site-wide, not routing-framework-specific).
+        source: Human-readable source label surfaced in the Signals
+            reference admin page — where the signal's value actually comes
+            from (e.g. "UITour", "User-Agent", "URL", "CDN geo header").
+            Authors read this to decide whether a signal will add a UITour
+            delay for matched users.
     """
 
     name: str
@@ -104,7 +104,7 @@ class Signal:
     uitour_extractor: str | None = None
     value_type: SignalValueType = SignalValueType.STRING
     enum_values: tuple[str, ...] | None = None
-    cache_safe: bool = False
+    source: str = ""
 
 
 class SignalRegistrationError(ValueError):
