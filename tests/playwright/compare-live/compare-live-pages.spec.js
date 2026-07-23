@@ -40,7 +40,9 @@ for (const { name, path: pagePath } of PAGES) {
     test(name, async ({ browser }, testInfo) => {
         const localizedPath = pagePath.startsWith('/en-US/')
             ? pagePath.replace('/en-US/', `/${LOCALE}/`)
-            : pagePath === '/' ? `/${LOCALE}/` : `/${LOCALE}${pagePath}`;
+            : pagePath === '/'
+              ? `/${LOCALE}/`
+              : `/${LOCALE}${pagePath}`;
         const contextB = await browser.newContext({
             viewport: VIEWPORT,
             storageState
