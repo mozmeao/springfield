@@ -83,8 +83,7 @@ class Command(BaseCommand):
             post_type = _text(post, "PostType")
             if post_type != "post":
                 self.stderr.write(
-                    f"    ! skipping post ID {_text(post, 'ID')} ({slug!r}): "
-                    f"unsupported PostType {post_type!r} - this command only handles 'post'."
+                    f"    ! skipping post ID {_text(post, 'ID')} ({slug!r}): unsupported PostType {post_type!r} - this command only handles 'post'."
                 )
                 failed += 1
                 continue
