@@ -1675,7 +1675,7 @@ class CardTestimonialBlock(blocks.StructBlock):
 class CardMediaBlock(blocks.StreamBlock):
     icon = IconChoiceBlock(template="cms/blocks/card-icon.html", label="Icon")
     pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")
-    media = MediaBlock(max_num=1)
+    media = MediaBlock(max_num=1, label="Full width media")
 
     class Meta:
         max_num = 1
@@ -1729,7 +1729,7 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
                 ("heading", HeadingBlock()),
                 ("tags_list", TagsBlock(min_num=0, max_num=3, default=[])),
                 ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
-                ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html")),
+                ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")),
                 ("testimonial", CardTestimonialBlock()),
                 ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
             ]
