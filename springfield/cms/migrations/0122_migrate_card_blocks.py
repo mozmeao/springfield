@@ -319,8 +319,7 @@ def update_pages(apps, schema_editor):
             _migrate_revision(revision, field_names)
 
         print(f"Migrating current {model_name} pages...")
-        for page in Model.objects.all():
-            _migrate_page(page, field_names)
+        for page in Model.objects.all().iterator():
 
     print("Card block migration complete!")
 
