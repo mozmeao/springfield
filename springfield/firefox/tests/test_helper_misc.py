@@ -1163,6 +1163,7 @@ class TestFxALinkFragment(TestCase):
         ("GB", "True"),  # United Kingdom
         ("US", "False"),  # United States
         ("CA", "False"),  # Canada
+        ("BR", "False"),  # Brazil is not a consent country (GA keeps loading by default)
     ],
 )
 def test_needs_data_consent(country_code, expected):
@@ -1174,11 +1175,14 @@ def test_needs_data_consent(country_code, expected):
     "country_code, domain, switch_on, expected",
     [
         ("DE", "firefox.com", True, True),
+        ("BR", "firefox.com", True, True),  # Brazil: Plausible enabled, though not a consent country
         ("US", "firefox.com", True, False),
         ("DE", "firefox.com", False, False),
+        ("BR", "firefox.com", False, False),
         ("DE", "", True, False),
+        ("BR", "", True, False),
     ],
 )
 def test_plausible_enabled(country_code, domain, switch_on, expected):
-    with override_settings(PLAUSIBLE_DOMAIN=domain), patch.object(misc, "switch", return_value=switch_on):
+    with override_settings(PLAUSIBLE_DOMAIN=domain, PLAUSIBLE_EXTRA_COUNTRIES=["BR"]), patch.object(misc, "switch", return_value=switch_on):
         assert misc.plausible_enabled(country_code) is expected
