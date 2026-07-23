@@ -384,14 +384,16 @@ class TestRoutingRuleModel:
 
 
 # ---------------------------------------------------------------------------
-# AND semantics — a rule's conditions all must match
+# AND semantics at the model layer — the dict shape emitted for the client
+#
+# Client-side evaluation lives in JS (media/js/cms/user-routing-resolver.js
+# and its Jasmine spec). The model layer is responsible only for emitting
+# the correct condition dicts; AND-precedence + tri-state matching are the
+# client resolver's responsibility.
 # ---------------------------------------------------------------------------
 
 
-class TestAndSemantics:
-    """Rules with multiple conditions match only when EVERY condition matches
-    (AND semantics). Covered here at the model + engine layer."""
-
+class TestConditionsAsDicts:
     @pytest.mark.django_db
     def test_conditions_as_dicts_returns_all(self, _wnp_tree):
         rule = _make_rule(
@@ -407,79 +409,6 @@ class TestAndSemantics:
         assert len(dicts) == 2
         signals = {d["signal"] for d in dicts}
         assert signals == {"country", "lapsed_user"}
-
-    @pytest.mark.django_db
-    def test_all_conditions_match_rule_matches(self, _wnp_tree):
-        from springfield.cms.routing.evaluator import evaluate_rules
-
-        rule = _make_rule(
-            _wnp_tree,
-            condition=None,
-            conditions=[
-                {"signal": "country", "op": "is", "values": ["US"]},
-                {"signal": "lapsed_user", "op": "is", "values": [True]},
-            ],
-            save=True,
-        )
-        result = evaluate_rules([rule], {"country": "US", "lapsed_user": True})
-        assert result.matched is rule
-
-    @pytest.mark.django_db
-    def test_one_failing_condition_rejects_rule(self, _wnp_tree):
-        from springfield.cms.routing.evaluator import evaluate_rules
-
-        rule = _make_rule(
-            _wnp_tree,
-            condition=None,
-            conditions=[
-                {"signal": "country", "op": "is", "values": ["US"]},
-                {"signal": "lapsed_user", "op": "is", "values": [True]},
-            ],
-            save=True,
-        )
-        # country matches, lapsed_user doesn't → rule fails (AND).
-        result = evaluate_rules([rule], {"country": "US", "lapsed_user": False})
-        assert result.matched is None
-
-    @pytest.mark.django_db
-    def test_unresolved_condition_marks_rule_unresolved(self, _wnp_tree):
-        from springfield.cms.routing.evaluator import evaluate_rules
-
-        rule = _make_rule(
-            _wnp_tree,
-            condition=None,
-            conditions=[
-                {"signal": "country", "op": "is", "values": ["US"]},
-                {"signal": "default_browser", "op": "is", "values": [True]},
-            ],
-            save=True,
-        )
-        # country matches, default_browser not in resolved → unresolved (need client).
-        result = evaluate_rules([rule], {"country": "US"})
-        assert result.matched is None
-        assert rule in result.unresolved
-
-    @pytest.mark.django_db
-    def test_false_short_circuits_over_unresolved(self, _wnp_tree):
-        # Precedence check: if any condition is definitively False, the rule
-        # is False even if another condition is unresolved. One failing
-        # AND-clause is enough — waiting for other signals to resolve isn't
-        # going to save it.
-        from springfield.cms.routing.evaluator import evaluate_rules
-
-        rule = _make_rule(
-            _wnp_tree,
-            condition=None,
-            conditions=[
-                {"signal": "country", "op": "is", "values": ["US"]},
-                {"signal": "default_browser", "op": "is", "values": [True]},
-            ],
-            save=True,
-        )
-        # country resolves False; default_browser unresolved → rule False.
-        result = evaluate_rules([rule], {"country": "DE"})
-        assert result.matched is None
-        assert rule not in result.unresolved
 
 
 # ---------------------------------------------------------------------------

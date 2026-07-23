@@ -5,15 +5,23 @@
 """
 Routing layer for CMS-driven conditional rendering.
 
-The primitives here (:mod:`.signals`, :mod:`.server_resolvers`) are page-type
-agnostic. WNP is the first customer; downloads / landings / SmartWindow can
-adopt the same infrastructure by wiring their own canonical page type and
-trigger. See ``.research/wnp-dynamic-rendering-plan.md`` for the full design.
+Under the client-side architecture, all rule evaluation happens in the
+browser via ``media/js/cms/user-routing-resolver.js``. The server-side
+role is:
+
+* Model + admin (:mod:`.models`, :mod:`.admin_views`) — marketing authors
+  rules via the Wagtail admin.
+* Dispatcher (:mod:`.dispatcher`) — for marker'd traffic, renders the
+  resolver page with the live rule set. Server does no rule matching.
+* Signal registry (:mod:`.signals`) — catalog of signal metadata (name,
+  description, value type, admin dropdown choices, UITour key mapping).
+
+WNP is the first consumer. Other page types (landing pages, downloads)
+adopt the same infrastructure by wiring their own canonical page class,
+their own request-marker gate, and the same dispatcher.
 """
 
-from . import server_resolvers as _sr
 from .dispatcher import dispatch_for_canonical
-from .evaluator import EvaluationResult, evaluate_rules, rule_needs_client_side
 from .signals import (
     ResolverType,
     Signal,
@@ -24,22 +32,25 @@ from .signals import (
 )
 
 __all__ = [
-    "EvaluationResult",
     "ResolverType",
     "Signal",
     "SignalRegistrationError",
     "SignalRegistry",
     "SignalValueType",
     "dispatch_for_canonical",
-    "evaluate_rules",
     "registry",
-    "rule_needs_client_side",
 ]
 
 
 # ---------------------------------------------------------------------------
 # Initial signal set. Registered at import time so any consumer that imports
 # ``springfield.cms.routing`` gets a populated registry.
+#
+# ``resolver_type`` categorizes signals for the admin (server-side signals
+# show as "server", UITour-resolved as "browser"). The client-side resolver
+# JS has a hardcoded map of signal name → resolution mechanism; it doesn't
+# read ``resolver_type`` from the registry. Adding a new signal requires
+# registering it here AND adding the resolution logic in the resolver JS.
 # ---------------------------------------------------------------------------
 
 
@@ -51,24 +62,18 @@ def _register_default_signals() -> None:
 
     country_enum = tuple(code for code, _label in GEO_CHOICES)
 
-    # --- Server-side (resolvable at request time, no client involvement) ---
+    # --- Server-side (resolvable from the initial rendered response) ---
+    # Under the client-side architecture, "server-side" means "the value
+    # is either server-rendered onto the page (country via data-country-code)
+    # or derivable from data available to any JS on load (URL, User-Agent)."
+    # The client-side resolver reads these synchronously with no UITour ping.
     registry.register(
         Signal(
             name="country",
-            # Country is the highest-cardinality server-side signal in the
-            # registry (~200 raw values, ~4-8 useful buckets). It is NOT
-            # cache-safe by default: using it server-side without extending
-            # the Fastly VCL cache key to include the (bucketed) country
-            # would silently poison cached responses — a US visitor's cached
-            # variant could be served to a UK visitor. Coordinate with the
-            # Websites team on VCL changes before flipping cache_safe=True.
-            description=(
-                "ISO-3166 country code from the CDN geo header. Server-side use requires Fastly VCL cache-key extension — not cache-safe by default."
-            ),
+            description=("ISO-3166 country code from the CDN geo header. Server-rendered onto <html data-country-code>; client reads it directly."),
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_country,
             value_type=SignalValueType.STRING,
             enum_values=country_enum,
             cache_safe=False,
@@ -77,22 +82,23 @@ def _register_default_signals() -> None:
     registry.register(
         Signal(
             name="locale",
-            description="Locale code the URL was routed under (e.g. en-US, pt-BR).",
+            description="Locale code from the URL / <html lang> (e.g. en-US, pt-BR).",
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_locale,
             value_type=SignalValueType.STRING,
         )
     )
     registry.register(
         Signal(
             name="lapsed_user",
-            description=("True if the user's oldversion (from the Balrog redirect) is at least 5 major versions behind the target version."),
+            description=(
+                "True if the user's oldversion (from the Balrog redirect querystring) "
+                "is at least 5 major versions behind the target version in the URL path."
+            ),
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_lapsed_user,
             value_type=SignalValueType.BOOL,
         )
     )
@@ -103,7 +109,6 @@ def _register_default_signals() -> None:
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_platform,
             value_type=SignalValueType.STRING,
             enum_values=("osx", "linux", "windows", "android", "ios", "other-os"),
         )
@@ -115,7 +120,6 @@ def _register_default_signals() -> None:
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_os_version,
             value_type=SignalValueType.STRING,
             enum_values=("windows-10-plus",),
         )
@@ -127,7 +131,6 @@ def _register_default_signals() -> None:
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_is_firefox,
             value_type=SignalValueType.BOOL,
         )
     )
@@ -138,19 +141,19 @@ def _register_default_signals() -> None:
             resolver_type=ResolverType.SERVER_SIDE,
             supports_routing=True,
             supports_in_page_swap=True,
-            server_resolver=_sr.resolve_firefox_version,
             value_type=SignalValueType.INT,
         )
     )
 
     # --- Client-side (UITour) ---
-    # Values are resolved by the client-side resolver library after page load.
-    # ``uitour_extractor`` names a client-side extractor function; the JS-side
-    # resolver library maintains the name → function mapping.
+    # Values are resolved by the client-side resolver library after page load
+    # via ``Mozilla.UITour.getConfiguration()``. ``uitour_extractor`` names a
+    # client-side extractor function; the JS-side resolver library maintains
+    # the name → function mapping.
     #
-    # Client-side signals are inherently ``cache_safe=True``: they don't
-    # affect the Fastly cache key because they resolve AFTER the response
-    # is served (in the browser, not by the CDN).
+    # These signals are inherently ``cache_safe=True``: they don't affect the
+    # Fastly cache key because they resolve AFTER the response is served (in
+    # the browser, not by the CDN).
     registry.register(
         Signal(
             name="default_browser",

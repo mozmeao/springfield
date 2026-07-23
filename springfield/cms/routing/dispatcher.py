@@ -35,7 +35,6 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
-from .evaluator import evaluate_rules, rule_needs_client_side
 from .signals import registry as default_registry
 
 logger = logging.getLogger(__name__)
@@ -114,27 +113,29 @@ def dispatch_for_canonical(
     request,
     canonical,
     *,
-    signal_context: dict[str, Any] | None = None,
     registry=default_registry,
 ):
-    """Evaluate live routing rules for ``canonical`` and return a response.
+    """Return a routing response for ``canonical`` when the caller wants routing.
+
+    **Client-side architecture.** The server does NO rule evaluation. If the
+    canonical has any live rules attached, dispatch renders the resolver page
+    which ships the full rule set + signal-metadata to the client. The client
+    resolver reads signals from the DOM (server-rendered, e.g. country),
+    from ``Mozilla.Client`` (UA-derived), and from UITour (browser state),
+    then evaluates and navigates.
 
     Args:
         request: The incoming HTTP request.
         canonical: The canonical Wagtail page hosting the rules.
-        signal_context: Optional per-page-type context passed through to
-            signal resolvers. WNP populates ``{"target_version": "156"}``
-            so ``lapsed_user`` can derive the version delta; landing pages
-            might populate campaign-slug context; downloads might pass
-            nothing. Kept as an opaque dict so new consumers don't grow
-            the dispatcher's kwarg surface.
-        registry: The signal registry to resolve against. Defaults to the
-            module-level singleton; overridable for tests.
+        registry: The signal registry, used to look up per-signal UITour
+            keys for the resolver page's signal-metadata blob. Overridable
+            for tests.
 
     Returns:
-        ``HttpResponseRedirect`` on a matched rule, ``TemplateResponse``
-        for the resolver page, or ``None`` when no routing action is
-        warranted.
+        ``HttpResponseRedirect`` when admin ``?preview_rule=`` short-circuits
+        directly to a specific rule's target; ``TemplateResponse`` for the
+        resolver page when routing is active; ``None`` when the caller
+        should serve the canonical page (no rules, paused, etc.).
     """
     # Local import — the RoutingRule model lives in the CMS app; importing
     # it at module scope would create an import cycle since routing/ is
@@ -142,21 +143,17 @@ def dispatch_for_canonical(
     from springfield.cms.models.routing import RULE_STATUS_LIVE
 
     # Track whether ANY preview URL param was supplied so responses are
-    # never served from cache when an author is previewing — even when the
-    # preview lookup fails (invalid rule id, no signals actually override,
-    # etc.). Includes preview_rule presence regardless of resolution success
-    # so a typo like ``?preview_rule=999`` doesn't get cached and served
-    # stale on the author's next attempt.
+    # never served from cache when an author is previewing.
     preview_signals = _parse_preview_signals(request)
     is_preview_request = _is_preview_authorized(request) and (bool(preview_signals) or request.GET.get(PREVIEW_RULE_PARAM))
 
-    # ---- Admin preview: preview_rule short-circuits the evaluator ---------
+    # ---- Admin preview: preview_rule server-side short-circuit --------------
     # ``?preview_rule={id}`` (admin-authenticated) forces a redirect to the
-    # specified rule's target regardless of signal state or rule status.
-    # Answers "does the variant page render correctly?" without needing the
-    # rule to be Live or the signals to actually resolve. Preview intentionally
-    # bypasses the ``routing_paused`` kill switch so authors can still verify
-    # a variant page's render while production routing is halted.
+    # specified rule's target — bypasses the client-side evaluator entirely
+    # so the admin can verify a variant page renders correctly without
+    # needing signals to actually match on the current request. Preview
+    # intentionally bypasses ``routing_paused`` so authors can verify while
+    # production routing is halted.
     preview_rule = _get_preview_rule(request, canonical)
     if preview_rule is not None:
         response = _redirect_to_variant(request, canonical, preview_rule)
@@ -165,10 +162,7 @@ def dispatch_for_canonical(
 
     # ---- Emergency kill switch ---------------------------------------------
     # Marketing-editable field on the canonical page. When on, dispatch
-    # short-circuits and canonical serves regardless of rule state. Rules
-    # themselves are untouched — flip the toggle back off to resume.
-    # Preview requests bypass the pause switch so authors can still verify
-    # a rule works while production routing is halted.
+    # short-circuits and canonical serves regardless of rule state.
     if getattr(canonical, "routing_paused", False) and not is_preview_request:
         return None
 
@@ -176,40 +170,18 @@ def dispatch_for_canonical(
     if not live_rules:
         return None
 
-    # ---- Admin preview: preview_signal overrides resolved signals ---------
-    # ``?preview_signal=name:value`` (repeatable, admin-authenticated)
-    # feeds fake values to the evaluator on top of / overriding the real
-    # server-resolved signals. Answers "would this rule actually match given
-    # these signals?" without needing production traffic conditions.
-    server_signals = registry.resolve_server_signals(request, context=signal_context or {})
-    if preview_signals:
-        # Preview values override real resolutions — same-name preview_signal
-        # takes precedence over what the server would have resolved.
-        server_signals = {**server_signals, **preview_signals}
-
-    result = evaluate_rules(live_rules, server_signals)
-
-    if result.matched is not None:
-        response = _redirect_to_variant(request, canonical, result.matched)
-        if is_preview_request:
-            _set_no_store(response)
-        return response
-
-    client_rules = [r for r in result.unresolved if rule_needs_client_side(r, registry=registry)]
-    if not client_rules:
-        # Log unresolved-but-not-client-side rules so marketing has a signal
-        # when live rules can't be evaluated for a request (e.g. a Firefox-
-        # only signal on a Chrome UA). Silent no-op with observability.
-        if result.unresolved:
-            logger.info(
-                "user_routing: %d live rules unresolvable for canonical=%r; canonical will serve. Rules: %s",
-                len(result.unresolved),
-                getattr(canonical, "pk", None),
-                [getattr(r, "name", "?") for r in result.unresolved],
-            )
-        return None
-
-    response = _render_resolver_page(request, canonical, client_rules, registry=registry)
+    # ---- Client-side evaluation: hand off the full rule set ----------------
+    # The client evaluator handles all signal types (DOM-read, UA-derived,
+    # UITour). ``preview_signal`` overrides also flow through — the resolver
+    # template embeds them alongside rules so the client can apply them
+    # before evaluating.
+    response = _render_resolver_page(
+        request,
+        canonical,
+        live_rules,
+        registry=registry,
+        preview_signal_overrides=preview_signals if is_preview_request else None,
+    )
     if is_preview_request:
         _set_no_store(response)
     return response
@@ -399,23 +371,26 @@ def _append_qs(url: str, querystring: str) -> str:
     return urlunsplit((parts.scheme, parts.netloc, parts.path, merged_query, parts.fragment))
 
 
-def _render_resolver_page(request, canonical, client_rules, *, registry):
-    """Serialize the client-side rule set and render the resolver page.
+def _render_resolver_page(request, canonical, live_rules, *, registry, preview_signal_overrides=None):
+    """Serialize the full live rule set and render the resolver page.
 
-    The template embeds two JSON blobs:
+    The template embeds four JSON blobs consumed by the client-side resolver:
 
-    * ``rules_json`` — the rules the client must evaluate, each with a
-      pre-resolved ``target_url`` (so the client doesn't need to know how
-      to build variant URLs).
-    * ``signal_metadata_json`` — for each signal referenced by any client
-      rule: the UITour key to fetch. The client-side resolver library
-      has a hardcoded map of signal name → extractor function that
-      converts the UITour response into the signal value.
+    * ``rules_json`` — every live rule with a pre-resolved ``target_url``.
+      Client evaluates them all using signals sourced from the DOM (geo),
+      ``Mozilla.Client`` (UA-derived), and UITour (browser state).
+    * ``signal_metadata_json`` — for each signal referenced by any rule:
+      the UITour key (if UITour-resolved). Client uses this to decide
+      whether to fire a UITour call and which config key to fetch.
+    * ``canonical_url_json`` — the canonical URL (with querystring) for the
+      client's fallback navigation when no rule matches.
+    * ``preview_signals_json`` — admin preview_signal overrides for the
+      client to apply on top of its own signal resolution. Empty in
+      production traffic.
 
-    Each rule's serialized ``target_url`` includes analytics attribution
-    params (``routed_from``, ``routed_rule``, ``routed_mode=client``) so
-    when the resolver JS navigates to a variant, the landing event fires
-    with the same attribution as a server-side redirect.
+    Each rule's ``target_url`` includes analytics attribution params
+    (``routed_from``, ``routed_rule``, ``routed_mode=client``) so the
+    landing event fires with rule + canonical attribution.
     """
     canonical_url = canonical.get_url(request=request) or "/"
     querystring = _strip_reserved_routing_params(request.META.get("QUERY_STRING", ""))
@@ -426,7 +401,7 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
     serialized_rules = []
     required_signal_names: set[str] = set()
 
-    for rule in client_rules:
+    for rule in live_rules:
         target_url = rule.target_page.get_url(request=request)
         if not target_url:
             # Target page has no resolvable URL (unpublished, off-site,
@@ -436,10 +411,9 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             # from the resolver would re-enter dispatch, re-render the
             # resolver, and repeat. Drop the rule from the client payload
             # entirely and log the misconfiguration so marketing can see
-            # WHY their rule isn't taking effect. Mirrors the server-side
-            # safe fallback in ``_redirect_to_variant``.
+            # WHY their rule isn't taking effect.
             logger.warning(
-                "user_routing: client-side rule %r has target_page %r with no resolvable URL; dropping from resolver page.",
+                "user_routing: rule %r has target_page %r with no resolvable URL; dropping from resolver page.",
                 getattr(rule, "name", "?"),
                 getattr(rule.target_page, "pk", None),
             )
@@ -455,8 +429,7 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
         # Preserve the incoming querystring on variant URLs too — the user's
         # utm_source, oldversion, etc. shouldn't be dropped by the resolver.
         target_url = _append_qs(target_url, querystring)
-        # Attach analytics attribution — mode is "client" here because the
-        # resolver JS is what will navigate the user, not the server.
+        # Analytics attribution — client-side is now the only mode.
         target_url = _append_qs(
             target_url,
             urlencode(
@@ -472,7 +445,7 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             {
                 "name": rule.name,
                 # ``priority`` is the JSON-contract name the client-side
-                # resolver uses to sort rules. Server-side field renamed to
+                # resolver uses to sort rules. Server-side field is
                 # ``sort_order`` (Wagtail Orderable convention) — the JSON
                 # payload keeps "priority" so marketing / analytics
                 # consumers see the term they know.
@@ -482,6 +455,9 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             }
         )
 
+    # Signal metadata tells the client which UITour key each UITour-resolved
+    # signal maps to. Signals resolved via DOM / UA / Mozilla.Client don't
+    # need per-request metadata — the client has a static map for those.
     signal_metadata: dict[str, dict[str, str]] = {}
     for signal_name in required_signal_names:
         signal = registry.get(signal_name)
@@ -499,10 +475,11 @@ def _render_resolver_page(request, canonical, client_rules, *, registry):
             "canonical_url_json": _json_for_script(canonical_url_with_qs),
             # Same URL, un-JSON-wrapped, for the <noscript> meta-refresh
             # fallback in the template (JS-disabled visitors go here).
-            # Template applies Jinja's ``|e`` escape for attribute-safe HTML.
             "canonical_url_raw": canonical_url_with_qs,
             "rules_json": _json_for_script(serialized_rules),
             "signal_metadata_json": _json_for_script(signal_metadata),
+            # Preview overrides (admin-only). Empty dict in production traffic.
+            "preview_signals_json": _json_for_script(preview_signal_overrides or {}),
         },
     )
     _set_canonical_link_header(response, canonical_url)

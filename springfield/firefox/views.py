@@ -1034,7 +1034,7 @@ def wnp_dispatch(request, *args, **kwargs):
     if request.GET.get(trigger_param) != trigger_value:
         return _fallback()
 
-    response = dispatch_for_canonical(request, canonical, signal_context={"target_version": version})
+    response = dispatch_for_canonical(request, canonical)
     if response is not None:
         return response
 
