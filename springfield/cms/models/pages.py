@@ -26,6 +26,7 @@ from django.utils.cache import add_never_cache_headers
 import requests
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
@@ -2043,8 +2044,35 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
-class ContactPage(AbstractSpringfieldCMSPage):
+class ContactPageForm(WagtailAdminPageForm):
+    """Admin form for ContactPage that validates the allowed slug only when publishing.
+
+    The slug check is publish-only (rather than in the model's clean()) so drafts
+    can be saved with any slug.
+    """
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # `action-publish` is present in the POST data when the editor clicks
+        # "Publish". Draft saves and "Submit for moderation" omit it, so they
+        # skip this check.
+        is_publishing = "action-publish" in self.data
+        slug = cleaned_data.get("slug")
+        if is_publishing and slug and settings.PROD:
+            parent = self.parent_page or self.instance.get_parent()
+            path = parent.url_path + slug + "/" if parent else "/" + slug + "/"
+            # Using .search() instead of .match() because paths will often start with /home/parent/child/
+            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
+                self.add_error("slug", f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}")
+
+        return cleaned_data
+
+
+class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    base_form_class = ContactPageForm
 
     template = "cms/contact_page.html"
     ftl_files = ["cms/contact"]
@@ -2111,6 +2139,12 @@ class ContactPage(AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
+                *PageThemeMixin.theme_panels,
+            ],
+            heading="Appearance",
+        ),
+        MultiFieldPanel(
+            [
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
                 FieldPanel("redirect_to"),
@@ -2163,15 +2197,6 @@ class ContactPage(AbstractSpringfieldCMSPage):
             msg = "Set either a redirect page or a thank you message."
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
-
-        # On production, only certain paths are allowed to send POST requests
-        if settings.PROD:
-            parent = self.get_parent()
-            path = parent.url_path + self.slug + "/" if parent else "/" + self.slug + "/"
-            # Using .search() instead of .match() because paths will often start with /home/parent/child/
-            # We don't use .get_url() because it doesn't use the instance's current slug
-            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
-                errors["slug"] = f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}"
 
         if errors:
             raise ValidationError(errors)
