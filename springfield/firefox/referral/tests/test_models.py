@@ -77,6 +77,33 @@ class TestFirefoxReferralDataRefresh(TestCase):
             {"GOOD000001"},
         )
 
+    def test_skips_wrong_arity_rows(self):
+        # Direct callers of refresh() (bootstrap fixtures, shell fixes) may pass
+        # rows with wrong arity; wrong-arity rows must be counted as skipped
+        # rather than aborting the refresh with a ValueError on unpack.
+        loaded, skipped = FirefoxReferralData.objects.refresh(
+            [
+                ("GOOD000001", "1"),
+                ("BAD_1_ARG",),  # too few
+                ("BAD", "2", "extra"),  # too many
+            ]
+        )
+        self.assertEqual(loaded, 1)
+        self.assertEqual(skipped, 2)
+        self.assertEqual(FirefoxReferralData.objects.count(), 1)
+
+    def test_skips_non_string_referral_id(self):
+        # Passing a non-string referral_id (e.g. int) must not crash the refresh
+        # via AttributeError on `.strip()`.
+        loaded, skipped = FirefoxReferralData.objects.refresh(
+            [
+                ("GOOD000001", "1"),
+                (12345, "2"),  # int, not str
+            ]
+        )
+        self.assertEqual(loaded, 1)
+        self.assertEqual(skipped, 1)
+
     def test_empty_input_raises_and_preserves_existing_table(self):
         FirefoxReferralData.objects.create(referral_id="XYZ0000001", install_count=1)
         with self.assertRaisesRegex(ValueError, "no valid rows"):

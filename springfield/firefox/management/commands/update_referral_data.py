@@ -27,7 +27,8 @@ def _iter_rows(reader):
     for row in reader:
         if not row:
             continue
-        if len(row) < 2:
+        if len(row) != 2:
+            # Surface schema drift rather than silently accepting extra columns.
             continue
         referral_id, install_count = row[0], row[1]
         if not header_checked:

@@ -168,6 +168,19 @@ class TestUpdateReferralDataCommand(TestCase):
 
         self.assertEqual(FirefoxReferralData.objects.count(), 2)
 
+    def test_rows_with_extra_columns_are_dropped(self):
+        # _iter_rows requires exactly two columns. If Data Eng ever emits a
+        # third column, those rows are dropped rather than silently accepted
+        # with the extras ignored, so the schema drift is more visible.
+        body = "referral_id,install_count\nABC1234567,42\nDEF9876543,0,unexpected\n"
+        blob = _make_blob(updated=timezone.now(), csv_body=body)
+        with _patch_storage_client(blob):
+            call_command(COMMAND, quiet=True)
+
+        self.assertEqual(FirefoxReferralData.objects.count(), 1)
+        self.assertTrue(FirefoxReferralData.objects.filter(referral_id="ABC1234567").exists())
+        self.assertFalse(FirefoxReferralData.objects.filter(referral_id="DEF9876543").exists())
+
     def test_empty_csv_raises_and_preserves_existing_data(self):
         # An empty (or header-only) snapshot from Data Eng must not wipe the
         # table. The command should let refresh()'s ValueError propagate so

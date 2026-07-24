@@ -72,15 +72,21 @@ class FirefoxReferralDataManager(models.Manager):
         overflow on referral_id, integer overflow on install_count). Catching
         these BEFORE the atomic delete runs prevents a retry-storm where a
         single bad row keeps rolling back the whole refresh on every tick.
+
+        Tolerant of direct callers passing rows of the wrong arity or a
+        non-string referral_id (e.g. an int from a hand-built fixture): the
+        unpack + string ops are wrapped so a shape error becomes one skipped
+        row rather than aborting the whole refresh.
         """
         max_len = self.model._meta.get_field("referral_id").max_length
         # Postgres integer upper bound (PositiveIntegerField uses a 32-bit int).
         max_count = 2**31 - 1
-        for referral_id, install_count in rows:
-            referral_id = (referral_id or "").strip()
+        for row in rows:
             try:
+                referral_id, install_count = row
+                referral_id = (referral_id or "").strip()
                 count = int(install_count)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, AttributeError):
                 yield False, None, None
                 continue
             if not referral_id or count < 0 or count > max_count:
