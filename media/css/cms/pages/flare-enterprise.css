@@ -58,19 +58,10 @@
         flex-direction: column;
     }
 
-    .fl-enterprise .fl-card-sticker {
+    .fl-enterprise .fl-card-media-pictogram {
         margin: 0 auto var(--token-spacing-lg) 0;
         max-block-size: 60px;
         max-inline-size: 60px;
-        order: 1;
-    }
-
-    .fl-enterprise .fl-card-heading-group {
-        order: 2;
-    }
-
-    .fl-enterprise .fl-body {
-        order: 3;
     }
 
     .fl-enterprise-support h2 {

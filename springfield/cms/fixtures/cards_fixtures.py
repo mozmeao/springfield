@@ -2,6 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# Sample pages demonstrating different ways to use the Card block.
+# These are not separate card types — they are all built on top of CardBlock
+# with different variant/content configurations. Use them as reference for
+# how to configure filled (pictogram), illustration, outlined, and step cards.
+
 from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
@@ -50,65 +55,6 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-# ---------------------------------------------------------------------------
-# Sticker Cards 2026
-# ---------------------------------------------------------------------------
-
-
-def get_sticker_card_variants() -> list[dict]:
-    buttons = get_button_variants()
-    return [
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": "",
-                "headline": '<p data-block-key="2026sc1h">Sticker Card 2026</p>',
-                "content": '<p data-block-key="2026sc1c">Without superheading, primary button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["primary"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": '<p data-block-key="2026sc2s">Firefox 2026</p>',
-                "headline": '<p data-block-key="2026sc2h">Sticker Card with Superheading</p>',
-                "content": '<p data-block-key="2026sc2c">With superheading and secondary button.</p>',
-                "buttons": [buttons["secondary"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": "",
-                "headline": '<p data-block-key="2026sc3h">Clickable Sticker Card</p>',
-                "content": '<p data-block-key="2026sc3c">With expand link enabled - the entire card is clickable.</p>',
-                "buttons": [buttons["ghost"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "sticker_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "image": _IMAGE_VARIANTS,
-                "superheading": '<p data-block-key="2026sc4s">Privacy</p>',
-                "headline": '<p data-block-key="2026sc4h">All Sticker Card Fields</p>',
-                "content": '<p data-block-key="2026sc4c">With all fields filled, expand link enabled, and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026sc01-0000-0000-0000-000000000004",
-        },
-    ]
-
-
 def _cards_list(cards, settings=None, block_id=""):
     return {
         "type": "cards_list",
@@ -120,11 +66,159 @@ def _cards_list(cards, settings=None, block_id=""):
     }
 
 
-def get_sticker_cards_sections() -> list[dict]:
-    cards = get_sticker_card_variants()
+def _card(card_id, settings, content, media=None):
+    return {
+        "type": "card",
+        "value": {
+            "settings": settings,
+            "media": media or [],
+            "content": content,
+        },
+        "id": card_id,
+    }
+
+
+def _settings(variant="", align="start", expand_link=False):
+    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": _SHOW_TO_ALL}
+
+
+# ---------------------------------------------------------------------------
+# Pictogram Cards 2026
+# ---------------------------------------------------------------------------
+
+
+def get_pictogram_card_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        _card(
+            "2026sc01-0000-0000-0000-000000000001",
+            _settings(variant="filled", align="center"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026sc1h">Pictogram Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0001-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026sc01-0001-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc1c">Without superheading, primary button.'
+                    " Switch to Dark Mode to see the alternative image.</p>",
+                    "id": "2026sc01-0001-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["primary"]], "help_text": ""},
+                    "id": "2026sc01-0001-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000002",
+            _settings(variant="filled", align="center"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026sc2s">Firefox 2026</p>',
+                        "heading_text": '<p data-block-key="2026sc2h">Pictogram Card with Superheading</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0002-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026sc01-0002-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc2c">With superheading and secondary button.</p>',
+                    "id": "2026sc01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["secondary"]], "help_text": ""},
+                    "id": "2026sc01-0002-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000003",
+            _settings(variant="filled", align="center", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026sc3h">Clickable Pictogram Card</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0003-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026sc01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc3c">With expand link enabled - the entire card is clickable.</p>',
+                    "id": "2026sc01-0003-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["ghost"]], "help_text": ""},
+                    "id": "2026sc01-0003-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026sc01-0000-0000-0000-000000000004",
+            _settings(variant="filled", align="center", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026sc4s">Privacy</p>',
+                        "heading_text": '<p data-block-key="2026sc4h">All Pictogram Card Fields</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026sc01-0004-0000-0000-000000000001",
+                },
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026sc01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026sc4c">With all fields filled, expand link enabled, and link button.</p>',
+                    "id": "2026sc01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026sc01-0004-0000-0000-000000000004",
+                },
+            ],
+        ),
+    ]
+
+
+def get_pictogram_cards_sections() -> list[dict]:
+    cards = get_pictogram_card_variants()
     return [
         _section(
-            heading_text="Sticker Cards - Default",
+            heading_text="Pictogram Cards - Default",
             subheading_text="Default layout, auto column count based on number of cards.",
             content_blocks=[
                 _cards_list(cards[:3], block_id="2026scs1-0000-0000-0000-000000000001"),
@@ -132,7 +226,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000001",
         ),
         _section(
-            heading_text="Sticker Cards - 4 Cards",
+            heading_text="Pictogram Cards - 4 Cards",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
                 _cards_list(cards, block_id="2026scs1-0000-0000-0000-000000000002"),
@@ -140,7 +234,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000002",
         ),
         _section(
-            heading_text="Sticker Cards - Narrow container, 2 columns",
+            heading_text="Pictogram Cards - Narrow container, 2 columns",
             subheading_text="Narrow container (725px) with 2 columns forced.",
             content_blocks=[
                 _cards_list(
@@ -152,7 +246,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000003",
         ),
         _section(
-            heading_text="Sticker Cards - Wide container, 3 columns",
+            heading_text="Pictogram Cards - Wide container, 3 columns",
             subheading_text="Wide container (1170px) with 3 columns forced.",
             content_blocks=[
                 _cards_list(
@@ -164,7 +258,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000004",
         ),
         _section(
-            heading_text="Sticker Cards - Fill container, 2 wide on mobile",
+            heading_text="Pictogram Cards - Fill container, 2 wide on mobile",
             subheading_text="Fill container (no max-width) with 2-wide on mobile.",
             content_blocks=[
                 _cards_list(
@@ -176,7 +270,7 @@ def get_sticker_cards_sections() -> list[dict]:
             section_id="2026ss01-0000-0000-0000-000000000005",
         ),
         _section(
-            heading_text="Sticker Cards - Scroll",
+            heading_text="Pictogram Cards - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
                 _cards_list(
@@ -190,25 +284,27 @@ def get_sticker_cards_sections() -> list[dict]:
     ]
 
 
-def get_sticker_cards_test_page() -> FreeFormPage2026:
+def get_pictogram_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
 
-    slug = "test-sticker-cards"
+    slug = "test-pictogram-cards"
     page = get_or_create_page(
         FreeFormPage2026,
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Sticker Cards",
+            "title": "Card - Pictogram (filled)",
         },
     )
 
-    sections = get_sticker_cards_sections()
+    sections = get_pictogram_cards_sections()
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
-        "<p>Sticker Cards display a compact image (pictogram) with a short caption. They work well for thumbnail-style "
+        "<p>Sample of the <strong>Card block</strong> configured as a filled pictogram card. "
+        "Use <code>variant=filled</code>, <code>align=center</code>, and a <em>Pictogram</em> content block inside the card.</p>"
+        "<p>Pictogram Cards display a compact image with a short caption. They work well for thumbnail-style "
         "listings (e.g. quick links, theme galleries) where the image is the primary content.</p>"
         "<p>Keep captions short (a few words). The image should be the focal point &mdash; use bright, distinctive imagery rather "
         "than text-heavy graphics.</p>"
@@ -226,54 +322,134 @@ def get_illustration_card_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000011"}],
-                "eyebrow": "",
-                "headline": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
-                "content": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0000-0000-0000-000000000021"}],
-                "eyebrow": '<p data-block-key="2026ic2e">Privacy</p>',
-                "headline": '<p data-block-key="2026ic2h">Illustration Card with Eyebrow</p>',
-                "content": '<p data-block-key="2026ic2c">With eyebrow and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [videos["youtube"]],
-                "eyebrow": '<p data-block-key="2026ic3e">Video</p>',
-                "headline": '<p data-block-key="2026ic3h">Illustration Card with Video</p>',
-                "content": '<p data-block-key="2026ic3c">With a YouTube video instead of an image.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [videos["animation"]],
-                "eyebrow": '<p data-block-key="2026ic4e">Animation</p>',
-                "headline": '<p data-block-key="2026ic4h">Illustration Card with Animation</p>',
-                "content": '<p data-block-key="2026ic4c">With an autoplay looping animation.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026ic01-0000-0000-0000-000000000004",
-        },
+        _card(
+            "2026ic01-0000-0000-0000-000000000001",
+            _settings(),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0001-0000-0000-000000000003",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
+                    "id": "2026ic01-0001-0000-0000-000000000004",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0001-0000-0000-000000000005",
+                },
+            ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
+                    "id": "2026ic01-0001-0000-0000-000000000002",
+                }
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000002",
+            _settings(),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic2e">Privacy</p>',
+                        "heading_text": '<p data-block-key="2026ic2h">Illustration Card with Eyebrow</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic2c">With eyebrow and link button.</p>',
+                    "id": "2026ic01-0002-0000-0000-000000000004",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0002-0000-0000-000000000005",
+                },
+            ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
+                    "id": "2026ic01-0002-0000-0000-000000000002",
+                }
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000003",
+            _settings(),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic3e">Video</p>',
+                        "heading_text": '<p data-block-key="2026ic3h">Illustration Card with Video</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic3c">With a YouTube video instead of an image.</p>',
+                    "id": "2026ic01-0003-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0003-0000-0000-000000000004",
+                },
+            ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [videos["youtube"]],
+                    "id": "2026ic01-0003-0000-0000-000000000001",
+                }
+            ],
+        ),
+        _card(
+            "2026ic01-0000-0000-0000-000000000004",
+            _settings(),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": '<p data-block-key="2026ic4e">Animation</p>',
+                        "heading_text": '<p data-block-key="2026ic4h">Illustration Card with Animation</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026ic01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026ic4c">With an autoplay looping animation.</p>',
+                    "id": "2026ic01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026ic01-0004-0000-0000-000000000004",
+                },
+            ],
+            media=[
+                {
+                    "type": "media",
+                    "value": [videos["animation"]],
+                    "id": "2026ic01-0004-0000-0000-000000000001",
+                }
+            ],
+        ),
     ]
 
 
@@ -333,7 +509,7 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Illustration Cards",
+            "title": "Card - Illustration",
         },
     )
 
@@ -341,6 +517,8 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
+        "<p>Sample of the <strong>Card block</strong> configured as an illustration card (default variant, image at top). "
+        "Use a <em>Media</em> content block as the first item inside the card to produce this layout.</p>"
         "<p>Illustration Cards combine a generous illustration with a headline, description, and one or more buttons. They&rsquo;re "
         "the workhorse card for product and feature roundups where each item needs equal visual prominence.</p>"
         "<p>Aim for illustrations with consistent styles and color treatment across a set.</p>"
@@ -473,50 +651,117 @@ def get_step_cards_test_page() -> FreeFormPage2026:
 def get_outlined_card_variants() -> list[dict]:
     buttons = get_button_variants()
     return [
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "sticker": _EMPTY_IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
-                "content": '<p data-block-key="2026oc1c">Without sticker, primary button.</p>',
-                "buttons": [buttons["primary"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "sticker": _IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc2h">Outlined Card with Sticker</p>',
-                "content": '<p data-block-key="2026oc2c">With sticker and secondary button. Switch to Dark Mode to see the alternative image.</p>',
-                "buttons": [buttons["secondary"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "sticker": _EMPTY_IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc3h">Clickable Outlined Card</p>',
-                "content": '<p data-block-key="2026oc3c">With expand link enabled - the entire card is clickable.</p>',
-                "buttons": [buttons["ghost"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "outlined_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "sticker": _IMAGE_VARIANTS,
-                "headline": '<p data-block-key="2026oc4h">All Outlined Card Fields</p>',
-                "content": '<p data-block-key="2026oc4c">With sticker, expand link enabled, and link button.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026oc01-0000-0000-0000-000000000004",
-        },
+        _card(
+            "2026oc01-0000-0000-0000-000000000001",
+            _settings(variant="outline"),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0001-0000-0000-000000000001",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc1c">Without pictogram, primary button.</p>',
+                    "id": "2026oc01-0001-0000-0000-000000000002",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["primary"]], "help_text": ""},
+                    "id": "2026oc01-0001-0000-0000-000000000003",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000002",
+            _settings(variant="outline"),
+            [
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026oc01-0002-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc2h">Outlined Card with Pictogram</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0002-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc2c">With pictogram and secondary button.'
+                    " Switch to Dark Mode to see the alternative image.</p>",
+                    "id": "2026oc01-0002-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["secondary"]], "help_text": ""},
+                    "id": "2026oc01-0002-0000-0000-000000000004",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000003",
+            _settings(variant="outline", expand_link=True),
+            [
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc3h">Clickable Outlined Card</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0003-0000-0000-000000000001",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc3c">With expand link enabled - the entire card is clickable.</p>',
+                    "id": "2026oc01-0003-0000-0000-000000000002",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["ghost"]], "help_text": ""},
+                    "id": "2026oc01-0003-0000-0000-000000000003",
+                },
+            ],
+        ),
+        _card(
+            "2026oc01-0000-0000-0000-000000000004",
+            _settings(variant="outline", expand_link=True),
+            [
+                {
+                    "type": "pictogram",
+                    "value": _IMAGE_VARIANTS,
+                    "id": "2026oc01-0004-0000-0000-000000000001",
+                },
+                {
+                    "type": "heading",
+                    "value": {
+                        "superheading_text": "",
+                        "heading_text": '<p data-block-key="2026oc4h">All Outlined Card Fields</p>',
+                        "subheading_text": "",
+                    },
+                    "id": "2026oc01-0004-0000-0000-000000000002",
+                },
+                {
+                    "type": "content",
+                    "value": '<p data-block-key="2026oc4c">With pictogram, expand link enabled, and link button.</p>',
+                    "id": "2026oc01-0004-0000-0000-000000000003",
+                },
+                {
+                    "type": "buttons",
+                    "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                    "id": "2026oc01-0004-0000-0000-000000000004",
+                },
+            ],
+        ),
     ]
 
 
@@ -576,7 +821,7 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Outlined Cards",
+            "title": "Card - Outlined",
         },
     )
 
@@ -584,6 +829,8 @@ def get_outlined_cards_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
+        "<p>Sample of the <strong>Card block</strong> configured as an outlined card (<code>variant=outline</code>). "
+        "Use a <em>Heading</em> and <em>Rich Text</em> content inside the card to produce this layout.</p>"
         "<p>Outlined Cards present small content within a bordered container, usually pointing the user somewhere else to get more info. "
         "Always use more than one (ideally 3 or 4), since banners are more appropriate when you only have one thing to highlight.</p>"
     )

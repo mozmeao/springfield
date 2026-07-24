@@ -44,7 +44,7 @@
 --content-dark-mode-only: unset;
 
 /* Card themes */
---sticker-card-border-color: var(--token-color-soft-purple);
+--fl-card-filled-border-color: var(--token-color-soft-purple);
 --theme-purple-card-bg-color: var(--token-color-soft-purple);
 --theme-purple-card-bullet-color: var(--token-color-purple);
 --theme-yellow-card-bg-color: var(--token-color-soft-yellow);

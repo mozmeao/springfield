@@ -1,0 +1,35 @@
+name: "Card - Outlined"
+context:
+  cards:
+    - headline: "Outlined Card"
+      content: "Without pictogram, primary button."
+      expand_link: false
+      pictogram: ""
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: ""
+    - headline: "Outlined Card with Pictogram"
+      content: "With pictogram and secondary button."
+      expand_link: false
+      pictogram: "/media/img/firefox/flare/ai-sticker.png"
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-secondary"
+    - headline: "Clickable Outlined Card"
+      content: "With expand link enabled — the entire card is clickable."
+      expand_link: true
+      pictogram: ""
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-ghost"
+    - headline: "All Outlined Card Fields"
+      content: "With pictogram, expand link, and link button."
+      expand_link: true
+      pictogram: "/media/img/firefox/flare/privacy-sticker.png"
+      buttons:
+        - label: Learn More
+          link: /learn-more/
+          theme_class: "button-link"
