@@ -14,6 +14,15 @@
     color: #15141a;
 }
 
+/*
+ * Reserve enough height for the dropdown sample so the open panel — which is
+ * absolutely positioned and overflows the frame — stays within the captured
+ * element's box in visual-regression screenshots.
+ */
+.pl-dropdown-sample {
+    min-block-size: 320px;
+}
+
 .pl-row {
     margin-bottom: 80px;
 }

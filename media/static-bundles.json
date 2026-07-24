@@ -678,12 +678,6 @@
     },
     {
       "files": [
-        "js/firefox/enterprise/landing.es6.js"
-      ],
-      "name": "firefox-enterprise"
-    },
-    {
-      "files": [
         "js/base/error-pages.js"
       ],
       "name": "page_not_found"

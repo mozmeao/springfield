@@ -8,120 +8,113 @@
 {% set win_download_lang = LANG %}
 {% set mac_download_lang = "ja-JP-mac" if LANG == "ja" else LANG %}
 
-{#
- This markup is reused as-is from the legacy (non-Flare) enterprise page, so
- it needs its supporting CSS bundles here: callers other than
- firefox/enterprise/index.html (e.g. CMS page templates) won't have already
- loaded them via a page_css block. Duplicate <link> tags when a caller does
- already load them are harmless. Remove once this gets a proper Flare redesign.
-#}
-{{ css_bundle('protocol-split') }}
-{{ css_bundle('protocol-picto') }}
-{{ css_bundle('firefox-enterprise') }}
-{{ css_bundle('flare-enterprise') }}
 
-<section id="download" class="fl-section fl-section-download">
+<section id="download" class="fl-section fl-enterprise-download">
   <h2 class="fl-heading">{{ ftl('firefox-enterprise-enterprise-downloads') }}</h2>
 
-  <div class="enterprise-download-lists">
+  <div class="fl-enterprise-download-lists">
 
-    <section class="enterprise-download-block platform-win64">
-      <h3 class="enterprise-download-title">{{ ftl('firefox-enterprise-windows') }}</h3>
-
-      <div class="mzp-c-menu-list mzp-t-cta mzp-t-download" id="win64-download-list">
-        <h4 class="mzp-c-menu-list-title" data-testid="firefox-enterprise-win64-menu-button">{{ ftl('firefox-enterprise-select-your-download') }}</h4>
-        <ul class="mzp-c-menu-list-list download-platform-list">
-          <li class="mzp-c-menu-list-item">
+    <section class="fl-enterprise-download-win64">
+      <h3 class="fl-enterprise-download-os-title">{{ ftl('firefox-enterprise-windows') }}</h3>
+      <include:dropdown
+        label="{{ ftl('firefox-enterprise-select-your-download') }}"
+        id="win64-download-list"
+        testid="firefox-enterprise-win64-menu-button"
+      >
+        <ul>
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang={{ win_download_lang }}" data-download-version="win64" data-cta-text="Win64 - Download - Firefox" data-testid="firefox-enterprise-win64-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang={{ win_download_lang }}" data-download-version="win64-msi" data-cta-text="Win64 - Download - Firefox MSI" data-testid="firefox-enterprise-win64-msi-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest-msi') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=win64&lang={{ win_download_lang }}" data-download-version="win64" data-cta-text="Win64 - Download - Firefox ESR" data-testid="firefox-enterprise-win64-esr-menu-link">
               {{ ftl('firefox-enterprise-firefox-extended-support-release') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-msi-latest-ssl&os=win64&lang={{ win_download_lang }}" data-download-version="win64-msi" data-cta-text="Win64 - Download - Firefox ESR MSI" data-testid="firefox-enterprise-win64-esr-msi-menu-link">
               {{ ftl('firefox-enterprise-firefox-esr-msi') }}
             </a>
           </li>
         </ul>
-      </div>
-
+      </include:dropdown>
     </section>
 
-    <section class="enterprise-download-block platform-mac">
-      <h3 class="enterprise-download-title">{{ ftl('firefox-enterprise-macos') }}</h3>
-
-      <div class="mzp-c-menu-list mzp-t-cta mzp-t-download" id="mac-download-list">
-        <h4 class="mzp-c-menu-list-title" data-testid="firefox-enterprise-mac-menu-button">{{ ftl('firefox-enterprise-select-your-download') }}</h4>
-        <ul class="mzp-c-menu-list-list download-platform-list">
-          <li class="mzp-c-menu-list-item">
+    <section class="fl-enterprise-download-mac">
+      <h3 class="fl-enterprise-download-os-title">{{ ftl('firefox-enterprise-macos') }}</h3>
+      <include:dropdown
+        label="{{ ftl('firefox-enterprise-select-your-download') }}"
+        id="mac-download-list"
+        testid="firefox-enterprise-mac-menu-button"
+      >
+        <ul>
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx" data-cta-text="MacOS - Download - Firefox" data-testid="firefox-enterprise-mac-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx-pkg" data-cta-text="MacOS - Download - Firefox PKG" data-testid="firefox-enterprise-mac-pkg-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest-pkg') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx" data-cta-text="MacOS - Download - Firefox ESR" data-testid="firefox-enterprise-mac-esr-menu-link">
               {{ ftl('firefox-enterprise-firefox-extended-support-release') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-pkg-latest-ssl&os=osx&lang={{ mac_download_lang }}" data-download-version="osx-pkg" data-cta-text="MacOS - Download - Firefox ESR PKG" data-testid="firefox-enterprise-mac-esr-pkg-menu-link">
               {{ ftl('firefox-enterprise-firefox-esr-pkg') }}
             </a>
           </li>
         </ul>
-      </div>
-
+      </include:dropdown>
     </section>
 
-    <section class="enterprise-download-block platform-linux">
-      <h3 class="enterprise-download-title">{{ ftl('firefox-enterprise-linux') }}</h3>
-
-      <div class="mzp-c-menu-list mzp-t-cta mzp-t-download" id="linux-download-list">
-        <h4 class="mzp-c-menu-list-title" data-testid="firefox-enterprise-linux-menu-button">{{ ftl('firefox-enterprise-select-your-download') }}</h4>
-        <ul class="mzp-c-menu-list-list download-platform-list">
-          <li class="mzp-c-menu-list-item">
+    <section class="fl-enterprise-download-linux">
+      <h3 class="fl-enterprise-download-os-title">{{ ftl('firefox-enterprise-linux') }}</h3>
+      <include:dropdown
+        label="{{ ftl('firefox-enterprise-select-your-download') }}"
+        id="linux-download-list"
+        testid="firefox-enterprise-linux-menu-button"
+      >
+        <ul>
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Linux64 - Download - Firefox" data-testid="firefox-enterprise-linux-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest-64-bit') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Linux64 ARM64 - Download - Firefox" data-testid="firefox-enterprise-linux-arm64-menu-link">
               {{ ftl('firefox-enterprise-firefox-latest-arm64') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64&lang={{ LANG }}" data-download-version="linux64" data-cta-text="Linux64 - Download - Firefox ESR" data-testid="firefox-enterprise-linux-esr-menu-link">
               {{ ftl('firefox-enterprise-firefox-esr-64-bit') }}
             </a>
           </li>
-          <li class="mzp-c-menu-list-item">
+          <li>
             <a class="download-link ga-product-download" href="https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=linux64-aarch64&lang={{ LANG }}" data-download-version="linux64-aarch64" data-cta-text="Linux64 ARM64 - Download - Firefox ESR" data-testid="firefox-enterprise-linux-esr-arm64-menu-link">
               {{ ftl('firefox-enterprise-firefox-esr-arm64') }}
             </a>
           </li>
         </ul>
-      </div>
-
+      </include:dropdown>
     </section>
+
   </div>
 
-  <div class="enterprise-download-support enterprise-download-resources">
-    <h3 class="enterprise-download-subtitle">{{ ftl('firefox-enterprise-resources') }}</h3>
-    <ul class="mzp-u-list-styled">
+  <div class="fl-enterprise-download-resources">
+    <h3 class="fl-enterprise-download-resources-title">{{ ftl('firefox-enterprise-resources') }}</h3>
+    <ul>
       <li><a href="https://firefox-admin-docs.mozilla.org/">{{ ftl('firefox-enterprise-documentation') }}</a></li>
       <li><a href="https://github.com/mozilla/policy-templates/releases">{{ ftl('firefox-enterprise-policy-templates') }}</a></li>
       <li><a href="https://support.mozilla.org/products/firefox-enterprise/whats-new-firefox-enterprise/{{ params }}">{{ ftl('firefox-enterprise-release-notes-v2', fallback='firefox-enterprise-release-notes') }}</a></li>
@@ -132,11 +125,3 @@
     {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all = 'href="' ~ firefox_url('desktop', 'all', 'esr') ~ '"') }}
   </p>
 </section>
-
-{#
- This JS turns the "Select your download" menu-list headings into the
- expandable download-button widget (MzpDetails). Same as the CSS bundles
- above, callers other than firefox/enterprise/index.html won't already have
- loaded it via a page_css/js block.
-#}
-{{ js_bundle('firefox-enterprise') }}
