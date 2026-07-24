@@ -265,6 +265,13 @@
     padding-block: 0;
 }
 
+/* Contact form pages: the intro sits directly above the form, so remove the
+   intro's bottom padding to tighten the header-to-first-field gap. Top padding
+   is intentionally kept. See TODO above - ideally this becomes an intro option. */
+.fl-main:has(.contact-form) .fl-intro {
+    padding-block-end: 0;
+}
+
 @media (--viewport-sm-up) {
     .fl-intro:first-child {
         padding-block: var(--token-layout-lg);

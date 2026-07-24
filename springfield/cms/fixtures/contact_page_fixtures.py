@@ -7,13 +7,24 @@ from springfield.cms.models import ContactPage
 
 
 def get_form_field_variants() -> list[dict]:
-    """Return all form fields from the production contact page, plus textarea and checkbox_group."""
+    """Return the enterprise contact form fields for the test contact page.
+
+    Mirrors the production enterprise ("Firefox Professional Support") form:
+    identity fields, lead-qualification dropdowns (adoption stage, deployment
+    size, needs, timeline), an optional open-text field that doubles as a
+    lead-quality signal, consent, and hidden attribution fields.
+
+    Business phone is visible but optional (collected for the EU sales calling
+    motion). Company size is a hidden field with a sentinel value: it is no
+    longer asked (deployment size / endpoint count drives qualification), but the
+    key is kept in the Basket payload so a handler that expects it isn't broken.
+    """
     return [
         {
             "type": "text_field",
             "value": {
                 "internal_identifier": "first_name",
-                "label": "First Name",
+                "label": "First name",
                 "required": True,
             },
             "id": "text-field-first-name",
@@ -22,7 +33,7 @@ def get_form_field_variants() -> list[dict]:
             "type": "text_field",
             "value": {
                 "internal_identifier": "last_name",
-                "label": "Last Name",
+                "label": "Last name",
                 "required": True,
             },
             "id": "text-field-last-name",
@@ -40,7 +51,7 @@ def get_form_field_variants() -> list[dict]:
             "type": "text_field",
             "value": {
                 "internal_identifier": "job_title",
-                "label": "Job Title",
+                "label": "Job title",
                 "required": True,
             },
             "id": "text-field-job-title",
@@ -49,7 +60,7 @@ def get_form_field_variants() -> list[dict]:
             "type": "email_field",
             "value": {
                 "internal_identifier": "business_email",
-                "label": "Business Email",
+                "label": "Business email",
                 "required": True,
             },
             "id": "email-field",
@@ -58,57 +69,100 @@ def get_form_field_variants() -> list[dict]:
             "type": "phone_field",
             "value": {
                 "internal_identifier": "business_phone",
-                "label": "Business Phone",
-                "required": True,
+                "label": "Business phone",
+                "required": False,
             },
             "id": "phone-field",
-        },
-        {
-            "type": "select_field",
-            "value": {
-                "internal_identifier": "company_size",
-                "label": "Company Size",
-                "required": True,
-                "options": [
-                    {"value": "1 - 10", "label": "1 - 10"},
-                    {"value": "11 - 20", "label": "11 - 20"},
-                    {"value": "21 - 100", "label": "21 - 100"},
-                    {"value": "101+", "label": "101+"},
-                ],
-            },
-            "id": "select-field",
         },
         {
             "type": "country_select_field",
             "value": {
                 "internal_identifier": "country",
-                "label": "Country",
+                "label": "Country or region",
                 "required": True,
             },
             "id": "country-select-field",
         },
         {
-            "type": "textarea_field",
+            "type": "select_field",
             "value": {
-                "internal_identifier": "message",
-                "label": "Message",
-                "required": False,
-                "rows": 4,
+                "internal_identifier": "firefox_use_stage",
+                "label": "Which best describes your organization's use of Firefox?",
+                "required": True,
+                "options": [
+                    {"value": "currently_deploy", "label": "We currently deploy and manage Firefox"},
+                    {"value": "piloting", "label": "We are piloting or evaluating Firefox"},
+                    {"value": "planning", "label": "We are planning a Firefox deployment"},
+                    {"value": "exploring", "label": "We are exploring whether Firefox is right for us"},
+                ],
             },
-            "id": "textarea-field",
+            "id": "select-field-firefox-use-stage",
+        },
+        {
+            "type": "select_field",
+            "value": {
+                "internal_identifier": "deployment_size",
+                "label": "How many devices (endpoints) would your Firefox deployment cover?",
+                "required": True,
+                "options": [
+                    {"value": "up_to_500", "label": "Up to 500"},
+                    {"value": "501_2500", "label": "501-2,500"},
+                    {"value": "2501_5000", "label": "2,501-5,000"},
+                    {"value": "5001_10000", "label": "5,001-10,000"},
+                    {"value": "10001_25000", "label": "10,001-25,000"},
+                    {"value": "25001_50000", "label": "25,001-50,000"},
+                    {"value": "50001_100000", "label": "50,001-100,000"},
+                    {"value": "over_100000", "label": "More than 100,000"},
+                    {"value": "not_sure", "label": "Not sure yet"},
+                ],
+            },
+            "id": "select-field-deployment-size",
         },
         {
             "type": "checkbox_group_field",
             "value": {
-                "internal_identifier": "services",
-                "label": "Services",
+                "internal_identifier": "support_needs",
+                "label": "What can Firefox Professional Support help with?",
+                "required": True,
                 "options": [
-                    {"value": "consulting", "label": '<p data-block-key="ctpoptin1">Consulting</p>'},
-                    {"value": "implementation", "label": '<p data-block-key="ctpoptin2">Implementation</p>'},
-                    {"value": "support", "label": '<p data-block-key="ctpoptin3">Support</p>'},
+                    {"value": "planning_evaluating", "label": '<p data-block-key="ctpsn1">Planning or evaluating a Firefox deployment</p>'},
+                    {"value": "deployment_config", "label": '<p data-block-key="ctpsn2">Deployment, configuration, or browser management</p>'},
+                    {
+                        "value": "security_compliance",
+                        "label": '<p data-block-key="ctpsn3">Security, compliance, or data-sovereignty requirements</p>',
+                    },
+                    {"value": "troubleshooting", "label": '<p data-block-key="ctpsn4">Troubleshooting or escalation of technical issues</p>'},
+                    {"value": "migration", "label": '<p data-block-key="ctpsn5">Migration from another browser</p>'},
+                    {"value": "plans_pricing", "label": '<p data-block-key="ctpsn6">Understanding support plans and pricing</p>'},
                 ],
             },
-            "id": "checkbox-group-field",
+            "id": "checkbox-group-field-support-needs",
+        },
+        {
+            "type": "select_field",
+            "value": {
+                "internal_identifier": "timeline",
+                "label": "When are you looking to put support in place?",
+                "required": True,
+                "options": [
+                    {"value": "asap", "label": "As soon as possible"},
+                    {"value": "1_3_months", "label": "Within 1-3 months"},
+                    {"value": "3_6_months", "label": "Within 3-6 months"},
+                    {"value": "6_plus_months", "label": "More than 6 months from now"},
+                    {"value": "exploring", "label": "We are still exploring"},
+                ],
+            },
+            "id": "select-field-timeline",
+        },
+        {
+            "type": "textarea_field",
+            "value": {
+                "internal_identifier": "message",
+                "label": "Anything else you'd like us to know?",
+                "required": False,
+                "rows": 4,
+            },
+            "id": "textarea-field",
         },
         {
             "type": "checkbox_field",
@@ -119,6 +173,16 @@ def get_form_field_variants() -> list[dict]:
                 "required": True,
             },
             "id": "checkbox-field",
+        },
+        {
+            "type": "hidden_field",
+            "value": {
+                "internal_identifier": "company_size",
+                "label": "Company size",
+                "required": False,
+                "default_value": "not_collected",
+            },
+            "id": "hidden-field-company-size",
         },
         {
             "type": "hidden_field",
@@ -173,8 +237,15 @@ def get_contact_test_page() -> ContactPage:
                 "media": [],
                 "heading": {
                     "superheading_text": "",
-                    "heading_text": '<p data-block-key="ctph1">Get in touch</p>',
-                    "subheading_text": '<p data-block-key="ctph2">Fill out the form below and we\'ll get back to you.</p>',
+                    "heading_text": '<p data-block-key="ctph1">Talk to our team about a support plan</p>',
+                    "subheading_text": (
+                        '<p data-block-key="ctph2">Tell us about your organization and we\'ll help you '
+                        "scope a Firefox Professional Support plan — dedicated, private support for "
+                        "large-scale deployments, with defined escalation paths and closer access to "
+                        "Mozilla's engineering and product teams.</p>"
+                        '<p data-block-key="ctph3">Looking for help with Firefox itself? Visit '
+                        '<a href="https://support.mozilla.org">Mozilla Support</a>.</p>'
+                    ),
                 },
                 "content": [],
             },
