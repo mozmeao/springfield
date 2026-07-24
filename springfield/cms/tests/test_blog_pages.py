@@ -803,18 +803,18 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
 # ---------------------------------------------------------------------------
 
 
-def _make_author(name="Nick Nguyen", slug="nick-nguyen"):
+def make_author(name="Nick Nguyen", slug="nick-nguyen"):
     return Author.objects.create(name=name, slug=slug, locale=Locale.get_default())
 
 
 def test_author_str():
-    author = _make_author()
+    author = make_author()
     assert str(author) == f"{author.name} – {author.locale}"
 
 
 def test_get_author_returns_localized_author(single_article):
     _, article = single_article
-    author = _make_author()
+    author = make_author()
     article.author = author
     article.save_revision().publish()
 
@@ -829,7 +829,7 @@ def test_get_author_returns_none_when_not_set(single_article):
 
 def test_get_author_result_is_cached(single_article):
     _, article = single_article
-    author = _make_author()
+    author = make_author()
     article.author = author
     article.save_revision().publish()
 
@@ -842,7 +842,7 @@ def test_get_author_result_is_cached(single_article):
 
 def test_blog_all_author_filter_filters_articles(blog_setup, rf):
     index_page, articles = blog_setup
-    author = _make_author()
+    author = make_author()
     target = articles[0]
     target.author = author
     target.save_revision().publish()

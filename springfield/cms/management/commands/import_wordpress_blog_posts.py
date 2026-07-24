@@ -29,39 +29,84 @@ CAPTION_SHORTCODE_RE = re.compile(r"\[caption[^\]]*\](.*?)\[/caption\]", re.DOTA
 IMG_TAG_RE = re.compile(r"<img[^>]*>")
 
 
-def _text(post, tag):
+def element_text(post, tag):
     node = post.find(tag)
     if node is None or node.text is None:
         return ""
     return node.text.strip()
 
 
-def _parse_categories(raw):
-    """Parse the pipe-separated WordPress Categories field into category names.
+def parse_categories(raw):
+    """Turn the WordPress Categories field into topic/tag names, most specific first.
 
-    Categories are pipe-separated, and each one may be hierarchical using '>' - e.g.
-    'Firefox>Tips and Tricks' or 'Our Work>AI>AI Tech'. Every level of the hierarchy is
-    kept as a separate name, with the leaf (most specific) first so callers can use it as
-    the topic and fold the ancestors in as tags. Names may contain HTML entities (e.g.
-    'Privacy &amp; Security'), which are decoded.
+    Categories are pipe-separated and may be hierarchical with '>'. Each level becomes its own
+    name, leaf first, so the caller takes the first as the topic and the rest as tags. HTML
+    entities are decoded, and the blanket 'Firefox' category is dropped unless it's all a post has.
 
-    The bare top-level 'Firefox' category is redundant on the Firefox site, so it is dropped -
-    unless it is the post's only category, in which case it is kept (topic is required).
-
-    Returns the names de-duplicated and ordered topic-first, e.g.
-    'Our Work>AI>AI Tech|Firefox>Firefox AI' -> ['AI Tech', 'Our Work', 'AI', 'Firefox AI'].
+    e.g. 'Our Work>AI>AI Tech|Firefox>Firefox AI' -> ['AI Tech', 'Our Work', 'AI', 'Firefox AI']
     """
     names = []
     for category in raw.split("|"):
         if not category.strip():
             continue
         segments = [html.unescape(segment).strip() for segment in category.split(">")]
-        # Leaf first (it becomes the topic), then its ancestors as tags.
         for name in [segments[-1], *segments[:-1]]:
             if name and name not in names:
                 names.append(name)
     meaningful = [name for name in names if name != "Firefox"]
     return meaningful or names
+
+
+def parse_content(raw_html):
+    """Convert a post's WordPress HTML body into ordered block specs, plus any warnings.
+
+    Specs are ("text", html), ("image", {"src", "alt"}) or ("code", {"code": ...}). Image specs
+    hold only the URL and are downloaded later, so parsing does no I/O. Only the markup this
+    export uses is handled: paragraphs, inline images, [caption] shortcodes (reduced to their
+    <img>), and YouTube iframes (linked as plain text, as we have no poster image for them).
+    """
+    warnings = []
+
+    def replace_caption(match):
+        img_match = IMG_TAG_RE.search(match.group(1))
+        return img_match.group(0) if img_match else ""
+
+    raw_html = CAPTION_SHORTCODE_RE.sub(replace_caption, raw_html)
+
+    soup = BeautifulSoup(f"<div>{raw_html}</div>", "html.parser")
+    root = soup.div
+
+    specs = []
+    text_buffer = []
+
+    def flush_text():
+        joined = "".join(str(node) for node in text_buffer).strip()
+        text_buffer.clear()
+        if joined:
+            specs.append(("text", joined))
+
+    for node in root.contents:
+        if isinstance(node, Comment):
+            continue
+        if getattr(node, "name", None) == "img":
+            flush_text()
+            specs.append(("image", {"src": node.get("src", ""), "alt": node.get("alt", "")}))
+            continue
+        if getattr(node, "name", None) == "iframe":
+            flush_text()
+            src = node.get("src", "")
+            warnings.append(f"iframe embed ({src}) has no poster image available - linked as plain text instead of a video block")
+            text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
+            flush_text()
+            continue
+        if getattr(node, "name", None) == "pre":
+            flush_text()
+            specs.append(("code", {"code": node.get_text()}))
+            continue
+        text_buffer.append(node)
+
+    flush_text()
+    return specs, warnings
 
 
 class Command(BaseCommand):
@@ -90,7 +135,7 @@ class Command(BaseCommand):
             raise CommandError(f"File not found: {xml_path}")
 
         self.dry_run = options["dry_run"]
-        self._image_cache = {}
+        self.image_cache = {}
 
         locale = Locale.objects.filter(language_code=options["locale"]).first()
         if locale is None:
@@ -107,15 +152,15 @@ class Command(BaseCommand):
         imported = skipped = failed = 0
 
         for post in posts:
-            slug = _text(post, "Slug")
-            title = _text(post, "Title")
+            slug = element_text(post, "Slug")
+            title = element_text(post, "Title")
 
-            post_type = _text(post, "PostType")
+            post_type = element_text(post, "PostType")
             if post_type != "post":
-                self.stderr.write(
-                    f"    ! skipping post ID {_text(post, 'ID')} ({slug!r}): unsupported PostType {post_type!r} - this command only handles 'post'."
-                )
-                failed += 1
+                # Not an error - the export includes pages/attachments this command deliberately
+                # doesn't handle. Report it as a skip rather than a failure.
+                self.stdout.write(f"  skip (unsupported PostType {post_type!r}): {slug}")
+                skipped += 1
                 continue
 
             if BlogArticlePage.objects.filter(slug=slug, locale=locale).exists():
@@ -126,7 +171,7 @@ class Command(BaseCommand):
             self.stdout.write(f"  {'[dry-run] ' if self.dry_run else ''}importing: {title}")
 
             try:
-                url_map_row = self._import_post(post, index_page, locale)
+                url_map_row = self.import_post(post, index_page, locale)
             except Exception as exc:
                 self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
                 failed += 1
@@ -137,36 +182,36 @@ class Command(BaseCommand):
             imported += 1
 
         if not self.dry_run and url_map_rows:
-            self._write_url_map_csv(options["url_map_out"], url_map_rows)
+            self.write_url_map_csv(options["url_map_out"], url_map_rows)
 
         self.stdout.write(f"Done. {imported} imported, {skipped} skipped, {failed} failed.")
 
     @transaction.atomic
-    def _import_post(self, post, index_page, locale):
-        """Import a single post. Runs in its own transaction so that a failure
-        (e.g. a dead image URL) rolls back cleanly without affecting other posts
-        or leaving a half-written page behind."""
-        slug = _text(post, "Slug")
-        title = _text(post, "Title")
+    def import_post(self, post, index_page, locale):
+        """Import one post in its own transaction, so a failure (e.g. a dead image URL)
+        rolls back cleanly instead of leaving a half-written page behind."""
+        slug = element_text(post, "Slug")
+        title = element_text(post, "Title")
 
-        content, warnings = self._build_content(_text(post, "Content"))
+        content_specs, warnings = parse_content(element_text(post, "Content"))
         for warning in warnings:
             self.stderr.write(f"    ! {warning}")
 
         if self.dry_run:
             return None
 
-        categories = _parse_categories(_text(post, "Categories"))
+        categories = parse_categories(element_text(post, "Categories"))
         if not categories:
             raise ValueError(f"post {slug!r} has no Category - BlogArticlePage.topic is required and cannot be blank")
 
-        # BlogArticlePage.topic is a single, required Tag. WordPress posts can carry more than
-        # one category, so we use the first as the topic and fold any extras in alongside Tags.
-        topic = self._get_or_create_snippet(Tag, categories[0], locale)
-        tag_names = [name for name in _text(post, "Tags").split("|") if name.strip()] + categories[1:]
-        tags = [self._get_or_create_snippet(Tag, name, locale) for name in tag_names]
-        author = self._get_or_create_author(post, locale)
-        image = self._get_or_create_image(_text(post, "ImageURL"), _text(post, "ImageTitle") or title)
+        # topic is a single required Tag; the first (most specific) category becomes the topic
+        # and the rest join the post's tags.
+        topic = self.get_or_create_snippet(Tag, categories[0], locale)
+        tag_names = [name for name in element_text(post, "Tags").split("|") if name.strip()] + categories[1:]
+        tags = [self.get_or_create_snippet(Tag, name, locale) for name in tag_names]
+        author = self.get_or_create_author(post, locale)
+        image = self.get_or_create_image(element_text(post, "ImageURL"), element_text(post, "ImageTitle") or title)
+        content = self.materialize_content(content_specs)
 
         page = BlogArticlePage(
             title=title,
@@ -177,7 +222,7 @@ class Command(BaseCommand):
             image=image,
             display_image=True,
             content=content,
-            first_published_at=self._parse_wp_date(_text(post, "Date")),
+            first_published_at=self.parse_wp_date(element_text(post, "Date")),
         )
         index_page.add_child(instance=page)
         if tags:
@@ -185,9 +230,9 @@ class Command(BaseCommand):
         revision = page.save_revision()
         revision.publish()
 
-        return (_text(post, "ID"), _text(post, "Permalink"), page.full_url)
+        return (element_text(post, "ID"), element_text(post, "Permalink"), page.full_url)
 
-    def _parse_wp_date(self, text):
+    def parse_wp_date(self, text):
         """Parse a WordPress export Date (no timezone info) as wall-clock time in
         settings.TIME_ZONE (America/Los_Angeles), since that's where these dates originated."""
         parsed = parse_datetime(text)
@@ -195,43 +240,44 @@ class Command(BaseCommand):
             return None
         return make_aware(parsed, get_default_timezone())
 
-    def _get_or_create_snippet(self, model, name, locale):
+    def get_or_create_snippet(self, model, name, locale):
         name = name.strip()
         if not name:
             return None
 
         slug = slugify(name)
-        snippet, _created = model.objects.get_or_create(slug=slug, locale=locale, defaults={"name": name})
+        snippet, _ = model.objects.get_or_create(slug=slug, locale=locale, defaults={"name": name})
         return snippet
 
-    def _get_or_create_author(self, post, locale):
-        name = f"{_text(post, 'AuthorFirstName')} {_text(post, 'AuthorLastName')}".strip()
+    def get_or_create_author(self, post, locale):
+        name = f"{element_text(post, 'AuthorFirstName')} {element_text(post, 'AuthorLastName')}".strip()
         if not name:
-            name = _text(post, "AuthorUsername")
-        return self._get_or_create_snippet(Author, name, locale)
+            name = element_text(post, "AuthorUsername")
+        return self.get_or_create_snippet(Author, name, locale)
 
-    def _get_or_create_image(self, url, title):
+    def get_or_create_image(self, url, title):
         url = url.strip()
         if not url:
             return None
 
         title = title.strip() or Path(urlparse(url).path).name
 
-        # Dedupe by the source filename, not `title`: `title` is free text (WordPress's
-        # ImageTitle/alt text) and different images frequently share a generic title, which
-        # would wrongly reuse an unrelated file. The filename from the WordPress media URL
-        # is a much more reliable proxy for "is this the same asset".
+        # Identify an asset by its source filename, not its title: titles are free WordPress
+        # text that unrelated images often share, while the media URL's filename is reliable.
         filename = Path(urlparse(url).path).name or "image.jpg"
 
-        if filename in self._image_cache:
-            return self._image_cache[filename]
+        if filename in self.image_cache:
+            return self.image_cache[filename]
 
-        # Storage disambiguates same-named files by appending a suffix, so an exact filename
-        # match only finds an existing image if this is the very first time that name was seen -
-        # good enough for resuming an interrupted run without re-downloading everything.
-        existing = SpringfieldImage.objects.filter(file__iendswith=filename).first()
+        # Reuse an already-imported file (e.g. when resuming a run). Match the exact stored
+        # basename: `file__iendswith` alone would also match a name that is merely a suffix of
+        # another, e.g. 'cat.jpg' inside 'bobcat.jpg'.
+        existing = next(
+            (candidate for candidate in SpringfieldImage.objects.filter(file__iendswith=filename) if Path(candidate.file.name).name == filename),
+            None,
+        )
         if existing is not None:
-            self._image_cache[filename] = existing
+            self.image_cache[filename] = existing
             return existing
 
         response = None
@@ -245,74 +291,32 @@ class Command(BaseCommand):
                 last_exc = exc
                 response = None
                 if attempt < 3:
-                    time.sleep(2**attempt)  # 2s, 4s backoff, in case a slow/throttled connection just needs a moment
+                    time.sleep(2**attempt)  # 2s then 4s backoff between attempts
 
         if response is None:
             self.stderr.write(f"    ! could not download image {url} after 3 attempts: {last_exc}")
             return None
 
         image = SpringfieldImage.objects.create(title=title, file=ContentFile(response.content, name=filename))
-        self._image_cache[filename] = image
+        self.image_cache[filename] = image
         return image
 
-    def _build_content(self, html):
-        """Split raw WordPress HTML into `content` StreamField blocks (text/media/code).
+    def materialize_content(self, specs):
+        """Build the StreamField `content` from block specs, downloading each inline image.
 
-        This is a pragmatic, one-off converter for this specific export, not a general
-        WordPress-HTML-to-Wagtail-blocks library: it only needs to handle what actually
-        appears in mozilla-blog-posts.xml (plain paragraphs, inline images, a handful of
-        [caption] shortcodes, and a few YouTube iframe embeds).
+        An image that fails to download is skipped, so one dead URL doesn't lose the whole post.
         """
-        warnings = []
-
-        def replace_caption(match):
-            inner = match.group(1)
-            img_match = IMG_TAG_RE.search(inner)
-            return img_match.group(0) if img_match else ""
-
-        html = CAPTION_SHORTCODE_RE.sub(replace_caption, html)
-
-        soup = BeautifulSoup(f"<div>{html}</div>", "html.parser")
-        root = soup.div
-
         blocks = []
-        text_buffer = []
+        for block_type, value in specs:
+            if block_type == "image":
+                image = self.get_or_create_image(value["src"], value["alt"])
+                if image is not None:
+                    blocks.append(("media", [("image", {"image": image, "settings": {}})]))
+            else:
+                blocks.append((block_type, value))
+        return blocks
 
-        def flush_text():
-            joined = "".join(str(node) for node in text_buffer).strip()
-            text_buffer.clear()
-            if joined:
-                blocks.append(("text", joined))
-
-        for node in root.contents:
-            if isinstance(node, Comment):
-                continue
-            if getattr(node, "name", None) == "img":
-                flush_text()
-                if not self.dry_run:
-                    image = self._get_or_create_image(node.get("src", ""), node.get("alt", ""))
-                    if image is not None:
-                        blocks.append(("media", [("image", {"image": image, "settings": {}})]))
-                else:
-                    blocks.append(("media", "[dry-run image]"))
-                continue
-            if getattr(node, "name", None) == "iframe":
-                flush_text()
-                src = node.get("src", "")
-                warnings.append(f"iframe embed ({src}) has no poster image available - linked as plain text instead of a video block")
-                text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
-                flush_text()
-                continue
-            if getattr(node, "name", None) == "pre":
-                flush_text()
-                blocks.append(("code", {"code": node.get_text()}))
-                continue
-            text_buffer.append(node)
-
-        flush_text()
-        return blocks, warnings
-
-    def _write_url_map_csv(self, path, rows):
+    def write_url_map_csv(self, path, rows):
         with open(path, "w", newline="") as fh:
             writer = csv.writer(fh)
             writer.writerow(["wp_id", "old_url", "new_url"])
