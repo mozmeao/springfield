@@ -18,6 +18,7 @@ from django.db import models
 from django.db.models import Count
 from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
+from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -88,6 +89,11 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
+from springfield.firefox.referral.utils import (
+    REFERRAL_HUB_CODE_LENGTH,
+    REFERRAL_INVITATION_CODE_LENGTH,
+    check_referral_code,
+)
 
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
@@ -2386,6 +2392,31 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
         return context
 
 
+def _reject_invalid_code(code, *, expected_length, param_name, page_name, request):
+    """Log to Sentry and raise Http404 when `code` fails the light referral-code check.
+
+    Tags (page, param, failure) are low-cardinality so they can be used as Sentry
+    filters. The full querystring is deliberately NOT logged: a code that fails
+    only WRONG_CASE may still be a real user's referral code, and we don't want to
+    leak it to anyone with Sentry access. A short prefix is kept as an extra so
+    seeded test-data patterns (e.g. "TEST..." in prod) are still spottable by eye.
+    """
+    error = check_referral_code(code, expected_length)
+    if error is None:
+        return
+    with new_scope() as scope:
+        scope.set_tag("page", page_name)
+        scope.set_tag("param", param_name)
+        scope.set_tag("failure", error.value)
+        if code:
+            scope.set_extra("code_prefix", code[:5])
+        capture_message(
+            f"Invalid referral code on {page_name} ({error.value})",
+            level="warning",
+        )
+    raise Http404()
+
+
 class ReferralHubPage(AbstractSpringfieldCMSPage):
     """Page where a user gets their invitation link and
     can monitor their invites' impact (an anonymous install count)
@@ -2405,22 +2436,28 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
         """
         Adds an invite_url to the context using the referral-hub ID
         ("ref_key") in the URL that opens this Referral Hub page.
-        If ref_key is missing, invite_url is empty.
 
         The invite_url is the one that can be copied and sent to friends
         and can be turned into a QR code as needed, etc.
+
+        A missing or malformed ref_key raises Http404 (see
+        _reject_invalid_code) so downstream code can assume it is
+        a well-formed Crockford Base 32 string.
         """
+        referral_id = request.GET.get("ref_key")
+        _reject_invalid_code(
+            referral_id,
+            expected_length=REFERRAL_HUB_CODE_LENGTH,
+            param_name="ref_key",
+            page_name="ReferralHubPage",
+            request=request,
+        )
 
         context = super().get_context(request, *args, **kwargs)
 
-        if referral_id := request.GET.get("ref_key"):
-            invite_code = self._referral_id_to_invite_code(referral_id)
-            params = urlencode({"invitation": invite_code})
-            context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
-        else:
-            # No referral-id code == no invite URL. Template needs to handle
-            # this case
-            context["invite_url"] = ""
+        invite_code = self._referral_id_to_invite_code(referral_id)
+        params = urlencode({"invitation": invite_code})
+        context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
 
         return context
 
@@ -2437,3 +2474,20 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
+
+    def get_context(self, request, *args, **kwargs):
+
+        invitation_code = request.GET.get("invitation")
+
+        _reject_invalid_code(
+            invitation_code,
+            expected_length=REFERRAL_INVITATION_CODE_LENGTH,
+            param_name="invitation",
+            page_name="ReferralGetFirefoxPage",
+            request=request,
+        )
+        context = super().get_context(request, *args, **kwargs)
+
+        context["invitation_code"] = invitation_code
+
+        return context
