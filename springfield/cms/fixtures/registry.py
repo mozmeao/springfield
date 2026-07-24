@@ -15,12 +15,13 @@ from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.button_row_fixtures import get_button_row_test_page
+from springfield.cms.fixtures.card_fixtures import get_card_test_page
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page
 from springfield.cms.fixtures.cards_fixtures import (
     get_illustration_cards_test_page,
     get_outlined_cards_test_page,
+    get_pictogram_cards_test_page,
     get_step_cards_test_page,
-    get_sticker_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
@@ -77,7 +78,8 @@ PAGE_FIXTURES = [
     get_whatsnew_index_page,
     get_intro_test_page,
     get_kit_intro_test_page,
-    get_sticker_cards_test_page,
+    get_card_test_page,
+    get_pictogram_cards_test_page,
     get_illustration_cards_test_page,
     get_outlined_cards_test_page,
     get_icon_cards_test_page,

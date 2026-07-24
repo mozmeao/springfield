@@ -421,7 +421,7 @@ def test_article_index_and_detail_pages(minimal_site, rf):
     card_grids = soup.find_all("div", class_="fl-card-grid")
     assert len(card_grids) == 2
 
-    featured_cards = card_grids[0].find_all(class_="fl-sticker-card")
+    featured_cards = card_grids[0].find_all(class_="fl-card")
     assert len(featured_cards) == 2
     # Articles are ordered by the first_published_at field in descending order,
     # but in this test we only verify their presence on the page.
@@ -432,12 +432,12 @@ def test_article_index_and_detail_pages(minimal_site, rf):
         superheading = matching_card.find(class_="fl-superheading")
         assert superheading and f"Tag {i}" in superheading.text
 
-    sticker_cards = card_grids[1].find_all(class_="fl-illustration-card")
-    assert len(sticker_cards) == 2
+    pictogram_cards = card_grids[1].find_all(class_="fl-card")
+    assert len(pictogram_cards) == 2
     # Articles are ordered by the first_published_at field in descending order,
     # but in this test we only verify their presence on the page.
     for i in range(1, 3):
-        card = next(c for c in sticker_cards if f"Article {i}" in c.find("h3").text)
+        card = next(c for c in pictogram_cards if f"Article {i}" in c.find("h3").text)
         assert f"Description for Article {i}" in card.text
         assert card.find("a")["href"].endswith(f"/en-US/articles/article-{i}/")
 
@@ -996,7 +996,7 @@ def test_article_detail_page_image_variants(
 
 
 @_IMAGE_VARIANT_PARAMS
-def test_article_index_page_sticker_variants_flare(
+def test_article_index_page_pictogram_variants_flare(
     minimal_site,
     rf,
     has_dark,
@@ -1007,7 +1007,7 @@ def test_article_index_page_sticker_variants_flare(
     mobile_classes,
     dark_mobile_classes,
 ):
-    """ArticleDetailPage sticker variants are rendered with correct CSS classes on the index page (flare)."""
+    """ArticleDetailPage pictogram variants are rendered with correct CSS classes on the index page (flare)."""
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
 
     root_page = SimpleRichTextPage.objects.first()
@@ -1019,13 +1019,13 @@ def test_article_index_page_sticker_variants_flare(
     )
     index_page.save()
 
-    sticker_kwargs = dict(sticker=image)
+    pictogram_kwargs = dict(sticker=image)
     if has_dark:
-        sticker_kwargs["sticker_dark_mode"] = dark_image
+        pictogram_kwargs["sticker_dark_mode"] = dark_image
     if has_mobile:
-        sticker_kwargs["sticker_mobile"] = mobile_image
+        pictogram_kwargs["sticker_mobile"] = mobile_image
     if has_dark_mobile:
-        sticker_kwargs["sticker_dark_mode_mobile"] = dark_mobile_image
+        pictogram_kwargs["sticker_dark_mode_mobile"] = dark_mobile_image
 
     featured_page = ArticleDetailPageFactory(
         parent=index_page,
@@ -1033,7 +1033,7 @@ def test_article_index_page_sticker_variants_flare(
         slug="featured-article",
         featured=True,
         image=image,
-        **sticker_kwargs,
+        **pictogram_kwargs,
     )
     featured_page.save()
 
@@ -1047,11 +1047,11 @@ def test_article_index_page_sticker_variants_flare(
     featured_grid = soup.find("div", class_="fl-card-grid")
     assert featured_grid is not None
 
-    featured_card = featured_grid.find(class_="fl-sticker-card")
-    assert featured_card is not None, "Expected a fl-sticker-card in the featured grid"
+    featured_card = featured_grid.find(class_="fl-card")
+    assert featured_card is not None, "Expected a card in the featured grid"
 
     container = featured_card.find("div", class_="image-variants-display")
-    assert container is not None, "Expected image-variants-display in sticker card"
+    assert container is not None, "Expected image-variants-display in pictogram card"
 
     expected_img_count = 1 + has_dark + has_mobile + has_dark_mobile
     assert len(container.find_all("img")) == expected_img_count

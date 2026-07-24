@@ -1,0 +1,36 @@
+name: "Card - Illustration"
+context:
+  cards:
+    - note: "Default (image)"
+      testid: "card-illustration-default"
+      image: "/media/img/firefox/flare/placeholder.png"
+      variant: ""
+      expand_link: false
+      heading: "Default Illustration Card"
+      body: "The default variant displays a full-width image above the card content."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
+    - note: "Icon"
+      testid: "card-illustration-icon"
+      icon: "globe"
+      variant: "icon"
+      expand_link: false
+      heading: "Icon Card"
+      body: "The icon variant displays a small square media area sized for icons (48px)."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
+    - note: "Pictogram"
+      testid: "card-illustration-pictogram"
+      image: "/media/img/firefox/flare/placeholder.png"
+      variant: "pictogram"
+      expand_link: false
+      heading: "Pictogram Card"
+      body: "The pictogram variant displays a slightly larger square media area (56px mobile, 102px desktop)."
+      buttons:
+        - label: "Learn More"
+          link: "/"
+          theme_class: ""
