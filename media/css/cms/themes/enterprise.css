@@ -26,6 +26,9 @@
     --button-bg-color-disabled: var(--token-color-enterprise-blue-light);
     --button-text-color-disabled: var(--token-color-enterprise-blue);
 
+    /* card overrides */
+    --fl-card-filled-border-color: var(--token-color-enterprise-blue-light);
+
     /* blue tokens from Figma. WIP, maybe orange? */
 
     --token-color-dark-blue: #031B40;
@@ -59,9 +62,6 @@
     --token-gradient-radial-blue: radial-gradient(74.06% 118.24% at 50% -18.24%,var(--token-color-light-blue) 0%,var(--token-color-dark-blue) 100%);
     --token-gradient-blurred-bg: radial-gradient( oklch(61.48% 0.1284 246.95deg) 0%, oklch(55.29% 0.1234 249.43deg) 8%, oklch(45.9% 0.1139 252.93deg) 18%, oklch(36.64% 0.1039 256.12deg) 30%, oklch(28.6% 0.0946 258.6deg) 42%, oklch(24.67% 0.0885 259.38deg) 54%, oklch(23.64% 0.084 258.65deg) 68%, oklch(23.5% 0.0804 258.63deg) 82%, oklch(22.96% 0.0771 258.36deg) 100%);
     --notification-box-shadow: 0px 0px 24px 2px rgba(67,158,227,.2);
-
-
-
 
     /* overriding purple tokens with blue tokens. little hacky, but lets experiment. */
 

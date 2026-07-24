@@ -12,7 +12,7 @@
         link_text={{ card.get_link_label() }}
         url={{ card.get_link_url() }}
       >
-        {% set img = card.get_sticker() %}
+        {% set img = card.get_pictogram() %}
         <content:icon>
           {% if img %}
             {{ image(img, "width-400") }}
@@ -26,106 +26,87 @@
 {% elif value.settings.card_type == "sticker_card" %}
   <include:cards-list cards_per_row="2">
     {% for card in value.cards %}
-        <include:illustration-card  variant="sticker">
-          <content:media>
-            {% set img = card.get_sticker() %}
+      <include:card>
+        <content:media>
+          <div class="fl-card-media fl-card-media-pictogram">
+            {% set img = card.get_pictogram() %}
             {% if img %}
               {{ image(img, "width-400") }}
             {% else %}
               <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
             {% endif %}
-          </content:media>
-          <content:heading>
-            {% set superheading = card.get_superheading() %}
-            <include:heading
-              level="h3"
-              heading_size="fl-heading-sm"
-              heading_text="{{ card.get_title()|safe }}"
-              superheading_text="{{ superheading }}"
-            />
-          </content:heading>
-          <content:body>
-            {{ card.get_description()|safe }}
-          </content:body>
-          <content:buttons>
-            <a href="{{ card.get_link_url() }}">
-              {{ card.get_link_label() }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+          </div>
+        </content:media>
+        <content:body>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-sm"
+            heading_text="{{ card.get_title()|safe }}"
+            superheading_text="{{ card.get_superheading() }}"
+          />
+          <div class="fl-body">{{ card.get_description()|safe }}</div>
+          <div class="fl-buttons">
+            <a href="{{ card.get_link_url() }}">{{ card.get_link_label() }}</a>
+          </div>
+        </content:body>
+      </include:card>
     {% endfor %}
-
   </include:cards-list>
 {% elif value.settings.card_type == "icon_card" %}
   <include:cards-list cards_per_row="2">
     {% for card in value.cards %}
-        <include:illustration-card variant="icon">
-          <content:media>
-            {% set icon_name = card.get_icon() %}
-            <include:icon
-              icon_name="{{ icon_name }}"
-              hidden="true"
-            />
-          </content:media>
-          <content:heading>
-            <include:heading
-              level="h3"
-              heading_size="fl-heading-sm"
-              heading_text="{{ card.get_title()|safe }}"
-            />
-          </content:heading>
-          <content:body>
-            {{ card.get_description()|safe }}
-          </content:body>
-          <content:buttons>
-            <a href="{{ card.get_link_url() }}">
-              {{ card.get_link_label() }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+      <include:card>
+        <content:media>
+          <div class="fl-card-media fl-card-media-icon">
+            <include:icon icon_name="{{ card.get_icon() }}" hidden="true" />
+          </div>
+        </content:media>
+        <content:body>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-sm"
+            heading_text="{{ card.get_title()|safe }}"
+          />
+          <div class="fl-body">{{ card.get_description()|safe }}</div>
+          <div class="fl-buttons">
+            <a href="{{ card.get_link_url() }}">{{ card.get_link_label() }}</a>
+          </div>
+        </content:body>
+      </include:card>
     {% endfor %}
   </include:cards-list>
 {% elif value.settings.card_type == "illustration_card" %}
   <include:cards-list>
     {% for card in value.cards %}
-        <include:illustration-card>
-          <content:media>
-            {% set img = card.get_featured_image() %}
-            {% if img %}
-              {{ srcset_image(
-                img,
-                "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
-                sizes="
-                  (min-width: 768px) 50vw,
-                  (min-width: 1440px) 680px,
-                  100vw
-                ",
-                width=img.width,
-                height=img.height,
-                loading="lazy",
-              ) }}
-            {% else %}
-              <img src="/media/img/firefox/flare/card-placeholder.png" alt="" />
-            {% endif %}
-          </content:media>
-          <content:heading>
-            {% set superheading = card.get_superheading() %}
-            <include:heading
-              level="h3"
-              heading_size="fl-heading-sm"
-              heading_text="{{ card.get_title()|safe }}"
-              superheading_text="{{ superheading }}"
-            />
-          </content:heading>
-          <content:body>
-            {{ card.get_description()|safe }}
-          </content:body>
-          <content:buttons>
-            <a href="{{ card.get_link_url() }}">
-              {{ card.get_link_label() }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+      <include:card>
+        <content:media>
+          {% set img = card.get_featured_image() %}
+          {% if img %}
+            {{ srcset_image(
+              img,
+              "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+              sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw",
+              width=img.width,
+              height=img.height,
+              loading="lazy",
+            ) }}
+          {% else %}
+            <img src="/media/img/firefox/flare/card-placeholder.png" alt="" />
+          {% endif %}
+        </content:media>
+        <content:body>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-sm"
+            heading_text="{{ card.get_title()|safe }}"
+            superheading_text="{{ card.get_superheading() }}"
+          />
+          <div class="fl-body">{{ card.get_description()|safe }}</div>
+          <div class="fl-buttons">
+            <a href="{{ card.get_link_url() }}">{{ card.get_link_label() }}</a>
+          </div>
+        </content:body>
+      </include:card>
     {% endfor %}
   </include:cards-list>
 {% endif %}

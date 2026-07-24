@@ -1,0 +1,30 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="card-pictogram">
+  <section class="fl-section">
+    <div class="fl-section-container">
+      <include:cards-list container_width="wide">
+        {% for card in cards %}
+          <include:card variant="filled" align="center" expand_link="{{ card.expand_link }}">
+            <content:body>
+              <include:heading
+                level="h3"
+                heading_size="fl-heading-size-3"
+                superheading_text="{{ card.superheading_text }}"
+                heading_text="{{ card.heading }}"
+              />
+              <div class="fl-card-media fl-card-media-pictogram">
+                <img src="{{ card.pictogram }}" alt="" loading="lazy" />
+              </div>
+              <div class="fl-body">{{ card.body }}</div>
+            </content:body>
+          </include:card>
+        {% endfor %}
+      </include:cards-list>
+    </div>
+  </section>
+</div>

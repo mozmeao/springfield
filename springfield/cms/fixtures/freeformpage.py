@@ -67,106 +67,75 @@ def get_mobile_browsers_cards():
         "icon_position": "right",
         "analytics_id": "",
     }
+
+    def _card(card_id, headline, content, button_id, button_analytics_id, button_url):
+        button = {
+            "type": "button",
+            "value": {
+                "settings": {**link_button_settings, "analytics_id": button_analytics_id},
+                "pretranslated_label": None,
+                "custom_label": "Learn more",
+                "link": {
+                    "link_to": "custom_url",
+                    "page": None,
+                    "file": None,
+                    "custom_url": button_url,
+                    "anchor": "",
+                    "email": "",
+                    "phone": "",
+                    "new_window": False,
+                    "relative_url": "",
+                },
+            },
+            "id": button_id,
+        }
+        return {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
+                "media": [{"type": "media", "value": image_block, "id": f"{card_id[:8]}-0000-0000-0000-000000000001"}],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {"superheading_text": "", "heading_text": headline, "subheading_text": ""},
+                        "id": f"{card_id[:8]}-0000-0000-0000-000000000002",
+                    },
+                    {"type": "content", "value": content, "id": f"{card_id[:8]}-0000-0000-0000-000000000003"},
+                    {
+                        "type": "buttons",
+                        "value": {"orientation": "horizontal", "spacing": "", "buttons": [button], "help_text": ""},
+                        "id": f"{card_id[:8]}-0000-0000-0000-000000000004",
+                    },
+                ],
+            },
+            "id": card_id,
+        }
+
     return [
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "media": image_block,
-                "eyebrow": "",
-                "headline": '<p data-block-key="android-h">Firefox for Android</p>',
-                "content": '<p data-block-key="android-c">Private by default, with more ways to make Firefox your own on Android.</p>',
-                "buttons": [
-                    {
-                        "type": "button",
-                        "value": {
-                            "settings": {**link_button_settings, "analytics_id": "11111111-1111-1111-1111-111111111111"},
-                            "pretranslated_label": None,
-                            "custom_label": "Learn more",
-                            "link": {
-                                "link_to": "custom_url",
-                                "page": None,
-                                "file": None,
-                                "custom_url": "/browsers/mobile/android/",
-                                "anchor": "",
-                                "email": "",
-                                "phone": "",
-                                "new_window": False,
-                                "relative_url": "",
-                            },
-                        },
-                        "id": "11111111-1111-1111-1111-111111111112",
-                    }
-                ],
-            },
-            "id": "11111111-1111-1111-1111-111111111113",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "media": image_block,
-                "eyebrow": "",
-                "headline": '<p data-block-key="ios-h">Firefox for iOS</p>',
-                "content": '<p data-block-key="ios-c">A more private way to browse on iPhone and iPad, with built-in tracking protection.</p>',
-                "buttons": [
-                    {
-                        "type": "button",
-                        "value": {
-                            "settings": {**link_button_settings, "analytics_id": "22222222-2222-2222-2222-222222222221"},
-                            "pretranslated_label": None,
-                            "custom_label": "Learn more",
-                            "link": {
-                                "link_to": "custom_url",
-                                "page": None,
-                                "file": None,
-                                "custom_url": "/browsers/mobile/ios/",
-                                "anchor": "",
-                                "email": "",
-                                "phone": "",
-                                "new_window": False,
-                                "relative_url": "",
-                            },
-                        },
-                        "id": "22222222-2222-2222-2222-222222222222",
-                    }
-                ],
-            },
-            "id": "22222222-2222-2222-2222-222222222223",
-        },
-        {
-            "type": "illustration_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": SHOW_TO_ALL, "image_after": False},
-                "media": image_block,
-                "eyebrow": "",
-                "headline": '<p data-block-key="focus-h">Firefox Focus</p>',
-                "content": '<p data-block-key="focus-c">A fast, minimal browser that clears your history when you\'re done.</p>',
-                "buttons": [
-                    {
-                        "type": "button",
-                        "value": {
-                            "settings": {**link_button_settings, "analytics_id": "33333333-3333-3333-3333-333333333331"},
-                            "pretranslated_label": None,
-                            "custom_label": "Learn more",
-                            "link": {
-                                "link_to": "custom_url",
-                                "page": None,
-                                "file": None,
-                                "custom_url": "/browsers/mobile/focus/",
-                                "anchor": "",
-                                "email": "",
-                                "phone": "",
-                                "new_window": False,
-                                "relative_url": "",
-                            },
-                        },
-                        "id": "33333333-3333-3333-3333-333333333332",
-                    }
-                ],
-            },
-            "id": "33333333-3333-3333-3333-333333333333",
-        },
+        _card(
+            card_id="11111111-1111-1111-1111-111111111113",
+            headline='<p data-block-key="android-h">Firefox for Android</p>',
+            content='<p data-block-key="android-c">Private by default, with more ways to make Firefox your own on Android.</p>',
+            button_id="11111111-1111-1111-1111-111111111112",
+            button_analytics_id="11111111-1111-1111-1111-111111111111",
+            button_url="/browsers/mobile/android/",
+        ),
+        _card(
+            card_id="22222222-2222-2222-2222-222222222223",
+            headline='<p data-block-key="ios-h">Firefox for iOS</p>',
+            content='<p data-block-key="ios-c">A more private way to browse on iPhone and iPad, with built-in tracking protection.</p>',
+            button_id="22222222-2222-2222-2222-222222222222",
+            button_analytics_id="22222222-2222-2222-2222-222222222221",
+            button_url="/browsers/mobile/ios/",
+        ),
+        _card(
+            card_id="33333333-3333-3333-3333-333333333333",
+            headline='<p data-block-key="focus-h">Firefox Focus</p>',
+            content='<p data-block-key="focus-c">A fast, minimal browser that clears your history when you\'re done.</p>',
+            button_id="33333333-3333-3333-3333-333333333332",
+            button_analytics_id="33333333-3333-3333-3333-333333333331",
+            button_url="/browsers/mobile/focus/",
+        ),
     ]
 
 

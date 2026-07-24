@@ -351,6 +351,12 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
             **kwargs,
         )
 
+    def get_thumbnail_url(self, icon_name):
+        if not icon_name:
+            return ""
+        thumbnails = self._resolve_callable(self._thumbnails_source) or {}
+        return thumbnails.get(icon_name, "")
+
 
 class ConditionalDisplayBlock(blocks.StructBlock):
     platforms = blocks.MultipleChoiceBlock(
@@ -1025,6 +1031,14 @@ def MixedButtonsBlock(
 
 def ButtonRowBlock(allow_uitour=False, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
+        orientation = blocks.ChoiceBlock(
+            choices=[
+                ("stacked", "Stacked (one per line)"),
+                ("horizontal", "Horizontal (side by side)"),
+            ],
+            default="horizontal",
+            required=False,
+        )
         spacing = blocks.ChoiceBlock(
             choices=[
                 ("", "No spacing"),
@@ -1056,7 +1070,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["spacing", "alignment"],
+                settings=["orientation", "spacing", "alignment"],
             )
 
     return _ButtonRowBlock(**kwargs)
@@ -1589,25 +1603,6 @@ class BlogCardsListBlock(blocks.StructBlock):
 # Cards
 
 
-class BaseCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-    show_to = ConditionalDisplayBlock(
-        label="Show To",
-        help_text="Control which users can see this content block",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
-        form_classname = "compact-form struct-block"
-
-
 class StepCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
@@ -1665,124 +1660,55 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
-def IconCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IconCardBlock with appropriate button types.
+class CardTestimonialBlock(blocks.StructBlock):
+    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    attribution_image = ImageVariantsBlock(required=False)
 
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
+    class Meta:
+        template = "cms/blocks/card-testimonial.html"
+        label = "Testimonial"
+        label_format = "Testimonial - {attribution}"
 
-    class _IconCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        icon = IconChoiceBlock(inline_form=True)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
+
+class CardMediaBlock(blocks.StreamBlock):
+    icon = IconChoiceBlock(template="cms/blocks/card-icon.html", label="Icon")
+    pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")
+    media = MediaBlock(max_num=1, label="Full width media")
+
+    class Meta:
+        max_num = 1
+        label = "Media"
+
+
+def CardBlock(allow_uitour=False, *args, **kwargs):
+    class _CardSettings(blocks.StructBlock):
+        variant = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default"),
+                ("outline", "Outline"),
+                ("filled", "Filled"),
+            ],
             required=False,
+            default="",
+            inline_form=True,
         )
-
-        class Meta:
-            template = "cms/blocks/icon-card.html"
-            label = "Icon Card"
-            label_format = "Icon Card - {headline}"
-            value_class = IconStructValue
-
-    return _IconCardBlock(*args, **kwargs)
-
-
-def StickerCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create StickerCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                        If False, only allows regular buttons.
-    """
-
-    class _StickerCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        image = ImageVariantsBlock()
-        superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
+        align = blocks.ChoiceBlock(
+            choices=[
+                ("start", "Start"),
+                ("center", "Center"),
+                ("end", "End"),
+            ],
             required=False,
+            default="start",
+            inline_form=True,
         )
-
-        class Meta:
-            label = "Sticker Card"
-            label_format = "{headline}"
-            template = "cms/blocks/sticker-card.html"
-
-    return _StickerCardBlock(*args, **kwargs)
-
-
-def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IllustrationCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _IllustrationCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        media = MediaBlock()
-        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=[BUTTON_LINK],
-            min_num=0,
-            max_num=1,
+        expand_link = blocks.BooleanBlock(
             required=False,
+            default=False,
+            help_text="Expand the link click area to the whole card",
         )
-
-        class Meta:
-            template = "cms/blocks/illustration-card.html"
-            label = "Illustration Card"
-            label_format = "{headline}"
-
-    return _IllustrationCardBlock(*args, **kwargs)
-
-
-def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create OutlinedCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _OutlinedCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        sticker = ImageVariantsBlock(required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/outlined-card.html"
-            label = "Outlined Card"
-            label_format = "Outlined Card - {headline}"
-
-    return _OutlinedCardBlock(*args, **kwargs)
-
-
-def TestimonialCardBlock(*args, **kwargs):
-    class _TestimonialCardSettings(blocks.StructBlock):
         show_to = ConditionalDisplayBlock(
             label="Show To",
             help_text="Control which users can see this content block",
@@ -1792,21 +1718,29 @@ def TestimonialCardBlock(*args, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
+            label_format = "Variant: {variant} - Align: {align} - Show to: {show_to}"
             form_classname = "compact-form struct-block"
 
-    class _TestimonialCardBlock(blocks.StructBlock):
-        settings = _TestimonialCardSettings()
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        attribution_image = ImageVariantsBlock(required=False)
+    class _CardBlock(blocks.StructBlock):
+        settings = _CardSettings()
+        media = CardMediaBlock(required=False)
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("tags_list", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
+                ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")),
+                ("testimonial", CardTestimonialBlock()),
+                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
+            ]
+        )
 
         class Meta:
-            template = "cms/blocks/testimonial-card.html"
-            label = "Testimonial Card"
-            label_format = "Testimonial - {attribution}"
+            template = "cms/blocks/card.html"
+            label = "Card"
+            label_format = "Card - {settings}"
 
-    return _TestimonialCardBlock(*args, **kwargs)
+    return _CardBlock(*args, **kwargs)
 
 
 def CardsListBlock(allow_uitour=False, *args, **kwargs):
@@ -1856,14 +1790,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
-                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
-                (
-                    "illustration_card",
-                    IllustrationCardBlock(allow_uitour=allow_uitour),
-                ),
-                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
-                ("icon_card", IconCardBlock(allow_uitour=allow_uitour)),
-                ("testimonial_card", TestimonialCardBlock()),
+                ("card", CardBlock(allow_uitour=allow_uitour)),
             ]
         )
 
@@ -1906,7 +1833,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     sticker = ImageChooserBlock(
         required=False,
-        help_text="Optional custom sticker image to override the article's sticker.",
+        help_text="Optional custom pictogram image to override the article's pictogram.",
     )
     icon = IconChoiceBlock(
         required=False,
@@ -1915,7 +1842,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     superheading = blocks.CharBlock(
         required=False,
-        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
+        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and pictogram cards.",
     )
     title = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
@@ -2002,10 +1929,10 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.featured_image
         return None
 
-    def get_sticker(self) -> SpringfieldImage | None:
+    def get_pictogram(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
-        if sticker := overrides.get("sticker"):
-            return sticker
+        if pictogram := overrides.get("sticker"):
+            return pictogram
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
@@ -2049,10 +1976,10 @@ class ArticleBlock(blocks.StructBlock):
 class ArticlesListSettings(blocks.StructBlock):
     card_type = blocks.ChoiceBlock(
         choices=[
-            ("sticker_card", "Sticker Card"),
+            ("sticker_card", "Pictogram Card"),
             ("illustration_card", "Illustration Card"),
             ("icon_card", "Icon Card"),
-            ("sticker_row", "Sticker Row"),
+            ("sticker_row", "Pictogram Row"),
         ],
         default="sticker_card",
         label="Card Type",
