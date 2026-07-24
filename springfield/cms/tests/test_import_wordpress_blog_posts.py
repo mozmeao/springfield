@@ -15,7 +15,7 @@ import requests
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
-from springfield.cms.management.commands.import_wordpress_blog_posts import Command, _text
+from springfield.cms.management.commands.import_wordpress_blog_posts import Command, _parse_categories, _text
 from springfield.cms.models import BlogArticlePage
 from springfield.cms.models.snippets import Author, Tag
 from springfield.cms.tests.factories import LocaleFactory
@@ -127,6 +127,53 @@ def test_text_strips_whitespace():
 
 
 # ---------------------------------------------------------------------------
+# _parse_categories helper
+# ---------------------------------------------------------------------------
+
+
+def test_parse_categories_keeps_every_hierarchy_level_leaf_first():
+    # Leaf is first (it becomes the topic); ancestors follow (they become tags).
+    assert _parse_categories("Our Work>News") == ["News", "Our Work"]
+
+
+def test_parse_categories_keeps_every_level_of_a_deep_hierarchy():
+    assert _parse_categories("Our Work>AI>AI Tech") == ["AI Tech", "Our Work", "AI"]
+
+
+def test_parse_categories_drops_bare_firefox_when_other_categories_exist():
+    assert _parse_categories("Firefox|Our Work>News") == ["News", "Our Work"]
+
+
+def test_parse_categories_drops_firefox_as_a_hierarchy_ancestor():
+    assert _parse_categories("Firefox>Tips and Tricks") == ["Tips and Tricks"]
+
+
+def test_parse_categories_keeps_firefox_when_it_is_the_only_category():
+    assert _parse_categories("Firefox") == ["Firefox"]
+
+
+def test_parse_categories_keeps_firefox_prefixed_subtopics():
+    # 'Firefox AI' is a real leaf; only the bare 'Firefox' ancestor is dropped.
+    assert _parse_categories("Firefox>Firefox AI") == ["Firefox AI"]
+
+
+def test_parse_categories_decodes_html_entities():
+    assert _parse_categories("Firefox|Privacy &amp; Security") == ["Privacy & Security"]
+
+
+def test_parse_categories_across_pipes_is_topic_first_then_tags():
+    assert _parse_categories("Our Work>AI>AI Tech|Firefox>Firefox AI") == ["AI Tech", "Our Work", "AI", "Firefox AI"]
+
+
+def test_parse_categories_dedupes_repeated_names():
+    assert _parse_categories("Firefox>News|Our Work>News") == ["News", "Our Work"]
+
+
+def test_parse_categories_empty_input_returns_empty_list():
+    assert _parse_categories("") == []
+
+
+# ---------------------------------------------------------------------------
 # handle(): top-level validation and control flow
 # ---------------------------------------------------------------------------
 
@@ -178,6 +225,7 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.title == "A Test Post"
+    assert page.display_image is True
     assert page.topic.name == "Firefox"
     assert {t.name for t in page.tags.all()} == {"Privacy", "Security"}
     assert page.author.name == "Nick Nguyen"
@@ -194,15 +242,20 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     assert rows[0]["new_url"].startswith("http")
 
 
-def test_multiple_categories_use_first_as_topic_and_rest_as_tags(tmp_path, index_page, monkeypatch):
+def test_categories_topic_is_leaf_and_other_levels_become_tags(tmp_path, index_page, monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: _fake_response())
-    xml_path = _write_xml(tmp_path, _post_xml(categories="Firefox|Privacy", tags="Security"))
+    # Bare 'Firefox' is dropped; the leaf of the first remaining category is the topic;
+    # every other hierarchy level (plus the <Tags> field) becomes a tag.
+    xml_path = _write_xml(
+        tmp_path,
+        _post_xml(categories="Firefox|Our Work>AI>AI Tech|Firefox>Firefox AI", tags="Security"),
+    )
 
     call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
-    assert page.topic.name == "Firefox"
-    assert {t.name for t in page.tags.all()} == {"Privacy", "Security"}
+    assert page.topic.name == "AI Tech"
+    assert {t.name for t in page.tags.all()} == {"Our Work", "AI", "Firefox AI", "Security"}
 
 
 def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(tmp_path, index_page, monkeypatch):

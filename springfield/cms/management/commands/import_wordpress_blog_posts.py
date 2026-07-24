@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import csv
+import html
 import re
 import time
 from pathlib import Path
@@ -33,6 +34,34 @@ def _text(post, tag):
     if node is None or node.text is None:
         return ""
     return node.text.strip()
+
+
+def _parse_categories(raw):
+    """Parse the pipe-separated WordPress Categories field into category names.
+
+    Categories are pipe-separated, and each one may be hierarchical using '>' - e.g.
+    'Firefox>Tips and Tricks' or 'Our Work>AI>AI Tech'. Every level of the hierarchy is
+    kept as a separate name, with the leaf (most specific) first so callers can use it as
+    the topic and fold the ancestors in as tags. Names may contain HTML entities (e.g.
+    'Privacy &amp; Security'), which are decoded.
+
+    The bare top-level 'Firefox' category is redundant on the Firefox site, so it is dropped -
+    unless it is the post's only category, in which case it is kept (topic is required).
+
+    Returns the names de-duplicated and ordered topic-first, e.g.
+    'Our Work>AI>AI Tech|Firefox>Firefox AI' -> ['AI Tech', 'Our Work', 'AI', 'Firefox AI'].
+    """
+    names = []
+    for category in raw.split("|"):
+        if not category.strip():
+            continue
+        segments = [html.unescape(segment).strip() for segment in category.split(">")]
+        # Leaf first (it becomes the topic), then its ancestors as tags.
+        for name in [segments[-1], *segments[:-1]]:
+            if name and name not in names:
+                names.append(name)
+    meaningful = [name for name in names if name != "Firefox"]
+    return meaningful or names
 
 
 class Command(BaseCommand):
@@ -127,7 +156,7 @@ class Command(BaseCommand):
         if self.dry_run:
             return None
 
-        categories = [name.strip() for name in _text(post, "Categories").split("|") if name.strip()]
+        categories = _parse_categories(_text(post, "Categories"))
         if not categories:
             raise ValueError(f"post {slug!r} has no Category - BlogArticlePage.topic is required and cannot be blank")
 
@@ -146,6 +175,7 @@ class Command(BaseCommand):
             topic=topic,
             author=author,
             image=image,
+            display_image=True,
             content=content,
             first_published_at=self._parse_wp_date(_text(post, "Date")),
         )
