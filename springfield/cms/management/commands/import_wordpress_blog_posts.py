@@ -39,18 +39,19 @@ class Command(BaseCommand):
     help = (
         "Imports blog posts from the flat WordPress export XML (mozilla-blog-posts.xml) into a "
         "BlogIndexPage, creating BlogArticlePage children plus any Tag/Author snippets and images "
-        "they reference. Writes a CSV mapping old permalinks to new page IDs for use with the "
-        "import_wordpress_redirects command."
+        "they reference. Writes a CSV mapping each post's old blog.mozilla.org URL to its new URL "
+        "on this site, to hand to the blog.mozilla.org team so they can set up redirects on their end."
     )
 
     def add_arguments(self, parser):
         parser.add_argument("xml_path", help="Path to the WordPress export XML file.")
         parser.add_argument("--locale", default="en-US", help="Locale code to import posts into (default: en-US).")
+        parser.add_argument("--index-slug", default="blog", help="Slug of the BlogIndexPage to import posts under (default: blog).")
         parser.add_argument("--dry-run", action="store_true", help="Report what would be imported without writing anything.")
         parser.add_argument(
-            "--redirects-out",
-            default="wordpress_redirects.csv",
-            help="Path to write the old-permalink -> new-page-id CSV (default: wordpress_redirects.csv). "
+            "--url-map-out",
+            default="wordpress_url_map.csv",
+            help="Path to write the old-URL -> new-URL CSV (default: wordpress_url_map.csv). "
             "An existing file at this path is overwritten, not appended to.",
         )
 
@@ -66,14 +67,14 @@ class Command(BaseCommand):
         if locale is None:
             raise CommandError(f"No Locale found for language code {options['locale']!r}")
 
-        index_page = BlogIndexPage.objects.filter(locale=locale).first()
+        index_page = BlogIndexPage.objects.filter(locale=locale, slug=options["index_slug"]).first()
         if index_page is None:
-            raise CommandError(f"No BlogIndexPage found for locale {locale.language_code!r}")
+            raise CommandError(f"No BlogIndexPage found with slug {options['index_slug']!r} for locale {locale.language_code!r}")
 
         posts = ElementTree.parse(xml_path).getroot().findall("post")
         self.stdout.write(f"Found {len(posts)} posts in {xml_path}")
 
-        redirect_rows = []
+        url_map_rows = []
         imported = skipped = failed = 0
 
         for post in posts:
@@ -96,18 +97,18 @@ class Command(BaseCommand):
             self.stdout.write(f"  {'[dry-run] ' if self.dry_run else ''}importing: {title}")
 
             try:
-                redirect_row = self._import_post(post, index_page, locale)
+                url_map_row = self._import_post(post, index_page, locale)
             except Exception as exc:
                 self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
                 failed += 1
                 continue
 
-            if redirect_row is not None:
-                redirect_rows.append(redirect_row)
+            if url_map_row is not None:
+                url_map_rows.append(url_map_row)
             imported += 1
 
-        if not self.dry_run and redirect_rows:
-            self._write_redirects_csv(options["redirects_out"], redirect_rows)
+        if not self.dry_run and url_map_rows:
+            self._write_url_map_csv(options["url_map_out"], url_map_rows)
 
         self.stdout.write(f"Done. {imported} imported, {skipped} skipped, {failed} failed.")
 
@@ -154,7 +155,7 @@ class Command(BaseCommand):
         revision = page.save_revision()
         revision.publish()
 
-        return (_text(post, "ID"), _text(post, "Permalink"), page.id, page.url)
+        return (_text(post, "ID"), _text(post, "Permalink"), page.full_url)
 
     def _parse_wp_date(self, text):
         """Parse a WordPress export Date (no timezone info) as wall-clock time in
@@ -281,9 +282,9 @@ class Command(BaseCommand):
         flush_text()
         return blocks, warnings
 
-    def _write_redirects_csv(self, path, rows):
+    def _write_url_map_csv(self, path, rows):
         with open(path, "w", newline="") as fh:
             writer = csv.writer(fh)
-            writer.writerow(["wp_id", "old_permalink", "new_page_id", "new_page_path"])
+            writer.writerow(["wp_id", "old_url", "new_url"])
             writer.writerows(rows)
-        self.stdout.write(f"Wrote {len(rows)} redirect mappings to {path}")
+        self.stdout.write(f"Wrote {len(rows)} URL mappings to {path}")

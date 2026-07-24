@@ -102,7 +102,8 @@ def make_command(dry_run=False):
 
 @pytest.fixture
 def index_page(minimal_site):
-    return get_blog_index_page()
+    # The command defaults to looking up the blog index by slug="blog".
+    return get_blog_index_page(slug="blog")
 
 
 # ---------------------------------------------------------------------------
@@ -158,7 +159,7 @@ def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_pat
     )
     out = StringIO()
     err = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"), stdout=out, stderr=err)
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stdout=out, stderr=err)
 
     assert not BlogArticlePage.objects.filter(slug="a-page").exists()
     assert BlogArticlePage.objects.filter(slug="a-test-post").exists()
@@ -170,10 +171,10 @@ def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_pat
 def test_successful_import_creates_page_with_expected_fields(tmp_path, index_page, monkeypatch, get_mock_response):
     monkeypatch.setattr("requests.get", get_mock_response)
     xml_path = _write_xml(tmp_path, _post_xml(tags="Privacy|Security"))
-    redirects_out = tmp_path / "redirects.csv"
+    url_map_out = tmp_path / "url_map.csv"
 
     out = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(redirects_out), stdout=out)
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(url_map_out), stdout=out)
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.title == "A Test Post"
@@ -184,18 +185,20 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     assert [b.block_type for b in page.content] == ["text"]
     assert "Done. 1 imported, 0 skipped, 0 failed." in out.getvalue()
 
-    with open(redirects_out, newline="") as fh:
+    with open(url_map_out, newline="") as fh:
         rows = list(csv.DictReader(fh))
     assert len(rows) == 1
-    assert rows[0]["old_permalink"] == "https://blog.mozilla.org/en/firefox/a-test-post/"
-    assert int(rows[0]["new_page_id"]) == page.id
+    assert rows[0]["old_url"] == "https://blog.mozilla.org/en/firefox/a-test-post/"
+    # The new URL must be absolute so the blog.mozilla.org team can redirect to it.
+    assert rows[0]["new_url"] == page.full_url
+    assert rows[0]["new_url"].startswith("http")
 
 
 def test_multiple_categories_use_first_as_topic_and_rest_as_tags(tmp_path, index_page, monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: _fake_response())
     xml_path = _write_xml(tmp_path, _post_xml(categories="Firefox|Privacy", tags="Security"))
 
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"))
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.topic.name == "Firefox"
@@ -208,7 +211,7 @@ def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(t
 
     out = StringIO()
     err = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"), stdout=out, stderr=err)
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stdout=out, stderr=err)
 
     assert not BlogArticlePage.objects.filter(slug="a-test-post").exists()
     assert "has no Category" in err.getvalue()
@@ -221,7 +224,7 @@ def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index
     monkeypatch.setattr("requests.get", lambda *a, **k: _fake_response())
     xml_path = _write_xml(tmp_path, _post_xml(date="2020-01-01 09:30:00"))
 
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"))
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.first_published_at.tzinfo is not None
@@ -233,7 +236,7 @@ def test_successful_import_writes_content_warnings_to_stderr(tmp_path, index_pag
     xml_path = _write_xml(tmp_path, _post_xml(content='<p>Watch:</p><iframe src="https://youtube.com/embed/abc"></iframe>'))
 
     err = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"), stderr=err)
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
 
     assert "https://youtube.com/embed/abc" in err.getvalue()
 
@@ -242,15 +245,15 @@ def test_dry_run_creates_nothing(tmp_path, index_page, monkeypatch):
     calls = []
     monkeypatch.setattr("requests.get", lambda *a, **k: calls.append(1))
     xml_path = _write_xml(tmp_path, _post_xml())
-    redirects_out = tmp_path / "redirects.csv"
+    url_map_out = tmp_path / "url_map.csv"
 
     out = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), dry_run=True, redirects_out=str(redirects_out), stdout=out)
+    call_command("import_wordpress_blog_posts", str(xml_path), dry_run=True, url_map_out=str(url_map_out), stdout=out)
 
     assert BlogArticlePage.objects.count() == 0
     assert Tag.objects.count() == 0
     assert Author.objects.count() == 0
-    assert not redirects_out.exists()
+    assert not url_map_out.exists()
     assert not calls, "dry-run must not hit the network"
     assert "[dry-run] importing: A Test Post" in out.getvalue()
     assert "Done. 1 imported, 0 skipped, 0 failed." in out.getvalue()
@@ -259,20 +262,20 @@ def test_dry_run_creates_nothing(tmp_path, index_page, monkeypatch):
 def test_skip_already_imported_slug(tmp_path, index_page, monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: _fake_response())
     xml_path = _write_xml(tmp_path, _post_xml())
-    redirects_out = tmp_path / "redirects.csv"
+    url_map_out = tmp_path / "url_map.csv"
 
     out = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(redirects_out))
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(url_map_out))
     assert BlogArticlePage.objects.count() == 1
 
-    redirects_out.unlink()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(redirects_out), stdout=out)
+    url_map_out.unlink()
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(url_map_out), stdout=out)
 
     assert BlogArticlePage.objects.count() == 1
     assert "skip (already imported): a-test-post" in out.getvalue()
     assert "Done. 0 imported, 1 skipped, 0 failed." in out.getvalue()
     # Nothing new to redirect, so the CSV is not (re)written.
-    assert not redirects_out.exists()
+    assert not url_map_out.exists()
 
 
 def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path, index_page, monkeypatch):
@@ -293,7 +296,7 @@ def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path
     )
     out = StringIO()
     err = StringIO()
-    call_command("import_wordpress_blog_posts", str(xml_path), redirects_out=str(tmp_path / "redirects.csv"), stdout=out, stderr=err)
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stdout=out, stderr=err)
 
     assert not BlogArticlePage.objects.filter(slug="post-one").exists()
     assert BlogArticlePage.objects.filter(slug="post-two").exists()
@@ -505,17 +508,17 @@ def test_build_content_pre_tag_becomes_code_block():
 
 
 # ---------------------------------------------------------------------------
-# _write_redirects_csv
+# _write_url_map_csv
 # ---------------------------------------------------------------------------
 
 
-def test_write_redirects_csv_writes_header_and_rows(tmp_path):
+def test_write_url_map_csv_writes_header_and_rows(tmp_path):
     cmd = make_command()
     path = tmp_path / "out.csv"
-    cmd._write_redirects_csv(str(path), [("1", "https://old.example.com/a/", 42, "https://new.example.com/a/")])
+    cmd._write_url_map_csv(str(path), [("1", "https://blog.mozilla.org/en/firefox/a/", "https://www.firefox.com/en-US/blog/a/")])
 
     with open(path, newline="") as fh:
         rows = list(csv.reader(fh))
-    assert rows[0] == ["wp_id", "old_permalink", "new_page_id", "new_page_path"]
-    assert rows[1] == ["1", "https://old.example.com/a/", "42", "https://new.example.com/a/"]
-    assert "Wrote 1 redirect mappings to" in cmd.stdout._out.getvalue()
+    assert rows[0] == ["wp_id", "old_url", "new_url"]
+    assert rows[1] == ["1", "https://blog.mozilla.org/en/firefox/a/", "https://www.firefox.com/en-US/blog/a/"]
+    assert "Wrote 1 URL mappings to" in cmd.stdout._out.getvalue()
