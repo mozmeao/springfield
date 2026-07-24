@@ -25,6 +25,7 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.rq import RqIntegration
 
 from springfield.base.config_manager import config
+from springfield.firefox.referral.utils import validate_invite_code_keyring
 
 # ROOT path of the project. A pathlib.Path object.
 DATA_PATH = config("DATA_PATH", default="data")
@@ -545,6 +546,23 @@ CANONICAL_URL = "https://www.firefox.com"
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config("SECRET_KEY", default="ssssshhhhh")
+
+# Referral invite-code encryption (FF1).
+# Symmetric keyring for turning a Firefox referral ID into a public invite code
+# and back. Each key is a dedicated 256-bit AES key, hex-encoded (64 hex chars)
+# in its own per-environment secret. These keys must not be reused for cookies,
+# CSRF, sessions, or anything else. Add new versions to the dict as rotations
+# happen (a two-deploy operation: add the key first, flip the active version in
+# a later deploy). Version identifiers are single Crockford base32 characters.
+# The local/CI default below is a fixed non-production value (also in .env-dist)
+# so tests are deterministic. Staging and prod override it with distinct secrets.
+REFERRAL_INVITE_CODE_KEYS = {
+    "1": bytes.fromhex(config("REFERRAL_INVITE_CODE_KEY_V1", default="abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")),
+}
+REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION = config("REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION", default="1")
+
+# Fail loudly at boot on a broken keyring rather than lazily on the first request.
+validate_invite_code_keyring(REFERRAL_INVITE_CODE_KEYS, REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION)
 
 # If config is available, we use Google Cloud Storage, else (for local dev)
 # fall back to filesytem storage
