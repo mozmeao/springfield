@@ -7,17 +7,9 @@ from springfield.cms.models import ContactPage
 
 
 def get_form_field_variants() -> list[dict]:
-    """Return the enterprise contact form fields for the test contact page.
-
-    Mirrors the production enterprise ("Firefox Professional Support") form:
-    identity fields, lead-qualification dropdowns (adoption stage, deployment
-    size, needs, timeline), an optional open-text field that doubles as a
-    lead-quality signal, consent, and hidden attribution fields.
-
-    Business phone is visible but optional (collected for the EU sales calling
-    motion). Company size is a hidden field with a sentinel value: it is no
-    longer asked (deployment size / endpoint count drives qualification), but the
-    key is kept in the Basket payload so a handler that expects it isn't broken.
+    """
+    Returns a list of form field variants for the contact page. Reflects the fields used by the
+    Enterprise contact form on the live site.
     """
     return [
         {
@@ -177,20 +169,10 @@ def get_form_field_variants() -> list[dict]:
         {
             "type": "hidden_field",
             "value": {
-                "internal_identifier": "company_size",
-                "label": "Company size",
-                "required": False,
-                "default_value": "not_collected",
-            },
-            "id": "hidden-field-company-size",
-        },
-        {
-            "type": "hidden_field",
-            "value": {
                 "internal_identifier": "lead_source",
                 "label": "Lead Source",
                 "required": False,
-                "default_value": "techrider.de",
+                "default_value": "enterprise-default-lead-submission",
                 "query_param_override": "ls",
             },
             "id": "hidden-field-lead-source",
