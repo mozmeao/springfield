@@ -1,0 +1,32 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:two-column-card
+  tag="{{ value.tag if value.tag else '' }}"
+  image_position="{{ value.settings.image_position }}"
+  theme="{{ theme }}"
+>
+  {% set ns = namespace(block_text="") %}
+  {% for block in value.content %}
+    {% set block_position = block_position ~ ".content-" ~ loop.index ~ "-" ~ block.block_type %}
+    {% if block.block_type in ["heading", "pricing_heading"] %}
+      {% set ns.block_text = block.value.heading_text|richtext|remove_tags %}
+    {% endif %}
+    {% with block_text=ns.block_text %}
+      {% if block.block_type == "rich_text" %}
+        {{ block.value|richtext }}
+      {% elif block.block_type == "heading" %}
+        {% with heading_size="fl-heading-sm" %}
+          {% include_block block %}
+        {% endwith %}
+      {% else %}
+        {% if block.block_type == "media" %}<div class="media">{% endif %}
+            {% include_block block %}
+        {% if block.block_type == "media" %}</div>{% endif %}
+      {% endif %}
+    {% endwith %}
+  {% endfor %}
+</include:two-column-card>

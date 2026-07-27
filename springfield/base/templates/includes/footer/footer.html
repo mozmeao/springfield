@@ -58,9 +58,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
             {{ ftl('footer-resources') }}
           </h2>
           <ul class="mzp-c-footer-list" data-testid="footer-list-resources">
-            <li><a href="{{ url('firefox.browsers.compare.index') }}" data-link-position="footer" data-link-text="Compare">{{ ftl('footer-compare') }}</a></li>
+            <li><a href="/{{ LANG }}/compare/" data-link-position="footer" data-link-text="Compare">{{ ftl('footer-compare') }}</a></li>
             <li><a href="{{ url('firefox.notes') }}" data-link-position="footer" data-link-text="Release Notes">{{ ftl('footer-release-notes') }}</a></li>
-            <li><a href="{{ url('firefox.more.index') }}" data-link-position="footer" data-link-text="Learn">{{ ftl('footer-learn') }}</a></li>
+            <li><a href="/{{ LANG }}/more/" data-link-position="footer" data-link-text="Learn">{{ ftl('footer-learn') }}</a></li>
+            <li><a href="https://shop.mozilla.com/{{params}}" data-link-position="footer" data-link-text="Merch Store">{{ ftl('footer-merch-store') }}</a></li>
             <li><a href="https://support.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Support">{{ ftl('footer-support') }}</a></li>
             <li><a href="https://addons.mozilla.org/firefox/{{params}}" data-link-position="footer" data-link-text="Add ons">{{ ftl('footer-addons') }}</a></li>
             <li><a href="https://community.mozilla.org/{{params}}" data-link-position="footer" data-link-text="Community">{{ ftl('footer-community') }}</a></li>

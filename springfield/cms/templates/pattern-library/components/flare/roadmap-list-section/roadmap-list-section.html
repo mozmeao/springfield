@@ -1,0 +1,89 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:roadmap-list-filter tags="{{ tag_settings }}" last_updated="{{ last_updated }}" />
+
+{% for section in sections %}
+
+  {% if loop.last %}
+  <div data-testid="roadmap-list-section">
+  {% endif %}
+
+  <include:roadmap-list-section>
+    <content:heading>
+      <button
+        type="button"
+        class="fl-roadmap-section-toggle"
+        aria-expanded="true"
+      >
+        <h2 class="fl-heading">
+          {{ section.headline }}
+          <span class="fl-icon fl-icon-add fl-roadmap-section-toggle-icon fl-roadmap-section-toggle-icon--add"></span>
+          <span class="fl-icon fl-icon-subtract fl-roadmap-section-toggle-icon fl-roadmap-section-toggle-icon--subtract"></span>
+        </h2>
+        {% if section.subheadline %}
+          <p class="fl-subheading">{{ section.subheadline }}</p>
+        {% endif %}
+      </button>
+    </content:heading>
+    <content:list_items>
+      {% for item in section.list_items %}
+        <include:roadmap-item data_tags="{{ item.tags|map(attribute='value')|join(',') }}">
+          {% if item.icon %}
+            <content:icon>
+              <include:icon icon_name="{{ item.icon }}" hidden="true" />
+            </content:icon>
+          {% endif %}
+          <content:header>
+            <h3 class="fl-heading">
+              {{ item.heading }}
+              <span class="fl-roadmap-status fl-roadmap-status-{{ item.status }}">{{ item.status_label }}</span>
+            </h3>
+          </content:header>
+          {% if item.tags %}
+            <content:tags>
+              {% for tag in item.tags %}
+                <span data-tag="{{ tag.value }}">
+                  <include:tag
+                    text="{{ tag.label }}"
+                    before_icon="{{ tag.icon }}"
+                  />
+                </span>
+              {% endfor %}
+            </content:tags>
+          {% endif %}
+          <content:body>
+            <p>{{ item.body }}</p>
+          </content:body>
+          {% if item.learn_more_link or item.secondary_link %}
+            <content:buttons>
+              {% if item.learn_more_link %}
+                <include:button
+                  link="{{ item.learn_more_link }}"
+                  label="{{ item.learn_more_label }}"
+                />
+              {% endif %}
+              {% if item.secondary_link %}
+                <include:button
+                  link="{{ item.secondary_link }}"
+                  label="{{ item.secondary_label }}"
+                  theme_class="button-ghost"
+                  icon_name="{{ item.secondary_icon }}"
+                  icon_position="{{ item.secondary_icon_position }}"
+                />
+              {% endif %}
+            </content:buttons>
+          {% endif %}
+        </include:roadmap-item>
+      {% endfor %}
+    </content:list_items>
+  </include:roadmap-list-section>
+
+  {% if loop.last %}
+  </div>
+  {% endif %}
+
+{% endfor %}

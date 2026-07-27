@@ -160,10 +160,10 @@ python manage.py dumpdata \
     waffle.Switch \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
-    cms.FreeFormPage \
     cms.FreeFormPage2026 \
+    cms.SmartWindowPage \
+    cms.SmartWindowExplainerPage \
     cms.WhatsNewIndexPage \
-    cms.WhatsNewPage \
     cms.WhatsNewPage2026 \
     cms.SpringfieldImage \
     cms.ArticleIndexPage \
@@ -173,11 +173,27 @@ python manage.py dumpdata \
     cms.DownloadPage \
     cms.DownloadIndexPage \
     cms.ThanksPage \
-    cms.DownloadFirefoxCallToActionSnippet \
+    cms.BlogIndexPage \
+    cms.BlogArticlePage \
+    cms.RoadmapPage \
+    cms.ContactPage \
+    cms.ReferralHubPage \
+    cms.ReferralGetFirefoxPage \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
+    cms.QRCodeFloatingSnippet \
     cms.Tag \
+    cms.SetAsDefaultSnippet \
+    cms.PretranslatedPhrase \
+    cms.PencilBannerSnippet \
+    cms.QRCodeSnippet \
+    cms.ScrollToSeeMoreSnippet \
+    cms.NavigationSnippet \
+    cms.PencilBannerPlacement \
+    cms.HomePagePencilBannerPlacement \
+    cms.ArticleThemePagePencilBannerPlacement \
+    cms.ArticleDetailPagePencilBannerPlacement \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

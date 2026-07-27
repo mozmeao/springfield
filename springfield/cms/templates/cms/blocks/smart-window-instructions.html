@@ -1,0 +1,13 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 3 %}
+
+<include:smart-window-instructions>
+  <content:pre_typewriter_text>{{ value.pre_typewriter_text }}</content:pre_typewriter_text>
+  <content:typewriter_text>{{ value.typewriter_text }}</content:typewriter_text>
+  <content:body>{{ value.instructions|richtext }}</content:body>
+</include:smart-window-instructions>

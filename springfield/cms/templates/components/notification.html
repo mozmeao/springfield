@@ -30,15 +30,14 @@
     {% endif %}
     <div class="fl-notification-content">
       {% if contents.heading %}
-        <p class="fl-notification-heading">
+        <div class="fl-notification-heading">
           {{ contents.heading }}
-        </p>
+        </div>
         <p class="fl-notification-message">{{ contents }}</p>
       {% else %}
-      <p class="fl-notification-heading">
-
+        <div class="fl-notification-heading">
           {{ contents }}
-        </p>
+        </div>
       {% endif %}
     </div>
     {% if closable %}

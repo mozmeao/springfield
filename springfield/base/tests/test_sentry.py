@@ -24,6 +24,7 @@ def test_pre_sentry_sanitisation__before_send_setup():
     assert SENSITIVE_FIELDS_TO_MASK_ENTIRELY == [
         "email",
         # "token",  # token is on the default blocklist, which we also use
+        "X-Mozilla-Ops-Canary",
     ]
 
 

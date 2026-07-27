@@ -1,0 +1,20 @@
+name: Dialog
+context:
+  dialogs:
+    - id: "sample-dialog"
+      testid: "dialog-sample"
+      trigger_label: "Open dialog"
+      heading:
+        level: "h1"
+        heading_text: "Sample dialog"
+      body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet quidem voluptate deserunt molestias! Quo aliquam harum optio deserunt, animi veritatis esse eveniet autem necessitatibus, vitae quisquam minima omnis consectetur amet?"
+      buttons:
+        - label: "Sample button"
+    - id: "second-sample-dialog"
+      trigger_label: "Open second dialog"
+      heading:
+        level: "h1"
+        heading_text: "Second Sample dialog"
+      body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eveniet quidem voluptate deserunt molestias! Quo aliquam harum optio deserunt, animi veritatis esse eveniet autem necessitatibus, vitae quisquam minima omnis consectetur amet?"
+      buttons:
+        - label: "Sample button"

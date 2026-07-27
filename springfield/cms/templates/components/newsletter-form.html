@@ -5,21 +5,31 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set form_template = form_template or "cms/newsletter_form.html" %}
+{% set illustration = illustration or "kit" %}
+
 <div class="fl-newsletterform-cta {% if theme %}fl-force-{{ theme }}-theme{% endif %}" data-state="default">
-  <div class="fl-newsletterform-illustration" aria-hidden="true">
+  {% if illustration != "none" %}
+  <div class="fl-newsletterform-illustration">
+    {% if illustration == "globe" %}
+    <img alt="" loading="lazy" src="/media/img/firefox/flare/globe.png" />
+    {% else %}
     <img alt="" loading="lazy" src="/media/img/firefox/flare/kit-on-rock.png" />
+    {% endif %}
   </div>
+  {% endif %}
 
   <div class="fl-newsletterform-content">
     {{ contents }}
 
     {{ email_newsletter_form(
       newsletters=newsletters,
-      template="cms/newsletter_form_2026.html",
+      template=form_template,
       include_country=true,
       include_language=true,
       footer=false,
       include_title=false
     ) }}
+
   </div>
 </div>

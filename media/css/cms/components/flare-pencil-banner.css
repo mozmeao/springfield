@@ -1,0 +1,91 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-pencil-banner {
+    background-color: var(--token-color-link-purple);
+}
+
+.fl-pencil-banner-content {
+    display: flex;
+    gap: var(--token-spacing-lg);
+    inline-size: 100%;
+    margin-inline: auto;
+    padding-block: var(--token-spacing-lg);
+    padding-inline: var(--fl-section-h-padding);
+    position: relative;
+}
+
+.fl-pencil-banner-link {
+    align-items: start;
+    color: var(--token-color-white);
+    display: inline-flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+    justify-content: center;
+    text-align: start;
+    text-decoration: none;
+}
+
+.fl-pencil-banner-title {
+    align-items: center;
+    background: var(--token-gradient-dark-purple);
+    border-radius: var(--token-border-radius-sm);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--token-font-size-lg);
+    font-weight: var(--fl-theme-font-weight-headline);
+    gap: var(--token-spacing-sm);
+    line-height: 1;
+    padding: 4px 12px;
+}
+
+.fl-pencil-banner-title.has-badge-start {
+    padding-inline-start: 4px;
+}
+
+.fl-pencil-banner-title.has-badge-end {
+    padding-inline-end: 4px;
+}
+
+.fl-pencil-banner-title i {
+    background: var(--token-gradient-gold);
+    border-radius: var(--token-border-radius-2xs);
+    color: var(--token-color-black-4);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--token-font-size-xs);
+    font-style: normal;
+    font-weight: var(--fl-theme-font-weight-headline);
+    padding: var(--token-spacing-xs) var(--token-spacing-xs);
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
+}
+
+.fl-pencil-banner-description {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--token-font-size-sm);
+    font-weight: var(--fl-theme-font-weight-body);
+}
+
+.fl-pencil-banner .fl-button {
+    color: var(--token-color-white);
+    flex: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-pencil-banner-link {
+        align-items: center;
+        flex-direction: row;
+        text-align: center;
+    }
+
+    .fl-pencil-banner .fl-button {
+        inset-inline-end: var(--fl-section-h-padding);
+        position: absolute;
+    }
+}

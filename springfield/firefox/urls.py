@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 from django.urls import path, re_path
 
 import springfield.releasenotes.views
@@ -105,15 +104,7 @@ urlpatterns = (
     page("analytics-tests/", "firefox/analytics-tests/ga-index.html"),
     page("browsers/desktop/", "firefox/browsers/desktop/index.html", ftl_files=["firefox/browsers"]),
     # Privacy-focused download experiment: https://github.com/mozmeao/springfield/pull/919/
-    path(
-        "landing/get/",
-        VariationTemplateView.as_view(
-            template_name="firefox/landing/get.html",
-            template_name_variations=["treatment"],
-            variation_locales=["en-US"],
-            ftl_files=["firefox/download/desktop", "firefox/download/home"],
-        ),
-    ),
+    path("landing/get/", views.landing_get_page, name="landing.get"),
     # Issue 15841, 15920, 5953 - UK influencer campaign pages
     page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
@@ -145,136 +136,78 @@ urlpatterns = (
         active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
     page(
-        "compare/",
-        "firefox/browsers/compare/index.html",
-        ftl_files=["firefox/browsers/compare/index", "firefox/browsers/compare/shared"],
-    ),
-    page(
-        "compare/brave/",
-        "firefox/browsers/compare/brave.html",
-        ftl_files=["firefox/browsers/compare/brave", "firefox/browsers/compare/shared"],
-    ),
-    page(
-        "compare/chrome/",
-        "firefox/browsers/compare/chrome.html",
-        ftl_files=["firefox/browsers/compare/chrome", "firefox/browsers/compare/shared"],
-    ),
-    page(
-        "compare/edge/",
-        "firefox/browsers/compare/edge.html",
-        ftl_files=["firefox/browsers/compare/edge", "firefox/browsers/compare/shared"],
-    ),
-    page(
-        "compare/opera/",
-        "firefox/browsers/compare/opera.html",
-        ftl_files=["firefox/browsers/compare/opera", "firefox/browsers/compare/shared"],
-    ),
-    page(
-        "compare/safari/",
-        "firefox/browsers/compare/safari.html",
-        ftl_files=["firefox/browsers/compare/safari", "firefox/browsers/compare/shared"],
-    ),
-    page(
         "landing/year-in-review-2025/",
         "firefox/landing/year-in-review-2025.html",
         url_name="firefox.year_in_review_2025",
     ),
-    # bedrock Issue 8641
-    page("more/", "firefox/more/index.html", ftl_files=["firefox/more/more", "firefox/more/shared"]),
-    page("more/best-browser/", "firefox/more/best-browser.html", ftl_files=["firefox/more/best-browser", "firefox/more/shared"]),
-    page("more/browser-history/", "firefox/more/browser-history.html", ftl_files=["firefox/more/browser-history", "firefox/more/shared"]),
-    page("more/incognito-browser/", "firefox/more/incognito-browser.html"),
-    page("more/update-your-browser/", "firefox/more/update-browser.html"),
-    page("more/what-is-a-browser/", "firefox/more/what-is-a-browser.html", ftl_files=["firefox/more/what-is-a-browser", "firefox/more/shared"]),
-    page("more/windows-64-bit/", "firefox/more/windows-64-bit.html", ftl_files=["firefox/more/windows-64-bit", "firefox/more/shared"]),
-    # Bedrock Issue #9490 - Evergreen Content for SEO
-    page("more/faq/", "firefox/more/faq.html", ftl_files="firefox/more/faq"),
     # START What's New Page (WNP) paths
     # 1. Legacy version format: MAJ.MIN/variant.patch (127.1a, 139.0.1, etc) rather than just MAJ
     re_path(f"^whatsnew/(?P<version>{version_re})/", views.WhatsnewView.as_view(), name="firefox.whatsnew_legacy"),
     # 2. New version format, which should be served from the CMS, but falls back to evergreen page
     re_path(r"^whatsnew/(?P<version>[1-9]\d{2})/", prefer_cms(views.WhatsnewView.as_view()), name="firefox.whatsnew"),
     # END What's New Page (WNP) paths
-    path("ai/", views.firefox_ai_waitlist_page, name="firefox.ai.waitlist"),
 )
 
-if settings.ENABLE_CMS_REFRESH_REDIRECTS:
-    urlpatterns += (
-        path(
-            "user-privacy/",
-            prefer_cms(L10nTemplateView.as_view(template_name="firefox/data.html")),
-            name="firefox.user-privacy",
+urlpatterns += (
+    path(
+        "user-privacy/",
+        prefer_cms(L10nTemplateView.as_view(template_name="firefox/data.html")),
+        name="firefox.user-privacy",
+    ),
+    path(
+        "download/android/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
+            fallback_ftl_files=["firefox/browsers/mobile/android"],
         ),
-        path(
-            "download/android/",
-            prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"])),
-            name="firefox.browsers.mobile.android",
+        name="firefox.browsers.mobile.android",
+    ),
+    path(
+        "download/ios/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
+            fallback_ftl_files=["firefox/browsers/mobile/ios"],
         ),
-        path(
-            "download/ios/",
-            prefer_cms(L10nTemplateView.as_view(template_name="firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"])),
-            name="firefox.browsers.mobile.ios",
+        name="firefox.browsers.mobile.ios",
+    ),
+    path(
+        "download/chromebook/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/desktop/chromebook.html", ftl_files=["firefox/browsers/desktop/chromebook"]),
+            fallback_ftl_files=["firefox/browsers/desktop/chromebook"],
         ),
-        path(
-            "download/chromebook/",
-            prefer_cms(
-                L10nTemplateView.as_view(template_name="firefox/browsers/desktop/chromebook.html", ftl_files=["firefox/browsers/desktop/chromebook"])
-            ),
-            name="firefox.browsers.desktop.chromebook",
+        name="firefox.browsers.desktop.chromebook",
+    ),
+    path(
+        "download/linux/",
+        prefer_cms(views.PlatformViewLinux.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.linux",
+    ),
+    path(
+        "download/mac/",
+        prefer_cms(views.PlatformViewMac.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.mac",
+    ),
+    path(
+        "download/windows/",
+        prefer_cms(views.PlatformViewWindows.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
+        name="firefox.browsers.desktop.windows",
+    ),
+    path("download/unsupported-systems/", prefer_cms(L10nTemplateView.as_view(template_name="firefox/unsupported-systems.html"))),
+    path(
+        "mobile/",
+        prefer_cms(
+            views.MobileBrowsersView.as_view(),
+            fallback_ftl_files=["firefox/browsers/mobile/index"],
         ),
-        path("download/linux/", prefer_cms(views.PlatformViewLinux.as_view()), name="firefox.browsers.desktop.linux"),
-        path("download/mac/", prefer_cms(views.PlatformViewMac.as_view()), name="firefox.browsers.desktop.mac"),
-        path("download/windows/", prefer_cms(views.PlatformViewWindows.as_view()), name="firefox.browsers.desktop.windows"),
-        path("download/unsupported-systems/", prefer_cms(L10nTemplateView.as_view(template_name="firefox/unsupported-systems.html"))),
-        path(
-            "mobile/",
-            prefer_cms(
-                views.MobileBrowsersView.as_view(),
-                fallback_ftl_files=["firefox/browsers/mobile/index"],
-            ),
-            name="firefox.browsers.mobile",
+        name="firefox.browsers.mobile",
+    ),
+    path(
+        "mobile/focus/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
+            fallback_ftl_files=["firefox/browsers/mobile/focus"],
         ),
-        path(
-            "mobile/focus/",
-            prefer_cms(
-                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-                fallback_ftl_files=["firefox/browsers/mobile/focus"],
-            ),
-            name="firefox.browsers.mobile.focus",
-        ),
-    )
-else:
-    urlpatterns += (
-        page("user-privacy/", "firefox/data.html", url_name="firefox.user-privacy"),
-        page("browsers/mobile/android/", "firefox/browsers/mobile/android.html", ftl_files=["firefox/browsers/mobile/android"]),
-        page("browsers/mobile/ios/", "firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
-        path("browsers/desktop/linux/", views.PlatformViewLinux.as_view(), name="firefox.browsers.desktop.linux"),
-        path("browsers/desktop/mac/", views.PlatformViewMac.as_view(), name="firefox.browsers.desktop.mac"),
-        path("browsers/desktop/windows/", views.PlatformViewWindows.as_view(), name="firefox.browsers.desktop.windows"),
-        page("browsers/desktop/chromebook/", "firefox/browsers/desktop/chromebook.html", ftl_files="firefox/browsers/desktop/chromebook"),
-        page("browsers/unsupported-systems/", "firefox/unsupported-systems.html"),
-        path(
-            "browsers/mobile/",
-            prefer_cms(
-                views.MobileBrowsersView.as_view(),
-                fallback_ftl_files=["firefox/browsers/mobile/index"],
-            ),
-            name="firefox.browsers.mobile",
-        ),
-        path(
-            "mobile/focus/",
-            prefer_cms(
-                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/focus.html", ftl_files=["firefox/browsers/mobile/focus"]),
-                fallback_ftl_files=["firefox/browsers/mobile/focus"],
-            ),
-            name="firefox.browsers.mobile.focus",
-        ),
-        path(
-            "mobile/get-app/",
-            prefer_cms(
-                L10nTemplateView.as_view(template_name="firefox/browsers/mobile/get-app.html", ftl_files=["firefox/browsers/mobile/get-app"]),
-                fallback_ftl_files=["firefox/browsers/mobile/get-app"],
-            ),
-            name="firefox.browsers.mobile.get_app",
-        ),
-    )
+        name="firefox.browsers.mobile.focus",
+    ),
+)

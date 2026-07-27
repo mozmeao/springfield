@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div style="padding: 1rem; max-width: 600px">
+  <include:numbered-list>
+    {% for item in items %}
+      <li class="fl-numbered-list-item">
+        <div class="fl-numbered-list-item-heading">{{ item.heading }}</div>
+        <div class="fl-numbered-list-item-text">{{ item.text }}</div>
+      </li>
+    {% endfor %}
+  </include:numbered-list>
+</div>

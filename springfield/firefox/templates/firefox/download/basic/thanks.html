@@ -80,6 +80,9 @@
 </main>
 {% endblock %}
 
+<!-- let auto-download handle attribution -->
+{% block stub_attribution %}{% endblock %}
+
 {% block js %}
-  {{ js_bundle('firefox_download_thanks') }}
+    {{ js_bundle('auto-download') }}
 {% endblock %}

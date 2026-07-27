@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import html as html_library
 import os
 
 from django.conf import settings
@@ -10,11 +11,19 @@ from django.test import override_settings
 from django.urls import path
 
 import pytest
+from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, Site
 
 from lib import l10n_utils
 from springfield.base.i18n import springfield_i18n_patterns
-from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+from springfield.cms.fixtures.snippet_fixtures import get_pretranslated_phrase_snippets
+from springfield.cms.models import FreeFormPage2026, PretranslatedPhrase
+from springfield.cms.tests.factories import (
+    LocaleFactory,
+    SimpleRichTextPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
+)
 from springfield.urls import urlpatterns as springfield_urlpatterns
 
 pytestmark = [pytest.mark.django_db]
@@ -471,8 +480,8 @@ def test_non_cms_page_hreflang_alternates(client):
     # Canonical should be self-referencing (en-US).
     assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
     assert '<meta name="robots" content="noindex,follow">' not in html
-    # en-US should emit both hreflang="en" and hreflang="en-US".
-    assert f'hreflang="en" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    # en-US should emit hreflang="en-US" only (duplicate bare hreflang="en" was removed for SEO clarity).
+    assert f'hreflang="en" href="{settings.CANONICAL_URL}/en-US{page_path}"' not in html
     assert f'hreflang="en-US" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
     # Locales in active_locales should appear.
     assert f'hreflang="fr" href="{settings.CANONICAL_URL}/fr{page_path}"' in html
@@ -628,3 +637,274 @@ def test_promoted_alias_locale_serves_own_page_directly(client):
     assert response.status_code == 200
     assert es_ar_page.title in response.content.decode("utf-8")
     assert es_mx_page.title not in response.content.decode("utf-8")
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_alias_to_nonexistent_cms_fallback_page_redirects(client):
+    """
+    When a CMS page does not exist in the fallback locale (es-MX), an
+    alias-locale (es-AR) request is redirected to the best available locale.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+
+    # The page exists only in en-US; es-MX has no equivalent.
+    SimpleRichTextPageFactory(parent=en_us_root, slug="features-page", title="Features")
+
+    response = client.get("/es-AR/features-page/")
+    assert response.status_code == 302
+    # No canonical-link logic applies since no page is served
+    assert "/en-US/features-page/" in response.url
+
+    response = client.get("/es-AR/features-page/", follow=True)
+    assert response.status_code == 200
+    # The indexable en-US page is served
+    en_us_page = Page.objects.get(locale__language_code="en-US", slug="features-page")
+    html = response.content.decode("utf-8")
+    assert f"<title>{en_us_page.title}" in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US/features-page/"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR/features-page/"' not in html
+    assert '<meta name="robots" content="noindex,follow">' not in html
+
+
+def test_noindex_page_has_canonical(client):
+    """
+    A page with noindex=True using base-flare.html served directly should emit
+    both a self-referencing canonical link and the noindex meta tag.
+    """
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    en_us_wnp_index = WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
+    en_us_wnp2026 = WhatsNewPage2026Factory(parent=en_us_wnp_index, slug="149", version="149")
+    en_us_wnp2026.refresh_from_db()
+
+    assert en_us_wnp2026.noindex is True
+
+    response = client.get(en_us_wnp2026.url)
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    page_path = "/whatsnew/149/"
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html
+    assert '<meta name="robots" content="noindex,follow">' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_noindex_page_alias_request_gets_canonical(client):
+    """A page with noindex=True on base-flare.html served via an alias locale
+    should emit a canonical link to the fallback locale alongside the noindex meta tag.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+
+    WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=en_us_root.get_children().get(slug="whatsnew"), slug="149", version="149")
+
+    es_mx_wnp_index = WhatsNewIndexPageFactory(parent=es_mx_root, slug="whatsnew", live=True, locale=es_mx_locale)
+    es_mx_wnp2026 = WhatsNewPage2026Factory(parent=es_mx_wnp_index, slug="149", version="149", locale=es_mx_locale)
+    assert es_mx_wnp2026.noindex is True
+
+    page_path = "/whatsnew/149/"
+    response = client.get(f"/es-AR{page_path}")
+    assert response.status_code == 200
+
+    html_content = html_library.unescape(response.content.decode("utf-8"))
+    assert f"<title>{es_mx_wnp2026.title}" in html_content
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html_content
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html_content
+    assert '<meta name="robots" content="noindex,follow">' in html_content
+
+
+def test_whatsnew_page_direct_request_has_canonical(client):
+    """
+    A WhatsNewPage (which has noindex=True) served directly should emit
+    both a self-referencing canonical link and the noindex meta tag.
+    """
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    en_us_wnp_index = WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
+    en_us_wnp = WhatsNewPage2026Factory(parent=en_us_wnp_index, slug="149", version="149")
+    en_us_wnp.refresh_from_db()
+    assert en_us_wnp.noindex is True
+
+    response = client.get(en_us_wnp.url)
+    assert response.status_code == 200
+
+    html_content = html_library.unescape(response.content.decode("utf-8"))
+    assert f"<title>{en_us_wnp.title}" in html_content
+    page_path = "/whatsnew/149/"
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/en-US{page_path}"' in html_content
+    assert '<meta name="robots" content="noindex,follow">' in html_content
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_whatsnew_page_alias_request_gets_canonical(client):
+    """
+    A WhatsNewPage (noindex=True, base-flare.html) served via an alias locale
+    should emit a canonical link pointing to the fallback locale URL.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+
+    WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=en_us_root.get_children().get(slug="whatsnew"), slug="149", version="149")
+
+    es_mx_wnp_index = WhatsNewIndexPageFactory(parent=es_mx_root, slug="whatsnew", live=True, locale=es_mx_locale)
+    es_mx_wnp = WhatsNewPage2026Factory(parent=es_mx_wnp_index, slug="149", version="149", locale=es_mx_locale)
+    assert es_mx_wnp.noindex is True
+
+    page_path = "/whatsnew/149/"
+    response = client.get(f"/es-AR{page_path}")
+    assert response.status_code == 200
+
+    html = response.content.decode("utf-8")
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-MX{page_path}"' in html
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR{page_path}"' not in html
+    assert '<meta name="robots" content="noindex,follow">' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
+def test_alias_to_nonexistent_whatsnew_fallback_page_uses_django_view(client):
+    """
+    When a WhatsNewPage does not exist in the fallback locale (es-MX), an
+    alias-locale (es-AR) request is handled by the Django WhatsnewView (not the CMS).
+
+    Unlike CMS-only pages (which would 302 via CMSLocaleFallbackMiddleware), whatsnew
+    URLs are registered with prefer_cms(WhatsnewView). When no CMS fallback page exists,
+    prefer_cms falls through to the Django view, which returns 200.
+    """
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    es_ar_locale = LocaleFactory(language_code="es-AR")
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_ar_root = en_us_root.copy_for_translation(es_ar_locale)
+    es_ar_root.save_revision().publish()
+
+    # WNP exists only in en-US; es-MX has no CMS equivalent.
+    # Since the URL is wrapped in prefer_cms(), it falls through to the Django WhatsnewView.
+    en_us_wnp_index = WhatsNewIndexPageFactory(parent=en_us_root, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=en_us_wnp_index, slug="149", version="149")
+
+    response = client.get("/es-AR/whatsnew/149/")
+
+    # The Django WhatsnewView handles the request
+    assert response.status_code == 200
+    assert [template.name for template in response.templates] == ["firefox/whatsnew/evergreen.html"]
+    assert response.context["view"].__class__.__name__ == "WhatsnewView"
+    # The response has a canonical tag, and is not indexable
+    html = response.content.decode("utf-8")
+    assert f'rel="canonical" href="{settings.CANONICAL_URL}/es-AR/whatsnew/149/"' in html
+    assert '<meta name="robots" content="noindex,follow">' in html
+
+
+@override_settings(FALLBACK_LOCALES={"es-CL": "es-MX"})
+def test_alias_locale_request_renders_fallback_locale_download_button_label(client):
+    """
+    A request for an alias locale page gets the fallback locale page with the download button.
+
+    The es-MX (fallback locale for es-CL) page stores the es-MX PretranslatedPhrase pk.
+    When the es-CL (alias locale for es-MX) URL is requested, the user gets the es-MX
+    page, with the es-MX download firefox button.
+    """
+    en_us_get_firefox, _ = get_pretranslated_phrase_snippets()
+
+    es_mx_locale = LocaleFactory(language_code="es-MX")
+    LocaleFactory(language_code="es-CL")  # alias locale: Locale record, no page tree
+
+    site = Site.objects.get(is_default_site=True)
+    en_us_root = site.root_page
+
+    es_mx_root = en_us_root.copy_for_translation(es_mx_locale)
+    es_mx_root.save_revision().publish()
+
+    es_mx_snippet = PretranslatedPhrase.objects.create(
+        locale=es_mx_locale,
+        translation_key=en_us_get_firefox.translation_key,
+        label="Obtener Firefox",
+        live=True,
+    )
+
+    es_mx_page = FreeFormPage2026(slug="es-mx-download-cl-test", title="ES-MX Page", locale=es_mx_locale)
+    es_mx_root.add_child(instance=es_mx_page)
+    es_mx_page.content = [
+        {
+            "type": "intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"media_position": "after", "anchor_id": ""},
+                "media": [],
+                "heading": {"superheading_text": "", "heading_text": "<p>Descarga Firefox</p>", "subheading_text": ""},
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "cc000000-0000-0000-0000-000000000001",
+                        "value": [
+                            {
+                                "type": "download_button",
+                                "id": "bb000000-0000-0000-0000-000000000001",
+                                "value": {
+                                    "pretranslated_label": es_mx_snippet.pk,
+                                    "custom_label": "",
+                                    "settings": {
+                                        "theme": "",
+                                        "icon": "downloads",
+                                        "icon_position": "right",
+                                        "analytics_id": "00000000-0000-0000-0000-000000000001",
+                                        "show_default_browser_checkbox": False,
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+        }
+    ]
+    es_mx_page.save_revision().publish()
+
+    # Request the page at the es-CL URL
+    es_cl_url = es_mx_page.url.replace("es-MX", "es-CL")
+    response = client.get(es_cl_url)
+
+    # The user gets the es-MX page, with the es-MX download firefox button
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+    assert en_us_get_firefox.label == "Get Firefox"  # confirm the en-US snippet exists — "Get Firefox" was available but should not be used
+    assert "ES-MX Page" in html  # the es-MX page is being served at the es-CL URL
+    assert "Obtener Firefox" in html
+    # "Get Firefox" is intentionally in data-cta-text (analytics); check it's absent from visible text only
+    assert "Get Firefox" not in BeautifulSoup(html, "html.parser").get_text()

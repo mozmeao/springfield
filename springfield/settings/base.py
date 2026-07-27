@@ -56,14 +56,6 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
-# CMS refresh redirect controls (toggled by infra during URL/content migrations).
-# ENABLE_CMS_REFRESH_REDIRECTS turns the redirects on; defaults to false so new behavior
-# is opt-in and can be rolled out gradually. PERMANENT_CMS_REFRESH_REDIRECTS switches
-# the redirects from temporary (302) to permanent (301); defaults to false so we can
-# verify the rollout and later make redirects permanent or remove them as part of cleanup.
-ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
@@ -139,8 +131,6 @@ TIME_ZONE = config("TIME_ZONE", default="America/Los_Angeles")
 USE_I18N = True
 
 USE_TZ = True
-
-USE_ETAGS = config("USE_ETAGS", default=str(not DEBUG), parser=bool)
 
 # Use the "X-Forwarded-Host" header from the CDN to set the Hostname
 # https://mozilla-hub.atlassian.net/browse/SE-4263
@@ -317,6 +307,7 @@ FLUENT_DEFAULT_FILES = [
     "ui",
     "mozilla-account-promo",
     "components",
+    "firefox/enterprise",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -481,17 +472,16 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
-
-# Ensure local debug-only test routes are not locale-prefixed
-if DEBUG:
-    SUPPORTED_NONLOCALES.append("flare-test")
 
 # Paths that can exist either with or without a locale code in the URL.
 # Matches the whole URL path
 SUPPORTED_LOCALE_IGNORE = [
-    "/all-urls-global.xml",  # in sitemap urls
-    "/all-urls.xml",  # in sitemap urls
+    "/all-urls-global.xml",  # in sitemap urls (legacy alias)
+    "/all-urls.xml",  # in sitemap urls (legacy alias)
+    "/sitemap-global.xml",  # in sitemap urls
+    "/sitemap.xml",  # in sitemap urls
 ]
 
 # Pages that we don't want to be indexed by search engines.
@@ -505,7 +495,7 @@ NOINDEX_URLS = [
     r"^django-rq/",
     r"^oidc/",
     r"^\.well-known/",
-    r"^browsers/unsupported-systems/",
+    r"^download/unsupported-systems/",
     r"^download/installer-help/",
     r"^firefox/nightly/notes/feed/$",
     r"^landing/",
@@ -513,7 +503,7 @@ NOINDEX_URLS = [
     r"^thanks/$",
     r"^analytics-tests/",
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz-cron/$",
     # exclude redirects
     r"^firefox/notes/$",
 ]
@@ -683,6 +673,14 @@ ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bo
 BASIC_AUTH_CREDS = config("BASIC_AUTH_CREDS", default="")
 ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE", default="false", parser=bool)
 
+# Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
+# Secret in webservices-infra), requests carrying the same token in the
+# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# 5xx for testing Fastly's failover cascade without breaking the /healthz/
+# probe. When unset (the default in every environment) the middleware is a
+# no-op and this setting has no effect.
+SYNTHETIC_5XX_TOKEN = config("SYNTHETIC_5XX_TOKEN", default="")
+
 MIDDLEWARE = [
     # IMPORTANT: this may be extended later in this file or via settings/__init__.py
     "django.middleware.security.SecurityMiddleware",
@@ -691,6 +689,7 @@ MIDDLEWARE = [
     "django.middleware.http.ConditionalGetMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "springfield.base.middleware.BasicAuthMiddleware",
+    "springfield.base.middleware.SyntheticServerErrorMiddleware",
     "springfield.base.middleware.CatchDisallowedRedirect",
     "springfield.redirects.middleware.RedirectsMiddleware",  # must come before SpringfieldLocaleMiddleware
     "springfield.base.middleware.SpringfieldLangCodeFixupMiddleware",  # must come after RedirectsMiddleware
@@ -729,6 +728,7 @@ INSTALLED_APPS = [
     "includecontents",
     # Wagtail CMS and related, necessary apps
     "wagtail.contrib.redirects",
+    "wagtail.contrib.routable_page",
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
@@ -749,6 +749,7 @@ INSTALLED_APPS = [
     "csp",
     "wagtail_link_block",
     # Local apps
+    # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases
     "springfield.firefox",
@@ -784,7 +785,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = config("SECURE_CONTENT_TYPE_NOSNIFF", default="tru
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=str(not DISABLE_SSL), parser=bool)
 SECURE_REDIRECT_EXEMPT = [
     r"^readiness/$",
-    r"^healthz(-cron)?/$",
+    r"^healthz-cron/$",
 ]
 if config("USE_SECURE_PROXY_HEADER", default=str(SECURE_SSL_REDIRECT), parser=bool):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -866,8 +867,7 @@ PATTERN_LIBRARY = {
     "SECTIONS": (
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
-        ("Components", ["pattern-library/components"]),
-        ("Pages", ["pattern-library/pages"]),
+        ("Components", ["pattern-library/components/flare/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -876,7 +876,7 @@ PATTERN_LIBRARY = {
     "PATTERN_BASE_TEMPLATE_NAME": "cms/base-pattern.html",
     # Any template in BASE_TEMPLATE_NAMES or any template that extends a template in
     # BASE_TEMPLATE_NAMES is a "page" and will be rendered as-is without being wrapped.
-    "BASE_TEMPLATE_NAMES": ["base-flare.html", "base-flare26.html"],
+    "BASE_TEMPLATE_NAMES": ["base-flare.html"],
     # CUSTOM_CSS allows users to override pattern library styles by providing a path to a CSS file
     # (relative to STATIC_URL) that contains CSS custom properties. This file will be included
     # after the main bundle to override default styles.
@@ -1039,6 +1039,9 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 
@@ -1078,6 +1081,9 @@ SENTRY_DSN = config("SENTRY_DSN", default="")
 SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
+    # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
+    # requests; keep it out of Sentry events so the token cannot leak via error reports.
+    "X-Mozilla-Ops-Canary",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
@@ -1178,6 +1184,18 @@ DATA_CONSENT_COUNTRIES = [
     "CH",  # Switzerland
     "GB",  # United Kingdom
 ]
+
+# Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
+# analytics script should load. This is intentionally env-driven so we can
+# turn a country on or off per environment (dev/stage/prod) without a code
+# change or deploy, and so it can be reverted instantly if needed. Additionally,
+# this is likely a temporary measurement addition.
+# Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
+# ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
+# Empty by default (no extra countries). The `if c.strip()` guard drops empty
+# tokens (e.g. a trailing comma) so the set never contains a blank string that
+# could match an empty country code.
+PLAUSIBLE_EXTRA_COUNTRIES = {c.strip() for c in config("PLAUSIBLE_EXTRA_COUNTRIES", default="").split(",") if c.strip()}
 
 
 # RELAY =========================================================================================
@@ -1356,8 +1374,6 @@ def lazy_wagtail_core_langs():
     return retval
 
 
-WAGTAIL_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
-
 # Don't automatically make a page for a non-default locale availble in the default locale
 WAGTAILLOCALIZE_SYNC_LIVE_STATUS_ON_TRANSLATE = False  # note that WAGTAILLOCALIZE is correct without the _
 
@@ -1400,7 +1416,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     ),
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
-    "EXCLUDE_LOCALES": ["en-CA", "en-GB"],
+    "EXCLUDE_LOCALES": list(FALLBACK_LOCALES.keys()),
 }
 
 WAGTAILDRAFTSHARING = {
@@ -1418,15 +1434,23 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     # Order here is the order used in the editor UI
     "h2",
     "h3",
+    "h4",
+    "h5",
     "hr",
     "bold",
     "italic",
+    "superscript",
+    "subscript",
+    "strikethrough",
     "code",
     "blockquote",
     "link",
+    "document-link",
     "ol",
     "ul",
     "image",
+    "fxa",
+    "fx-logo",
 ]
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
@@ -1457,7 +1481,10 @@ def _localize_dashboard_column_filter_options():
     ]
 
 
+# Settings for wagtail-localize-dashboard
 WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_column_filter_options, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_CORE_LANGUAGES = lazy(lazy_wagtail_core_langs, list)()
+WAGTAIL_LOCALIZE_DASHBOARD_TRACKED_SNIPPETS = ["cms.PretranslatedPhrase"]
 
 # Custom code in springfield.cms.models.base.AbstractSpringfieldCMSPage limits what page
 # models can be added as a child page.
@@ -1473,11 +1500,11 @@ WAGTAIL_LOCALIZE_DASHBOARD_COLUMN_FILTER_OPTIONS = lazy(_localize_dashboard_colu
 _allowed_page_models = [
     "cms.SimpleRichTextPage",
     "cms.StructuralPage",
-    "cms.FreeFormPage",
     "cms.FreeFormPage2026",
     "cms.WhatsNewIndexPage",
-    "cms.WhatsNewPage",
     "cms.WhatsNewPage2026",
+    "cms.SmartWindowPage",
+    "cms.SmartWindowExplainerPage",
     "cms.ArticleIndexPage",
     "cms.ArticleDetailPage",
     "cms.ArticleThemePage",
@@ -1485,6 +1512,12 @@ _allowed_page_models = [
     "cms.DownloadIndexPage",
     "cms.DownloadPage",
     "cms.ThanksPage",
+    "cms.BlogIndexPage",
+    "cms.BlogArticlePage",
+    "cms.RoadmapPage",
+    "cms.ContactPage",
+    "cms.ReferralHubPage",
+    "cms.ReferralGetFirefoxPage",
 ]
 
 if DEV is True:
@@ -1521,9 +1554,12 @@ PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", 
 PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
+PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 
-BANNER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_SNIPPET_ID = config("PRE_FOOTER_CTA_SNIPPET_ID", default="1000", parser=int)
-PRE_FOOTER_CTA_FORM_SNIPPET_ID = config("PRE_FOOTER_CTA_FORM_SNIPPET_ID", default="1000", parser=int)
-DOWNLOAD_FIREFOX_CTA_SNIPPET_ID = config("DOWNLOAD_FIREFOX_CTA_SNIPPET_ID", default="1000", parser=int)
-QR_CODE_SNIPPET_ID = config("QR_CODE_SNIPPET_ID", default="1000", parser=int)
+# Contact Page
+# On PROD, only certain paths are allowed to send POST requests
+# This needs to be in sync with Fastly WAF configuration
+CONTACT_PAGE_ALLOWED_PATHS = [
+    r"/enterprise/contact/$",
+    r"/landing/[a-zA-Z0-9\-]+/contact/$",
+]

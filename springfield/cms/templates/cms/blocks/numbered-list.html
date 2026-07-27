@@ -1,0 +1,14 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:numbered-list>
+  {% for item in value.list_items %}
+    <li class="fl-numbered-list-item">
+      <div class="fl-numbered-list-item-heading">{{ item.heading|richtext|remove_p_tag }}</div>
+      <div class="fl-numbered-list-item-text">{{ item.text|richtext }}</div>
+    </li>
+  {% endfor %}
+</include:numbered-list>

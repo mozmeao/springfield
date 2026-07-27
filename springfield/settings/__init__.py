@@ -5,6 +5,7 @@
 import logging.config
 import sys
 from copy import deepcopy
+from urllib.parse import urlparse
 
 import csp.constants
 
@@ -43,9 +44,15 @@ _csp_connect_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
     BASKET_URL,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "region1.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
+    "analytics.google.com",  # WT-1453
+    "*.analytics.google.com",  # WT-1453
+    "gtm.springfield.moz.works",
+    "gtm-dev.springfield.moz.works",
+    "gtm.firefox.com",
     "o1069899.sentry.io",
     "o1069899.ingest.sentry.io",
     "o1069899.ingest.us.sentry.io",
@@ -84,8 +91,10 @@ _csp_img_src = {
     "data:",
     "www.mozilla.org",  # mainly for release notes images. TODO: investigate removing
     "www.firefox.com",  # for release notes images when loading from nonprod or origin hosts
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
 }
 _csp_media_src = {
     csp.constants.SELF,
@@ -101,8 +110,10 @@ _csp_script_src = {
     # TODO change settings so we don't need unsafes even in dev
     csp.constants.UNSAFE_INLINE,
     csp.constants.UNSAFE_EVAL,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
     "tagmanager.google.com",
     "www.youtube.com",
     "s.ytimg.com",
@@ -123,6 +134,12 @@ if TRANSCEND_AIRGAP_URL:  # noqa: F405
 # TODO change settings so we don't need unsafes even in dev
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
+
+if PLAUSIBLE_DOMAIN:
+    _plausible_host = urlparse(PLAUSIBLE_SCRIPT_URL).netloc
+    if _plausible_host:
+        _csp_script_src.add(_plausible_host)
+        _csp_connect_src.add(_plausible_host)
 
 # 2. TEST-SPECIFIC SETTINGS
 # TODO: make this selectable by an env var, like the other modes

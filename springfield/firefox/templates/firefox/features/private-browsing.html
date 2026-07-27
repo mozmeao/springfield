@@ -32,5 +32,6 @@
 
 <h2>{{ ftl('features-private-browsing-what-private-browsing-doesnt-do') }}</h2>
 <p>{{ ftl('features-private-browsing-private-browsing-mode-will-not', vpn="https://www.mozilla.org/products/vpn/" + params) }}</p>
-<p>{{ ftl('features-private-browsing-compare-firefoxs-private-browsing', chrome=url('firefox.more.incognito-browser')) }}</p>
+{% set incognito_url = "/" ~ LANG ~ "/more/incognito-browser/" %}
+<p>{{ ftl('features-private-browsing-compare-firefoxs-private-browsing', chrome=incognito_url) }}</p>
 {% endblock article_content %}

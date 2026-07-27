@@ -1,0 +1,770 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Card Grid - Flare Design System Cards
+===================================================================== */
+
+/* The idea with the card grid is that we'll adjust the container based
+   on how many cards are present, and also the container size. We're setting
+   reasonable defaults, and then adjusting with :has() based on which
+   type of card is being used. The selectors are a little complicated,
+   but this allows us to make the card list component in the CMS completely
+   agnostic to which card type it contains.
+*/
+
+.fl-card-grid {
+    --fl-card-grid-gap: var(--token-spacing-3xl) var(--token-spacing-lg);
+    --fl-card-pictogram-size: 120px;
+    display: grid;
+    gap: var(--fl-card-grid-gap);
+    grid-template-columns: var(--fl-card-grid-columns, minmax(0, 1fr));
+    justify-content: center;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg); /* 934px default */
+}
+
+/* symmetrical card grid for filled (pictogram) cards. */
+.fl-card-grid:has(.fl-card-filled) {
+    --fl-card-grid-gap: var(--token-spacing-lg);
+}
+
+/* Two-wide on mobile variation. */
+.fl-card-grid.two-col-xs {
+    --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fl-card-grid.container-narrow {
+    max-inline-size: var(--token-width-desktop-content); /* 725px */
+}
+
+.fl-card-grid.container-wide {
+    max-inline-size: var(--token-width-desktop-wide-banner); /* 1170px */
+}
+
+.fl-card-grid.container-fill,
+.fl-card-grid.container-scroll {
+    max-inline-size: none;
+}
+
+@media (--viewport-sm-up) {
+    /* for most instances, tablet size gets two-wide cards */
+    .fl-card-grid {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* higher specificity keeps 2-item grids at 2-col on md-up where the default becomes 4 */
+    .fl-card-grid:has(> *:nth-child(2):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-md-up) {
+    /* The default assumes four cards */
+    .fl-card-grid,
+    .fl-card-grid.two-col-xs {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* when there are three cards, let them fill the space. */
+    .fl-card-grid:not(.cols-2-md):has(> *:nth-child(3):last-child),
+    .fl-card-grid.two-col-xs:not(.cols-2-md):has(> *:nth-child(3):last-child) {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* two cards wide */
+    .fl-card-grid.cols-2-md {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Three-cards wide */
+    .fl-card-grid.cols-3-md {
+        --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* special case for when filled (pictogram) cards have four items. */
+    .fl-card-grid:has(.fl-card-filled):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (--viewport-lg-up) {
+    /* special case for when filled (pictogram) cards have four items. */
+    .fl-card-grid:has(.fl-card-filled):has(> *:nth-child(4):last-child) {
+        --fl-card-grid-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.fl-card-heading .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+}
+
+.fl-card-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin: 0;
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
+}
+
+.fl-card-expand-link {
+    cursor: pointer;
+}
+
+.fl-card-heading-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fl-card-heading-link:hover .fl-heading,
+.fl-card-heading-link:focus .fl-heading,
+.fl-card-heading-link:active .fl-heading {
+    text-decoration: underline;
+}
+
+.fl-card-expand-link a::after,
+.fl-card-expand-link button::after {
+    content: '';
+    inset: 0;
+    position: absolute;
+}
+
+.fl-card-expand-link:hover
+    :is(
+        h1.fl-heading,
+        h2.fl-heading,
+        h3.fl-heading,
+        h4.fl-heading,
+        h5.fl-heading,
+        h6.fl-heading
+    ) {
+    text-decoration: underline;
+}
+
+/* =====================================================================
+Basic Card
+===================================================================== */
+
+.fl-card {
+    contain: paint;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    position: relative;
+}
+
+.fl-card .fl-heading-group {
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card .fl-heading,
+.fl-card .fl-body,
+.fl-card .fl-body p {
+    margin: 0;
+}
+
+.fl-card .fl-buttons,
+.fl-card .fl-button-row {
+    margin-block-start: auto;
+}
+
+/* Stack buttons vertically inside cards regardless of their orientation setting */
+.fl-card .fl-buttons.is-horizontal {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.fl-card.fl-card-center .fl-buttons.is-horizontal {
+    align-items: center;
+}
+
+/* Default card variant: illustration card look.
+   fl-card-media/fl-card-top-media sits at top, fl-card-content wraps heading/body/buttons.
+   Only applied when not an outline or filled variant. */
+.fl-card .fl-card-top-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-card .fl-card-top-media .fl-card-media-icon,
+.fl-card .fl-card-top-media .fl-card-media-pictogram {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+.fl-card .fl-card-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: var(--token-spacing-lg);
+}
+
+.fl-card .fl-card-content > *:last-child {
+    margin-block-end: 0;
+}
+
+.fl-card .fl-card-content .fl-heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    margin: 0;
+}
+
+.fl-card:not(.fl-card-filled) .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-variation-settings: unset;
+    line-height: 1.1;
+}
+
+.fl-card:not(.fl-card-filled) .fl-superheading {
+    color: var(--fl-theme-color-brand-text);
+    display: block;
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-medium);
+    margin-block-end: 0;
+}
+
+/* =====================================================================
+Outlined Card variant
+===================================================================== */
+
+.fl-card.fl-card-outline {
+    background: var(--fl-theme-default-card-bg);
+    border: 1px solid var(--card-border-color);
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--fl-theme-color-text);
+    gap: var(--token-spacing-md);
+    padding: var(--token-spacing-2xl);
+    transition: transform var(--token-transition-base);
+}
+
+.fl-card-heading-group .fl-card-media-pictogram {
+    margin-block-end: var(--token-spacing-md);
+}
+
+.fl-card-heading-group > *:last-child {
+    margin-block-end: 0;
+}
+
+/* Transitioning box-shadow causes a repaint every frame. Instead, we place
+   the hover shadow on a ::after pseudo-element and transition its opacity —
+   opacity is composited on the GPU with zero repaint cost. */
+.fl-card.fl-card-outline::after,
+.fl-card.fl-card-filled::after {
+    border-radius: inherit;
+    box-shadow: 0 40px 96px var(--token-color-dark-purple-22);
+    content: '';
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity var(--token-transition-base);
+}
+
+.fl-card.fl-card-outline:hover,
+.fl-card.fl-card-filled:hover {
+    transform: translateY(-2px);
+}
+
+.fl-card.fl-card-outline:hover::after,
+.fl-card.fl-card-filled:hover::after {
+    opacity: 1;
+}
+
+/* =====================================================================
+Filled Card variant
+===================================================================== */
+
+.fl-card.fl-card-filled {
+    background: var(--fl-theme-surface-card-gradient);
+    border: 1px solid var(--fl-card-filled-border-color);
+    border-radius: var(--token-border-radius-md);
+    box-shadow: var(--fl-theme-shadow-card);
+    color: var(--token-color-black-4);
+    min-block-size: 316px;
+    padding: var(--token-spacing-3xl) var(--token-spacing-xl);
+    transition: transform var(--token-transition-base);
+}
+
+.fl-card.fl-card-filled .fl-card-content {
+    gap: var(--token-spacing-xl);
+}
+
+.fl-card.fl-card-filled .fl-heading {
+    color: var(--token-color-black-4);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+}
+
+.fl-card.fl-card-filled .fl-heading-group {
+    color: var(--token-color-black-4);
+    gap: unset;
+}
+
+.fl-card.fl-card-filled .fl-superheading {
+    color: var(--token-color-light-purple);
+    display: block;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    font-weight: var(--token-font-weight-medium);
+    margin-block-end: var(--token-spacing-xl);
+
+    @container style(--lang-supports-uppercase: true) {
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+}
+
+/* Pictogram in filled card: no squircle bg */
+.fl-card.fl-card-filled .fl-card-media-pictogram {
+    background-color: transparent;
+    block-size: auto;
+    border-radius: 0;
+    flex: 1 1 auto;
+    inline-size: auto;
+    min-block-size: unset;
+    min-inline-size: unset;
+    padding: 0;
+}
+
+.fl-card.fl-card-filled .fl-body > * {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    text-wrap: balance;
+}
+
+/* =====================================================================
+Card Testimonial content block
+===================================================================== */
+
+/* Testimonial cards use xl padding on mobile; md-up upgrades font to body-sm. */
+.fl-card.fl-card-outline:has(.fl-card-testimonial) {
+    padding: var(--token-spacing-xl);
+}
+
+@media (--viewport-md-up) {
+    .fl-card.fl-card-outline:has(.fl-card-testimonial) {
+        padding: var(--token-spacing-2xl);
+    }
+
+    .fl-card.fl-card-outline .fl-card-testimonial {
+        font-size: var(--fl-theme-font-size-body-sm);
+    }
+}
+
+.fl-card-testimonial {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-xl);
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card-testimonial-quote {
+    flex: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-card-testimonial-quote > *:first-child::before {
+    content: '\201C';
+}
+
+.fl-card-testimonial-quote > *:last-child::after {
+    content: '\201D';
+}
+
+.fl-card-testimonial-footer {
+    align-items: center;
+    display: flex;
+    gap: var(--token-spacing-lg);
+    margin-block-start: auto;
+}
+
+.fl-card-testimonial-image {
+    block-size: 48px;
+    border-radius: var(--token-border-radius-xs);
+    flex-shrink: 0;
+    inline-size: 48px;
+    overflow: hidden;
+}
+
+.fl-card-testimonial-image img {
+    block-size: 100%;
+    display: block;
+    inline-size: 100%;
+    object-fit: cover;
+}
+
+.fl-card-testimonial-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xs);
+}
+
+.fl-card-testimonial-attribution {
+    font-style: normal;
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-card-testimonial-role {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-xs);
+    opacity: 0.7;
+}
+
+/* =====================================================================
+Alignment modifiers
+===================================================================== */
+
+.fl-card.fl-card-center {
+    text-align: center;
+}
+
+.fl-card.fl-card-end {
+    text-align: end;
+}
+
+/* Button and tag alignment follows card alignment */
+.fl-card.fl-card-start .fl-buttons,
+.fl-card.fl-card-start .fl-tags {
+    justify-content: flex-start;
+}
+
+.fl-card.fl-card-center .fl-buttons,
+.fl-card.fl-card-center .fl-tags {
+    justify-content: center;
+}
+
+.fl-card.fl-card-end .fl-buttons,
+.fl-card.fl-card-end .fl-tags {
+    justify-content: flex-end;
+}
+
+/* =====================================================================
+Card media containers
+===================================================================== */
+
+/* Full-bleed top media: MediaBlock used in the card's top-level media field.
+   Default (no-variant) cards get uniform border-radius to match the old fl-card-media look.
+   Icon and pictogram manage their own sizing via fl-card-media-icon/pictogram. */
+
+.fl-card-top-media img {
+    border-radius: var(--token-border-radius-sm);
+    display: block;
+    inline-size: 100%;
+    margin: 0;
+}
+
+.fl-card-top-media .fl-video {
+    aspect-ratio: 17/20;
+}
+
+.fl-card-top-media .fl-video video {
+    border-radius: var(--token-border-radius-sm);
+    object-fit: cover;
+}
+
+/* Outline/filled cards: break out of padding, clip to top card corners only. */
+.fl-card.fl-card-outline
+    .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
+    margin-block-start: calc(var(--token-spacing-2xl) * -1);
+    margin-inline: calc(var(--token-spacing-2xl) * -1);
+}
+
+.fl-card.fl-card-filled .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
+    margin-block-start: calc(var(--token-spacing-3xl) * -1);
+    margin-inline: calc(var(--token-spacing-xl) * -1);
+}
+
+/* Shared layout for icon and pictogram media containers */
+.fl-card .fl-card-media-icon,
+.fl-card .fl-card-media-pictogram {
+    align-items: center;
+    background-color: var(--fl-theme-illustration-icon-bg);
+    block-size: var(--media-size);
+    border-radius: var(--media-border-radius);
+    display: flex;
+    inline-size: var(--media-size);
+    justify-content: center;
+    min-block-size: var(--media-size);
+    min-inline-size: var(--media-size);
+    padding: var(--media-padding);
+}
+
+/* Icon media container: 48px with light squircle bg */
+.fl-card .fl-card-media-icon {
+    --media-size: 48px;
+    --media-border-radius: var(--token-border-radius-2xs);
+    --media-padding: var(--token-spacing-md);
+}
+
+.fl-card .fl-card-media-icon .fl-icon {
+    font-size: 24px;
+}
+
+.fl-card .fl-card-media-icon img,
+.fl-card .fl-card-media-pictogram img {
+    margin-block-end: 0;
+}
+
+/* Pictogram media container: squircle bg */
+.fl-card .fl-card-media-pictogram {
+    --media-size: 56px;
+    --media-border-radius: var(--token-border-radius-xs);
+    --media-padding: var(--token-spacing-md);
+}
+
+.fl-card .fl-card-media-pictogram img {
+    block-size: var(--fl-card-pictogram-size, 60px);
+    border-radius: 0;
+    inline-size: var(--fl-card-pictogram-size, 60px);
+    margin: 0;
+    max-block-size: 100%;
+    max-inline-size: 100%;
+    object-fit: contain;
+}
+
+@media (--viewport-md-up) {
+    .fl-card .fl-card-media-pictogram {
+        --media-border-radius: var(--token-border-radius-sm);
+        --media-padding: var(--token-spacing-lg);
+        --media-size: 102px;
+    }
+}
+
+/* =====================================================================
+Step Cards List - With Kit variant
+===================================================================== */
+
+/*
+ * Scoped styling hook applied to the Cards List wrapper:
+ *   <div class="fl-card-grid fl-step-cards-with-kit">...</div>
+ *
+ */
+
+.fl-card-grid.fl-step-cards-with-kit {
+    gap: var(--token-layout-2xs);
+    inline-size: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding-block: var(--token-layout-2xs);
+}
+
+.fl-step-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-xl);
+    position: relative;
+}
+
+.fl-step-card .fl-card-media {
+    align-items: center;
+    background: var(--fl-step-card-bg);
+    border-radius: var(--token-border-radius-md);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-2xl);
+    inline-size: 100%;
+    justify-content: center;
+
+    /* Figma: 240px on desktop, but keep responsive */
+    min-block-size: calc(var(--token-layout-md) * 3);
+    overflow: hidden;
+    padding: var(--token-spacing-2xl);
+}
+
+.fl-step-card .fl-card-media img {
+    block-size: auto;
+    inline-size: auto;
+    max-block-size: 96px;
+    max-inline-size: 100%;
+    object-fit: contain;
+}
+
+.fl-step-card-index {
+    align-items: center;
+    background: var(--fl-step-card-index-bg);
+    block-size: var(--token-layout-3xs);
+    border-radius: var(--token-border-radius-sm);
+    box-sizing: border-box;
+    color: var(--fl-theme-color-text);
+    display: flex;
+    font-size: var(--token-font-size-xs);
+    font-weight: var(--token-font-weight-medium);
+    inline-size: var(--token-layout-3xs);
+    justify-content: center;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+}
+
+.fl-step-card .fl-card-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-lg);
+    text-align: center;
+}
+
+.fl-step-card .fl-heading-group {
+    margin: 0;
+}
+
+.fl-step-card .fl-superheading {
+    color: var(--fl-theme-card-superheading-color);
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-step-card .fl-heading {
+    font-size: var(--token-font-size-md);
+    font-variation-settings: unset;
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: 0;
+    line-height: 1.1;
+    margin: 0;
+    text-wrap: balance;
+}
+
+.fl-step-card .fl-body p:last-child {
+    margin: 0;
+}
+
+/* Decorative Kit (Figma): only on the last card */
+.fl-step-cards-with-kit .fl-step-card:last-child {
+    margin-block-start: var(--token-layout-sm);
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::before,
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    background-repeat: no-repeat;
+    background-size: auto;
+    content: '';
+    inset-block-start: -32px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 3;
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::before {
+    background-image: url('/media/img/firefox/flare/fox-tail.png');
+    background-size: contain;
+    block-size: 110px;
+    inline-size: 68px;
+    inset-inline-start: -20px;
+}
+
+.fl-step-cards-with-kit .fl-step-card:last-child::after {
+    background-image: url('/media/img/firefox/flare/fox-head.png');
+    background-size: contain;
+    block-size: 86px;
+    inline-size: 98px;
+    inset-block-start: -60px;
+    inset-inline-end: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-card.fl-card-filled {
+        min-block-size: 480px;
+    }
+
+    .fl-card-grid.fl-step-cards-with-kit {
+        gap: var(--token-layout-lg) var(--token-layout-3xs);
+    }
+
+    .fl-step-cards-with-kit .fl-step-card:last-child {
+        margin-block-start: 0;
+    }
+}
+
+/* =====================================================================
+Card Grid - Scroll variant
+===================================================================== */
+
+.fl-section .fl-card-grid-scroll {
+    margin-block-start: calc(-1 * var(--token-spacing-2xl));
+    margin-inline: calc(-1 * var(--fl-section-h-padding));
+    padding-block: var(--token-spacing-2xl) var(--token-layout-sm);
+}
+
+.fl-section-container:has(.fl-card-grid-scroll) {
+    max-inline-size: none;
+}
+
+.fl-card-grid-scroll {
+    --fl-card-grid-columns: none;
+    display: block; /* override display: grid from .fl-card-grid */
+    gap: 0;
+    overflow: hidden;
+
+    /* Extra block padding so card shadows aren't clipped */
+    padding-block: var(--token-layout-sm);
+    position: relative;
+    z-index: 1;
+}
+
+/* Mirrors swiper-wrapper core CSS for our custom class name */
+.fl-card-grid-scroll-inner {
+    box-sizing: content-box;
+    display: flex;
+    inline-size: 100%;
+    padding-inline-start: var(--token-spacing-lg);
+    position: relative;
+    transition-property: transform;
+    transition-timing-function: linear;
+    z-index: 1;
+}
+
+/*
+    if the viewport has enough space for the cards,
+    or became bigger than all the cards,
+    centralize cards
+ */
+.fl-card-grid-scroll-inner[style*='transition-duration: 0ms'],
+.fl-card-grid-scroll-inner:not([style*='transition-duration']) {
+    justify-content: center;
+}
+
+/* Mirrors swiper-slide core CSS for our custom class name */
+.fl-card-grid-scroll-item {
+    flex-shrink: 0;
+    inline-size: clamp(260px, 30vw, 360px);
+    position: relative;
+    transition-property: transform;
+}
+
+/* Stretch card to fill slide so all cards share the same height */
+.fl-card-grid-scroll-item > * {
+    block-size: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    /* When motion is reduced JS doesn't run, cards are direct children */
+    .fl-card-grid-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+        overflow-x: auto;
+    }
+
+    .fl-card-grid-scroll-inner {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: var(--token-spacing-lg);
+    }
+}

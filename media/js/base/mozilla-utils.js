@@ -65,6 +65,11 @@ if (typeof window.Mozilla === 'undefined') {
         var data = Utils.getDownloadPlatformVersion(window.site);
 
         for (var i = 0; i < downloadButton.length; ++i) {
+            if (
+                downloadButton[i].getAttribute('data-version-forced') === 'true'
+            ) {
+                continue;
+            }
             if (data && data.version) {
                 downloadButton[i].setAttribute(
                     'data-download-version',

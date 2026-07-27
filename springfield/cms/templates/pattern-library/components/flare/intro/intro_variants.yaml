@@ -1,0 +1,203 @@
+name: "Intro variants"
+context:
+  variants:
+    - title: Intro With Media
+      testid: media-after
+      media_position: "after"
+      vertical: true
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-center
+        subheading_size: 3
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      body: This is a sample body text for the intro with media variant. It provides additional context below the heading and tags.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro With Media (Media Before)
+      testid: media-before
+      media_position: 'before'
+      vertical: true
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-center
+        subheading_size: 3
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: bookmark
+          after_icon: ''
+      body: This is a sample body text for the intro with media before variant. The media appears above the content in this layout.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro Without Media
+      testid: no-media
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-center
+        subheading_size: 3
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Open Source
+          color: green
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      body: This is a sample body text for the intro without media variant. Content fills the full width without any accompanying image or video.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+
+    - title: Intro Horizontal (Media Right)
+      testid: media-right
+      media_position: "right"
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-start
+        subheading_size: 3
+      tags:
+        - text: Privacy
+          color: purple
+          corners: round
+          before_icon: shield
+          after_icon: ''
+        - text: Security
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      body: This is a sample body text for the horizontal intro with media on the right. Content sits on the left side alongside the image.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro Horizontal (Media Left)
+      testid: media-left
+      media_position: "left"
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-start
+        subheading_size: 3
+      tags:
+        - text: Featured
+          color: orange
+          corners: round
+          before_icon: bookmark
+          after_icon: ''
+      body: This is a sample body text for the horizontal intro with media on the left. Content sits on the right side alongside the image.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: PlaceholderImage
+
+    - title: Intro With Video
+      testid: video
+      media_position: 'after'
+      vertical: true
+      heading:
+        heading_text: Heading
+        superheading_text: Superheading
+        subheading_text: Subheading
+        alignment_class: text-center
+        subheading_size: 3
+      tags:
+        - text: Video
+          color: blue
+          corners: round
+          before_icon: ''
+          after_icon: ''
+      body: This is a sample body text for the intro with video variant. A YouTube video is displayed as the media element.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: true
+          icon_name: forward
+          icon_position: right
+        - label: Sign Up
+          link: testurl
+          external: false
+          icon_name: back
+          icon_position: left
+      video:
+        url: https://www.youtube.com/watch?v=F-nFQryDB0s
+        poster: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder Video

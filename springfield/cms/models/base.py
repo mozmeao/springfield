@@ -4,16 +4,37 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
-from wagtail.models import Page as WagtailBasePage
+from wagtail.models import Locale, Page as WagtailBasePage, Site
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
+from springfield.base.i18n import normalize_language
+from springfield.cms.forms import SpringfieldCopyForm
 from springfield.cms.utils import compute_cms_page_locales
+
+
+class PromotedPageMixin(models.Model):
+    """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
+
+    enable_marketing_attribution = models.BooleanField(
+        default=False,
+        help_text=(
+            "Enable marketing attribution for externally promoted pages. "
+            "Adds the 'Share how you discovered Firefox' opt-out checkbox, "
+            "consent banner support for EU visitors, and stub attribution "
+            "for CPA tracking. Must not be used together with the 'Set as "
+            "default browser' checkbox on download buttons."
+        ),
+    )
+
+    class Meta:
+        abstract = True
 
 
 @method_decorator(never_cache, name="serve_password_required_response")
@@ -46,8 +67,25 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         help_text="Image displayed when this page is shared on social media. Recommended size: 1200×630 pixels (PNG).",
     )
 
+    custom_navigation = models.ForeignKey(
+        "cms.NavigationSnippet",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        help_text=(
+            "Override the page header navigation with this menu. If unset, the page "
+            "inherits its nearest ancestor's custom navigation, then the site default "
+            "navigation, then the built-in navigation."
+        ),
+    )
+
     promote_panels = WagtailBasePage.promote_panels + [
         FieldPanel("og_image"),
+    ]
+
+    settings_panels = WagtailBasePage.settings_panels + [
+        FieldPanel("custom_navigation"),
     ]
 
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
@@ -55,7 +93,11 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     # See https://wagtail-localize.org/stable/how-to/field-configuration/
     override_translatable_fields = [
         SynchronizedField("slug"),
+        SynchronizedField("custom_navigation"),
     ]
+
+    # Add the "Keep analytics IDs" opt-out checkbox to the admin copy form.
+    copy_form_class = SpringfieldCopyForm
 
     class Meta:
         abstract = True
@@ -123,6 +165,57 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         return self._render_with_fluent_string_support(request, *args, **kwargs)
 
     @property
+    def localized(self):
+        """
+        Extends Wagtail's localized to handle alias locales in FALLBACK_LOCALES.
+
+        When the active locale is an alias (e.g. pt-PT → pt-BR) and the page has
+        no translation in that alias locale, returns the fallback locale's translation
+        instead of the source-locale original.
+        """
+        localized = super().localized
+
+        lang_code = normalize_language(translation.get_language())
+
+        if localized.locale.language_code == lang_code:
+            return localized
+
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+        if lang_code in fallback_locales:
+            fallback_code = fallback_locales[lang_code]
+            try:
+                fallback_locale = Locale.objects.get(language_code=fallback_code)
+                if localized.locale_id != fallback_locale.id:
+                    fallback_page = self.get_translation_or_none(fallback_locale)
+                    if fallback_page:
+                        return fallback_page
+            except Locale.DoesNotExist:
+                pass
+
+        return localized
+
+    def get_active_locale_url(self, request=None):
+        """
+        Replace the URLs locale with the active locale if the page is a fallback
+        so that the user doesn't navigate away from it's preferred language.
+
+        If the active locale is an alias (e.g. pt-PT → pt-BR) and the page is in the
+        fallback locale (e.g. pt-BR), return a URL with the alias locale (e.g. pt-PT).
+        host/pt-BR/page/ → host/pt-PT/page/
+        """
+        url = super().get_url(request)
+
+        active_language = normalize_language(translation.get_language())
+        fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
+
+        if active_language in fallback_locales:
+            fallback_code = fallback_locales[active_language]
+            if self.locale.language_code == fallback_code:
+                url = url.replace(f"/{fallback_code}/", f"/{active_language}/", 1)
+
+        return url
+
+    @property
     def og_title(self):
         return self.seo_title or self.title or "Firefox"
 
@@ -134,3 +227,48 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     def noindex(self):
         """By default, don't add the robots meta tag to CMS pages, but allow child classes to override this if needed."""
         return False
+
+    def get_breadcrumb_ancestors(self):
+        """Live, publicly-visible ancestors of this page for a BreadcrumbList.
+
+        Restricts the ancestor chain to pages within the current Site's
+        routable subtree by matching `url_path` prefixes against the cached
+        `Site.get_site_root_paths()`. Pages above the routable subtree — the
+        Wagtail system root (depth 1) and per-locale root pages (depth 2 in
+        production, see migration 0060_create_alias_locale_records) — have
+        `url_path`s outside every SiteRootPath prefix and are excluded.
+
+        Applies `.public()` so ancestors with a `PageViewRestriction`
+        (password-required, group-restricted, login-required) never leak
+        into public JSON-LD.
+
+        Filters on `url_path` rather than calling `get_site()` / iterating
+        `full_url` on each ancestor — both would fire extra queries per
+        page render. Don't refactor to `full_url is not None` in Python.
+        """
+        for site_root_path in Site.get_site_root_paths():
+            if self.url_path.startswith(site_root_path.root_path):
+                return self.get_ancestors().live().public().filter(url_path__startswith=site_root_path.root_path).order_by("path")
+        return WagtailBasePage.objects.none()
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        context["custom_navigation"] = self.get_navigation()
+        return context
+
+    def get_navigation(self):
+        """Resolve this page's custom navigation: its own, else the nearest
+        ancestor's, walking up the tree; each candidate must resolve in the
+        active locale. Returns None when neither the page nor any ancestor has
+        one — the site default navigation is supplied separately by the header
+        template via the get_default_navigation() tag.
+        """
+        candidate_pages = [self, *self.get_ancestors().live().specific().order_by("-depth")]
+        for page in candidate_pages:
+            # Ancestors above the routable subtree (the Wagtail root and per-locale
+            # root pages) are plain wagtailcore Pages without this field.
+            if getattr(page, "custom_navigation_id", None):
+                navigation = page.custom_navigation.get_localized()
+                if navigation:
+                    return navigation
+        return None

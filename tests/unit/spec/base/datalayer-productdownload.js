@@ -10,6 +10,7 @@
  */
 
 import TrackProductDownload from '../../../../media/js/base/datalayer-productdownload.es6.js';
+import Plausible from '../../../../media/js/base/plausible/plausible.es6.js';
 
 describe('TrackProductDownload.isValidDownloadURL', function () {
     it('should recognize downloads.m.o as a valid URL', function () {
@@ -467,5 +468,88 @@ describe('TrackProductDownload.handleLink', function () {
             release_channel: 'release',
             download_language: 'en-CA'
         });
+    });
+});
+
+describe('TrackProductDownload.sendPlausibleEvent', function () {
+    beforeEach(function () {
+        spyOn(Plausible, 'trackEvent');
+    });
+
+    it('should forward every dataLayer field except the event name', function () {
+        TrackProductDownload.sendPlausibleEvent({
+            event: 'firefox_download',
+            product: 'firefox',
+            platform: 'win64',
+            method: 'site',
+            release_channel: 'release',
+            download_language: 'en-CA'
+        });
+
+        expect(Plausible.trackEvent).toHaveBeenCalledWith('product_download', {
+            product: 'firefox',
+            platform: 'win64',
+            method: 'site',
+            release_channel: 'release',
+            download_language: 'en-CA'
+        });
+    });
+
+    it('should omit optional props that are not present', function () {
+        TrackProductDownload.sendPlausibleEvent({
+            event: 'focus_download',
+            product: 'focus',
+            platform: 'android',
+            method: 'store'
+        });
+
+        expect(Plausible.trackEvent).toHaveBeenCalledWith('product_download', {
+            product: 'focus',
+            platform: 'android',
+            method: 'store'
+        });
+    });
+
+    it('should pass through fields it does not know about', function () {
+        TrackProductDownload.sendPlausibleEvent({
+            event: 'firefox_download',
+            product: 'firefox',
+            future_field: 'should-be-included'
+        });
+
+        expect(Plausible.trackEvent).toHaveBeenCalledWith('product_download', {
+            product: 'firefox',
+            future_field: 'should-be-included'
+        });
+    });
+});
+
+describe('TrackProductDownload.sendEventFromURL', function () {
+    beforeEach(function () {
+        window.dataLayer = sinon.stub();
+        window.dataLayer.push = sinon.stub();
+        spyOn(TrackProductDownload, 'sendEvent').and.callThrough();
+        spyOn(TrackProductDownload, 'sendPlausibleEvent').and.callThrough();
+        spyOn(Plausible, 'trackEvent');
+    });
+
+    it('should fire both the GA4 and Plausible events for a valid URL', function () {
+        TrackProductDownload.sendEventFromURL(
+            'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=en-US'
+        );
+
+        expect(TrackProductDownload.sendEvent).toHaveBeenCalled();
+        expect(TrackProductDownload.sendPlausibleEvent).toHaveBeenCalled();
+        expect(Plausible.trackEvent).toHaveBeenCalled();
+    });
+
+    it('should not fire any event for an invalid URL', function () {
+        TrackProductDownload.sendEventFromURL(
+            'https://example.com/not-a-download'
+        );
+
+        expect(TrackProductDownload.sendEvent).not.toHaveBeenCalled();
+        expect(TrackProductDownload.sendPlausibleEvent).not.toHaveBeenCalled();
+        expect(Plausible.trackEvent).not.toHaveBeenCalled();
     });
 });

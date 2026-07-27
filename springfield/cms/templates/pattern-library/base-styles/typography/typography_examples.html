@@ -11,17 +11,7 @@
         <include:heading
           level="{{ heading.level }}"
           heading_text="{{ heading.heading_text }}"
-          superheading_text="{{ heading.superheading_text }}"
-        />
-      </div>
-    {% endfor %}
-    <hr>
-    {% for subheading in subheadings %}
-      <div class="pl-row">
-        <include:subheading
-          subheading_text="{{ subheading.subheading_text }}"
-          size="{{ subheading.size }}"
-          alignment_class="{{ subheading.alignment_class }}"
+          heading_size="{{ heading.heading_size }}"
         />
       </div>
     {% endfor %}
@@ -29,6 +19,14 @@
     {% for body_text in body_texts %}
       <div class="pl-row">
         <include:body_text text="{{ body_text.text }}" size="{{ body_text.size }}" />
+      </div>
+    {% endfor %}
+    <hr>
+    {% for label in labels %}
+      <div class="pl-row">
+        <span class="fl-label fl-label-{{ label.size }}{% if label.caps %} fl-label-allcaps{% endif %}">
+          {{ label.text }}
+        </span>
       </div>
     {% endfor %}
   </div>

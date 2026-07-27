@@ -15,12 +15,12 @@ from django.test import override_settings
 from django.urls import path, resolve
 
 import pytest
-from wagtail.models import Page, Site
+from wagtail.models import Locale, Page, Site
 from wagtail.rich_text import RichText
 
 from springfield.base.i18n import springfield_i18n_patterns
 from springfield.cms.decorators import prefer_cms
-from springfield.cms.tests.factories import SimpleRichTextPageFactory
+from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 from springfield.urls import urlpatterns as springfield_urlpatterns
 
 pytestmark = [pytest.mark.django_db]
@@ -77,8 +77,10 @@ def _set_up_alias_locale_with_fallback_pages(tiny_localized_site):
     """Set up pt-PT as an alias locale falling back to pt-BR.
 
     tiny_localized_site already provides pt-BR pages including child-page.
-    We also create pt-BR pages under prefer-cms/ for the prefer_cms tests.
-    Returns the pt-BR child page (the fallback page for the shared path).
+    We also create pt-BR pages under prefer-cms/ for the prefer_cms tests,
+    and a pt-PT locale with a live root page (but no prefer-cms translations).
+
+    Returns (pt_br_child, pt_br_prefer_cms_child).
     """
     pt_br_child = Page.objects.get(locale__language_code="pt-BR", slug="child-page")
 
@@ -141,6 +143,13 @@ def _set_up_alias_locale_with_fallback_pages(tiny_localized_site):
         f"Expected Wagtail page at /en-US/prefer-cms/{_SHARED_PATH}, got {en_us_prefer_cms_child.url}"
     )
 
+    # Create a pt-PT locale with a live root page but no prefer-cms translations.
+    # Tests can use pt_pt_root to simulate "alias locale with live root but missing page".
+    pt_pt_locale = LocaleFactory(language_code="pt-PT")
+    pt_pt_root = en_us_root.copy_for_translation(pt_pt_locale)
+    pt_pt_root.save_revision().publish()
+    pt_pt_root.refresh_from_db()
+
     return pt_br_child, pt_br_prefer_cms_child
 
 
@@ -160,7 +169,38 @@ def test_plain_django_view(
     """
     _set_up_alias_locale_with_fallback_pages(tiny_localized_site)
 
-    # pt-PT is an alias locale with no DB record.
+    # pt-PT is an alias locale with a live root page but no page at _SHARED_PATH.
+    pt_pt_locale = Locale.objects.get(language_code="pt-PT")
+    pt_pt_root = Site.objects.get(is_default_site=True).root_page.get_translation(pt_pt_locale)
+    assert pt_pt_root.live is True
+    assert not Page.objects.filter(locale=pt_pt_locale, slug="child-page").exists()
+
+    response = client.get(f"/pt-PT/{_SHARED_PATH}")
+
+    # The plain Django view should be returned (since there is no Wagtail Page with that URL).
+    assert response.status_code == 200
+    assert response.content.decode() == DJANGO_VIEW_RESPONSE
+
+
+@pytest.mark.urls(__name__)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_plain_django_view_no_alias_page(
+    client,
+    tiny_localized_site,
+):
+    """
+    A plain Django view must NOT be overridden by alias-locale Wagtail fallback
+    even when the alias locale has no live root page.
+    """
+    _set_up_alias_locale_with_fallback_pages(tiny_localized_site)
+
+    # Unpublish the pt-PT root so pt-PT has a Locale record but no live root page.
+    pt_pt_locale = Locale.objects.get(language_code="pt-PT")
+    pt_pt_root = Site.objects.get(is_default_site=True).root_page.get_translation(pt_pt_locale)
+    pt_pt_root.unpublish()
+    pt_pt_root.refresh_from_db()
+    assert pt_pt_root.live is False
+
     response = client.get(f"/pt-PT/{_SHARED_PATH}")
 
     # The plain Django view should be returned (since there is no Wagtail Page with that URL).
@@ -175,18 +215,24 @@ def test_prefer_cms_view_serves_fallback_page_for_alias_locale(
     tiny_localized_site,
 ):
     """
-    A prefer_cms view must serve the fallback locale's Wagtail page for an alias locale.
+    A prefer_cms view must serve the fallback locale's Wagtail page for an alias locale
+    that has a live root page but no translation of the specific page requested.
 
     When a prefer_cms-decorated Django view is at the same path as a Wagtail
     page, requesting the alias-locale URL must serve the fallback locale's CMS
     content — not the Django fallback view. This is the whole point of
     prefer_cms: prefer CMS content when available.
-    Note: there is no pt-PT Page, but because pt-BR is the fallback locale
-    for pt-PT, we should serve the (pt-BR) Wagtail Page at the pt-PT URL.
+    Note: pt-PT has a live root page, but no prefer-cms translation.
+    Because pt-BR is the fallback locale for pt-PT, the (pt-BR) Wagtail page
+    should be served at the pt-PT URL.
     """
     _, pt_br_prefer_cms_child = _set_up_alias_locale_with_fallback_pages(
         tiny_localized_site,
     )
+    pt_pt_locale = Locale.objects.get(language_code="pt-PT")
+    pt_pt_root = Site.objects.get(is_default_site=True).root_page.get_translation(pt_pt_locale)
+    assert pt_pt_root.live is True
+    assert not Page.objects.filter(locale=pt_pt_locale, slug="child-page").exists()
 
     response = client.get(f"/pt-PT/prefer-cms/{_SHARED_PATH}")
 
@@ -306,3 +352,102 @@ def test_django_only_view_unaffected_by_wagtail_pages(
     # to be a simple Django view (no prefer_cms or other overrides).
     assert response.status_code == 200
     assert response.content.decode() == DJANGO_ONLY_VIEW_RESPONSE
+
+
+@pytest.mark.urls(__name__)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_prefer_cms_view_serves_fallback_page_for_alias_locale_without_live_root(
+    client,
+    tiny_localized_site,
+):
+    """
+    A prefer_cms view must serve the fallback locale's Wagtail page for an alias locale
+    that has a Locale DB record but no live root page.
+    """
+    _, pt_br_prefer_cms_child = _set_up_alias_locale_with_fallback_pages(tiny_localized_site)
+    pt_PT_locale = Locale.objects.get(language_code="pt-PT")
+    en_us_root = Site.objects.get(is_default_site=True).root_page
+    pt_pt_root = en_us_root.get_translation(pt_PT_locale)
+
+    # Unpublish the pt-PT root page so this test exercises the "Locale exists
+    # but no live root" code path in _alias_needs_prewagtail_intercept.
+    pt_pt_root.unpublish()
+    pt_pt_root.refresh_from_db()
+    assert pt_pt_root.live is False
+
+    response = client.get(f"/pt-PT/prefer-cms/{_SHARED_PATH}")
+
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert pt_br_prefer_cms_child.title in html
+    assert DJANGO_VIEW_WITH_PREFER_CMS_RESPONSE not in html
+    assert response.wsgi_request.content_locale == "pt-BR"
+
+
+@pytest.mark.urls(__name__)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_prefer_cms_view_serves_fallback_page_for_alias_locale_without_locale_record(
+    client,
+    tiny_localized_site,
+):
+    """
+    A prefer_cms view must serve the fallback locale's Wagtail page for an alias
+    locale that has no Wagtail Locale DB record at all.
+    """
+    _, pt_br_prefer_cms_child = _set_up_alias_locale_with_fallback_pages(tiny_localized_site)
+
+    # Delete the pt-PT root page and the Locale itself.
+    pt_pt_locale = Locale.objects.get(language_code="pt-PT")
+    en_us_root = Site.objects.get(is_default_site=True).root_page
+    en_us_root.get_translation(pt_pt_locale).delete()
+    pt_pt_locale.delete()
+    assert not Locale.objects.filter(language_code="pt-PT").exists()
+
+    response = client.get(f"/pt-PT/prefer-cms/{_SHARED_PATH}")
+
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert pt_br_prefer_cms_child.title in html
+    assert DJANGO_VIEW_WITH_PREFER_CMS_RESPONSE not in html
+    assert response.wsgi_request.content_locale == "pt-BR"
+
+
+@pytest.mark.urls(__name__)
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+def test_prefer_cms_view_serves_alias_locale_own_page_when_live_root_and_page_exist(
+    client,
+    tiny_localized_site,
+):
+    """
+    A prefer_cms view must serve the alias locale's own Wagtail page when it exists,
+    not the fallback locale's page or the Django view.
+
+    When the alias locale (pt-PT) has a live root page AND its own translation of
+    the requested page, prefer_cms should serve that page directly.
+    """
+    _, pt_br_prefer_cms_child = _set_up_alias_locale_with_fallback_pages(tiny_localized_site)
+
+    # Create the pt-PT prefer-cms tree so the alias locale has its own page.
+    pt_pt_locale = Locale.objects.get(language_code="pt-PT")
+    en_us_prefer_cms = Page.objects.get(locale__language_code="en-US", slug="prefer-cms")
+    en_us_prefer_cms_test = en_us_prefer_cms.get_children().get(slug="test-page")
+    en_us_prefer_cms_child = en_us_prefer_cms_test.get_children().get(slug="child-page")
+
+    pt_pt_prefer_cms = en_us_prefer_cms.copy_for_translation(pt_pt_locale)
+    pt_pt_prefer_cms.save_revision().publish()
+    pt_pt_prefer_cms_test = en_us_prefer_cms_test.copy_for_translation(pt_pt_locale)
+    pt_pt_prefer_cms_test.save_revision().publish()
+    pt_pt_prefer_cms_child = en_us_prefer_cms_child.copy_for_translation(pt_pt_locale)
+    pt_pt_prefer_cms_child.title = "Filho sob Prefer CMS (pt-PT)"
+    pt_pt_prefer_cms_child.save_revision().publish()
+    pt_pt_prefer_cms_child.refresh_from_db()
+    assert pt_pt_prefer_cms_child.live is True
+
+    response = client.get(f"/pt-PT/prefer-cms/{_SHARED_PATH}")
+
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert pt_pt_prefer_cms_child.title in html
+    assert pt_br_prefer_cms_child.title not in html
+    assert DJANGO_VIEW_WITH_PREFER_CMS_RESPONSE not in html
+    assert not getattr(response.wsgi_request, "content_locale", None)

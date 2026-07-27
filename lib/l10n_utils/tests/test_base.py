@@ -217,6 +217,22 @@ class TestRender(TestCase):
             any_order=True,
         )
 
+    @patch.object(l10n_utils, "django_render")
+    def test_cms_page_without_locales_available_does_not_raise(self, dr_mock):
+        """Regression: render() must not blow up when is_cms_page is True but
+        _locales_available_via_cms was never set (e.g. DB unavailable during maintenance)."""
+        path = "/en-US/download/"
+        template = "firefox/download.html"
+        request = RequestFactory().get(path)
+        request.locale = "en-US"
+        request.is_cms_page = True
+        # _locales_available_via_cms deliberately not set
+
+        # Should not raise AttributeError
+        l10n_utils.render(request, template)
+
+        dr_mock.assert_called_once()
+
 
 class TestGetAcceptLanguages(TestCase):
     def _test(self, accept_lang, list):

@@ -5,7 +5,7 @@
 #}
 
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
-{% set subheading_level = 'h' ~ block_level + 1 if block_level else 'h3' %}
+{% set subheading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
 <include:showcase layout="{{ value.settings.layout }}">
   <content:heading>
@@ -35,4 +35,11 @@
     {% endif %}
     {{ value.caption_description|richtext }}
   </content:caption>
+  {% if value.cta %}
+  <content:cta>
+    {% for cta in value.cta %}
+      {% include_block cta %}
+    {% endfor %}
+  </content:cta>
+  {% endif %}
 </include:showcase>

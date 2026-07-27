@@ -14,16 +14,18 @@
           heading_text="{{ value.heading|richtext|remove_p_tag }}"
         />
       </content:heading>
-      <content:body>
-        {{ value.content|richtext }}
-      </content:body>
-      {% if value.buttons %}
-        <content:actions>
-          {% for button in value.buttons %}
-            {% include_block button %}
-          {% endfor %}
-        </content:actions>
-      {% endif %}
+      <content:content>
+        <div class="fl-body">
+          {{ value.content|richtext }}
+        </div>
+        {% if value.buttons %}
+          <div class="fl-buttons">
+            {% for button in value.buttons %}
+              {% include_block button %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </content:content>
     </include:kit-banner>
   {% else %}
     <include:banner theme="bottom-cta" qr_code="{{ value.qr_code }}" phone_qr_bg>
@@ -34,16 +36,18 @@
           heading_text="{{ value.heading|richtext|remove_p_tag }}"
         />
       </content:heading>
-      <content:body>
-        {{ value.content|richtext }}
-      </content:body>
-      {% if value.buttons %}
-        <content:actions>
-          {% for button in value.buttons %}
-            {% include_block button %}
-          {% endfor %}
-        </content:actions>
-      {% endif %}
+      <content:content>
+        <div class="fl-body">
+          {{ value.content|richtext }}
+        </div>
+        {% if value.buttons %}
+          <div class="fl-buttons">
+            {% for button in value.buttons %}
+              {% include_block button %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </content:content>
     </include:banner>
   {% endif %}
 {% endif %}

@@ -57,7 +57,7 @@
     <section class="installer-channel-card mzp-c-card mzp-c-card-extra-small">
       <img src="{{ static(channel_logo) }}" alt="{{ ftl('installer-help-firefox-release-title') }}" width="347" height="64">
       <div class="mzp-c-card-content">
-        {{ download_firefox(installer_channel, platform='desktop', force_direct=True, force_full_installer=True, locale=installer_lang, button_class='mzp-t-md', alt_copy=ftl('download-button-download-now')) }}
+        {{ download_firefox(installer_channel, platform='desktop', force_direct=True, force_full_installer=True, locale=installer_lang, button_class='mzp-t-md', alt_copy=ftl('download-button-download-now'), force_arch=installer_arch) }}
       </div>
     </section>
   {% else %}

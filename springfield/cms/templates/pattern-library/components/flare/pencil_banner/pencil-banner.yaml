@@ -1,0 +1,6 @@
+name: Pencil Banner
+context:
+  link: 'https://www.firefox.com'
+  title: '<i>New</i> Built-in VPN in Firefox'
+  description: Now with unlimited data through August.
+  dismissable: True

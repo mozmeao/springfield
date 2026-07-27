@@ -1,0 +1,44 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+@layer page {
+    .fl-home-body {
+        background: var(--token-color-dark-purple);
+    }
+
+    .fl-home-body .fl-main {
+        background: var(--fl-theme-background);
+        contain: paint;
+        padding-block-end: 0;
+    }
+
+    .fl-home-body .fl-split-page-upper {
+        padding: 0;
+    }
+
+    .fl-home-body .fl-split-page-upper > .fl-section:first-child {
+        padding-block-start: 0;
+    }
+
+    .fl-home-body .fl-section:has(.fl-card-gallery) {
+        padding-block-end: 0;
+    }
+
+    .fl-home-body .fl-banner-container {
+        margin-block-start: calc(-1 * var(--fl-section-v-padding));
+        max-inline-size: none;
+        padding: var(--token-spacing-lg);
+    }
+
+    @media (--viewport-md-up) {
+        .fl-home-body {
+            --section-border-radius: var(--token-border-radius-xl);
+        }
+    }
+}

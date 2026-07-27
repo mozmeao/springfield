@@ -1,0 +1,48 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Tag variants</h4>
+  <table style="border-collapse: collapse; border: none; text-align: left;">
+    <thead>
+      <tr>
+        <th style="border: none; padding: 8px 16px 8px 0;"></th>
+        {% for tag in tags %}
+          <th style="border: none; padding: 8px 16px; font-weight: 600; white-space: nowrap;">{{ tag.note }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: none; padding: 8px 16px 8px 0; font-weight: 600;">Normal</td>
+        {% for tag in tags %}
+          <td data-testid="{{ tag.testid }}" style="border: none; padding: 8px 16px;">
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              before_icon="{{ tag.before_icon }}"
+              after_icon="{{ tag.after_icon }}"
+            />
+          </td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td style="border: none; padding: 8px 16px 8px 0; font-weight: 600;">Selected</td>
+        {% for tag in tags %}
+          <td data-testid="{{ tag.testid }}-selected" style="border: none; padding: 8px 16px;">
+            <include:tag
+              text="{{ tag.text }}"
+              color="{{ tag.color }}"
+              is_selected=true
+              before_icon="{{ tag.before_icon }}"
+              after_icon="{{ tag.after_icon }}"
+            />
+          </td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>

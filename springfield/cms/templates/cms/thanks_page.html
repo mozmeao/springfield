@@ -4,23 +4,29 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/base-flare26.html" %}
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('flare-thanks') }}{% endblock %}
 
 {% block body_class %}fl-thanks-body{% endblock %}
 
+<!-- let auto-download handle attribution -->
+{% block stub_attribution %}{% endblock %}
+
 {% block js %}
-  {{ js_bundle('firefox_download_thanks') }}
+  {{ js_bundle('auto-download') }}
 {% endblock %}
 
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
-  <include:flare26-header />
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
+{% block main_class %}{% endblock %}
 
 {% block content %}
-  <main class="fl-main">
+  <div class="fl-main">
 
     <div class="fl-show-auto-download-notification {% if is_preview %}conditional-display is-preview{% endif %}">
       {% if is_preview %}
@@ -35,30 +41,21 @@
     </div>
 
     {% set ns = namespace(headings=0) %}
+    {% set block_level = 1 %}
     {% for block in page.content %}
       {% set block_index = loop.index %}
       {% set block_type = block.block_type %}
-      {% set block_position = "block-" ~ block_index + "-" + block_type %}
+      {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
 
-      {% if block.value.heading and block.value.heading.heading_text %}
+      {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
         {% set block_level = 1 if ns.headings == 0 else 2 %}
         {% set ns.headings = ns.headings + 1 %}
       {% endif %}
 
       {% include_block block %}
     {% endfor %}
-  </main>
+  </div>
 {% endblock content %}
 
 {% block pre_footer %}
 {% endblock pre_footer %}
-
-{% block qr_code_snippet %}
-  {% if page.show_qr_code_snippet %}
-    {% set qr_code_snippet = get_qr_code_snippet() %}
-    {% if qr_code_snippet %}
-      {% set value = qr_code_snippet %}
-      {% include "cms/snippets/qr-code-snippet.html" %}
-    {% endif %}
-  {% endif %}
-{% endblock qr_code_snippet %}

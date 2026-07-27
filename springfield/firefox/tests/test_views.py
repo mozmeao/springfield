@@ -45,8 +45,8 @@ class TestStubAttributionCode(TestCase):
 
     def test_no_valid_param_names(self):
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -68,7 +68,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_no_valid_param_data(self):
@@ -82,8 +82,8 @@ class TestStubAttributionCode(TestCase):
             "dlsource": "fs<a>44fn</a>",
         }
         final_params = {
-            "source": "www.firefox.com",
-            "medium": "(none)",
+            "source": "(not set)",
+            "medium": "(not set)",
             "campaign": "(not set)",
             "content": "(not set)",
             "experiment": "(not set)",
@@ -105,11 +105,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "5b2e69aa3875d26f109f0501ac56ba3b817b39968ea72225541036f13fa572c7",
         )
 
     def test_some_valid_param_data(self):
-        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom"}
+        params = {"utm_source": "brandt", "utm_content": "ae<t>her", "dlsource": "fxdotcom", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -119,7 +119,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -134,7 +134,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_campaign_data_too_long(self):
@@ -238,7 +238,7 @@ class TestStubAttributionCode(TestCase):
         )
 
     def test_handles_referrer(self):
-        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy"}
+        params = {"utm_source": "brandt", "referrer": "https://duckduckgo.com/privacy", "session_id": "1234567890"}
         final_params = {
             "source": "brandt",
             "medium": "(direct)",
@@ -248,7 +248,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -263,14 +263,11 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1045ac6652da1cf26a16298192fb7c24fa7633008dd74f7b6ee70de104552cc4",
+            "4efe0673174ddf76e6150ae25c5156ebe111fdf1cbdbd83ebb55a4cabe2cdcb6",
         )
 
     def test_handles_referrer_no_source(self):
-        params = {
-            "referrer": "https://example.com:5000/searchin",
-            "utm_medium": "aether",
-        }
+        params = {"referrer": "https://example.com:5000/searchin", "utm_medium": "aether", "session_id": "1234567890"}
         final_params = {
             "source": "example.com:5000",
             "medium": "referral",
@@ -280,7 +277,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -295,7 +292,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "1791839786fe22e61e20e570ff0860082b16527cc9f982564461d0b33afed4b8",
+            "ec97d9206561d925c778ddeeaf9e94e77dcd84b6d7f6698225ede54f70a3129b",
         )
 
     def test_handles_referrer_utf8(self):
@@ -305,7 +302,7 @@ class TestStubAttributionCode(TestCase):
         non-ascii domain names in the referrer. The allowed list for bouncer
         doesn't include any such domains anyway, so we should just ignore them.
         """
-        params = {"referrer": "http://youtubê.com/sorry/"}
+        params = {"referrer": "http://youtubê.com/sorry/", "session_id": "1234567890"}
         final_params = {
             "source": "www.firefox.com",
             "medium": "(none)",
@@ -315,7 +312,7 @@ class TestStubAttributionCode(TestCase):
             "variation": "(not set)",
             "ua": "(not set)",
             "client_id_ga4": "(not set)",
-            "session_id": "(not set)",
+            "session_id": "1234567890",
             "dlsource": "fxdotcom",
         }
         req = self._get_request(params)
@@ -330,7 +327,7 @@ class TestStubAttributionCode(TestCase):
         self.assertDictEqual(attrs, final_params)
         self.assertEqual(
             data["attribution_sig"],
-            "7b85e2288e54169c8b3ffecc48ae53ffadcb899637c5d81320caaae16f25b04e",
+            "126ffdd4c7959d0ff42e2dea728d4cf21edb70a79c186449b90d129d382ffb64",
         )
 
     @override_settings(STUB_ATTRIBUTION_RATE=0.2)
@@ -464,7 +461,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/desktop/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     @patch.object(views, "ftl_file_is_active", lambda *x: False)
     def test_thanks_basic_direct(self, render_mock):
@@ -473,7 +470,7 @@ class TestFirefoxDownload(TestCase):
         view = views.DownloadThanksView.as_view()
         view(req)
         template = render_mock.call_args[0][1]
-        assert template == ["firefox/download/basic/thanks_direct.html"]
+        assert template == ["firefox/download/rtamo.html"]
 
     # end /thanks?s=direct URL - issue 10520
 
@@ -531,28 +528,18 @@ class TestFirefoxSetAsDefaultThanks(TestCase):
         assert resp.templates[0].name == "firefox/default/thanks.html"
 
 
-class TestFirefoxGetExperiment(TestCase):
-    """Tests for /landing/get/ privacy-focused download experiment."""
+class TestFirefoxGetPage(TestCase):
+    """Tests for /landing/get/ page."""
 
-    def test_firefox_get_default(self):
-        """Default"""
+    def test_firefox_get_en_us(self):
+        """en-US serves the new template"""
         response = self.client.get("/en-US/landing/get/")
-        assert response.templates[0].name == "firefox/landing/get.html"
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
-    def test_firefox_get_control(self):
-        """Control parameters"""
-        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=control")
-        assert response.templates[0].name == "firefox/landing/get.html"
-
-    def test_firefox_get_treatment(self):
-        """Treatment parameters"""
-        response = self.client.get("/en-US/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
-        assert response.templates[0].name == "firefox/landing/get-treatment.html"
-
-    def test_firefox_get_not_en_us_locale(self):
-        """Default"""
-        response = self.client.get("/en-CA/landing/get/?experiment=download-privacy&variation=treatment&v=treatment")
-        assert response.templates[0].name == "firefox/landing/get.html"
+    def test_firefox_get_not_en_us(self):
+        """Non-en-US locales serve the new template"""
+        response = self.client.get("/en-CA/landing/get/")
+        assert response.templates[0].name == "firefox/landing/get-new.html"
 
 
 @override_settings(DEV=False)
@@ -771,6 +758,31 @@ class TestWhatsNew(TestCase):
                 assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
 
     # end URL routing tests
+
+
+class TestDetectChannel(TestCase):
+    def test_nightly_a1(self):
+        assert views.detect_channel("152.0a1") == "nightly"
+
+    def test_developer_a2(self):
+        assert views.detect_channel("152.0a2") == "developer"
+
+    def test_beta_beta_suffix(self):
+        assert views.detect_channel("152.0beta") == "beta"
+
+    def test_beta_b_suffix_not_detected(self):
+        # Only the full "beta" suffix is recognised; short "b1" form is not.
+        assert views.detect_channel("152.0b1") == "unknown"
+
+    def test_release_returns_unknown(self):
+        assert views.detect_channel("152.0") == "unknown"
+
+    def test_three_digit_release_returns_unknown(self):
+        assert views.detect_channel("152") == "unknown"
+
+    def test_old_version_returns_unknown(self):
+        # versions below 35 always return unknown regardless of suffix
+        assert views.detect_channel("34.0a1") == "unknown"
 
 
 @pytest.mark.parametrize(

@@ -1,0 +1,60 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=resources' %}
+
+<include:nav-folder
+  label="{{ ftl('navigation-resources') }}"
+  panel_id="fl-menu-panel-resources"
+  category_testid="menu-category-resources"
+  link_testid="navigation-link-resources"
+  panel_testid="navigation-menu-resources"
+>
+  <include:nav-column>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-data-protection') }}"
+        href="{{ url('firefox.user-privacy') }}"
+        icon_name="lock-fill"
+        testid="navigation-menu-link-data-protection"
+        analytics_text="Data Protection"
+        analytics_position="topnav - data protection"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-blog') }}"
+        href="{{ 'https://blog.mozilla.org/en/category/firefox/' ~ params }}"
+        icon_name="reader-view-fill"
+        analytics_text="Blog"
+        analytics_position="topnav - blog"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-podcast') }}"
+        href="{{ 'https://www.youtube.com/@firefox/podcasts' ~ params }}"
+        icon_name="microphone-true"
+        analytics_text="Podcast"
+        analytics_position="topnav - podcast"
+      />
+    </ul>
+
+    <span class="fl-nav-separator"></span>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-newsletter') }}"
+        href="{{ url('newsletter') }}"
+        icon_name="notifications-true"
+        analytics_text="Newsletter"
+        analytics_position="topnav - newsletter"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-release-notes') }}"
+        href="{{ url('firefox.notes') }}"
+        icon_name="reader-view-fill"
+        analytics_text="Release Notes"
+        analytics_position="topnav - release notes"
+      />
+    </ul>
+  </include:nav-column>
+</include:nav-folder>

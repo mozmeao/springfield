@@ -15,5 +15,9 @@ pip install -U uv
 # Drop the compiled reqs files, to help us pick up automatic subdep updates, too
 rm -f requirements/*.txt
 
-uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/prod.in -o requirements/prod.txt
-uv pip compile --generate-hashes --no-strip-extras --python-version 3.13 requirements/dev.in -o requirements/dev.txt
+# --exclude-newer='7 days' avoids packages uploaded in the last 7 days, reducing supply-chain risk.
+# To apply an urgent security patch before 7 days have elapsed (e.g. a Django release), update the
+# version pin in requirements/prod.in, then temporarily change 7 days to the lower threshold,
+# run make compile-requirements, then set the exclusion back to 7 days
+uv pip compile --exclude-newer='7 days' --generate-hashes --no-strip-extras --python-version 3.13 requirements/prod.in -o requirements/prod.txt
+uv pip compile --exclude-newer='7 days' --generate-hashes --no-strip-extras --python-version 3.13 requirements/dev.in -o requirements/dev.txt

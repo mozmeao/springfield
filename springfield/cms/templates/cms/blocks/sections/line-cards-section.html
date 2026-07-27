@@ -1,0 +1,15 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# Wrap the line cards block in a section container to use it without the section heading and CTA #}
+
+{% set block_level = (block_level + 1) if block_level else 2 %}
+
+<section class="fl-section">
+  <div class="fl-section-container">
+    {% include "cms/blocks/line-cards.html" %}
+  </div>
+</section>

@@ -12,7 +12,6 @@ from django.db import migrations, models
 import wagtail.fields
 
 import springfield.cms.fields
-import springfield.cms.models.pages
 import springfield.cms.models.snippets
 
 
@@ -42,7 +41,7 @@ class Migration(migrations.Migration):
             options={
                 "abstract": False,
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
             name="DownloadPage",
@@ -92,7 +91,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "Download Page",
                 "verbose_name_plural": "Download Pages",
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
         migrations.CreateModel(
             name="BannerSnippet",

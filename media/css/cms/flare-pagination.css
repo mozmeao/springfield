@@ -1,0 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.fl-pagination {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+
+.fl-pagination-prev .fl-button,
+.fl-pagination-next .fl-button {
+    border-radius: var(--token-border-radius-3xs);
+    padding-inline: var(--token-spacing-md);
+}
+
+.fl-pagination-next {
+    text-align: end;
+}

@@ -1,0 +1,54 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:nav-folder
+  label="{{ ftl('navigation-features') }}"
+  panel_id="fl-menu-panel-features"
+  href="{{ url('firefox.features.index') }}"
+  category_testid="menu-category-features"
+  panel_testid="menu-panel-features"
+>
+  <include:nav-column>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-protection') }}"
+        href="/{{ LANG }}/features/protection/"
+        icon_name="lock-fill"
+        analytics_text="Protection"
+        analytics_position="topnav - protection"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-control') }}"
+        href="/{{ LANG }}/features/control/"
+        icon_name="cursor-arrow"
+        analytics_text="Control"
+        analytics_position="topnav - control"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-focus') }}"
+        href="/{{ LANG }}/features/focus/"
+        icon_name="search"
+        analytics_text="Focus"
+        analytics_position="topnav - focus"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-about-firefox-features') }}"
+        href="/{{ LANG }}/features/"
+        icon_name="forward"
+        icon_position="right"
+        analytics_text="About Firefox features"
+        analytics_position="topnav - about firefox features"
+      />
+    </ul>
+
+    <span class="fl-nav-separator"></span>
+    <include:nav-link
+      label="{{ ftl('navigation-features-all') }}"
+      href="/{{ LANG }}/features/all/"
+      button_style="{{ True }}"
+    />
+  </include:nav-column>
+</include:nav-folder>

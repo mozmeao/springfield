@@ -1,0 +1,31 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  {% for dialog in dialogs %}
+    <button class="fl-dialog-trigger" data-target-id="{{ dialog.id }}">{{ dialog.trigger_label }}</button>
+  {% endfor %}
+
+  {% for dialog in dialogs %}
+    <include:dialog id="{{ dialog.id }}" testid="{{ dialog.testid }}">
+      <content:heading>
+        <include:heading
+          level="{{ dialog.heading.level }}"
+          heading_size="fl-heading-{{ {'h1': 'xl', 'h2': 'md', 'h3': 'sm', 'h4': 'xs', 'h5': 'xs', 'h6': 'xs'}[dialog.heading.level] }}"
+          heading_text="{{ dialog.heading.heading_text }}"
+        />
+      </content:heading>
+
+      <p>{{ dialog.body }}</p>
+
+      <content:buttons>
+        {% for button in dialog.buttons %}
+          <include:button label="{{ button.label }}" />
+        {% endfor %}
+      </content:buttons>
+    </include:dialog>
+  {% endfor %}
+</div>

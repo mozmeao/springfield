@@ -49,16 +49,6 @@ class WhatsNewIndexPageFactory(wagtail_factories.PageFactory):
         model = models.WhatsNewIndexPage
 
 
-class WhatsNewPageFactory(wagtail_factories.PageFactory):
-    title = "What's New in Firefox 123"
-    live = True
-    slug = "123"
-    version = "123"
-
-    class Meta:
-        model = models.WhatsNewPage
-
-
 class WhatsNewPage2026Factory(wagtail_factories.PageFactory):
     title = "What's New in Firefox 145"
     live = True
@@ -66,16 +56,47 @@ class WhatsNewPage2026Factory(wagtail_factories.PageFactory):
     version = "145"
 
     class Meta:
-        model = models.WhatsNewPage
+        model = models.WhatsNewPage2026
 
 
-class FreeFormPageFactory(wagtail_factories.PageFactory):
-    title = "Test FreeFormPage"
+class GeneralWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox — General"
     live = True
-    slug = "freeform-page"
+    slug = "general"
+    version = "general"
 
     class Meta:
-        model = models.FreeFormPage
+        model = models.WhatsNewPage2026
+
+
+class NightlyWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Nightly"
+    live = True
+    slug = "nightly"
+    version = "nightly"
+
+    class Meta:
+        model = models.WhatsNewPage2026
+
+
+class DeveloperWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Developer Edition"
+    live = True
+    slug = "developer"
+    version = "developer"
+
+    class Meta:
+        model = models.WhatsNewPage2026
+
+
+class BetaWhatsNewPage2026Factory(wagtail_factories.PageFactory):
+    title = "What's New in Firefox Beta"
+    live = True
+    slug = "beta"
+    version = "beta"
+
+    class Meta:
+        model = models.WhatsNewPage2026
 
 
 class ArticleIndexPageFactory(wagtail_factories.PageFactory):
@@ -134,3 +155,30 @@ class FreeFormPage2026Factory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.FreeFormPage2026
+
+
+class FlareDocsIndexPageFactory(wagtail_factories.PageFactory):
+    title = "Flare Docs - Test"
+    live = True
+    slug = "flare-docs-test"
+
+    class Meta:
+        model = models.FlareDocsIndexPage
+
+
+class ReferralHubPageFactory(wagtail_factories.PageFactory):
+    title = "Test Referral Hub Page"
+    live = True
+    slug = "invite"
+
+    class Meta:
+        model = models.ReferralHubPage
+
+
+class ReferralGetFirefoxPageFactory(wagtail_factories.PageFactory):
+    title = "Test Referral Get Firefox Page"
+    live = True
+    slug = "get-firefox"
+
+    class Meta:
+        model = models.ReferralGetFirefoxPage

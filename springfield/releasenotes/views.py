@@ -244,13 +244,19 @@ def latest_release(product="firefox", platform=None, channel=None):
 @require_safe
 def latest_notes(request, product="firefox", platform=None, channel=None):
     release = latest_release(product, platform, channel)
-    return HttpResponseRedirect(release.get_absolute_url())
+    url = release.get_absolute_url()
+    if request.META.get("QUERY_STRING"):
+        url = f"{url}?{request.META['QUERY_STRING']}"
+    return HttpResponseRedirect(url)
 
 
 @require_safe
 def latest_sysreq(request, product="firefox", platform=None, channel=None):
     release = latest_release(product, platform, channel)
-    return HttpResponseRedirect(release.get_sysreq_url())
+    url = release.get_sysreq_url()
+    if request.META.get("QUERY_STRING"):
+        url = f"{url}?{request.META['QUERY_STRING']}"
+    return HttpResponseRedirect(url)
 
 
 @require_safe

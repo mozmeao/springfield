@@ -1,0 +1,29 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props page_number, total_pages, prev_url="", next_url="", aria_label="Pagination", prev_label="Previous", next_label="Next" #}
+
+<nav class="fl-pagination" aria-label="{{ aria_label }}">
+  <div class="fl-pagination-prev">
+    <a
+      {% if prev_url %}href="{{ prev_url }}"{% else %}aria-disabled="true"{% endif %}
+      class="fl-button button-ghost"
+      aria-label="{{ prev_label }}"
+    >
+      <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+    </a>
+  </div>
+  <span class="fl-pagination-indicator fl-body">{{ page_number }}/{{ total_pages }}</span>
+  <div class="fl-pagination-next">
+    <a
+      {% if next_url %}href="{{ next_url }}"{% else %}aria-disabled="true"{% endif %}
+      class="fl-button button-ghost"
+      aria-label="{{ next_label }}"
+    >
+      <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>

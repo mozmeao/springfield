@@ -1,0 +1,80 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' %}
+
+<include:nav-folder
+  label="{{ ftl('navigation-browser') }}"
+  panel_id="fl-menu-panel-browser"
+  category_testid="menu-category-browser"
+  link_testid="navigation-link-browser"
+  panel_testid="navigation-menu-browser"
+>
+  <include:nav-column>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-mobile') }}"
+        href="{{ url('firefox.browsers.mobile') }}"
+        icon_name="device-mobile"
+        testid="navigation-menu-link-mobile"
+        analytics_text="Mobile"
+        analytics_position="topnav - mobile"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-enterprise') }}"
+        href="{{ url('firefox.enterprise.index') }}"
+        icon_name="globe"
+        analytics_text="Enterprise"
+        analytics_position="topnav - enterprise"
+      />
+    </ul>
+
+    {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
+      <span class="fl-nav-separator"></span>
+      <ul>
+        <include:nav-link
+          label="{{ ftl('navigation-whats-new') }}"
+          href="/{{ LANG }}/whatsnew/"
+          icon_name="bookmark-fill"
+          analytics_text="What's New"
+          analytics_position="topnav - whats-new"
+        />
+        <include:nav-link
+          label="{{ ftl('navigation-whats-next') }}"
+          href="/{{ LANG }}/whatsnext/"
+          icon_name="calendar"
+          analytics_text="What's Next"
+          analytics_position="topnav - whats-next"
+        />
+      </ul>
+    {% endif %}
+
+    <span class="fl-nav-separator"></span>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-extensions-and-themes') }}"
+        href="{{ 'https://addons.mozilla.org/firefox/' ~ params }}"
+        icon_name="extension-fill"
+        analytics_text="Extensions & Themes"
+        analytics_position="topnav - addons"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-support') }}"
+        href="{{ 'https://support.mozilla.org/' ~ params }}"
+        icon_name="avatar-info-circle-fill"
+        analytics_text="Support"
+        analytics_position="topnav - support"
+      />
+    </ul>
+
+    <span class="fl-nav-separator"></span>
+    <include:nav-link
+      label="{{ ftl('navigation-download-firefox') }}"
+      href="{{ url('firefox.download') }}"
+      button_style="{{ True }}"
+    />
+  </include:nav-column>
+</include:nav-folder>

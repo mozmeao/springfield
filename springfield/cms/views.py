@@ -4,16 +4,11 @@
 
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import TemplateView
 
 from wagtail.models import Locale as WagtailLocale, Site
 from wagtail.views import serve as wagtail_serve
 
 from springfield.cms.utils import find_fallback_page_for_locale
-
-
-class FlareTestView(TemplateView):
-    template_name = "cms/flare-test.html"
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
@@ -93,6 +88,10 @@ def wagtail_serve_with_locale_fallback(request, path=""):
     For alias locales that Wagtail cannot serve correctly on its own
     (no Locale DB record, or no live root page translation), this view
     tries to serve the fallback locale's page before deferring to Wagtail.
+
+    For alias locales with a live root page in Wagtail, but no page at the specific
+    path (Wagtail would Http404), the fallback locale's page is also tried.
+
     If no fallback page exists either, raises Http404 so that callers
     (prefer_cms, middleware) can apply their own fallback logic.
     """
@@ -110,4 +109,17 @@ def wagtail_serve_with_locale_fallback(request, path=""):
         #  - CMSLocaleFallbackMiddleware can try the Accept-Language redirect
         raise Http404
 
-    return wagtail_serve(request, path)
+    # Try to serve the response with Wagtail, but if Wagtail gives us a 404 for
+    # an alias locale, then we try to serve the fallback page.
+    # If we can't serve the fallback page, then keep Wagtail's 404, so:
+    #    - prefer_cms can fall through to its Django view
+    #    - CMSLocaleFallbackMiddleware can try the Accept-Language redirect
+    try:
+        wagtail_response = wagtail_serve(request, path)
+    except Http404:
+        if lang_prefix in fallback_locales:
+            response = _serve_fallback_page(request, lang_prefix, sub_path, fallback_locales)
+            if response is not None:
+                return response
+        raise
+    return wagtail_response

@@ -36,7 +36,6 @@
                 ]
             }
         ],
-        "selector-not-notation": "simple",
         "media-feature-range-notation": "prefix",
         "scss/operator-no-newline-after": null
     },

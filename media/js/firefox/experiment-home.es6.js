@@ -61,7 +61,7 @@ const init = () => {
                 id: experimentCookieID,
                 variations: {
                     [`experiment=${experimentName}&variation=control`]: 50,
-                    [`experiment=${experimentName}&variation=treatment&v=treatment`]: 50
+                    [`experiment=${experimentName}&variation=treatment`]: 50
                 }
             });
             cop.init();

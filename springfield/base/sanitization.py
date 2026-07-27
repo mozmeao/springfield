@@ -9,7 +9,14 @@ This module provides functions for sanitizing HTML content, replacing
 the deprecated bleach library.
 """
 
+import re
+
 from justhtml import JustHTML, SanitizationPolicy, UrlPolicy, UrlRule
+
+# Matches HTML comments. justhtml's DropComments transform cannot drop
+# comments when disallowed_tag_handling="escape" is in effect, so
+# we strip comments before handing the input to justhtml.
+_HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 
 # Tags whose content should be completely dropped (not just the tags)
 _DROP_CONTENT_TAGS = frozenset({"script", "style"})
@@ -48,6 +55,7 @@ def strip_all_tags(html: str) -> str:
         disallowed_tag_handling="unwrap",
         drop_content_tags=_DROP_CONTENT_TAGS,
     )
+    html = _HTML_COMMENT_RE.sub("", html)
     doc = JustHTML(html, policy=policy, fragment=True)
     return doc.to_html(pretty=False)
 
@@ -55,7 +63,9 @@ def strip_all_tags(html: str) -> str:
 def sanitize_html(html: str, allowed_tags: set, allowed_attributes: dict) -> str:
     """Sanitize HTML using an allowlist of tags and attributes.
 
-    Disallowed tags are escaped (converted to &lt;tag&gt;).
+    Disallowed tags are escaped (converted to &lt;tag&gt;). HTML comments are
+    dropped: keeping them would reveal authoring notes and, with the
+    current escape policy, surface them as visible &lt;!-- ... --&gt; text.
 
     Args:
         html: The HTML string to sanitize.
@@ -73,5 +83,6 @@ def sanitize_html(html: str, allowed_tags: set, allowed_attributes: dict) -> str
         disallowed_tag_handling="escape",
         drop_content_tags=_DROP_CONTENT_TAGS,
     )
+    html = _HTML_COMMENT_RE.sub("", html)
     doc = JustHTML(html, policy=policy, fragment=True)
     return doc.to_html(pretty=False)

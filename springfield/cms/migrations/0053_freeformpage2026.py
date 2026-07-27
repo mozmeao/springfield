@@ -8,7 +8,6 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 import springfield.cms.fields
-import springfield.cms.models.pages
 
 
 class Migration(migrations.Migration):
@@ -54,6 +53,6 @@ class Migration(migrations.Migration):
                 "verbose_name": "Free Form 2026 Page",
                 "verbose_name_plural": "Free Form 2026 Pages",
             },
-            bases=(springfield.cms.models.pages.UTMParamsMixin, "wagtailcore.page"),
+            bases=("wagtailcore.page",),
         ),
     ]

@@ -83,7 +83,10 @@ def remove_p_tag(value: str) -> str:
     soup = BeautifulSoup(html_content, "html.parser")
     content = ""
     if soup and soup.p:
-        content = "<br/>".join("".join(str(c) for c in tag.contents) for tag in soup.find_all("p"))
+        # `decode_contents()` re-encodes HTML entities in text nodes, so an
+        # entity-encoded payload like `&lt;img onerror=...&gt;` stays inert
+        # instead of round-tripping back into live markup (XSS).
+        content = "<br/>".join(tag.decode_contents() for tag in soup.find_all("p"))
     return mark_safe(content)
 
 
@@ -100,7 +103,8 @@ def remove_tags(value: str) -> str:
 def add_utm_parameters(context: dict, value: str) -> str:
     """
     Appends UTM parameters to URLs that point to *.mozilla.org, *.mozillafoundation.org,
-    and *.firefox.com domains, except for www.firefox.com.
+    *.firefox.com, *.mozilla.ai, *.mozilla.vc, *.thunderbird.net, and *.mozilla.com
+    domains, except for www.firefox.com and firefox.com.
     """
 
     utm_parameters = context.get("utm_parameters", {})
@@ -113,9 +117,10 @@ def add_utm_parameters(context: dict, value: str) -> str:
         elif parsed_url.path:
             host = parsed_url.path.split("/")[0]
         pattern = re.compile(
-            r"^(\w+\.)?((mozilla.org)|(mozillafoundation.org)|(firefox.com))",
+            r"^(\w+\.)?((mozilla\.org)|(mozillafoundation\.org)|(firefox\.com)|(mozilla\.ai)|(mozilla\.vc)|(thunderbird\.net)|(mozilla\.com))\Z",
             re.IGNORECASE,
         )
+        host = host.lower().rstrip(".")
         if host and host not in ["www.firefox.com", "firefox.com"] and pattern.match(host):
             query_string = parsed_url.query
             query = parse_qs(query_string)
@@ -214,11 +219,19 @@ def richtext(context, value: str) -> str:
     rich_text = wagtail_richtext(value)
     soup = BeautifulSoup(str(rich_text), "html.parser")
 
-    for link in soup.find_all("a"):
+    for index, link in enumerate(soup.find_all("a")):
         href = link.get("href", "")
         link["href"] = add_utm_parameters(context, href)
+        if link.get("uid") and not link.get("data-cta-uid"):
+            link["data-cta-uid"] = link["uid"]
+        if link.get("data-cta-uid"):
+            block_text = context.get("block_text", "")
+            link_text = link.get_text().strip()
+            link["data-cta-text"] = f"{block_text} - {link_text}" if block_text else link_text
+            block_position = context.get("block_position", "")
+            link["data-cta-position"] = ".".join([block_position, f"link-{index + 1}"]) if block_position else f"link-{index + 1}"
 
-    for fxa_tag in soup.find_all("fxa"):
+    for index, fxa_tag in enumerate(soup.find_all("fxa")):
         label = fxa_tag.text
         uid = fxa_tag.get("data-cta-uid", "")
         utm_parameters = context.get(
@@ -232,9 +245,10 @@ def richtext(context, value: str) -> str:
         optional_parameters = {
             "utm_campaign": utm_parameters.get("utm_campaign", ""),
         }
+        block_position = context.get("block_position", "")
         optional_attributes = {
             "data-cta-uid": uid,
-            "data-cta-position": "-".join([context.get("block_position", ""), "fxa-link"]),
+            "data-cta-position": ".".join([block_position, f"fxa-link-{index + 1}"]) if block_position else f"fxa-link-{index + 1}",
             "data-cta-text": context.get("block_text", label),
         }
         # Same parameters as used in the fxa_button component, except the button class
@@ -258,7 +272,7 @@ def richtext(context, value: str) -> str:
 def get_pre_footer_cta_snippet(context):
     """
     Retrieves the PreFooterCTASnippet for the current locale.
-    Returns the first available snippet for the locale, or None if not found.
+    Returns the first live available snippet for the locale, or None if not found.
 
     Usage in templates:
         {% set pre_footer_cta = get_pre_footer_cta_snippet() %}
@@ -318,34 +332,6 @@ def get_pre_footer_cta_form_snippet(context):
 
 @pass_context
 @library.global_function
-def get_download_firefox_cta_snippet(context):
-    """
-    Retrieves the DownloadFirefoxCallToActionSnippet for the current locale.
-    Returns the first available snippet for the locale, or None if not found.
-
-    Usage in templates:
-        {% set download_firefox_cta = get_download_firefox_cta_snippet() %}
-        {% if download_firefox_cta %}
-            {% set value = download_firefox_cta %}
-            {% include "cms/snippets/download-firefox-cta.html" %}
-        {% endif %}
-    """
-    from springfield.cms.models.snippets import DownloadFirefoxCallToActionSnippet
-
-    locale = None
-    if "page" in context and hasattr(context["page"], "locale"):
-        locale = context["page"].locale
-    elif "self" in context and hasattr(context["self"], "locale"):
-        locale = context["self"].locale
-
-    if locale:
-        return DownloadFirefoxCallToActionSnippet.objects.filter(locale=locale).first()
-
-    return None
-
-
-@pass_context
-@library.global_function
 def get_qr_code_snippet(context):
     """
     Retrieves the QRCodeSnippet for the current locale.
@@ -368,5 +354,46 @@ def get_qr_code_snippet(context):
 
     if locale:
         return QRCodeSnippet.objects.filter(locale=locale).live().first()
+
+    return None
+
+
+@library.global_function
+def get_default_navigation():
+    """Return the site default navigation snippet for the active locale, or None."""
+    from springfield.cms.models.snippets import NavigationSnippet  # circular import
+
+    return NavigationSnippet.get_default()
+
+
+@pass_context
+@library.global_function
+def get_floating_qr_code_snippet(context):
+    """
+    Retrieves the floating QR code snippet for the current locale and returns a
+    ready-to-render dict (with heading, content, and qr keys) that can be used
+    directly as `value` in qr-code-floating-snippet.html. Page-level overrides
+    (floating_qr_url, floating_qr_image, floating_qr_default_open) are applied
+    when a page is available in the template context.
+
+    Usage in templates:
+        {% set value = get_floating_qr_code_snippet() %}
+        {% if value %}
+            {% include "cms/snippets/qr-code-floating-snippet.html" %}
+        {% endif %}
+    """
+    from springfield.cms.models.snippets import QRCodeFloatingSnippet
+
+    page = context.get("page")
+    locale = None
+    if page and hasattr(page, "locale"):
+        locale = page.locale
+    elif "self" in context and hasattr(context["self"], "locale"):
+        locale = context["self"].locale
+
+    if locale:
+        snippet = QRCodeFloatingSnippet.get_live(locale)
+        if snippet:
+            return snippet.build_context(page=page, request=context.get("request"))
 
     return None

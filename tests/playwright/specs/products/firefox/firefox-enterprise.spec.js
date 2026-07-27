@@ -103,12 +103,20 @@ languages.forEach((lang) => {
                 const macMenuLink = page.getByTestId(
                     'firefox-enterprise-mac-menu-link'
                 );
+                const macPkgMenuLink = page.getByTestId(
+                    'firefox-enterprise-mac-pkg-menu-link'
+                );
                 const macEsrMenuLink = page.getByTestId(
                     'firefox-enterprise-mac-esr-menu-link'
                 );
+                const macEsrPkgMenuLink = page.getByTestId(
+                    'firefox-enterprise-mac-esr-pkg-menu-link'
+                );
 
                 await expect(macMenuLink).not.toBeVisible();
+                await expect(macPkgMenuLink).not.toBeVisible();
                 await expect(macEsrMenuLink).not.toBeVisible();
+                await expect(macEsrPkgMenuLink).not.toBeVisible();
 
                 // open menu
                 await macMenuButton.click();
@@ -121,11 +129,25 @@ languages.forEach((lang) => {
                         `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=osx&lang=${macDownloadLang}`
                     )
                 );
+                await expect(macPkgMenuLink).toBeVisible();
+                await expect(macPkgMenuLink).toHaveAttribute(
+                    'href',
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-pkg-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    )
+                );
                 await expect(macEsrMenuLink).toBeVisible();
                 await expect(macEsrMenuLink).toHaveAttribute(
                     'href',
                     new RegExp(
                         `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=osx&lang=${macDownloadLang}`
+                    )
+                );
+                await expect(macEsrPkgMenuLink).toBeVisible();
+                await expect(macEsrPkgMenuLink).toHaveAttribute(
+                    'href',
+                    new RegExp(
+                        `^${downloadBaseUrl}\\?product=firefox-esr-pkg-latest-ssl&os=osx&lang=${macDownloadLang}`
                     )
                 );
 
@@ -134,74 +156,74 @@ languages.forEach((lang) => {
 
                 // Assert macOS menu links are hidden.
                 await expect(macMenuLink).not.toBeVisible();
+                await expect(macPkgMenuLink).not.toBeVisible();
                 await expect(macEsrMenuLink).not.toBeVisible();
+                await expect(macEsrPkgMenuLink).not.toBeVisible();
             });
 
-            test('Firefox ESR Windows 32bit menu open / close', async ({
-                page
-            }) => {
-                const win32MenuButton = page.getByTestId(
-                    'firefox-enterprise-win32-menu-button'
+            test('Firefox ESR Linux menu open / close', async ({ page }) => {
+                const linuxMenuButton = page.getByTestId(
+                    'firefox-enterprise-linux-menu-button'
                 );
-                const win32MenuLink = page.getByTestId(
-                    'firefox-enterprise-win32-menu-link'
+                const linuxMenuLink = page.getByTestId(
+                    'firefox-enterprise-linux-menu-link'
                 );
-                const win32MsiMenuLink = page.getByTestId(
-                    'firefox-enterprise-win32-msi-menu-link'
+                const linuxArm64MenuLink = page.getByTestId(
+                    'firefox-enterprise-linux-arm64-menu-link'
                 );
-                const win32EsrMenuLink = page.getByTestId(
-                    'firefox-enterprise-win32-esr-menu-link'
+                const linuxEsrMenuLink = page.getByTestId(
+                    'firefox-enterprise-linux-esr-menu-link'
                 );
-                const win32EsrMsiMenuLink = page.getByTestId(
-                    'firefox-enterprise-win32-esr-msi-menu-link'
+                const linuxEsrArm64MenuLink = page.getByTestId(
+                    'firefox-enterprise-linux-esr-arm64-menu-link'
                 );
 
-                await expect(win32MenuLink).not.toBeVisible();
-                await expect(win32MsiMenuLink).not.toBeVisible();
-                await expect(win32EsrMenuLink).not.toBeVisible();
-                await expect(win32EsrMsiMenuLink).not.toBeVisible();
+                await expect(linuxMenuLink).not.toBeVisible();
+                await expect(linuxArm64MenuLink).not.toBeVisible();
+                await expect(linuxEsrMenuLink).not.toBeVisible();
+                await expect(linuxEsrArm64MenuLink).not.toBeVisible();
 
                 // open menu
-                await win32MenuButton.click();
+                await linuxMenuButton.click();
 
-                // Assert Windows 32-bit menu links are displayed.
-                await expect(win32MenuLink).toBeVisible();
-                await expect(win32MenuLink).toHaveAttribute(
+                // Assert Linux menu links are displayed.
+                await expect(linuxMenuLink).toBeVisible();
+                await expect(linuxMenuLink).toHaveAttribute(
                     'href',
                     new RegExp(
-                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=win&lang=${winDownloadLang}`
+                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=linux64&lang=${lang}`
                     )
                 );
-                await expect(win32MsiMenuLink).toBeVisible();
-                await expect(win32MsiMenuLink).toHaveAttribute(
+                await expect(linuxArm64MenuLink).toBeVisible();
+                await expect(linuxArm64MenuLink).toHaveAttribute(
                     'href',
                     new RegExp(
-                        `^${downloadBaseUrl}\\?product=firefox-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                        `^${downloadBaseUrl}\\?product=firefox-latest-ssl&os=linux64-aarch64&lang=${lang}`
                     )
                 );
-                await expect(win32EsrMenuLink).toBeVisible();
-                await expect(win32EsrMenuLink).toHaveAttribute(
+                await expect(linuxEsrMenuLink).toBeVisible();
+                await expect(linuxEsrMenuLink).toHaveAttribute(
                     'href',
                     new RegExp(
-                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=win&lang=${winDownloadLang}`
+                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=linux64&lang=${lang}`
                     )
                 );
-                await expect(win32EsrMsiMenuLink).toBeVisible();
-                await expect(win32EsrMsiMenuLink).toHaveAttribute(
+                await expect(linuxEsrArm64MenuLink).toBeVisible();
+                await expect(linuxEsrArm64MenuLink).toHaveAttribute(
                     'href',
                     new RegExp(
-                        `^${downloadBaseUrl}\\?product=firefox-esr-msi-latest-ssl&os=win&lang=${winDownloadLang}`
+                        `^${downloadBaseUrl}\\?product=firefox-esr-latest-ssl&os=linux64-aarch64&lang=${lang}`
                     )
                 );
 
                 // close menu
-                await win32MenuButton.click();
+                await linuxMenuButton.click();
 
-                // Assert Windows 32-bit menu links are hidden.
-                await expect(win32MenuLink).not.toBeVisible();
-                await expect(win32MsiMenuLink).not.toBeVisible();
-                await expect(win32EsrMenuLink).not.toBeVisible();
-                await expect(win32EsrMsiMenuLink).not.toBeVisible();
+                // Assert Linux menu links are hidden.
+                await expect(linuxMenuLink).not.toBeVisible();
+                await expect(linuxArm64MenuLink).not.toBeVisible();
+                await expect(linuxEsrMenuLink).not.toBeVisible();
+                await expect(linuxEsrArm64MenuLink).not.toBeVisible();
             });
         }
     );

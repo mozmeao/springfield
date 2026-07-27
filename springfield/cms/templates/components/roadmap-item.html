@@ -1,0 +1,40 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props data_tags="" #}
+
+<li class="fl-roadmap-item" data-tags="{{ data_tags }}">
+  {% if contents.icon %}
+    <div class="fl-roadmap-item-icon">
+      {{ contents.icon }}
+    </div>
+  {% endif %}
+
+  <div class="fl-roadmap-item-content">
+    <div class="fl-roadmap-item-header">
+      {{ contents.header }}
+    </div>
+
+    {% if contents.body %}
+      <div class="fl-roadmap-item-description">
+        {{ contents.body }}
+      </div>
+    {% endif %}
+
+    {% if contents.tags %}
+      <div class="fl-roadmap-tags">
+        {{ contents.tags }}
+      </div>
+    {% endif %}
+
+  </div>
+
+  {% if contents.buttons %}
+    <div class="fl-buttons">
+      {{ contents.buttons }}
+    </div>
+  {% endif %}
+</li>

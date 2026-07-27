@@ -38,7 +38,6 @@ from wagtail_localize.segments.types import StringSegmentValue
 
 from springfield.cms.models.snippets import (
     BannerSnippet,
-    DownloadFirefoxCallToActionSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
     Tag,
@@ -52,7 +51,6 @@ warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 TRANSLATABLE_SNIPPET_MODELS = [
     PreFooterCTASnippet,
     PreFooterCTAFormSnippet,
-    DownloadFirefoxCallToActionSnippet,
     BannerSnippet,
     Tag,
 ]

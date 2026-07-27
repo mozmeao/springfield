@@ -7,11 +7,9 @@
 {% set block_text = value.message|richtext|remove_tags %}
 
 <include:conditional-display
-  platform_conditions="{{ value.settings.show_to.platforms }}"
-  firefox_condition="{{ value.settings.show_to.firefox }}"
-  auth_state_condition="{{ value.settings.show_to.auth_state }}">
+  condition_settings="{{ value.settings.show_to }}">
   <include:notification
-    icon="{{ value.settings.icon }}"
+    icon="{{ value.settings.icon_name }}"
     color="{{ value.settings.color }}"
     stacked="{{ value.settings.stacked }}"
     closable="{{ value.settings.closable }}"

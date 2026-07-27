@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_text = button_label %}
+
+{% set utm_parameters = utm_parameters or {
+    "utm_source": "www.firefox.com",
+    "utm_medium": "referral",
+    "utm_campaign": "nav",
+    "utm_content": "topnav"
+} %}
+
+{% do utm_parameters.update({"utm_content": button_label|slugify}) %}
+
+<include:nav-folder label="{{ button_label }}" panel_id="fl-menu-panel-{{ nav_index }}">
+  {% for column in value.sub_items %}
+    {% set block_position = block_position ~ ".column-" ~ loop.index %}
+    {% include_block column %}
+  {% endfor %}
+</include:nav-folder>

@@ -4,9 +4,14 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% if link %}
 <a
-  class="fl-button {{ theme_class }} {{ size_class }}"
   href="{{ link }}"
+{% else %}
+<button type="button"
+{% endif %}
+
+  class="fl-button {{ theme_class }} {{ size_class }} {{ extra_classes }}"
   {% if disabled %}disabled{% endif %}
   {% if id %}id="{{ id }}"{% endif %}
   {% if external %}target="_blank" rel="external noopener"{% endif %}
@@ -16,6 +21,7 @@
     data-cta-uid="{{ analytics_id }}"
   {% endif %}
   {% if aria_labelledby %}aria-labelledby="{{ aria_labelledby }}"{% endif %}
+  {% if data_target_id %}data-target-id="{{ data_target_id }}"{% endif %}
 >
   {% if icon_name and icon_position == "left" %}
     {% set extra_class = "fl-icon-left" %}
@@ -34,4 +40,9 @@
       extra_class="{{ extra_class }}"
     />
   {% endif %}
+
+{% if not link %}
+</button>
+{% else %}
 </a>
+{% endif %}

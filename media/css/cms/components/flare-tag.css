@@ -1,0 +1,157 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* base/purple */
+.fl-tag {
+    align-items: center;
+    background: var(--notification-bg);
+    border-radius: var(--token-spacing-lg);
+    color: var(--notification-stacked-color);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-label-xs);
+    font-weight: var(--token-font-weight-semibold);
+    gap: var(--token-spacing-xs);
+    line-height: var(--fl-theme-line-height-base);
+    line-height: 1;
+    margin-block-end: var(--token-spacing-lg);
+    margin-inline-end: var(--token-spacing-xs);
+    padding: var(--token-spacing-sm) var(--token-spacing-md);
+    white-space: nowrap;
+}
+
+.fl-tag .fl-icon-left {
+    margin-inline-end: var(--token-spacing-xs);
+}
+
+.fl-tag .fl-icon-right {
+    margin-inline-start: var(--token-spacing-xs);
+}
+
+.fl-tag.is-small {
+    padding: var(--token-spacing-xs) var(--token-spacing-sm);
+}
+
+.fl-tag.is-large {
+    border-radius: var(--token-border-radius-sm);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-regular);
+    padding: var(--token-spacing-lg) var(--token-spacing-xl);
+}
+
+a.fl-tag,
+a.fl-tag:hover {
+    text-decoration: none;
+}
+
+a.fl-tag:hover {
+    background-color: var(--notification-link-hover-bg);
+    color: var(--token-color-white);
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease;
+}
+
+a.fl-tag:hover .fl-tag {
+    opacity: 1;
+}
+
+.fl-tag.is-uppercase {
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
+}
+
+/* red */
+.fl-tag.fl-tag-red {
+    background: var(--notification-red-bg);
+    color: var(--notification-red-color);
+}
+
+/* orange */
+.fl-tag.fl-tag-orange {
+    background: var(--notification-orange-bg);
+    color: var(--notification-orange-color);
+}
+
+/* green */
+.fl-tag.fl-tag-green {
+    background: var(--notification-green-bg);
+    color: var(--notification-green-color);
+}
+
+/* white */
+.fl-tag.fl-tag-white {
+    background: var(--notification-white-bg);
+    color: var(--notification-white-color);
+}
+
+.fl-tag.fl-tag-light-purple {
+    background: var(--notification-light-purple-bg);
+    color: var(--notification-light-purple-color);
+}
+
+/* Selected state */
+
+.fl-tag.is-selected {
+    background: var(--notification-selected-bg);
+    color: var(--notification-selected-color);
+}
+
+.fl-tag.fl-tag-red.is-selected {
+    background: var(--notification-red-selected-bg);
+    color: var(--notification-red-selected-color);
+}
+
+.fl-tag.fl-tag-orange.is-selected {
+    background: var(--notification-orange-selected-bg);
+    color: var(--notification-orange-selected-color);
+}
+
+.fl-tag.fl-tag-green.is-selected {
+    background: var(--notification-green-selected-bg);
+    color: var(--notification-green-selected-color);
+}
+
+.fl-tag.fl-tag-white.is-selected {
+    background: var(--notification-white-selected-bg);
+    color: var(--notification-white-selected-color);
+}
+
+.fl-tag.fl-tag-light-purple.is-selected {
+    background: var(--notification-light-purple-selected-bg);
+    color: var(--notification-light-purple-selected-color);
+}
+
+/* when a tag is used a badge within another tag. See Blog tags page. */
+.fl-tag:has(.fl-tag) {
+    position: relative;
+}
+
+.fl-tag .fl-tag {
+    font-weight: var(--token-font-weight-regular);
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    opacity: 0;
+    position: absolute;
+    transform: translate(50%, -25%);
+    transition: opacity 0.3s ease;
+}
+
+.fl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-sm);
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-tags.center {
+    justify-content: center;
+}
+
+.fl-tags .fl-tag {
+    margin: 0;
+}

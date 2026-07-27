@@ -4,12 +4,13 @@
 
 from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_2026_test_index_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet, get_pretranslated_phrase_snippets
 from springfield.cms.models import HomePage
+from springfield.cms.models.pages import HomePagePencilBannerPlacement
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_home_intro():
@@ -18,6 +19,7 @@ def get_home_intro():
     return {
         "type": "intro",
         "value": {
+            "settings": {"slim": False},
             "heading": {
                 "superheading_text": '<p data-block-key="1khhq"><a href="https://mozilla.org"><i>NEW</i> See the latest</a></p>',
                 "heading_text": '<p data-block-key="yy3vb">This is the internet, on your terms</p>',
@@ -30,93 +32,69 @@ def get_home_intro():
     }
 
 
+def _pictogram_card(card_id, superheading, headline, content, image_id, dark_image_id):
+    _image = {
+        "image": image_id,
+        "settings": {"dark_mode_image": dark_image_id, "mobile_image": None, "dark_mode_mobile_image": None},
+    }
+    return {
+        "type": "card",
+        "value": {
+            "settings": {"variant": "filled", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL},
+            "media": [],
+            "content": [
+                {
+                    "type": "heading",
+                    "value": {"superheading_text": superheading, "heading_text": headline, "subheading_text": ""},
+                    "id": f"{card_id[:8]}-0000-0000-0000-000000000001",
+                },
+                {"type": "pictogram", "value": _image, "id": f"{card_id[:8]}-0000-0000-0000-000000000002"},
+                {"type": "content", "value": content, "id": f"{card_id[:8]}-0000-0000-0000-000000000003"},
+            ],
+        },
+        "id": card_id,
+    }
+
+
 def get_cards_list():
+    img = settings.PLACEHOLDER_IMAGE_ID
+    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
     return {
         "type": "cards_list",
         "value": {
             "cards": [
-                {
-                    "type": "sticker_card",
-                    "value": {
-                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
-                        "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": None,
-                                "dark_mode_mobile_image": None,
-                            },
-                        },
-                        "tags": [],
-                        "superheading": '<p data-block-key="p55oi">AI</p>',
-                        "headline": '<p data-block-key="nnvio">Chat with your favorite AI </p>',
-                        "content": '<p data-block-key="6ris8">Access AI chatbots directly from the sidebar, no tab-switching required. </p>',
-                        "buttons": [],
-                    },
-                    "id": "770c184d-1840-4128-b424-575b9449c31e",
-                },
-                {
-                    "type": "sticker_card",
-                    "value": {
-                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
-                        "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": None,
-                                "dark_mode_mobile_image": None,
-                            },
-                        },
-                        "tags": [],
-                        "superheading": '<p data-block-key="p55oi">Privacy</p>',
-                        "headline": '<p data-block-key="nnvio">Privacy you can see and control </p>',
-                        "content": '<p data-block-key="6ris8">We block trackers automatically and give you control over what you share.</p>',
-                        "buttons": [],
-                    },
-                    "id": "b5722296-ce54-4e26-9b14-0ef23dd4030c",
-                },
-                {
-                    "type": "sticker_card",
-                    "value": {
-                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
-                        "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": None,
-                                "dark_mode_mobile_image": None,
-                            },
-                        },
-                        "tags": [],
-                        "superheading": '<p data-block-key="p55oi">Organization</p>',
-                        "headline": '<p data-block-key="nnvio">Work smarter, \u2028not harder</p>',
-                        "content": '<p data-block-key="6ris8">Browse smarter with vertical tabs, tab groups, '
-                        "sidebar access, PDF editing and more.</p>",
-                        "buttons": [],
-                    },
-                    "id": "0670ff11-78b2-4c5d-81c2-f4b392af3adb",
-                },
-                {
-                    "type": "sticker_card",
-                    "value": {
-                        "settings": {"expand_link": False, "show_to": SHOW_TO_ALL},
-                        "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
-                            "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": None,
-                                "dark_mode_mobile_image": None,
-                            },
-                        },
-                        "tags": [],
-                        "superheading": '<p data-block-key="p55oi">Independence</p>',
-                        "headline": '<p data-block-key="nnvio">Your browser answers to you</p>',
-                        "content": '<p data-block-key="6ris8">Independent from day one. No billionaire overlords. '
-                        "No shareholders demanding your data.</p>",
-                        "buttons": [],
-                    },
-                    "id": "3f06b021-aed7-4e8f-bc80-e13665e70f52",
-                },
+                _pictogram_card(
+                    card_id="770c184d-1840-4128-b424-575b9449c31e",
+                    superheading='<p data-block-key="p55oi">AI</p>',
+                    headline='<p data-block-key="nnvio">Chat with your favorite AI </p>',
+                    content='<p data-block-key="6ris8">Access AI chatbots directly from the sidebar, no tab-switching required. </p>',
+                    image_id=img,
+                    dark_image_id=dark,
+                ),
+                _pictogram_card(
+                    card_id="b5722296-ce54-4e26-9b14-0ef23dd4030c",
+                    superheading='<p data-block-key="p55oi">Privacy</p>',
+                    headline='<p data-block-key="nnvio">Privacy you can see and control </p>',
+                    content='<p data-block-key="6ris8">We block trackers automatically and give you control over what you share.</p>',
+                    image_id=img,
+                    dark_image_id=dark,
+                ),
+                _pictogram_card(
+                    card_id="0670ff11-78b2-4c5d-81c2-f4b392af3adb",
+                    superheading='<p data-block-key="p55oi">Organization</p>',
+                    headline='<p data-block-key="nnvio">Work smarter, \u2028not harder</p>',
+                    content='<p data-block-key="6ris8">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing and more.</p>',
+                    image_id=img,
+                    dark_image_id=dark,
+                ),
+                _pictogram_card(
+                    card_id="3f06b021-aed7-4e8f-bc80-e13665e70f52",
+                    superheading='<p data-block-key="p55oi">Independence</p>',
+                    headline='<p data-block-key="nnvio">Your browser answers to you</p>',
+                    content='<p data-block-key="6ris8">Independent from day one. No billionaire overlords. No shareholders demanding your data.</p>',
+                    image_id=img,
+                    dark_image_id=dark,
+                ),
             ]
         },
         "id": "800071e2-f2c2-41cb-9ffe-712935b5cd79",
@@ -314,20 +292,24 @@ def get_kit_banner():
 
 
 def get_home_test_page() -> HomePage:
-    index_page = get_2026_test_index_page()
+    index_page = get_flare_pages_docs_page()
 
-    # Make sure the Pre-Footer CTA Snippet is created
+    # Make sure required snippets exist
     get_pre_footer_cta_snippet()
+    get_pretranslated_phrase_snippets()
 
-    page = HomePage.objects.filter(slug="test-home-page").first()
-    if not page:
-        page = HomePage(
-            slug="test-home-page",
-            title="Test Home Page",
-        )
-        index_page.add_child(instance=page)
+    page = get_or_create_page(
+        HomePage,
+        slug="test-home-page",
+        parent=index_page,
+        defaults={
+            "title": "Home Page",
+        },
+    )
 
     page.upper_content = [get_home_intro(), get_cards_list(), get_home_carousel()]
     page.lower_content = [*get_showcase_variants().values(), get_card_gallery(), get_kit_banner()]
+    snippet = get_pencil_banner_snippet()
+    HomePagePencilBannerPlacement.objects.get_or_create(page=page, snippet=snippet)
     page.save_revision().publish()
     return page

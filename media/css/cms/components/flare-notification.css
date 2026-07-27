@@ -1,0 +1,182 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-notification-wrapper {
+    display: flex;
+    inline-size: 100%;
+    justify-content: center;
+    padding-inline: var(--fl-section-h-padding);
+}
+
+.fl-section .fl-notification-wrapper {
+    padding-inline: 0;
+}
+
+/* For the odd cases where there are stacked notifications. */
+.fl-notification-wrapper + .fl-notification-wrapper,
+.fl-notification-wrapper + .conditional-display:has(.fl-notification-wrapper),
+.conditional-display:has(.fl-notification-wrapper) + .fl-notification-wrapper,
+.conditional-display:has(.fl-notification-wrapper)
+    + .conditional-display:has(.fl-notification-wrapper) {
+    margin-block-start: var(--token-spacing-lg);
+}
+
+/*  Because .fl-split-page-upper has top padding, and pages
+    that don't use it rely on the padding of the component.
+    TODO: Fix _that_ unnecessary headache. */
+
+/* .fl-split-page-upper .fl-notification-wrapper:first-child {
+    margin-block-start: calc(-1 * var(--fl-section-v-padding));
+} */
+
+.fl-notification {
+    align-items: center;
+    background: var(--notification-bg);
+    border: 1px solid var(--notification-border-color);
+    border-radius: var(--token-spacing-sm);
+    box-shadow: var(--notification-box-shadow);
+    color: var(--notification-color);
+    display: flex;
+    flex-direction: row;
+    gap: var(--token-spacing-lg);
+    max-inline-size: var(--token-width-desktop-content-lg);
+    min-block-size: 48px;
+    overflow: hidden;
+    padding: var(--token-spacing-xl);
+    position: relative;
+}
+
+.fl-notification.fl-notification-stacked {
+    align-items: center;
+    color: var(--notification-stacked-color);
+    flex-direction: column;
+    justify-content: center;
+    max-inline-size: var(--token-width-desktop-content-lg);
+    padding: var(--token-spacing-3xl);
+    text-align: center;
+}
+
+.fl-notification-icon-section {
+    align-items: center;
+    align-self: stretch;
+    background: transparent;
+    border-radius: var(--token-spacing-md);
+    color: var(--notification-color);
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+}
+
+.fl-notification.fl-notification-reverse-icon .fl-notification-icon-section {
+    background: var(--notification-icon-bg);
+    block-size: 40px;
+    color: var(--notification-icon-color);
+    inline-size: 40px;
+}
+
+.fl-notification.fl-notification-dark .fl-notification-icon-section {
+    background: var(--notification-dark-icon-bg);
+    color: var(--notification-dark-icon-color);
+}
+
+.fl-notification.fl-notification-stacked .fl-notification-icon-section,
+.fl-notification.fl-notification-dark.fl-notification-stacked
+    .fl-notification-icon-section {
+    align-self: center;
+    background: unset;
+    color: currentColor;
+}
+
+.fl-notification-icon-section .fl-notification-icon {
+    color: currentColor;
+    font-size: 24px;
+}
+
+.fl-windows-disclaimer-logo {
+    color: var(--windows-icon-color);
+}
+
+.fl-notification-red {
+    --notification-bg: var(--notification-red-bg);
+    --notification-color: var(--notification-red-color);
+    --notification-border-color: var(--notification-red-border-color);
+    --notification-icon-bg: var(--notification-red-icon-bg);
+}
+
+.fl-notification-orange {
+    --notification-bg: var(--notification-orange-bg);
+    --notification-color: var(--notification-orange-color);
+    --notification-border-color: var(--notification-orange-border-color);
+    --notification-icon-bg: var(--notification-orange-icon-bg);
+}
+
+.fl-notification-green {
+    --notification-bg: var(--notification-green-bg);
+    --notification-color: var(--notification-green-color);
+    --notification-border-color: var(--notification-green-border-color);
+    --notification-icon-bg: var(--notification-green-icon-bg);
+}
+
+.fl-notification-white {
+    --notification-bg: var(--notification-white-bg);
+    --notification-color: var(--notification-white-color);
+    --notification-border-color: var(--notification-white-border-color);
+    --notification-icon-bg: var(--notification-white-icon-bg);
+}
+
+.fl-notification-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-sm);
+    line-height: 1.4;
+    margin: 0;
+}
+
+.fl-notification.fl-notification-stacked .fl-notification-content {
+    font-size: var(--fl-theme-font-size-body-sm);
+}
+
+.fl-notification-content p {
+    margin: 0;
+}
+
+.fl-notification-content .fl-notification-heading {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-body-sm);
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1.1;
+}
+
+.fl-notification-content a {
+    color: inherit;
+    font-weight: var(--token-font-weight-semibold);
+    text-decoration: underline;
+}
+
+.fl-notification-close {
+    align-items: start;
+    background: none;
+    color: currentColor;
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    margin: 0;
+    opacity: 0.7;
+    padding: 2px 0 0;
+    transition: opacity 0.2s ease;
+}
+
+.fl-notification-close:hover {
+    opacity: 1;
+}
+
+.fl-notification-close .fl-notification-close-icon {
+    font-size: 14px;
+}

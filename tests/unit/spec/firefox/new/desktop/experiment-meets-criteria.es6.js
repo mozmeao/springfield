@@ -71,9 +71,9 @@ describe('experiment-meets-criteria.es6.js', function () {
                 .and.returnValue(false)
                 .withArgs('moz-exp-download-privacy')
                 .and.returnValue(false)
-                .withArgs('moz-stub-attribution-code')
+                .withArgs('moz-download-attribution-code')
                 .and.returnValue(true)
-                .withArgs('moz-stub-attribution-sig')
+                .withArgs('moz-download-attribution-sig')
                 .and.returnValue(true);
 
             const result = meetsExperimentCriteria();
