@@ -265,6 +265,11 @@
     padding-block: 0;
 }
 
+/* Contact form pages: the intro sits directly above the form, so reduce the intro's bottom padding */
+.fl-main:has(.contact-form) .fl-intro {
+    padding-block-end: var(--token-spacing-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-intro:first-child {
         padding-block: var(--token-layout-lg);
