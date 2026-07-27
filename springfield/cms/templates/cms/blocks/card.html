@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 1 %}
+
+{% set first_heading = value.content.first_block_by_name("heading") %}
+{% set block_text = first_heading.value.heading_text | richtext | remove_tags if first_heading else "" %}
+
+<include:conditional-display
+  condition_settings="{{ value.settings.show_to }}">
+  <include:card
+    variant="{{ value.settings.variant }}"
+    align="{{ value.settings.align or 'start' }}"
+    expand_link="{{ value.settings.expand_link }}">
+    {% if value.media %}
+      <content:media>{% include_block value.media %}</content:media>
+    {% endif %}
+    <content:body>
+      {% for content_block in value.content %}
+        {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
+        {% if content_block.block_type == "heading" %}
+          {% with heading_size = "fl-heading-size-3" %}
+            {% include_block content_block %}
+          {% endwith %}
+        {% else %}
+          {% include_block content_block %}
+        {% endif %}
+      {% endfor %}
+    </content:body>
+  </include:card>
+</include:conditional-display>

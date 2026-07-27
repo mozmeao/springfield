@@ -2,11 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# Sample pages demonstrating icon-style Cards. These are not a separate card type —
+# they are built on top of CardBlock with icon content inside the card media area.
+
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
@@ -29,56 +32,6 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     }
 
 
-def get_icon_card_variants() -> list[dict]:
-    buttons = get_button_variants()
-    return [
-        {
-            "type": "icon_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "icon": "activity",
-                "headline": '<p data-block-key="2026kc1h">Icon Card 2026</p>',
-                "content": '<p data-block-key="2026kc1c">Without buttons, activity icon.</p>',
-                "buttons": [],
-            },
-            "id": "2026kc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "icon_card",
-            "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "icon": "android",
-                "headline": '<p data-block-key="2026kc2h">Icon Card with Link Button</p>',
-                "content": '<p data-block-key="2026kc2c">With a link button and android icon.</p>',
-                "buttons": [buttons["link"]],
-            },
-            "id": "2026kc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "icon_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "icon": "apple",
-                "headline": '<p data-block-key="2026kc3h">Clickable Icon Card</p>',
-                "content": '<p data-block-key="2026kc3c">With expand link enabled - the entire card is clickable.</p>',
-                "buttons": [buttons["ghost"]],
-            },
-            "id": "2026kc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "icon_card",
-            "value": {
-                "settings": {"expand_link": True, "show_to": _SHOW_TO_ALL},
-                "icon": "add-circle-fill",
-                "headline": '<p data-block-key="2026kc4h">All Icon Card Fields</p>',
-                "content": '<p data-block-key="2026kc4c">With all fields filled, expand link enabled, and primary button.</p>',
-                "buttons": [buttons["primary"]],
-            },
-            "id": "2026kc01-0000-0000-0000-000000000004",
-        },
-    ]
-
-
 def _cards_list(cards, settings=None, block_id=""):
     return {
         "type": "cards_list",
@@ -88,6 +41,123 @@ def _cards_list(cards, settings=None, block_id=""):
         },
         "id": block_id,
     }
+
+
+def get_icon_card_variants() -> list[dict]:
+    buttons = get_button_variants()
+    return [
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "activity", "id": "2026kc01-0001-0000-0000-000000000001"}],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": "",
+                            "heading_text": '<p data-block-key="2026kc1h">Icon Card 2026</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "2026kc01-0001-0000-0000-000000000002",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="2026kc1c">Without buttons, activity icon.</p>',
+                        "id": "2026kc01-0001-0000-0000-000000000003",
+                    },
+                ],
+            },
+            "id": "2026kc01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "android", "id": "2026kc01-0002-0000-0000-000000000001"}],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": "",
+                            "heading_text": '<p data-block-key="2026kc2h">Icon Card with Link Button</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "2026kc01-0002-0000-0000-000000000002",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="2026kc2c">With a link button and android icon.</p>',
+                        "id": "2026kc01-0002-0000-0000-000000000003",
+                    },
+                    {
+                        "type": "buttons",
+                        "value": {"spacing": "", "buttons": [buttons["link"]], "help_text": ""},
+                        "id": "2026kc01-0002-0000-0000-000000000004",
+                    },
+                ],
+            },
+            "id": "2026kc01-0000-0000-0000-000000000002",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "apple", "id": "2026kc01-0003-0000-0000-000000000001"}],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": "",
+                            "heading_text": '<p data-block-key="2026kc3h">Clickable Icon Card</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "2026kc01-0003-0000-0000-000000000002",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="2026kc3c">With expand link enabled - the entire card is clickable.</p>',
+                        "id": "2026kc01-0003-0000-0000-000000000003",
+                    },
+                    {
+                        "type": "buttons",
+                        "value": {"spacing": "", "buttons": [buttons["ghost"]], "help_text": ""},
+                        "id": "2026kc01-0003-0000-0000-000000000004",
+                    },
+                ],
+            },
+            "id": "2026kc01-0000-0000-0000-000000000003",
+        },
+        {
+            "type": "card",
+            "value": {
+                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "media": [{"type": "icon", "value": "add-circle-fill", "id": "2026kc01-0004-0000-0000-000000000001"}],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": "",
+                            "heading_text": '<p data-block-key="2026kc4h">All Icon Card Fields</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "2026kc01-0004-0000-0000-000000000002",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="2026kc4c">With all fields filled, expand link enabled, and primary button.</p>',
+                        "id": "2026kc01-0004-0000-0000-000000000003",
+                    },
+                    {
+                        "type": "buttons",
+                        "value": {"spacing": "", "buttons": [buttons["primary"]], "help_text": ""},
+                        "id": "2026kc01-0004-0000-0000-000000000004",
+                    },
+                ],
+            },
+            "id": "2026kc01-0000-0000-0000-000000000004",
+        },
+    ]
 
 
 def get_icon_cards_sections() -> list[dict]:
@@ -146,7 +216,7 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
         slug=slug,
         parent=index_page,
         defaults={
-            "title": "Icon Cards",
+            "title": "Card - Icon",
         },
     )
 
@@ -154,6 +224,8 @@ def get_icon_cards_test_page() -> FreeFormPage2026:
     page.upper_content = with_fresh_ids(sections)
     page.content = with_fresh_ids(sections)
     page.docs = (
+        "<p>Sample of the <strong>Card block</strong> configured as an icon card. "
+        "Add an <em>Icon</em> content block as the first item inside the card to produce this layout.</p>"
         "<p>Icon Cards present a small icon, a headline, and a short description. They&rsquo;re ideal for feature roundups, "
         "value-prop lists, and at-a-glance sections where you have many short items to surface.</p>"
         "<p>Stick to the supplied icon set so visual weight stays consistent. Keep descriptions to one or two short sentences so "

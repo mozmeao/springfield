@@ -88,58 +88,43 @@
       alignment_class="text-center fl-enterprise-protection"
   />
   <include:cards-list container_width="wide">
-    <include:card
-      expand_link="false"
-    >
-      <content:heading>
+    <include:card variant="outline">
+      <content:body>
+        <div class="fl-card-media-pictogram">
+          <img src="{{ static('img/firefox/enterprise/icon-data-privacy.svg') }}" alt="" aria-hidden="true" />
+        </div>
         <include:heading
           level="h3"
           heading_size="fl-heading-size-3"
-          superheading_text=""
           heading_text="{{ ftl('firefox-enterprise-your-browser-your-business') }}"
         />
-      </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-data-privacy.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
-      <content:body>
-        {{ ftl('firefox-enterprise-open-source-transparency') }}
+        <p>{{ ftl('firefox-enterprise-open-source-transparency') }}</p>
       </content:body>
     </include:card>
-    <include:card
-      expand_link="false"
-    >
-      <content:heading>
+    <include:card variant="outline">
+      <content:body>
+        <div class="fl-card-media-pictogram">
+          <img src="{{ static('img/firefox/enterprise/icon-deploy.svg') }}" alt="" aria-hidden="true" />
+        </div>
         <include:heading
           level="h3"
           heading_size="fl-heading-size-3"
-          superheading_text=""
           heading_text="{{ ftl('firefox-enterprise-deploy-when-and-how-you-want') }}"
         />
-      </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-deploy.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
-      <content:body>
-        {{ ftl('firefox-enterprise-install-packages-policies') }}
+        <p>{{ ftl('firefox-enterprise-install-packages-policies') }}</p>
       </content:body>
     </include:card>
-    <include:card
-      expand_link="false"
-    >
-      <content:heading>
+    <include:card variant="outline">
+      <content:body>
+        <div class="fl-card-media-pictogram">
+          <img src="{{ static('img/firefox/enterprise/icon-release.svg') }}" alt="" aria-hidden="true" />
+        </div>
         <include:heading
           level="h3"
           heading_size="fl-heading-size-3"
-          superheading_text=""
           heading_text="{{ ftl('firefox-enterprise-release-cycles') }}"
         />
-      </content:heading>
-      <content:sticker>
-        <img class="fl-card-sticker" src="{{ static('img/firefox/enterprise/icon-release.svg') }}" alt="" aria-hidden="true" />
-      </content:sticker>
-      <content:body>
-        {{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}
+        <p>{{ ftl('firefox-enterprise-choose-firefox-for-features-esr-stability') }}</p>
       </content:body>
     </include:card>
   </include:cards-list>

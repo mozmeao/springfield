@@ -1185,6 +1185,18 @@ DATA_CONSENT_COUNTRIES = [
     "GB",  # United Kingdom
 ]
 
+# Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
+# analytics script should load. This is intentionally env-driven so we can
+# turn a country on or off per environment (dev/stage/prod) without a code
+# change or deploy, and so it can be reverted instantly if needed. Additionally,
+# this is likely a temporary measurement addition.
+# Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
+# ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
+# Empty by default (no extra countries). The `if c.strip()` guard drops empty
+# tokens (e.g. a trailing comma) so the set never contains a blank string that
+# could match an empty country code.
+PLAUSIBLE_EXTRA_COUNTRIES = {c.strip() for c in config("PLAUSIBLE_EXTRA_COUNTRIES", default="").split(",") if c.strip()}
+
 
 # RELAY =========================================================================================
 

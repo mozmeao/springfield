@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 import uuid
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from django import forms
 from django.conf import settings
@@ -668,12 +668,13 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
-    INDEX_CARD_STICKER = "sticker_card"
+    # NOTE: stored DB value remains "sticker_card" for backwards compatibility.
+    INDEX_CARD_PICTOGRAM = "sticker_card"
     INDEX_CARD_OUTLINE = "outline_card"
     INDEX_CARD_ILLUSTRATION = "illustration_card"
 
     INDEX_CARD_TYPE_CHOICES = (
-        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_PICTOGRAM, "Pictogram card"),
         (INDEX_CARD_OUTLINE, "Outline card"),
         (INDEX_CARD_ILLUSTRATION, "Illustration card"),
     )
@@ -681,7 +682,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     index_card_type = models.CharField(
         max_length=20,
         choices=INDEX_CARD_TYPE_CHOICES,
-        default=INDEX_CARD_STICKER,
+        default=INDEX_CARD_PICTOGRAM,
         help_text="Controls the card style used in the article listing.",
     )
 
@@ -789,7 +790,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="A sticker image used in article cards.",
+        help_text="A pictogram image used in article cards.",
     )
     sticker_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -797,7 +798,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode variant of the sticker.",
+        help_text="Optional dark mode variant of the pictogram.",
     )
     sticker_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -805,7 +806,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional mobile variant of the sticker.",
+        help_text="Optional mobile variant of the pictogram.",
     )
     sticker_dark_mode_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -813,7 +814,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode mobile variant of the sticker.",
+        help_text="Optional dark mode mobile variant of the pictogram.",
     )
     icon = models.CharField(
         max_length=100,
@@ -910,7 +911,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                             ]
                         )
                     ],
-                    heading="Sticker Variants",
+                    heading="Pictogram Variants",
                     classname="collapsed",
                 ),
                 FieldPanel(
@@ -2422,10 +2423,30 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
 
+    def _referral_id_to_invite_code(self, referral_id: str) -> str:
+        # placeholder/dummy invite-code-generation for now
+        return referral_id[::-1].replace("TSET", "FAKE")
+
     def get_context(self, request, *args, **kwargs):
+        """
+        Adds an invite_url to the context using the referral-hub ID
+        ("ref_key") in the URL that opens this Referral Hub page.
+        If ref_key is missing, invite_url is empty.
+
+        The invite_url is the one that can be copied and sent to friends
+        and can be turned into a QR code as needed, etc.
+        """
+
         context = super().get_context(request, *args, **kwargs)
 
-        context["invite_url"] = "https://example.com/invite-link-still-to-come"
+        if referral_id := request.GET.get("ref_key"):
+            invite_code = self._referral_id_to_invite_code(referral_id)
+            params = urlencode({"invitation": invite_code})
+            context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
+        else:
+            # No referral-id code == no invite URL. Template needs to handle
+            # this case
+            context["invite_url"] = ""
 
         return context
 
