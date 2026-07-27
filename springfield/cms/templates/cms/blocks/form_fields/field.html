@@ -1,0 +1,27 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+  Shared template for every field rendered as a labelled widget: text, email, phone,
+  textarea, select and country select. The widget itself, along with its attributes
+  and any submitted value, comes from the bound form field.
+#}
+
+{% set field = form[value.internal_identifier] %}
+
+<div class="fl-field-wrap{% if field.errors %} fl-field-error{% endif %}">
+  <label class="fl-label" for="{{ field.id_for_label }}">
+    {{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}
+  </label>
+  {{ field }}
+  {% for error in field.errors %}
+    <p class="fl-field-error-message"{% if loop.first %} id="{{ field.auto_id }}_error"{% endif %}><include:icon icon_name="warning" /> {{ error }}</p>
+  {% endfor %}
+</div>

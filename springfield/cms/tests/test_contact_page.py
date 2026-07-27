@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+import re
 from unittest.mock import patch
 
 from django.conf import settings as django_settings
@@ -333,11 +334,11 @@ def test_no_js_notification_present(
     assert "fl-notification-orange" in content
 
 
-def test_contact_page_get_context_form_data_defaults_to_empty_dict(
+def test_contact_page_get_context_includes_unbound_form_on_get(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """get_context() defaults form_data to {} on GET requests (no form_data on request)."""
+    """get_context() passes the form built by serve() into the template context, unbound on GET."""
     index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
@@ -345,14 +346,17 @@ def test_contact_page_get_context_form_data_defaults_to_empty_dict(
         slug="context-default-test",
         to_email_address="test@example.com",
         redirect_to=thank_you_page,
+        form_fields=get_form_field_variants(),
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
     request = rf.get(page.relative_url(minimal_site))
+    page.serve(request)
     context = page.get_context(request)
 
-    assert context["form_data"] == {}
+    assert context["form"].is_bound is False
+    assert context["form"]["first_name"].value() is None
 
 
 def test_contact_page_country_select_field_renders_countries(
@@ -429,7 +433,104 @@ def test_contact_page_country_select_field_renders_localized_countries(
     content = response.text
 
     assert response.status_code == 200
-    assert 'option value="FR">France' in content
+    assert 'option value="DE">Allemagne' in content
+
+
+def test_contact_page_select_fields_render_placeholder_option(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Select and country select fields both start with a blank placeholder option."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Placeholder Option Test",
+        slug="placeholder-option-test",
+        form_fields=[
+            {
+                "type": "select_field",
+                "value": {
+                    "internal_identifier": "company_size",
+                    "label": "Company Size",
+                    "required": True,
+                    "options": [{"value": "1 - 10", "label": "1 - 10"}],
+                },
+                "id": "select-field",
+            },
+            {
+                "type": "country_select_field",
+                "value": {"internal_identifier": "country", "label": "Country", "required": True},
+                "id": "country-select-field",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    content = page.serve(request).content.decode()
+
+    assert content.count('<option value="" selected>Select an option</option>') == 2
+
+
+def test_contact_page_preview_renders_form_fields(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A preview builds its own form, so the fields render outside the serve() path."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Preview Test",
+        slug="preview-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    response = page.serve_preview(request, page.default_preview_mode)
+    content = response.content.decode()
+
+    assert 'name="first_name"' in content
+    assert "<textarea" in content
+
+
+def test_contact_page_field_error_message_is_linked_to_its_widget(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """An invalid widget points at its error message via aria-describedby."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Error Link Test",
+        slug="error-link-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "first_name", "label": "First name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    content = page.serve(rf.post(page.relative_url(minimal_site), {})).content.decode()
+
+    assert 'aria-invalid="true"' in content
+    assert 'aria-describedby="first_name_error"' in content
+    assert 'id="first_name_error"' in content
 
 
 def test_contact_page_textarea_field_renders_correctly(
@@ -468,6 +569,44 @@ def test_contact_page_textarea_field_renders_correctly(
     assert 'name="message"' in content
     assert 'id="message"' in content
     assert 'rows="6"' in content
+    assert "cols=" not in content
+    assert "maxlength=" not in content
+
+
+def test_contact_page_textarea_field_renders_max_length(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """An authored max_length becomes the textarea's maxlength attribute."""
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Textarea Max Length Test",
+        slug="textarea-max-length-test",
+        form_fields=[
+            {
+                "type": "textarea_field",
+                "value": {
+                    "internal_identifier": "message",
+                    "label": "Message",
+                    "required": False,
+                    "rows": 4,
+                    "max_length": 500,
+                },
+                "id": "textarea-field",
+            }
+        ],
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    request = rf.get(page.relative_url(minimal_site))
+    content = page.serve(request).content.decode()
+
+    assert 'maxlength="500"' in content
 
 
 # Form validation
@@ -494,11 +633,11 @@ def test_contact_page_post_requires_csrf_token(
     assert resp.status_code == 403
 
 
-def test_contact_page_includes_form_data_in_context(
+def test_contact_page_includes_bound_form_in_context(
     minimal_site: Site,
     client: Client,
 ) -> None:
-    """get_context() passes form_data from request into the template context."""
+    """get_context() passes the submitted form into the template context, bound to the POST data."""
     index_page = minimal_site.root_page
     thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
@@ -513,9 +652,9 @@ def test_contact_page_includes_form_data_in_context(
 
     response = client.post(page.full_url, {"first_name": "Jane Doe"})
     assert response.status_code == 200
-    context = response.context
-    assert context["form_data"]
-    assert context["form_data"]["first_name"] == "Jane Doe"
+    form = response.context["form"]
+    assert form.is_bound
+    assert form["first_name"].value() == "Jane Doe"
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -857,7 +996,7 @@ def test_contact_page_displays_textarea_field_value_after_validation_error(
 
     resp = page.serve(request)
     assert resp.status_code == 200
-    assert ">Hello world<" in resp.content.decode()
+    assert ">\nHello world</textarea>" in resp.content.decode()
 
 
 def test_contact_page_displays_select_field_value_after_validation_error(
@@ -944,9 +1083,8 @@ def test_contact_page_displays_checkbox_group_value_after_validation_error(
 
     resp = page.serve(request)
     assert resp.status_code == 200
-    assert 'value="consulting" checked' in resp.content.decode()
-    assert 'value="support" checked' in resp.content.decode()
-    assert 'value="training" checked' not in resp.content.decode()
+    checked_values = re.findall(r'value="(\w+)"[^>]* checked', resp.content.decode())
+    assert checked_values == ["consulting", "support"]
 
 
 def test_contact_page_displays_checkbox_field_value_after_validation_error(
@@ -981,7 +1119,7 @@ def test_contact_page_displays_checkbox_field_value_after_validation_error(
     request = rf.post(page.relative_url(minimal_site), {"agree": "on"})
     resp = page.serve(request)
     assert resp.status_code == 200
-    assert 'value="on" checked' in resp.content.decode()
+    assert re.search(r'<input type="checkbox" name="agree"[^>]* checked>', resp.content.decode())
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
