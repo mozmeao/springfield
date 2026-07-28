@@ -285,13 +285,26 @@ def _migrate_page(page, field_names):
         # No pending draft — fetch the real model instance (apps.get_model returns a
         # historical model that lacks Wagtail page methods) so we can create a revision
         # and mark the migrated content as the published version in the CMS.
+        from django.db import OperationalError, ProgrammingError
+
         from wagtail.models import Page as WagtailPage  # inline: needed after apps.get_model
 
-        real_page = WagtailPage.objects.get(pk=page.pk).specific
-        if real_page.alias_of_id is not None:
+        try:
+            real_page = WagtailPage.objects.get(pk=page.pk).specific
+            if real_page.alias_of_id is not None:
+                return
+            revision = real_page.save_revision()
+            revision.publish()
+        except (OperationalError, ProgrammingError):
+            # Forward-compat guard for from-scratch replays (CI / fresh dev DBs built
+            # from a pre-0122 snapshot). With current code the live page model can carry
+            # columns not yet in the schema — any field added to the shared page base
+            # after this migration (e.g. `internal_title` in 0124) — so loading/publishing
+            # the concrete page raises "no such column". It isn't needed here: the
+            # streamfield data was already migrated on the historical row above. This can
+            # only fire on a replay; the original forward run matched the schema, so
+            # already-applied environments are unaffected.
             return
-        revision = real_page.save_revision()
-        revision.publish()
 
 
 _PAGE_CONFIGS = [
