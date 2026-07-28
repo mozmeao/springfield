@@ -1292,7 +1292,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             if request.GET.get("fromMainNav"):
                 url += "?fromMainNav=true"
             return redirect(url)
-        return redirect("/")
+        return redirect(f"/{request.LANGUAGE_CODE}/")
 
 
 class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
