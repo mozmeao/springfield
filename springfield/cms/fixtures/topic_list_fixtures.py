@@ -106,5 +106,10 @@ def get_topic_list_test_page() -> FreeFormPage2026:
 
     page.upper_content = get_topic_list_upper_variants()
     page.content = get_topic_list_lower_variants()
+    page.docs = (
+        "<p>The Topic List block presents multiple topics with a navigable list of anchored sections. "
+        "Use the Topic List on long pages where readers benefit from jumping to a section. "
+        "Keep topic labels short and parallel in grammatical structure so the list scans cleanly.</p>"
+    )
     page.save_revision().publish()
     return page

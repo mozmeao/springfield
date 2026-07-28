@@ -161,9 +161,6 @@ context:
       - label: "Secondary Button"
         link: "#"
         theme_class: 'button-secondary'
-      - label: "Tertiary Button"
-        link: "#"
-        theme_class: 'button-tertiary'
       - label: "Ghost Button"
         link: "#"
         theme_class: 'button-ghost'

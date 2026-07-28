@@ -1,0 +1,50 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ A single navigation link. Plain links render as an `<li>` (grouped into a
+ `<ul>` by the column template); button-style links render as a standalone
+ ghost button, outside any list. `external` appends the up-right arrow icon;
+ `new_window` controls whether it opens in a new tab.
+#}
+
+{% if button_style %}
+  <include:button
+    theme_class="button-ghost"
+    size_class="fl-button-small"
+    label="{{ label }}"
+    link="{{ href }}"
+    external="{{ new_window }}"
+    icon_name="{{ icon_name }}"
+    icon_position="{{ icon_position or 'left' }}"
+    analytics_text="{{ analytics_text }}"
+    analytics_position="{{ analytics_position }}"
+    analytics_id="{{ analytics_id }}"
+  />
+{% else %}
+  <li>
+    <a
+      class="fl-nav-link"
+      href="{{ href }}"
+      {% if testid %}data-testid="{{ testid }}"{% endif %}
+      {% if new_window %}target="_blank" rel="external noopener"{% endif %}
+      {% if analytics_text %}data-cta-text="{{ analytics_text }}"{% endif %}
+      {% if analytics_position %}data-cta-position="{{ analytics_position }}"{% endif %}
+      {% if analytics_id %}data-cta-uid="{{ analytics_id }}"{% endif %}
+    >
+      {% if icon_name and icon_position != "right" %}
+        <include:icon icon_name="{{ icon_name }}" hidden="true" />
+      {% endif %}
+      {{ label }}
+      {% if icon_name and icon_position == "right" %}
+        <include:icon icon_name="{{ icon_name }}" hidden="true" />
+      {% endif %}
+      {% if external %}
+        <span class="fl-icon fl-nav-icon-up-right-arrow" aria-hidden="true"></span>
+      {% endif %}
+    </a>
+  </li>
+{% endif %}

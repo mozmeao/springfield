@@ -21,6 +21,7 @@ EXPECTED_TRANSLATABLE_SNIPPETS = {
     "ScrollToSeeMoreSnippet",
     "SetAsDefaultSnippet",
     "Tag",
+    "NavigationSnippet",
 }
 
 TRANSLATABLE_SNIPPET_MODELS = [m for m in get_snippet_models() if issubclass(m, TranslatableMixin)]

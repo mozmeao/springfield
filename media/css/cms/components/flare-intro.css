@@ -222,8 +222,8 @@
     display: inline-block;
     inline-size: 1em;
     margin-inline-start: var(--token-spacing-xs);
-    mask: url('/media/img/firefox/flare/icons/arrow-forward.svg') no-repeat
-        center / 1em 1em;
+    mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/forward-16.svg')
+        no-repeat center / 1em 1em;
     mask-size: contain;
     vertical-align: middle;
 }
@@ -263,6 +263,11 @@
 .fl-channel-page .fl-split-page-lower .fl-intro:last-child,
 .fl-page-user-privacy .fl-section:last-child .fl-intro {
     padding-block: 0;
+}
+
+/* Contact form pages: the intro sits directly above the form, so reduce the intro's bottom padding */
+.fl-main:has(.contact-form) .fl-intro {
+    padding-block-end: var(--token-spacing-lg);
 }
 
 @media (--viewport-sm-up) {

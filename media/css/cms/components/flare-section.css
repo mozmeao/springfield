@@ -36,6 +36,10 @@
     max-inline-size: var(--token-width-desktop-content-lg);
 }
 
+.fl-section-container.is-content-narrow {
+    max-inline-size: var(--token-width-desktop-content);
+}
+
 .fl-section-container.is-medium-width {
     max-inline-size: var(--token-width-desktop-wide-banner);
 }

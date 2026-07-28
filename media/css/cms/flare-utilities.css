@@ -336,3 +336,8 @@ html.other .conditional-display.condition-other-os {
     display: block;
     display: revert;
 }
+
+.conditional-display.condition-bind-uitour:has(.ui-tour:not(.is-hidden)) {
+    display: block;
+    display: revert;
+}

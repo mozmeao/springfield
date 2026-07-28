@@ -92,7 +92,8 @@
 {% block body_class %}fl-home-body{% endblock %}
 
 {% block flare_header %}
-  <include:flare-header theme="dark" />
+  {% set theme = "dark" %}
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

@@ -107,5 +107,12 @@ def get_icon_list_with_image_test_page() -> FreeFormPage2026:
     sections = get_icon_list_with_image_sections()
     page.upper_content = sections
     page.content = sections
+    page.docs = (
+        "<p>The Icon List with Image block places a vertical list of icon+text items beside a supporting image. It&rsquo;s well "
+        "suited for product walkthroughs, capability checklists, and &lsquo;why us&rsquo; sections that benefit from a single "
+        "anchoring visual.</p>"
+        "<p>Limit the list to 4&ndash;6 items so column heights stay balanced. Match the image to the list&rsquo;s overall theme &mdash; "
+        "abstract or decorative imagery weakens the structure.</p>"
+    )
     page.save_revision().publish()
     return page

@@ -44,9 +44,12 @@ _csp_connect_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
     BASKET_URL,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
-    "region1.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
+    "analytics.google.com",  # WT-1453
+    "*.analytics.google.com",  # WT-1453
     "gtm.springfield.moz.works",
     "gtm-dev.springfield.moz.works",
     "gtm.firefox.com",
@@ -88,8 +91,10 @@ _csp_img_src = {
     "data:",
     "www.mozilla.org",  # mainly for release notes images. TODO: investigate removing
     "www.firefox.com",  # for release notes images when loading from nonprod or origin hosts
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
 }
 _csp_media_src = {
     csp.constants.SELF,
@@ -105,8 +110,10 @@ _csp_script_src = {
     # TODO change settings so we don't need unsafes even in dev
     csp.constants.UNSAFE_INLINE,
     csp.constants.UNSAFE_EVAL,
-    "www.googletagmanager.com",
-    "www.google-analytics.com",
+    "googletagmanager.com",
+    "*.googletagmanager.com",
+    "google-analytics.com",
+    "*.google-analytics.com",
     "tagmanager.google.com",
     "www.youtube.com",
     "s.ytimg.com",

@@ -12,6 +12,8 @@ from django.utils.translation import gettext_lazy as _
 
 import defusedxml.ElementTree as ET
 from py_svg_hush import filter_svg
+from wagtail.blocks import StreamValue, StructValue
+from wagtail.blocks.list_block import ListValue
 from wagtail.fields import StreamField as WagtailStreamfield
 from wagtail.images.fields import WagtailImageField
 
@@ -75,6 +77,27 @@ class StreamField(WagtailStreamfield):
                 return type(stream_value)(self, stream_data, is_lazy=True)
 
         return stream_value
+
+    def get_searchable_content(self, value):
+        content = super().get_searchable_content(value)
+        content.extend(self.collect_block_types(value))
+        return content
+
+    @classmethod
+    def collect_block_types(cls, value):
+        """Recursively collect block-type slugs from a StreamValue and its nested blocks."""
+        types = []
+        if isinstance(value, StreamValue):
+            for child in value:
+                types.append(child.block_type)
+                types.extend(cls.collect_block_types(child.value))
+        elif isinstance(value, StructValue):
+            for child_value in value.values():
+                types.extend(cls.collect_block_types(child_value))
+        elif isinstance(value, ListValue):
+            for child_value in value:
+                types.extend(cls.collect_block_types(child_value))
+        return list(set(types))
 
 
 # Dangerous SVG patterns to detect via regex (fast check)

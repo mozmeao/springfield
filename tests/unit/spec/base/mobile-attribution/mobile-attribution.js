@@ -413,19 +413,40 @@ describe('mobile-attribution.js', function () {
             );
         });
 
-        it('is a no-op when no campaign resolves and no Android UA', function () {
+        it('falls back to the "fxcomdefault" default campaign on iOS UA with no campaign declared', function () {
+            // The fallback exists so mobile users never route through
+            // /thanks/, which renders desktop-stub-installer copy.
             spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
                 IOS_UA
             );
 
             Mozilla.MobileAttribution.init();
 
-            expect(
-                Mozilla.MobileAttribution.rewriteLinks
-            ).not.toHaveBeenCalled();
+            expect(Mozilla.MobileAttribution.rewriteLinks).toHaveBeenCalled();
+            const callArgs =
+                Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
+            expect(callArgs[1].indexOf(IOS_STORE_PREFIX)).toBe(0);
+            expect(callArgs[1]).toContain('ct=fxcomdefault');
             expect(
                 Mozilla.MobileAttribution.attachAndroidStoreButtonTracking
             ).not.toHaveBeenCalled();
+        });
+
+        it('falls back to the "fxcomdefault" default campaign on Android UA with no campaign declared', function () {
+            // Distinct from "download" (the value baked into the existing
+            // GOOGLE_PLAY_FIREFOX_LINK_UTMS Path A constant) so attribution
+            // dashboards can tell the fallback apart from explicit campaigns.
+            spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
+                ANDROID_UA
+            );
+
+            Mozilla.MobileAttribution.init();
+
+            expect(Mozilla.MobileAttribution.rewriteLinks).toHaveBeenCalled();
+            const callArgs =
+                Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
+            expect(callArgs[1].indexOf(ANDROID_STORE_PREFIX)).toBe(0);
+            expect(callArgs[1]).toContain('utm_campaign%3Dfxcomdefault');
         });
 
         it('is a no-op on desktop UA even when a campaign is set', function () {

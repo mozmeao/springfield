@@ -56,14 +56,6 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
-# CMS refresh redirect controls (toggled by infra during URL/content migrations).
-# ENABLE_CMS_REFRESH_REDIRECTS turns the redirects on; defaults to false so new behavior
-# is opt-in and can be rolled out gradually. PERMANENT_CMS_REFRESH_REDIRECTS switches
-# the redirects from temporary (302) to permanent (301); defaults to false so we can
-# verify the rollout and later make redirects permanent or remove them as part of cleanup.
-ENABLE_CMS_REFRESH_REDIRECTS = config("ENABLE_CMS_REFRESH_REDIRECTS", default="false", parser=bool)
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
-
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
@@ -315,6 +307,7 @@ FLUENT_DEFAULT_FILES = [
     "ui",
     "mozilla-account-promo",
     "components",
+    "firefox/enterprise",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -479,6 +472,7 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
 
 # Paths that can exist either with or without a locale code in the URL.
@@ -501,7 +495,7 @@ NOINDEX_URLS = [
     r"^django-rq/",
     r"^oidc/",
     r"^\.well-known/",
-    r"^browsers/unsupported-systems/",
+    r"^download/unsupported-systems/",
     r"^download/installer-help/",
     r"^firefox/nightly/notes/feed/$",
     r"^landing/",
@@ -1191,6 +1185,18 @@ DATA_CONSENT_COUNTRIES = [
     "GB",  # United Kingdom
 ]
 
+# Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
+# analytics script should load. This is intentionally env-driven so we can
+# turn a country on or off per environment (dev/stage/prod) without a code
+# change or deploy, and so it can be reverted instantly if needed. Additionally,
+# this is likely a temporary measurement addition.
+# Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
+# ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
+# Empty by default (no extra countries). The `if c.strip()` guard drops empty
+# tokens (e.g. a trailing comma) so the set never contains a blank string that
+# could match an empty country code.
+PLAUSIBLE_EXTRA_COUNTRIES = {c.strip() for c in config("PLAUSIBLE_EXTRA_COUNTRIES", default="").split(",") if c.strip()}
+
 
 # RELAY =========================================================================================
 
@@ -1443,6 +1449,8 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "ol",
     "ul",
     "image",
+    "fxa",
+    "fx-logo",
 ]
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
@@ -1508,6 +1516,8 @@ _allowed_page_models = [
     "cms.BlogArticlePage",
     "cms.RoadmapPage",
     "cms.ContactPage",
+    "cms.ReferralHubPage",
+    "cms.ReferralGetFirefoxPage",
 ]
 
 if DEV is True:
@@ -1545,3 +1555,11 @@ PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", par
 PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
 PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
 PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
+
+# Contact Page
+# On PROD, only certain paths are allowed to send POST requests
+# This needs to be in sync with Fastly WAF configuration
+CONTACT_PAGE_ALLOWED_PATHS = [
+    r"/enterprise/contact/$",
+    r"/landing/[a-zA-Z0-9\-]+/contact/$",
+]

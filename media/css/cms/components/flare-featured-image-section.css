@@ -31,7 +31,8 @@
     margin-block-start: calc(-1 * var(--fl-section-v-padding));
 }
 
-.fl-split-page-upper > .fl-scallop-decoration:first-child {
+.fl-split-page-upper > .fl-scallop-decoration:first-child,
+.fl-main > .fl-scallop-decoration:first-child {
     display: none;
 }
 

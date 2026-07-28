@@ -142,5 +142,6 @@ def get_card_gallery_test_page() -> FreeFormPage2026:
     variants = get_card_gallery_variants()
     page.upper_content = variants
     page.content = variants
+    page.docs = "<p>The Card Gallery block lays out a grid with two main cards and a smaller callout card.</p>"
     page.save_revision().publish()
     return page

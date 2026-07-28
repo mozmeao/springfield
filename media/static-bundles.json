@@ -678,12 +678,6 @@
     },
     {
       "files": [
-        "js/firefox/enterprise/landing.es6.js"
-      ],
-      "name": "firefox-enterprise"
-    },
-    {
-      "files": [
         "js/base/error-pages.js"
       ],
       "name": "page_not_found"
@@ -780,6 +774,12 @@
       ],
       "name": "flare26-kick-page",
       "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare26-kick-page' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
+        "js/cms/easter-egg-logo.es6.js"
+      ],
+      "name": "easter-egg-logo"
     },
     {
       "files": [

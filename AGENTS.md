@@ -37,7 +37,24 @@ When working on a feature or fix, work on a dedicated branch whose name is prefi
 
 ## Commit & Pull Request Guidelines
 
-Keep commit titles short, imperative, and linked to issues when available (e.g., `Tighten hero metrics (#16595)`). Focus diffs and note migrations, toggles, or telemetry changes. Pull requests should explain intent, list verification steps (`make test`, screenshots), and link to bugs. Flag rollout considerations when touching configuration under `docker/`, `**/migrations/` or monitoring.
+Keep commit titles short, imperative, and linked to issues when available (e.g., `Tighten hero metrics (#16595)`). Focus diffs and note migrations, toggles, or telemetry changes. Flag rollout considerations when touching configuration under `docker/`, `**/migrations/` or monitoring.
+
+### Writing PR descriptions
+
+Fill in every section of `.github/PULL_REQUEST_TEMPLATE.md` — never leave a heading blank. The goal is to *direct the reviewer's attention*, not to restate the diff. Before writing, inspect what actually changed (`git diff --stat main...`, plus a scan for migrations, fixtures, config, and deletions) so the description matches reality. A good description lets a reviewer know where to look hard and where to skim.
+
+**One-line summary.** Keep it concise and lead with the main intention or change. One clear sentence is plenty — e.g. `Refactor card blocks into a single unified CardBlock.` A reviewer should grasp the point of the PR from this line alone.
+
+**Significant changes and points to review.** This is the core of the description. Don't dump a file list — group the diff into a handful of labelled topics and explain each so the reviewer can see the key elements that carry the most significant changes:
+- Give each item a short label for the area of change. Anchor it to whatever makes the change easiest to find: a file or path, a model or component name, or — when no single code entity fits — the area or part of the system affected (e.g. "the migration", "the pattern library", "CSS for the card variants").
+- Say *what* changed and *why* — what it replaces, what it enables, what behaviour is now different. Intent over mechanics.
+- Order items most-significant first. Fold low-risk, mechanical fallout (updated fixtures, ported static pages, renamed CSS) into their own short items so the reviewer knows the blast radius without wading through it.
+- **Explicitly flag the single riskiest / most important thing to review** and say so in plain words — e.g. append "this is the most critical part to review". Data migrations, schema changes, anything hard to reverse or easy to get subtly wrong belongs here.
+- Be honest about risk and about anything you're unsure of; the point of a review is to catch what you couldn't.
+
+**Issue / Bugzilla link.** Paste the full tracker URL (Jira/Bugzilla/GitHub issue). Not just an ID.
+
+**Testing.** Give concrete, reproducible steps a reviewer can follow to verify the change, in order. Include data setup where relevant (fresh db, run migrations, load fixtures) and state what to check — which variants, which pages, what should look or behave the same. Prefer a short numbered/bulleted checklist over prose. Note `make test`, screenshots, or pattern-library/Flare-docs checks when they apply.
 
 ## Security & Configuration Tips
 

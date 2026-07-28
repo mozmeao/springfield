@@ -4,8 +4,8 @@
   "description": "You can have all the money in the world, but there’s one thing you will never have — a dinosaur.",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
+    "@babel/core": "^8.0.1",
+    "@babel/preset-env": "^8.0.2",
     "@mozilla-protocol/core": "^21.1.0",
     "@mozmeao/consent-banner": "^1.1.1",
     "@mozmeao/cookie-helper": "^1.1.0",
@@ -28,7 +28,7 @@
     "swiper": "^12.2.0",
     "terser-webpack-plugin": "^5.6.1",
     "webpack": "^5.108.3",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^7.2.1"
   },
   "repository": {
     "type": "git",

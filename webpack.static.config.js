@@ -36,7 +36,8 @@ module.exports = {
                             // the custom webpack loader (relative to media/css/cms/) but are
                             // invalid when Django's ManifestStaticFilesStorage post-processes
                             // them relative to their own directory (css/cms/pages/).
-                            '**/css/cms/pages/**'
+                            '**/css/cms/pages/**',
+                            '**/css/cms/themes/**'
                         ]
                     }
                 },

@@ -8,7 +8,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.shortcuts import redirect
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 
@@ -32,10 +32,12 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
+from springfield.cms.admin_views import ContentSearchView
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
+    NavigationSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -46,6 +48,24 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+
+
+@hooks.register("register_admin_urls")
+def register_content_search_url():
+    return [
+        path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
+        path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_content_search_link():
+    return MenuItem(
+        "Search content",
+        reverse("cms_content_search"),
+        icon_name="search",
+        order=2,
+    )
 
 
 @hooks.register("register_admin_menu_item")
@@ -560,6 +580,12 @@ class ScrollToSeeMoreSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["text", "locale", "live"]
 
 
+class NavigationSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = NavigationSnippet
+    list_display = ["name", "locale", "is_default", "live"]
+    search_fields = ["name"]
+
+
 class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     model = PencilBannerSnippet
     # `title` is a RichTextField — use the `title_plain` method on the model
@@ -578,6 +604,7 @@ for _viewset in (
     QRCodeFloatingSnippetViewSet,
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
+    NavigationSnippetViewSet,
 ):
     register_snippet(_viewset)
 

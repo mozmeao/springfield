@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<blockquote class="fl-card-testimonial">
+  <div class="fl-card-testimonial-quote fl-body">{{ contents.body }}</div>
+  <footer class="fl-card-testimonial-footer">
+    {% if contents.image %}
+      <div class="fl-card-testimonial-image">{{ contents.image }}</div>
+    {% endif %}
+    <div class="fl-card-testimonial-meta">
+      <cite class="fl-card-testimonial-attribution">{{ contents.attribution }}</cite>
+      {% if contents.attribution_role %}
+        <span class="fl-card-testimonial-role">{{ contents.attribution_role }}</span>
+      {% endif %}
+    </div>
+  </footer>
+</blockquote>

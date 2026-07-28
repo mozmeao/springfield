@@ -134,5 +134,11 @@ def get_line_cards_test_page() -> FreeFormPage2026:
     ]
     page.upper_content = page_content
     page.content = page_content
+    page.docs = (
+        "<p>Line Cards arrange compact card content along a horizontal line &mdash; typically used for chronological highlights, "
+        "mini-features, or &lsquo;as featured in&rsquo; style rows.</p>"
+        "<p>Keep card content short (an icon, a label, maybe one supporting line). The block is most effective when the row reads "
+        "as a single connected thought rather than as independent cards.</p>"
+    )
     page.save_revision().publish()
     return page

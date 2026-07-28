@@ -64,5 +64,6 @@ def get_kit_intro_test_page() -> FreeFormPage2026:
     # Add the Kit Intro block data to the Content field despite the block not being allowed there
     # to test that it isn't rendered on the page
     page.content = content
+    page.docs = "<p>The Kit Intro block is the main component of our home page. We should avoid using it in other pages.</p>"
     page.save_revision().publish()
     return page

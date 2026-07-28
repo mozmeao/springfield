@@ -110,7 +110,7 @@ def _build_upper_content():
     fxa_button = {
         "type": "fxa_button",
         "value": {
-            "settings": _button_settings(UID["fxa"], icon="single-user", icon_position="left", theme="tertiary"),
+            "settings": _button_settings(UID["fxa"], icon="single-user", icon_position="left", theme="ghost"),
             "pretranslated_label": None,
             "custom_label": "Log in",
         },
