@@ -127,6 +127,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         FieldPanel("show_in_menus"),
     ]
     content_panels = [
+        FieldPanel("internal_title"),
         FieldPanel("title"),
         FieldPanel("slug"),
     ]
@@ -1317,6 +1318,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     )
 
     content_panels = [
+        FieldPanel("internal_title"),
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
