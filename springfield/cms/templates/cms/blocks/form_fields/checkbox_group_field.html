@@ -6,7 +6,9 @@
 
 {% set field = form[value.internal_identifier] %}
 
-<fieldset class="fl-field-wrap{% if field.errors %} fl-field-error{% endif %}">
+<fieldset class="fl-field-wrap{% if field.errors %} fl-field-error{% endif %}"
+  {% if value.required %}aria-required="true"{% endif %}
+  {% if field.errors %}aria-invalid="true" aria-describedby="{{ value.internal_identifier }}_error"{% endif %}>
   <legend class="fl-legend">{{ value.label }}{% if value.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
   {% for checkbox in field %}
     <label class="fl-checkbox-label" for="{{ checkbox.id_for_label }}">
@@ -15,6 +17,6 @@
     </label>
   {% endfor %}
   {% for error in field.errors %}
-    <p class="fl-field-error-message"><include:icon icon_name="warning" /> {{ error }}</p>
+    <p class="fl-field-error-message" id="{{ value.internal_identifier }}_error"><include:icon icon_name="warning" /> {{ error }}</p>
   {% endfor %}
 </fieldset>
