@@ -6,7 +6,7 @@
 
 {# cta_text uses the stable English label so analytics aggregate across locales #}
 {% set cta_text = (block_text ~ " - " if block_text else "") ~ button_label_en_us %}
-{% set icon_name = value.settings.icon %}
+{% set icon_name = value.settings.icon_name %}
 
 <include:download-firefox-button
   analytics_id="{{ value.settings.analytics_id }}"
@@ -16,7 +16,7 @@
   cta_text="{{ cta_text }}"
   block_position="{{ block_position }}"
   icon_position="{{ value.settings.icon_position }}"
-  icon_name="{{ value.settings.icon }}"
+  icon_name="{{ value.settings.icon_name }}"
   show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox }}"
   enable_marketing_attribution="{{ 'true' if page is defined and page.enable_marketing_attribution else '' }}"
   show_store_button=true

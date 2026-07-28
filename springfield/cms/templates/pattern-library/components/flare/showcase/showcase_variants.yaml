@@ -72,3 +72,33 @@ context:
         alt: Placeholder image
       caption_title: ""
       caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+    - headline: Default layout with CTA
+      testid: default-with-cta
+      layout: default
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: ""
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      cta:
+        label: Download Firefox
+        url: "#"
+
+    - headline: Expanded layout with CTA
+      testid: expanded-with-cta
+      layout: expanded
+      desktop_image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      mobile_image:
+        url: /media/img/firefox/flare/placeholder-scene.png
+        alt: Placeholder image
+      caption_title: Caption title
+      caption_description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      cta:
+        label: Download Firefox
+        url: "#"

@@ -6,11 +6,18 @@
 #}
 
 {% set form_template = form_template or "cms/newsletter_form.html" %}
+{% set illustration = illustration or "kit" %}
 
 <div class="fl-newsletterform-cta {% if theme %}fl-force-{{ theme }}-theme{% endif %}" data-state="default">
+  {% if illustration != "none" %}
   <div class="fl-newsletterform-illustration">
+    {% if illustration == "globe" %}
+    <img alt="" loading="lazy" src="/media/img/firefox/flare/globe.png" />
+    {% else %}
     <img alt="" loading="lazy" src="/media/img/firefox/flare/kit-on-rock.png" />
+    {% endif %}
   </div>
+  {% endif %}
 
   <div class="fl-newsletterform-content">
     {{ contents }}

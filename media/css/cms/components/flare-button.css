@@ -329,12 +329,18 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-buttons.is-horizontal {
+    align-items: center;
     flex-direction: row;
 }
 
-.fl-buttons.is-horizontal.is-center {
+.fl-buttons.is-horizontal.is-center,
+.fl-buttons.is-horizontal.is-end {
     inline-size: 100%;
     justify-content: center;
+}
+
+.fl-buttons.is-horizontal.is-end {
+    justify-content: end;
 }
 
 .fl-buttons.is-stacked {

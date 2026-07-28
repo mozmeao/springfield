@@ -347,107 +347,95 @@
           />
 
 
-          <include:cards-list>
+          <include:cards-list cards_per_row="3">
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/kit-with-google.png" srcset="/media/img/firefox/landing/get/kit-with-google-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-works-with-google') }}"
                 />
-              </content:heading>
-              <content:body>
                 <p>{{ ftl('firefox-desktop-download-all-your-favourite') }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/etp.png" srcset="/media/img/firefox/landing/get/etp-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-enhanced-tracking-protection') }}"
                 />
-              </content:heading>
-              <content:body>
                 {% set block_attrs = 'href="https://addons.mozilla.org/firefox/extensions%s" target="_blank" rel="noopener" data-cta-text="blocks many third party trackers"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-firefox-automatically', attrs=block_attrs ) }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/kit-running.png" srcset="/media/img/firefox/landing/get/kit-running-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-sync-your-devices') }}"
                 />
-              </content:heading>
-              <content:body>
                 {% set device_attrs = 'href="https://accounts.firefox.com/signin%s" target="_blank" rel="noopener" data-cta-text="Mozilla account"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-firefox-is-available-v2', attrs=device_attrs) }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/screenshot.png" srcset="/media/img/firefox/landing/get/screenshot.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-screenshots') }}"
                 />
-              </content:heading>
-              <content:body>
                 {% set screenshots_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" target="_blank" rel="noopener" data-cta-text="screenshot"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-grab-a-high', attrs=screenshots_attrs) }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/kit-plant.png" srcset="/media/img/firefox/landing/get/kit-plant-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-facebook-container') }}"
                 />
-              </content:heading>
-              <content:body>
                 {% set container_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container%s" target="_blank" rel="noopener" data-cta-text="Download this browser extension"'|safe|format(params) %}
                 <p>{{ ftl('firefox-desktop-download-download-this-browser', attrs=container_attrs) }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
-            <include:illustration-card>
-              <content:media>
+            <include:card>
+              <content:body>
+                <div class="fl-card-media">
                   <img src="/media/img/firefox/landing/get/picture-in-picture.png" srcset="/media/img/firefox/landing/get/picture-in-picture-high-res.png 2x" width="340" height="400" alt="" aria-hidden />
-              </content:media>
-              <content:heading>
+                </div>
                 <include:heading
                   level="h3"
                   heading_size="fl-heading-sm"
                   heading_text="{{ ftl('firefox-desktop-download-picture-in-picture') }}"
                 />
-              </content:heading>
-              <content:body>
                 <p>{{ ftl('firefox-desktop-download-from-watching-a') }}</p>
               </content:body>
-            </include:illustration-card>
+            </include:card>
 
           </include:cards-list>
 

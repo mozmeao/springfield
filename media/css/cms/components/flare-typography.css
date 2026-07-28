@@ -26,7 +26,9 @@
 .fl-heading-size-2,
 .fl-heading-lg,
 .fl-pre-footer-cta-button,
-.fl-heading-condensed {
+.fl-heading-condensed,
+.fl-heading-xl,
+.fl-heading-md {
     font-variation-settings:
         'wght' var(--token-font-weight-semibold),
         'wdth' var(--token-font-condensed-width);
@@ -95,13 +97,11 @@
     font-size: var(--fl-theme-font-size-heading-2xl);
 }
 
-.fl-heading-xl,
-.fl-heading-size-2 {
+.fl-heading-xl {
     font-size: var(--fl-theme-font-size-heading-xl);
 }
 
-.fl-features-theme-page .fl-heading-size-2,
-.fl-freeform-page .fl-heading-size-2,
+.fl-heading-size-2,
 .fl-heading-lg {
     font-size: var(--fl-theme-font-size-heading-lg);
 }

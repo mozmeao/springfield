@@ -6,13 +6,18 @@
 
 {% extends "cms/base-flare.html" %}
 
+{% block body_class %}
+{{ super() }}
+{% if page.theme == "enterprise" %}fl-force-light-theme{% endif %}
+{% endblock %}
 
 {% block flare_header %}
   {% set theme = "dark" if page.upper_content and not page.theme == "enterprise" else None %}
+  {% set theme = "light" if page.theme == "enterprise" else theme %}
+
   {% set hide_nav_cta = not page.show_nav_cta %}
   {% set no_menu = not page.show_navigation %}
-
-  <include:flare-header theme="{{ theme }}" hide_nav_cta="{{ hide_nav_cta }}" no_menu="{{ no_menu }}" />
+  {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}

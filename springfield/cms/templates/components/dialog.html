@@ -4,9 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<dialog id="{{ id }}" class="fl-dialog"{% if testid %} data-testid="{{ testid }}"{% endif %}>
+<dialog id="{{ id }}" class="fl-dialog" closedby="any"
+  {%- if label %} aria-label="{{ label }}"{% endif -%}
+  {%- if aria_labelledby %} aria-labelledby="{{ aria_labelledby }}"{% endif -%}
+  {%- if testid %} data-testid="{{ testid }}"{% endif -%}
+>
 
-  <button class="fl-dialog-close-button" aria-label="Close">
+  <button type="button" class="fl-dialog-close-button" aria-label="Close">
     <include:icon icon_name="close" />
   </button>
 

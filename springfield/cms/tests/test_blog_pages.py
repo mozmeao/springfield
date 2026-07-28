@@ -211,13 +211,13 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-illustration-card")
+    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-card")
     assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 4  # 8 total - 1 hero - 3 list items = 4 cards
 
     for fixture_article, card in zip(all_articles[4:8], cards):
         assert "fl-card-expand-link" in card.get("class", [])
 
-        media = card.find("div", class_="fl-card-media")
+        media = card.find("div", class_="fl-card-top-media")
         assert media and media.find("img")
 
         topic = card.find("p", class_="fl-superheading")
@@ -246,12 +246,12 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     for cards_list in cards_list_divs:
         assert cards_list.find(class_="fl-heading")
         assert cards_list.find("a", class_="fl-blog-cards-list-link")
-        cards = cards_list.find_all("article", class_="fl-illustration-card")
+        cards = cards_list.find_all("article", class_="fl-card")
         assert cards
         for card in cards:
             assert "fl-card-expand-link" in card.get("class", [])
 
-            media = card.find("div", class_="fl-card-media")
+            media = card.find("div", class_="fl-card-top-media")
             assert media and media.find("img")
 
             assert card.find("p", class_="fl-superheading")
@@ -769,17 +769,29 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     The ceiling includes one query from AbstractSpringfieldCMSPage.get_breadcrumb_ancestors
     calling `.public()`, which does a PageViewRestriction lookup per render — required to
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
+
+    It also includes ~5 constant (not per-article) queries from custom-navigation
+    resolution that runs on every page render.
+    # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
+    # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(22):
+    with django_assert_max_num_queries(23):
         index_page.serve(request)
 
 
 def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
-    """Blog all-articles page should fetch all related data in bulk, not per article."""
+    """Blog all-articles page should fetch all related data in bulk, not per article.
+
+    As with the index page, the ceiling includes ~5 constant (not per-article)
+    queries from custom-navigation resolution on every render: get_navigation()'s
+    ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    # TODO (WT-1468): revisit caching the resolved page nav / default snippet
+    # to drop the ceiling back down.
+    """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(25):
+    with django_assert_max_num_queries(26):
         index_page.all_route(request)

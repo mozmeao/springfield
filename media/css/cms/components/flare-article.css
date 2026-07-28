@@ -153,7 +153,7 @@ Related articles
     justify-content: center;
 }
 
-.fl-related-articles .fl-illustration-card {
+.fl-related-articles .fl-card {
     gap: var(--token-spacing-lg);
 }
 
@@ -213,12 +213,12 @@ Related articles
         max-inline-size: 180px;
     }
 
-    .fl-related-articles .fl-illustration-card:nth-child(2) .fl-card-media {
+    .fl-related-articles .fl-card:nth-child(2) .fl-card-media {
         aspect-ratio: 8/10;
     }
 
-    .fl-related-articles .fl-illustration-card:nth-child(1) .fl-card-media,
-    .fl-related-articles .fl-illustration-card:nth-child(4) .fl-card-media {
+    .fl-related-articles .fl-card:nth-child(1) .fl-card-media,
+    .fl-related-articles .fl-card:nth-child(4) .fl-card-media {
         aspect-ratio: 1/1;
     }
 }

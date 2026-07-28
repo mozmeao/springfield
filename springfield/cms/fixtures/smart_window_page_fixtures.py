@@ -144,38 +144,92 @@ def get_smart_window_illustration_cards() -> dict:
     img = settings.PLACEHOLDER_IMAGE_ID
     animation_cards = [
         {
-            "type": "illustration_card",
+            "type": "card",
             "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [_animation_media(img, "swpic01-0000-0000-0000-000000000011")],
-                "eyebrow": '<p data-block-key="swpic1e">Lorem</p>',
-                "headline": '<p data-block-key="swpic1h">Lorem ipsum dolor sit amet</p>',
-                "content": '<p data-block-key="swpic1c">Consectetur adipiscing elit.</p>',
-                "buttons": [],
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [
+                    {
+                        "type": "media",
+                        "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000011")],
+                        "id": "swpic01-0000-0000-0000-000000000012",
+                    }
+                ],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": '<p data-block-key="swpic1e">Lorem</p>',
+                            "heading_text": '<p data-block-key="swpic1h">Lorem ipsum dolor sit amet</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "swpic01-0000-0000-0000-000000000013",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="swpic1c">Consectetur adipiscing elit.</p>',
+                        "id": "swpic01-0000-0000-0000-000000000014",
+                    },
+                ],
             },
             "id": "swpic01-0000-0000-0000-000000000001",
         },
         {
-            "type": "illustration_card",
+            "type": "card",
             "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [_animation_media(img, "swpic01-0000-0000-0000-000000000021")],
-                "eyebrow": '<p data-block-key="swpic2e">Ipsum</p>',
-                "headline": '<p data-block-key="swpic2h">Sed do eiusmod tempor incididunt</p>',
-                "content": '<p data-block-key="swpic2c">Ut labore et dolore magna aliqua ut enim ad minim veniam.</p>',
-                "buttons": [],
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [
+                    {
+                        "type": "media",
+                        "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000021")],
+                        "id": "swpic01-0000-0000-0000-000000000022",
+                    }
+                ],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": '<p data-block-key="swpic2e">Ipsum</p>',
+                            "heading_text": '<p data-block-key="swpic2h">Sed do eiusmod tempor incididunt</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "swpic01-0000-0000-0000-000000000023",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="swpic2c">Ut labore et dolore magna aliqua ut enim ad minim veniam.</p>',
+                        "id": "swpic01-0000-0000-0000-000000000024",
+                    },
+                ],
             },
             "id": "swpic01-0000-0000-0000-000000000002",
         },
         {
-            "type": "illustration_card",
+            "type": "card",
             "value": {
-                "settings": {"expand_link": False, "show_to": _SHOW_TO_ALL},
-                "media": [_animation_media(img, "swpic01-0000-0000-0000-000000000031")],
-                "eyebrow": '<p data-block-key="swpic3e">Dolor</p>',
-                "headline": '<p data-block-key="swpic3h">Quis nostrud exercitation ullamco</p>',
-                "content": '<p data-block-key="swpic3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>',
-                "buttons": [],
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "media": [
+                    {
+                        "type": "media",
+                        "value": [_animation_media(img, "swpic01-0000-0000-0000-000000000031")],
+                        "id": "swpic01-0000-0000-0000-000000000032",
+                    }
+                ],
+                "content": [
+                    {
+                        "type": "heading",
+                        "value": {
+                            "superheading_text": '<p data-block-key="swpic3e">Dolor</p>',
+                            "heading_text": '<p data-block-key="swpic3h">Quis nostrud exercitation ullamco</p>',
+                            "subheading_text": "",
+                        },
+                        "id": "swpic01-0000-0000-0000-000000000033",
+                    },
+                    {
+                        "type": "content",
+                        "value": '<p data-block-key="swpic3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>',
+                        "id": "swpic01-0000-0000-0000-000000000034",
+                    },
+                ],
             },
             "id": "swpic01-0000-0000-0000-000000000003",
         },
@@ -190,96 +244,83 @@ def get_smart_window_illustration_cards() -> dict:
     }
 
 
+def _testimonial_card(card_id, content, attribution, attribution_role, attribution_image):
+    return {
+        "type": "card",
+        "value": {
+            "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+            "content": [
+                {
+                    "type": "testimonial",
+                    "value": {
+                        "content": content,
+                        "attribution": attribution,
+                        "attribution_role": attribution_role,
+                        "attribution_image": attribution_image,
+                    },
+                    "id": f"{card_id[:7]}-0000-0000-0000-000000000010",
+                }
+            ],
+        },
+        "id": card_id,
+    }
+
+
 def get_smart_window_testimonial_cards() -> dict:
     img = settings.PLACEHOLDER_IMAGE_ID
     dark = settings.PLACEHOLDER_DARK_IMAGE_ID
-    _image = {
-        "image": img,
-        "settings": {
-            "dark_mode_image": dark,
-            "mobile_image": None,
-            "dark_mode_mobile_image": None,
-        },
-    }
-    _no_image = {
-        "image": None,
-        "settings": {
-            "dark_mode_image": None,
-            "mobile_image": None,
-            "dark_mode_mobile_image": None,
-        },
-    }
+    _image = {"image": img, "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None}}
+    _no_image = {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
     cards = [
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _image,
-                "attribution": '<p data-block-key="swptc1a">Layla Hassan</p>',
-                "attribution_role": '<p data-block-key="swptc1r">Product Designer</p>',
-                "content": '<p data-block-key="swptc1c">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt '
-                "ut labore et dolore.</p>",
-            },
-            "id": "swptc01-0000-0000-0000-000000000001",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _no_image,
-                "attribution": '<p data-block-key="swptc2a">Marcus Osei</p>',
-                "attribution_role": '<p data-block-key="swptc2r">Software Engineer</p>',
-                "content": '<p data-block-key="swptc2c">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut '
-                "aliquip ex ea commodo.</p>",
-            },
-            "id": "swptc01-0000-0000-0000-000000000002",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _image,
-                "attribution": '<p data-block-key="swptc3a">Priya Nair</p>',
-                "attribution_role": '<p data-block-key="swptc3r">Journalist</p>',
-                "content": '<p data-block-key="swptc3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>',
-            },
-            "id": "swptc01-0000-0000-0000-000000000003",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _no_image,
-                "attribution": '<p data-block-key="swptc4a">Tom Reyes</p>',
-                "attribution_role": "",
-                "content": '<p data-block-key="swptc4c">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt '
-                "mollit anim.</p>",
-            },
-            "id": "swptc01-0000-0000-0000-000000000004",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _image,
-                "attribution": '<p data-block-key="swptc5a">Yuki Tanaka</p>',
-                "attribution_role": '<p data-block-key="swptc5r">UX Researcher</p>',
-                "content": '<p data-block-key="swptc5c">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
-            },
-            "id": "swptc01-0000-0000-0000-000000000005",
-        },
-        {
-            "type": "testimonial_card",
-            "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
-                "attribution_image": _no_image,
-                "attribution": '<p data-block-key="swptc6a">Ana Ferreira</p>',
-                "attribution_role": '<p data-block-key="swptc6r">Student</p>',
-                "content": '<p data-block-key="swptc6c">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque '
-                "laudantium.</p>",
-            },
-            "id": "swptc01-0000-0000-0000-000000000006",
-        },
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000001",
+            content=(
+                '<p data-block-key="swptc1c">Lorem ipsum dolor sit amet, consectetur adipiscing elit,'
+                " sed do eiusmod tempor incididunt ut labore et dolore.</p>"
+            ),
+            attribution='<p data-block-key="swptc1a">Layla Hassan</p>',
+            attribution_role='<p data-block-key="swptc1r">Product Designer</p>',
+            attribution_image=_image,
+        ),
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000002",
+            content=(
+                '<p data-block-key="swptc2c">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.</p>'
+            ),
+            attribution='<p data-block-key="swptc2a">Marcus Osei</p>',
+            attribution_role='<p data-block-key="swptc2r">Software Engineer</p>',
+            attribution_image=_no_image,
+        ),
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000003",
+            content='<p data-block-key="swptc3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>',
+            attribution='<p data-block-key="swptc3a">Priya Nair</p>',
+            attribution_role='<p data-block-key="swptc3r">Journalist</p>',
+            attribution_image=_image,
+        ),
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000004",
+            content='<p data-block-key="swptc4c">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.</p>',
+            attribution='<p data-block-key="swptc4a">Tom Reyes</p>',
+            attribution_role="",
+            attribution_image=_no_image,
+        ),
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000005",
+            content='<p data-block-key="swptc5c">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+            attribution='<p data-block-key="swptc5a">Yuki Tanaka</p>',
+            attribution_role='<p data-block-key="swptc5r">UX Researcher</p>',
+            attribution_image=_image,
+        ),
+        _testimonial_card(
+            card_id="swptc01-0000-0000-0000-000000000006",
+            content=(
+                '<p data-block-key="swptc6c">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>'
+            ),
+            attribution='<p data-block-key="swptc6a">Ana Ferreira</p>',
+            attribution_role='<p data-block-key="swptc6r">Student</p>',
+            attribution_image=_no_image,
+        ),
     ]
     return {
         "type": "cards_list",

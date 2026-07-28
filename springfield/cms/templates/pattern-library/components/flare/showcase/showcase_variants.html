@@ -28,6 +28,15 @@
         {% endif %}
         <p>{{ variant.caption_description }}</p>
       </content:caption>
+      {% if variant.cta %}
+      <content:cta>
+        <div class="fl-button-row">
+          <div class="fl-buttons is-horizontal is-center">
+            <a href="{{ variant.cta.url }}" class="mzp-c-button mzp-t-product">{{ variant.cta.label }}</a>
+          </div>
+        </div>
+      </content:cta>
+      {% endif %}
     </include:showcase>
     </div>
   {% endfor %}

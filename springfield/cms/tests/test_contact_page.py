@@ -144,25 +144,57 @@ def test_contact_page_clean_rejects_full_url_as_basket_path(
     assert exc_info.value.message_dict == {"basket_api_path": ["Enter a path (e.g. /api/v1/contact/), not a full URL."]}
 
 
-def test_contact_page_only_allows_authorized_paths(
+def test_contact_page_slug_validated_when_publishing(
     minimal_site: Site,
     settings,
+    django_user_model,
 ) -> None:
-    """ContactPage.clean() raises if the page's URL is not in the allowed paths."""
+    """Publishing a ContactPage on prod rejects a slug outside the allowed paths."""
     settings.PROD = True
     settings.CONTACT_PAGE_ALLOWED_PATHS = [r"/contact/"]
-    page = ContactPage(
-        title="Unreachable Contact Page",
-        slug="invalid-slug",
-        basket_api_path="/contact/",
-        thank_you_message="<p>Thank you!</p>",
-    )
-    with pytest.raises(ValidationError) as exc_info:
-        page.clean()
-    assert exc_info.value.message_dict == {"slug": ["Slug must match one of the allowed paths: /contact/"]}
+    parent = minimal_site.root_page
+    admin_user = django_user_model.objects.create_superuser("editor", "editor@example.com", "editorpass")
+    form_class = ContactPage.get_edit_handler().get_form_class()
 
-    page.slug = "contact"
-    page.clean()
+    invalid_form = form_class(
+        data={"title": "Contact Us", "slug": "invalid-slug", "action-publish": "Publish", "intro-count": "0", "form_fields-count": "0"},
+        instance=ContactPage(locale=Locale.get_default()),
+        parent_page=parent,
+        for_user=admin_user,
+    )
+    invalid_form.is_valid()
+    assert invalid_form.errors["slug"] == ["Slug must match one of the allowed paths: /contact/"]
+
+    valid_form = form_class(
+        data={"title": "Contact Us", "slug": "contact", "action-publish": "Publish", "intro-count": "0", "form_fields-count": "0"},
+        instance=ContactPage(locale=Locale.get_default()),
+        parent_page=parent,
+        for_user=admin_user,
+    )
+    valid_form.is_valid()
+    assert "slug" not in valid_form.errors
+
+
+def test_contact_page_slug_not_validated_when_saving_draft(
+    minimal_site: Site,
+    settings,
+    django_user_model,
+) -> None:
+    """Saving a ContactPage as a draft allows a slug outside the allowed paths."""
+    settings.PROD = True
+    settings.CONTACT_PAGE_ALLOWED_PATHS = [r"/contact/"]
+    parent = minimal_site.root_page
+    admin_user = django_user_model.objects.create_superuser("editor", "editor@example.com", "editorpass")
+    form_class = ContactPage.get_edit_handler().get_form_class()
+
+    draft_form = form_class(
+        data={"title": "Contact Us", "slug": "invalid-slug", "intro-count": "0", "form_fields-count": "0"},
+        instance=ContactPage(locale=Locale.get_default()),
+        parent_page=parent,
+        for_user=admin_user,
+    )
+    draft_form.is_valid()
+    assert "slug" not in draft_form.errors
 
 
 @pytest.mark.parametrize("serving_method", ("serve", "serve_preview"))
@@ -1481,7 +1513,10 @@ def test_contact_page_sends_email_and_redirects_on_valid_post(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
-            "services": ["consulting", "support"],
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1540,6 +1575,10 @@ def test_contact_page_valid_post_redirects_to_localized_page(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1590,6 +1629,10 @@ def test_contact_page_handles_failure_sending_email(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1638,6 +1681,10 @@ def test_contact_page_calls_basket_api_on_valid_post(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1686,6 +1733,10 @@ def test_contact_page_shows_error_message_on_basket_api_5xx(
         "business_phone": "555-1234",
         "company_size": "1 - 10",
         "country": "US",
+        "firefox_use_stage": "currently_deploy",
+        "deployment_size": "5001_10000",
+        "support_needs": ["deployment_config", "troubleshooting"],
+        "timeline": "1_3_months",
         "lead_source": "techrider.de",
         "cta": "Request Private Briefing",
         "opt_in": True,
@@ -1731,6 +1782,10 @@ def test_contact_page_shows_error_message_and_reports_to_sentry_on_basket_api_4x
         "business_phone": "555-1234",
         "company_size": "1 - 10",
         "country": "US",
+        "firefox_use_stage": "currently_deploy",
+        "deployment_size": "5001_10000",
+        "support_needs": ["deployment_config", "troubleshooting"],
+        "timeline": "1_3_months",
         "lead_source": "techrider.de",
         "cta": "Request Private Briefing",
         "opt_in": True,
@@ -1780,6 +1835,10 @@ def test_contact_page_does_not_report_to_sentry_on_expected_api_errors(
         "business_phone": "555-1234",
         "company_size": "1 - 10",
         "country": "US",
+        "firefox_use_stage": "currently_deploy",
+        "deployment_size": "5001_10000",
+        "support_needs": ["deployment_config", "troubleshooting"],
+        "timeline": "1_3_months",
         "lead_source": "techrider.de",
         "cta": "Request Private Briefing",
         "opt_in": True,
@@ -1823,6 +1882,10 @@ def test_contact_page_post_valid_shows_thank_you_message(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1955,7 +2018,10 @@ def test_contact_page_formats_checkbox_group_values_for_email_message(
             "business_phone": "555-1234",
             "company_size": "1 - 10",
             "country": "US",
-            "services": ["consulting", "implementation"],
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
             "lead_source": "techrider.de",
             "cta": "Request Private Briefing",
             "opt_in": True,
@@ -1967,7 +2033,7 @@ def test_contact_page_formats_checkbox_group_values_for_email_message(
     assert resp.status_code == 302
     call_args = mock_email_class.call_args
     email_body = call_args[0][1]
-    assert "consulting, implementation" in email_body
+    assert "deployment_config, troubleshooting" in email_body
 
 
 @patch("springfield.cms.models.pages.EmailMessage")

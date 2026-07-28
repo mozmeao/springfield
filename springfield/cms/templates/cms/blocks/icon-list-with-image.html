@@ -21,7 +21,7 @@
       {% for item in value.list_items %}
         <li>
           <span class="fl-icon-wrap">
-            <include:icon icon_name="{{ item.icon }}" hidden="true" />
+            <include:icon icon_name="{{ item.icon_name }}" hidden="true" />
           </span>
           {{ item.text|richtext|remove_p_tag }}
         </li>

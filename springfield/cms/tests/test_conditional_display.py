@@ -6,6 +6,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 from springfield.cms.fixtures.conditional_display_fixtures import (
+    get_bind_to_uitour_section,
     get_conditional_display_test_page,
     get_conditional_display_variants,
 )
@@ -95,3 +96,22 @@ def test_conditional_display_blocks(index_page, rf):
                 assert version_wrapper.get("data-min-version") == str(min_version), f"Block {index}: expected data-min-version='{min_version}'"
             if max_version:
                 assert version_wrapper.get("data-max-version") == str(max_version), f"Block {index}: expected data-max-version='{max_version}'"
+
+
+@pytest.mark.django_db
+def test_bind_to_uitour_section_wraps_uitour_button(index_page, rf):
+    # Make the intent explicit even though the page builds the block internally.
+    assert get_bind_to_uitour_section()["value"]["settings"]["show_to"]["bind_to_uitour"] is True
+
+    page = get_conditional_display_test_page()
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="condition-bind-uitour")
+    assert wrapper is not None, "expected a .condition-bind-uitour wrapper"
+
+    # The UI Tour button must live inside the wrapper so the CSS
+    # `:has(.ui-tour:not(.is-hidden))` rule can reveal the block.
+    assert wrapper.find("div", class_="ui-tour") is not None, "wrapper must contain the .ui-tour button"

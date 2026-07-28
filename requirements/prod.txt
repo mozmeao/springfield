@@ -1511,9 +1511,9 @@ wagtail-localize-smartling==0.12.2 \
     --hash=sha256:b5a9e7dce52a780018d846897206c4fd59b3a773130aff3915e8dde5d074907b \
     --hash=sha256:c5a99b48b66a796973b60fef2b669bb22dc09b52d39cadaa8ee43ae2d72ed672
     # via -r requirements/prod.in
-wagtail-thumbnail-choice-block==0.2.0 \
-    --hash=sha256:9a4b75d225b3e6e8614c3fd657b1c4e60639b8b7d85986bc55d162b0e03b0585 \
-    --hash=sha256:fcb378cfd7256107b15fe558a823bef569498daf139cab1ee1fda9d657cd284d
+wagtail-thumbnail-choice-block==0.3.0 \
+    --hash=sha256:168d0e0ed0b4d40a251734af74a71a257274d4026ccb55bf1a4c644aadf52143 \
+    --hash=sha256:9f644c2cc4bccc518fef5d563c27ef57cf95c8a26f695bddcee515f74a4b5b68
     # via -r requirements/prod.in
 wagtaildraftsharing==0.3.0 \
     --hash=sha256:2e77b46df0b164c089d25ff146e25fa3601e52de7ccaa9226925e6e6357fdeab \

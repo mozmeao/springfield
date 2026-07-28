@@ -56,11 +56,6 @@ DEBUG = config("DEBUG", parser=bool, default="false")
 # Enable legacy CSS mode for Flare (links only CSS for legacy browsers)
 FLARECSS_LEGACY_MODE = config("FLARECSS_LEGACY_MODE", parser=bool, default="false")
 
-# PERMANENT_CMS_REFRESH_REDIRECTS switches the CMS-refresh redirects from temporary (302)
-# to permanent (301); defaults to true. The redirects themselves are now always
-# on. TODO: remove this setting once the redirects are confirmed permanent (follow-up).
-PERMANENT_CMS_REFRESH_REDIRECTS = config("PERMANENT_CMS_REFRESH_REDIRECTS", default="true", parser=bool)
-
 db_connection_max_age_secs = config("DB_CONN_MAX_AGE", default="0", parser=int)
 db_conn_health_checks = config("DB_CONN_HEALTH_CHECKS", default="false", parser=bool)
 db_default_url = config(
@@ -312,6 +307,7 @@ FLUENT_DEFAULT_FILES = [
     "ui",
     "mozilla-account-promo",
     "components",
+    "firefox/enterprise",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -1189,6 +1185,18 @@ DATA_CONSENT_COUNTRIES = [
     "GB",  # United Kingdom
 ]
 
+# Extra countries (beyond DATA_CONSENT_COUNTRIES) where the Plausible
+# analytics script should load. This is intentionally env-driven so we can
+# turn a country on or off per environment (dev/stage/prod) without a code
+# change or deploy, and so it can be reverted instantly if needed. Additionally,
+# this is likely a temporary measurement addition.
+# Set the PLAUSIBLE_EXTRA_COUNTRIES env var to a comma-separated list of
+# ISO country codes, e.g.: PLAUSIBLE_EXTRA_COUNTRIES=BR,CA
+# Empty by default (no extra countries). The `if c.strip()` guard drops empty
+# tokens (e.g. a trailing comma) so the set never contains a blank string that
+# could match an empty country code.
+PLAUSIBLE_EXTRA_COUNTRIES = {c.strip() for c in config("PLAUSIBLE_EXTRA_COUNTRIES", default="").split(",") if c.strip()}
+
 
 # RELAY =========================================================================================
 
@@ -1441,6 +1449,8 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
     "ol",
     "ul",
     "image",
+    "fxa",
+    "fx-logo",
 ]
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
@@ -1506,6 +1516,8 @@ _allowed_page_models = [
     "cms.BlogArticlePage",
     "cms.RoadmapPage",
     "cms.ContactPage",
+    "cms.ReferralHubPage",
+    "cms.ReferralGetFirefoxPage",
 ]
 
 if DEV is True:

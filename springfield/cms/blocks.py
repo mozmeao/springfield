@@ -30,6 +30,7 @@ from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
+from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock
 from springfield.cms.views import wagtail_serve_with_locale_fallback
@@ -70,346 +71,6 @@ HEADING_LEVEL_CHOICES = (
     ("h5", "H5"),
     ("h6", "H6"),
 )
-
-ICON_CHOICES = [
-    ("activity", "Activity"),
-    ("add", "Add"),
-    ("android", "Android"),
-    ("apple", "Apple"),
-    ("add-circle-fill", "Add Circle Fill"),
-    ("add-text", "Add Text"),
-    ("add-user", "Add User"),
-    ("all-tabs", "All Tabs"),
-    ("app-menu", "App Menu"),
-    ("app-menu-space", "App Menu Space"),
-    ("applied-policy", "Applied Policy"),
-    ("arrow-clockwise", "Arrow Clockwise"),
-    ("arrow-counterclockwise", "Arrow Counterclockwise"),
-    ("arrow-down-line", "Arrow Down Line"),
-    ("arrow-trending", "Arrow Trending"),
-    ("audio", "Audio"),
-    ("audio-muted", "Audio Muted"),
-    ("authenticated-user", "Authenticated User"),
-    ("auto-play-false", "Auto Play False"),
-    ("auto-play-true", "Auto Play True"),
-    ("avatar-signed-in-fill", "Avatar Signed In Fill"),
-    ("avatar-signed-in-fill-custom-initial", "Avatar Signed In Fill Custom Initial"),
-    ("avatar-signed-in-fill-profile-picture", "Avatar Signed In Fill Profile Picture"),
-    ("avatar-signed-out", "Avatar Signed Out"),
-    ("back", "Back"),
-    ("barbell", "Barbell"),
-    ("bike", "Bike"),
-    ("blocked-popup", "Blocked Popup"),
-    ("block", "Block"),
-    ("block-download", "Block Download"),
-    ("book", "Book"),
-    ("bookmark", "Bookmark"),
-    ("bookmark-fill", "Bookmark Fill"),
-    ("bookmarks-tray", "Bookmarks Tray"),
-    ("briefcase", "Briefcase"),
-    ("calendar", "Calendar"),
-    ("camera-false", "Camera False"),
-    ("camera-true", "Camera True"),
-    ("canvas-false", "Canvas False"),
-    ("canvas-true", "Canvas True"),
-    ("checkmark", "Checkmark"),
-    ("checkmark-circle-fill", "Checkmark Circle Fill"),
-    ("chevron-double-right", "Chevron Double Right"),
-    ("chevron-down", "Chevron Down"),
-    ("chevron-down-small", "Chevron Down Small"),
-    ("chevron-left", "Chevron Left"),
-    ("chevron-right", "Chevron Right"),
-    ("chevron-up", "Chevron Up"),
-    ("close", "Close"),
-    ("close-circle-fill", "Close Circle Fill"),
-    ("closed-caption", "Closed Caption"),
-    ("closed-tabs", "Closed Tabs"),
-    ("color-picker", "Color Picker"),
-    ("comment", "Comment"),
-    ("competitiveness", "Competitiveness"),
-    ("craft", "Craft"),
-    ("critical", "Critical"),
-    ("critical-fill", "Critical Fill"),
-    ("cryptominer-false", "Cryptominer False"),
-    ("cryptominer-true", "Cryptominer True"),
-    ("current-view", "Current View"),
-    ("cursor-arrow", "Cursor Arrow"),
-    ("dashboard", "Dashboard"),
-    ("data-clearance", "Data Clearance"),
-    ("delete", "Delete"),
-    ("device-mobile", "Device Mobile"),
-    ("diamond", "Diamond"),
-    ("downloaded-file", "Downloaded File"),
-    ("downloads", "Downloads"),
-    ("edit", "Edit"),
-    ("edit-active", "Edit Active"),
-    ("edit-squiggle", "Edit Squiggle"),
-    ("email-mask", "Email Mask"),
-    ("email-shield", "Email Shield"),
-    ("error", "Error"),
-    ("error-fill", "Error Fill"),
-    ("even-spreads", "Even Spreads"),
-    ("export-data", "Export Data"),
-    ("extension", "Extension"),
-    ("extension-critical", "Extension Critical"),
-    ("extension-fill", "Extension Fill"),
-    ("extension-warning", "Extension Warning"),
-    ("external-link", "External Link"),
-    ("find-in-page", "Find In Page"),
-    ("firefox-bridge", "Firefox Bridge"),
-    ("firefox-browser-bridge", "Firefox Browser Bridge"),
-    ("flower", "Flower"),
-    ("folder", "Folder"),
-    ("folder-arrow-down", "Folder Arrow Down"),
-    ("folder-fill", "Folder Fill"),
-    ("fingerprinter-false", "Fingerprinter False"),
-    ("fingerprinter-true", "Fingerprinter True"),
-    ("footprints-false", "Footprints False"),
-    ("footprints-true", "Footprints True"),
-    ("forward", "Forward"),
-    ("forward-small", "Forward Small"),
-    ("fullscreen-disabled", "Fullscreen Disabled"),
-    ("fullscreen-exit", "Fullscreen Exit"),
-    ("fullscreen-expand", "Fullscreen Expand"),
-    ("fx-view", "Fx View"),
-    ("gift", "Gift"),
-    ("globe", "Globe"),
-    ("globe-slash", "Globe Slash"),
-    ("hammer", "Hammer"),
-    ("hand", "Hand"),
-    ("heart", "Heart"),
-    ("heart-rate", "Heart Rate"),
-    ("help", "Help"),
-    ("help-fill", "Help Fill"),
-    ("highlighter", "Highlighter"),
-    ("history", "History"),
-    ("home", "Home"),
-    ("horizontal-scrolling", "Horizontal Scrolling"),
-    ("identity", "Identity"),
-    ("import-data", "Import Data"),
-    ("import-export", "Import Export"),
-    ("image-tracker-false", "Image Tracker False"),
-    ("image-tracker-true", "Image Tracker True"),
-    ("information", "Information"),
-    ("information-fill", "Information Fill"),
-    ("layer", "Layer"),
-    ("leaf", "Leaf"),
-    ("library", "Library"),
-    ("lightbulb", "Lightbulb"),
-    ("line-arrow-up", "Line Arrow Up"),
-    ("list", "List"),
-    ("list-arrow-left", "List Arrow Left"),
-    ("lock", "Lock"),
-    ("lock-document", "Lock Document"),
-    ("lock-insecure", "Lock Insecure"),
-    ("lock-warning", "Lock Warning"),
-    ("local-host-false", "Local Host False"),
-    ("local-host-true", "Local Host True"),
-    ("local-network-false", "Local Network False"),
-    ("local-network-true2", "Local Network True2"),
-    ("location-false", "Location False"),
-    ("location-true", "Location True"),
-    ("login", "Login"),
-    ("makeup", "Makeup"),
-    ("microphone-false", "Microphone False"),
-    ("microphone-true", "Microphone True"),
-    ("midi", "Midi"),
-    ("musical-note", "Musical Note"),
-    ("newsfeed", "Newsfeed"),
-    ("notifications-false", "Notifications False"),
-    ("notifications-true", "Notifications True"),
-    ("no-spreads", "No Spreads"),
-    ("odd-spreads", "Odd Spreads"),
-    ("off", "Off"),
-    ("open-tabs", "Open Tabs"),
-    ("organizational-unit", "Organizational Unit"),
-    ("packaging", "Packaging"),
-    ("page-actions", "Page Actions"),
-    ("page-landscape", "Page Landscape"),
-    ("page-portrait", "Page Portrait"),
-    ("page-scrolling", "Page Scrolling"),
-    ("page-thumbnails", "Page Thumbnails"),
-    ("palette", "Palette"),
-    ("paperclip", "Paperclip"),
-    ("passkey", "Passkey"),
-    ("pause-fill", "Pause Fill"),
-    ("paw-print", "Paw Print"),
-    ("payment-methods", "Payment Methods"),
-    ("picture-in-picture-closed", "Picture In Picture Closed"),
-    ("picture-in-picture-open", "Picture In Picture Open"),
-    ("pin", "Pin"),
-    ("pin-fill", "Pin Fill"),
-    ("plane", "Plane"),
-    ("play-fill", "Play Fill"),
-    ("playback-forward", "Playback Forward"),
-    ("playback-rewind", "Playback Rewind"),
-    ("plugin-false", "Plugin False"),
-    ("plugin-true", "Plugin True"),
-    ("popup-subitem", "Popup Subitem"),
-    ("pocket", "Pocket"),
-    ("pocket-fill", "Pocket Fill"),
-    ("policy", "Policy"),
-    ("presentation-mode", "Presentation Mode"),
-    ("price", "Price"),
-    ("print", "Print"),
-    ("private-mode-circle-fill", "Private Mode Circle Fill"),
-    ("private-mode-fill", "Private Mode Fill"),
-    ("quality", "Quality"),
-    ("reader-mode", "Reader Mode"),
-    ("remove-user", "Remove User"),
-    ("screenshot-camera", "Camera (Screenshot)"),
-    ("search", "Search"),
-    ("search-in-circle", "Search In Circle"),
-    ("search-in-circle-right", "Search In Circle Right"),
-    ("screesnshare-false", "Screesnshare False"),
-    ("screesnshare-true", "Screesnshare True"),
-    ("settings", "Settings"),
-    ("share-macos", "Share Macos"),
-    ("share-winos", "Share Winos"),
-    ("shield", "Shield"),
-    ("shipping", "Shipping"),
-    ("shopping", "Shopping"),
-    ("shopping-cart", "Shopping Cart"),
-    ("show-password-false", "Show Password False"),
-    ("show-password-true", "Show Password True"),
-    ("sidebar-collapsed", "Sidebar Collapsed"),
-    ("sidebar-collapsed-right", "Sidebar Collapsed Right"),
-    ("sidebar-expanded", "Sidebar Expanded"),
-    ("sidebar-expanded-right", "Sidebar Expanded Right"),
-    ("sidebar-hidden", "Sidebar Hidden"),
-    ("sidebar-left", "Sidebar Left"),
-    ("sidebar-right", "Sidebar Right"),
-    ("signature-properties", "Signature Properties"),
-    ("single-user", "Single User"),
-    ("soccer-ball", "Soccer Ball"),
-    ("social-tracker-false", "Social Tracker False"),
-    ("social-tracker-true", "Social Tracker True"),
-    ("sort", "Sort"),
-    ("sparkle-single", "Sparkle Single"),
-    ("sparkles", "Sparkles"),
-    ("split-view", "Split View"),
-    ("split-view-left", "Split View Left"),
-    ("split-view-right", "Split View Right"),
-    ("sponsored-star", "Sponsored Star"),
-    ("storage-false", "Storage False"),
-    ("storage-true", "Storage True"),
-    ("subtract", "Subtract"),
-    ("subtract-circle-fill", "Subtract Circle Fill"),
-    ("sync", "Sync"),
-    ("synced-tabs", "Synced Tabs"),
-    ("tab", "Tab"),
-    ("tab-group", "Tab Group"),
-    ("tab-notes", "Tab Notes"),
-    ("taskbar-add-tab", "Taskbar Add Tab"),
-    ("taskbar-move-tab", "Taskbar Move Tab"),
-    ("taskbar-remove-tab", "Taskbar Remove Tab"),
-    ("text-cursor", "Text Cursor"),
-    ("themes", "Themes"),
-    ("top-sites", "Top Sites"),
-    ("toggle-on", "Toggle On"),
-    ("tracking-cookies-false", "Tracking Cookies False"),
-    ("tracking-cookies-true", "Tracking Cookies True"),
-    ("translate", "Translate"),
-    ("trending", "Trending"),
-    ("unauthenticated-user", "Unauthenticated User"),
-    ("update", "Update"),
-    ("update-circle-fill", "Update Circle Fill"),
-    ("users", "Users"),
-    ("vertical-scrolling", "Vertical Scrolling"),
-    ("vertical-tabs", "Vertical Tabs"),
-    ("video-game-controller", "Video Game Controller"),
-    ("vpn-disconnected", "Vpn Disconnected"),
-    ("vpn-off", "Vpn Off"),
-    ("vpn-on", "Vpn On"),
-    ("vpn-on-off-site", "Vpn On Off Site"),
-    ("warning", "Warning"),
-    ("warning-fill", "Warning Fill"),
-    ("window", "Window"),
-    ("window-firefox", "Window Firefox"),
-    ("wrapped-scrolling", "Wrapped Scrolling"),
-    ("xr-false", "XR False"),
-    ("xr-true", "XR True"),
-    ("add-to-homescreen", "Add To Homescreen"),
-    ("help-circle", "Help Circle"),
-    ("help-circle-fill", "Help Circle Fill"),
-    ("update-circle", "Update Circle"),
-    ("more-grid", "More Grid"),
-    ("more-horizontal", "More Horizontal"),
-    ("more-horizontal-round", "More Horizontal Round"),
-    ("more-vertical", "More Vertical"),
-    ("more-vertical-round", "More Vertical Round"),
-    ("append-down-left", "Append Down Left"),
-    ("append-up-right", "Append Up Right"),
-    ("arrow-counter-clockwise", "Arrow Counter Clockwise"),
-    ("avatar-circle-fill", "Avatar Circle Fill"),
-    ("avatar-info-circle-fill", "Avatar Info Circle Fill"),
-    ("avatar-warning-circle-fill", "Avatar Warning Circle Fill"),
-    ("bookmark-slash", "Bookmark Slash"),
-    ("bookmark-tray", "Bookmark Tray"),
-    ("bookmark-tray-fill", "Bookmark Tray Fill"),
-    ("cross-circle", "Cross Circle"),
-    ("cross-circle-fill", "Cross Circle Fill"),
-    ("device-desktop-fill", "Device Desktop Fill"),
-    ("device-desktop-send", "Device Desktop Send"),
-    ("device-tablet", "Device Tablet"),
-    ("other-device-shortcuts", "Other Device Shortcuts"),
-    ("save", "Save"),
-    ("save-file", "Save File"),
-    ("clipboard", "Clipboard"),
-    ("copy", "Copy"),
-    ("signature", "Signature"),
-    ("extension-cog", "Extension Cog"),
-    ("folder-add", "Folder Add"),
-    ("folder-arrow-right", "Folder Arrow Right"),
-    ("lightning-filled", "Lightning Filled"),
-    ("lock-fill", "Lock Fill"),
-    ("lock-slash", "Lock Slash"),
-    ("lock-slash-fill", "Lock Slash Fill"),
-    ("lock-warning-fill", "Lock Warning Fill"),
-    ("logo-chrome", "Logo Chrome"),
-    ("logo-safari", "Logo Safari"),
-    ("night-mode-fill", "Night Mode Fill"),
-    ("notification-dot", "Notification Dot"),
-    ("blocked-false", "Blocked False"),
-    ("blocked-true", "Blocked True"),
-    ("eye-false", "Eye False"),
-    ("eye-true", "Eye True"),
-    ("location", "Location"),
-    ("microphone-false-mobile", "Microphone False Mobile"),
-    ("microphone-true-mobile", "Microphone True Mobile"),
-    ("permission", "Permission"),
-    ("pin-slash", "Pin Slash"),
-    ("pin-slash-fill", "Pin Slash Fill"),
-    ("pause", "Pause"),
-    ("reader-view-customize", "Reader View Customize"),
-    ("reader-view-fill", "Reader View Fill"),
-    ("reading-list", "Reading List"),
-    ("reading-list-add", "Reading List Add"),
-    ("reading-list-slash", "Reading List Slash"),
-    ("reading-list-slash-fill", "Reading List Slash Fill"),
-    ("grid-plus", "Grid Plus"),
-    ("tool", "Tool"),
-    ("share-ios", "Share iOS"),
-    ("shield-checkmark", "Shield Checkmark"),
-    ("shield-checkmark-filled", "Shield Checkmark Filled"),
-    ("shield-cross", "Shield Cross"),
-    ("shield-dot", "Shield Dot"),
-    ("shield-exclamation-mark", "Shield Exclamation Mark"),
-    ("shield-slash", "Shield Slash"),
-    ("sun-fill", "Sun Fill"),
-    ("cloud", "Cloud"),
-    ("sync-tabs", "Sync Tabs"),
-    ("tab-number", "Tab Number"),
-    ("thumbs-down", "Thumbs Down"),
-    ("thumbs-down-fill", "Thumbs Down Fill"),
-    ("thumbs-up-fill", "Thumbs Up Fill"),
-    ("cookies", "Cookies"),
-    ("cookies-slash", "Cookies Slash"),
-    ("fingerprinter", "Fingerprinter"),
-    ("translate-active", "Translate Active"),
-    ("translate-active-alt", "Translate Active Alt"),
-    ("page-zoom-fill", "Page Zoom Fill"),
-]
 
 PLATFORM_CHOICES = [
     ("osx", "macOS"),
@@ -559,6 +220,21 @@ def validate_video_url(value):
     return value
 
 
+_ICON_LABEL_OVERRIDES = {
+    "screenshot-camera": "Camera (Screenshot)",
+}
+
+
+def icon_display_label(stem: str) -> str:
+    """
+    Define how an icon name should be displayed to Wagtail users.
+
+    'arrow-clockwise-16' -> 'Arrow Clockwise'
+    """
+    css_name = icon_css_name(stem)
+    return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
+
+
 class UntranslatableCharBlock(blocks.CharBlock):
     """A CharBlock that is not sent for translation"""
 
@@ -665,17 +341,21 @@ class LabelSourceMixin(blocks.StructBlock):
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
-    def __init__(
-        self,
-        choices=None,
-        thumbnails=None,
-        thumbnail_templates=None,
-        thumbnail_size=20,
-        **kwargs,
-    ):
-        choices = choices or ICON_CHOICES
-        thumbnail_templates = {choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in choices}
-        super().__init__(choices, thumbnails, thumbnail_templates, thumbnail_size, **kwargs)
+    def __init__(self, thumbnail_size=20, **kwargs):
+        super().__init__(
+            thumbnail_directory="img/firefox/flare/icons",
+            thumbnail_directory_label_fn=icon_display_label,
+            thumbnail_directory_value_fn=icon_value_fn,
+            thumbnail_size=thumbnail_size,
+            thumbnail_is_one_color=True,
+            **kwargs,
+        )
+
+    def get_thumbnail_url(self, icon_name):
+        if not icon_name:
+            return ""
+        thumbnails = self._resolve_callable(self._thumbnails_source) or {}
+        return thumbnails.get(icon_name, "")
 
 
 class ConditionalDisplayBlock(blocks.StructBlock):
@@ -720,6 +400,12 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         required=False,
         label="AI Controls",
         help_text="Show based on AI Controls availability. Leave empty for no restriction.",
+    )
+    bind_to_uitour = blocks.BooleanBlock(
+        required=False,
+        label="Bind to UI Tour",
+        help_text="If checked, this block will only be shown when it includes a UI Tour button and "
+        "the button matches the UI Tour display conditions.",
     )
 
     class Meta:
@@ -785,6 +471,12 @@ BUTTON_SIZE_CHOICES = [
     ("", "Default"),
     ("large", "Large"),
 ]
+
+
+class IconStructValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        return self.get("icon") or ""
 
 
 class BaseButtonValue(blocks.StructValue):
@@ -890,6 +582,7 @@ def BaseButtonSettings(themes=BUTTON_THEMES, **kwargs):
             label = "Settings"
             label_format = "Theme: {theme} - Size: {size} - Icon: {icon} ({icon_position}) - Analytics ID: {analytics_id}"
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _BaseButtonSettings(**kwargs)
 
@@ -1242,6 +935,7 @@ def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
                 "Show Default Browser Checkbox: {show_default_browser_checkbox}"
             )
             form_classname = "compact-form struct-block"
+            value_class = IconStructValue
 
     return _DownloadFirefoxButtonSettings(**kwargs)
 
@@ -1337,11 +1031,28 @@ def MixedButtonsBlock(
 
 def ButtonRowBlock(allow_uitour=False, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
+        orientation = blocks.ChoiceBlock(
+            choices=[
+                ("stacked", "Stacked (one per line)"),
+                ("horizontal", "Horizontal (side by side)"),
+            ],
+            default="horizontal",
+            required=False,
+        )
         spacing = blocks.ChoiceBlock(
             choices=[
                 ("", "No spacing"),
                 ("small", "Small"),
                 ("large", "Large"),
+            ],
+            default="",
+            required=False,
+        )
+        alignment = blocks.ChoiceBlock(
+            choices=[
+                ("", "Center"),
+                ("start", "Start"),
+                ("end", "End"),
             ],
             default="",
             required=False,
@@ -1359,7 +1070,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["spacing"],
+                settings=["orientation", "spacing", "alignment"],
             )
 
     return _ButtonRowBlock(**kwargs)
@@ -1420,6 +1131,7 @@ class TagBlock(blocks.StructBlock):
         label = "Tag"
         label_format = "Tag - {title}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class TagsBlock(blocks.ListBlock):
@@ -1620,11 +1332,11 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     class _MediaContentBlock(blocks.StructBlock):
         settings = MediaContentSettings()
         media = MediaBlock(max_num=1)
-        heading = HeadingBlock()
+        heading = HeadingBlock(required=False)
         content = blocks.StreamBlock(
             [
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
-                ("rich_text", RichTextBlock(features=HEADING_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
+                ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
                 (
                     "buttons",
@@ -1646,6 +1358,17 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
     return _MediaContentBlock(*args, **kwargs)
 
 
+class IconListItemValue(blocks.StructValue):
+    @property
+    def icon_name(self):
+        return self.get("icon") or ""
+
+    @property
+    def icon_url(self):
+        icon_block = self.block.child_blocks["icon"]
+        return icon_block.get_thumbnail_url(self.get("icon") or "")
+
+
 class IconListItemBlock(blocks.StructBlock):
     icon = IconChoiceBlock()
     text = RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -1654,6 +1377,7 @@ class IconListItemBlock(blocks.StructBlock):
         icon = "list-ul"
         label = "Icon List Item"
         label_format = "{text}"
+        value_class = IconListItemValue
 
 
 class IconListWithImageBlock(blocks.StructBlock):
@@ -1879,25 +1603,6 @@ class BlogCardsListBlock(blocks.StructBlock):
 # Cards
 
 
-class BaseCardSettings(blocks.StructBlock):
-    expand_link = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        help_text="Expand the link click area to the whole card",
-    )
-    show_to = ConditionalDisplayBlock(
-        label="Show To",
-        help_text="Control which users can see this content block",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Expand Link: {expand_link} - Show to: {show_to}"
-        form_classname = "compact-form struct-block"
-
-
 class StepCardSettings(blocks.StructBlock):
     expand_link = blocks.BooleanBlock(
         required=False,
@@ -1955,123 +1660,55 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
     return _StepCardListBlock(*args, **kwargs)
 
 
-def IconCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IconCardBlock with appropriate button types.
+class CardTestimonialBlock(blocks.StructBlock):
+    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    attribution_image = ImageVariantsBlock(required=False)
 
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
+    class Meta:
+        template = "cms/blocks/card-testimonial.html"
+        label = "Testimonial"
+        label_format = "Testimonial - {attribution}"
 
-    class _IconCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        icon = IconChoiceBlock(inline_form=True)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=1,
+
+class CardMediaBlock(blocks.StreamBlock):
+    icon = IconChoiceBlock(template="cms/blocks/card-icon.html", label="Icon")
+    pictogram = ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")
+    media = MediaBlock(max_num=1, label="Full width media")
+
+    class Meta:
+        max_num = 1
+        label = "Media"
+
+
+def CardBlock(allow_uitour=False, *args, **kwargs):
+    class _CardSettings(blocks.StructBlock):
+        variant = blocks.ChoiceBlock(
+            choices=[
+                ("", "Default"),
+                ("outline", "Outline"),
+                ("filled", "Filled"),
+            ],
             required=False,
+            default="",
+            inline_form=True,
         )
-
-        class Meta:
-            template = "cms/blocks/icon-card.html"
-            label = "Icon Card"
-            label_format = "Icon Card - {headline}"
-
-    return _IconCardBlock(*args, **kwargs)
-
-
-def StickerCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create StickerCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                        If False, only allows regular buttons.
-    """
-
-    class _StickerCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        image = ImageVariantsBlock()
-        superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=2,
+        align = blocks.ChoiceBlock(
+            choices=[
+                ("start", "Start"),
+                ("center", "Center"),
+                ("end", "End"),
+            ],
             required=False,
+            default="start",
+            inline_form=True,
         )
-
-        class Meta:
-            label = "Sticker Card"
-            label_format = "{headline}"
-            template = "cms/blocks/sticker-card.html"
-
-    return _StickerCardBlock(*args, **kwargs)
-
-
-def IllustrationCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create IllustrationCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _IllustrationCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        media = MediaBlock()
-        eyebrow = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            themes=[BUTTON_LINK],
-            min_num=0,
-            max_num=1,
+        expand_link = blocks.BooleanBlock(
             required=False,
+            default=False,
+            help_text="Expand the link click area to the whole card",
         )
-
-        class Meta:
-            template = "cms/blocks/illustration-card.html"
-            label = "Illustration Card"
-            label_format = "{headline}"
-
-    return _IllustrationCardBlock(*args, **kwargs)
-
-
-def OutlinedCardBlock(allow_uitour=False, *args, **kwargs):
-    """Factory function to create OutlinedCardBlock with appropriate button types.
-
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons.
-                      If False, only allows regular buttons.
-    """
-
-    class _OutlinedCardBlock(blocks.StructBlock):
-        settings = BaseCardSettings()
-        sticker = ImageVariantsBlock(required=False)
-        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour),
-            min_num=0,
-            max_num=3,
-            required=False,
-        )
-
-        class Meta:
-            template = "cms/blocks/outlined-card.html"
-            label = "Outlined Card"
-            label_format = "Outlined Card - {headline}"
-
-    return _OutlinedCardBlock(*args, **kwargs)
-
-
-def TestimonialCardBlock(*args, **kwargs):
-    class _TestimonialCardSettings(blocks.StructBlock):
         show_to = ConditionalDisplayBlock(
             label="Show To",
             help_text="Control which users can see this content block",
@@ -2081,21 +1718,29 @@ def TestimonialCardBlock(*args, **kwargs):
             icon = "cog"
             collapsed = True
             label = "Settings"
+            label_format = "Variant: {variant} - Align: {align} - Show to: {show_to}"
             form_classname = "compact-form struct-block"
 
-    class _TestimonialCardBlock(blocks.StructBlock):
-        settings = _TestimonialCardSettings()
-        content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
-        attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        attribution_image = ImageVariantsBlock(required=False)
+    class _CardBlock(blocks.StructBlock):
+        settings = _CardSettings()
+        media = CardMediaBlock(required=False)
+        content = blocks.StreamBlock(
+            [
+                ("heading", HeadingBlock()),
+                ("tags_list", TagsBlock(min_num=0, max_num=3, default=[])),
+                ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
+                ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")),
+                ("testimonial", CardTestimonialBlock()),
+                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
+            ]
+        )
 
         class Meta:
-            template = "cms/blocks/testimonial-card.html"
-            label = "Testimonial Card"
-            label_format = "Testimonial - {attribution}"
+            template = "cms/blocks/card.html"
+            label = "Card"
+            label_format = "Card - {settings}"
 
-    return _TestimonialCardBlock(*args, **kwargs)
+    return _CardBlock(*args, **kwargs)
 
 
 def CardsListBlock(allow_uitour=False, *args, **kwargs):
@@ -2145,14 +1790,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
-                ("sticker_card", StickerCardBlock(allow_uitour=allow_uitour)),
-                (
-                    "illustration_card",
-                    IllustrationCardBlock(allow_uitour=allow_uitour),
-                ),
-                ("outlined_card", OutlinedCardBlock(allow_uitour=allow_uitour)),
-                ("icon_card", IconCardBlock(allow_uitour=allow_uitour)),
-                ("testimonial_card", TestimonialCardBlock()),
+                ("card", CardBlock(allow_uitour=allow_uitour)),
             ]
         )
 
@@ -2195,7 +1833,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     sticker = ImageChooserBlock(
         required=False,
-        help_text="Optional custom sticker image to override the article's sticker.",
+        help_text="Optional custom pictogram image to override the article's pictogram.",
     )
     icon = IconChoiceBlock(
         required=False,
@@ -2204,7 +1842,7 @@ class BaseArticleOverridesBlock(blocks.StructBlock):
     )
     superheading = blocks.CharBlock(
         required=False,
-        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and sticker cards.",
+        help_text="Optional custom superheading to override the article's original tag. Only available for illustration and pictogram cards.",
     )
     title = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
@@ -2291,10 +1929,10 @@ class BaseArticleValue(blocks.StructValue):
                 return article_page.featured_image
         return None
 
-    def get_sticker(self) -> SpringfieldImage | None:
+    def get_pictogram(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
-        if sticker := overrides.get("sticker"):
-            return sticker
+        if pictogram := overrides.get("sticker"):
+            return pictogram
         article_page = self.get_article()
         if article_page:
             article_page = article_page.specific
@@ -2338,10 +1976,10 @@ class ArticleBlock(blocks.StructBlock):
 class ArticlesListSettings(blocks.StructBlock):
     card_type = blocks.ChoiceBlock(
         choices=[
-            ("sticker_card", "Sticker Card"),
+            ("sticker_card", "Pictogram Card"),
             ("illustration_card", "Illustration Card"),
             ("icon_card", "Icon Card"),
-            ("sticker_row", "Sticker Row"),
+            ("sticker_row", "Pictogram Row"),
         ],
         default="sticker_card",
         label="Card Type",
@@ -2533,8 +2171,6 @@ def TwoColumnCardsBlock(allow_uitour=False, *args, **kwargs):
 
 
 # Section blocks
-
-
 class NotificationSettings(blocks.StructBlock):
     icon = IconChoiceBlock(required=False, inline_form=True)
     color = blocks.ChoiceBlock(
@@ -2576,6 +2212,7 @@ class NotificationSettings(blocks.StructBlock):
         label = "Settings"
         label_format = "Color: {color} - Icon: {icon} - Stacked: {stacked} - Closable: {closable} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
+        value_class = IconStructValue
 
 
 class NotificationBlock(blocks.StructBlock):
@@ -3022,6 +2659,13 @@ class ShowcaseBlock(blocks.StructBlock):
     media = MediaBlock(max_num=1)
     caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    cta = MixedButtonsBlock(
+        button_types=get_button_types(),
+        min_num=0,
+        max_num=2,
+        required=False,
+        label="Call to Action",
+    )
 
     class Meta:
         template = "cms/blocks/sections/showcase.html"
@@ -3041,6 +2685,9 @@ class CardGalleryCard(blocks.StructBlock):
         required=False,
     )
     image = ImageVariantsBlock()
+
+    class Meta:
+        value_class = IconStructValue
 
 
 class CardGalleryCallout(blocks.StructBlock):
@@ -3257,6 +2904,19 @@ class DownloadSupportBlock(blocks.StaticBlock):
     class Meta:
         template = "cms/blocks/download-support.html"
         label = "Download Support Message"
+
+
+class EnterpriseDownloadBlock(blocks.StaticBlock):
+    """Static placeholder block for the Firefox Enterprise download section.
+
+    No editable fields by design: it renders the existing enterprise
+    download markup/FTL strings as-is while the Enterprise page's
+    redesign is in progress.
+    """
+
+    class Meta:
+        template = "cms/blocks/enterprise-download.html"
+        label = "Enterprise Download"
 
 
 # Contact Page Form Field Blocks
@@ -3534,3 +3194,102 @@ class CountrySelectFieldBlock(BaseField):
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
+
+
+# Navigation
+
+
+class NavLinkValue(blocks.StructValue):
+    def is_external(self):
+        link = self["link"]
+        if link.get("link_to") == "custom_url":
+            return (link.get("custom_url") or "").startswith(("http://", "https://"))
+        return False
+
+
+class NavLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    link = SpringfieldLinkBlock()
+    icon = IconChoiceBlock(required=False, label="Icon")
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="left",
+        required=False,
+        label="Icon position",
+    )
+    has_button_style = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Has button style",
+        help_text="Render this link as a button instead of a plain nav link.",
+    )
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        value_class = NavLinkValue
+        template = "cms/blocks/nav-link.html"
+        icon = "link"
+        label = "Nav Link"
+        label_format = "Nav Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "link"],
+            settings=["icon", "icon_position", "has_button_style", "analytics_id"],
+        )
+
+
+class NavSeparatorBlock(blocks.StaticBlock):
+    """A horizontal rule separating groups of links within a column."""
+
+    class Meta:
+        template = "cms/blocks/nav-separator.html"
+        label = "Horizontal Rule"
+        icon = "minus"
+        admin_text = "Horizontal rule — separates groups of links."
+
+
+class NavColumnBlock(blocks.StreamBlock):
+    """A single column within a folder: a sequence of links and horizontal rules."""
+
+    link = NavLinkBlock()
+    separator = NavSeparatorBlock()
+
+    class Meta:
+        template = "cms/blocks/nav-column.html"
+        label = "Column"
+        icon = "list-ul"
+
+
+class NavFolderBlock(LabelSourceMixin, blocks.StructBlock):
+    sub_items = blocks.ListBlock(NavColumnBlock(), label="Sub-items")
+
+    class Meta:
+        template = "cms/blocks/nav-folder.html"
+        icon = "folder-open-1"
+        label = "Folder"
+        label_format = "Folder - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "sub_items"],
+        )
+
+
+class TopLevelLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    link = SpringfieldLinkBlock()
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        value_class = NavLinkValue
+        template = "cms/blocks/nav-top-level-link.html"
+        icon = "link"
+        label = "Top Level Link"
+        label_format = "Top Level Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label", "link"],
+            settings=["analytics_id"],
+        )

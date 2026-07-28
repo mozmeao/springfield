@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 import uuid
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from django import forms
 from django.conf import settings
@@ -26,6 +26,7 @@ from django.utils.cache import add_never_cache_headers
 import requests
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
@@ -40,7 +41,6 @@ from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
-    ICON_CHOICES,
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
@@ -56,10 +56,12 @@ from springfield.cms.blocks import (
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
+    EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     HeadingBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
+    IconChoiceBlock,
     IntroBlock,
     KitBannerBlock,
     KitIntroBlock,
@@ -98,6 +100,10 @@ BASE_UTM_PARAMETERS = {
     "utm_medium": "referral",
 }
 
+# Pre-built widget for the ArticleDetailPage.icon model field — reuses the same
+# directory scan and thumbnail map as IconChoiceBlock used in StreamFields.
+_icon_choice_widget = IconChoiceBlock(required=False).field.widget
+
 
 FIREFOX_THEME = ""
 ENTERPRISE_THEME = "enterprise"
@@ -117,7 +123,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     is_structural_page = True
     # TO COME: guard rails on page hierarchy
     # subpage_types = []
-    settings_panels = WagtailBasePage.settings_panels + [
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
     content_panels = [
@@ -230,6 +236,70 @@ class UTMParamsMixin(models.Model):
         return context
 
 
+class PageThemeMixin(models.Model):
+    theme = models.CharField(
+        max_length=20,
+        blank=True,
+        choices=THEME_CHOICES,
+        default=FIREFOX_THEME,
+        verbose_name="Theme",
+        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
+    )
+    body_class = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Body Class",
+        help_text=(
+            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
+            "The page will also inject <this>.css, so ensure that exists before using this field."
+        ),
+    )
+    extra_js = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Extra JS",
+        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
+    )
+
+    theme_panels = [
+        FieldPanel("theme"),
+        FieldPanel("body_class"),
+        FieldPanel("extra_js"),
+    ]
+
+    class Meta:
+        abstract = True
+
+
+PRE_FOOTER_IMAGE_KIT = "kit"
+PRE_FOOTER_IMAGE_GLOBE = "globe"
+PRE_FOOTER_IMAGE_NONE = "none"
+PRE_FOOTER_IMAGE_CHOICES = [
+    (PRE_FOOTER_IMAGE_KIT, "Show Kit on Newsletter form"),
+    (PRE_FOOTER_IMAGE_GLOBE, "Show globe pictogram on Newsletter form"),
+    (PRE_FOOTER_IMAGE_NONE, "Hide Newsletter form image"),
+]
+
+
+class PreFooterImageMixin(models.Model):
+    """Per-page choice of the pre-footer newsletter form illustration."""
+
+    pre_footer_image = models.CharField(
+        max_length=20,
+        choices=PRE_FOOTER_IMAGE_CHOICES,
+        default=PRE_FOOTER_IMAGE_KIT,
+        verbose_name="Pre-footer options",
+        help_text="Image shown alongside the pre-footer newsletter form.",
+    )
+
+    pre_footer_image_panels = [
+        FieldPanel("pre_footer_image"),
+    ]
+
+    class Meta:
+        abstract = True
+
+
 class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     """Mixin that adds per-page overrides for the floating QR code snippet."""
 
@@ -337,9 +407,15 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -463,9 +539,15 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("subheading"),
         index.SearchField("intro_footer_text"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -520,8 +602,14 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     def __str__(self):
@@ -580,12 +668,13 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
-    INDEX_CARD_STICKER = "sticker_card"
+    # NOTE: stored DB value remains "sticker_card" for backwards compatibility.
+    INDEX_CARD_PICTOGRAM = "sticker_card"
     INDEX_CARD_OUTLINE = "outline_card"
     INDEX_CARD_ILLUSTRATION = "illustration_card"
 
     INDEX_CARD_TYPE_CHOICES = (
-        (INDEX_CARD_STICKER, "Sticker card"),
+        (INDEX_CARD_PICTOGRAM, "Pictogram card"),
         (INDEX_CARD_OUTLINE, "Outline card"),
         (INDEX_CARD_ILLUSTRATION, "Illustration card"),
     )
@@ -593,7 +682,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     index_card_type = models.CharField(
         max_length=20,
         choices=INDEX_CARD_TYPE_CHOICES,
-        default=INDEX_CARD_STICKER,
+        default=INDEX_CARD_PICTOGRAM,
         help_text="Controls the card style used in the article listing.",
     )
 
@@ -614,11 +703,15 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         index.SearchField("other_articles_heading"),
     ]
 
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
     def __str__(self):
         return f"ArticleIndexPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
+        context = super().get_context(request, *args, **kwargs)
 
         child_ids = self.get_children().live().public().values_list("pk", flat=True)
 
@@ -697,7 +790,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="A sticker image used in article cards.",
+        help_text="A pictogram image used in article cards.",
     )
     sticker_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -705,7 +798,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode variant of the sticker.",
+        help_text="Optional dark mode variant of the pictogram.",
     )
     sticker_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -713,7 +806,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional mobile variant of the sticker.",
+        help_text="Optional mobile variant of the pictogram.",
     )
     sticker_dark_mode_mobile = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -721,13 +814,12 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Optional dark mode mobile variant of the sticker.",
+        help_text="Optional dark mode mobile variant of the pictogram.",
     )
     icon = models.CharField(
-        max_length=50,
+        max_length=100,
         blank=True,
         default="",
-        choices=ICON_CHOICES,
         help_text="Optional icon to display on icon article cards.",
     )
     index_page_heading = models.CharField(
@@ -819,13 +911,14 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                             ]
                         )
                     ],
-                    heading="Sticker Variants",
+                    heading="Pictogram Variants",
                     classname="collapsed",
                 ),
                 FieldPanel(
                     "icon",
                     widget=ThumbnailRadioSelect(
-                        thumbnail_template_mapping={choice[0]: "cms/wagtailadmin/icon-choice.html" for choice in ICON_CHOICES},
+                        choices=_icon_choice_widget.choices,
+                        thumbnail_mapping=_icon_choice_widget.thumbnail_mapping,
                         thumbnail_size=20,
                     ),
                 ),
@@ -854,9 +947,15 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     if TYPE_CHECKING:
@@ -905,9 +1004,15 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     def __str__(self):
@@ -948,6 +1053,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -957,6 +1063,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 label="Banner Snippet",
                 group="Banners",
             ),
+        ),
+        (
+            "rich_text",
+            RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
         ),
     ]
     if allow_kit_intro:
@@ -1034,7 +1144,9 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
-class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class FreeFormPage2026(
+    PageThemeMixin, PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
+):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -1051,14 +1163,6 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         null=True,
     )
 
-    theme = models.CharField(
-        max_length=20,
-        blank=True,
-        choices=THEME_CHOICES,
-        default=FIREFOX_THEME,
-        verbose_name="Theme",
-        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
-    )
     show_pre_footer = models.BooleanField(
         default=True,
         verbose_name="Show Pre-Footer",
@@ -1074,21 +1178,6 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         default=True,
         verbose_name="Show Navigation",
         help_text="If true, the navigation menu will be displayed on this page's header bar.",
-    )
-    body_class = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Body Class",
-        help_text=(
-            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
-            "The page will also inject <this>.css, so ensure that exists before using this field."
-        ),
-    )
-    extra_js = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Extra JS",
-        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
     )
     docs = RichTextField(
         blank=True,
@@ -1111,9 +1200,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("theme"),
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
+                *PageThemeMixin.theme_panels,
             ],
             heading="Appearance",
         ),
@@ -1127,6 +1214,7 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         MultiFieldPanel(
             [
                 FieldPanel("show_pre_footer"),
+                *PreFooterImageMixin.pre_footer_image_panels,
                 InlinePanel("pencil_banner_placements", label="Pencil Banners"),
                 *QRCodeFloatingSnippetMixin.floating_qr_panels,
             ],
@@ -1134,9 +1222,18 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         ),
     ]
 
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("pre_footer_image"),
+    ]
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:
@@ -1156,6 +1253,11 @@ class FreeFormPage2026(PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetM
         snippets = [placement.snippet.get_localized() for placement in placements]
         # get_localized() can return None if the snippet isn't translated and published
         return [snippet for snippet in snippets if snippet]
+
+    def clean(self):
+        super().clean()
+        if self.theme == ENTERPRISE_THEME and self.show_pre_footer:
+            raise ValidationError({"show_pre_footer": "Enterprise-themed pages cannot show the pre-footer section."})
 
 
 class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
@@ -1193,7 +1295,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
@@ -1217,30 +1319,6 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
         use_json_field=True,
     )
 
-    theme = models.CharField(
-        max_length=20,
-        blank=True,
-        choices=THEME_CHOICES,
-        default=FIREFOX_THEME,
-        verbose_name="Theme",
-        help_text="The theme to use for this page. This overrides the page's CSS, navigation, footer, logo and other visual elements.",
-    )
-    body_class = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Body Class",
-        help_text=(
-            "Additional CSS class to add to the body tag for this page, to be used for light theming. "
-            "The page will also inject <this>.css, so ensure that exists before using this field."
-        ),
-    )
-    extra_js = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name="Extra JS",
-        help_text=("Additional JavaScript file to include for this page. Use the static bundle name (without the .js extension)."),
-    )
-
     content_panels = [
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
@@ -1251,17 +1329,31 @@ class WhatsNewPage2026(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSprin
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
-                FieldPanel("theme"),
-                FieldPanel("body_class"),
-                FieldPanel("extra_js"),
+                *PageThemeMixin.theme_panels,
             ],
             heading="Appearance",
         ),
+        MultiFieldPanel(
+            [
+                *PreFooterImageMixin.pre_footer_image_panels,
+                *QRCodeFloatingSnippetMixin.floating_qr_panels,
+            ],
+            heading="Snippets",
+        ),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("pre_footer_image"),
     ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:
@@ -1455,6 +1547,8 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("heading_text"),
         index.SearchField("subheading_text"),
@@ -1465,6 +1559,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         index.SearchField("privacy_notice"),
         index.SearchField("update_instructions"),
         index.SearchField("post_download_instructions"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1584,10 +1682,16 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         ),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
         index.SearchField("more_articles_heading"),
         index.SearchField("cards_lists"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1830,9 +1934,15 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1893,9 +2003,15 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("intro"),
         index.SearchField("content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -1906,8 +2022,35 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
-class ContactPage(AbstractSpringfieldCMSPage):
+class ContactPageForm(WagtailAdminPageForm):
+    """Admin form for ContactPage that validates the allowed slug only when publishing.
+
+    The slug check is publish-only (rather than in the model's clean()) so drafts
+    can be saved with any slug.
+    """
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # `action-publish` is present in the POST data when the editor clicks
+        # "Publish". Draft saves and "Submit for moderation" omit it, so they
+        # skip this check.
+        is_publishing = "action-publish" in self.data
+        slug = cleaned_data.get("slug")
+        if is_publishing and slug and settings.PROD:
+            parent = self.parent_page or self.instance.get_parent()
+            path = parent.url_path + slug + "/" if parent else "/" + slug + "/"
+            # Using .search() instead of .match() because paths will often start with /home/parent/child/
+            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
+                self.add_error("slug", f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}")
+
+        return cleaned_data
+
+
+class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    base_form_class = ContactPageForm
 
     template = "cms/contact_page.html"
     ftl_files = ["cms/contact"]
@@ -1974,6 +2117,12 @@ class ContactPage(AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
+                *PageThemeMixin.theme_panels,
+            ],
+            heading="Appearance",
+        ),
+        MultiFieldPanel(
+            [
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
                 FieldPanel("redirect_to"),
@@ -1986,6 +2135,10 @@ class ContactPage(AbstractSpringfieldCMSPage):
         index.SearchField("intro"),
         index.SearchField("form_fields"),
         index.SearchField("thank_you_message"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
     ]
 
     class Meta:
@@ -2022,15 +2175,6 @@ class ContactPage(AbstractSpringfieldCMSPage):
             msg = "Set either a redirect page or a thank you message."
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
-
-        # On production, only certain paths are allowed to send POST requests
-        if settings.PROD:
-            parent = self.get_parent()
-            path = parent.url_path + self.slug + "/" if parent else "/" + self.slug + "/"
-            # Using .search() instead of .match() because paths will often start with /home/parent/child/
-            # We don't use .get_url() because it doesn't use the instance's current slug
-            if not any(re.search(allowed_path, path) for allowed_path in settings.CONTACT_PAGE_ALLOWED_PATHS):
-                errors["slug"] = f"Slug must match one of the allowed paths: {', '.join(settings.CONTACT_PAGE_ALLOWED_PATHS)}"
 
         if errors:
             raise ValidationError(errors)
@@ -2218,6 +2362,15 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
 
     template = "cms/flare_docs_index_page.html"
 
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
+    def __str__(self):
+        return f"FlareDocsIndexPage: {self.title} - {self.locale}"
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         children = list(self.get_children().live().public().specific().order_by("title"))
@@ -2234,3 +2387,56 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
 
         context["sections"] = [build_node(child) for child in children]
         return context
+
+
+class ReferralHubPage(AbstractSpringfieldCMSPage):
+    """Page where a user gets their invitation link and
+    can monitor their invites' impact (an anonymous install count)
+    """
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/referral_hub_page.html"
+
+    class Meta:
+        verbose_name = "Referral Program: Referral Hub Page"
+
+    def _referral_id_to_invite_code(self, referral_id: str) -> str:
+        # placeholder/dummy invite-code-generation for now
+        return referral_id[::-1].replace("TSET", "FAKE")
+
+    def get_context(self, request, *args, **kwargs):
+        """
+        Adds an invite_url to the context using the referral-hub ID
+        ("ref_key") in the URL that opens this Referral Hub page.
+        If ref_key is missing, invite_url is empty.
+
+        The invite_url is the one that can be copied and sent to friends
+        and can be turned into a QR code as needed, etc.
+        """
+
+        context = super().get_context(request, *args, **kwargs)
+
+        if referral_id := request.GET.get("ref_key"):
+            invite_code = self._referral_id_to_invite_code(referral_id)
+            params = urlencode({"invitation": invite_code})
+            context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
+        else:
+            # No referral-id code == no invite URL. Template needs to handle
+            # this case
+            context["invite_url"] = ""
+
+        return context
+
+
+class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
+    """Landing page for an invitee, from which they can download Firefox.
+
+    Will use custom, privacy-respecting attribution so we can tally up
+    how many people install via the invite code used to open this page.
+    """
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/referral_get_firefox_page.html"
+
+    class Meta:
+        verbose_name = "Referral Program: Invitee / Get Firefox Page"

@@ -8,7 +8,7 @@
 
 /**
  * URL paths for inclusion in page-level a11y scans.
- * Pages will be scanned at both desktop and mobile resolutions.
+ * Different set of pages will be scanned at desktop and mobile resolutions.
  */
 const desktopTestURLs = [
     '/en-US/',

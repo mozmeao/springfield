@@ -62,6 +62,8 @@ import { createFocusTrap } from 'focus-trap';
     for (const category of menuCategories) {
         const title = category.querySelector('.fl-menu-title');
 
+        if (!getPanelForCategory(category)) continue;
+
         /* ESSENTIAL SEMANTICS: Convert anchor menu titles to buttons */
         if (title.matches('a') && viewportMdUpQuery.matches) {
             applyButtonSemanticsToAnchor(title);
@@ -77,6 +79,8 @@ import { createFocusTrap } from 'focus-trap';
         );
 
         for (const title of menuTitles) {
+            if (!getPanelForCategory(getCategory(title))) continue;
+
             if (event.matches) {
                 applyButtonSemanticsToAnchor(title);
             } else {
@@ -116,12 +120,16 @@ import { createFocusTrap } from 'focus-trap';
     /* DELEGATED EVENT HANDLERS */
 
     function handleNonLinkAnchorClick(event) {
+        const button = event.target.closest('[role="button"]');
+
+        if (!button) return;
+
         if (event.type === 'keydown' && event.key === ' ') {
             event.preventDefault();
-            event.target.closest('[role="button"]').click();
+            button.click();
         }
         if (event.type === 'keyup' && event.key === 'Enter') {
-            event.target.closest('[role="button"]').click();
+            button.click();
         }
     }
 
@@ -131,6 +139,9 @@ import { createFocusTrap } from 'focus-trap';
     function handleCategoryToggle(event) {
         if (!event.target.closest('.fl-menu-title')) return;
         const category = getCategory(event.target);
+
+        if (!getPanelForCategory(category)) return;
+
         const activeCategory = getActiveCategory();
         if (category !== activeCategory) {
             toggleCategory(getActiveCategory(), false);
@@ -163,7 +174,10 @@ import { createFocusTrap } from 'focus-trap';
      */
     function handleAutoClose(event) {
         const category = getCategory(event.target);
-        const panel = getPanelForCategory(category);
+        const panel = category && getPanelForCategory(category);
+
+        if (!panel) return;
+
         if (!panel.contains(event.relatedTarget)) {
             toggleCategory(category, false);
         }

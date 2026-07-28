@@ -1,0 +1,26 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% extends "cms/base-flare.html" %}
+
+{% block flare_header %}
+  {% set custom_navigation = object %}
+  {% include 'cms/includes/site-header.html' %}
+{% endblock flare_header %}
+
+{% block content %}
+  <div class="fl-main has-gradient-bottom">
+    <include:intro>
+      <content:heading>
+        <include:heading
+          level="h1"
+          heading_text="{{ object.name }}"
+          subheading_text="See the navigation on the page header above."
+        />
+      </content:heading>
+    </include:intro>
+  </div>
+{% endblock content %}

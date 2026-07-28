@@ -2,12 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import importlib
 from functools import partial
 from unittest.mock import patch
 
 from django.http.response import HttpResponse
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory
 
 import pytest
 
@@ -94,12 +93,10 @@ def test_mobile_app():
 
 
 def _get_refresh_middleware():
-    """Reload the redirects module and return middleware built from its refresh_redirects."""
-    importlib.reload(redirects_module)
+    """Return middleware built from the redirects module's refresh_redirects."""
     return RedirectsMiddleware(get_response=HttpResponse, resolver=get_resolver(redirects_module.refresh_redirects))
 
 
-@pytest.mark.parametrize("permanent", (True, False), ids=("301", "302"))
 @pytest.mark.parametrize(
     "source, destination",
     (
@@ -115,16 +112,14 @@ def _get_refresh_middleware():
         ("/browsers/unsupported-systems/", "/download/unsupported-systems/"),
     ),
 )
-def test_refresh_redirect_destinations(source, destination, permanent):
+def test_refresh_redirect_destinations(source, destination):
     rf = RequestFactory()
-    with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
-        middleware = _get_refresh_middleware()
-        resp = middleware.process_request(rf.get(source))
-    assert resp.status_code == (301 if permanent else 302)
+    middleware = _get_refresh_middleware()
+    resp = middleware.process_request(rf.get(source))
+    assert resp.status_code == 301
     assert resp["location"] == destination
 
 
-@pytest.mark.parametrize("permanent", (True, False), ids=("301", "302"))
 @pytest.mark.parametrize(
     "source, destination",
     (
@@ -132,26 +127,23 @@ def test_refresh_redirect_destinations(source, destination, permanent):
         ("/browsers/desktop/mac/?utm_source=foo&utm_medium=bar", "/download/mac/?utm_source=foo&utm_medium=bar"),
     ),
 )
-def test_refresh_redirect_preserves_query_strings(source, destination, permanent):
+def test_refresh_redirect_preserves_query_strings(source, destination):
     rf = RequestFactory()
-    with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
-        middleware = _get_refresh_middleware()
-        resp = middleware.process_request(rf.get(source))
-    assert resp.status_code == (301 if permanent else 302)
+    middleware = _get_refresh_middleware()
+    resp = middleware.process_request(rf.get(source))
+    assert resp.status_code == 301
     assert resp["location"] == destination
 
 
-@pytest.mark.parametrize("permanent", (True, False), ids=("301", "302"))
 @pytest.mark.parametrize(
     "locale",
     ("en-US", "de", "fr"),
 )
-def test_refresh_redirect_locale_handling(locale, permanent):
+def test_refresh_redirect_locale_handling(locale):
     rf = RequestFactory()
-    with override_settings(PERMANENT_CMS_REFRESH_REDIRECTS=permanent):
-        middleware = _get_refresh_middleware()
-        resp = middleware.process_request(rf.get(f"/{locale}/browsers/desktop/windows/"))
-    assert resp.status_code == (301 if permanent else 302)
+    middleware = _get_refresh_middleware()
+    resp = middleware.process_request(rf.get(f"/{locale}/browsers/desktop/windows/"))
+    assert resp.status_code == 301
     assert resp["location"] == f"/{locale}/download/windows/"
 
 

@@ -4,75 +4,51 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<li class="fl-menu-category" data-testid="menu-category-features">
-  <a
-    class="fl-menu-title"
-    href="{{ url('firefox.features.index') }}"
-  >
-    <span class="fl-menu-heading">
-      {{ ftl('navigation-features') }}
-      <span class="fl-icon fl-icon-chevron-down"></span>
-    </span>
-  </a>
-  <div class="fl-menu-panel" id="fl-menu-panel-features" data-testid="menu-panel-features">
-    <div class="fl-menu-panel-content">
-      <div class="fl-menu-panel-content-column">
-        <ul>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="/{{LANG}}/features/protection/"
-              data-link-text="Protection"
-              data-link-position="topnav - protection"
-            >
-              <span class="fl-icon fl-nav-icon-lock"></span>
-              {{ ftl('navigation-protection') }}
-            </a>
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="/{{LANG}}/features/control/"
-              data-link-text="Control"
-              data-link-position="topnav - control"
-            >
-              <span class="fl-icon fl-icon-cursor-arrow"></span>
-              {{ ftl('navigation-control') }}
-            </a>
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="/{{LANG}}/features/focus/"
-              data-link-text="Focus"
-              data-link-position="topnav - focus"
-            >
-              <span class="fl-icon fl-icon-search"></span>
-              {{ ftl('navigation-focus') }}
-            </a>
-          </li>
-          <li>
-            <a
-              class="fl-nav-link"
-              href="/{{LANG}}/features/"
-              data-link-text="About Firefox features"
-              data-link-position="topnav - about firefox features"
-            >
-              {{ ftl('navigation-about-firefox-features') }}
-              <span class="fl-icon fl-icon-forward"></span>
-            </a>
-          </li>
-        </ul>
+<include:nav-folder
+  label="{{ ftl('navigation-features') }}"
+  panel_id="fl-menu-panel-features"
+  href="{{ url('firefox.features.index') }}"
+  category_testid="menu-category-features"
+  panel_testid="menu-panel-features"
+>
+  <include:nav-column>
+    <ul>
+      <include:nav-link
+        label="{{ ftl('navigation-protection') }}"
+        href="/{{ LANG }}/features/protection/"
+        icon_name="lock-fill"
+        analytics_text="Protection"
+        analytics_position="topnav - protection"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-control') }}"
+        href="/{{ LANG }}/features/control/"
+        icon_name="cursor-arrow"
+        analytics_text="Control"
+        analytics_position="topnav - control"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-focus') }}"
+        href="/{{ LANG }}/features/focus/"
+        icon_name="search"
+        analytics_text="Focus"
+        analytics_position="topnav - focus"
+      />
+      <include:nav-link
+        label="{{ ftl('navigation-about-firefox-features') }}"
+        href="/{{ LANG }}/features/"
+        icon_name="forward"
+        icon_position="right"
+        analytics_text="About Firefox features"
+        analytics_position="topnav - about firefox features"
+      />
+    </ul>
 
-        <span class="fl-nav-separator"></span>
-
-        <include:button
-          theme_class="button-ghost"
-          size_class="fl-button-small"
-          label="{{ ftl('navigation-features-all') }}"
-          link="/{{LANG}}/features/all/"
-        />
-      </div>
-    </div>
-  </div>
-</li>
+    <span class="fl-nav-separator"></span>
+    <include:nav-link
+      label="{{ ftl('navigation-features-all') }}"
+      href="/{{ LANG }}/features/all/"
+      button_style="{{ True }}"
+    />
+  </include:nav-column>
+</include:nav-folder>

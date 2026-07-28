@@ -1,0 +1,24 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ A top-level navigation category whose label opens a dropdown panel.
+ The panel's columns are passed in as the component contents.
+#}
+
+<li class="fl-menu-category" data-testid="{{ category_testid or panel_id }}">
+  <a class="fl-menu-title"{% if href %} href="{{ href }}"{% endif %}{% if link_testid %} data-testid="{{ link_testid }}"{% endif %}>
+    <span class="fl-menu-heading">
+      {{ label }}
+      <span class="fl-icon fl-icon-chevron-down"></span>
+    </span>
+  </a>
+  <div class="fl-menu-panel" id="{{ panel_id }}"{% if panel_testid %} data-testid="{{ panel_testid }}"{% endif %}>
+    <div class="fl-menu-panel-content">
+      {{ contents }}
+    </div>
+  </div>
+</li>

@@ -26,18 +26,24 @@ function honorReducedMotionForAutoplay() {
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     document.querySelectorAll('video[autoplay]').forEach(function (video) {
-        // Pause immediately — more reliable than removing the autoplay attribute,
-        // which browsers may have already acted on before JS runs.
-        video.pause();
+        video.autoplay = false;
 
-        // Guard against the browser restarting playback (e.g. after seek).
-        video.addEventListener(
-            'play',
-            function () {
-                video.pause();
-            },
-            { once: true }
-        );
+        // If the browser-initiated autoplay is still pending, calling pause()
+        // synchronously rejects that play() promise with AbortError, which
+        // surfaces as an unhandled rejection. Wait for the 'play' event —
+        // that's when the pending promise has resolved and pausing is safe.
+        // (Listener also guards against restart after seek.)
+        if (video.paused) {
+            video.addEventListener(
+                'play',
+                function () {
+                    video.pause();
+                },
+                { once: true }
+            );
+        } else {
+            video.pause();
+        }
 
         // Update the paired pause/play button if one exists.
         const container = video.closest('.fl-video');
