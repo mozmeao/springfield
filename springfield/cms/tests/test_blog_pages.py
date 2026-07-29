@@ -16,7 +16,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
-    _create_blog_article,
+    create_blog_article,
     get_blog_article_content,
     get_blog_index_page,
     get_blog_pages,
@@ -40,7 +40,7 @@ def single_article(minimal_site):
     image, _, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
-    article = _create_blog_article(
+    article = create_blog_article(
         index_page=idx,
         title=FEATURED_TITLES[0],
         slug="test-single-article",
@@ -67,7 +67,7 @@ def privacy_articles(minimal_site):
     articles = []
     for i in range(9):
         articles.append(
-            _create_blog_article(
+            create_blog_article(
                 index_page=idx,
                 title=all_titles[i],
                 slug=f"test-privacy-{i + 1}",

@@ -1,0 +1,6 @@
+name: "Image + Caption"
+context:
+  image:
+    url: /media/img/firefox/flare/placeholder.png
+    alt: Placeholder image
+  caption: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, with <b>bold</b>, <i>italic</i> and a <a href="#">link</a> to the source.'

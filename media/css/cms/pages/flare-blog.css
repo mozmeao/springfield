@@ -311,6 +311,12 @@
     align-content: end;
 }
 
+/* Blog article */
+
+.fl-article-main .fl-rich-text .image-variants-display img {
+    inline-size: 100%;
+}
+
 @media (--viewport-md-up) {
     .fl-blog-topics-all {
         inline-size: unset;
