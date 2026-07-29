@@ -104,7 +104,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     ]
 
     search_fields = WagtailBasePage.search_fields + [
-        index.SearchField("internal_title"),
+        index.AutocompleteField("internal_title"),
     ]
 
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
