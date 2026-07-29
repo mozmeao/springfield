@@ -242,6 +242,26 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     assert rows[0]["new_url"].startswith("http")
 
 
+def test_captioned_image_is_imported_as_an_image_caption_block(tmp_path, index_page, monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+    content = (
+        "<p>Intro.</p>"
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="A screenshot"/>'
+        '<figcaption class="wp-element-caption">Credit: <em>Mozilla</em></figcaption></figure>'
+        '<img src="https://example.com/b.png" alt="No caption here">'
+    )
+    xml_path = write_xml(tmp_path, post_xml(content=content))
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert [block.block_type for block in page.content] == ["text", "image_caption", "media"]
+
+    captioned = page.content[1].value
+    assert str(captioned["caption"]) == "<p>Credit: <em>Mozilla</em></p>"
+    assert captioned["image"]["image"].title == "A screenshot"
+
+
 def test_categories_topic_is_leaf_and_other_levels_become_tags(tmp_path, index_page, monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
     # Bare 'Firefox' is dropped; the leaf of the first remaining category is the topic;
@@ -514,7 +534,7 @@ def test_parse_content_inline_image_becomes_image_spec_without_downloading(monke
     called = []
     monkeypatch.setattr("requests.get", lambda *a, **k: called.append(1))
     specs, _ = parse_content('<p>Text</p><img src="https://example.com/a.png" alt="Alt">')
-    assert specs == [("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt"})]
+    assert specs == [("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": ""})]
     assert not called, "parsing must not hit the network"
 
 
@@ -526,11 +546,96 @@ def test_parse_content_iframe_becomes_link_with_warning():
     assert "https://youtube.com/embed/abc" in specs[1][1]
 
 
-def test_parse_content_caption_shortcode_keeps_only_img():
+def test_parse_content_caption_shortcode_captures_caption():
     html = '[caption id="1"]<img src="https://example.com/a.png" alt="Alt"> A caption describing the image[/caption]'
     specs, _ = parse_content(html)
     assert [spec[0] for spec in specs] == ["image"]
     assert specs[0][1]["src"] == "https://example.com/a.png"
+    assert specs[0][1]["caption"] == "<p>A caption describing the image</p>"
+
+
+def test_parse_content_caption_shortcode_without_caption_text_has_no_caption():
+    specs, _ = parse_content('[caption id="1"]<img src="https://example.com/a.png" alt="Alt">[/caption]')
+    assert [spec[0] for spec in specs] == ["image"]
+    assert specs[0][1]["caption"] == ""
+
+
+def test_parse_content_figure_figcaption_captures_caption_with_inline_markup():
+    html = (
+        '<figure class="wp-block-image size-large">'
+        '<img src="https://example.com/a.png" alt="Alt" class="wp-image-1"/>'
+        '<figcaption class="wp-element-caption">Recent work. <em>Courtesy: <a href="https://example.com/x">source</a></em></figcaption>'
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["image"]
+    assert specs[0][1]["src"] == "https://example.com/a.png"
+    assert specs[0][1]["alt"] == "Alt"
+    assert specs[0][1]["caption"] == '<p>Recent work. <em>Courtesy: <a href="https://example.com/x">source</a></em></p>'
+
+
+def test_parse_content_figure_with_linked_image_still_captures_caption():
+    html = (
+        '<figure class="wp-block-image">'
+        '<a href="https://example.com/full.png"><img src="https://example.com/a.png" alt=""/></a>'
+        "<figcaption>Click to enlarge</figcaption>"
+        "</figure>"
+    )
+    specs, _ = parse_content(html)
+    assert [spec[0] for spec in specs] == ["image"]
+    assert specs[0][1]["src"] == "https://example.com/a.png"
+    assert specs[0][1]["caption"] == "<p>Click to enlarge</p>"
+
+
+def test_parse_content_figure_without_figcaption_becomes_image_without_caption():
+    """A figure-wrapped image still becomes an image spec, so the file is downloaded
+    into Wagtail rather than left hotlinked inside a text block."""
+    html = '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="Alt"/></figure>'
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert specs == [("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": ""})]
+
+
+def test_parse_content_gallery_caption_is_not_applied_to_a_single_image():
+    """A gallery's caption describes the whole gallery, so it must not be attached to one image."""
+    html = (
+        '<figure class="wp-block-gallery">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/></figure>'
+        '<figure class="wp-block-image"><img src="https://example.com/b.png" alt=""/></figure>'
+        '<figcaption class="blocks-gallery-caption">Gallery caption</figcaption>'
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert len(warnings) == 1
+    assert "Gallery caption" in warnings[0]
+
+
+def test_parse_content_caption_nested_in_a_container_warns():
+    """Only top-level nodes are turned into blocks, so a figure inside another container keeps
+    its caption inline - the operator is told rather than left to spot it."""
+    html = (
+        '<div class="wp-block-group">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/>'
+        "<figcaption>Choose a custom wallpaper</figcaption></figure>"
+        "</div>"
+    )
+    specs, warnings = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert len(warnings) == 1
+    assert "Choose a custom wallpaper" in warnings[0]
+
+
+def test_parse_content_captioned_figure_without_an_image_warns():
+    html = (
+        '<figure class="wp-block-embed is-provider-youtube"><div class="wp-block-embed__wrapper">https://youtu.be/abc</div>'
+        "<figcaption>Introducing Colorways</figcaption></figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert len(warnings) == 1
+    assert "Introducing Colorways" in warnings[0]
 
 
 def test_parse_content_caption_shortcode_without_img_is_dropped():
@@ -557,6 +662,25 @@ def test_materialize_content_downloads_image_spec_into_media_block(monkeypatch):
     blocks = cmd.materialize_content([("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt"})])
     assert [block[0] for block in blocks] == ["text", "media"]
     assert blocks[1][1][0][0] == "image"
+
+
+def test_materialize_content_image_with_caption_becomes_image_caption_block(monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+    cmd = make_command()
+    spec = ("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": "<p>A caption</p>"})
+    blocks = cmd.materialize_content([spec])
+    assert [block[0] for block in blocks] == ["image_caption"]
+    value = blocks[0][1]
+    assert value["caption"] == "<p>A caption</p>"
+    assert value["image"]["image"].title == "Alt"
+
+
+def test_materialize_content_drops_captioned_image_whose_download_fails(monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
+    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+    cmd = make_command()
+    spec = ("image", {"src": "https://example.com/a.png", "alt": "", "caption": "<p>A caption</p>"})
+    assert cmd.materialize_content([spec]) == []
 
 
 def test_materialize_content_drops_image_whose_download_fails(monkeypatch):
