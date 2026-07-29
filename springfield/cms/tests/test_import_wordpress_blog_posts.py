@@ -306,12 +306,29 @@ def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index
 
 def test_successful_import_writes_content_warnings_to_stderr(tmp_path, index_page, monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
-    xml_path = write_xml(tmp_path, post_xml(content='<p>Watch:</p><iframe src="https://youtube.com/embed/abc"></iframe>'))
+    xml_path = write_xml(tmp_path, post_xml(content='<p>Watch:</p><iframe src="https://player.vimeo.com/video/123"></iframe>'))
 
     err = StringIO()
     call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
 
-    assert "https://youtube.com/embed/abc" in err.getvalue()
+    assert "https://player.vimeo.com/video/123" in err.getvalue()
+
+
+def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page, monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+    xml_path = write_xml(tmp_path, post_xml(content='<p>Watch:</p><iframe src="https://www.youtube.com/embed/abc123"></iframe>'))
+
+    err = StringIO()
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert [block.block_type for block in page.content] == ["text", "media"]
+    video = page.content[1].value[0]
+    assert video.block_type == "video"
+    assert video.value["video_url"] == "https://www.youtube.com/watch?v=abc123"
+    assert video.value["alt"] == "A Test Post"
+    assert video.value["poster"] is not None
+    assert err.getvalue() == "", "a YouTube video no longer needs a warning"
 
 
 def test_dry_run_creates_nothing(tmp_path, index_page, monkeypatch):
@@ -538,12 +555,70 @@ def test_parse_content_inline_image_becomes_image_spec_without_downloading(monke
     assert not called, "parsing must not hit the network"
 
 
-def test_parse_content_iframe_becomes_link_with_warning():
-    specs, warnings = parse_content('<p>Watch:</p><iframe src="https://youtube.com/embed/abc"></iframe>')
+def test_parse_content_youtube_iframe_becomes_video_spec():
+    specs, warnings = parse_content('<p>Watch:</p><iframe src="https://www.youtube.com/embed/abc123?rel=0"></iframe>')
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["text", "video"]
+    # /embed/ URLs are rewritten to the watch form, which is what oEmbed and the video block expect.
+    assert specs[1][1]["url"] == "https://www.youtube.com/watch?v=abc123"
+    assert specs[1][1]["alt"] == ""
+
+
+def test_parse_content_non_youtube_iframe_becomes_link_with_warning():
+    specs, warnings = parse_content('<p>Watch:</p><iframe src="https://player.vimeo.com/video/123"></iframe>')
     assert len(warnings) == 1
-    assert "https://youtube.com/embed/abc" in warnings[0]
+    assert "https://player.vimeo.com/video/123" in warnings[0]
     assert [spec[0] for spec in specs] == ["text", "text"]
-    assert "https://youtube.com/embed/abc" in specs[1][1]
+    assert "https://player.vimeo.com/video/123" in specs[1][1]
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://youtu.be/kT86zqVzqOo", "https://www.youtube.com/watch?v=kT86zqVzqOo"),
+        ("https://youtu.be/2CT-zB6AO6k?list=PLFlAJDI87Jg", "https://www.youtube.com/watch?v=2CT-zB6AO6k"),
+        ("https://www.youtube.com/watch?v=eILW72MxJmU", "https://www.youtube.com/watch?v=eILW72MxJmU"),
+        ("https://www.youtube.com/embed/8VoheBpsLoY", "https://www.youtube.com/watch?v=8VoheBpsLoY"),
+    ],
+)
+def test_parse_content_youtube_embed_block_becomes_video_spec(url, expected):
+    html = f'<figure class="wp-block-embed is-type-video"><div class="wp-block-embed__wrapper">{url}</div></figure>'
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["video"]
+    assert specs[0][1]["url"] == expected
+
+
+def test_parse_content_youtube_embed_block_caption_becomes_alt_text():
+    html = (
+        '<figure class="wp-block-embed is-type-video"><div class="wp-block-embed__wrapper">https://youtu.be/kT86zqVzqOo</div>'
+        "<figcaption>Introducing new Colorways for Firefox 94</figcaption></figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == [], "the caption is kept as the video's alt text, so nothing is dropped"
+    assert [spec[0] for spec in specs] == ["video"]
+    assert specs[0][1]["alt"] == "Introducing new Colorways for Firefox 94"
+
+
+def test_parse_content_non_youtube_embed_block_becomes_a_link_with_warning():
+    """A rich text <embed> is no use for a provider outside Wagtail's oEmbed list: it resolves
+    to nothing and leaves an empty paragraph on the page, so these become plain links."""
+    html = (
+        '<figure class="wp-block-embed is-type-video"><div class="wp-block-embed__wrapper">'
+        "https://www.tiktok.com/@mozilla/video/6966371868643298566</div></figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert "embedtype" not in specs[0][1]
+    assert '<a href="https://www.tiktok.com/@mozilla/video/6966371868643298566">' in specs[0][1]
+    assert len(warnings) == 1
+    assert "tiktok.com" in warnings[0]
+
+
+def test_parse_content_embed_fallback_link_is_escaped():
+    html = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123?a=1&amp;b=2</div></figure>'
+    specs, _ = parse_content(html)
+    assert 'href="https://www.tiktok.com/@mozilla/video/123?a=1&amp;b=2"' in specs[0][1]
 
 
 def test_parse_content_caption_shortcode_captures_caption():
@@ -628,14 +703,11 @@ def test_parse_content_caption_nested_in_a_container_warns():
 
 
 def test_parse_content_captioned_figure_without_an_image_warns():
-    html = (
-        '<figure class="wp-block-embed is-provider-youtube"><div class="wp-block-embed__wrapper">https://youtu.be/abc</div>'
-        "<figcaption>Introducing Colorways</figcaption></figure>"
-    )
+    html = '<figure class="wp-block-video"><video src="https://example.com/a.mp4"></video><figcaption>A local video</figcaption></figure>'
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
     assert len(warnings) == 1
-    assert "Introducing Colorways" in warnings[0]
+    assert "A local video" in warnings[0]
 
 
 def test_parse_content_caption_shortcode_without_img_is_dropped():
@@ -659,7 +731,7 @@ def test_parse_content_pre_tag_becomes_code_spec():
 def test_materialize_content_downloads_image_spec_into_media_block(monkeypatch):
     monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
     cmd = make_command()
-    blocks = cmd.materialize_content([("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt"})])
+    blocks = cmd.materialize_content([("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt"})], "A Test Post")
     assert [block[0] for block in blocks] == ["text", "media"]
     assert blocks[1][1][0][0] == "image"
 
@@ -668,11 +740,48 @@ def test_materialize_content_image_with_caption_becomes_image_caption_block(monk
     monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
     cmd = make_command()
     spec = ("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": "<p>A caption</p>"})
-    blocks = cmd.materialize_content([spec])
+    blocks = cmd.materialize_content([spec], "A Test Post")
     assert [block[0] for block in blocks] == ["image_caption"]
     value = blocks[0][1]
     assert value["caption"] == "<p>A caption</p>"
     assert value["image"]["image"].title == "Alt"
+
+
+def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster(monkeypatch):
+    requested = []
+
+    def fake_get(url, timeout):
+        requested.append(url)
+        return fake_response()
+
+    monkeypatch.setattr("requests.get", fake_get)
+    cmd = make_command()
+    blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+
+    assert [block[0] for block in blocks] == ["media"]
+    video_type, video_value = blocks[0][1][0]
+    assert video_type == "video"
+    assert video_value["video_url"] == "https://www.youtube.com/watch?v=abc123"
+    assert video_value["alt"] == "A video"
+    assert video_value["poster"].title == "A video"
+    assert requested == ["https://img.youtube.com/vi/abc123/hqdefault.jpg"]
+
+
+def test_materialize_content_video_without_caption_falls_back_to_post_title_for_alt(monkeypatch):
+    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+    cmd = make_command()
+    blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": ""})], "A Test Post")
+    assert blocks[0][1][0][1]["alt"] == "A Test Post"
+
+
+def test_materialize_content_drops_video_whose_poster_download_fails(monkeypatch):
+    """The video block requires a poster, so a video without one is dropped rather than
+    written as an invalid block."""
+    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
+    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+    cmd = make_command()
+    blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+    assert blocks == []
 
 
 def test_materialize_content_drops_captioned_image_whose_download_fails(monkeypatch):
@@ -680,7 +789,7 @@ def test_materialize_content_drops_captioned_image_whose_download_fails(monkeypa
     monkeypatch.setattr("time.sleep", lambda *a, **k: None)
     cmd = make_command()
     spec = ("image", {"src": "https://example.com/a.png", "alt": "", "caption": "<p>A caption</p>"})
-    assert cmd.materialize_content([spec]) == []
+    assert cmd.materialize_content([spec], "A Test Post") == []
 
 
 def test_materialize_content_drops_image_whose_download_fails(monkeypatch):
@@ -688,7 +797,7 @@ def test_materialize_content_drops_image_whose_download_fails(monkeypatch):
     monkeypatch.setattr("time.sleep", lambda *a, **k: None)
     cmd = make_command()
     specs = [("text", "<p>Before</p>"), ("image", {"src": "https://example.com/a.png", "alt": ""}), ("text", "<p>After</p>")]
-    blocks = cmd.materialize_content(specs)
+    blocks = cmd.materialize_content(specs, "A Test Post")
     assert [block[0] for block in blocks] == ["text", "text"]
 
 
@@ -696,7 +805,7 @@ def test_materialize_content_passes_through_non_image_specs(monkeypatch):
     called = []
     monkeypatch.setattr("requests.get", lambda *a, **k: called.append(1))
     cmd = make_command()
-    blocks = cmd.materialize_content([("text", "<p>Hi</p>"), ("code", {"code": "print('hi')"})])
+    blocks = cmd.materialize_content([("text", "<p>Hi</p>"), ("code", {"code": "print('hi')"})], "A Test Post")
     assert blocks == [("text", "<p>Hi</p>"), ("code", {"code": "print('hi')"})]
     assert not called, "non-image specs must not hit the network"
 

@@ -7,7 +7,7 @@ import html
 import re
 import time
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from xml.etree import ElementTree
 
 from django.core.files.base import ContentFile
@@ -56,6 +56,51 @@ def parse_categories(raw):
                 names.append(name)
     meaningful = [name for name in names if name != "Firefox"]
     return meaningful or names
+
+
+def youtube_video_id(url):
+    """Return the YouTube video id in `url`, or None if it isn't a YouTube link.
+
+    Covers the three forms this export uses: /watch?v=, youtu.be/ and /embed/.
+    """
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    if host == "youtu.be" or host.endswith(".youtu.be"):
+        return parsed.path.strip("/").split("/")[0] or None
+    if host == "youtube.com" or host.endswith(".youtube.com"):
+        if parsed.path == "/watch":
+            return parse_qs(parsed.query).get("v", [None])[0]
+        if parsed.path.startswith("/embed/"):
+            return parsed.path[len("/embed/") :].strip("/").split("/")[0] or None
+    return None
+
+
+def youtube_watch_url(video_id):
+    """Build the canonical watch URL for a video id.
+
+    VideoBlock and its component both detect YouTube by looking for 'youtube.com' or 'youtu.be'
+    in the URL, and the player swaps in the youtube-nocookie domain when the video is played,
+    so the stored URL stays on the canonical host.
+    """
+    return f"https://www.youtube.com/watch?v={video_id}"
+
+
+def youtube_poster_url(video_id):
+    """Build the thumbnail URL used as the video block's poster image.
+
+    hqdefault is the largest size YouTube generates for every upload; maxresdefault is missing
+    for older videos.
+    """
+    return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+
+def embed_block_url(figure):
+    """Return the URL a WordPress embed block wraps, or "" if this figure isn't one."""
+    wrapper = figure.find("div", class_="wp-block-embed__wrapper")
+    if wrapper is None:
+        return ""
+    url = wrapper.get_text(strip=True)
+    return url if url.startswith("http") else ""
 
 
 def caption_html(figcaption):
@@ -115,6 +160,20 @@ def parse_content(raw_html):
             },
         )
 
+    def embed_spec(url, alt):
+        """Turn a video URL into a video block spec, or a plain link for other providers.
+
+        The video block only accepts YouTube and assets.mozilla.net URLs. A rich text <embed>
+        is no use for anything else: providers outside Wagtail's oEmbed list (e.g. TikTok)
+        resolve to nothing, and their players are blocked by the site's CSP anyway.
+        """
+        video_id = youtube_video_id(url)
+        if video_id is None:
+            warnings.append(f"{url} is not a YouTube video - linked as plain text instead of a video block")
+            escaped = html.escape(url, quote=True)
+            return ("text", f'<p><a href="{escaped}">{escaped}</a></p>')
+        return ("video", {"url": youtube_watch_url(video_id), "alt": alt})
+
     def keep_as_text(node):
         """Buffer a node as rich text, reporting any caption that goes with it.
 
@@ -139,19 +198,28 @@ def parse_content(raw_html):
             continue
         if name == "figure":
             # Only a figure holding exactly one image maps onto a block. A gallery's caption
-            # describes the whole gallery, and an embed's has no image to attach to at all.
+            # describes the whole gallery, so it has no single image to attach to.
             images = node.find_all("img")
+            embed_url = embed_block_url(node)
             if len(images) == 1 and node.find("figure") is None:
                 flush_text()
                 specs.append(image_spec(images[0], node.find("figcaption", recursive=False)))
+            elif embed_url:
+                figcaption = node.find("figcaption", recursive=False)
+                flush_text()
+                specs.append(embed_spec(embed_url, figcaption.get_text(strip=True) if figcaption else ""))
+                flush_text()
             else:
                 keep_as_text(node)
             continue
         if name == "iframe":
             flush_text()
             src = node.get("src", "")
-            warnings.append(f"iframe embed ({src}) has no poster image available - linked as plain text instead of a video block")
-            text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
+            if youtube_video_id(src) is None:
+                warnings.append(f"iframe embed ({src}) is not a YouTube video - linked as plain text instead of a video block")
+                text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
+            else:
+                specs.append(embed_spec(src, ""))
             flush_text()
             continue
         if name == "pre":
@@ -266,7 +334,7 @@ class Command(BaseCommand):
         tags = [self.get_or_create_snippet(Tag, name, locale) for name in tag_names]
         author = self.get_or_create_author(post, locale)
         image = self.get_or_create_image(element_text(post, "ImageURL"), element_text(post, "ImageTitle") or title)
-        content = self.materialize_content(content_specs)
+        content = self.materialize_content(content_specs, title)
 
         page = BlogArticlePage(
             title=title,
@@ -356,12 +424,15 @@ class Command(BaseCommand):
         self.image_cache[filename] = image
         return image
 
-    def materialize_content(self, specs):
-        """Build the StreamField `content` from block specs, downloading each inline image.
+    def materialize_content(self, specs, title):
+        """Build the StreamField `content` from block specs, downloading the images they need.
 
-        A captioned image becomes an Image + Caption block; an uncaptioned one a plain media
-        image. An image that fails to download is skipped, along with its caption, so one dead
-        URL doesn't lose the whole post.
+        A captioned image becomes an Image + Caption block and an uncaptioned one a plain media
+        image. A video becomes a media video block, whose required poster is the YouTube
+        thumbnail and whose alt text is the caption, falling back to the post `title`.
+
+        An image or poster that fails to download is skipped, so one dead URL doesn't lose the
+        whole post.
         """
         blocks = []
         for block_type, value in specs:
@@ -374,6 +445,13 @@ class Command(BaseCommand):
                     blocks.append(("image_caption", {"image": image_value, "caption": value["caption"]}))
                 else:
                     blocks.append(("media", [("image", image_value)]))
+            elif block_type == "video":
+                alt = value["alt"] or title
+                poster = self.get_or_create_image(youtube_poster_url(youtube_video_id(value["url"])), alt)
+                if poster is None:
+                    # The block requires a poster, so there is nothing valid to write without one.
+                    continue
+                blocks.append(("media", [("video", {"video_url": value["url"], "alt": alt, "poster": poster})]))
             else:
                 blocks.append((block_type, value))
         return blocks
