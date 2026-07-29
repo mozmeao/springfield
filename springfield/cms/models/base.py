@@ -88,11 +88,11 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         ),
     )
 
-    # Surface the editor-only `internal_title` at the top of the Content tab, above
-    # the public `title` field (which WagtailBasePage.content_panels provides).
+    # Show the public `title` (from WagtailBasePage.content_panels, required) first,
+    # then the editor-only, optional `internal_title` directly beneath it.
     content_panels = [
-        FieldPanel("internal_title"),
         *WagtailBasePage.content_panels,
+        FieldPanel("internal_title"),
     ]
 
     promote_panels = WagtailBasePage.promote_panels + [
