@@ -22,7 +22,7 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -266,9 +266,8 @@ class LabelSourceMixin(blocks.StructBlock):
     """
     Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
 
-    This mixin adds two render-time context keys:
+    This mixin adds the render-time context key:
       - button_label:        rendered, locale-resolved label (visible to users)
-      - button_label_en_us:  stable English source for analytics / campaign slugs
 
     When using this mixin,
       1. declare an explicit `Meta.form_layout` to set the admin field order, and
@@ -317,15 +316,8 @@ class LabelSourceMixin(blocks.StructBlock):
             # User-visible label: locale-resolved with fallback to the stored row.
             localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
             context["button_label"] = (localized or pretranslated).label
-            # Stable English source for analytics. On a translated page, the
-            # stored FK is the locale-specific phrase, so its own label is
-            # localized — resolve the en-US sibling through the phrase's translation
-            # group instead of reading the stored row's label.
-            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
-            context["button_label_en_us"] = (en_us or pretranslated).label
         elif value.get("custom_label"):
             context["button_label"] = value["custom_label"]
-            context["button_label_en_us"] = value["custom_label"]
         return context
 
     def get_searchable_content(self, value):
@@ -2917,15 +2909,17 @@ class EnterpriseDownloadBlock(blocks.StaticBlock):
 
 
 class BaseFieldValue(blocks.StructValue):
+    widget_css_class = "fl-field"
+
     def get_field(self):
         """Override in subclasses to return the appropriate Django form field class."""
         return forms.CharField
 
     def get_error_messages(self):
-        """Localised validation messages. Subclasses extend for field-specific keys."""
+        """Localized validation messages. Subclasses extend for field-specific keys."""
         return {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])}
 
-    def get_form_field(self):
+    def get_form_field(self, locale=None):
         Field = self.get_field()
         kwargs = {
             "label": self.get("label"),
@@ -2936,9 +2930,12 @@ class BaseFieldValue(blocks.StructValue):
             kwargs["initial"] = initial
         if widget := self.get_widget():
             kwargs["widget"] = widget
-        if choices := self.get_choices():
+        if choices := self.get_choices(locale):
             kwargs["choices"] = choices
-        return Field(**kwargs)
+        form_field = Field(**kwargs)
+        if self.widget_css_class and not form_field.widget.is_hidden:
+            form_field.widget.attrs.setdefault("class", self.widget_css_class)
+        return form_field
 
     def get_widget(self):
         """Override in subclasses if a specific widget is needed."""
@@ -2948,14 +2945,12 @@ class BaseFieldValue(blocks.StructValue):
         """Override in subclasses if the field type has a specific initial value."""
         return None
 
-    def get_choices(self):
-        """Override in subclasses if the field type has specific choices (e.g., for select fields)."""
-        return None
+    def get_choices(self, locale=None):
+        """Override in subclasses if the field type has specific choices (e.g., for select fields).
 
-    @property
-    def is_multivalue(self):
-        """True if this field submits multiple values (e.g. checkbox group). Used by _get_display_data."""
-        return False
+        `locale` is the language code of the page being rendered, for choices with localized labels.
+        """
+        return None
 
 
 class BaseField(blocks.StructBlock):
@@ -2980,7 +2975,7 @@ class BaseField(blocks.StructBlock):
 
 class TextFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/text_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Text Field"
         label_format = "Text - {label}"
         value_class = BaseFieldValue
@@ -2988,7 +2983,12 @@ class TextFieldBlock(BaseField):
 
 class TextAreaFieldValue(BaseFieldValue):
     def get_widget(self):
-        return forms.Textarea(attrs={"rows": self.get("rows", 4)})
+        # A False attribute is omitted from the rendered HTML: the textarea is sized by CSS,
+        # so Django's default cols is dropped.
+        attrs = {"cols": False, "rows": self.get("rows", 4)}
+        if max_length := self.get("max_length"):
+            attrs["maxlength"] = max_length
+        return forms.Textarea(attrs=attrs)
 
 
 class TextAreaFieldBlock(BaseField):
@@ -2998,9 +2998,14 @@ class TextAreaFieldBlock(BaseField):
         label="Rows",
         help_text="Number of visible text lines.",
     )
+    max_length = blocks.IntegerBlock(
+        required=False,
+        label="Max Length",
+        help_text="Maximum number of characters allowed. Leave blank for no limit.",
+    )
 
     class Meta:
-        template = "cms/blocks/form_fields/textarea_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Text Area Field"
         label_format = "Text Area - {label}"
         value_class = TextAreaFieldValue
@@ -3018,7 +3023,7 @@ class EmailFieldValue(BaseFieldValue):
 
 class EmailFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/email_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Email Field"
         label_format = "Email - {label}"
         value_class = EmailFieldValue
@@ -3031,7 +3036,7 @@ class PhoneFieldValue(BaseFieldValue):
 
 class PhoneFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/phone_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Phone Field"
         label_format = "Phone - {label}"
         value_class = PhoneFieldValue
@@ -3050,9 +3055,13 @@ class SelectFieldValue(BaseFieldValue):
     def get_field(self):
         return forms.ChoiceField
 
-    def get_choices(self):
+    def get_blank_choice(self):
+        """Placeholder option shown until the user picks a value."""
+        return ("", ftl_lazy("contact-form-select-option", ftl_files=["cms/contact"]))
+
+    def get_choices(self, locale=None):
         options = self.get("options", [])
-        return [(option["value"], option["label"]) for option in options]
+        return [self.get_blank_choice(), *((option["value"], option["label"]) for option in options)]
 
     def get_error_messages(self):
         messages = super().get_error_messages()
@@ -3068,7 +3077,7 @@ class SelectFieldBlock(BaseField):
     )
 
     class Meta:
-        template = "cms/blocks/form_fields/select_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Select Field"
         label_format = "Select - {label}"
         value_class = SelectFieldValue
@@ -3084,14 +3093,12 @@ class CheckboxOptionBlock(blocks.StructBlock):
 
 
 class CheckboxGroupFieldValue(BaseFieldValue):
-    @property
-    def is_multivalue(self):
-        return True
+    widget_css_class = "fl-checkbox"
 
     def get_field(self):
         return forms.MultipleChoiceField
 
-    def get_choices(self):
+    def get_choices(self, locale=None):
         options = self.get("options", [])
         return [(option["value"], option["label"]) for option in options]
 
@@ -3119,6 +3126,8 @@ class CheckboxGroupFieldBlock(BaseField):
 
 
 class CheckboxFieldValue(BaseFieldValue):
+    widget_css_class = "fl-checkbox"
+
     def get_field(self):
         return forms.BooleanField
 
@@ -3161,30 +3170,18 @@ class HiddenFieldBlock(BaseField):
 
 
 class CountrySelectFieldValue(SelectFieldValue):
-    def get_choices(self):
-        # The choices displayed to the user are localized and built by the block's get_context
-        # method. The choices built here are used for validation only.
+    def get_choices(self, locale=None):
+        """Country codes paired with names localized for the page being rendered."""
         countries = sorted(
-            ((code.upper(), name) for code, name in product_details.get_regions(settings.LANGUAGE_CODE).items()),
+            ((code.upper(), name) for code, name in product_details.get_regions(locale or settings.LANGUAGE_CODE).items()),
             key=lambda item: item[1],
         )
-        return countries
+        return [self.get_blank_choice(), *countries]
 
 
 class CountrySelectFieldBlock(BaseField):
-    def get_context(self, value, parent_context=None):
-        context = super().get_context(value, parent_context=parent_context)
-        request = parent_context.get("request") if parent_context else None
-        locale = (getattr(request, "locale", None) or settings.LANGUAGE_CODE) if request else settings.LANGUAGE_CODE
-        countries = sorted(
-            ((code.upper(), name) for code, name in product_details.get_regions(locale).items()),
-            key=lambda item: item[1],
-        )
-        context["countries"] = countries
-        return context
-
     class Meta:
-        template = "cms/blocks/form_fields/country_select_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
