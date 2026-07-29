@@ -1388,6 +1388,9 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
                 "attach rules to the canonical instead. "
                 "See the <em>User Routing</em> section in the sidebar for a "
                 "global cross-reference of rules across the site.</p>"
+                "<p>Rules evaluate <strong>top-to-bottom</strong> in the list "
+                "below — the first matching rule wins. Drag the handles to "
+                "reorder.</p>"
             ),
         ),
         FieldPanel("routing_paused"),

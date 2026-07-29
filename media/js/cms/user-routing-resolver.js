@@ -193,7 +193,13 @@
 
         // getConfiguration('aiControls')
         ai_controls: function (data) {
-            if (!data || typeof data.default === 'undefined') return undefined;
+            // Same class of bug as the bool extractors above: if
+            // ``data.default`` is null or a non-string, we must return
+            // undefined so the signal stays unresolved. Otherwise
+            // ``values.indexOf(null)`` under ``op: is_not`` returns true
+            // and a rule like ``ai_controls is_not [enabled]`` silently
+            // matches every user whose Firefox returned null.
+            if (!data || typeof data.default !== 'string') return undefined;
             return data.default;
         }
     };
@@ -289,9 +295,16 @@
         // so the pure evaluator is testable in isolation. Boot callers pass
         // the module-scope ``rules`` array; tests pass constructed rule
         // lists.
+        //
+        // Ties on ``priority`` fall back to ``id`` (server-emitted DB PK)
+        // so the ordering is deterministic across engines regardless of
+        // Array.sort stability. Missing ``id`` on hand-constructed rules
+        // (tests) falls to 0 — a stable, if arbitrary, ordering.
         var pending = false;
         var sorted = ruleList.slice().sort(function (a, b) {
-            return (a.priority || 0) - (b.priority || 0);
+            var byPriority = (a.priority || 0) - (b.priority || 0);
+            if (byPriority !== 0) return byPriority;
+            return (a.id || 0) - (b.id || 0);
         });
         for (var i = 0; i < sorted.length; i++) {
             var m = ruleMatches(sorted[i], resolved);

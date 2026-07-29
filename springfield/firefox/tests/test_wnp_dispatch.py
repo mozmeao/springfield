@@ -267,7 +267,7 @@ class TestResolverPage:
 
     @pytest.mark.django_db
     def test_rules_blob_shape(self, client, _canonical_and_variants):
-        _make_rule(
+        rule_obj = _make_rule(
             _canonical_and_variants["canonical"],
             _canonical_and_variants["lapsed"],
             condition={"signal": "lapsed_user", "equals": True},
@@ -279,6 +279,8 @@ class TestResolverPage:
         rules = _parse_json_blob(body, "user-routing-rules")
         assert isinstance(rules, list) and len(rules) == 1
         rule = rules[0]
+        # ``id`` is the client-side sort tie-break for equal priorities.
+        assert rule["id"] == rule_obj.pk
         assert rule["name"] == "lapsed-users-156"
         assert rule["priority"] == 50
         assert isinstance(rule["conditions"], list) and rule["conditions"]

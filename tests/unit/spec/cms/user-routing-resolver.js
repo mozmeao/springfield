@@ -265,18 +265,44 @@ describe('user-routing-resolver.js', function () {
         });
 
         it('treats missing priority as 0', function () {
-            // Two rules, no priority set → both treated as 0 → order
-            // preserved (stable sort). First rule that matches wins.
+            // Two rules, no priority set → both treated as 0. Tie broken by
+            // ``id`` (ascending), NOT by insertion order — the deterministic
+            // guarantee doesn't depend on Array.sort stability.
             const r1 = {
+                id: 1,
                 name: 'r1',
                 conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
             };
             const r2 = {
+                id: 2,
                 name: 'r2',
                 conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
             };
             const result = ns.evaluate([r1, r2], { country: 'US' });
             expect(result.matched).toBe(r1);
+        });
+
+        it('breaks priority ties on id (lower id wins), independent of insertion order', function () {
+            // Same priority, but r_high has the lower id — must win
+            // regardless of whether it's passed first or last to evaluate().
+            const r_low = {
+                id: 100,
+                name: 'lower-id',
+                priority: 50,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            const r_high = {
+                id: 5,
+                name: 'higher-id',
+                priority: 50,
+                conditions: [{ signal: 'country', op: 'is', values: ['US'] }]
+            };
+            expect(
+                ns.evaluate([r_low, r_high], { country: 'US' }).matched
+            ).toBe(r_high);
+            expect(
+                ns.evaluate([r_high, r_low], { country: 'US' }).matched
+            ).toBe(r_high);
         });
     });
 
@@ -578,6 +604,22 @@ describe('user-routing-resolver.js', function () {
 
         it('returns undefined when the field is missing', function () {
             expect(ns.UITOUR_EXTRACTORS.ai_controls({})).toBeUndefined();
+        });
+
+        it('returns undefined when the field is null or non-string', function () {
+            // Regression guard: null / non-string values must NOT resolve to
+            // a value, or `ai_controls is_not [enabled]` would silently
+            // match every user whose Firefox returned null via
+            // `values.indexOf(null) === -1` → is_not → true.
+            expect(
+                ns.UITOUR_EXTRACTORS.ai_controls({ default: null })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.ai_controls({ default: 0 })
+            ).toBeUndefined();
+            expect(
+                ns.UITOUR_EXTRACTORS.ai_controls({ default: true })
+            ).toBeUndefined();
         });
     });
 

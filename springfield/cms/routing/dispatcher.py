@@ -469,6 +469,13 @@ def _render_resolver_page(request, canonical, live_rules, *, registry, preview_s
 
         serialized_rules.append(
             {
+                # ``id`` is emitted so the client sort has an explicit,
+                # engine-independent tie-break for rules sharing the same
+                # priority. Without it, JS Array.sort ties fall to whatever
+                # the runtime's stability guarantee happens to be (ES2019+
+                # is stable, older engines aren't) — a fragile foundation
+                # for a load-bearing priority-strict invariant.
+                "id": rule.pk,
                 "name": rule.name,
                 # ``priority`` is the JSON-contract name the client-side
                 # resolver uses to sort rules. Server-side field is

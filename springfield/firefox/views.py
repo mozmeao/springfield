@@ -1040,6 +1040,16 @@ def wnp_dispatch(request, *args, **kwargs):
     # back through the WNP URL). Re-entering the router would render the
     # resolver again → the client would re-navigate → infinite loop.
     # See dispatcher.ROUTED_MODE_NONE for the fallback attribution.
+    #
+    # This check is deliberately permissive: we short-circuit on ANY
+    # non-empty ``routed_mode`` value, including client-crafted ones like
+    # ``?routed_mode=xyz``. That accepts a small confidentiality-of-nothing
+    # loss (a curious user can bypass routing by inventing a value) in
+    # exchange for future-proofing — any new framework-emitted mode value
+    # (``fallback``, ``paused``, etc. hypothetically) is honored without
+    # code changes here. Do NOT tighten to ``== ROUTED_MODE_NONE`` — that
+    # re-introduces the redirect loop for any future value the framework
+    # emits.
     if request.GET.get("routed_mode"):
         return _fallback()
 
