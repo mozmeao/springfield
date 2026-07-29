@@ -127,6 +127,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
         FieldPanel("show_in_menus"),
     ]
     content_panels = [
+        FieldPanel("internal_title"),
         FieldPanel("title"),
         FieldPanel("slug"),
     ]
@@ -1320,6 +1321,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     )
 
     content_panels = [
+        FieldPanel("internal_title"),
         FieldPanel("title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
@@ -2181,11 +2183,9 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        form = getattr(request, "form", None)
-        context["form_errors"] = getattr(form, "errors", {})
+        context["form"] = getattr(request, "form", None)
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        context["form_data"] = self._get_display_data(form)
         return context
 
     def serve(self, request, *args, **kwargs):
@@ -2212,55 +2212,52 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         add_never_cache_headers(response)
         return response
 
+    def serve_preview(self, request, mode_name):
+        request.form = self.get_form(request)
+        return super().serve_preview(request, mode_name)
+
     def get_form(self, request):
         """Return a Django Form instance generated from the form_fields StreamField.
 
         Bound to ``request.POST`` for POST requests, unbound otherwise.
         """
+        locale = self.locale.language_code
         form_fields = {}
         for field in self.form_fields:
             value = field.value
-            form_fields[value["internal_identifier"]] = value.get_form_field()
-
-        ContactForm = type("ContactForm", (forms.Form,), form_fields)
+            form_field = value.get_form_field(locale=locale)
+            if field.block_type == "hidden_field":
+                override_param = value["query_param_override"]
+                if override_param and (override := request.GET.get(override_param)):
+                    form_field.initial = override
+            form_fields[value["internal_identifier"]] = form_field
 
         # Hidden fields always arrive in POST, they must not be considered when checking for an empty submission.
         hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
         visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
 
-        def clean_form(_self):
-            # The honeypot must stay empty, and every hidden field must have a value
-            honeypot = _self.data.get("office_fax")
-            empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
-            if honeypot or empty_hidden_fields:
-                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-            # Only flag an empty submission when no per-field error already exists
-            has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
-            if not has_any_data and not _self.errors:
-                raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+        class ContactForm(forms.Form):
+            def __init__(_self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                _self.fields.update(form_fields)
 
-        ContactForm.clean = clean_form
+            def clean(_self):
+                # The honeypot must stay empty, and every hidden field must have a value
+                honeypot = _self.data.get("office_fax")
+                empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
+                if honeypot or empty_hidden_fields:
+                    raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+                # Only flag an empty submission when no per-field error already exists
+                has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
+                if not has_any_data and not _self.errors:
+                    raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+                return _self.cleaned_data
 
+        # auto_id="%s" keeps the rendered ids equal to the author-defined internal identifiers
+        # instead of Django's "id_" prefixed defaults.
         if request.method == "POST":
-            return ContactForm(request.POST)
-        return ContactForm()
-
-    def _get_display_data(self, form):
-        """Build a display dict from raw form data for template persistence"""
-
-        if form is None:
-            return {}
-        data = form.data
-        result = {}
-        for field in self.form_fields:
-            if field.block_type == "hidden_field":
-                continue
-            identifier = field.value["internal_identifier"]
-            if field.value.is_multivalue:
-                result[identifier] = data.getlist(identifier)
-            else:
-                result[identifier] = data.get(identifier, "")
-        return result
+            return ContactForm(request.POST, auto_id="%s")
+        return ContactForm(auto_id="%s")
 
     def _collect_field_values(self, form):
         """Return submitted values keyed by internal_identifier, normalized to the

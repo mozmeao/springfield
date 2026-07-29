@@ -11,6 +11,7 @@ from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
 from wagtail.models import Locale, Page as WagtailBasePage, Site
+from wagtail.search import index
 from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
@@ -59,6 +60,13 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     ftl_files = None
 
+    internal_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text=("Editor-only label for organizing pages in the CMS. Not shown to the public; the public title is used when blank."),
+    )
+
     og_image = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,
@@ -80,6 +88,13 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         ),
     )
 
+    # Surface the editor-only `internal_title` at the top of the Content tab, above
+    # the public `title` field (which WagtailBasePage.content_panels provides).
+    content_panels = [
+        FieldPanel("internal_title"),
+        *WagtailBasePage.content_panels,
+    ]
+
     promote_panels = WagtailBasePage.promote_panels + [
         FieldPanel("og_image"),
     ]
@@ -88,12 +103,19 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         FieldPanel("custom_navigation"),
     ]
 
+    search_fields = WagtailBasePage.search_fields + [
+        index.AutocompleteField("internal_title"),
+    ]
+
     # Make the `slug` field 'synchronised', so it automatically gets copied over to
     # every localized variant of the page and shouldn't get sent for translation.
+    # `internal_title` is likewise synchronised: it's a locale-agnostic organizational
+    # label, so we copy it across translations rather than send it for translation.
     # See https://wagtail-localize.org/stable/how-to/field-configuration/
     override_translatable_fields = [
         SynchronizedField("slug"),
         SynchronizedField("custom_navigation"),
+        SynchronizedField("internal_title"),
     ]
 
     # Add the "Keep analytics IDs" opt-out checkbox to the admin copy form.
@@ -109,6 +131,13 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         if settings.CMS_ALLOWED_PAGE_MODELS == ["__all__"] or page_model_signature in settings.CMS_ALLOWED_PAGE_MODELS:
             return super().can_create_at(parent)
         return False
+
+    def get_admin_display_title(self):
+        # Show the editor-only `internal_title` throughout the admin (page explorer,
+        # choosers, move/copy/delete confirmations). Falls back to Wagtail's default
+        # (draft_title or title) when no internal title has been set, so unlabeled
+        # pages always reflect their current public title.
+        return self.internal_title or super().get_admin_display_title()
 
     def _patch_request_for_springfield(self, request):
         "Add hints that help us integrate CMS pages with core Springfield logic"

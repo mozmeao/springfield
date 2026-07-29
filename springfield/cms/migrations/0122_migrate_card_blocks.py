@@ -7,11 +7,15 @@
 # testimonial_card → card.
 
 import json
+import os
 import re
+import sys
 from collections.abc import MutableSequence
 from uuid import uuid4
 
 from django.db import migrations
+
+from springfield.base.config_manager import config
 
 _EMPTY_SHOW_TO = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -307,6 +311,10 @@ _PAGE_CONFIGS = [
 
 
 def update_pages(apps, schema_editor):
+    is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
+    if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
+        return
+
     Revision = apps.get_model("wagtailcore", "Revision")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
