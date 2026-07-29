@@ -15,7 +15,6 @@ const OS = {
 
     ANDROID: 'android',
 
-    WINDOWS: 'win',
     WINDOWS32: 'win',
     WINDOWS32MSI: 'win-msi',
     WINDOWS64: 'win64',
@@ -27,7 +26,9 @@ const OS = {
     LINUX64ARM: 'linux64-aarch64'
 };
 
-const RELEASES = {
+// TODO: Switch over to user-facing-friendly release/channel names
+
+const RELEASES_WILL_CHANGE = {
     STABLE: 'firefox-latest-ssl',
     BETA: 'firefox-beta-latest-ssl',
     DEV: 'firefox-devedition-latest-ssl',
@@ -37,19 +38,79 @@ const RELEASES = {
 };
 
 const UNSUPPORTED_PLATFORMS_BY_RELEASE = {
-    [RELEASES.STABLE]: [OS.LINUX32],
-    [RELEASES.ESR]: [OS.IOS, OS.ANDROID],
-    [RELEASES.ESR115]: [
+    [RELEASES_WILL_CHANGE.STABLE]: [OS.LINUX32],
+    [RELEASES_WILL_CHANGE.ESR]: [OS.IOS, OS.ANDROID],
+    [RELEASES_WILL_CHANGE.ESR115]: [
         OS.IOS,
         OS.ANDROID,
         OS.WINDOWS64ARM,
         OS.LINUX32,
         OS.LINUX64ARM
     ],
-    [RELEASES.BETA]: [OS.LINUX32],
-    [RELEASES.DEV]: [OS.IOS, OS.ANDROID, OS.LINUX32],
-    [RELEASES.NIGHTLY]: [OS.IOS, OS.LINUX32]
+    [RELEASES_WILL_CHANGE.BETA]: [OS.LINUX32],
+    [RELEASES_WILL_CHANGE.DEV]: [OS.IOS, OS.ANDROID, OS.LINUX32],
+    [RELEASES_WILL_CHANGE.NIGHTLY]: [OS.IOS, OS.LINUX32]
 };
+
+const RELEASES = {
+    STABLE: 'stable',
+    BETA: 'beta',
+    DEV: 'dev',
+    NIGHTLY: 'nightly',
+    ESR: 'esr',
+    ESR_NEXT: 'esr-next',
+    ESR_115: 'esr-115',
+}
+
+// TODO: App Store URL
+// TODO: Play Store URL
+// TODO: Microsoft Store URL
+// TODO: APT URL
+
+/**
+ * Generate a Firefox download URL for desktop and Android APT based on the form choices.
+ */
+class FirefoxDownloadURL extends URL {
+	static base = 'https://download.mozilla.org/';
+
+    static releaseChoiceToDownloadChannel = {
+        [RELEASES.STABLE]: '',
+        [RELEASES.BETA]: 'beta',
+        [RELEASES.NIGHTLY]: 'nightly',
+        [RELEASES.DEV]: 'devedition',
+        [RELEASES.ESR]: 'esr',
+        [RELEASES.ESR_NEXT]: 'esr-next',
+        [RELEASES.ESR_115]: 'esr115',
+    };
+
+    static resolveOS(choices) {
+        return choices.os.endsWith('-msi') ? choices.os.slice(0, -4) : choices.os;
+    }
+
+    static resolveProduct(choices) {
+        const name = ['firefox'];
+        name.push(FirefoxDownloadURL.releaseChoiceToDownloadChannel[choices.release]);
+        if (choices.os.endsWith('msi')) name.push('msi')
+        name.push('latest');
+        if (choices.os !== 'android' && choices.release === 'nightly' && choices.language !== 'en-US') name.push('l10n');
+        name.push('ssl');
+        return name.filter(Boolean).join('-');
+    }
+
+    static resolveLang(choices) {
+        if (choices.os.startsWith('osx') && choices.language === 'ja') return 'ja-JP-mac';
+        else if (choices.os === 'android') return 'multi';
+
+        return choices.language;
+    }
+
+    constructor(choices) {
+        super(FirefoxDownloadURL.base);
+        this.searchParams.set('os', FirefoxDownloadURL.resolveOS(choices));
+        this.searchParams.set('product', FirefoxDownloadURL.resolveProduct(choices));
+        this.searchParams.set('lang', FirefoxDownloadURL.resolveLang(choices));
+    }
+}
 
 class FirefoxDownloadFormElement extends HTMLElement {
     get form() {
@@ -165,7 +226,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             languageFieldWrap.querySelector('.language-message')?.remove();
         }
 
-        for (const releaseOption of Object.values(RELEASES)) {
+        for (const releaseOption of Object.values(RELEASES_WILL_CHANGE)) {
             const isNotSupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[
                 releaseOption
             ].includes(os.value);
