@@ -18,13 +18,14 @@ from django.utils.text import slugify
 from django.utils.timezone import get_default_timezone, make_aware
 
 import requests
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup, Comment, Tag as HtmlTag
 from wagtail.models import Locale
 
 from springfield.cms.models import Author, BlogArticlePage, BlogIndexPage, SpringfieldImage, Tag
 
-# WordPress wraps inline images with a `[caption ...]<img ...> caption text[/caption]` shortcode.
-# We only care about the <img> itself; the caption prose has nowhere to go in our block set.
+# Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
+# shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.
+# The shortcode is rewritten into the figure form so both take the same path through parse_content.
 CAPTION_SHORTCODE_RE = re.compile(r"\[caption[^\]]*\](.*?)\[/caption\]", re.DOTALL)
 IMG_TAG_RE = re.compile(r"<img[^>]*>")
 
@@ -57,19 +58,38 @@ def parse_categories(raw):
     return meaningful or names
 
 
+def caption_html(figcaption):
+    """Return a figcaption's inner HTML wrapped in a paragraph, ready for a RichTextBlock.
+
+    The <p> matters: the block template runs the value through `remove_p_tag`, which
+    yields nothing at all for rich text that isn't wrapped in a block-level tag.
+    """
+    inner = figcaption.decode_contents().strip()
+    return f"<p>{inner}</p>" if inner else ""
+
+
 def parse_content(raw_html):
     """Convert a post's WordPress HTML body into ordered block specs, plus any warnings.
 
-    Specs are ("text", html), ("image", {"src", "alt"}) or ("code", {"code": ...}). Image specs
-    hold only the URL and are downloaded later, so parsing does no I/O. Only the markup this
-    export uses is handled: paragraphs, inline images, [caption] shortcodes (reduced to their
-    <img>), and YouTube iframes (linked as plain text, as we have no poster image for them).
+    Specs are ("text", html), ("image", {"src", "alt", "caption"}) or ("code", {"code": ...}).
+    Image specs hold only the URL and are downloaded later, so parsing does no I/O. Only the
+    markup this export uses is handled: paragraphs, inline images, captioned figures (and the
+    equivalent [caption] shortcode), and YouTube iframes (linked as plain text, as we have no
+    poster image for them).
     """
     warnings = []
 
     def replace_caption(match):
-        img_match = IMG_TAG_RE.search(match.group(1))
-        return img_match.group(0) if img_match else ""
+        """Rewrite a [caption] shortcode as a <figure>, keeping the prose after the <img>."""
+        body = match.group(1)
+        img_match = IMG_TAG_RE.search(body)
+        if img_match is None:
+            return ""
+        img_tag = img_match.group(0)
+        caption = body[img_match.end() :].strip()
+        if not caption:
+            return img_tag
+        return f"<figure>{img_tag}<figcaption>{caption}</figcaption></figure>"
 
     raw_html = CAPTION_SHORTCODE_RE.sub(replace_caption, raw_html)
 
@@ -85,25 +105,60 @@ def parse_content(raw_html):
         if joined:
             specs.append(("text", joined))
 
+    def image_spec(img, figcaption=None):
+        return (
+            "image",
+            {
+                "src": img.get("src", ""),
+                "alt": img.get("alt", ""),
+                "caption": caption_html(figcaption) if figcaption is not None else "",
+            },
+        )
+
+    def keep_as_text(node):
+        """Buffer a node as rich text, reporting any caption that goes with it.
+
+        Captions only survive as an Image + Caption block when they sit on a figure holding a
+        single image. Anything else (a gallery, an embed, a figure nested in another container)
+        keeps its caption inline in the text, which is worth telling the operator about.
+        """
+        figcaptions = node.find_all("figcaption") if isinstance(node, HtmlTag) else []
+        for figcaption in figcaptions:
+            text = figcaption.get_text(strip=True)
+            if text:
+                warnings.append(f"caption {text!r} could not be attached to a single image - left inline in a text block")
+        text_buffer.append(node)
+
     for node in root.contents:
         if isinstance(node, Comment):
             continue
-        if getattr(node, "name", None) == "img":
+        name = getattr(node, "name", None)
+        if name == "img":
             flush_text()
-            specs.append(("image", {"src": node.get("src", ""), "alt": node.get("alt", "")}))
+            specs.append(image_spec(node))
             continue
-        if getattr(node, "name", None) == "iframe":
+        if name == "figure":
+            # Only a figure holding exactly one image maps onto a block. A gallery's caption
+            # describes the whole gallery, and an embed's has no image to attach to at all.
+            images = node.find_all("img")
+            if len(images) == 1 and node.find("figure") is None:
+                flush_text()
+                specs.append(image_spec(images[0], node.find("figcaption", recursive=False)))
+            else:
+                keep_as_text(node)
+            continue
+        if name == "iframe":
             flush_text()
             src = node.get("src", "")
             warnings.append(f"iframe embed ({src}) has no poster image available - linked as plain text instead of a video block")
             text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
             flush_text()
             continue
-        if getattr(node, "name", None) == "pre":
+        if name == "pre":
             flush_text()
             specs.append(("code", {"code": node.get_text()}))
             continue
-        text_buffer.append(node)
+        keep_as_text(node)
 
     flush_text()
     return specs, warnings
@@ -304,14 +359,21 @@ class Command(BaseCommand):
     def materialize_content(self, specs):
         """Build the StreamField `content` from block specs, downloading each inline image.
 
-        An image that fails to download is skipped, so one dead URL doesn't lose the whole post.
+        A captioned image becomes an Image + Caption block; an uncaptioned one a plain media
+        image. An image that fails to download is skipped, along with its caption, so one dead
+        URL doesn't lose the whole post.
         """
         blocks = []
         for block_type, value in specs:
             if block_type == "image":
                 image = self.get_or_create_image(value["src"], value["alt"])
-                if image is not None:
-                    blocks.append(("media", [("image", {"image": image, "settings": {}})]))
+                if image is None:
+                    continue
+                image_value = {"image": image, "settings": {}}
+                if value.get("caption"):
+                    blocks.append(("image_caption", {"image": image_value, "caption": value["caption"]}))
+                else:
+                    blocks.append(("media", [("image", image_value)]))
             else:
                 blocks.append((block_type, value))
         return blocks
