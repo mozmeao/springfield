@@ -18,7 +18,7 @@ import springfield.cms.models.routing
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0121_contactpage_body_class_contactpage_extra_js_and_more"),
+        ("cms", "0124_articledetailpage_internal_title_and_more"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 
