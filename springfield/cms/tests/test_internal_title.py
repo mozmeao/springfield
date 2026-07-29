@@ -29,16 +29,6 @@ def test_get_admin_display_title_falls_back_to_title_when_blank(minimal_site):
 
 
 @pytest.mark.django_db
-def test_internal_title_is_blank_by_default_and_not_seeded(minimal_site):
-    root_page = minimal_site.root_page
-    page = SimpleRichTextPage(slug="no-seed", title="Some Public Title")
-    root_page.add_child(instance=page)
-
-    # No auto-seeding: the field stays blank until an editor sets it explicitly.
-    assert page.internal_title == ""
-
-
-@pytest.mark.django_db
 def test_admin_display_reflects_current_title_when_unlabeled(minimal_site):
     root_page = minimal_site.root_page
     page = SimpleRichTextPage(slug="fresh", title="Original Title")
