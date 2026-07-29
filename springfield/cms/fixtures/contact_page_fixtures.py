@@ -153,6 +153,7 @@ def get_form_field_variants() -> list[dict]:
                 "label": "Anything else you'd like us to know?",
                 "required": False,
                 "rows": 4,
+                "max_length": 2500,
             },
             "id": "textarea-field",
         },
