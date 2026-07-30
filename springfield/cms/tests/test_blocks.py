@@ -3578,13 +3578,13 @@ def test_uuid_block_is_not_translatable():
 
 
 def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
-    settings = block_data["value"]["settings"]
-    mobile_behavior = settings["mobile_behavior"]
-    highlighted_column = settings.get("highlighted_column") or None
+    value = block_data["value"]
+    mobile_behavior = value["mobile_behavior"]
+    highlighted_column = value.get("highlighted_column") or None
 
     assert mobile_behavior in wrapper_el.get("class", [])
 
-    header_cells_data = [c["value"] for c in block_data["value"]["header_row"][0]["value"]["cells"]]
+    header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
     th_elements = wrapper_el.find_all("th")
     assert len(th_elements) == len(header_cells_data)
     for i, (th, cell_data) in enumerate(zip(th_elements, header_cells_data)):
@@ -3594,10 +3594,10 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
             assert "highlighted" in th.get("class", [])
         else:
             assert "highlighted" not in th.get("class", [])
-        if cell_data["settings"]["column_span"] > 1:
-            assert th.get("colspan") == str(cell_data["settings"]["column_span"])
+        if cell_data["column_span"] > 1:
+            assert th.get("colspan") == str(cell_data["column_span"])
 
-    content_rows_data = block_data["value"]["content_rows"]
+    content_rows_data = value["content_rows"]
     tr_elements = wrapper_el.find("tbody").find_all("tr")
     assert len(tr_elements) == len(content_rows_data)
     for tr, row_data in zip(tr_elements, content_rows_data):
@@ -3611,8 +3611,8 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
                 assert "highlighted" in td.get("class", [])
             else:
                 assert "highlighted" not in td.get("class", [])
-            if cell_data["settings"]["column_span"] > 1:
-                assert td.get("colspan") == str(cell_data["settings"]["column_span"])
+            if cell_data["column_span"] > 1:
+                assert td.get("colspan") == str(cell_data["column_span"])
 
 
 def test_comparison_table_scroll_highlighted(index_page, rf):

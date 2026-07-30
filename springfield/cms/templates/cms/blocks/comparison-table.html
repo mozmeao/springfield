@@ -4,17 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:comparison-table mobile_behavior="{{ value.settings.mobile_behavior }}">
+<include:comparison-table mobile_behavior="{{ value.mobile_behavior }}">
   <content:header>
     {% for header_row in value.header_row %}
       <tr>
         {% for cell in header_row.cells %}
           <th
-            {% if cell.settings.column_span|int > 1 %}
-              colspan="{{ cell.settings.column_span }}"
+            {% if cell.column_span|int > 1 %}
+              colspan="{{ cell.column_span }}"
             {% endif %}
 
-            {% if value.settings.highlighted_column and value.settings.highlighted_column|int == loop.index %}
+            {% if value.highlighted_column and value.highlighted_column|int == loop.index %}
               class="highlighted"
             {% endif %}
           >
@@ -30,11 +30,11 @@
       <tr>
         {% for cell in row.cells %}
           <td
-            {% if cell.settings.column_span|int > 1 %}
-              colspan="{{ cell.settings.column_span }}"
+            {% if cell.column_span|int > 1 %}
+              colspan="{{ cell.column_span }}"
             {% endif %}
 
-            {% if value.settings.highlighted_column and value.settings.highlighted_column|int == loop.index %}
+            {% if value.highlighted_column and value.highlighted_column|int == loop.index %}
               class="highlighted"
             {% endif %}
           >

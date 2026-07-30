@@ -24,7 +24,7 @@ def _cell(content, column_span=1, cell_id=""):
         "type": "item",
         "value": {
             "content": content,
-            "settings": {"column_span": column_span},
+            "column_span": column_span,
         },
         "id": cell_id,
     }
@@ -82,10 +82,8 @@ def get_comparison_table_variants() -> list[dict]:
         {
             "type": "comparison_table",
             "value": {
-                "settings": {
-                    "highlighted_column": 2,
-                    "mobile_behavior": "scroll",
-                },
+                "highlighted_column": 2,
+                "mobile_behavior": "scroll",
                 "header_row": [_make_header_row("ctbl01")],
                 "content_rows": _make_content_rows("ctbl01"),
             },
@@ -95,10 +93,8 @@ def get_comparison_table_variants() -> list[dict]:
         {
             "type": "comparison_table",
             "value": {
-                "settings": {
-                    "highlighted_column": 2,
-                    "mobile_behavior": "stacked",
-                },
+                "highlighted_column": 2,
+                "mobile_behavior": "stacked",
                 "header_row": [_make_header_row("ctbl02")],
                 "content_rows": _make_content_rows("ctbl02"),
             },
