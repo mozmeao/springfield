@@ -7,12 +7,13 @@ import html
 import re
 import time
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urlunparse
 from xml.etree import ElementTree
 
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.template.defaultfilters import filesizeformat
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 from django.utils.timezone import get_default_timezone, make_aware
@@ -28,6 +29,10 @@ from springfield.cms.models import Author, BlogArticlePage, BlogIndexPage, Sprin
 # The shortcode is rewritten into the figure form so both take the same path through parse_content.
 CAPTION_SHORTCODE_RE = re.compile(r"\[caption[^\]]*\](.*?)\[/caption\]", re.DOTALL)
 IMG_TAG_RE = re.compile(r"<img[^>]*>")
+
+# Layout wrappers WordPress puts around blocks (groups, media-and-text pairs, columns). They
+# carry no meaning we keep, so parse_content steps inside them to reach the figures they hold.
+CONTAINER_TAGS = {"div", "section"}
 
 
 def element_text(post, tag):
@@ -139,6 +144,16 @@ def embed_block_url(figure):
     return url if url.startswith("http") else ""
 
 
+def video_link(url):
+    """Link to a video we can't turn into a block, labelled rather than showing a raw URL.
+
+    The query string goes too. WordPress captured these from share links, so it carries tracking
+    - session ids, checksums, timestamps - rather than anything needed to reach the video.
+    """
+    without_tracking = urlunparse(urlparse(url)._replace(query="", fragment=""))
+    return f'<p><a href="{html.escape(without_tracking, quote=True)}">Watch video</a></p>'
+
+
 def caption_html(figcaption):
     """Return a figcaption's inner HTML wrapped in a paragraph, ready for a RichTextBlock.
 
@@ -206,8 +221,7 @@ def parse_content(raw_html):
         video_id = youtube_video_id(url)
         if video_id is None:
             warnings.append(f"{url} is not a YouTube video - linked as plain text instead of a video block")
-            escaped = html.escape(url, quote=True)
-            return ("text", f'<p><a href="{escaped}">{escaped}</a></p>')
+            return ("text", video_link(url))
         return ("video", {"url": youtube_watch_url(video_id), "alt": alt})
 
     def keep_as_text(node):
@@ -224,45 +238,97 @@ def parse_content(raw_html):
                 warnings.append(f"caption {text!r} could not be attached to a single image - left inline in a text block")
         text_buffer.append(node)
 
-    for node in root.contents:
-        if isinstance(node, Comment):
-            continue
-        name = getattr(node, "name", None)
-        if name == "img":
+    def handle_gallery(gallery):
+        """Turn each figure nested in a gallery into its own image spec.
+
+        We have no gallery block, so the images become a run of individual ones. The gallery's
+        own caption describes the set, which only maps onto a block when the set holds a single
+        image that has no caption of its own.
+        """
+        own_caption = gallery.find("figcaption", recursive=False)
+        first_spec = len(specs)
+        process([child for child in gallery.contents if child is not own_caption])
+
+        if own_caption is None:
+            return
+        produced = [spec for spec in specs[first_spec:] if spec[0] == "image"]
+        if len(produced) == 1 and not produced[0][1]["caption"]:
+            produced[0][1]["caption"] = caption_html(own_caption)
+        else:
+            text = own_caption.get_text(strip=True)
+            if text:
+                warnings.append(f"caption {text!r} describes a gallery of {len(produced)} images - dropped")
+
+    def keep_video_as_text(node, video):
+        """Leave a self-hosted video where it is, and say so.
+
+        The video block only accepts YouTube and assets.mozilla.net URLs, so an mp4 served from
+        the blog itself has nowhere to go. It stays inline, still pointing at blog.mozilla.org,
+        which needs handling separately - hence the warning rather than a silent pass.
+        """
+        src = video.get("src", "")
+        warnings.append(f"self-hosted video {src} cannot be imported into a video block - left inline in a text block")
+        text_buffer.append(node)
+
+    def handle_figure(figure):
+        video = figure.find("video")
+        if video is not None:
+            # The figure's caption travels inline with the video, so it needs no separate warning.
+            keep_video_as_text(figure, video)
+            return
+        images = figure.find_all("img")
+        embed_url = embed_block_url(figure)
+        if figure.find("figure") is not None:
+            handle_gallery(figure)
+        elif len(images) == 1:
             flush_text()
-            specs.append(image_spec(node))
-            continue
-        if name == "figure":
-            # Only a figure holding exactly one image maps onto a block. A gallery's caption
-            # describes the whole gallery, so it has no single image to attach to.
-            images = node.find_all("img")
-            embed_url = embed_block_url(node)
-            if len(images) == 1 and node.find("figure") is None:
+            specs.append(image_spec(images[0], figure.find("figcaption", recursive=False)))
+        elif embed_url:
+            own_caption = figure.find("figcaption", recursive=False)
+            flush_text()
+            specs.append(embed_spec(embed_url, own_caption.get_text(strip=True) if own_caption else ""))
+            flush_text()
+        else:
+            keep_as_text(figure)
+
+    def process(nodes):
+        for node in nodes:
+            if isinstance(node, Comment):
+                continue
+            name = getattr(node, "name", None)
+            if name == "img":
                 flush_text()
-                specs.append(image_spec(images[0], node.find("figcaption", recursive=False)))
-            elif embed_url:
-                figcaption = node.find("figcaption", recursive=False)
+                specs.append(image_spec(node))
+                continue
+            if name == "figure":
+                handle_figure(node)
+                continue
+            if name == "iframe":
                 flush_text()
-                specs.append(embed_spec(embed_url, figcaption.get_text(strip=True) if figcaption else ""))
+                src = node.get("src", "")
+                if youtube_video_id(src) is None:
+                    warnings.append(f"iframe embed ({src}) is not a YouTube video - linked as plain text instead of a video block")
+                    text_buffer.append(video_link(src))
+                else:
+                    specs.append(embed_spec(src, ""))
                 flush_text()
-            else:
-                keep_as_text(node)
-            continue
-        if name == "iframe":
-            flush_text()
-            src = node.get("src", "")
-            if youtube_video_id(src) is None:
-                warnings.append(f"iframe embed ({src}) is not a YouTube video - linked as plain text instead of a video block")
-                text_buffer.append(f'<p><a href="{src}">{src}</a></p>')
-            else:
-                specs.append(embed_spec(src, ""))
-            flush_text()
-            continue
-        if name == "pre":
-            flush_text()
-            specs.append(("code", {"code": node.get_text()}))
-            continue
-        keep_as_text(node)
+                continue
+            if name == "video":
+                keep_video_as_text(node, node)
+                continue
+            if name == "pre":
+                flush_text()
+                specs.append(("code", {"code": node.get_text()}))
+                continue
+            # A layout wrapper (a group, a media-and-text pair) holding a figure: step inside so
+            # the image is imported, rather than left hotlinked in a text block. Its own prose
+            # keeps its place in the surrounding text.
+            if name in CONTAINER_TAGS and node.find("figure") is not None:
+                process(node.contents)
+                continue
+            keep_as_text(node)
+
+    process(root.contents)
 
     flush_text()
     return specs, warnings
@@ -503,23 +569,64 @@ class Command(BaseCommand):
             self.warn(f"could not download image {url} after 3 attempts: {last_exc}")
             return None
 
-        image = SpringfieldImage.objects.create(title=title, file=ContentFile(response.content, name=filename))
+        try:
+            image = SpringfieldImage.objects.create(title=title, file=ContentFile(response.content, name=filename))
+        except Exception as exc:
+            # Saving computes the image's dimensions through ImageMagick, which gives up on some
+            # files - a large animated GIF exhausts its pixel cache. One unusable image is worth
+            # a warning, not the loss of the whole post.
+            self.warn(f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
+            return None
+
         self.image_cache[filename] = image
         return image
+
+    def import_inline_images(self, text_html, title):
+        """Swap hotlinked <img> tags in rich text for Wagtail image embeds.
+
+        An image inside prose - a list item, a sentence, a link - can't become a block of its own
+        without breaking the text around it, so it stays in the rich text. Stored as an embed it
+        is a managed image rather than a link back to blog.mozilla.org, and the 'image' rich text
+        feature keeps it intact when an editor saves the page.
+        """
+        soup = BeautifulSoup(text_html, "html.parser")
+        images = soup.find_all("img")
+        if not images:
+            return text_html
+
+        for img in images:
+            image = self.get_or_create_image(img.get("src", ""), img.get("alt", "") or title)
+            if image is None:
+                # Already warned. Leave the original tag: a hotlink still renders while the
+                # source is up, which beats dropping the image outright.
+                continue
+            embed = soup.new_tag("embed")
+            embed.attrs = {
+                "embedtype": "image",
+                "id": str(image.pk),
+                "alt": img.get("alt", ""),
+                "format": "fullwidth",
+            }
+            img.replace_with(embed)
+
+        return str(soup)
 
     def materialize_content(self, specs, title):
         """Build the StreamField `content` from block specs, downloading the images they need.
 
         A captioned image becomes an Image + Caption block and an uncaptioned one a plain media
         image. A video becomes a media video block, whose required poster is the YouTube
-        thumbnail and whose alt text is the caption, falling back to the post `title`.
+        thumbnail and whose alt text is the caption, falling back to the post `title`. Images
+        left inline in a text block become Wagtail image embeds.
 
         An image or poster that fails to download is skipped, so one dead URL doesn't lose the
         whole post.
         """
         blocks = []
         for block_type, value in specs:
-            if block_type == "image":
+            if block_type == "text":
+                blocks.append(("text", self.import_inline_images(value, title)))
+            elif block_type == "image":
                 image = self.get_or_create_image(value["src"], value["alt"])
                 if image is None:
                     continue
