@@ -199,4 +199,22 @@ describe('cms/routing/readers.es6.js', function () {
             expect(SOURCE_UITOUR).toEqual('uitour');
         });
     });
+
+    describe('createProvider — fake signals (preview_signal, C9)', function () {
+        it('resolves faked signals immediately and reads the rest live', async function () {
+            const manifest = {
+                platform: { source: 'user_agent' },
+                utm_source: { source: 'url' }
+            };
+            const p = createProvider(manifest, {
+                client: { platform: 'linux', isFirefox: true },
+                search: '?utm_source=bing',
+                fakes: { platform: 'windows' }
+            });
+            // Faked signal wins over the live reader value.
+            expect(await p.read('platform')).toEqual('windows');
+            // Un-faked signal still reads live.
+            expect(await p.read('utm_source')).toEqual('bing');
+        });
+    });
 });

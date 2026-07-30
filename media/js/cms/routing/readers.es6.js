@@ -223,12 +223,16 @@ export function createUrlReader(options) {
  *                 uiTour, search, timeout).
  */
 export function createProvider(manifest, options) {
+    const opts = options || {};
     const signalManifest = manifest || {};
+    // Fake signal values (preview_signal, C9) resolve immediately; everything else
+    // reads live through the source adapters.
+    const fakes = opts.fakes || {};
     const readers = {};
-    readers[SOURCE_CDN_GEO] = createGeoReader(options);
-    readers[SOURCE_USER_AGENT] = createUserAgentReader(options);
-    readers[SOURCE_UITOUR] = createUITourReader(options);
-    readers[SOURCE_URL] = createUrlReader(options);
+    readers[SOURCE_CDN_GEO] = createGeoReader(opts);
+    readers[SOURCE_USER_AGENT] = createUserAgentReader(opts);
+    readers[SOURCE_UITOUR] = createUITourReader(opts);
+    readers[SOURCE_URL] = createUrlReader(opts);
 
     function descriptorFor(name) {
         const entry = signalManifest[name];
@@ -245,6 +249,9 @@ export function createProvider(manifest, options) {
 
     return {
         read: function (name) {
+            if (Object.prototype.hasOwnProperty.call(fakes, name)) {
+                return Promise.resolve(fakes[name]);
+            }
             const descriptor = descriptorFor(name);
             if (!descriptor) {
                 return Promise.reject();

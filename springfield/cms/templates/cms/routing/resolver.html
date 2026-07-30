@@ -38,6 +38,7 @@
       data-routing-manifest='{{ routing_manifest|tojson }}'
       data-canonical-url="{{ canonical_url }}"
       data-loop-breaker-param="{{ loop_breaker_param }}"
+      {% if routing_fake_signals %}data-routing-fake-signals='{{ routing_fake_signals|tojson }}'{% endif %}
     >
       <p class="routing-resolver-status">{{ ftl('routing-resolver-preparing') }}</p>
       <noscript>

@@ -63,11 +63,22 @@ export function initResolver(options) {
 
     const rules = parseJSONAttribute(root, 'data-routing-rules') || [];
     const manifest = parseJSONAttribute(root, 'data-routing-manifest') || {};
+    // Preview fake signals (C9), if any, resolve immediately on the client.
+    const fakes = parseJSONAttribute(root, 'data-routing-fake-signals') || {};
     const canonicalUrl = root.getAttribute('data-canonical-url') || '/';
     const loopBreakerParam =
         root.getAttribute('data-loop-breaker-param') || 'routed';
 
-    const provider = createProvider(manifest, opts.providerOptions || {});
+    const baseOptions = opts.providerOptions || {};
+    const providerOptions = {
+        root: baseOptions.root,
+        client: baseOptions.client,
+        uiTour: baseOptions.uiTour,
+        search: baseOptions.search,
+        timeout: baseOptions.timeout,
+        fakes: baseOptions.fakes || fakes
+    };
+    const provider = createProvider(manifest, providerOptions);
 
     return evaluateRules(rules, provider, opts.evaluatorOptions).then(
         function (outcome) {

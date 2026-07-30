@@ -82,5 +82,44 @@ describe('cms/routing/resolver.es6.js', function () {
             });
             expect(navigated).toEqual('/canon/?routed=1');
         });
+
+        it('applies fake signals from the preview data blob (C9)', async function () {
+            let navigated;
+            const rules = [
+                {
+                    target: '/faked/',
+                    conditions: [
+                        {
+                            signal: 'platform',
+                            operator: 'is',
+                            expected: 'windows',
+                            valueType: 'enum'
+                        }
+                    ]
+                }
+            ];
+            const root = makeRoot(
+                rules,
+                { platform: { source: 'user_agent' } },
+                '/canon/',
+                'routed'
+            );
+            root.setAttribute(
+                'data-routing-fake-signals',
+                JSON.stringify({ platform: 'windows' })
+            );
+            await initResolver({
+                root: root,
+                navigate: (url) => {
+                    navigated = url;
+                },
+                // Live client would report linux; the fake blob makes it windows.
+                providerOptions: {
+                    client: { platform: 'linux', isFirefox: true }
+                },
+                evaluatorOptions: { globalTimeoutMs: 500 }
+            });
+            expect(navigated).toEqual('/faked/');
+        });
     });
 });

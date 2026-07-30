@@ -73,11 +73,13 @@ def serialize_manifest(rules):
     return manifest
 
 
-def render_resolver(request, page):
+def render_resolver(request, page, fake_signals=None):
     """Render the resolver page for ``page`` and its live rules.
 
     A framework function against a page + its rules; not yet invoked by ``serve()``
-    (that is wired in C10).
+    (that is wired in C10). ``fake_signals`` (a ``{name: value}`` map, used by the
+    preview_signal flow in C9) is serialized into a ``data-*`` blob so the client
+    resolves those signals immediately while reading the rest live.
     """
     rules = serialize_rules(page, request)
     context = {
@@ -86,5 +88,6 @@ def render_resolver(request, page):
         "routing_manifest": serialize_manifest(rules),
         "canonical_url": page.get_url(request),
         "loop_breaker_param": LOOP_BREAKER_PARAM,
+        "routing_fake_signals": fake_signals or None,
     }
     return l10n_utils.render(request, RESOLVER_TEMPLATE, context, ftl_files=[RESOLVER_FTL])
