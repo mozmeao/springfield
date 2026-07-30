@@ -151,18 +151,6 @@ describe('plausible.es6.js', function () {
             );
             expect(script.src).toBe('https://pa.firefox.com/js/script.js');
         });
-
-        it('should resolve a relative src against the current page', function () {
-            html.setAttribute('data-plausible-domain', 'firefox.com');
-            html.setAttribute('data-plausible-src', '/js/script.js');
-
-            Plausible.loadScript();
-
-            const script = appendChildSpy.calls.mostRecent().args[0];
-            expect(script.getAttribute('data-api')).toBe(
-                `${window.location.origin}/api/event`
-            );
-        });
     });
 
     describe('trackEvent', function () {

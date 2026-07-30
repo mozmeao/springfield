@@ -1070,6 +1070,8 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+# The site identifier events are attributed to (rendered as `data-domain`), not
+# where the tracker is hosted. See PLAUSIBLE_SCRIPT_URL for the tracker origin.
 PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
 # Served from our own subdomain so the script and its events endpoint are both
 # first-party. plausible.es6.js derives /api/event on this same origin.
