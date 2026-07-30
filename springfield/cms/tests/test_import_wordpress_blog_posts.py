@@ -14,6 +14,7 @@ from django.core.management.base import CommandError, OutputWrapper
 import pytest
 import requests
 import responses
+from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
@@ -24,7 +25,7 @@ from springfield.cms.management.commands.import_wordpress_blog_posts import (
     parse_categories,
     parse_content,
 )
-from springfield.cms.models import BlogArticlePage
+from springfield.cms.models import BlogArticlePage, SpringfieldImage
 from springfield.cms.models.snippets import Author, Tag
 from springfield.cms.tests.factories import LocaleFactory
 
@@ -438,7 +439,7 @@ def test_warnings_are_written_to_csv_against_the_post_they_came_from(tmp_path, i
 
     assert [row["warning"] for row in rows] == [
         "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block",
-        "caption 'Gallery caption' could not be attached to a single image - left inline in a text block",
+        "caption 'Gallery caption' describes a gallery of 2 images - dropped",
     ]
     for row in rows:
         assert row["wp_id"] == "1"
@@ -819,7 +820,7 @@ def test_parse_content_non_youtube_iframe_becomes_link_with_warning():
     assert len(warnings) == 1
     assert "https://player.vimeo.com/video/123" in warnings[0]
     assert [spec[0] for spec in specs] == ["text", "text"]
-    assert "https://player.vimeo.com/video/123" in specs[1][1]
+    assert specs[1][1] == '<p><a href="https://player.vimeo.com/video/123">Watch video</a></p>'
 
 
 @pytest.mark.parametrize(
@@ -860,15 +861,25 @@ def test_parse_content_non_youtube_embed_block_becomes_a_link_with_warning():
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
     assert "embedtype" not in specs[0][1]
-    assert '<a href="https://www.tiktok.com/@mozilla/video/6966371868643298566">' in specs[0][1]
+    assert specs[0][1] == '<p><a href="https://www.tiktok.com/@mozilla/video/6966371868643298566">Watch video</a></p>'
     assert len(warnings) == 1
     assert "tiktok.com" in warnings[0]
 
 
-def test_parse_content_embed_fallback_link_is_escaped():
-    html = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123?a=1&amp;b=2</div></figure>'
+def test_parse_content_embed_fallback_link_drops_tracking_parameters():
+    """WordPress captured these from share links, so the query is tracking, not addressing."""
+    html = (
+        '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">'
+        "https://www.tiktok.com/@mozilla/video/123?_d=abc&amp;checksum=def&amp;timestamp=1633557299#frag</div></figure>"
+    )
     specs, _ = parse_content(html)
-    assert 'href="https://www.tiktok.com/@mozilla/video/123?a=1&amp;b=2"' in specs[0][1]
+    assert specs[0][1] == '<p><a href="https://www.tiktok.com/@mozilla/video/123">Watch video</a></p>'
+
+
+def test_parse_content_embed_fallback_link_is_escaped():
+    html = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://example.com/a&amp;b/video</div></figure>'
+    specs, _ = parse_content(html)
+    assert specs[0][1] == '<p><a href="https://example.com/a&amp;b/video">Watch video</a></p>'
 
 
 def test_parse_content_caption_shortcode_captures_caption():
@@ -922,8 +933,25 @@ def test_parse_content_figure_without_figcaption_becomes_image_without_caption()
     assert specs == [("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": ""})]
 
 
-def test_parse_content_gallery_caption_is_not_applied_to_a_single_image():
-    """A gallery's caption describes the whole gallery, so it must not be attached to one image."""
+def test_parse_content_gallery_images_each_become_their_own_image_spec():
+    html = (
+        '<figure class="wp-block-gallery">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="First"/></figure>'
+        '<figure class="wp-block-image"><img src="https://example.com/b.png" alt="Second"/>'
+        "<figcaption>Second caption</figcaption></figure>"
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["image", "image"]
+    assert [spec[1]["src"] for spec in specs] == ["https://example.com/a.png", "https://example.com/b.png"]
+    # A caption on a nested figure belongs to that image.
+    assert specs[0][1]["caption"] == ""
+    assert specs[1][1]["caption"] == "<p>Second caption</p>"
+
+
+def test_parse_content_multi_image_gallery_caption_is_dropped_with_a_warning():
+    """A caption on a gallery of several images describes the set, not any one image."""
     html = (
         '<figure class="wp-block-gallery">'
         '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/></figure>'
@@ -932,32 +960,113 @@ def test_parse_content_gallery_caption_is_not_applied_to_a_single_image():
         "</figure>"
     )
     specs, warnings = parse_content(html)
-    assert [spec[0] for spec in specs] == ["text"]
+    assert [spec[0] for spec in specs] == ["image", "image"]
+    assert len(warnings) == 1
+    assert "Gallery caption" in warnings[0] and "gallery of 2 images" in warnings[0]
+
+
+def test_parse_content_single_image_gallery_keeps_its_caption():
+    """WordPress galleries of one image are common, and the caption clearly describes it."""
+    html = (
+        '<figure class="wp-block-gallery">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="Only"/></figure>'
+        '<figcaption class="blocks-gallery-caption">The only image</figcaption>'
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["image"]
+    assert specs[0][1]["caption"] == "<p>The only image</p>"
+
+
+def test_parse_content_single_image_gallery_does_not_overwrite_the_images_own_caption():
+    html = (
+        '<figure class="wp-block-gallery">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/>'
+        "<figcaption>The image's own caption</figcaption></figure>"
+        '<figcaption class="blocks-gallery-caption">Gallery caption</figcaption>'
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert specs[0][1]["caption"] == "<p>The image's own caption</p>"
     assert len(warnings) == 1
     assert "Gallery caption" in warnings[0]
 
 
-def test_parse_content_caption_nested_in_a_container_warns():
-    """Only top-level nodes are turned into blocks, so a figure inside another container keeps
-    its caption inline - the operator is told rather than left to spot it."""
+def test_parse_content_figure_inside_a_container_is_imported_not_left_inline():
+    """A figure wrapped in a layout div was previously left hotlinked in a text block."""
     html = (
-        '<div class="wp-block-group">'
-        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/>'
-        "<figcaption>Choose a custom wallpaper</figcaption></figure>"
+        '<div class="wp-block-group"><p>Before</p>'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="Alt"/>'
+        "<figcaption>Nested caption</figcaption></figure>"
+        "<p>After</p></div>"
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == [], "the caption now has an image to attach to"
+    assert [spec[0] for spec in specs] == ["text", "image", "text"]
+    assert "Before" in specs[0][1]
+    assert specs[1][1] == {"src": "https://example.com/a.png", "alt": "Alt", "caption": "<p>Nested caption</p>"}
+    assert "After" in specs[2][1]
+
+
+def test_parse_content_media_and_text_layout_image_is_imported():
+    html = (
+        '<div class="wp-block-media-text">'
+        '<figure class="wp-block-media-text__media"><img src="https://example.com/a.png" alt="Side"/></figure>'
+        '<div class="wp-block-media-text__content"><p>Beside the image</p></div>'
         "</div>"
+    )
+    specs, _ = parse_content(html)
+    assert [spec[0] for spec in specs] == ["image", "text"]
+    assert specs[0][1]["src"] == "https://example.com/a.png"
+    assert "Beside the image" in specs[1][1]
+
+
+def test_parse_content_container_without_a_figure_is_left_as_text():
+    """Only containers holding a figure are stepped into, so ordinary markup is untouched."""
+    html = '<div class="wp-block-group"><p>Just text</p><ul><li>An item</li></ul></div>'
+    specs, _ = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert 'class="wp-block-group"' in specs[0][1]
+
+
+def test_parse_content_inline_image_in_a_list_stays_in_the_text():
+    """Pulling an inline image out of prose would break the flow, so it is left in place.
+
+    materialize_content turns it into a Wagtail image embed rather than a block.
+    """
+    html = "<ul><li>Step one <img src=\"https://example.com/icon.png\" alt=''/></li></ul>"
+    specs, _ = parse_content(html)
+    assert [spec[0] for spec in specs] == ["text"]
+    assert "https://example.com/icon.png" in specs[0][1]
+
+
+def test_parse_content_self_hosted_video_warns_and_stays_in_the_text():
+    html = (
+        '<figure class="wp-block-video"><video controls="" src="https://blog.mozilla.org/files/tab-groups.mp4"></video>'
+        "<figcaption>Firefox tab groups now available</figcaption></figure>"
     )
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
+    assert "tab-groups.mp4" in specs[0][1]
+    # One warning for the video, not a second one for its caption, which travels with it.
     assert len(warnings) == 1
-    assert "Choose a custom wallpaper" in warnings[0]
+    assert "self-hosted video https://blog.mozilla.org/files/tab-groups.mp4" in warnings[0]
+
+
+def test_parse_content_bare_video_element_warns():
+    specs, warnings = parse_content('<p>Watch:</p><video src="https://blog.mozilla.org/files/clip.mp4"></video>')
+    assert [spec[0] for spec in specs] == ["text"]
+    assert len(warnings) == 1
+    assert "clip.mp4" in warnings[0]
 
 
 def test_parse_content_captioned_figure_without_an_image_warns():
-    html = '<figure class="wp-block-video"><video src="https://example.com/a.mp4"></video><figcaption>A local video</figcaption></figure>'
+    html = "<figure><table><tr><td>A table, not an image</td></tr></table><figcaption>Table caption</figcaption></figure>"
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
     assert len(warnings) == 1
-    assert "A local video" in warnings[0]
+    assert "Table caption" in warnings[0]
 
 
 def test_parse_content_caption_shortcode_without_img_is_dropped():
@@ -1047,6 +1156,77 @@ def test_materialize_content_drops_image_whose_download_fails(no_retry_backoff):
     specs = [("text", "<p>Before</p>"), ("image", {"src": "https://example.com/a.png", "alt": ""}), ("text", "<p>After</p>")]
     blocks = cmd.materialize_content(specs, "A Test Post")
     assert [block[0] for block in blocks] == ["text", "text"]
+
+
+@responses.activate
+def test_materialize_content_turns_inline_images_into_wagtail_embeds():
+    mock_image_downloads()
+    cmd = make_command()
+    spec = ("text", '<ul><li>Step one <img src="https://example.com/icon.png" alt="A menu button"/></li></ul>')
+    blocks = cmd.materialize_content([spec], "A Test Post")
+
+    html = blocks[0][1]
+    image = SpringfieldImage.objects.get(title="A menu button")
+    embed = BeautifulSoup(html, "html.parser").find("embed")
+    assert embed.attrs == {"embedtype": "image", "id": str(image.pk), "alt": "A menu button", "format": "fullwidth"}
+    # The image is imported without disturbing the prose around it.
+    assert "<li>Step one " in html
+    assert "https://example.com/icon.png" not in html
+
+
+@responses.activate
+def test_materialize_content_inline_image_alt_falls_back_to_the_post_title():
+    mock_image_downloads()
+    cmd = make_command()
+    blocks = cmd.materialize_content([("text", '<p><img src="https://example.com/a.png" alt=""/></p>')], "A Test Post")
+    assert SpringfieldImage.objects.filter(title="A Test Post").exists()
+    assert 'alt=""' in blocks[0][1]
+
+
+@responses.activate
+def test_materialize_content_inline_image_keeps_its_link_wrapper():
+    mock_image_downloads()
+    cmd = make_command()
+    spec = ("text", '<a href="https://example.com/full.png"><img src="https://example.com/small.png" alt="Screenshot"/></a>')
+    html = cmd.materialize_content([spec], "A Test Post")[0][1]
+    assert '<a href="https://example.com/full.png">' in html
+    assert BeautifulSoup(html, "html.parser").find("embed") is not None
+
+
+@responses.activate
+def test_materialize_content_keeps_the_original_tag_when_an_inline_image_fails(no_retry_backoff):
+    mock_failed_downloads()
+    cmd = make_command()
+    spec = ("text", '<p>Before <img src="https://example.com/dead.png" alt="Alt"/> after</p>')
+    html = cmd.materialize_content([spec], "A Test Post")[0][1]
+
+    # Nothing to embed, so the hotlink stays rather than the image vanishing from the prose.
+    assert 'src="https://example.com/dead.png"' in html
+    assert "embedtype" not in html
+    assert "could not download image" in cmd.stderr._out.getvalue()
+
+
+@responses.activate
+def test_materialize_content_text_without_images_is_untouched():
+    cmd = make_command()
+    blocks = cmd.materialize_content([("text", "<p>Just prose</p>")], "A Test Post")
+    assert blocks == [("text", "<p>Just prose</p>")]
+    assert len(responses.calls) == 0
+
+
+@responses.activate
+def test_get_or_create_image_unprocessable_file_warns_instead_of_raising(monkeypatch):
+    """A file ImageMagick cannot handle must not take the whole post down with it."""
+    mock_image_downloads()
+    monkeypatch.setattr(
+        "springfield.cms.management.commands.import_wordpress_blog_posts.SpringfieldImage.objects.create",
+        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("cache resources exhausted")),
+    )
+    cmd = make_command()
+
+    assert cmd.get_or_create_image("https://example.com/huge.gif", "Huge") is None
+    assert "could not process image https://example.com/huge.gif" in cmd.stderr._out.getvalue()
+    assert "cache resources exhausted" in cmd.stderr._out.getvalue()
 
 
 @responses.activate
