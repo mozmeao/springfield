@@ -3615,10 +3615,9 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
                 assert td.get("colspan") == str(cell_data["column_span"])
 
 
-def test_comparison_table_scroll_highlighted(index_page, rf):
+def test_comparison_table_variants(index_page, rf):
     page = get_comparison_table_test_page()
     variants = get_comparison_table_variants()
-    scroll_variant = variants[0]
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -3631,28 +3630,10 @@ def test_comparison_table_scroll_highlighted(index_page, rf):
 
     for region in (upper, lower):
         tables = region.find_all("div", class_="fl-comparison-table-wrapper")
-        scroll_table = next(t for t in tables if "scroll" in t.get("class", []))
-        assert_comparison_table(scroll_table, scroll_variant)
-
-
-def test_comparison_table_stacked_highlighted(index_page, rf):
-    page = get_comparison_table_test_page()
-    variants = get_comparison_table_variants()
-    stacked_variant = variants[1]
-
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    upper = soup.find("div", class_="fl-split-page-upper")
-    lower = soup.find("div", class_="fl-split-page-lower")
-    assert upper and lower
-
-    for region in (upper, lower):
-        tables = region.find_all("div", class_="fl-comparison-table-wrapper")
-        stacked_table = next(t for t in tables if "stacked" in t.get("class", []))
-        assert_comparison_table(stacked_table, stacked_variant)
+        for variant in variants:
+            mobile_behavior = variant["value"]["mobile_behavior"]
+            table = next(t for t in tables if mobile_behavior in t.get("class", []))
+            assert_comparison_table(table, variant)
 
 
 class TestIconDisplayLabel:

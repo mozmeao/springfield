@@ -30,6 +30,9 @@ help:
 	@echo "  test                           - run tests against local files"
 	@echo "  test-image                     - run tests against files in docker image"
 	@echo "  test-cdn                       - run CDN tests against TEST_DOMAIN"
+	@echo "  test-visual                    - run playwright visual regression tests against port 8000"
+	@echo "  test-visual-ui                 - open the playwright UI on port 8085"
+	@echo "  test-visual-update             - regenerate playwright visual regression test snapshots"
 	@echo "  build-ci                       - build docker images for use in our CI pipeline"
 	@echo "  test-ci                        - run tests against files in docker image built by CI"
 	@echo "  compile-requirements           - update Python requirements files using pip-compile"
@@ -124,6 +127,16 @@ test-image: .docker-build
 
 test_infra/fixtures/tls.json:
 	${DOCKER} run -it --rm jumanjiman/ssllabs-scan:latest --quiet https://${TEST_DOMAIN}/en-US/ > "test_infra/fixtures/tls.json"
+
+test-visual:
+	${DC} up playwright-visual-regression
+
+test-visual-ui:
+	${DC} up playwright-visual-regression-ui
+
+test-visual-update:
+	${DC} up playwright-update-snapshots
+
 
 ###############
 # For use in CI

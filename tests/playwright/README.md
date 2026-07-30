@@ -59,7 +59,7 @@ npm run visual-regression-tests
 npm run visual-regression-tests:ui
 
 # Regenerate baseline screenshots
-npm run update-screenshots
+npm run update-snapshots
 ```
 
 Screenshots are written directly to the `specs/visual-regression/` snapshot directories on your host machine via a volume mount.
@@ -75,7 +75,7 @@ To run without Docker, use the `local:` variants:
 ```sh
 npm run local:visual-regression-tests
 npm run local:visual-regression-tests:ui
-npm run local:update-screenshots
+npm run local:update-snapshots
 ```
 
 The visual regression config (`playwright.visual-regression.config.js`) extends the base config but disables parallelism and restricts runs to Chromium.
