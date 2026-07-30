@@ -4,4 +4,152 @@
 
 firefox-download-form {
     display: block;
+
+    form {
+        display: grid;
+        grid-template-columns: 32ch 1fr;
+        gap: 24px;
+        align-items: start;
+        max-inline-size: 800px;
+        margin-inline: auto;
+        margin-block-start: 60px;
+    }
+
+    .fl-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .fl-tiny-icon-button { margin-block-start: -3px; }
+    }
+
+    .fl-field-wrap + .fl-field-wrap {
+        margin-block-start: 16px;
+    }
+
+    .fl-field-wrap:has(select:disabled) .fl-field {
+        display: none;
+    }
+
+    .language-message {
+        font-style: italic;
+    }
+
+
+    .c-or-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--token-spacing-xs);
+      margin: var(--token-spacing-xs) 0;
+      font-size: var(--fl-theme-font-size-body-xs);
+      color: var(--token-color-grey-4);
+
+      &::before,
+      &::after {
+          content: '';
+          width: 3rem;
+          border-top: 1px solid var(--fl-subtle-border-color);
+      }
+    }
+
+    .ms-store,
+    .ms-store-beta,
+    .apt-link,
+    .esr-115 {
+        display: none;
+    }
+
+    select {
+        max-inline-size: 24ch;
+    }
+
+    img {
+        display: none;
+        width: 100px;
+        height: 100px;
+    }
+
+    &:defined form {
+        &:has(optgroup[label="Microsoft"] :checked) { --family: microsoft; }
+        &:has(optgroup[label="Apple"] :checked) { --family: apple; }
+        &:has(optgroup[label="Google"] :checked) { --family: google; }
+        &:has(optgroup[label="Linux"] :checked) { --family: linux; }
+
+        &:valid {
+            .download { display: contents; }
+
+            @container style(--release: esr) {
+                .download { display: none; }
+                .esr { display: contents; }
+                .esr-115 {
+                    display: grid;
+                    justify-items: center;
+                    text-align: center;
+
+                    .recommendation {
+                        display: none;
+                        @container style(--family: apple) {
+                            &.macos { display: revert-layer; }
+                        }
+
+                        @container style(--family: microsoft) {
+                            &.windows { display: revert-layer; }
+                        }
+
+                        @container style(--family: linux) {
+                            &.linux { display: revert-layer; }
+                        }
+                    }
+                }
+            }
+
+            @container style(--os: ios) and style(--release: stable) {
+                .download { display: none; }
+                .app-store { display: contents; }
+            }
+
+            @container style(--os: ios) and style(--release: beta) {
+                .download { display: none; }
+                .test-flight { display: contents; }
+            }
+
+            @container style(--os: android) {
+                .download { display: none; }
+                .play-store { display: contents; }
+            }
+        }
+
+        @container #{"style(--release: stable) or style(--release: esr) or style(--release: esr-next) or style(--release: esr-115)"} {
+            .firefox-logo { display: revert-layer; }
+        }
+
+        @container style(--release: beta) {
+            .firefox-beta-logo { display: revert-layer; }
+        }
+
+        @container style(--release: dev) {
+            .firefox-developer-logo { display: revert-layer; }
+        }
+
+        @container style(--release: nightly) {
+            .firefox-nightly-logo { display: revert-layer; }
+        }
+
+        /* Show Microsoft Store download links only for non-MSI OS options */
+        @container style(--family: microsoft) {
+            @container #{"not (style(--os: win-msi) or style(--os: win64-msi))"} {
+                @container style(--release: stable) {
+                    .ms-store { display: grid; justify-items: center; }
+                }
+
+                @container style(--release: beta) {
+                    .ms-store-beta { display: grid; justify-items: center; }
+                }
+            }
+        }
+
+        @container style(--family: linux) {
+            .apt-link { display: revert-layer; }
+        }
+    }
 }
