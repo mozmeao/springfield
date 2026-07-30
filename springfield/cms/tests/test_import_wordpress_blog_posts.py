@@ -22,6 +22,7 @@ from springfield.cms.management.commands.import_wordpress_blog_posts import (
     Command,
     IncrementalCsv,
     element_text,
+    image_description,
     parse_categories,
     parse_content,
 )
@@ -45,6 +46,7 @@ POST_DEFAULTS = {
     # The real export repeats the featured image as the first ImageURL entry.
     "image_featured": "https://example.com/hero.jpg",
     "image_title": "Hero Image",
+    "image_alt_text": "",
     "categories": "Firefox",
     "tags": "",
     "author_username": "someone@example.com",
@@ -71,7 +73,7 @@ def post_xml(**overrides):
         <ImageTitle>{values["image_title"]}</ImageTitle>
         <ImageCaption/>
         <ImageDescription/>
-        <ImageAltText/>
+        <ImageAltText>{values["image_alt_text"]}</ImageAltText>
         <ImageFeatured>{values["image_featured"]}</ImageFeatured>
         <Categories>{values["categories"]}</Categories>
         <Tags>{values["tags"]}</Tags>
@@ -437,16 +439,17 @@ def test_warnings_are_written_to_csv_against_the_post_they_came_from(tmp_path, i
     with open(warnings_out, newline="") as fh:
         rows = list(csv.DictReader(fh))
 
-    assert [row["warning"] for row in rows] == [
-        "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block",
-        "caption 'Gallery caption' describes a gallery of 2 images - dropped",
+    assert [(row["type"], row["warning"]) for row in rows] == [
+        ("embed", "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block"),
+        ("caption", "caption 'Gallery caption' describes a gallery of 2 images - dropped"),
+        ("alt-text", "2 images imported without alt text - add descriptions in the image library"),
     ]
     for row in rows:
         assert row["wp_id"] == "1"
         assert row["title"] == "A Test Post"
         assert row["old_url"] == "https://blog.mozilla.org/en/firefox/a-test-post/"
         assert row["new_url"] == page.full_url
-    assert f"Wrote 2 warnings to {warnings_out}" in out.getvalue()
+    assert f"Wrote 3 warnings to {warnings_out}" in out.getvalue()
 
 
 @responses.activate
@@ -495,9 +498,9 @@ def test_failed_post_records_its_warnings_and_the_failure(tmp_path, index_page):
     with open(warnings_out, newline="") as fh:
         rows = list(csv.DictReader(fh))
 
-    assert [row["warning"] for row in rows] == [
-        "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block",
-        "post failed to import: post 'a-test-post' has no Category - BlogArticlePage.topic is required and cannot be blank",
+    assert [(row["type"], row["warning"]) for row in rows] == [
+        ("embed", "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block"),
+        ("failure", "post failed to import: post 'a-test-post' has no Category - BlogArticlePage.topic is required and cannot be blank"),
     ]
     # There is no page to link to, but the original post is still identified.
     for row in rows:
@@ -818,7 +821,7 @@ def test_parse_content_youtube_iframe_becomes_video_spec():
 def test_parse_content_non_youtube_iframe_becomes_link_with_warning():
     specs, warnings = parse_content('<p>Watch:</p><iframe src="https://player.vimeo.com/video/123"></iframe>')
     assert len(warnings) == 1
-    assert "https://player.vimeo.com/video/123" in warnings[0]
+    assert "https://player.vimeo.com/video/123" in warnings[0][1]
     assert [spec[0] for spec in specs] == ["text", "text"]
     assert specs[1][1] == '<p><a href="https://player.vimeo.com/video/123">Watch video</a></p>'
 
@@ -863,7 +866,7 @@ def test_parse_content_non_youtube_embed_block_becomes_a_link_with_warning():
     assert "embedtype" not in specs[0][1]
     assert specs[0][1] == '<p><a href="https://www.tiktok.com/@mozilla/video/6966371868643298566">Watch video</a></p>'
     assert len(warnings) == 1
-    assert "tiktok.com" in warnings[0]
+    assert "tiktok.com" in warnings[0][1]
 
 
 def test_parse_content_embed_fallback_link_drops_tracking_parameters():
@@ -962,7 +965,8 @@ def test_parse_content_multi_image_gallery_caption_is_dropped_with_a_warning():
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["image", "image"]
     assert len(warnings) == 1
-    assert "Gallery caption" in warnings[0] and "gallery of 2 images" in warnings[0]
+    assert warnings[0][0] == "caption"
+    assert "Gallery caption" in warnings[0][1] and "gallery of 2 images" in warnings[0][1]
 
 
 def test_parse_content_single_image_gallery_keeps_its_caption():
@@ -990,7 +994,7 @@ def test_parse_content_single_image_gallery_does_not_overwrite_the_images_own_ca
     specs, warnings = parse_content(html)
     assert specs[0][1]["caption"] == "<p>The image's own caption</p>"
     assert len(warnings) == 1
-    assert "Gallery caption" in warnings[0]
+    assert "Gallery caption" in warnings[0][1]
 
 
 def test_parse_content_figure_inside_a_container_is_imported_not_left_inline():
@@ -1051,14 +1055,15 @@ def test_parse_content_self_hosted_video_warns_and_stays_in_the_text():
     assert "tab-groups.mp4" in specs[0][1]
     # One warning for the video, not a second one for its caption, which travels with it.
     assert len(warnings) == 1
-    assert "self-hosted video https://blog.mozilla.org/files/tab-groups.mp4" in warnings[0]
+    assert warnings[0][0] == "video"
+    assert "self-hosted video https://blog.mozilla.org/files/tab-groups.mp4" in warnings[0][1]
 
 
 def test_parse_content_bare_video_element_warns():
     specs, warnings = parse_content('<p>Watch:</p><video src="https://blog.mozilla.org/files/clip.mp4"></video>')
     assert [spec[0] for spec in specs] == ["text"]
     assert len(warnings) == 1
-    assert "clip.mp4" in warnings[0]
+    assert "clip.mp4" in warnings[0][1]
 
 
 def test_parse_content_captioned_figure_without_an_image_warns():
@@ -1066,7 +1071,7 @@ def test_parse_content_captioned_figure_without_an_image_warns():
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
     assert len(warnings) == 1
-    assert "Table caption" in warnings[0]
+    assert "Table caption" in warnings[0][1]
 
 
 def test_parse_content_caption_shortcode_without_img_is_dropped():
@@ -1212,6 +1217,86 @@ def test_materialize_content_text_without_images_is_untouched():
     blocks = cmd.materialize_content([("text", "<p>Just prose</p>")], "A Test Post")
     assert blocks == [("text", "<p>Just prose</p>")]
     assert len(responses.calls) == 0
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "fx_blog_header_extensions_writing",  # underscores
+        "Monitor-1000x542.jpg",  # image extension
+        "Disconnect-Study-Blog-Post-Graph-01-1-300x150",  # trailing pixel dimensions
+        "crossistebloggraphic",  # a single run-together token
+        "index",
+        "   ",
+        "",
+    ],
+)
+def test_image_description_blanks_text_that_names_a_file(text):
+    assert image_description(text) == ""
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Firefox Focus Erase Button",
+        "Stylized graphic showing network nodes and locks",
+        "Click the Multi-Account Containers icon to use or manage the feature",
+        "Disconnect Header",
+    ],
+)
+def test_image_description_keeps_real_descriptions(text):
+    assert image_description(text) == text
+
+
+def test_image_description_strips_surrounding_whitespace():
+    assert image_description("  A menu button in Firefox  ") == "A menu button in Firefox"
+
+
+@responses.activate
+def test_image_alt_text_comes_from_the_export_when_it_describes_the_image(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(image_alt_text="A laptop showing the Firefox home page"))
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert page.image.description == "A laptop showing the Firefox home page"
+    # Wagtail renders the description as the image's alt text.
+    assert page.image.default_alt_text == "A laptop showing the Firefox home page"
+
+
+@responses.activate
+def test_image_alt_text_is_left_blank_when_the_export_only_names_the_file(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(image_alt_text="", image_title="SP_FX_Monitor_blogheader_01"))
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert page.image.description == ""
+    # The file name is still useful as a library label, just not as alt text.
+    assert page.image.title == "SP_FX_Monitor_blogheader_01"
+
+
+@responses.activate
+def test_inline_image_embed_drops_alt_that_names_a_file():
+    mock_image_downloads()
+    cmd = make_command()
+    spec = ("text", '<p><img src="https://example.com/a.png" alt="fx_blog_header_writing"/></p>')
+    html = cmd.materialize_content([spec], "A Test Post")[0][1]
+
+    embed = BeautifulSoup(html, "html.parser").find("embed")
+    assert embed["alt"] == ""
+    assert SpringfieldImage.objects.get(pk=embed["id"]).description == ""
+
+
+@responses.activate
+def test_content_image_description_comes_from_its_alt_attribute():
+    mock_image_downloads()
+    cmd = make_command()
+    spec = ("image", {"src": "https://example.com/a.png", "alt": "The erase button in Firefox Focus", "caption": ""})
+    cmd.materialize_content([spec], "A Test Post")
+    assert SpringfieldImage.objects.get(title="The erase button in Firefox Focus").description == "The erase button in Firefox Focus"
 
 
 @responses.activate
