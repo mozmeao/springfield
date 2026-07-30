@@ -16,9 +16,13 @@ declaration surface and the admin tab.
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+import waffle
 from wagtail.admin.panels import InlinePanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
+from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
+from springfield.cms.routing.models import RoutingConfig
+from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
 
 
@@ -116,3 +120,46 @@ class RoutingMixin(models.Model):
 
         edit_handler = TabbedInterface(tabs, base_form_class=cls.base_form_class)
         return edit_handler.bind_to_model(cls)
+
+    # -- Serve-path dispatch (spec §2.3, plan §0.5, wired in C10) --
+
+    def _routing_trigger_satisfied(self, request):
+        """Whether this request arms routing for the surface (consumer trigger)."""
+        trigger = self.get_routing_trigger()
+        return bool(trigger is not None and trigger.is_satisfied(request))
+
+    def _has_live_routing_rules(self):
+        """Whether the page hosts at least one rule with a live target page."""
+        return self.routing_rules.filter(target__live=True).exists()
+
+    def serve(self, request, *args, **kwargs):
+        """Thin adapter: map request/page state onto flags, then act on the decision.
+
+        Routing *policy* lives in the pure ``decide_routing`` function; this method only
+        reads the flags off the request and page and performs the chosen branch. The
+        global ``user_routing`` waffle switch is the outermost gate — off ⇒ canonical
+        exactly as today (the framework ships dark).
+        """
+        # Imported here (request time) to keep the resolver/preview + l10n import chain
+        # out of model loading; dispatch only matters when a page is actually served.
+        from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
+        from springfield.cms.routing.resolver import render_resolver
+
+        decision = decide_routing(
+            routing_enabled=waffle.switch_is_active(USER_ROUTING_SWITCH),
+            has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
+            is_preview_admin=is_preview_request(request) and is_preview_admin(request),
+            is_paused=RoutingConfig.is_paused_for(self),
+            trigger_satisfied=self._routing_trigger_satisfied(request),
+            is_canonical=self.is_routing_canonical(),
+            has_live_rules=self._has_live_routing_rules(),
+        )
+
+        if decision == SERVE_RESOLVER:
+            return render_resolver(request, self)
+        if decision == SERVE_PREVIEW:
+            preview_response = get_preview_response(request, self)
+            if preview_response is not None:
+                return preview_response
+        # SERVE_CANONICAL (and any preview that produced nothing) — serve as today.
+        return super().serve(request, *args, **kwargs)

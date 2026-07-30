@@ -12,10 +12,19 @@ tab-visibility decision.
 
 from types import SimpleNamespace
 
-from wagtail.admin.panels import InlinePanel
+from django.test import RequestFactory
 
+import pytest
+from wagtail.admin.panels import InlinePanel
+from wagtail.models import Site
+
+from springfield.cms.routing.arming import QueryParamArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin, RoutingObjectList, routing_tab_is_shown
+from springfield.cms.routing.models import RoutingRule
 from springfield.cms.routing.signals import registry
+from springfield.cms.tests.factories import SimpleRichTextPageFactory
+
+rf = RequestFactory()
 
 # ---------------------------------------------------------------------------
 # Adoption surface: the three hooks and their defaults (spec §2.2, plan §0.4-A).
@@ -89,3 +98,35 @@ def test_bound_panel_is_shown_delegates_to_eligibility():
     assert bound.is_shown() is True
     bound.instance = SimpleNamespace(is_routing_canonical=lambda: False)
     assert bound.is_shown() is False
+
+
+# ---------------------------------------------------------------------------
+# Serve-path flag sources (C10): the thin adapter maps these onto decide_routing.
+# Full request-level serve integration lands with the first consumer (C14).
+# ---------------------------------------------------------------------------
+
+
+def test_routing_trigger_satisfied_maps_the_trigger_hook():
+    armed = SimpleNamespace(get_routing_trigger=lambda: QueryParamArmingCondition("routing"))
+    assert RoutingMixin._routing_trigger_satisfied(armed, rf.get("/?routing=1")) is True
+    assert RoutingMixin._routing_trigger_satisfied(armed, rf.get("/")) is False
+    # An unset trigger (the default) is never satisfied.
+    unset = SimpleNamespace(get_routing_trigger=lambda: None)
+    assert RoutingMixin._routing_trigger_satisfied(unset, rf.get("/?routing=1")) is False
+
+
+@pytest.mark.django_db
+def test_has_live_routing_rules_counts_only_live_targets():
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="c10-canonical", parent=site_root)
+    live_target = SimpleRichTextPageFactory(slug="c10-live", parent=canonical, live=True)
+    # No rules yet.
+    assert RoutingMixin._has_live_routing_rules(canonical) is False
+    RoutingRule.objects.create(page=canonical, target=live_target)
+    assert RoutingMixin._has_live_routing_rules(canonical) is True
+
+    # A rule pointing only at an unpublished target does not count.
+    other = SimpleRichTextPageFactory(slug="c10-other", parent=site_root)
+    dead_target = SimpleRichTextPageFactory(slug="c10-dead", parent=other, live=False)
+    RoutingRule.objects.create(page=other, target=dead_target)
+    assert RoutingMixin._has_live_routing_rules(other) is False
