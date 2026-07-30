@@ -42,6 +42,12 @@ Plausible.loadScript = () => {
     const script = document.createElement('script');
     script.defer = true;
     script.setAttribute('data-domain', domain);
+    // Post events to the origin the script is served from (our custom domain)
+    // rather than the plausible.io default.
+    script.setAttribute(
+        'data-api',
+        `${new URL(src, window.location.href).origin}/api/event`
+    );
     script.src = src;
     document.head.appendChild(script);
 };
