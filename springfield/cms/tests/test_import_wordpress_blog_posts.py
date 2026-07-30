@@ -4,6 +4,7 @@
 
 import base64
 import csv
+import re
 from io import StringIO
 from xml.etree import ElementTree
 
@@ -12,10 +13,17 @@ from django.core.management.base import CommandError, OutputWrapper
 
 import pytest
 import requests
+import responses
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
-from springfield.cms.management.commands.import_wordpress_blog_posts import Command, element_text, parse_categories, parse_content
+from springfield.cms.management.commands.import_wordpress_blog_posts import (
+    Command,
+    IncrementalCsv,
+    element_text,
+    parse_categories,
+    parse_content,
+)
 from springfield.cms.models import BlogArticlePage
 from springfield.cms.models.snippets import Author, Tag
 from springfield.cms.tests.factories import LocaleFactory
@@ -84,11 +92,26 @@ def parse_post(xml_string):
     return ElementTree.fromstring(f"<data>{xml_string}</data>").find("post")
 
 
-def fake_response(content=PNG_BYTES, status=200):
-    resp = requests.Response()
-    resp.status_code = status
-    resp._content = content
-    return resp
+ANY_URL = re.compile(r"https?://.+")
+
+
+def mock_image_downloads(url=ANY_URL, content=PNG_BYTES):
+    """Serve a valid PNG for the image downloads the import makes, any URL by default."""
+    responses.add(responses.GET, url, body=content, content_type="image/png")
+
+
+# The command tries each download three times before giving up.
+DOWNLOAD_ATTEMPTS = 3
+
+
+def mock_failed_downloads(url=ANY_URL, error=None):
+    """Fail every download attempt for `url`, as a dead media URL would.
+
+    One registration per attempt: responses hands out an unused match in preference to a used
+    one, so with fewer a later attempt would fall through to a broader mock and succeed.
+    """
+    for _ in range(DOWNLOAD_ATTEMPTS):
+        responses.add(responses.GET, url, body=error or requests.ConnectionError("dead"))
 
 
 def make_command(dry_run=False):
@@ -98,6 +121,22 @@ def make_command(dry_run=False):
     cmd.dry_run = dry_run
     cmd.image_cache = {}
     return cmd
+
+
+@pytest.fixture(autouse=True)
+def run_in_tmp_path(tmp_path, monkeypatch):
+    """Run every test from a temp directory.
+
+    Both CSV options default to a relative path, so a test that doesn't override them would
+    otherwise drop files in whatever directory pytest was started from.
+    """
+    monkeypatch.chdir(tmp_path)
+
+
+@pytest.fixture
+def no_retry_backoff(monkeypatch):
+    """Skip the 2s/4s sleeps the command waits between download retries."""
+    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
 
 
 @pytest.fixture
@@ -197,8 +236,9 @@ def test_missing_blog_index_page_raises_command_error(tmp_path):
         call_command("import_wordpress_blog_posts", str(xml_path), locale="fr")
 
 
-def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(
         tmp_path,
         post_xml(id="1", slug="a-page", post_type="page"),
@@ -214,9 +254,9 @@ def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_pat
     assert "Done. 1 imported, 1 skipped, 0 failed." in out.getvalue()
 
 
-@pytest.mark.parametrize("get_mock_response", [lambda url, timeout: fake_response()])
-def test_successful_import_creates_page_with_expected_fields(tmp_path, index_page, monkeypatch, get_mock_response):
-    monkeypatch.setattr("requests.get", get_mock_response)
+@responses.activate
+def test_successful_import_creates_page_with_expected_fields(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml(tags="Privacy|Security"))
     url_map_out = tmp_path / "url_map.csv"
 
@@ -242,8 +282,9 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     assert rows[0]["new_url"].startswith("http")
 
 
-def test_captioned_image_is_imported_as_an_image_caption_block(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_captioned_image_is_imported_as_an_image_caption_block(tmp_path, index_page):
+    mock_image_downloads()
     content = (
         "<p>Intro.</p>"
         '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="A screenshot"/>'
@@ -262,8 +303,9 @@ def test_captioned_image_is_imported_as_an_image_caption_block(tmp_path, index_p
     assert captioned["image"]["image"].title == "A screenshot"
 
 
-def test_categories_topic_is_leaf_and_other_levels_become_tags(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_categories_topic_is_leaf_and_other_levels_become_tags(tmp_path, index_page):
+    mock_image_downloads()
     # Bare 'Firefox' is dropped; the leaf of the first remaining category is the topic;
     # every other hierarchy level (plus the <Tags> field) becomes a tag.
     xml_path = write_xml(
@@ -278,8 +320,9 @@ def test_categories_topic_is_leaf_and_other_levels_become_tags(tmp_path, index_p
     assert {t.name for t in page.tags.all()} == {"Our Work", "AI", "Firefox AI", "Security"}
 
 
-def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml(categories=""))
 
     out = StringIO()
@@ -291,10 +334,11 @@ def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(t
     assert "Done. 0 imported, 0 skipped, 1 failed." in out.getvalue()
 
 
-def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index_page, monkeypatch):
+@responses.activate
+def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index_page):
     from django.utils.timezone import get_default_timezone
 
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml(date="2020-01-01 09:30:00"))
 
     call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
@@ -304,8 +348,9 @@ def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index
     assert page.first_published_at.astimezone(get_default_timezone()).strftime("%H:%M:%S") == "09:30:00"
 
 
-def test_successful_import_writes_content_warnings_to_stderr(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_successful_import_writes_content_warnings_to_stderr(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml(content='<p>Watch:</p><iframe src="https://player.vimeo.com/video/123"></iframe>'))
 
     err = StringIO()
@@ -314,8 +359,165 @@ def test_successful_import_writes_content_warnings_to_stderr(tmp_path, index_pag
     assert "https://player.vimeo.com/video/123" in err.getvalue()
 
 
-def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_warnings_are_written_to_csv_against_the_post_they_came_from(tmp_path, index_page):
+    mock_image_downloads()
+    content = (
+        '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">'
+        "https://www.tiktok.com/@mozilla/video/123</div></figure>"
+        '<figure class="wp-block-gallery">'
+        '<figure class="wp-block-image"><img src="https://example.com/a.png" alt=""/></figure>'
+        '<figure class="wp-block-image"><img src="https://example.com/b.png" alt=""/></figure>'
+        "<figcaption>Gallery caption</figcaption></figure>"
+    )
+    xml_path = write_xml(tmp_path, post_xml(content=content))
+    warnings_out = tmp_path / "warnings.csv"
+
+    out = StringIO()
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+        stdout=out,
+    )
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    with open(warnings_out, newline="") as fh:
+        rows = list(csv.DictReader(fh))
+
+    assert [row["warning"] for row in rows] == [
+        "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block",
+        "caption 'Gallery caption' could not be attached to a single image - left inline in a text block",
+    ]
+    for row in rows:
+        assert row["wp_id"] == "1"
+        assert row["title"] == "A Test Post"
+        assert row["old_url"] == "https://blog.mozilla.org/en/firefox/a-test-post/"
+        assert row["new_url"] == page.full_url
+    assert f"Wrote 2 warnings to {warnings_out}" in out.getvalue()
+
+
+@responses.activate
+def test_failed_image_download_is_recorded_in_the_warnings_csv(tmp_path, index_page, no_retry_backoff):
+    """A dead image URL only reached stderr before, which is the easiest warning of all to miss."""
+
+    # One failure per attempt, registered ahead of the catch-all, so this URL fails outright.
+    mock_failed_downloads("https://example.com/dead.png")
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(content='<p>Text</p><img src="https://example.com/dead.png" alt="Alt">'))
+    warnings_out = tmp_path / "warnings.csv"
+
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+    )
+
+    with open(warnings_out, newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    assert len(rows) == 1
+    assert "could not download image https://example.com/dead.png" in rows[0]["warning"]
+    assert rows[0]["new_url"] == BlogArticlePage.objects.get(slug="a-test-post").full_url
+
+
+@responses.activate
+def test_failed_post_records_its_warnings_and_the_failure(tmp_path, index_page):
+    """A failed post has no page to inspect, so the CSV is the only trace of what happened."""
+    mock_image_downloads()
+    content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123</div></figure>'
+    # A post with no Category fails, after its content has already raised a warning.
+    xml_path = write_xml(tmp_path, post_xml(content=content, categories=""))
+    warnings_out = tmp_path / "warnings.csv"
+
+    out = StringIO()
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+        stdout=out,
+    )
+
+    assert "Done. 0 imported, 0 skipped, 1 failed." in out.getvalue()
+    with open(warnings_out, newline="") as fh:
+        rows = list(csv.DictReader(fh))
+
+    assert [row["warning"] for row in rows] == [
+        "https://www.tiktok.com/@mozilla/video/123 is not a YouTube video - linked as plain text instead of a video block",
+        "post failed to import: post 'a-test-post' has no Category - BlogArticlePage.topic is required and cannot be blank",
+    ]
+    # There is no page to link to, but the original post is still identified.
+    for row in rows:
+        assert row["new_url"] == ""
+        assert row["old_url"] == "https://blog.mozilla.org/en/firefox/a-test-post/"
+
+
+@responses.activate
+def test_warnings_from_a_failed_post_do_not_leak_into_the_next_one(tmp_path, index_page):
+    mock_image_downloads()
+    failing_content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123</div></figure>'
+    xml_path = write_xml(
+        tmp_path,
+        post_xml(id="1", slug="post-one", content=failing_content, categories=""),
+        post_xml(id="2", slug="post-two", categories="Firefox"),
+    )
+    warnings_out = tmp_path / "warnings.csv"
+
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+    )
+
+    with open(warnings_out, newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    assert {row["wp_id"] for row in rows} == {"1"}, "post-two imported cleanly and owns no warnings"
+
+
+@responses.activate
+def test_no_warnings_csv_is_written_when_a_post_has_no_warnings(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml())
+    warnings_out = tmp_path / "warnings.csv"
+
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+    )
+
+    assert not warnings_out.exists()
+
+
+@responses.activate
+def test_dry_run_writes_no_warnings_csv(tmp_path, index_page):
+    mock_image_downloads()
+    content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123</div></figure>'
+    xml_path = write_xml(tmp_path, post_xml(content=content))
+    warnings_out = tmp_path / "warnings.csv"
+
+    err = StringIO()
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        "--dry-run",
+        url_map_out=str(tmp_path / "url_map.csv"),
+        warnings_out=str(warnings_out),
+        stderr=err,
+    )
+
+    # --dry-run writes nothing, but the warning still reaches the operator on stderr.
+    assert not warnings_out.exists()
+    assert "tiktok.com" in err.getvalue()
+
+
+@responses.activate
+def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml(content='<p>Watch:</p><iframe src="https://www.youtube.com/embed/abc123"></iframe>'))
 
     err = StringIO()
@@ -331,9 +533,8 @@ def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page, monke
     assert err.getvalue() == "", "a YouTube video no longer needs a warning"
 
 
-def test_dry_run_creates_nothing(tmp_path, index_page, monkeypatch):
-    calls = []
-    monkeypatch.setattr("requests.get", lambda *a, **k: calls.append(1))
+@responses.activate
+def test_dry_run_creates_nothing(tmp_path, index_page):
     xml_path = write_xml(tmp_path, post_xml())
     url_map_out = tmp_path / "url_map.csv"
 
@@ -344,13 +545,15 @@ def test_dry_run_creates_nothing(tmp_path, index_page, monkeypatch):
     assert Tag.objects.count() == 0
     assert Author.objects.count() == 0
     assert not url_map_out.exists()
-    assert not calls, "dry-run must not hit the network"
+    # No responses are registered, so any request would raise rather than be recorded.
+    assert len(responses.calls) == 0, "dry-run must not hit the network"
     assert "[dry-run] importing: A Test Post" in out.getvalue()
     assert "Done. 1 imported, 0 skipped, 0 failed." in out.getvalue()
 
 
-def test_skip_already_imported_slug(tmp_path, index_page, monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_skip_already_imported_slug(tmp_path, index_page):
+    mock_image_downloads()
     xml_path = write_xml(tmp_path, post_xml())
     url_map_out = tmp_path / "url_map.csv"
 
@@ -368,16 +571,14 @@ def test_skip_already_imported_slug(tmp_path, index_page, monkeypatch):
     assert not url_map_out.exists()
 
 
-def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path, index_page, monkeypatch):
+@responses.activate
+def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path, index_page):
     """A post whose image download raises an unexpected error rolls back cleanly
     (no orphaned Tag/Author/page) without preventing later posts from importing."""
 
-    def flaky_get(url, timeout=60):
-        if url == "https://example.com/broken.jpg":
-            raise ValueError("boom")
-        return fake_response()
-
-    monkeypatch.setattr("requests.get", flaky_get)
+    # A ValueError is not a RequestException, so it is not retried and not swallowed.
+    mock_failed_downloads("https://example.com/broken.jpg", error=ValueError("boom"))
+    mock_image_downloads()
 
     xml_path = write_xml(
         tmp_path,
@@ -446,20 +647,21 @@ def test_get_or_create_image_blank_url_returns_none():
     assert cmd.get_or_create_image("  ", "Some Title") is None
 
 
-def test_get_or_create_image_reuses_same_filename_within_a_run_without_network_call(monkeypatch):
-    calls = []
-    monkeypatch.setattr("requests.get", lambda *a, **k: calls.append(1) or fake_response())
+@responses.activate
+def test_get_or_create_image_reuses_same_filename_within_a_run_without_network_call():
+    mock_image_downloads()
     cmd = make_command()
 
     first = cmd.get_or_create_image("https://example.com/whatever.png", "First Title")
     second = cmd.get_or_create_image("https://example.com/whatever.png", "A Different Title")
 
     assert second.pk == first.pk
-    assert len(calls) == 1, "the second call for the same filename must not hit the network"
+    assert len(responses.calls) == 1, "the second call for the same filename must not hit the network"
 
 
-def test_get_or_create_image_does_not_reuse_unrelated_image_with_same_title(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_get_or_create_image_does_not_reuse_unrelated_image_with_same_title():
+    mock_image_downloads()
     cmd = make_command()
 
     first = cmd.get_or_create_image("https://example.com/unrelated.png", "Screenshot")
@@ -469,8 +671,9 @@ def test_get_or_create_image_does_not_reuse_unrelated_image_with_same_title(monk
     assert "new-screenshot" in second.file.name
 
 
-def test_get_or_create_image_does_not_reuse_a_filename_suffix_match(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_get_or_create_image_does_not_reuse_a_filename_suffix_match():
+    mock_image_downloads()
     cmd = make_command()
 
     first = cmd.get_or_create_image("https://example.com/bobcat.jpg", "Bobcat")
@@ -480,44 +683,42 @@ def test_get_or_create_image_does_not_reuse_a_filename_suffix_match(monkeypatch)
     assert second.pk != first.pk
 
 
-def test_get_or_create_image_downloads_and_creates(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_get_or_create_image_downloads_and_creates():
+    mock_image_downloads()
     cmd = make_command()
     image = cmd.get_or_create_image("https://example.com/path/hero.jpg", "Hero")
     assert image.title == "Hero"
     assert "hero" in image.file.name
 
 
-def test_get_or_create_image_blank_title_falls_back_to_filename(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_get_or_create_image_blank_title_falls_back_to_filename():
+    mock_image_downloads()
     cmd = make_command()
     image = cmd.get_or_create_image("https://example.com/path/my-photo.jpg", "  ")
     assert image.title == "my-photo.jpg"
 
 
-def test_get_or_create_image_retries_and_succeeds(monkeypatch):
-    calls = {"count": 0}
-
-    def flaky(*a, **k):
-        calls["count"] += 1
-        if calls["count"] < 2:
-            raise requests.ConnectionError("temporary")
-        return fake_response()
-
-    monkeypatch.setattr("requests.get", flaky)
-    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+@responses.activate
+def test_get_or_create_image_retries_and_succeeds(no_retry_backoff):
+    url = "https://example.com/hero.jpg"
+    # Registrations are consumed in order: the first attempt fails, the second succeeds.
+    responses.add(responses.GET, url, body=requests.ConnectionError("temporary"))
+    responses.add(responses.GET, url, body=PNG_BYTES, content_type="image/png")
     cmd = make_command()
-    image = cmd.get_or_create_image("https://example.com/hero.jpg", "Hero")
+    image = cmd.get_or_create_image(url, "Hero")
     assert image is not None
-    assert calls["count"] == 2
+    assert len(responses.calls) == 2
 
 
-def test_get_or_create_image_gives_up_after_three_attempts(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
-    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+@responses.activate
+def test_get_or_create_image_gives_up_after_three_attempts(no_retry_backoff):
+    mock_failed_downloads()
     cmd = make_command()
     image = cmd.get_or_create_image("https://example.com/hero.jpg", "Hero")
     assert image is None
+    assert len(responses.calls) == DOWNLOAD_ATTEMPTS
     assert "could not download image" in cmd.stderr._out.getvalue()
 
 
@@ -547,12 +748,11 @@ def test_parse_content_empty_input_produces_no_specs():
     assert warnings == []
 
 
-def test_parse_content_inline_image_becomes_image_spec_without_downloading(monkeypatch):
-    called = []
-    monkeypatch.setattr("requests.get", lambda *a, **k: called.append(1))
+@responses.activate
+def test_parse_content_inline_image_becomes_image_spec_without_downloading():
     specs, _ = parse_content('<p>Text</p><img src="https://example.com/a.png" alt="Alt">')
     assert specs == [("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": ""})]
-    assert not called, "parsing must not hit the network"
+    assert len(responses.calls) == 0, "parsing must not hit the network"
 
 
 def test_parse_content_youtube_iframe_becomes_video_spec():
@@ -728,16 +928,18 @@ def test_parse_content_pre_tag_becomes_code_spec():
 # ---------------------------------------------------------------------------
 
 
-def test_materialize_content_downloads_image_spec_into_media_block(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_materialize_content_downloads_image_spec_into_media_block():
+    mock_image_downloads()
     cmd = make_command()
     blocks = cmd.materialize_content([("text", "<p>Text</p>"), ("image", {"src": "https://example.com/a.png", "alt": "Alt"})], "A Test Post")
     assert [block[0] for block in blocks] == ["text", "media"]
     assert blocks[1][1][0][0] == "image"
 
 
-def test_materialize_content_image_with_caption_becomes_image_caption_block(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_materialize_content_image_with_caption_becomes_image_caption_block():
+    mock_image_downloads()
     cmd = make_command()
     spec = ("image", {"src": "https://example.com/a.png", "alt": "Alt", "caption": "<p>A caption</p>"})
     blocks = cmd.materialize_content([spec], "A Test Post")
@@ -747,14 +949,9 @@ def test_materialize_content_image_with_caption_becomes_image_caption_block(monk
     assert value["image"]["image"].title == "Alt"
 
 
-def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster(monkeypatch):
-    requested = []
-
-    def fake_get(url, timeout):
-        requested.append(url)
-        return fake_response()
-
-    monkeypatch.setattr("requests.get", fake_get)
+@responses.activate
+def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster():
+    mock_image_downloads()
     cmd = make_command()
     blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
 
@@ -764,64 +961,86 @@ def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster(mo
     assert video_value["video_url"] == "https://www.youtube.com/watch?v=abc123"
     assert video_value["alt"] == "A video"
     assert video_value["poster"].title == "A video"
-    assert requested == ["https://img.youtube.com/vi/abc123/hqdefault.jpg"]
+    assert [call.request.url for call in responses.calls] == ["https://img.youtube.com/vi/abc123/hqdefault.jpg"]
 
 
-def test_materialize_content_video_without_caption_falls_back_to_post_title_for_alt(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: fake_response())
+@responses.activate
+def test_materialize_content_video_without_caption_falls_back_to_post_title_for_alt():
+    mock_image_downloads()
     cmd = make_command()
     blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": ""})], "A Test Post")
     assert blocks[0][1][0][1]["alt"] == "A Test Post"
 
 
-def test_materialize_content_drops_video_whose_poster_download_fails(monkeypatch):
+@responses.activate
+def test_materialize_content_drops_video_whose_poster_download_fails(no_retry_backoff):
     """The video block requires a poster, so a video without one is dropped rather than
     written as an invalid block."""
-    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
-    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+    mock_failed_downloads()
     cmd = make_command()
     blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
     assert blocks == []
 
 
-def test_materialize_content_drops_captioned_image_whose_download_fails(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
-    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+@responses.activate
+def test_materialize_content_drops_captioned_image_whose_download_fails(no_retry_backoff):
+    mock_failed_downloads()
     cmd = make_command()
     spec = ("image", {"src": "https://example.com/a.png", "alt": "", "caption": "<p>A caption</p>"})
     assert cmd.materialize_content([spec], "A Test Post") == []
 
 
-def test_materialize_content_drops_image_whose_download_fails(monkeypatch):
-    monkeypatch.setattr("requests.get", lambda *a, **k: (_ for _ in ()).throw(requests.ConnectionError("dead")))
-    monkeypatch.setattr("time.sleep", lambda *a, **k: None)
+@responses.activate
+def test_materialize_content_drops_image_whose_download_fails(no_retry_backoff):
+    mock_failed_downloads()
     cmd = make_command()
     specs = [("text", "<p>Before</p>"), ("image", {"src": "https://example.com/a.png", "alt": ""}), ("text", "<p>After</p>")]
     blocks = cmd.materialize_content(specs, "A Test Post")
     assert [block[0] for block in blocks] == ["text", "text"]
 
 
-def test_materialize_content_passes_through_non_image_specs(monkeypatch):
-    called = []
-    monkeypatch.setattr("requests.get", lambda *a, **k: called.append(1))
+@responses.activate
+def test_materialize_content_passes_through_non_image_specs():
     cmd = make_command()
     blocks = cmd.materialize_content([("text", "<p>Hi</p>"), ("code", {"code": "print('hi')"})], "A Test Post")
     assert blocks == [("text", "<p>Hi</p>"), ("code", {"code": "print('hi')"})]
-    assert not called, "non-image specs must not hit the network"
+    assert len(responses.calls) == 0, "non-image specs must not hit the network"
 
 
 # ---------------------------------------------------------------------------
-# write_url_map_csv
+# IncrementalCsv
 # ---------------------------------------------------------------------------
 
 
-def test_write_url_map_csv_writes_header_and_rows(tmp_path):
-    cmd = make_command()
+def test_incremental_csv_writes_header_and_rows(tmp_path):
     path = tmp_path / "out.csv"
-    cmd.write_url_map_csv(str(path), [("1", "https://blog.mozilla.org/en/firefox/a/", "https://www.firefox.com/en-US/blog/a/")])
+    writer = IncrementalCsv(str(path), ["wp_id", "old_url", "new_url"])
+    writer.write(("1", "https://blog.mozilla.org/en/firefox/a/", "https://www.firefox.com/en-US/blog/a/"))
+    writer.close()
 
     with open(path, newline="") as fh:
         rows = list(csv.reader(fh))
     assert rows[0] == ["wp_id", "old_url", "new_url"]
     assert rows[1] == ["1", "https://blog.mozilla.org/en/firefox/a/", "https://www.firefox.com/en-US/blog/a/"]
-    assert "Wrote 1 URL mappings to" in cmd.stdout._out.getvalue()
+    assert writer.count == 1
+
+
+def test_incremental_csv_creates_no_file_until_a_row_is_written(tmp_path):
+    path = tmp_path / "out.csv"
+    writer = IncrementalCsv(str(path), ["a", "b"])
+    assert not path.exists(), "a run with nothing to report leaves no empty CSV behind"
+    writer.close()
+    assert not path.exists()
+
+
+def test_incremental_csv_rows_survive_without_close(tmp_path):
+    """Each row is flushed as it is written, so a crash keeps the rows already recorded."""
+    path = tmp_path / "out.csv"
+    writer = IncrementalCsv(str(path), ["a", "b"])
+    writer.write(("1", "one"))
+    writer.write(("2", "two"))
+    # Deliberately no close(), standing in for a process that dies mid-import.
+
+    with open(path, newline="") as fh:
+        rows = list(csv.reader(fh))
+    assert rows == [["a", "b"], ["1", "one"], ["2", "two"]]
