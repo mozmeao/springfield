@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
+from wagtail.admin.panels import FieldPanel, InlinePanel
 from wagtail.models import Orderable
 
 from springfield.cms.routing.signals import OPERATORS, ValueType, registry
@@ -73,6 +74,13 @@ class RoutingRule(ClusterableModel, Orderable):
         verbose_name = _("Routing rule")
         verbose_name_plural = _("Routing rules")
 
+    # Fields shown for each rule inside the "User Routing" tab (C4). Conditions are
+    # authored as a nested inline conjunction (spec §5.2).
+    panels = [
+        FieldPanel("target"),
+        InlinePanel("conditions", label=_("Conditions")),
+    ]
+
     def __str__(self):
         return f"RoutingRule {self.pk} (page {self.page_id} -> target {self.target_id})"
 
@@ -104,6 +112,13 @@ class RoutingCondition(Orderable):
     class Meta(Orderable.Meta):
         verbose_name = _("Condition")
         verbose_name_plural = _("Conditions")
+
+    # Fields shown for each condition inside a rule's inline form (C4).
+    panels = [
+        FieldPanel("signal"),
+        FieldPanel("operator"),
+        FieldPanel("expected_value"),
+    ]
 
     def __str__(self):
         return f"{self.signal} {self.operator} {self.expected_value}"

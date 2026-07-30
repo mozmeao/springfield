@@ -1,0 +1,91 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Tests for the routing adoption mixin (C4).
+
+Method-level tests only: no test-harness page type is introduced (plan §0.3), so the
+full serve/edit-view integration lands with the first real consumer (C14). Here we
+prove the adoption-surface defaults, the tab's panel structure, and the per-instance
+tab-visibility decision.
+"""
+
+from types import SimpleNamespace
+
+from wagtail.admin.panels import InlinePanel
+
+from springfield.cms.routing.mixins import RoutingMixin, RoutingObjectList, routing_tab_is_shown
+from springfield.cms.routing.signals import registry
+
+# ---------------------------------------------------------------------------
+# Adoption surface: the three hooks and their defaults (spec §2.2, plan §0.4-A).
+# ---------------------------------------------------------------------------
+
+
+def test_is_routing_canonical_defaults_to_false():
+    # Fail-closed: a half-adopted consumer never routes.
+    assert RoutingMixin.is_routing_canonical(SimpleNamespace()) is False
+
+
+def test_routing_trigger_is_unset_by_default():
+    assert RoutingMixin.get_routing_trigger(SimpleNamespace()) is None
+
+
+def test_signal_subset_defaults_to_full_registry():
+    assert RoutingMixin.get_routing_signal_names(SimpleNamespace()) == tuple(registry.names())
+
+
+# ---------------------------------------------------------------------------
+# The mixin adds no database fields, so adoption produces no migration (§0.5).
+# ---------------------------------------------------------------------------
+
+
+def test_mixin_declares_no_database_fields():
+    assert list(RoutingMixin._meta.local_fields) == []
+    assert RoutingMixin._meta.abstract is True
+
+
+# ---------------------------------------------------------------------------
+# The "User Routing" tab wires both panels via Wagtail's inline-panel pattern (§6.1).
+# ---------------------------------------------------------------------------
+
+
+def test_routing_tab_holds_rules_and_kill_switch_panels():
+    tab = RoutingMixin.get_routing_tab()
+    assert isinstance(tab, RoutingObjectList)
+    assert str(tab.heading) == "User Routing"
+
+    panels = {panel.relation_name: panel for panel in tab.children if isinstance(panel, InlinePanel)}
+    assert set(panels) == {"routing_rules", "routing_config"}
+
+    # The kill switch is a single-item panel over RoutingConfig (0-or-1 per page).
+    assert panels["routing_config"].max_num == 1
+
+
+# ---------------------------------------------------------------------------
+# Tab visibility keys off eligibility: shown only on canonical instances (C4).
+# ---------------------------------------------------------------------------
+
+
+def test_tab_shown_on_canonical_instance():
+    canonical = SimpleNamespace(is_routing_canonical=lambda: True)
+    assert routing_tab_is_shown(canonical) is True
+
+
+def test_tab_suppressed_on_non_canonical_instance():
+    non_canonical = SimpleNamespace(is_routing_canonical=lambda: False)
+    assert routing_tab_is_shown(non_canonical) is False
+
+
+def test_tab_suppressed_when_predicate_absent_or_none():
+    assert routing_tab_is_shown(None) is False
+    assert routing_tab_is_shown(SimpleNamespace()) is False
+
+
+def test_bound_panel_is_shown_delegates_to_eligibility():
+    # The RoutingObjectList tab's BoundPanel gates rendering on the instance predicate.
+    bound = RoutingObjectList.BoundPanel.__new__(RoutingObjectList.BoundPanel)
+    bound.instance = SimpleNamespace(is_routing_canonical=lambda: True)
+    assert bound.is_shown() is True
+    bound.instance = SimpleNamespace(is_routing_canonical=lambda: False)
+    assert bound.is_shown() is False
