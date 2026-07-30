@@ -1,0 +1,47 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:comparison-table mobile_behavior="{{ value.settings.mobile_behavior }}">
+  <content:header>
+    {% for header_row in value.header_row %}
+      <tr>
+        {% for cell in header_row.cells %}
+          <th
+            {% if cell.settings.column_span|int > 1 %}
+              colspan="{{ cell.settings.column_span }}"
+            {% endif %}
+
+            {% if value.settings.highlighted_column and value.settings.highlighted_column|int == loop.index %}
+              class="highlighted"
+            {% endif %}
+          >
+            {{ cell.content }}
+          </th>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </content:header>
+
+  <content:body>
+    {% for row in value.content_rows %}
+      <tr>
+        {% for cell in row.cells %}
+          <td
+            {% if cell.settings.column_span|int > 1 %}
+              colspan="{{ cell.settings.column_span }}"
+            {% endif %}
+
+            {% if value.settings.highlighted_column and value.settings.highlighted_column|int == loop.index %}
+              class="highlighted"
+            {% endif %}
+          >
+            {{ cell.content }}
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </content:body>
+</include:comparison-table>
