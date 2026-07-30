@@ -58,6 +58,42 @@ def parse_categories(raw):
     return meaningful or names
 
 
+class IncrementalCsv:
+    """A CSV that is written as rows arrive, rather than all at once at the end.
+
+    Importing is long-running and can die outright - a segfault in the image libraries, an OOM
+    kill, a Ctrl-C. Each post is committed in its own transaction, so a crash still leaves
+    imported pages behind; flushing every row keeps the record of them instead of losing the
+    whole file. Re-running does not rebuild it, because those posts are skipped as already
+    imported.
+
+    The file is only created once there is a row to write, so a run with nothing to report
+    doesn't leave an empty CSV behind.
+    """
+
+    def __init__(self, path, header):
+        self.path = path
+        self.header = header
+        self.count = 0
+        self._file = None
+        self._writer = None
+
+    def write(self, row):
+        if self._file is None:
+            self._file = open(self.path, "w", newline="")
+            self._writer = csv.writer(self._file)
+            self._writer.writerow(self.header)
+        self._writer.writerow(row)
+        # Hand the row to the OS now: a segfault loses Python's buffer, not the kernel's.
+        self._file.flush()
+        self.count += 1
+
+    def close(self):
+        if self._file is not None:
+            self._file.close()
+            self._file = None
+
+
 def youtube_video_id(url):
     """Return the YouTube video id in `url`, or None if it isn't a YouTube link.
 
@@ -237,8 +273,14 @@ class Command(BaseCommand):
         "Imports blog posts from the flat WordPress export XML (mozilla-blog-posts.xml) into a "
         "BlogIndexPage, creating BlogArticlePage children plus any Tag/Author snippets and images "
         "they reference. Writes a CSV mapping each post's old blog.mozilla.org URL to its new URL "
-        "on this site, to hand to the blog.mozilla.org team so they can set up redirects on their end."
+        "on this site, to hand to the blog.mozilla.org team so they can set up redirects on their end, "
+        "and a second CSV listing every content warning against the post it came from."
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Warnings raised while importing the current post.
+        self.post_warnings = []
 
     def add_arguments(self, parser):
         parser.add_argument("xml_path", help="Path to the WordPress export XML file.")
@@ -250,6 +292,13 @@ class Command(BaseCommand):
             default="wordpress_url_map.csv",
             help="Path to write the old-URL -> new-URL CSV (default: wordpress_url_map.csv). "
             "An existing file at this path is overwritten, not appended to.",
+        )
+        parser.add_argument(
+            "--warnings-out",
+            default="wordpress_import_warnings.csv",
+            help="Path to write the per-post content warnings CSV (default: wordpress_import_warnings.csv). "
+            "Warnings are easy to lose in the command output, so each one is also recorded here against "
+            "the post it came from. An existing file at this path is overwritten, not appended to.",
         )
 
     def handle(self, *args, **options):
@@ -271,41 +320,55 @@ class Command(BaseCommand):
         posts = ElementTree.parse(xml_path).getroot().findall("post")
         self.stdout.write(f"Found {len(posts)} posts in {xml_path}")
 
-        url_map_rows = []
+        self.url_map_csv = IncrementalCsv(options["url_map_out"], ["wp_id", "old_url", "new_url"])
+        self.warnings_csv = IncrementalCsv(options["warnings_out"], ["wp_id", "title", "old_url", "new_url", "warning"])
         imported = skipped = failed = 0
 
-        for post in posts:
-            slug = element_text(post, "Slug")
-            title = element_text(post, "Title")
+        try:
+            for post in posts:
+                slug = element_text(post, "Slug")
+                title = element_text(post, "Title")
 
-            post_type = element_text(post, "PostType")
-            if post_type != "post":
-                # Not an error - the export includes pages/attachments this command deliberately
-                # doesn't handle. Report it as a skip rather than a failure.
-                self.stdout.write(f"  skip (unsupported PostType {post_type!r}): {slug}")
-                skipped += 1
-                continue
+                post_type = element_text(post, "PostType")
+                if post_type != "post":
+                    # Not an error - the export includes pages/attachments this command deliberately
+                    # doesn't handle. Report it as a skip rather than a failure.
+                    self.stdout.write(f"  skip (unsupported PostType {post_type!r}): {slug}")
+                    skipped += 1
+                    continue
 
-            if BlogArticlePage.objects.filter(slug=slug, locale=locale).exists():
-                self.stdout.write(f"  skip (already imported): {slug}")
-                skipped += 1
-                continue
+                if BlogArticlePage.objects.filter(slug=slug, locale=locale).exists():
+                    self.stdout.write(f"  skip (already imported): {slug}")
+                    skipped += 1
+                    continue
 
-            self.stdout.write(f"  {'[dry-run] ' if self.dry_run else ''}importing: {title}")
+                self.stdout.write(f"  {'[dry-run] ' if self.dry_run else ''}importing: {title}")
 
-            try:
-                url_map_row = self.import_post(post, index_page, locale)
-            except Exception as exc:
-                self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
-                failed += 1
-                continue
+                # Reset here rather than inside import_post, so a post that fails early cannot
+                # inherit the previous post's warnings.
+                self.post_warnings = []
+                try:
+                    url_map_row = self.import_post(post, index_page, locale)
+                except Exception as exc:
+                    self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
+                    # A failed post is the most important thing to record: it has no page to
+                    # inspect, so the CSV is the only trace of what went wrong.
+                    self.record_warnings(post, new_url="", failure=f"post failed to import: {exc}")
+                    failed += 1
+                    continue
 
-            if url_map_row is not None:
-                url_map_rows.append(url_map_row)
-            imported += 1
+                if url_map_row is not None:
+                    self.url_map_csv.write(url_map_row)
+                    self.record_warnings(post, new_url=url_map_row[2])
+                imported += 1
+        finally:
+            self.url_map_csv.close()
+            self.warnings_csv.close()
 
-        if not self.dry_run and url_map_rows:
-            self.write_url_map_csv(options["url_map_out"], url_map_rows)
+        if self.warnings_csv.count:
+            self.stdout.write(f"Wrote {self.warnings_csv.count} warnings to {self.warnings_csv.path}")
+        if self.url_map_csv.count:
+            self.stdout.write(f"Wrote {self.url_map_csv.count} URL mappings to {self.url_map_csv.path}")
 
         self.stdout.write(f"Done. {imported} imported, {skipped} skipped, {failed} failed.")
 
@@ -318,7 +381,7 @@ class Command(BaseCommand):
 
         content_specs, warnings = parse_content(element_text(post, "Content"))
         for warning in warnings:
-            self.stderr.write(f"    ! {warning}")
+            self.warn(warning)
 
         if self.dry_run:
             return None
@@ -354,6 +417,21 @@ class Command(BaseCommand):
         revision.publish()
 
         return (element_text(post, "ID"), element_text(post, "Permalink"), page.full_url)
+
+    def warn(self, message):
+        """Report a content warning: to stderr as the import runs, and to the warnings CSV."""
+        self.stderr.write(f"    ! {message}")
+        self.post_warnings.append(message)
+
+    def record_warnings(self, post, new_url, failure=None):
+        """Write the current post's warnings to the CSV, paired with its URLs."""
+        if self.dry_run:
+            return
+        wp_id = element_text(post, "ID")
+        title = element_text(post, "Title")
+        old_url = element_text(post, "Permalink")
+        for message in [*self.post_warnings, *([failure] if failure else [])]:
+            self.warnings_csv.write((wp_id, title, old_url, new_url, message))
 
     def parse_wp_date(self, text):
         """Parse a WordPress export Date (no timezone info) as wall-clock time in
@@ -417,7 +495,7 @@ class Command(BaseCommand):
                     time.sleep(2**attempt)  # 2s then 4s backoff between attempts
 
         if response is None:
-            self.stderr.write(f"    ! could not download image {url} after 3 attempts: {last_exc}")
+            self.warn(f"could not download image {url} after 3 attempts: {last_exc}")
             return None
 
         image = SpringfieldImage.objects.create(title=title, file=ContentFile(response.content, name=filename))
@@ -455,10 +533,3 @@ class Command(BaseCommand):
             else:
                 blocks.append((block_type, value))
         return blocks
-
-    def write_url_map_csv(self, path, rows):
-        with open(path, "w", newline="") as fh:
-            writer = csv.writer(fh)
-            writer.writerow(["wp_id", "old_url", "new_url"])
-            writer.writerows(rows)
-        self.stdout.write(f"Wrote {len(rows)} URL mappings to {path}")
