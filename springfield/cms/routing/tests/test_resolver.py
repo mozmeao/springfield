@@ -1,0 +1,108 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Tests for the resolver page rendering and serialization (C8)."""
+
+from types import SimpleNamespace
+
+from django.test import RequestFactory
+
+import pytest
+from bs4 import BeautifulSoup
+from wagtail.models import Site
+
+from springfield.cms.routing.models import RoutingCondition, RoutingRule
+from springfield.cms.routing.resolver import render_resolver, serialize_manifest, serialize_rules
+from springfield.cms.tests.factories import SimpleRichTextPageFactory
+
+pytestmark = [pytest.mark.django_db]
+
+rf = RequestFactory()
+
+
+@pytest.fixture
+def routed_page():
+    # Build under the default site's root so pages have real URLs.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="c8-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="c8-variant", parent=canonical, live=True)
+    rule = RoutingRule.objects.create(page=canonical, target=target)
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+    RoutingCondition.objects.create(rule=rule, signal="country", operator="is", expected_value="US", sort_order=1)
+    return SimpleNamespace(canonical=canonical, target=target, rule=rule)
+
+
+# ---------------------------------------------------------------------------
+# Serialization (the data the client evaluator needs).
+# ---------------------------------------------------------------------------
+
+
+def test_serialize_rules_carries_target_and_typed_conditions(routed_page):
+    rules = serialize_rules(routed_page.canonical)
+    assert len(rules) == 1
+    rule = rules[0]
+    assert rule["target"] == routed_page.target.get_url()
+    assert [c["signal"] for c in rule["conditions"]] == ["platform", "country"]
+    # Value type is drawn from the registry so the evaluator compares correctly.
+    assert rule["conditions"][0]["valueType"] == "enum"
+    assert rule["conditions"][0]["operator"] == "is"
+    assert rule["conditions"][0]["expected"] == "windows"
+
+
+def test_serialize_rules_skips_unpublished_targets(routed_page):
+    routed_page.target.live = False
+    routed_page.target.save()
+    assert serialize_rules(routed_page.canonical) == []
+
+
+def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):
+    manifest = serialize_manifest(serialize_rules(routed_page.canonical))
+    assert manifest["platform"] == {"source": "user_agent", "browserStateKey": None, "valueType": "enum"}
+    assert manifest["country"]["source"] == "cdn_geo"
+
+
+# ---------------------------------------------------------------------------
+# Rendering (spec §7, §9.1, §10).
+# ---------------------------------------------------------------------------
+
+
+def _render(routed_page):
+    request = rf.get("/en-US/whatsnew/?routing=1")
+    response = render_resolver(request, routed_page.canonical)
+    if hasattr(response, "render"):
+        response.render()
+    return response, response.content.decode("utf-8")
+
+
+def test_resolver_renders_country_rules_and_manifest(routed_page):
+    _response, html = _render(routed_page)
+    assert "data-country-code=" in html
+    assert "data-routing-rules=" in html
+    assert "data-routing-manifest=" in html
+    # The serialized target and a signal name reach the client blob.
+    assert routed_page.target.get_url() in html
+    assert "platform" in html
+
+
+def test_resolver_renders_localized_status_and_noscript(routed_page):
+    _response, html = _render(routed_page)
+    assert "Preparing your page" in html
+    assert "<noscript>" in html
+
+
+def test_resolver_response_is_cacheable(routed_page):
+    response, _html = _render(routed_page)
+    # The plain resolver must stay CDN-cacheable — no no-store (previews add it, C9).
+    assert "no-store" not in response.get("Cache-Control", "")
+
+
+def test_resolver_has_no_inline_script_or_style(routed_page):
+    _response, html = _render(routed_page)
+    soup = BeautifulSoup(html, "html.parser")
+    # CSP: every script is an external bundle (has src); no inline <script> blocks.
+    scripts = soup.find_all("script")
+    assert scripts, "expected bundled scripts"
+    assert all(script.get("src") for script in scripts)
+    # All CSS ships via <link> bundles; no inline <style>.
+    assert soup.find_all("style") == []

@@ -1,0 +1,52 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ Lightweight client resolver page (spec §7). Deliberately standalone and minimal — a
+ sub-1.5s bounce that evaluates rules on the client and redirects. Zero inline
+ <script>/<style> (CSP); all data reaches the JS via data-* attributes and all strings
+ via Fluent -> data-* -> Mozilla.Utils.trans.
+#}
+<!doctype html>
+<html lang="{{ LANG }}" dir="{{ DIR }}" data-country-code="{{ country_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# Not a canonical content page — keep it out of search indexes. #}
+    <meta name="robots" content="noindex,nofollow">
+    <title>{{ ftl('routing-resolver-preparing') }}</title>
+
+    {# No-JS fallback: send the visitor straight to canonical content. #}
+    <noscript><meta http-equiv="refresh" content="0; url={{ canonical_url }}"></noscript>
+
+    {{ css_bundle('cms_routing_resolver') }}
+
+    {# site bundle sets window.site.platform, which mozilla-client (in `lib`) reads. #}
+    {{ js_bundle('site') }}
+  </head>
+
+  <body>
+    {# Localized strings for the bundled JS, read via Mozilla.Utils.trans('preparing'). #}
+    <div id="strings" data-preparing="{{ ftl('routing-resolver-preparing') }}"></div>
+
+    <main
+      class="routing-resolver"
+      data-routing-rules='{{ routing_rules|tojson }}'
+      data-routing-manifest='{{ routing_manifest|tojson }}'
+      data-canonical-url="{{ canonical_url }}"
+      data-loop-breaker-param="{{ loop_breaker_param }}"
+    >
+      <p class="routing-resolver-status">{{ ftl('routing-resolver-preparing') }}</p>
+      <noscript>
+        <p><a href="{{ canonical_url }}">{{ ftl('routing-resolver-noscript') }}</a></p>
+      </noscript>
+    </main>
+
+    {# mozilla-client / mozilla-utils / uitour, then the resolver entrypoint. #}
+    {{ js_bundle('lib') }}
+    {{ js_bundle('cms_routing_resolver') }}
+  </body>
+</html>
