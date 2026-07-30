@@ -396,7 +396,12 @@ class Command(BaseCommand):
         tag_names = [name for name in element_text(post, "Tags").split("|") if name.strip()] + categories[1:]
         tags = [self.get_or_create_snippet(Tag, name, locale) for name in tag_names]
         author = self.get_or_create_author(post, locale)
-        image = self.get_or_create_image(element_text(post, "ImageURL"), element_text(post, "ImageTitle") or title)
+        # ImageURL lists every image attached to the post, pipe-separated, with ImageTitle and the
+        # other Image* fields as parallel lists. The hero image is the single URL in ImageFeatured,
+        # which is the first of those, so its title is the first ImageTitle. A post whose
+        # ImageFeatured is blank is imported without a hero image.
+        image_title = element_text(post, "ImageTitle").split("|")[0].strip() or title
+        image = self.get_or_create_image(element_text(post, "ImageFeatured"), image_title)
         content = self.materialize_content(content_specs, title)
 
         page = BlogArticlePage(

@@ -41,6 +41,8 @@ POST_DEFAULTS = {
     "post_type": "post",
     "slug": "a-test-post",
     "image_url": "https://example.com/hero.jpg",
+    # The real export repeats the featured image as the first ImageURL entry.
+    "image_featured": "https://example.com/hero.jpg",
     "image_title": "Hero Image",
     "categories": "Firefox",
     "tags": "",
@@ -69,7 +71,7 @@ def post_xml(**overrides):
         <ImageCaption/>
         <ImageDescription/>
         <ImageAltText/>
-        <ImageFeatured>{values["image_url"]}</ImageFeatured>
+        <ImageFeatured>{values["image_featured"]}</ImageFeatured>
         <Categories>{values["categories"]}</Categories>
         <Tags>{values["tags"]}</Tags>
         <Authors/>
@@ -280,6 +282,54 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     # The new URL must be absolute so the blog.mozilla.org team can redirect to it.
     assert rows[0]["new_url"] == page.full_url
     assert rows[0]["new_url"].startswith("http")
+
+
+@responses.activate
+def test_hero_image_comes_from_image_featured_not_image_url(tmp_path, index_page):
+    """ImageURL lists every image in the post; only ImageFeatured names the hero."""
+    mock_image_downloads()
+    xml_path = write_xml(
+        tmp_path,
+        post_xml(
+            image_url="https://example.com/first.png|https://example.com/second.gif",
+            image_featured="https://example.com/first.png",
+            image_title="First Image|Second Image",
+        ),
+    )
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert "first" in page.image.file.name
+    # The Image* fields are parallel lists, so the hero's title is the first entry.
+    assert page.image.title == "First Image"
+    assert [call.request.url for call in responses.calls] == ["https://example.com/first.png"]
+
+
+@responses.activate
+def test_blank_image_featured_imports_the_post_without_a_hero_image(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(
+        tmp_path,
+        post_xml(image_url="https://example.com/body-image.png", image_featured=""),
+    )
+
+    out = StringIO()
+    err = StringIO()
+    call_command(
+        "import_wordpress_blog_posts",
+        str(xml_path),
+        url_map_out=str(tmp_path / "url_map.csv"),
+        stdout=out,
+        stderr=err,
+    )
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert page.image is None
+    assert "Done. 1 imported, 0 skipped, 0 failed." in out.getvalue()
+    # A post with no featured image is expected, not a problem worth warning about.
+    assert err.getvalue() == ""
+    assert len(responses.calls) == 0, "the images listed in ImageURL are not the hero image"
 
 
 @responses.activate
@@ -582,7 +632,7 @@ def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path
 
     xml_path = write_xml(
         tmp_path,
-        post_xml(id="1", slug="post-one", title="Post One", image_url="https://example.com/broken.jpg", categories="Broken Topic"),
+        post_xml(id="1", slug="post-one", title="Post One", image_featured="https://example.com/broken.jpg", categories="Broken Topic"),
         post_xml(id="2", slug="post-two", title="Post Two", categories="Firefox"),
     )
     out = StringIO()
