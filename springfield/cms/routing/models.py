@@ -1,0 +1,172 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Framework-owned, Page-keyed routing schema (spec §5).
+
+Three models, all keyed to ``wagtailcore.Page`` so a single generic table set is
+shared by every consumer page type — there is no per-consumer model, and adopting
+the framework adds no migration (plan §0.5, §3):
+
+* ``RoutingRule`` — an ordered rule hosted by a canonical page, resolving to a
+  target page that must be a descendant of that canonical.
+* ``RoutingCondition`` — one ``<signal> <operator> <expected-value>`` clause; a
+  rule's conditions form an ordered conjunction (AND).
+* ``RoutingConfig`` — a per-page 0-or-1 record carrying the ``routing_paused`` kill
+  switch, with headroom for future per-page routing settings.
+
+Save-time validation (spec §6.3) lives in ``clean()`` — server-side, not just admin
+JS: the operator must be legal for the signal's value type, an enum expected value
+must be a member of the enum set, and a rule's target must be a descendant of its
+canonical.
+"""
+
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
+from wagtail.models import Orderable
+
+from springfield.cms.routing.signals import OPERATORS, ValueType, registry
+
+# Operators that carry a comma-separated list of expected values (set membership).
+_SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
+
+
+def signal_choices():
+    """Signal choices for admin selects, drawn live from the registry.
+
+    A callable so choices stay in lockstep with the registry and adding a signal
+    never generates a migration (Django serializes the reference, not the result).
+    """
+    return [(signal.name, signal.name) for signal in registry]
+
+
+def operator_choices():
+    """All operator choices; per-signal legality is enforced in ``clean()`` (§6.3)."""
+    return [(operator.value, operator.label) for operator in OPERATORS.values()]
+
+
+class RoutingRule(ClusterableModel, Orderable):
+    """An ordered routing rule hosted by a canonical page (spec §5.1, §5.3).
+
+    ``ParentalKey`` to ``wagtailcore.Page`` means any consumer page type can host
+    rules without its own model or migration. Priority is the ``sort_order``
+    position; ties break by ascending id (older rule wins) so ordering is
+    deterministic across database engines. There is no draft/status field — a rule
+    exists iff its parent page is published (spec §5.4).
+    """
+
+    page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_rules")
+    target = models.ForeignKey(
+        "wagtailcore.Page",
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("Target page"),
+        help_text=_("The page to route matching users to. Must be a descendant of this page."),
+    )
+
+    class Meta(Orderable.Meta):
+        ordering = ["sort_order", "pk"]
+        verbose_name = _("Routing rule")
+        verbose_name_plural = _("Routing rules")
+
+    def __str__(self):
+        return f"RoutingRule {self.pk} (page {self.page_id} -> target {self.target_id})"
+
+    def clean(self):
+        super().clean()
+        # Target must be a strict descendant of the canonical the rule attaches to
+        # (spec §5.1, §6.3). Guarded so we only validate once both ends are known.
+        if self.page_id and self.target_id and not self.target.is_descendant_of(self.page):
+            raise ValidationError({"target": _("The target page must be a descendant of the page this rule is attached to.")})
+
+
+class RoutingCondition(Orderable):
+    """One condition in a rule's conjunction (spec §5.2).
+
+    Tests one signal with one operator against an expected value. Negation is the
+    operator's paired form ("is not", "not in", negated comparisons) — there is no
+    rule-level NOT or OR.
+    """
+
+    rule = ParentalKey(RoutingRule, on_delete=models.CASCADE, related_name="conditions")
+    signal = models.CharField(max_length=100, choices=signal_choices, verbose_name=_("Signal"))
+    operator = models.CharField(max_length=20, choices=operator_choices, verbose_name=_("Operator"))
+    expected_value = models.CharField(
+        max_length=255,
+        verbose_name=_("Expected value"),
+        help_text=_("For set-membership operators (in / not in), provide a comma-separated list of values."),
+    )
+
+    class Meta(Orderable.Meta):
+        verbose_name = _("Condition")
+        verbose_name_plural = _("Conditions")
+
+    def __str__(self):
+        return f"{self.signal} {self.operator} {self.expected_value}"
+
+    def expected_values(self):
+        """The expected value(s) as a list — split on commas for set-membership operators."""
+        if self.operator in _SET_MEMBERSHIP_OPERATORS:
+            return [value.strip() for value in self.expected_value.split(",") if value.strip()]
+        value = self.expected_value.strip()
+        return [value] if value else []
+
+    def clean(self):
+        super().clean()
+        # The signal must be one the registry knows (spec §4).
+        if self.signal not in registry:
+            raise ValidationError({"signal": _("Unknown signal “%(name)s”.") % {"name": self.signal}})
+        signal = registry.get(self.signal)
+
+        # The operator must be legal for the signal's value type (spec §6.3).
+        if not signal.allows_operator(self.operator):
+            raise ValidationError(
+                {"operator": _("Operator “%(operator)s” is not valid for the “%(name)s” signal.") % {"operator": self.operator, "name": self.signal}}
+            )
+
+        # An enum condition's expected value(s) must be members of the enum set (spec §6.3).
+        if signal.value_type is ValueType.ENUM:
+            members = {enum_value.value for enum_value in signal.enum_values}
+            invalid = [value for value in self.expected_values() if value not in members]
+            if invalid:
+                raise ValidationError(
+                    {
+                        "expected_value": _("“%(value)s” is not a valid value for the “%(name)s” signal.")
+                        % {"value": ", ".join(invalid), "name": self.signal}
+                    }
+                )
+
+
+class RoutingConfig(models.Model):
+    """Per-page routing settings — a 0-or-1 record keyed to the page (spec §5.4).
+
+    Holds the ``routing_paused`` kill switch and leaves headroom for future per-page
+    routing settings. Keeping the kill switch here (not on the routing mixin) is what
+    keeps the mixin field-free and the whole PR at a single migration (plan §0.5).
+    The 0-or-1 cardinality is enforced by the admin panel's ``max_num=1`` (C4); a
+    missing record reads as *not paused*.
+    """
+
+    page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_config")
+    routing_paused = models.BooleanField(
+        default=False,
+        verbose_name=_("Pause routing"),
+        help_text=_("When enabled, routing is bypassed and canonical content is served directly. Previews still work."),
+    )
+
+    class Meta:
+        verbose_name = _("Routing configuration")
+        verbose_name_plural = _("Routing configurations")
+
+    def __str__(self):
+        return f"RoutingConfig for page {self.page_id} (paused={self.routing_paused})"
+
+    @classmethod
+    def is_paused_for(cls, page):
+        """Whether routing is paused for ``page``. A missing record reads as not paused."""
+        config = cls.objects.filter(page=page).first()
+        return bool(config and config.routing_paused)

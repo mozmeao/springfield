@@ -6,3 +6,11 @@ from .locale import *  # noqa
 from .snippets import *  # noqa
 from .pages import *  # noqa
 from .images import *  # noqa
+
+# Framework-owned routing schema (spec §5). Imported here so Django registers the
+# models under the `cms` app and their schema ships in the app's migrations.
+from springfield.cms.routing.models import (  # noqa: E402, F401
+    RoutingCondition,
+    RoutingConfig,
+    RoutingRule,
+)
