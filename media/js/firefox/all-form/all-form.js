@@ -26,32 +26,6 @@ const OS = {
     LINUX64ARM: 'linux64-aarch64'
 };
 
-// TODO: Switch over to user-facing-friendly release/channel names
-
-const RELEASES_WILL_CHANGE = {
-    STABLE: 'firefox-latest-ssl',
-    BETA: 'firefox-beta-latest-ssl',
-    DEV: 'firefox-devedition-latest-ssl',
-    NIGHTLY: 'firefox-nightly-latest-ssl',
-    ESR: 'firefox-esr-latest-ssl',
-    ESR115: 'firefox-esr115-latest-ssl'
-};
-
-const UNSUPPORTED_PLATFORMS_BY_RELEASE = {
-    [RELEASES_WILL_CHANGE.STABLE]: [OS.LINUX32],
-    [RELEASES_WILL_CHANGE.ESR]: [OS.IOS, OS.ANDROID],
-    [RELEASES_WILL_CHANGE.ESR115]: [
-        OS.IOS,
-        OS.ANDROID,
-        OS.WINDOWS64ARM,
-        OS.LINUX32,
-        OS.LINUX64ARM
-    ],
-    [RELEASES_WILL_CHANGE.BETA]: [OS.LINUX32],
-    [RELEASES_WILL_CHANGE.DEV]: [OS.IOS, OS.ANDROID, OS.LINUX32],
-    [RELEASES_WILL_CHANGE.NIGHTLY]: [OS.IOS, OS.LINUX32]
-};
-
 const RELEASES = {
     STABLE: 'stable',
     BETA: 'beta',
@@ -62,10 +36,53 @@ const RELEASES = {
     ESR_115: 'esr-115',
 }
 
-// TODO: App Store URL
-// TODO: Play Store URL
-// TODO: Microsoft Store URL
-// TODO: APT URL
+const UNSUPPORTED_PLATFORMS_BY_RELEASE = {
+    [RELEASES.STABLE]: [OS.LINUX32],
+    [RELEASES.ESR_NEXT]: [OS.IOS, OS.ANDROID, OS.LINUX32],
+    [RELEASES.ESR]: [OS.IOS, OS.ANDROID],
+    [RELEASES.ESR_115]: [
+        OS.IOS,
+        OS.ANDROID,
+        OS.WINDOWS64ARM,
+        OS.LINUX32,
+        OS.LINUX64ARM
+    ],
+    [RELEASES.BETA]: [OS.LINUX32],
+    [RELEASES.DEV]: [OS.IOS, OS.ANDROID, OS.LINUX32, OS.MACOSPKG],
+    [RELEASES.NIGHTLY]: [OS.IOS, OS.LINUX32]
+};
+
+const RELEASE_NOTES_FOR_DESKTOP = {
+    [RELEASES.STABLE]: "/firefox/notes/",
+    [RELEASES.BETA]: "/firefox/beta/notes/",
+    [RELEASES.DEV]: "/firefox/developer/notes/",
+    [RELEASES.NIGHTLY]: "/firefox/nightly/notes/",
+    [RELEASES.ESR]: "/firefox/organizations/notes/",
+    [RELEASES.ESR_115]: "/firefox/organizations/notes/",
+    [RELEASES.ESR_NEXT]: "/firefox/organizations/notes/",
+};
+
+const SYSTEM_REQUIREMENTS_FOR_DESKTOP = {
+    [RELEASES.STABLE]: "/firefox/system-requirements/",
+    [RELEASES.BETA]: "/firefox/beta/system-requirements/",
+    [RELEASES.DEV]: "/firefox/developer/system-requirements/",
+    [RELEASES.NIGHTLY]: "/firefox/nightly/system-requirements/",
+    [RELEASES.ESR]: "/firefox/organizations/system-requirements/",
+    [RELEASES.ESR_115]: "/firefox/organizations/system-requirements/",
+    [RELEASES.ESR_NEXT]: "/firefox/organizations/system-requirements/",
+};
+
+const RELEASE_NOTES_FOR_MOBILE = {
+    [OS.IOS]: {
+        [RELEASES.STABLE]: "/firefox/ios/notes/",
+        [RELEASES.BETA]: "/firefox/ios/beta/notes/",
+    },
+    [OS.ANDROID]: {
+        [RELEASES.STABLE]: "/firefox/android/notes/",
+        [RELEASES.BETA]: "/firefox/android/beta/notes/",
+        [RELEASES.NIGHTLY]: "/firefox/android/nightly/notes/",
+    },
+};
 
 /**
  * Generate a Firefox download URL for desktop and Android APT based on the form choices.
@@ -84,13 +101,14 @@ class FirefoxDownloadURL extends URL {
     };
 
     static resolveOS(choices) {
-        return choices.os.endsWith('-msi') ? choices.os.slice(0, -4) : choices.os;
+        return choices.os.endsWith('-msi') || choices.os.endsWith('-pkg') ? choices.os.slice(0, -4) : choices.os;
     }
 
     static resolveProduct(choices) {
         const name = ['firefox'];
         name.push(FirefoxDownloadURL.releaseChoiceToDownloadChannel[choices.release]);
-        if (choices.os.endsWith('msi')) name.push('msi')
+        if (choices.os.endsWith('pkg')) name.push('pkg');
+        if (choices.os.endsWith('msi')) name.push('msi');
         name.push('latest');
         if (choices.os !== 'android' && choices.release === 'nightly' && choices.language !== 'en-US') name.push('l10n');
         name.push('ssl');
@@ -128,11 +146,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
         switch (event.type) {
             case 'slotchange':
                 // Setup
+                this.form.addEventListener('submit', this);
                 this.form.addEventListener('input', this);
                 this.form.addEventListener('invalid', this, true);
 
                 this.#setConditionalDisplay();
                 this.#validate();
+                this.#updateActions();
                 break;
             case 'input':
                 this.#handleInput(event);
@@ -140,12 +160,18 @@ class FirefoxDownloadFormElement extends HTMLElement {
             case 'invalid':
                 this.#handleInvalid(event);
                 break;
+            case 'submit':
+                event.preventDefault();
+                // TODO: maybe since a submit is expected we just follow the
+                // most prominent link? Or we direct users to the options?
+                break;
         }
     }
 
     #handleInput(event) {
         this.#setConditionalDisplay();
         this.#validate();
+        this.#updateActions();
 
         const [selectedOption] = event.target.selectedOptions;
 
@@ -170,6 +196,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     #handleInvalid(event) {
         event.preventDefault();
+
+        if (!event.target.matches(":user-invalid")) return;
 
         const fieldWrap = event.target.closest('.fl-field-wrap');
 
@@ -204,6 +232,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #setConditionalDisplay() {
         const { os, release, language } = this.form.elements;
 
+        this.style.setProperty("--os", os.value);
+        this.style.setProperty("--release", release.value);
+        this.style.setProperty("--language", language.value);
+
         const isMobile = os.value === 'ios' || os.value === 'android';
 
         language.disabled = isMobile;
@@ -226,7 +258,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             languageFieldWrap.querySelector('.language-message')?.remove();
         }
 
-        for (const releaseOption of Object.values(RELEASES_WILL_CHANGE)) {
+        for (const releaseOption of Object.values(RELEASES)) {
             const isNotSupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[
                 releaseOption
             ].includes(os.value);
@@ -252,6 +284,50 @@ class FirefoxDownloadFormElement extends HTMLElement {
             release.reportValidity();
         } else {
             release.setCustomValidity('');
+        }
+    }
+
+    #updateActions() {
+        if (!this.form.checkValidity()) return;
+
+        const { os, release, language } = Object.fromEntries(new FormData(this.form))
+
+        let primaryAction = this.form.querySelector('[data-primary-action]');
+
+        if (primaryAction.matches('button')) {
+            const link = document.importNode(
+                document.getElementById('download-button-template').content,
+                true
+            ).querySelector('a');
+            link.dataset.primaryAction = '';
+            primaryAction.after(link);
+            primaryAction.remove();
+            primaryAction = link;
+        }
+
+        switch (os) {
+            case "ios":
+                primaryAction.href = {
+                    stable: "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8",
+                    beta: "https://www.firefox.com/channel/ios/testflight/",
+                }[release];
+                releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
+                systemRequirements.href = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device";
+                break;
+            case "android":
+                primaryAction.href = {
+                    stable: "https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
+                    beta: "https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
+                    nightly: "https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
+                }[release];
+                releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
+                systemRequirements.href = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device";
+                break;
+            default:
+                primaryAction.href = new FirefoxDownloadURL({ os, release, language });
+                releaseNotes.href = RELEASE_NOTES_FOR_DESKTOP[release];
+                systemRequirements.href = SYSTEM_REQUIREMENTS_FOR_DESKTOP[release];
+                break;
         }
     }
 }
