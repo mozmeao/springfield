@@ -104,6 +104,22 @@ class TestFirefoxReferralDataRefresh(TestCase):
         self.assertEqual(loaded, 1)
         self.assertEqual(skipped, 1)
 
+    def test_skips_duplicate_referral_ids_in_snapshot(self):
+        # Duplicate referral_ids in the same snapshot would cause an
+        # IntegrityError inside bulk_create (unique=True). They must be caught
+        # by _validated_iter before the destructive delete runs.
+        loaded, skipped = FirefoxReferralData.objects.refresh(
+            [
+                ("GOOD000001", "10"),
+                ("GOOD000001", "20"),  # duplicate — second one skipped
+                ("GOOD000002", "5"),
+            ]
+        )
+        self.assertEqual(loaded, 2)
+        self.assertEqual(skipped, 1)
+        # First occurrence wins.
+        self.assertEqual(FirefoxReferralData.objects.get(referral_id="GOOD000001").install_count, 10)
+
     def test_empty_input_raises_and_preserves_existing_table(self):
         FirefoxReferralData.objects.create(referral_id="XYZ0000001", install_count=1)
         with self.assertRaisesRegex(ValueError, "no valid rows"):

@@ -160,6 +160,19 @@ class TestUpdateReferralDataCommand(TestCase):
         self.assertFalse(FirefoxReferralData.objects.filter(referral_id="referral_id").exists())
         self.assertEqual(FirefoxReferralData.objects.count(), 2)
 
+    def test_malformed_first_data_row_is_counted_as_skipped_not_header(self):
+        # If the first row doesn't match the expected header names but has a
+        # non-integer install_count, it must NOT be silently swallowed as a
+        # "header" — it should reach refresh() and be counted as a skipped row.
+        body = "ABC1234567,not-an-int\nDEF9876543,0\n"
+        blob = _make_blob(updated=timezone.now(), csv_body=body)
+        with _patch_storage_client(blob):
+            call_command(COMMAND, quiet=True)
+
+        # DEF9876543 loaded; ABC1234567 counted as skipped (not silently lost).
+        self.assertEqual(FirefoxReferralData.objects.count(), 1)
+        self.assertTrue(FirefoxReferralData.objects.filter(referral_id="DEF9876543").exists())
+
     def test_headerless_csv_loads_all_rows(self):
         body = "ABC1234567,42\nDEF9876543,0\n"
         blob = _make_blob(updated=timezone.now(), csv_body=body)

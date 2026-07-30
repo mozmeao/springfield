@@ -14,14 +14,18 @@ from google.cloud.exceptions import NotFound
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.utils.management.decorators import alert_sentry_on_exception
 
+_HEADER_ROW = ("referral_id", "install_count")
+
 
 def _iter_rows(reader):
     """Yield (referral_id, install_count) tuples from a csv.reader.
 
-    Tolerates an optional header row: if the first row's second cell is not a
-    valid integer, treat it as a header and skip it. Also skips blank lines and
-    rows without exactly two columns (the manager's refresh() will separately
-    validate and count each yielded row).
+    Tolerates an optional header row: if the first row exactly matches
+    the expected column names ('referral_id', 'install_count'), skip it.
+    Any other first row — including a malformed data row — is yielded so
+    the manager's refresh() can count it as skipped rather than silently
+    dropping it here. Also skips blank lines and rows without exactly two
+    columns.
     """
     header_checked = False
     for row in reader:
@@ -30,15 +34,11 @@ def _iter_rows(reader):
         if len(row) != 2:
             # Surface schema drift rather than silently accepting extra columns.
             continue
-        referral_id, install_count = row[0], row[1]
         if not header_checked:
             header_checked = True
-            try:
-                int(install_count)
-            except (TypeError, ValueError):
-                # First row's count column isn't an int; treat as header, skip.
+            if (row[0].strip().lower(), row[1].strip().lower()) == _HEADER_ROW:
                 continue
-        yield referral_id, install_count
+        yield row[0], row[1]
 
 
 @alert_sentry_on_exception

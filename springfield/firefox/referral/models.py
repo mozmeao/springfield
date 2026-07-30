@@ -69,9 +69,10 @@ class FirefoxReferralDataManager(models.Manager):
         """Yield (is_valid, referral_id, count) triples from raw input tuples.
 
         Rejects rows that would violate DB constraints on `bulk_create` (length
-        overflow on referral_id, integer overflow on install_count). Catching
-        these BEFORE the atomic delete runs prevents a retry-storm where a
-        single bad row keeps rolling back the whole refresh on every tick.
+        overflow on referral_id, integer overflow on install_count, duplicate
+        referral_id within the snapshot). Catching these BEFORE the atomic
+        delete runs prevents a retry-storm where a bad row keeps rolling back
+        the whole refresh on every tick.
 
         Tolerant of direct callers passing rows of the wrong arity or a
         non-string referral_id (e.g. an int from a hand-built fixture): the
@@ -81,6 +82,7 @@ class FirefoxReferralDataManager(models.Manager):
         max_len = self.model._meta.get_field("referral_id").max_length
         # Postgres integer upper bound (PositiveIntegerField uses a 32-bit int).
         max_count = 2**31 - 1
+        seen_ids = set()
         for row in rows:
             try:
                 referral_id, install_count = row
@@ -95,6 +97,10 @@ class FirefoxReferralDataManager(models.Manager):
             if len(referral_id) > max_len:
                 yield False, None, None
                 continue
+            if referral_id in seen_ids:
+                yield False, None, None
+                continue
+            seen_ids.add(referral_id)
             yield True, referral_id, count
 
 
