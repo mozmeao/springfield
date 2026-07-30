@@ -34,6 +34,25 @@ IMG_TAG_RE = re.compile(r"<img[^>]*>")
 # carry no meaning we keep, so parse_content steps inside them to reach the figures they hold.
 CONTAINER_TAGS = {"div", "section"}
 
+# Warning kinds, recorded alongside each message so the CSV can be filtered by them.
+WARNING_CAPTION = "caption"
+WARNING_VIDEO = "video"
+WARNING_EMBED = "embed"
+WARNING_DOWNLOAD = "download"
+WARNING_PROCESSING = "processing"
+WARNING_ALT_TEXT = "alt-text"
+WARNING_FAILURE = "failure"
+
+# Wagtail's own accessibility check rejects alt text that ends in an image extension or contains
+# an underscore (see AccessibilityItem.axe_custom_checks). Trailing pixel dimensions and text with
+# no spaces at all are the other two shapes the WordPress media library produces.
+FILENAME_LIKE_PATTERNS = (
+    re.compile(r"\.(avif|gif|jpg|jpeg|png|svg|webp)$", re.IGNORECASE),
+    re.compile(r"_"),
+    re.compile(r"[-_]\d{2,4}x\d{2,4}\b"),
+    re.compile(r"^\S+$"),
+)
+
 
 def element_text(post, tag):
     node = post.find(tag)
@@ -144,6 +163,20 @@ def embed_block_url(figure):
     return url if url.startswith("http") else ""
 
 
+def image_description(text):
+    """Return `text` if it reads as a description of an image, or "" if it looks like a file name.
+
+    WordPress fills its image fields with whatever the file happened to be called, so most of
+    these are names like 'fx_blog_header_extensions_writing' rather than descriptions. Wagtail
+    uses this as the image's alt text, where a file name is worse than nothing - a screen reader
+    reads it out - so it is dropped rather than passed on.
+    """
+    text = (text or "").strip()
+    if any(pattern.search(text) for pattern in FILENAME_LIKE_PATTERNS):
+        return ""
+    return text
+
+
 def video_link(url):
     """Link to a video we can't turn into a block, labelled rather than showing a raw URL.
 
@@ -167,7 +200,8 @@ def caption_html(figcaption):
 def parse_content(raw_html):
     """Convert a post's WordPress HTML body into ordered block specs, plus any warnings.
 
-    Specs are ("text", html), ("image", {"src", "alt", "caption"}) or ("code", {"code": ...}).
+    Specs are ("text", html), ("image", {"src", "alt", "caption"}) or ("code", {"code": ...}), and
+    each warning is a (kind, message) pair so the caller can group them.
     Image specs hold only the URL and are downloaded later, so parsing does no I/O. Only the
     markup this export uses is handled: paragraphs, inline images, captioned figures (and the
     equivalent [caption] shortcode), and YouTube iframes (linked as plain text, as we have no
@@ -220,7 +254,7 @@ def parse_content(raw_html):
         """
         video_id = youtube_video_id(url)
         if video_id is None:
-            warnings.append(f"{url} is not a YouTube video - linked as plain text instead of a video block")
+            warnings.append((WARNING_EMBED, f"{url} is not a YouTube video - linked as plain text instead of a video block"))
             return ("text", video_link(url))
         return ("video", {"url": youtube_watch_url(video_id), "alt": alt})
 
@@ -235,7 +269,7 @@ def parse_content(raw_html):
         for figcaption in figcaptions:
             text = figcaption.get_text(strip=True)
             if text:
-                warnings.append(f"caption {text!r} could not be attached to a single image - left inline in a text block")
+                warnings.append((WARNING_CAPTION, f"caption {text!r} could not be attached to a single image - left inline in a text block"))
         text_buffer.append(node)
 
     def handle_gallery(gallery):
@@ -257,7 +291,7 @@ def parse_content(raw_html):
         else:
             text = own_caption.get_text(strip=True)
             if text:
-                warnings.append(f"caption {text!r} describes a gallery of {len(produced)} images - dropped")
+                warnings.append((WARNING_CAPTION, f"caption {text!r} describes a gallery of {len(produced)} images - dropped"))
 
     def keep_video_as_text(node, video):
         """Leave a self-hosted video where it is, and say so.
@@ -267,7 +301,7 @@ def parse_content(raw_html):
         which needs handling separately - hence the warning rather than a silent pass.
         """
         src = video.get("src", "")
-        warnings.append(f"self-hosted video {src} cannot be imported into a video block - left inline in a text block")
+        warnings.append((WARNING_VIDEO, f"self-hosted video {src} cannot be imported into a video block - left inline in a text block"))
         text_buffer.append(node)
 
     def handle_figure(figure):
@@ -307,7 +341,7 @@ def parse_content(raw_html):
                 flush_text()
                 src = node.get("src", "")
                 if youtube_video_id(src) is None:
-                    warnings.append(f"iframe embed ({src}) is not a YouTube video - linked as plain text instead of a video block")
+                    warnings.append((WARNING_EMBED, f"iframe embed ({src}) is not a YouTube video - linked as plain text instead of a video block"))
                     text_buffer.append(video_link(src))
                 else:
                     specs.append(embed_spec(src, ""))
@@ -345,8 +379,10 @@ class Command(BaseCommand):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Warnings raised while importing the current post.
+        # Warnings raised while importing the current post, and how many of its images arrived
+        # without alt text worth keeping.
         self.post_warnings = []
+        self.images_without_alt = 0
 
     def add_arguments(self, parser):
         parser.add_argument("xml_path", help="Path to the WordPress export XML file.")
@@ -387,7 +423,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Found {len(posts)} posts in {xml_path}")
 
         self.url_map_csv = IncrementalCsv(options["url_map_out"], ["wp_id", "old_url", "new_url"])
-        self.warnings_csv = IncrementalCsv(options["warnings_out"], ["wp_id", "title", "old_url", "new_url", "warning"])
+        self.warnings_csv = IncrementalCsv(options["warnings_out"], ["wp_id", "title", "old_url", "new_url", "type", "warning"])
         imported = skipped = failed = 0
 
         try:
@@ -413,13 +449,14 @@ class Command(BaseCommand):
                 # Reset here rather than inside import_post, so a post that fails early cannot
                 # inherit the previous post's warnings.
                 self.post_warnings = []
+                self.images_without_alt = 0
                 try:
                     url_map_row = self.import_post(post, index_page, locale)
                 except Exception as exc:
                     self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
                     # A failed post is the most important thing to record: it has no page to
                     # inspect, so the CSV is the only trace of what went wrong.
-                    self.record_warnings(post, new_url="", failure=f"post failed to import: {exc}")
+                    self.record_warnings(post, new_url="", failure=(WARNING_FAILURE, f"post failed to import: {exc}"))
                     failed += 1
                     continue
 
@@ -446,8 +483,8 @@ class Command(BaseCommand):
         title = element_text(post, "Title")
 
         content_specs, warnings = parse_content(element_text(post, "Content"))
-        for warning in warnings:
-            self.warn(warning)
+        for kind, message in warnings:
+            self.warn(kind, message)
 
         if self.dry_run:
             return None
@@ -467,7 +504,14 @@ class Command(BaseCommand):
         # which is the first of those, so its title is the first ImageTitle. A post whose
         # ImageFeatured is blank is imported without a hero image.
         image_title = element_text(post, "ImageTitle").split("|")[0].strip() or title
-        image = self.get_or_create_image(element_text(post, "ImageFeatured"), image_title)
+        # ImageAltText is the export's own alt text, and is often blank; the title occasionally
+        # describes the image rather than naming the file, so it stands in as a second choice.
+        image_alt = element_text(post, "ImageAltText").split("|")[0].strip()
+        image = self.get_or_create_image(
+            element_text(post, "ImageFeatured"),
+            image_title,
+            description=image_description(image_alt) or image_description(image_title),
+        )
         content = self.materialize_content(content_specs, title)
 
         page = BlogArticlePage(
@@ -487,12 +531,19 @@ class Command(BaseCommand):
         revision = page.save_revision()
         revision.publish()
 
+        if self.images_without_alt:
+            plural = "s" if self.images_without_alt > 1 else ""
+            self.warn(
+                WARNING_ALT_TEXT,
+                f"{self.images_without_alt} image{plural} imported without alt text - add descriptions in the image library",
+            )
+
         return (element_text(post, "ID"), element_text(post, "Permalink"), page.full_url)
 
-    def warn(self, message):
+    def warn(self, kind, message):
         """Report a content warning: to stderr as the import runs, and to the warnings CSV."""
-        self.stderr.write(f"    ! {message}")
-        self.post_warnings.append(message)
+        self.stderr.write(f"    ! [{kind}] {message}")
+        self.post_warnings.append((kind, message))
 
     def record_warnings(self, post, new_url, failure=None):
         """Write the current post's warnings to the CSV, paired with its URLs."""
@@ -501,8 +552,8 @@ class Command(BaseCommand):
         wp_id = element_text(post, "ID")
         title = element_text(post, "Title")
         old_url = element_text(post, "Permalink")
-        for message in [*self.post_warnings, *([failure] if failure else [])]:
-            self.warnings_csv.write((wp_id, title, old_url, new_url, message))
+        for kind, message in [*self.post_warnings, *([failure] if failure else [])]:
+            self.warnings_csv.write((wp_id, title, old_url, new_url, kind, message))
 
     def parse_wp_date(self, text):
         """Parse a WordPress export Date (no timezone info) as wall-clock time in
@@ -527,7 +578,12 @@ class Command(BaseCommand):
             name = element_text(post, "AuthorUsername")
         return self.get_or_create_snippet(Author, name, locale)
 
-    def get_or_create_image(self, url, title):
+    def get_or_create_image(self, url, title, description=""):
+        """Download `url` into an image, reusing one already stored under the same filename.
+
+        `description` is Wagtail's alt text. It is only kept when it actually describes the
+        image - see image_description - so a file name never ends up being read out.
+        """
         url = url.strip()
         if not url:
             return None
@@ -566,16 +622,25 @@ class Command(BaseCommand):
                     time.sleep(2**attempt)  # 2s then 4s backoff between attempts
 
         if response is None:
-            self.warn(f"could not download image {url} after 3 attempts: {last_exc}")
+            self.warn(WARNING_DOWNLOAD, f"could not download image {url} after 3 attempts: {last_exc}")
             return None
 
+        alt_text = image_description(description)
+        if not alt_text:
+            # Reported per post once the whole post is imported, so it is one line to act on
+            # rather than one per image.
+            self.images_without_alt += 1
         try:
-            image = SpringfieldImage.objects.create(title=title, file=ContentFile(response.content, name=filename))
+            image = SpringfieldImage.objects.create(
+                title=title,
+                description=alt_text,
+                file=ContentFile(response.content, name=filename),
+            )
         except Exception as exc:
             # Saving computes the image's dimensions through ImageMagick, which gives up on some
             # files - a large animated GIF exhausts its pixel cache. One unusable image is worth
             # a warning, not the loss of the whole post.
-            self.warn(f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
+            self.warn(WARNING_PROCESSING, f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
             return None
 
         self.image_cache[filename] = image
@@ -595,7 +660,8 @@ class Command(BaseCommand):
             return text_html
 
         for img in images:
-            image = self.get_or_create_image(img.get("src", ""), img.get("alt", "") or title)
+            alt = image_description(img.get("alt", ""))
+            image = self.get_or_create_image(img.get("src", ""), img.get("alt", "") or title, description=alt)
             if image is None:
                 # Already warned. Leave the original tag: a hotlink still renders while the
                 # source is up, which beats dropping the image outright.
@@ -604,7 +670,7 @@ class Command(BaseCommand):
             embed.attrs = {
                 "embedtype": "image",
                 "id": str(image.pk),
-                "alt": img.get("alt", ""),
+                "alt": alt,
                 "format": "fullwidth",
             }
             img.replace_with(embed)
@@ -627,7 +693,7 @@ class Command(BaseCommand):
             if block_type == "text":
                 blocks.append(("text", self.import_inline_images(value, title)))
             elif block_type == "image":
-                image = self.get_or_create_image(value["src"], value["alt"])
+                image = self.get_or_create_image(value["src"], value["alt"], description=value["alt"])
                 if image is None:
                     continue
                 image_value = {"image": image, "settings": {}}
@@ -637,7 +703,7 @@ class Command(BaseCommand):
                     blocks.append(("media", [("image", image_value)]))
             elif block_type == "video":
                 alt = value["alt"] or title
-                poster = self.get_or_create_image(youtube_poster_url(youtube_video_id(value["url"])), alt)
+                poster = self.get_or_create_image(youtube_poster_url(youtube_video_id(value["url"])), alt, description=alt)
                 if poster is None:
                     # The block requires a poster, so there is nothing valid to write without one.
                     continue
