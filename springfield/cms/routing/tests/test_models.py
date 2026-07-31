@@ -15,9 +15,14 @@ from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
 
 import pytest
+from wagtail.models import Site
 
 from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
-from springfield.cms.tests.factories import SimpleRichTextPageFactory
+from springfield.cms.tests.factories import (
+    SimpleRichTextPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
+)
 
 pytestmark = [pytest.mark.django_db]
 
@@ -121,12 +126,13 @@ def test_deleting_a_targeted_page_raises_protected_error(tree):
 
 
 def test_descendant_target_is_valid(tree):
-    rule = RoutingRule(page=tree.canonical, target=tree.descendant)
+    # match_all satisfies the condition floor so this isolates the target check.
+    rule = RoutingRule(page=tree.canonical, target=tree.descendant, match_all=True)
     rule.full_clean()  # does not raise
 
 
 def test_non_descendant_target_raises(tree):
-    rule = RoutingRule(page=tree.canonical, target=tree.outsider)
+    rule = RoutingRule(page=tree.canonical, target=tree.outsider, match_all=True)
     with pytest.raises(ValidationError) as exc:
         rule.full_clean()
     assert "target" in exc.value.error_dict
@@ -134,10 +140,74 @@ def test_non_descendant_target_raises(tree):
 
 def test_canonical_itself_is_not_a_valid_target(tree):
     # A rule must route to a strict descendant, never to the canonical itself.
-    rule = RoutingRule(page=tree.canonical, target=tree.canonical)
+    rule = RoutingRule(page=tree.canonical, target=tree.canonical, match_all=True)
     with pytest.raises(ValidationError) as exc:
         rule.full_clean()
     assert "target" in exc.value.error_dict
+
+
+def test_self_target_is_rejected(tree):
+    # Self-targeting gets its own explicit message, distinct from the generic
+    # descendant error (plan P1-3a).
+    rule = RoutingRule(page=tree.canonical, target=tree.canonical, match_all=True)
+    with pytest.raises(ValidationError) as exc:
+        rule.full_clean()
+    assert "own page" in str(exc.value.error_dict["target"])
+
+
+# ---------------------------------------------------------------------------
+# Condition floor (plan P0-2): a live rule may not silently match everyone.
+# ---------------------------------------------------------------------------
+
+
+def test_empty_rule_without_match_all_is_rejected(tree):
+    # No conditions and no match_all would route the whole triggered audience by
+    # accident — blocked in clean(), not via a panel min_num.
+    rule = RoutingRule(page=tree.canonical, target=tree.descendant)
+    with pytest.raises(ValidationError) as exc:
+        rule.full_clean()
+    assert "match_all" in exc.value.error_dict
+
+
+def test_empty_rule_with_match_all_is_allowed(tree):
+    # An intentional whole-triggered-audience route is a first-class, valid choice.
+    rule = RoutingRule(page=tree.canonical, target=tree.descendant, match_all=True)
+    rule.full_clean()  # does not raise
+
+
+# ---------------------------------------------------------------------------
+# Canonical-host guard (plan P1-3a): rules only fire on the canonical page.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def wnp_tree():
+    """A WhatsNewPage2026 tree where the variant is a non-canonical host.
+
+    index
+    └── canonical  (direct child of the index → is_routing_canonical True)
+        └── variant     (nested → is_routing_canonical False)
+            └── grandchild  (a valid descendant target of the variant)
+    """
+    site = Site.objects.get(is_default_site=True)
+    index = WhatsNewIndexPageFactory(parent=site.root_page, slug="c16-whatsnew")
+    canonical = WhatsNewPage2026Factory(parent=index, slug="c16-200", version="200", live=True)
+    variant = WhatsNewPage2026Factory(parent=canonical, slug="c16-200-b", version="200", live=True)
+    grandchild = WhatsNewPage2026Factory(parent=variant, slug="c16-200-c", version="200", live=True)
+    return SimpleNamespace(index=index, canonical=canonical, variant=variant, grandchild=grandchild)
+
+
+def test_rule_on_canonical_page_is_valid(wnp_tree):
+    rule = RoutingRule(page=wnp_tree.canonical, target=wnp_tree.variant, match_all=True)
+    rule.full_clean()  # does not raise
+
+
+def test_rule_on_non_canonical_page_is_rejected(wnp_tree):
+    # A valid descendant target + match_all isolates the canonical-host error.
+    rule = RoutingRule(page=wnp_tree.variant, target=wnp_tree.grandchild, match_all=True)
+    with pytest.raises(ValidationError) as exc:
+        rule.full_clean()
+    assert "page" in exc.value.error_dict
 
 
 # ---------------------------------------------------------------------------

@@ -107,10 +107,36 @@ class RoutingRule(ClusterableModel, Orderable):
 
     def clean(self):
         super().clean()
+        errors = {}
+
+        # A conditionless rule matches every triggered visitor, so it must be an
+        # explicit, visible choice (match_all) — never an accidental empty rule that
+        # silently routes the whole triggered audience (plan P0-2). The floor lives
+        # here, not as ``min_num`` on the conditions panel, so the intentional
+        # match-all case stays authorable.
+        if not self.match_all and not self.conditions.all():
+            errors["match_all"] = _("Add at least one condition, or enable “Match all triggered visitors”.")
+
+        # Rules only fire on a canonical page; one attached to a variant is dead
+        # config (plan P1-3a). Reuse the consumer's own canonical predicate via the
+        # specific instance; page types without the hook are unaffected (defensive
+        # getattr).
+        if self.page_id:
+            is_routing_canonical = getattr(self.page.specific, "is_routing_canonical", None)
+            if callable(is_routing_canonical) and not is_routing_canonical():
+                errors["page"] = _("Attach rules to the canonical page, not a variant.")
+
         # Target must be a strict descendant of the canonical the rule attaches to
-        # (spec §5.1, §6.3). Guarded so we only validate once both ends are known.
-        if self.page_id and self.target_id and not self.target.is_descendant_of(self.page):
-            raise ValidationError({"target": _("The target page must be a descendant of the page this rule is attached to.")})
+        # (spec §5.1, §6.3). Guarded so we only validate once both ends are known;
+        # self-targeting gets its own message rather than the generic descendant one.
+        if self.page_id and self.target_id:
+            if self.target_id == self.page_id:
+                errors["target"] = _("A rule cannot target its own page.")
+            elif not self.target.is_descendant_of(self.page):
+                errors["target"] = _("The target page must be a descendant of the page this rule is attached to.")
+
+        if errors:
+            raise ValidationError(errors)
 
 
 class RoutingCondition(Orderable):

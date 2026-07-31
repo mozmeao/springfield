@@ -57,7 +57,8 @@ def test_is_routing_canonical_only_for_direct_children_of_the_index(wnp):
 
 def test_a_child_wnp_is_a_valid_descendant_target(wnp):
     # The C3 descendant constraint passes for a nested WhatsNewPage2026 target.
-    rule = RoutingRule(page=wnp.canonical, target=wnp.variant)
+    # match_all satisfies the C16 condition floor so this isolates the target check.
+    rule = RoutingRule(page=wnp.canonical, target=wnp.variant, match_all=True)
     rule.full_clean()  # does not raise
 
 
