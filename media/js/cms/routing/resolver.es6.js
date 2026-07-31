@@ -40,6 +40,57 @@ export function appendLoopBreaker(url, param) {
     return url + separator + encodeURIComponent(param) + '=1';
 }
 
+// Framework control params that must never be carried onto the destination — they
+// would re-arm routing, re-enter the loop, or leak preview state. Mirrors the names in
+// springfield/cms/routing/params.py; the active loop-breaker param is added at runtime
+// from the data attribute in case a consumer overrode it.
+export const RESERVED_ROUTING_PARAMS = [
+    'routing',
+    'routed',
+    'preview_rule',
+    'preview_signal'
+];
+
+/**
+ * Merge inbound query params onto a destination URL so attribution (utm_*, oldversion,
+ * …) survives the redirect (plan P1-1). Framework control params in `reservedParams`
+ * are dropped, and a key the destination already carries is never overwritten or
+ * duplicated (destination wins). Any existing query and fragment on `url` are kept.
+ *
+ * Client-side only — the server render stays per-request-free and CDN-cacheable.
+ */
+export function preserveQueryString(url, incomingSearch, reservedParams) {
+    const incoming = new URLSearchParams(incomingSearch || '');
+    if (Array.from(incoming.keys()).length === 0) {
+        return url;
+    }
+
+    const reserved = {};
+    (reservedParams || []).forEach((name) => {
+        reserved[name] = true;
+    });
+
+    const hashIndex = url.indexOf('#');
+    const fragment = hashIndex === -1 ? '' : url.slice(hashIndex);
+    const beforeHash = hashIndex === -1 ? url : url.slice(0, hashIndex);
+    const queryIndex = beforeHash.indexOf('?');
+    const path =
+        queryIndex === -1 ? beforeHash : beforeHash.slice(0, queryIndex);
+    const existing = new URLSearchParams(
+        queryIndex === -1 ? '' : beforeHash.slice(queryIndex + 1)
+    );
+
+    incoming.forEach((value, key) => {
+        if (reserved[key] || existing.has(key)) {
+            return; // never carry control params; destination's own value wins
+        }
+        existing.append(key, value);
+    });
+
+    const query = existing.toString();
+    return path + (query ? '?' + query : '') + fragment;
+}
+
 /**
  * Wire the resolver against the DOM. `options` allow injecting the root element, a
  * navigate function, and provider options (used in tests).
@@ -80,13 +131,34 @@ export function initResolver(options) {
     };
     const provider = createProvider(manifest, providerOptions);
 
+    // The inbound query string to carry through. Same source the URL signal reader
+    // uses, so signals and preserved attribution stay consistent.
+    const incomingSearch =
+        baseOptions.search !== undefined
+            ? baseOptions.search
+            : typeof window !== 'undefined' && window.location
+              ? window.location.search
+              : '';
+    const reservedParams = RESERVED_ROUTING_PARAMS.concat(loopBreakerParam);
+
     return evaluateRules(rules, provider, opts.evaluatorOptions).then(
         function (outcome) {
             onResolveOutcome(outcome);
             if (outcome.status === 'matched' && outcome.target) {
-                navigate(outcome.target);
+                navigate(
+                    preserveQueryString(
+                        outcome.target,
+                        incomingSearch,
+                        reservedParams
+                    )
+                );
             } else {
-                navigate(appendLoopBreaker(canonicalUrl, loopBreakerParam));
+                const fallback = preserveQueryString(
+                    canonicalUrl,
+                    incomingSearch,
+                    reservedParams
+                );
+                navigate(appendLoopBreaker(fallback, loopBreakerParam));
             }
             return outcome;
         }
