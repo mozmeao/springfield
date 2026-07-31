@@ -17,6 +17,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 import waffle
+from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import InlinePanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
@@ -24,6 +25,44 @@ from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER
 from springfield.cms.routing.models import RoutingConfig
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
+
+
+class RoutingPageForm(WagtailAdminPageForm):
+    """Page form enforcing the rule condition-floor across the nested routing formsets.
+
+    A rule with no conditions matches every triggered visitor, so it must opt in via
+    ``match_all`` (plan P0-2). The model's ``clean()`` can't enforce this during a
+    Wagtail save: modelcluster attaches a rule's conditions to the rule instance only
+    at *save* time, after validation, so a model-level count check would reject a
+    perfectly valid rule (its conditions aren't visible yet). The floor therefore lives
+    here — where the nested ``conditions`` formset is inspectable — and the error lands
+    on the offending rule's ``match_all`` field.
+    """
+
+    def clean(self):
+        cleaned_data = super().clean()
+        rules_formset = self.formsets.get("routing_rules")
+        if rules_formset is not None:
+            # Force nested validation now: ClusterForm validates child formsets only
+            # after this form's clean() runs, so the conditions aren't populated yet.
+            rules_formset.is_valid()
+            for rule_form in rules_formset.forms:
+                self._enforce_condition_floor(rule_form)
+        return cleaned_data
+
+    @staticmethod
+    def _enforce_condition_floor(rule_form):
+        data = getattr(rule_form, "cleaned_data", None)
+        # Skip blank extra rows, rows marked for deletion, and explicit match-all rules.
+        if not data or data.get("DELETE") or data.get("match_all"):
+            return
+        conditions_formset = rule_form.formsets.get("conditions")
+        condition_forms = conditions_formset.forms if conditions_formset is not None else []
+        has_condition = any(
+            getattr(condition_form, "cleaned_data", None) and not condition_form.cleaned_data.get("DELETE") for condition_form in condition_forms
+        )
+        if not has_condition:
+            rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
 
 
 def routing_tab_is_shown(instance):
@@ -87,6 +126,12 @@ class RoutingMixin(models.Model):
         return tuple(registry.names())
 
     # -- Admin wiring: the framework-owned "User Routing" tab (spec §6.1) --
+
+    # The condition-floor validation (plan P0-2) lives on the page form, not the rule
+    # model, because modelcluster only attaches nested conditions at save time — see
+    # RoutingPageForm. Consumers inherit this; one with its own base_form_class should
+    # subclass RoutingPageForm to keep the floor.
+    base_form_class = RoutingPageForm
 
     routing_panels = [
         InlinePanel("routing_rules", label=_("Rules")),

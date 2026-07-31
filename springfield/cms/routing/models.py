@@ -109,13 +109,10 @@ class RoutingRule(ClusterableModel, Orderable):
         super().clean()
         errors = {}
 
-        # A conditionless rule matches every triggered visitor, so it must be an
-        # explicit, visible choice (match_all) — never an accidental empty rule that
-        # silently routes the whole triggered audience (plan P0-2). The floor lives
-        # here, not as ``min_num`` on the conditions panel, so the intentional
-        # match-all case stays authorable.
-        if not self.match_all and not self.conditions.all():
-            errors["match_all"] = _("Add at least one condition, or enable “Match all triggered visitors”.")
+        # The condition-floor (block an accidental empty match-everyone rule, plan P0-2)
+        # is enforced on the page form (RoutingPageForm), not here: modelcluster attaches
+        # a rule's nested conditions only at save time, so a count check in this model
+        # clean() can't see them during a Wagtail save and would reject valid rules.
 
         # Rules only fire on a canonical page; one attached to a variant is dead
         # config (plan P1-3a). Reuse the consumer's own canonical predicate via the

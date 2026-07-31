@@ -156,22 +156,23 @@ def test_self_target_is_rejected(tree):
 
 
 # ---------------------------------------------------------------------------
-# Condition floor (plan P0-2): a live rule may not silently match everyone.
+# Condition floor (plan P0-2). Enforced on the page form (RoutingPageForm), not the
+# model: modelcluster attaches nested conditions only at save time, so a model-level
+# count check can't see them during a Wagtail save. The floor's authoring behaviour is
+# covered in test_authoring.py; here we only assert the model doesn't over-reject.
 # ---------------------------------------------------------------------------
 
 
-def test_empty_rule_without_match_all_is_rejected(tree):
-    # No conditions and no match_all would route the whole triggered audience by
-    # accident — blocked in clean(), not via a panel min_num.
-    rule = RoutingRule(page=tree.canonical, target=tree.descendant)
-    with pytest.raises(ValidationError) as exc:
-        rule.full_clean()
-    assert "match_all" in exc.value.error_dict
-
-
-def test_empty_rule_with_match_all_is_allowed(tree):
-    # An intentional whole-triggered-audience route is a first-class, valid choice.
+def test_match_all_rule_without_conditions_passes_model_clean(tree):
+    # A match-all rule legitimately has no conditions; model clean() must allow it.
     rule = RoutingRule(page=tree.canonical, target=tree.descendant, match_all=True)
+    rule.full_clean()  # does not raise
+
+
+def test_conditionless_rule_is_not_rejected_by_model_clean(tree):
+    # The empty-rule floor is not a model concern (it lives on the page form), so
+    # model clean() alone does not raise on a conditionless, non-match-all rule.
+    rule = RoutingRule(page=tree.canonical, target=tree.descendant)
     rule.full_clean()  # does not raise
 
 
