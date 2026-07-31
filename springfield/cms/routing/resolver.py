@@ -29,7 +29,8 @@ def serialize_rules(page, request=None):
     Rules are emitted in priority order (the model's position-then-id ordering). Rules
     whose target is not live are skipped — the client should never route to an
     unpublished page. Each condition carries the signal's value type from the registry
-    so the evaluator can compare correctly.
+    so the evaluator can compare correctly. A rule's ``matchAll`` flag is emitted so the
+    client can route the whole triggered audience for an intentional match-all rule.
     """
     serialized = []
     for rule in page.routing_rules.all():
@@ -47,7 +48,12 @@ def serialize_rules(page, request=None):
                     "valueType": signal.value_type.value if signal else None,
                 }
             )
-        serialized.append({"target": target.get_url(request), "conditions": conditions})
+        # Defensive floor (mirrors clean()'s, plan P0-2): a rule with neither
+        # conditions nor match_all would match every triggered visitor on the client.
+        # Authoring one is blocked, but never emit one even if the DB somehow holds it.
+        if not conditions and not rule.match_all:
+            continue
+        serialized.append({"target": target.get_url(request), "matchAll": rule.match_all, "conditions": conditions})
     return serialized
 
 

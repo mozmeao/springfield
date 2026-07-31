@@ -252,6 +252,22 @@ describe('cms/routing/evaluator.es6.js', function () {
                 )
             ).toEqual(PENDING);
         });
+
+        it('a matchAll rule is MATCHED immediately, ignoring conditions and signals', function () {
+            const everyone = { target: 'ALL', matchAll: true, conditions: [] };
+            expect(evaluateRule(everyone, states({}))).toEqual(MATCHED);
+        });
+
+        it('an empty, non-matchAll rule is NOT_MATCHED (no match-everyone footgun)', function () {
+            const empty = { target: 'x', matchAll: false, conditions: [] };
+            expect(evaluateRule(empty, states({}))).toEqual(NOT_MATCHED);
+        });
+
+        it('a rule with no matchAll flag and no conditions is NOT_MATCHED', function () {
+            expect(evaluateRule({ target: 'x' }, states({}))).toEqual(
+                NOT_MATCHED
+            );
+        });
     });
 
     describe('decideOutcome — priority-strict (spec §7.2)', function () {

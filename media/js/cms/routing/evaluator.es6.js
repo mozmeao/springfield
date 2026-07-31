@@ -192,12 +192,21 @@ export function evaluateCondition(condition, state) {
 /**
  * Resolve a rule (an ordered conjunction of conditions) against signal states.
  *
- * NOT_MATCHED as soon as any one condition is not-matched (short-circuit, even while
- * siblings are pending); MATCHED only when all conditions match; PENDING otherwise.
+ * A `matchAll` rule matches the whole triggered audience immediately (spec P0-2).
+ * Otherwise: NOT_MATCHED as soon as any one condition is not-matched (short-circuit,
+ * even while siblings are pending); MATCHED only when all conditions match; PENDING
+ * otherwise. An empty, non-matchAll rule is NOT_MATCHED (defensive — the serializer
+ * already drops it), never the old match-everyone footgun.
  */
 export function evaluateRule(rule, signalStates) {
+    if (rule.matchAll) {
+        return MATCHED;
+    }
     let anyPending = false;
     const conditions = rule.conditions || [];
+    if (conditions.length === 0) {
+        return NOT_MATCHED;
+    }
     for (let i = 0; i < conditions.length; i++) {
         const condition = conditions[i];
         const result = evaluateCondition(

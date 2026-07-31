@@ -56,6 +56,30 @@ def test_serialize_rules_skips_unpublished_targets(routed_page):
     assert serialize_rules(routed_page.canonical) == []
 
 
+def test_serialize_rules_emits_match_all_flag(routed_page):
+    # A conditionful rule carries matchAll=False.
+    rules = serialize_rules(routed_page.canonical)
+    assert rules[0]["matchAll"] is False
+
+
+def test_serialize_rules_emits_match_all_rule_with_no_conditions(routed_page):
+    RoutingRule.objects.create(page=routed_page.canonical, target=routed_page.target, match_all=True, sort_order=1)
+    rules = serialize_rules(routed_page.canonical)
+    # The match-all rule is emitted with no conditions (and matchAll=True).
+    match_all_rules = [rule for rule in rules if rule["matchAll"]]
+    assert len(match_all_rules) == 1
+    assert match_all_rules[0]["conditions"] == []
+
+
+def test_serialize_rules_skips_empty_non_match_all_rule(routed_page):
+    # A rule with neither conditions nor match_all is defensively dropped, never
+    # emitted as a match-everyone rule (plan P0-2).
+    RoutingRule.objects.create(page=routed_page.canonical, target=routed_page.target, sort_order=1)
+    rules = serialize_rules(routed_page.canonical)
+    assert len(rules) == 1
+    assert rules[0]["conditions"] != []
+
+
 def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):
     manifest = serialize_manifest(serialize_rules(routed_page.canonical))
     assert manifest["platform"] == {"source": "user_agent", "browserStateKey": None, "valueType": "enum"}
