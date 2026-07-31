@@ -57,6 +57,10 @@ repos:
           - license_header/mpl2_header.txt
     -   id: insert-license
         files: \.html$  # jinja2
+        # The wagtailadmin routing templates are DJANGO templates, not Jinja: Django's
+        # {# #} comments are single-line only, so the multi-line block this hook inserts
+        # renders as literal text before {% extends %}. They carry a single-line license.
+        exclude: ^springfield/admin/templates/wagtailadmin/routing/
         args:
           - --license-filepath
           - license_header/mpl2_header.txt
