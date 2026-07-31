@@ -80,6 +80,19 @@ def test_serialize_rules_skips_empty_non_match_all_rule(routed_page):
     assert rules[0]["conditions"] != []
 
 
+def test_serialize_rules_drops_a_lone_conditionless_non_match_all_rule():
+    # The C21 page-form floor blocks *authoring* a conditionless, non-match-all rule (it would
+    # match the whole triggered audience), but the ORM/API path has no such floor and does not
+    # call clean(). serialize_rules is the runtime backstop, and it is the *only* guard on that
+    # path — so pin it directly: a lone ORM-created rule with no conditions and match_all=False
+    # is dropped entirely and never reaches the client, even with a perfectly live target.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="c29-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="c29-variant", parent=canonical, live=True)
+    RoutingRule.objects.create(page=canonical, target=target, match_all=False)
+    assert serialize_rules(canonical) == []
+
+
 def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):
     manifest = serialize_manifest(serialize_rules(routed_page.canonical))
     assert manifest["platform"] == {"source": "user_agent", "browserStateKey": None, "valueType": "enum"}
