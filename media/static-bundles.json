@@ -76,12 +76,6 @@
     },
     {
       "files": [
-        "css/firefox/ios-summarizer.scss"
-      ],
-      "name": "firefox-ios-summarizer"
-    },
-    {
-      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
@@ -723,12 +717,6 @@
         "js/base/video-play-state.es6.js"
       ],
       "name": "video_play_state"
-    },
-    {
-      "files": [
-        "js/firefox/browsers/ios-summarizer.js"
-      ],
-      "name": "ios_summarizer"
     },
     {
       "files": [
