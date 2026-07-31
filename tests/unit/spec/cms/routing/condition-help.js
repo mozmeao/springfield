@@ -7,6 +7,7 @@
 import {
     buildHelpText,
     renderConditionHelp,
+    filterOperators,
     initConditionHelp
 } from '../../../../../media/js/cms/routing/condition-help.es6.js';
 
@@ -14,7 +15,12 @@ const PAYLOAD = {
     platform: {
         valueType: 'enum',
         hint: 'Enter one of these values:',
-        operators: [{ value: 'is', label: 'is' }],
+        operators: [
+            { value: 'is', label: 'is' },
+            { value: 'is_not', label: 'is not' },
+            { value: 'in', label: 'in' },
+            { value: 'not_in', label: 'not in' }
+        ],
         enumValues: [
             { value: 'windows', label: 'Windows' },
             { value: 'osx', label: 'macOS' }
@@ -31,6 +37,9 @@ const PAYLOAD = {
     }
 };
 
+// A representative subset of the operator dropdown (enum-legal is/in, version-legal gte/lt).
+const OPERATOR_OPTIONS = ['is', 'in', 'gte', 'lt'];
+
 function makeConditionDOM(signalValue) {
     const container = document.createElement('div');
     const select = document.createElement('select');
@@ -41,13 +50,41 @@ function makeConditionDOM(signalValue) {
         select.appendChild(option);
     });
     select.value = signalValue;
+
+    const operatorSelect = document.createElement('select');
+    operatorSelect.setAttribute(
+        'name',
+        'routing_rules-0-conditions-0-operator'
+    );
+    OPERATOR_OPTIONS.forEach(function (value) {
+        const option = document.createElement('option');
+        option.value = value;
+        operatorSelect.appendChild(option);
+    });
+
     const fieldWrap = document.createElement('div');
     const input = document.createElement('input');
     input.setAttribute('name', 'routing_rules-0-conditions-0-expected_value');
     fieldWrap.appendChild(input);
     container.appendChild(select);
+    container.appendChild(operatorSelect);
     container.appendChild(fieldWrap);
-    return { container: container, select: select, fieldWrap: fieldWrap };
+    return {
+        container: container,
+        select: select,
+        operatorSelect: operatorSelect,
+        fieldWrap: fieldWrap
+    };
+}
+
+function hiddenValues(operatorSelect) {
+    const hidden = [];
+    Array.prototype.forEach.call(operatorSelect.options, function (option) {
+        if (option.hidden) {
+            hidden.push(option.value);
+        }
+    });
+    return hidden;
 }
 
 describe('cms/routing/condition-help.es6.js', function () {
@@ -119,6 +156,66 @@ describe('cms/routing/condition-help.es6.js', function () {
             const help = dom.fieldWrap.querySelector('.routing-condition-help');
             expect(help.textContent).toContain('is at least');
             expect(help.textContent).not.toContain('Windows');
+        });
+    });
+
+    describe('filterOperators', function () {
+        it('restricts the operator dropdown to the signal legal operators', function () {
+            const dom = makeConditionDOM('platform');
+            filterOperators(dom.select, PAYLOAD, dom.container);
+            // Enum signal: is/in legal; version-only gte/lt hidden.
+            expect(hiddenValues(dom.operatorSelect).sort()).toEqual([
+                'gte',
+                'lt'
+            ]);
+        });
+
+        it('resets a now-illegal operator selection to the first legal one', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'gte'; // illegal for an enum signal
+            filterOperators(dom.select, PAYLOAD, dom.container);
+            expect(dom.operatorSelect.value).toEqual('is');
+        });
+
+        it('keeps a still-legal operator selection', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'in';
+            filterOperators(dom.select, PAYLOAD, dom.container);
+            expect(dom.operatorSelect.value).toEqual('in');
+        });
+
+        it('leaves every operator available for an unknown/blank signal', function () {
+            const dom = makeConditionDOM('platform');
+            dom.select.value = ''; // no payload entry
+            filterOperators(dom.select, PAYLOAD, dom.container);
+            expect(hiddenValues(dom.operatorSelect)).toEqual([]);
+        });
+    });
+
+    describe('initConditionHelp — operator filtering', function () {
+        it('filters operators on initial wiring, preserving a saved legal operator', function () {
+            // An existing rule: version signal with a saved, legal operator.
+            const dom = makeConditionDOM('firefox_version');
+            dom.operatorSelect.value = 'gte';
+            initConditionHelp({ payload: PAYLOAD, root: dom.container });
+            expect(hiddenValues(dom.operatorSelect).sort()).toEqual([
+                'in',
+                'is'
+            ]);
+            expect(dom.operatorSelect.value).toEqual('gte'); // preserved
+        });
+
+        it('re-filters operators when the signal changes', function () {
+            const dom = makeConditionDOM('platform');
+            initConditionHelp({ payload: PAYLOAD, root: dom.container });
+            dom.select.value = 'firefox_version';
+            dom.select.dispatchEvent(new Event('change'));
+            expect(hiddenValues(dom.operatorSelect).sort()).toEqual([
+                'in',
+                'is'
+            ]);
+            // 'is' was selected and is now illegal -> reset to the first version operator.
+            expect(dom.operatorSelect.value).toEqual('gte');
         });
     });
 

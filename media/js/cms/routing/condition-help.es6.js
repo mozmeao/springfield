@@ -21,15 +21,23 @@ const BOUND_FLAG = 'springfieldRoutingBound';
 // full set lives on the Signals reference page.
 const VALUE_LIST_CAP = 15;
 
-function expectedFieldFor(select, root) {
-    // The condition's signal select and expected-value input share an inline-panel
-    // prefix and differ only by the field suffix (Wagtail InlinePanel naming).
+function siblingFieldFor(select, root, suffix) {
+    // The condition's signal select and its sibling fields share an inline-panel prefix
+    // and differ only by the field suffix (Wagtail InlinePanel naming).
     const name = select.getAttribute('name') || '';
-    const expectedName = name.replace(/-signal$/, '-expected_value');
-    if (expectedName === name) {
+    const siblingName = name.replace(/-signal$/, suffix);
+    if (siblingName === name) {
         return null;
     }
-    return root.querySelector('[name="' + expectedName + '"]');
+    return root.querySelector('[name="' + siblingName + '"]');
+}
+
+function expectedFieldFor(select, root) {
+    return siblingFieldFor(select, root, '-expected_value');
+}
+
+function operatorFieldFor(select, root) {
+    return siblingFieldFor(select, root, '-operator');
 }
 
 function joinCapped(values) {
@@ -62,6 +70,39 @@ export function buildHelpText(meta) {
     return operators ? meta.hint + ' ' + operators : meta.hint;
 }
 
+export function filterOperators(select, payload, root) {
+    // Restrict the operator dropdown to the operators legal for the chosen signal (ED-2):
+    // an author should never be offered `in` on a version signal. The server-side
+    // RoutingCondition.clean() stays the backstop; this is the usability half.
+    const scope = root || document;
+    const operatorSelect = operatorFieldFor(select, scope);
+    if (!operatorSelect) {
+        return null;
+    }
+    const meta = payload[select.value];
+    // No metadata (blank/unknown signal) ⇒ leave every operator available.
+    const legal =
+        meta && meta.operators
+            ? meta.operators.map((entry) => entry.value)
+            : null;
+
+    let selectedStillLegal = false;
+    Array.prototype.forEach.call(operatorSelect.options, function (option) {
+        const allowed = !legal || legal.indexOf(option.value) !== -1;
+        option.hidden = !allowed;
+        option.disabled = !allowed;
+        if (allowed && option.value === operatorSelect.value) {
+            selectedStillLegal = true;
+        }
+    });
+    // A now-illegal selection (e.g. after switching signals) falls back to the first
+    // legal operator so the field never submits an operator the signal rejects.
+    if (!selectedStillLegal && legal && legal.length) {
+        operatorSelect.value = legal[0];
+    }
+    return operatorSelect;
+}
+
 export function renderConditionHelp(select, payload, root) {
     const scope = root || document;
     const expected = expectedFieldFor(select, scope);
@@ -86,8 +127,12 @@ function wireSelect(select, payload, scope) {
     select.dataset[BOUND_FLAG] = '1';
     select.addEventListener('change', function () {
         renderConditionHelp(select, payload, scope);
+        filterOperators(select, payload, scope);
     });
+    // Initial pass filters from the pre-selected signal, so an existing rule opens with
+    // its operator dropdown already scoped (and its saved operator preserved).
     renderConditionHelp(select, payload, scope);
+    filterOperators(select, payload, scope);
 }
 
 function wireAll(payload, scope) {
