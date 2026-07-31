@@ -1,6 +1,8 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+# This code is licensed under the Apache License 2.0 (SPDX: Apache-2.0).
+# Text of the Apache License 2.0 can be found in the same directory as this file.
+#
+# Copyright 2017 Capital One Services, LLC.
+# Ported to Python from https://github.com/capitalone/fpe (Go) and modified.
 
 # ruff: noqa: E741, N806
 """Vendored NIST FF1 format-preserving encryption.
@@ -26,11 +28,9 @@ Integer-only radix math: ``b`` is derived from ``(radix ** v - 1).bit_length()``
 which is exactly ceil(v * log2(radix)), avoiding floating-point rounding. This
 matches str4d's power-of-two handling and is exact for our radix 32 case.
 
-The tweak, alphabet ordering, and these byte layouts are part of the invite-code
-wire format. Do not change them once shipped.
+The byte layouts below are fixed by the standard. Changing one changes every
+ciphertext, so callers that have already shipped values cannot absorb an edit here.
 """
-
-from __future__ import annotations
 
 from collections.abc import Sequence
 
@@ -48,7 +48,7 @@ NUM_ROUNDS = 10
 # SP 800-38G section 5.1 requires radix ** minlen >= 100, and Appendix A
 # recommends radix ** minlen >= 1,000,000 (suggested, not required) to limit
 # guessing attacks. We enforce the stronger one-million floor. It is a security
-# floor, not a wire-format constant. Our inputs (radix 32, n 10) clear it easily.
+# floor, not a wire-format constant.
 MIN_DOMAIN_SIZE = 1_000_000
 
 # Radix bounds from the spec: 2 <= radix <= 2**16.
@@ -214,6 +214,21 @@ def _decrypt_numerals(key: bytes, T: bytes, radix: int, X: Sequence[int]) -> lis
     return A + B
 
 
+def _validate_alphabet(radix: int, alphabet: str) -> None:
+    """Check the alphabet can represent every numeral the cipher can produce.
+
+    FF1 output digits span the full 0..radix-1 range regardless of which digits
+    the input used, so an alphabet shorter than the radix would encode fine and
+    then fail with an ``IndexError`` on the way back out. Duplicate symbols are
+    rejected for the same reason: they make the numeral mapping non-invertible,
+    which would silently break the round trip rather than raise.
+    """
+    if len(alphabet) < radix:
+        raise ValueError("alphabet must have at least radix symbols")
+    if len(set(alphabet[:radix])) != radix:
+        raise ValueError("alphabet must not repeat a symbol within the first radix symbols")
+
+
 def _string_to_numerals(text: str, radix: int, alphabet: str) -> list[int]:
     """Map each character to its numeral value via ``alphabet``.
 
@@ -243,6 +258,7 @@ def ff1_encrypt(key: bytes, tweak: bytes, radix: int, plaintext: str, *, alphabe
     define the numeral values). Output uses the same alphabet, so the mapping is
     format-preserving.
     """
+    _validate_alphabet(radix, alphabet)
     X = _string_to_numerals(plaintext, radix, alphabet)
     Y = _encrypt_numerals(key, tweak, radix, X)
     return _numerals_to_string(Y, alphabet)
@@ -250,6 +266,7 @@ def ff1_encrypt(key: bytes, tweak: bytes, radix: int, plaintext: str, *, alphabe
 
 def ff1_decrypt(key: bytes, tweak: bytes, radix: int, ciphertext: str, *, alphabet: str = BASE36_ALPHABET) -> str:
     """Decrypt an FF1 ciphertext string, the inverse of :func:`ff1_encrypt`."""
+    _validate_alphabet(radix, alphabet)
     X = _string_to_numerals(ciphertext, radix, alphabet)
     Y = _decrypt_numerals(key, tweak, radix, X)
     return _numerals_to_string(Y, alphabet)

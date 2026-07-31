@@ -104,7 +104,21 @@ def test_input_tolerates_whitespace():
     assert invite_code_to_referral_id(f"{code[:5]} {code[5:]}") == referral_id
 
 
-@pytest.mark.parametrize("bad", ["1-X3ZQ8R5M7NPQRST", "1_X3ZQ8R5M7NPQRST", "1.X3ZQ8R5M7NPQRST"])
+def test_input_folds_crockford_lookalikes():
+    referral_id = "A7B9K2M4PXQRSTVW"
+    code = referral_id_to_invite_code(referral_id)
+    # The active test version is `1`, so the leading character of every code is
+    # a digit a hand-typing user could misread as `I` or `L`. Both must decode.
+    assert code[0] == "1"
+    assert invite_code_to_referral_id(f"I{code[1:]}") == referral_id
+    assert invite_code_to_referral_id(f"l{code[1:]}") == referral_id
+
+
+@pytest.mark.parametrize(
+    "bad",
+    ["1-X3ZQ8R5M7NPQRST", "1_X3ZQ8R5M7NPQRST", "1.X3ZQ8R5M7NPQRST"],
+    ids=["hyphen", "underscore", "dot"],
+)
 def test_rejects_separators(bad):
     with pytest.raises(ValueError):
         invite_code_to_referral_id(bad)
@@ -115,21 +129,19 @@ def test_rejects_separators(bad):
 
 @pytest.mark.parametrize(
     "bad",
-    [
-        None,
-        "",
-        "SHORT",
-        "TOOLONGREF12",  # 12 chars
-        "a7b9k2m4px",  # lowercase, not canonical
-        "A7B9K2M4PI",  # I not in Crockford alphabet
-    ],
+    [None, "", "SHORT", "A7B9K2M4PXQRSTV", "A7B9K2M4PXQRSTVWX", "a7b9k2m4pxqrstvw", "A7B9K2M4PXQRSTVI"],
+    ids=["none", "empty", "far-too-short", "one-short", "one-long", "lowercase", "excluded-letter"],
 )
 def test_referral_id_to_invite_code_rejects_malformed(bad):
     with pytest.raises(ValueError):
         referral_id_to_invite_code(bad)
 
 
-@pytest.mark.parametrize("code", ["", "1", "1X3ZQ8R5M7NPQRST", "1X3ZQ8R5M7NPQRSTV9"])
+@pytest.mark.parametrize(
+    "code",
+    ["", "1", "1X3ZQ8R5M7NPQRST", "1X3ZQ8R5M7NPQRSTV9"],
+    ids=["empty", "version-char-only", "one-short", "one-long"],
+)
 def test_decode_rejects_wrong_length(code):
     with pytest.raises(ValueError):
         invite_code_to_referral_id(code)
@@ -141,7 +153,7 @@ def test_decode_rejects_unknown_version():
         invite_code_to_referral_id("30000000000000000")
 
 
-@pytest.mark.parametrize("bad", [None, 123, b"1X3ZQ8R5M7N"])
+@pytest.mark.parametrize("bad", [None, 123, b"1X3ZQ8R5M7N"], ids=["none", "int", "bytes"])
 def test_decode_rejects_non_string(bad):
     with pytest.raises(ValueError):
         invite_code_to_referral_id(bad)
@@ -175,6 +187,16 @@ def test_bitflip_version_to_unknown_raises():
 
 def test_invite_url_for_code():
     assert invite_url_for_code("1X3ZQ8R5M7NPQRSTV") == "https://www.firefox.com/get-firefox/?invitation=1X3ZQ8R5M7NPQRSTV"
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [None, "", "1X3ZQ8R5M7NPQRST", "1X3ZQ8R5M7NPQRSTI"],
+    ids=["none", "empty", "one-short", "excluded-letter"],
+)
+def test_invite_url_for_code_rejects_malformed(bad):
+    with pytest.raises(ValueError):
+        invite_url_for_code(bad)
 
 
 # --- Sentry observability ---------------------------------------------------

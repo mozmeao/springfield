@@ -4,14 +4,13 @@
 
 """Validation and normalization helpers for referral invite codes.
 
-Everything here is a pure function with no I/O so it is safe to import from
-``settings.py`` (see :func:`validate_invite_code_keyring`, which runs at Django
-startup). It deliberately never logs, echoes, or embeds the referral ID or
-invite code in an exception message, because those are the plaintext and
-ciphertext of the FF1 mapping.
+``settings.py`` imports this module while it is still being evaluated (it calls
+``validate_invite_code_keyring`` at Django startup), so it must stay safe to
+import from there: pure functions only, and nothing that reads
+``django.conf.settings`` or touches the app registry. It deliberately never
+logs, echoes, or embeds the referral ID or invite code in an exception message,
+because those are the plaintext and ciphertext of the FF1 mapping.
 """
-
-from __future__ import annotations
 
 from collections.abc import Mapping
 
@@ -24,6 +23,15 @@ from django.core.exceptions import ImproperlyConfigured
 # outstanding code, so treat it as frozen once shipped.
 CROCKFORD_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 CROCKFORD_SYMBOLS = frozenset(CROCKFORD_ALPHABET)
+
+# Crockford's decoding substitutions for the letters its alphabet leaves out.
+# A valid code can never contain `O`, `I` or `L`, so a typed one is always a
+# misread `0` or `1` and the intent is unambiguous. Applying them only widens
+# what decodes: every string that decoded before still decodes to the same
+# referral ID. `U` is deliberately not substituted. It is excluded from the
+# alphabet to avoid accidental obscenity rather than because it looks like
+# something else, so there is no single character a typed `U` stands for.
+CROCKFORD_DECODE_SUBSTITUTIONS = str.maketrans({"O": "0", "I": "1", "L": "1"})
 
 # Assumed input format from Firefox: canonical uppercase Crockford base32 referral IDs.
 REFERRAL_ID_LENGTH = 16
@@ -58,23 +66,29 @@ def normalize_invite_code(raw: str) -> str:
     """Normalize invite-code input at the case-insensitivity boundary.
 
     Strips all whitespace (leading, trailing, and internal, to tolerate codes
-    copied out of messengers or wrapped emails) and uppercases. This is the
-    only place case-folding happens. Every step downstream operates on the
-    canonical uppercase form. Non-string input raises ``ValueError`` so the
-    caller can surface a "code not recognized" UX rather than a ``TypeError``.
+    copied out of messengers or wrapped emails), uppercases, then applies
+    ``CROCKFORD_DECODE_SUBSTITUTIONS``. This is the only place case-folding and
+    glyph-folding happen. Every step downstream operates on the canonical
+    uppercase form. Non-string input raises ``ValueError`` so the caller can
+    surface a "code not recognized" UX rather than a ``TypeError``.
     """
     if not isinstance(raw, str):
         raise ValueError("invite code must be a string")
-    return "".join(raw.split()).upper()
+    return "".join(raw.split()).upper().translate(CROCKFORD_DECODE_SUBSTITUTIONS)
 
 
 def validate_invite_code(invite_code: str) -> None:
     """Validate a normalized invite code has the expected length (``INVITE_CODE_LENGTH``), Crockford base32.
 
-    Raises ``ValueError`` on wrong length or any non-Crockford character. This
-    catches typos and rejects separators (hyphens, dots, underscores) that
-    ``normalize_invite_code`` intentionally does not strip.
+    Raises ``ValueError`` on non-string input, wrong length, or any
+    non-Crockford character. This catches typos and rejects separators
+    (hyphens, dots, underscores) that ``normalize_invite_code`` intentionally
+    does not strip. The string check is redundant when called straight after
+    ``normalize_invite_code``, but this is also a public helper, so it should
+    not turn a non-string into a ``TypeError`` on ``len()``.
     """
+    if not isinstance(invite_code, str):
+        raise ValueError("invite code must be a string")
     if len(invite_code) != INVITE_CODE_LENGTH:
         raise ValueError(f"invite code must be exactly {INVITE_CODE_LENGTH} characters")
     if not is_canonical_crockford(invite_code):

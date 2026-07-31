@@ -25,6 +25,8 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.rq import RqIntegration
 
 from springfield.base.config_manager import config
+
+# Validates the keyring at boot. `utils.py` must stay settings-safe (see its docstring).
 from springfield.firefox.referral.utils import validate_invite_code_keyring
 
 # ROOT path of the project. A pathlib.Path object.
@@ -554,10 +556,12 @@ SECRET_KEY = config("SECRET_KEY", default="ssssshhhhh")
 # CSRF, sessions, or anything else. Add new versions to the dict as rotations
 # happen (a two-deploy operation: add the key first, flip the active version in
 # a later deploy). Version identifiers are single Crockford base32 characters.
-# The local/CI default below is a fixed non-production value (also in .env-dist)
-# so tests are deterministic. Staging and prod override it with distinct secrets.
+# There is deliberately no default: a key committed here would be the live key
+# anywhere the secret is missing, so every environment must supply its own. The
+# shared non-production value is in `.env-dist` for local dev and in the env
+# files for CI and the demo servers.
 REFERRAL_INVITE_CODE_KEYS = {
-    "1": bytes.fromhex(config("REFERRAL_INVITE_CODE_KEY_V1", default="abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")),
+    "1": bytes.fromhex(config("REFERRAL_INVITE_CODE_KEY_V1")),
 }
 REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION = config("REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION", default="1")
 
@@ -1111,6 +1115,12 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
     # requests; keep it out of Sentry events so the token cannot leak via error reports.
     "X-Mozilla-Ops-Canary",
+    # `ref_key` is a referral ID and `invitation` is its invite code, the plaintext
+    # and ciphertext of the FF1 mapping. Both arrive as query params on public
+    # pages, so the Django integration puts them in `request.query_string` on any
+    # event raised during such a request, not just ones we capture deliberately.
+    "ref_key",
+    "invitation",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
