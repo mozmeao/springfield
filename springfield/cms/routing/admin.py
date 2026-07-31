@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from product_details import product_details
 
-from springfield.cms.routing.signals import SOURCE_LABELS, ValueType, registry
+from springfield.cms.routing.signals import SOURCE_LABELS, Source, ValueType, registry
 
 # Per-value-type hint shown beneath the expected-value field. All localizable.
 VALUE_TYPE_HINTS = {
@@ -89,6 +89,10 @@ def build_signal_reference():
                 "name": signal.name,
                 "description": signal.description,
                 "source": SOURCE_LABELS[signal.source],
+                # Stable source enum value for the per-source badge CSS class + the UITour
+                # note; the human label stays localized in ``source`` above.
+                "source_key": signal.source.value,
+                "is_uitour": signal.source is Source.UITOUR,
                 "value_type": signal.value_type.value,
                 "operators": [operator.label for operator in signal.operators],
                 "enum_values": [{"value": enum_value.value, "label": enum_value.label} for enum_value in signal.enum_values],

@@ -34,3 +34,70 @@
     width: 100%;
 }
 /* stylelint-enable */
+
+/* User Routing — signals reference page (C27). Theme-aware via Wagtail design tokens so
+   it follows the admin's light/dark theme; badges carry a per-source accent. */
+.routing-signals-reference__note {
+    padding: 0.75rem 1rem;
+    margin-block: 1rem;
+    border-inline-start: 4px solid var(--w-color-border-furniture);
+    background: var(--w-color-surface-field-inactive);
+    color: var(--w-color-text-context);
+    border-radius: 3px;
+}
+
+.routing-signals-reference__table code {
+    color: var(--w-color-text-context);
+}
+
+.routing-signal-description {
+    max-width: 32rem;
+    color: var(--w-color-text-context);
+}
+
+.routing-signal-freetext {
+    color: var(--w-color-text-label);
+}
+
+.routing-badge {
+    display: inline-block;
+    padding: 0.05em 0.5em;
+    border-radius: 1em;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: var(--w-color-text-label);
+    background: var(--w-color-surface-field-inactive);
+    border: 1px solid var(--w-color-border-furniture);
+    border-inline-start-width: 4px;
+}
+
+/* Per-source accent (left border only, so it reads on both light and dark). */
+.routing-badge--cdn_geo {
+    border-inline-start-color: #0060df;
+}
+
+.routing-badge--user_agent {
+    border-inline-start-color: #008787;
+}
+
+.routing-badge--uitour {
+    border-inline-start-color: #b5007f;
+}
+
+.routing-badge--url {
+    border-inline-start-color: #7f5f00;
+}
+
+.routing-badge--type {
+    border-inline-start-width: 1px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.routing-uitour-flag {
+    margin-inline-start: 0.35em;
+    cursor: help;
+}

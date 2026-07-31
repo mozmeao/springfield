@@ -93,3 +93,12 @@ def test_reference_includes_the_honesty_notes():
     rows = {row["name"]: row for row in build_signal_reference()}
     assert "FxiOS" in str(rows["is_firefox"]["description"])
     assert "rv:129" in str(rows["firefox_version"]["description"])
+
+
+def test_reference_rows_carry_a_source_key_and_uitour_flag():
+    # C27: source_key drives the per-source badge class; is_uitour drives the delay note.
+    rows = {row["name"]: row for row in build_signal_reference()}
+    assert rows["platform"]["source_key"] == "user_agent"
+    assert rows["country"]["source_key"] == "cdn_geo"
+    assert rows["is_default_browser"]["is_uitour"] is True
+    assert rows["utm_source"]["is_uitour"] is False

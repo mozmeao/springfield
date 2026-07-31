@@ -5,38 +5,52 @@
 #}
 
 {% extends "wagtailadmin/generic/base.html" %}
+{% load i18n %}
 
 {% block main_content %}
-  <p class="help-block help-info">
-    Auto-generated from the signal registry — this is exactly what the client evaluator reads.
-  </p>
+  <div class="routing-signals-reference">
+    <p class="help-block help-info">
+      {% trans "Auto-generated from the signal registry — this is exactly what the client evaluator reads." %}
+    </p>
 
-  <table class="listing">
-    <thead>
-      <tr>
-        <th>Signal</th>
-        <th>Description</th>
-        <th>Source</th>
-        <th>Type</th>
-        <th>Operators</th>
-        <th>Values</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for signal in signals %}
+    <p class="routing-signals-reference__note">
+      {% blocktrans trimmed %}
+        Signals marked <span class="routing-badge routing-badge--uitour">UITour</span> are read from
+        Firefox only, via a per-key browser ping, and add roughly 500&nbsp;ms to the redirect for a
+        matched visitor. Prefer the faster URL and User-Agent signals where they suffice.
+      {% endblocktrans %}
+    </p>
+
+    <table class="listing routing-signals-reference__table">
+      <thead>
         <tr>
-          <td><code>{{ signal.name }}</code></td>
-          <td>{{ signal.description }}</td>
-          <td>{{ signal.source }}</td>
-          <td>{{ signal.value_type }}</td>
-          <td>
-            {% for operator in signal.operators %}{{ operator }}{% if not forloop.last %}, {% endif %}{% endfor %}
-          </td>
-          <td>
-            {% for value in signal.enum_values %}{{ value.label }} ({{ value.value }}){% if not forloop.last %}, {% endif %}{% endfor %}
-          </td>
+          <th>{% trans "Signal" %}</th>
+          <th>{% trans "Source" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Operators" %}</th>
+          <th>{% trans "Values" %}</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for signal in signals %}
+          <tr>
+            <td><code class="routing-signal-name">{{ signal.name }}</code></td>
+            <td>
+              <span class="routing-badge routing-badge--{{ signal.source_key }}">{{ signal.source }}</span>
+              {% if signal.is_uitour %}<span class="routing-uitour-flag" title="{% trans 'Firefox-only; adds ~500 ms for matched visitors.' %}" aria-hidden="true">⏱</span>{% endif %}
+            </td>
+            <td><span class="routing-badge routing-badge--type">{{ signal.value_type }}</span></td>
+            <td class="routing-signal-description">{{ signal.description }}</td>
+            <td>
+              {% for operator in signal.operators %}<code>{{ operator }}</code>{% if not forloop.last %} {% endif %}{% endfor %}
+            </td>
+            <td>
+              {% for value in signal.enum_values %}<code>{{ value.value }}</code>{% if not forloop.last %} {% endif %}{% empty %}<span class="routing-signal-freetext">—</span>{% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

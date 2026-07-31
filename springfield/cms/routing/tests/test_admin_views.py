@@ -105,6 +105,20 @@ def test_signals_reference_shows_source_type_and_enum_values(admin_client):
     assert "windows" in content  # an enum value
 
 
+def test_signals_reference_renders_source_badges(admin_client):
+    # C27: each source gets a per-source badge class (drives the accent + dark-mode styling).
+    content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
+    for source_key in ("cdn_geo", "user_agent", "uitour", "url"):
+        assert f"routing-badge--{source_key}" in content
+
+
+def test_signals_reference_shows_the_uitour_delay_note(admin_client):
+    # C27: the ~500 ms UITour note is real authoring guidance and must be present.
+    content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
+    assert "UITour" in content
+    assert "500" in content
+
+
 def test_adding_a_signal_makes_it_appear_with_no_page_edit(admin_client, temp_signal):
     content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
     assert temp_signal.name in content
