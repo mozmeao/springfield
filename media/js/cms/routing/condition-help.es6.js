@@ -119,8 +119,10 @@ export function filterOperators(select, payload, root) {
 }
 
 function splitList(value) {
+    // Set-membership values are entered one-per-line and/or comma-separated, so split on
+    // both (matches the Python RoutingCondition.expected_values() convention).
     return String(value)
-        .split(',')
+        .split(/[\n,]/)
         .map((entry) => entry.trim())
         .filter(Boolean);
 }

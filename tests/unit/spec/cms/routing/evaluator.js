@@ -163,6 +163,15 @@ describe('cms/routing/evaluator.es6.js', function () {
             );
         });
 
+        it('splits set-membership values on newlines as well as commas', function () {
+            // Authors may enter one value per line in the textarea.
+            const c = cond('platform', 'in', 'windows\nosx\nlinux', 'enum');
+            expect(evaluateCondition(c, available('osx'))).toEqual(MATCHED);
+            expect(evaluateCondition(c, available('android'))).toEqual(
+                NOT_MATCHED
+            );
+        });
+
         it('supports version comparisons', function () {
             expect(
                 evaluateCondition(

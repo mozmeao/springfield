@@ -96,8 +96,7 @@ class Migration(migrations.Migration):
                 ("operator", models.CharField(choices=springfield.cms.routing.models.operator_choices, max_length=20, verbose_name="Operator")),
                 (
                     "expected_value",
-                    models.CharField(
-                        max_length=255,
+                    models.TextField(
                         verbose_name="Expected value",
                     ),
                 ),

@@ -170,11 +170,12 @@ class RoutingCondition(Orderable):
     rule = ParentalKey(RoutingRule, on_delete=models.CASCADE, related_name="conditions")
     signal = models.CharField(max_length=100, choices=signal_choices, verbose_name=_("Signal"))
     operator = models.CharField(max_length=20, choices=operator_choices, verbose_name=_("Operator"))
-    expected_value = models.CharField(
-        max_length=255,
+    expected_value = models.TextField(
         verbose_name=_("Expected value"),
-        # No static help_text: the dynamic per-signal help (condition-help.es6.js)
-        # is the primary guidance and a static line here would compete with it.
+        # TextField (not a capped CharField) so long in/not_in lists get a roomy,
+        # multi-line textarea — the FieldPanel renders one automatically. No static
+        # help_text: the dynamic per-signal help (condition-help.es6.js) is the primary
+        # guidance and a static line here would compete with it.
         help_text="",
     )
 
@@ -193,9 +194,14 @@ class RoutingCondition(Orderable):
         return f"{self.signal} {self.operator} {self.expected_value}"
 
     def expected_values(self):
-        """The expected value(s) as a list — split on commas for set-membership operators."""
+        """The expected value(s) as a list.
+
+        Set-membership operators accept a list entered one-per-line and/or comma-separated,
+        so split on both newlines and commas (strip, drop empties). Single-value operators
+        read the trimmed whole string.
+        """
         if self.operator in _SET_MEMBERSHIP_OPERATORS:
-            return [value.strip() for value in self.expected_value.split(",") if value.strip()]
+            return [value.strip() for value in self.expected_value.replace("\n", ",").split(",") if value.strip()]
         value = self.expected_value.strip()
         return [value] if value else []
 

@@ -55,13 +55,14 @@ export const OPERATORS = {
 };
 
 function splitList(expected) {
-    // Set-membership operators carry a comma-separated list (matches the Python
+    // Set-membership operators carry a list entered one-per-line and/or comma-separated,
+    // so split on both newlines and commas (matches the Python
     // RoutingCondition.expected_values() convention).
     if (expected === null || expected === undefined) {
         return [];
     }
     return String(expected)
-        .split(',')
+        .split(/[\n,]/)
         .map((value) => value.trim())
         .filter(Boolean);
 }

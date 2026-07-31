@@ -298,6 +298,16 @@ describe('cms/routing/condition-help.es6.js', function () {
             );
         });
 
+        it('splits a set-membership list on newlines as well as commas', function () {
+            // One-per-line textarea entry validates the same as comma-separated.
+            expect(validateExpectedValue(enumMeta, 'in', 'windows\nosx')).toBe(
+                true
+            );
+            expect(validateExpectedValue(enumMeta, 'in', 'windows\nbeos')).toBe(
+                false
+            );
+        });
+
         it('rejects an empty value', function () {
             expect(validateExpectedValue(enumMeta, 'is', '   ')).toBe(false);
         });

@@ -262,6 +262,26 @@ def test_non_member_in_enum_set_raises(rule):
     assert "expected_value" in exc.value.error_dict
 
 
+def test_expected_values_splits_on_newlines_and_commas(rule):
+    # A set-membership list may be entered one-per-line, comma-separated, or a mix.
+    condition = RoutingCondition(rule=rule, signal="platform", operator="in", expected_value="windows\nosx, linux\n")
+    assert condition.expected_values() == ["windows", "osx", "linux"]
+
+
+def test_single_value_operator_reads_the_whole_trimmed_string(rule):
+    # Non-membership operators are not split — the value is the whole (trimmed) string.
+    condition = RoutingCondition(rule=rule, signal="platform", operator="is", expected_value="  windows  ")
+    assert condition.expected_values() == ["windows"]
+
+
+def test_expected_value_is_an_uncapped_textfield():
+    # Long in/not_in lists need a roomy multi-line textarea, so the field is an uncapped
+    # TextField rather than a length-limited CharField.
+    field = RoutingCondition._meta.get_field("expected_value")
+    assert field.get_internal_type() == "TextField"
+    assert field.max_length is None
+
+
 # ---------------------------------------------------------------------------
 # Priority / determinism: position then id, older rule wins ties.
 # ---------------------------------------------------------------------------
