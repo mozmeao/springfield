@@ -26,6 +26,8 @@ EXPECTED_SIGNALS = {
     "utm_source": (Source.URL, ValueType.STRING),
     "utm_medium": (Source.URL, ValueType.STRING),
     "utm_campaign": (Source.URL, ValueType.STRING),
+    "oldversion": (Source.URL, ValueType.VERSION),
+    "locale": (Source.URL, ValueType.STRING),
 }
 
 
@@ -115,3 +117,31 @@ def test_version_signal_documents_normalization():
     assert "rv:129" in description
     assert "129.0.1" in description
     assert "version-aware" in description
+
+
+# ---------------------------------------------------------------------------
+# oldversion + locale (plan P1-2): URL-derived, replacing a dedicated lapsed_user.
+# ---------------------------------------------------------------------------
+
+
+def test_lapsed_user_signal_is_not_introduced():
+    # Lapsing is expressed via oldversion + version operators, not a bespoke signal.
+    assert "lapsed_user" not in registry.names()
+
+
+def test_oldversion_is_a_url_version_signal_using_version_operators():
+    oldversion = registry.get("oldversion")
+    assert oldversion.source is Source.URL
+    assert oldversion.value_type is ValueType.VERSION
+    # Version-aware operators only — not equality/set-membership.
+    assert oldversion.allows_operator("lte")
+    assert not oldversion.allows_operator("is")
+    assert not oldversion.allows_operator("in")
+
+
+def test_locale_is_a_url_string_signal_using_membership_operators():
+    locale = registry.get("locale")
+    assert locale.source is Source.URL
+    assert locale.value_type is ValueType.STRING
+    assert locale.allows_operator("is")
+    assert locale.allows_operator("in")

@@ -144,6 +144,45 @@ describe('cms/routing/readers.es6.js', function () {
                 REJECTED
             );
         });
+
+        it('reads oldversion, normalizing the rv: prefix', async function () {
+            const reader = createUrlReader({ search: '?oldversion=rv:129' });
+            expect(await reader.read({ name: 'oldversion' })).toEqual('129');
+        });
+
+        it('reads oldversion verbatim when already normalized', async function () {
+            const reader = createUrlReader({ search: '?oldversion=129.0.1' });
+            expect(await reader.read({ name: 'oldversion' })).toEqual(
+                '129.0.1'
+            );
+        });
+
+        it('is unavailable when oldversion is absent', async function () {
+            const reader = createUrlReader({ search: '?utm_source=google' });
+            expect(await settle(reader.read({ name: 'oldversion' }))).toBe(
+                REJECTED
+            );
+        });
+
+        it('reads locale from the <html lang> attribute', async function () {
+            const reader = createUrlReader({ search: '', lang: 'de' });
+            expect(await reader.read({ name: 'locale' })).toEqual('de');
+        });
+
+        it('prefers an explicit ?locale= over <html lang>', async function () {
+            const reader = createUrlReader({
+                search: '?locale=pt-BR',
+                lang: 'de'
+            });
+            expect(await reader.read({ name: 'locale' })).toEqual('pt-BR');
+        });
+
+        it('is unavailable when neither ?locale= nor <html lang> is set', async function () {
+            const reader = createUrlReader({ search: '', lang: null });
+            expect(await settle(reader.read({ name: 'locale' }))).toBe(
+                REJECTED
+            );
+        });
     });
 
     describe('createProvider — composes the adapters for the evaluator', function () {

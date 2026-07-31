@@ -21,7 +21,8 @@
 
 import {
     PER_SIGNAL_TIMEOUT_MS,
-    PER_UITOUR_KEY_TIMEOUT_MS
+    PER_UITOUR_KEY_TIMEOUT_MS,
+    normalizeVersion
 } from './evaluator.es6';
 
 // Source identifiers, mirroring the Python Source enum values (C1).
@@ -190,8 +191,15 @@ export function createUITourReader(options) {
 }
 
 /**
- * URL — a signal named after a query param, read from the current URL (spec §4.2).
- * Injectable `search` string.
+ * URL — a signal read from the current URL (spec §4.2). Most URL signals are named
+ * after a query param and read verbatim; two are special-cased:
+ *
+ *   - `oldversion` is a version signal (Balrog's just-updated flow sends it); its value
+ *     is normalized the same way `firefox_version` is (bare / rv: / fully-qualified).
+ *   - `locale` is the page locale, read from an explicit `?locale=` override and falling
+ *     back to the `<html lang>` attribute (server-rendered on the resolver page).
+ *
+ * Injectable `search` string, `root` element, and `lang` override.
  */
 export function createUrlReader(options) {
     const opts = options || {};
@@ -202,9 +210,43 @@ export function createUrlReader(options) {
                 : ''
             : opts.search;
     const params = new URLSearchParams(search);
+
+    const root =
+        opts.root ||
+        (typeof document !== 'undefined' ? document.documentElement : null);
+
+    function htmlLang() {
+        if (opts.lang !== undefined) {
+            return opts.lang;
+        }
+        return root && typeof root.getAttribute === 'function'
+            ? root.getAttribute('lang')
+            : null;
+    }
+
     return {
         read: function (descriptor) {
             return new Promise(function (resolve, reject) {
+                if (descriptor.name === 'oldversion') {
+                    if (params.has('oldversion')) {
+                        resolve(normalizeVersion(params.get('oldversion')));
+                    } else {
+                        reject();
+                    }
+                    return;
+                }
+                if (descriptor.name === 'locale') {
+                    // Explicit ?locale= wins; otherwise fall back to <html lang>.
+                    const locale = params.has('locale')
+                        ? params.get('locale')
+                        : htmlLang();
+                    if (locale) {
+                        resolve(locale);
+                    } else {
+                        reject();
+                    }
+                    return;
+                }
                 if (params.has(descriptor.name)) {
                     resolve(params.get(descriptor.name));
                 } else {

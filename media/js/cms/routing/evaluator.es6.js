@@ -78,7 +78,7 @@ function toNumber(value) {
     return Number(String(value).trim());
 }
 
-function normalizeVersion(value) {
+export function normalizeVersion(value) {
     // Accept bare (129), prefixed (rv:129) and fully-qualified (129.0.1) forms by
     // stripping any leading non-digits, then comparing dot-separated numbers (spec §4.4).
     if (value === null || value === undefined) {

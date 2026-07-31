@@ -179,3 +179,37 @@ for _param in ("utm_source", "utm_medium", "utm_campaign"):
             value_type=ValueType.STRING,
         )
     )
+
+# The version the visitor is updating *from*, sent by Balrog's just-updated flow as
+# `?oldversion=`. A version signal (not free text) so authors express "lapsed from an
+# old release" with version-aware operators, e.g. `oldversion lte 151` on a canonical
+# for 156 — the plan's replacement for a dedicated `lapsed_user` signal.
+registry.register(
+    RoutingSignal(
+        name="oldversion",
+        description=_(
+            "The Firefox version the visitor updated from, read from the `oldversion` query parameter "
+            "(sent by the just-updated flow). Compared with version-aware comparison (not string "
+            "comparison); the value is normalized first, so it may arrive bare (129), prefixed (rv:129), "
+            "or fully qualified (129.0.1). Express lapsing as e.g. `oldversion lte 151`."
+        ),
+        source=Source.URL,
+        value_type=ValueType.VERSION,
+    )
+)
+
+# The page locale, read from the URL (an explicit `?locale=` override) and falling back
+# to the page's `<html lang>`. Free text (not a static enum): the locale set is lazy and
+# DB/product-details-backed, so surfacing it as a closed enum would reintroduce the
+# app-init DB access the framework avoids. Authors match with `is` / `in`.
+registry.register(
+    RoutingSignal(
+        name="locale",
+        description=_(
+            "The visitor's page locale, e.g. en-US, de, pt-BR. Read from the URL, falling back to the "
+            "page's <html lang>. Free text; matched with `is` / `in` against expected locale codes."
+        ),
+        source=Source.URL,
+        value_type=ValueType.STRING,
+    )
+)

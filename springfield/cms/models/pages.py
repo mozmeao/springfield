@@ -1399,10 +1399,12 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
     def get_routing_signal_names(self):
-        """A just-updated audience: version, platform and browser state — not the
-        paid-traffic geo/URL signals."""
+        """A just-updated audience: version, platform and browser state, plus the
+        update-from version and locale — not the paid-traffic geo/utm signals."""
         return (
             "firefox_version",
+            "oldversion",
+            "locale",
             "platform",
             "is_firefox",
             "is_default_browser",
