@@ -125,52 +125,69 @@ function splitList(value) {
         .filter(Boolean);
 }
 
-export function validateExpectedValue(meta, operator, value) {
-    // Mirror RoutingCondition.clean() on the client (ED-4) so a bad value is caught before
-    // submit instead of bouncing to the Content tab. The server clean() stays the backstop.
+export function classifyValue(meta, operator, value) {
+    // Grade a condition value against RoutingCondition.clean() (ED-4), but split the verdict
+    // into three so the client can block only what it should (C28):
+    //   'ok'       — acceptable.
+    //   'advisory' — an off-list `locale`/`country` value. `locale` is a flexible string, so a
+    //                non-matching value isn't wrong: it simply fails to match at runtime and the
+    //                canonical page serves (fail-safe). Shows the red hint, but never blocks.
+    //   'hard'     — the server would reject it, or it would silently mis-route (a malformed
+    //                boolean like "yess" → false). Blocks the save when the field is on-screen.
     if (!meta) {
-        return true; // unknown/blank signal: leave it to the server
+        return 'ok'; // unknown/blank signal: leave it to the server
     }
     // Operator must be legal for the signal (C25 filters the dropdown; this backstops it).
     if (operator && meta.operators) {
         const legal = meta.operators.map((entry) => entry.value);
         if (legal.indexOf(operator) === -1) {
-            return false;
+            return 'hard';
         }
     }
     const raw = String(
         value === undefined || value === null ? '' : value
     ).trim();
     if (!raw) {
-        return false; // a condition always needs a value
+        return 'hard'; // a condition always needs a value
     }
     const isMembership = MEMBERSHIP_OPERATORS.indexOf(operator) !== -1;
-    // Enum / known-set string (locale, country): every value must be a member.
-    let members = null;
+    // Enum: a closed set the evaluator depends on — off-list is a hard block.
     if (meta.enumValues && meta.enumValues.length) {
-        members = meta.enumValues.map((entry) => entry.value);
-    } else if (meta.values && meta.values.length) {
-        members = meta.values;
-    }
-    if (members) {
+        const members = meta.enumValues.map((entry) => entry.value);
         const parts = isMembership ? splitList(value) : [raw];
-        return (
+        const allMembers =
             parts.length > 0 &&
-            parts.every((part) => members.indexOf(part) !== -1)
-        );
+            parts.every((part) => members.indexOf(part) !== -1);
+        return allMembers ? 'ok' : 'hard';
+    }
+    // Known-set string (locale/country): membership is advisory, not enforced (fail-safe).
+    if (meta.values && meta.values.length) {
+        const parts = isMembership ? splitList(value) : [raw];
+        const allMembers =
+            parts.length > 0 &&
+            parts.every((part) => meta.values.indexOf(part) !== -1);
+        return allMembers ? 'ok' : 'advisory';
     }
     if (meta.valueType === 'boolean') {
-        return /^(true|false|1|0)$/i.test(raw);
+        return /^(true|false|1|0)$/i.test(raw) ? 'ok' : 'hard';
     }
     if (meta.valueType === 'integer') {
-        return /^-?\d+$/.test(raw);
+        return /^-?\d+$/.test(raw) ? 'ok' : 'hard';
     }
     if (meta.valueType === 'version') {
         // Accept bare / rv:-prefixed / dotted forms (matches normalizeVersion).
-        return /^\d+(\.\d+)*$/.test(raw.replace(/^[^\d]*/, ''));
+        return /^\d+(\.\d+)*$/.test(raw.replace(/^[^\d]*/, '')) ? 'ok' : 'hard';
     }
     // Free-text string (utm_*): any non-empty value is acceptable.
-    return true;
+    return 'ok';
+}
+
+export function validateExpectedValue(meta, operator, value) {
+    // The advisory-aware "is this value acceptable?" check that drives the inline red hint:
+    // anything short of 'ok' (including an off-list locale) fails here, so the author still
+    // sees a correction. Whether that failure *blocks the save* is a separate question —
+    // classifyValue distinguishes 'advisory' from 'hard' for that.
+    return classifyValue(meta, operator, value) === 'ok';
 }
 
 function setConditionError(select, payload, scope, hasError) {
@@ -199,6 +216,17 @@ function setConditionError(select, payload, scope, hasError) {
     return expected;
 }
 
+function isFieldVisible(el) {
+    // "Visible" ⇒ the field is laid out, i.e. the author is on the routing tab. `offsetParent`
+    // is null (and getClientRects() empty) for a `display:none` ancestor — exactly how Wagtail
+    // hides an inactive tab panel — and for a detached node. We deliberately read *rendering*,
+    // not Wagtail tab state (which is brittle and fights Wagtail's own multi-tab error routing).
+    if (!el) {
+        return false;
+    }
+    return !!(el.offsetParent || el.getClientRects().length);
+}
+
 function validateConditionRow(select, payload, scope) {
     // Skip rows being deleted — they won't be saved.
     const del = siblingFieldFor(select, scope, '-DELETE');
@@ -208,13 +236,21 @@ function validateConditionRow(select, payload, scope) {
     }
     const operatorSelect = operatorFieldFor(select, scope);
     const expected = expectedFieldFor(select, scope);
-    const valid = validateExpectedValue(
+    const status = classifyValue(
         payload[select.value],
         operatorSelect ? operatorSelect.value : '',
         expected ? expected.value : ''
     );
-    setConditionError(select, payload, scope, !valid);
-    return valid;
+    // Always surface the red hint for anything not 'ok' — advisory and hard alike — so the
+    // author sees the problem inline (on blur/change and on a blocked submit).
+    setConditionError(select, payload, scope, status !== 'ok');
+    // But only a *hard* failure on a *visible* field blocks the save. Advisory failures
+    // (off-list locale/country — fail-safe to canonical) and rows on an inactive tab fall
+    // through to the server, where Wagtail owns error/tab routing natively.
+    if (status === 'hard' && isFieldVisible(expected)) {
+        return false;
+    }
+    return true;
 }
 
 export function validateConditions(root, payload) {

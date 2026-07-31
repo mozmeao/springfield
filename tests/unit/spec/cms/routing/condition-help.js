@@ -47,6 +47,33 @@ const PAYLOAD = {
         ],
         enumValues: [],
         values: []
+    },
+    // A known-set STRING signal (locale/country): the values list is advisory, not enforced —
+    // an off-list value fails to match at runtime and the canonical page serves (fail-safe).
+    locale: {
+        valueType: 'string',
+        description: 'The visitor locale.',
+        hint: 'Enter one of these values:',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
+        operators: [
+            { value: 'is', label: 'is' },
+            { value: 'in', label: 'in' }
+        ],
+        enumValues: [],
+        values: ['en-US', 'de', 'fr']
+    },
+    // A boolean signal: a malformed value ("yess" → false) silently mis-routes, so it stays a
+    // hard block.
+    is_default_browser: {
+        valueType: 'boolean',
+        description: 'Whether Firefox is the default browser.',
+        hint: 'Enter true or false.',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
+        operators: [{ value: 'is', label: 'is' }],
+        enumValues: [],
+        values: []
     }
 };
 
@@ -372,6 +399,61 @@ describe('cms/routing/condition-help.es6.js', function () {
                     .getAttribute('aria-invalid')
             ).toBeNull();
         });
+
+        it('treats an off-list locale/country value as advisory: red hint, but no submit block', function () {
+            const dom = makeConditionDOM('locale');
+            dom.operatorSelect.value = 'is';
+            // A real, valid visitor locale that just isn't one of the CMS content locales.
+            dom.fieldWrap.querySelector('input').value = 'zz';
+            document.body.appendChild(dom.container);
+            try {
+                // Advisory ⇒ the save is allowed to proceed...
+                expect(validateConditions(dom.container, PAYLOAD)).toBe(true);
+                // ...but the author still sees the red hint (with the valid values).
+                const help = dom.fieldWrap.querySelector(
+                    '.routing-condition-help'
+                );
+                expect(
+                    help.classList.contains('routing-condition-help--invalid')
+                ).toBe(true);
+                expect(help.textContent).toContain('en-US');
+            } finally {
+                document.body.removeChild(dom.container);
+            }
+        });
+
+        it('still blocks a visible hard-invalid value (malformed boolean)', function () {
+            const dom = makeConditionDOM('is_default_browser');
+            dom.operatorSelect.value = 'is';
+            dom.fieldWrap.querySelector('input').value = 'yess'; // silently → false
+            document.body.appendChild(dom.container);
+            try {
+                expect(validateConditions(dom.container, PAYLOAD)).toBe(false);
+                expect(
+                    dom.fieldWrap
+                        .querySelector('input')
+                        .getAttribute('aria-invalid')
+                ).toEqual('true');
+            } finally {
+                document.body.removeChild(dom.container);
+            }
+        });
+
+        it('does not block a hard-invalid row that is hidden (on another tab)', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'is';
+            dom.fieldWrap.querySelector('input').value = ''; // empty ⇒ hard-invalid
+            // An inactive Wagtail tab panel is display:none — the field isn't laid out.
+            dom.container.style.display = 'none';
+            document.body.appendChild(dom.container);
+            try {
+                // The field isn't visible, so the save reaches the server and Wagtail surfaces
+                // the error on the right tab natively — the client doesn't silently block it.
+                expect(validateConditions(dom.container, PAYLOAD)).toBe(true);
+            } finally {
+                document.body.removeChild(dom.container);
+            }
+        });
     });
 
     describe('initConditionHelp — pre-submit guard', function () {
@@ -395,19 +477,34 @@ describe('cms/routing/condition-help.es6.js', function () {
             return event;
         }
 
-        it('blocks submit when a condition value is invalid', function () {
+        it('blocks submit when a visible condition value is hard-invalid', function () {
+            // Attached (so the routing field is visible) — safe because the guard blocks the
+            // submit, so it never navigates the runner.
             const { form, dom } = formWith('platform', 'is', 'beos');
-            initConditionHelp({ payload: PAYLOAD, root: form });
-            const event = submit(form);
-            expect(event.defaultPrevented).toBe(true);
-            const help = dom.fieldWrap.querySelector('.routing-condition-help');
-            expect(
-                help.classList.contains('routing-condition-help--invalid')
-            ).toBe(true);
+            document.body.appendChild(form);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: form });
+                const event = submit(form);
+                expect(event.defaultPrevented).toBe(true);
+                const help = dom.fieldWrap.querySelector(
+                    '.routing-condition-help'
+                );
+                expect(
+                    help.classList.contains('routing-condition-help--invalid')
+                ).toBe(true);
+            } finally {
+                document.body.removeChild(form);
+            }
         });
 
         it('allows submit when every condition value is valid', function () {
             const { form } = formWith('platform', 'is', 'windows');
+            initConditionHelp({ payload: PAYLOAD, root: form });
+            expect(submit(form).defaultPrevented).toBe(false);
+        });
+
+        it('allows submit for an off-list locale value (advisory, not a hard block)', function () {
+            const { form } = formWith('locale', 'is', 'zz');
             initConditionHelp({ payload: PAYLOAD, root: form });
             expect(submit(form).defaultPrevented).toBe(false);
         });
@@ -449,6 +546,25 @@ describe('cms/routing/condition-help.es6.js', function () {
                 expect(help.textContent).toContain('operating system');
             } finally {
                 document.body.removeChild(root);
+            }
+        });
+
+        it('flags a bad value inline on edit (change), before any save', function () {
+            const dom = makeConditionDOM('platform');
+            document.body.appendChild(dom.container);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: dom.container });
+                const input = dom.fieldWrap.querySelector('input');
+                input.value = 'beos'; // not an enum member
+                input.dispatchEvent(new Event('change'));
+                const help = dom.fieldWrap.querySelector(
+                    '.routing-condition-help'
+                );
+                expect(
+                    help.classList.contains('routing-condition-help--invalid')
+                ).toBe(true);
+            } finally {
+                document.body.removeChild(dom.container);
             }
         });
 
