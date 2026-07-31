@@ -9,7 +9,11 @@ from django.test import RequestFactory
 import pytest
 
 from springfield.cms.routing import params
-from springfield.cms.routing.arming import ArmingCondition, QueryParamArmingCondition
+from springfield.cms.routing.arming import (
+    ArmingCondition,
+    QueryParamArmingCondition,
+    QueryParamValueArmingCondition,
+)
 
 rf = RequestFactory()
 
@@ -46,6 +50,39 @@ def test_each_consumer_can_use_its_own_param():
     paid = QueryParamArmingCondition("r")
     assert paid.is_satisfied(rf.get("/landing/?r=1")) is True
     assert paid.is_satisfied(rf.get("/landing/?routing=1")) is False
+
+
+# ---------------------------------------------------------------------------
+# Value-matching arming condition (plan P0-1): present AND value in the set.
+# ---------------------------------------------------------------------------
+
+
+def test_value_condition_armed_when_value_matches():
+    condition = QueryParamValueArmingCondition("utm_source", {"update"})
+    assert condition.is_satisfied(rf.get("/whatsnew/?utm_source=update")) is True
+
+
+def test_value_condition_not_armed_when_param_absent():
+    condition = QueryParamValueArmingCondition("utm_source", {"update"})
+    assert condition.is_satisfied(rf.get("/whatsnew/")) is False
+
+
+def test_value_condition_not_armed_on_value_mismatch():
+    condition = QueryParamValueArmingCondition("utm_source", {"update"})
+    assert condition.is_satisfied(rf.get("/whatsnew/?utm_source=newsletter")) is False
+
+
+def test_value_condition_empty_value_does_not_arm():
+    # Unlike the presence-only condition, an empty value is a mismatch.
+    condition = QueryParamValueArmingCondition("utm_source", {"update"})
+    assert condition.is_satisfied(rf.get("/whatsnew/?utm_source=")) is False
+
+
+def test_value_condition_accepts_any_of_several_values():
+    condition = QueryParamValueArmingCondition("utm_source", {"update", "upgrade"})
+    assert condition.is_satisfied(rf.get("/?utm_source=update")) is True
+    assert condition.is_satisfied(rf.get("/?utm_source=upgrade")) is True
+    assert condition.is_satisfied(rf.get("/?utm_source=other")) is False
 
 
 # ---------------------------------------------------------------------------

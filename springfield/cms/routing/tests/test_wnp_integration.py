@@ -42,9 +42,13 @@ def wnp():
 
 
 def test_wnp_declares_only_the_three_adoption_hooks(wnp):
-    from springfield.cms.routing.arming import QueryParamArmingCondition
+    from springfield.cms.routing.arming import QueryParamValueArmingCondition
 
-    assert isinstance(wnp.canonical.get_routing_trigger(), QueryParamArmingCondition)
+    trigger = wnp.canonical.get_routing_trigger()
+    assert isinstance(trigger, QueryParamValueArmingCondition)
+    # Armed on Balrog's just-updated flow specifically (plan P0-1).
+    assert trigger.param_name == "utm_source"
+    assert trigger.values == frozenset({"update"})
     assert "firefox_version" in wnp.canonical.get_routing_signal_names()
     assert "country" not in wnp.canonical.get_routing_signal_names()  # not the paid set
 
@@ -80,14 +84,22 @@ def test_organic_untriggered_traffic_is_byte_identical_to_today(client, wnp):
 
 @override_switch("user_routing", active=True)
 def test_triggered_live_canonical_with_rules_serves_the_resolver(client, wnp):
-    response = client.get(wnp.canonical.get_url() + "?routing=1")
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
     assert response.status_code == 200
     assert RESOLVER_MARKER in response.content.decode("utf-8")
 
 
 @override_switch("user_routing", active=True)
+def test_untriggered_utm_source_value_serves_canonical(client, wnp):
+    # A non-"update" utm_source does not arm routing (plan P0-1).
+    response = client.get(wnp.canonical.get_url() + "?utm_source=newsletter")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER not in response.content.decode("utf-8")
+
+
+@override_switch("user_routing", active=True)
 def test_loop_breaker_serves_canonical_even_when_triggered(client, wnp):
-    response = client.get(wnp.canonical.get_url() + "?routing=1&routed=1")
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update&routed=1")
     assert response.status_code == 200
     assert RESOLVER_MARKER not in response.content.decode("utf-8")
 
@@ -95,14 +107,14 @@ def test_loop_breaker_serves_canonical_even_when_triggered(client, wnp):
 @override_switch("user_routing", active=True)
 def test_kill_switch_serves_canonical(client, wnp):
     RoutingConfig.objects.create(page=wnp.canonical, routing_paused=True)
-    response = client.get(wnp.canonical.get_url() + "?routing=1")
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
     assert response.status_code == 200
     assert RESOLVER_MARKER not in response.content.decode("utf-8")
 
 
 def test_global_switch_off_never_serves_the_resolver(client, wnp):
     # Switch off + triggered + rules present -> still canonical (ships dark).
-    response = client.get(wnp.canonical.get_url() + "?routing=1")
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
     assert response.status_code == 200
     assert RESOLVER_MARKER not in response.content.decode("utf-8")
 
@@ -111,7 +123,7 @@ def test_global_switch_off_never_serves_the_resolver(client, wnp):
 def test_triggered_canonical_without_rules_serves_canonical(client, wnp):
     # A sibling canonical with no rules must not serve the resolver.
     bare = WhatsNewPage2026Factory(parent=wnp.index, slug="144", version="144", live=True)
-    response = client.get(bare.get_url() + "?routing=1")
+    response = client.get(bare.get_url() + "?utm_source=update")
     assert response.status_code == 200
     assert RESOLVER_MARKER not in response.content.decode("utf-8")
 

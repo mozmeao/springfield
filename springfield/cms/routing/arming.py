@@ -37,3 +37,21 @@ class QueryParamArmingCondition(ArmingCondition):
 
     def is_satisfied(self, request) -> bool:
         return self.param_name in request.GET
+
+
+class QueryParamValueArmingCondition(ArmingCondition):
+    """Armed iff a query param is present *and* its value is one of ``values``.
+
+    Value-matching, not presence-based (spec §2.2, plan P0-1): Balrog's just-updated
+    flow arrives with ``?utm_source=update``, so a surface armed on it must fire only
+    for that value and stay dark for any other ``utm_source`` (an empty value counts
+    as a mismatch). Single-purpose alongside the presence-only condition — each
+    arming strategy stays its own class.
+    """
+
+    def __init__(self, param_name: str, values):
+        self.param_name = param_name
+        self.values = frozenset(values)
+
+    def is_satisfied(self, request) -> bool:
+        return request.GET.get(self.param_name) in self.values

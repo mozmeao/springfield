@@ -90,7 +90,7 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
-from springfield.cms.routing.arming import QueryParamArmingCondition
+from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
@@ -1385,8 +1385,13 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     # -- waffle switch flip, kept off by default; this ships dark. --
 
     def get_routing_trigger(self):
-        """Routing arms on the presence of the framework trigger query param."""
-        return QueryParamArmingCondition()
+        """Routing arms only on Balrog's just-updated flow (``?utm_source=update``).
+
+        Value-matching, not presence: ``utm_source`` doubles as an available URL
+        signal, so the surface must fire for the update flow alone and stay dark for
+        any other ``utm_source`` value (plan P0-1).
+        """
+        return QueryParamValueArmingCondition("utm_source", {"update"})
 
     def is_routing_canonical(self):
         """WNP's canonicals are the direct children of the What's New index page."""
