@@ -4,19 +4,19 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props variant="" align="start" expand_link=0 #}
+{#- props variant="" align="start" expand_link=0 #}
 
 <article
   class="
     fl-card
     fl-card-{{ align or 'start' }}
-    {% if variant %}fl-card-{{ variant }}{% endif %}
-    {% if expand_link %}fl-card-expand-link{% endif %}
-    {% if variant == 'filled' %} fl-force-light-theme{% endif %}
+    {%- if variant %} fl-card-{{ variant }}{% endif %}
+    {%- if expand_link %} fl-card-expand-link{% endif %}
+    {%- if variant == 'filled' %} fl-force-light-theme{% endif %}
   "
 >
-  {% if contents.media %}
+  {%- if contents.media %}
     <div class="fl-card-top-media">{{ contents.media }}</div>
-  {% endif %}
+  {%- endif %}
   <div class="fl-card-content">{{ contents.body }}</div>
 </article>

@@ -4,8 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_position = block_position or "banner" %}
-{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{%- set block_position = block_position or "banner" -%}
+{%- set block_text = value.heading.heading_text|richtext|remove_tags -%}
 
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">

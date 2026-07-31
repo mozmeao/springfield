@@ -10,16 +10,16 @@
   class="
     fl-mediacontent
     fl-mediacontent-feature
-    {% if media_after %}fl-mediacontent-reverse{% endif %}
-    {% if narrow %}is-narrow{% endif %}
-    {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
+    {%- if media_after %} fl-mediacontent-reverse{% endif %}
+    {%- if narrow %} is-narrow{% endif %}
+    {%- if remove_border_radius %} remove-border-radius-from-media{% endif %}
   "
 >
-  {% if contents.media %}
+  {%- if contents.media %}
     <div class="fl-mediacontent-media">
       {{ contents.media }}
     </div>
-  {% endif %}
+  {%- endif %}
   <div class="fl-mediacontent-content">
     {{ contents.heading }}
     {{ contents.content }}

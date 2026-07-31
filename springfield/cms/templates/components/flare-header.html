@@ -4,28 +4,28 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set nav %}
-  {% if contents.nav %}
+{%- set nav %}
+  {%- if contents.nav %}
     {{ contents.nav }}
-  {% else %}
+  {%- else %}
     <ul class="fl-nav-menu">
-      {% include 'cms/includes/flare-menus/browser.html' %}
-      {% include 'cms/includes/flare-menus/features.html' %}
-      {% include 'cms/includes/flare-menus/resources.html' %}
+      {%- include 'cms/includes/flare-menus/browser.html' %}
+      {%- include 'cms/includes/flare-menus/features.html' %}
+      {%- include 'cms/includes/flare-menus/resources.html' %}
     </ul>
-  {% endif %}
-{% endset %}
+  {%- endif %}
+{%- endset %}
 
 <header class="fl-header
-  {% if no_menu %}fl-header-no-menu{% endif %}
-    {% if not disable_sticky %}enable-sticky{% endif %}
-    {% if theme == 'dark' %}fl-force-dark-theme{% endif %}
-    {% if theme == 'light' %}fl-force-light-theme{% endif %}
+  {%- if no_menu %}fl-header-no-menu{% endif %}
+    {%- if not disable_sticky %} enable-sticky{% endif %}
+    {%- if theme == 'dark' %} fl-force-dark-theme{% endif %}
+    {%- if theme == 'light' %} fl-force-light-theme{% endif -%}
 ">
   <div class="fl-header-inner">
-    {% if contents.custom_logo %}
+    {%- if contents.custom_logo %}
       {{ contents.custom_logo }}
-    {% else %}
+    {%- else %}
       <a href="/{{LANG}}/" class="fl-logo-fx" aria-label="Firefox">
         <img
           src="/media/img/logos/firefox/logo-word-hor-2026.svg"
@@ -34,22 +34,22 @@
           height="40"
         />
       </a>
-    {% endif %}
+    {%- endif %}
 
-    {% if not no_menu %}
+    {%- if not no_menu %}
     <nav class="fl-nav" data-testid="navigation-menu-items">
-      {% if not no_menu_dropdowns %}
+      {%- if not no_menu_dropdowns %}
         {{ nav }}
-      {% endif %}
+      {%- endif %}
       <div class="fl-nav-mobile-download-link">
-        {% include 'cms/includes/nav-cta.html' %}
+        {%- include 'cms/includes/nav-cta.html' %}
       </div>
     </nav>
     <div class="fl-header-buttons">
       <div class="fl-header-main-download-button">
-        {% include 'cms/includes/nav-cta.html' %}
+        {%- include 'cms/includes/nav-cta.html' %}
       </div>
-      {% if not no_menu_dropdowns %}
+      {%- if not no_menu_dropdowns %}
         <button class="fl-show-mobile-menu" type="button" data-testid="navigation-menu-button">
           <span class="fl-show-mobile-menu-content">
             <span class="fl-icon fl-icon-app-menu" aria-label="{{ ftl('ui-menu') }}"></span>
@@ -57,9 +57,9 @@
             <span class="fallback-text">Menu</span>
           </span>
         </button>
-      {% endif %}
+      {%- endif %}
     </div>
-    {% endif %}
+    {%- endif %}
 
     <div class="fl-ie-only fl-nav">
       <a class="ie-menu-button" href="#">Menu</a>

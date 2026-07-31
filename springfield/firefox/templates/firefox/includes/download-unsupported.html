@@ -4,19 +4,19 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% if channel == 'beta' %}
-  {% set channel_name = 'Firefox Beta' %}
-{% elif channel == 'alpha' %}
-  {% set channel_name = 'Firefox Developer Edition' %}
-{% elif channel == 'nightly' %}
-  {% set channel_name = 'Firefox Nightly' %}
-{% else %}
-  {% set channel_name = 'Firefox' %}
-{% endif %}
+{%- if channel == 'beta' %}
+  {%- set channel_name = 'Firefox Beta' %}
+{%- elif channel == 'alpha' %}
+  {%- set channel_name = 'Firefox Developer Edition' %}
+{%- elif channel == 'nightly' %}
+  {%- set channel_name = 'Firefox Nightly' %}
+{%- else %}
+  {%- set channel_name = 'Firefox' %}
+{%- endif %}
 
 {# ESR115 builds do not exist for "sat" and "skr" languages (see issue #15437). #}
-{% set win_download_lang = 'en-US' if LANG in ["sat", "skr"] else LANG %}
-{% set mac_download_lang = 'ja-JP-mac' if LANG == "ja" else win_download_lang %}
+{%- set win_download_lang = 'en-US' if LANG in ["sat", "skr"] else LANG %}
+{%- set mac_download_lang = 'ja-JP-mac' if LANG == "ja" else win_download_lang %}
 
 <div class="fx-unsupported-message win" data-nosnippet="true">
   <p><strong>{{ ftl('download-button-unsupported-platform', channel_name=channel_name, help_url='https://support.mozilla.org/kb/firefox-users-windows-7-8-and-81-moving-extended-support', os_version='Windows 8.1') }}</strong></p>

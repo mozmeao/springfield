@@ -6,10 +6,10 @@
 
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_linux with context %}
 
-{% set source = utm_parameters.get("utm_source", "www.firefox.com") %}
-{% set medium = utm_parameters.get("utm_medium", "referral") %}
-{% set campaign = utm_parameters.get("utm_campaign", "firefox-download-thanks") %}
-{% set params = '?utm_source=' ~ source ~ '&utm_medium=' ~ medium ~ '&utm_campaign=' ~ campaign %}
+{%- set source = utm_parameters.get("utm_source", "www.firefox.com") -%}
+{%- set medium = utm_parameters.get("utm_medium", "referral") -%}
+{%- set campaign = utm_parameters.get("utm_campaign", "firefox-download-thanks") -%}
+{%- set params = '?utm_source=' ~ source ~ '&utm_medium=' ~ medium ~ '&utm_campaign=' ~ campaign -%}
 
 <section class="fl-section">
   <div class="fl-section-container">
@@ -41,22 +41,22 @@
       <div class="fl-support-install">
         <include:conditional-display platform_conditions="{{ ['osx'] }}">
           <p>
-            {% set support_mac_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+            {%- set support_mac_attrs = 'href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) -%}
             {{ ftl('firefox-desktop-download-get-help', attrs=support_mac_attrs) }}
           </p>
         </include:conditional-display>
         <include:conditional-display platform_conditions="{{ ['windows'] }}">
           <p>
-            {% set support_windows_attrs = 'href="https://support.mozilla.org/kb/how-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+            {%- set support_windows_attrs = 'href="https://support.mozilla.org/kb/how-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) -%}
             {{ ftl('firefox-desktop-download-get-help', attrs=support_windows_attrs) }}
           </p>
         </include:conditional-display>
         <include:conditional-display platform_conditions="{{ ['linux'] }}">
           {{ firefox_download_desktop_button_linux(flare_styles=true) }}
         </include:conditional-display>
-        {% set other_platforms %}
+        {%- set other_platforms -%}
           <p>
-            {% set support_else_attrs = 'href="https://support.mozilla.org/products/firefox/install-and-update-firefox%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) %}
+            {%- set support_else_attrs = 'href="https://support.mozilla.org/products/firefox/install-and-update-firefox%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params) -%}
             {{ ftl('firefox-desktop-download-get-help', attrs=support_else_attrs) }}
           </p>
         {% endset %}
@@ -71,9 +71,9 @@
         </include:conditional-display>
 
         {# Edge-case platform support messaging #}
-        {% set unsupported_message %}
+        {%- set unsupported_message -%}
           <p>
-            {% set unsupported_href = firefox_url('desktop', 'all') %}
+            {%- set unsupported_href = firefox_url('desktop', 'all') -%}
             {{ ftl('firefox-desktop-download-your-system-may-not', url=unsupported_href)}}
           </p>
         {% endset %}
