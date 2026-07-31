@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Admin views for the "User Routing" submenu (spec §6.1, §4.5)."""
+"""Admin views for the "User Routing" submenu."""
 
 from django.views.generic import TemplateView
 
@@ -13,7 +13,7 @@ from springfield.cms.routing.models import RoutingRule
 
 
 class RoutingRulesIndexView(WagtailAdminTemplateMixin, TemplateView):
-    """A read/browse aggregation of routing rules across pages (spec §6.1).
+    """A read/browse aggregation of routing rules across pages.
 
     Purely a listing: rules are only ever authored inline on their canonical page, so
     there is deliberately **no add affordance** here.
@@ -30,7 +30,7 @@ class RoutingRulesIndexView(WagtailAdminTemplateMixin, TemplateView):
 
 
 class RoutingSignalsReferenceView(WagtailAdminTemplateMixin, TemplateView):
-    """The auto-generated Signals reference page (spec §4.5).
+    """The auto-generated Signals reference page.
 
     Renders the whole registry as a table, generated from the registry so it never
     drifts from what the evaluator reads.

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Exhaustive tests for the pure serve-path decision (C10, high-attention §0.7).
+"""Exhaustive tests for the pure serve-path decision.
 
 The decision function is the highest-blast-radius logic in the framework (a wrong
 answer silently mis-routes organic or crawler traffic). It is pure, so we exercise it
@@ -31,7 +31,7 @@ FLAG_NAMES = (
 )
 
 
-# An independent transcription of spec §2.3 + the §0.5 outermost switch, written as an
+# An independent transcription of the serve-path decision plus the outermost switch, written as an
 # ordered priority scan rather than an if-chain, so it can disagree with a buggy
 # decide_routing (e.g. wrong order, OR instead of AND in the resolver clause).
 _ORDERED_RULES = (

@@ -2,17 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Server-side rendering of the client resolver page (spec §7).
+"""Server-side rendering of the client resolver page.
 
-When a triggered request reaches a live canonical with rules (wired in C10), the page
+When a triggered request reaches a live canonical with rules, the page
 serves this lightweight resolver instead of final content. The resolver ships the data
 the client needs — the page's rules and the metadata for the signals they test — as
 ``data-*`` attributes (CSP-clean, no inline script), plus the server-rendered country
 attribute and localized status strings via Fluent. All rule evaluation happens on the
-client (C5/C6); the server does no matching.
+client; the server does no matching.
 
-Resolver responses are CDN-cacheable (spec §7.6): this function sets no cache-busting
-headers. The preview flows (C9) add ``no-store`` themselves.
+Resolver responses are CDN-cacheable: this function sets no cache-busting
+headers. The preview flows add ``no-store`` themselves.
 """
 
 from lib import l10n_utils
@@ -48,7 +48,7 @@ def serialize_rules(page, request=None):
                     "valueType": signal.value_type.value if signal else None,
                 }
             )
-        # Defensive floor (mirrors clean()'s, plan P0-2): a rule with neither
+        # Defensive floor (mirrors clean()'s): a rule with neither
         # conditions nor match_all would match every triggered visitor on the client.
         # Authoring one is blocked, but never emit one even if the DB somehow holds it.
         if not conditions and not rule.match_all:
@@ -82,9 +82,9 @@ def serialize_manifest(rules):
 def render_resolver(request, page, fake_signals=None):
     """Render the resolver page for ``page`` and its live rules.
 
-    A framework function against a page + its rules; not yet invoked by ``serve()``
-    (that is wired in C10). ``fake_signals`` (a ``{name: value}`` map, used by the
-    preview_signal flow in C9) is serialized into a ``data-*`` blob so the client
+    A framework function against a page + its rules; not yet invoked by ``serve()``.
+    ``fake_signals`` (a ``{name: value}`` map, used by the preview_signal flow) is
+    serialized into a ``data-*`` blob so the client
     resolves those signals immediately while reading the rest live.
     """
     rules = serialize_rules(page, request)

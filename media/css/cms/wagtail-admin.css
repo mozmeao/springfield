@@ -36,12 +36,12 @@
 /* stylelint-enable */
 
 /* User Routing — the kill switch is always exactly one record (auto-added), so hide its
-   InlinePanel "Add" button entirely rather than leaving it greyed (ED-1). */
+   InlinePanel "Add" button entirely rather than leaving it greyed. */
 #id_routing_config-ADD {
     display: none;
 }
 
-/* User Routing — dynamic condition help (C24) and its invalid state (C26). Theme-aware
+/* User Routing — dynamic condition help and its invalid state. Theme-aware
    via Wagtail tokens. The invalid help reads as a small red callout, and the value field
    gets an immediate red outline so a bad value is obvious before saving. */
 .routing-condition-help {
@@ -65,7 +65,7 @@ input[name$="-expected_value"][aria-invalid="true"] {
     box-shadow: 0 0 0 1px var(--w-color-text-error);
 }
 
-/* User Routing — signals reference page (C27). Theme-aware via Wagtail design tokens so
+/* User Routing — signals reference page. Theme-aware via Wagtail design tokens so
    it follows the admin's light/dark theme; badges carry a per-source accent. */
 .routing-signals-reference__note {
     padding: 0.75rem 1rem;

@@ -5,11 +5,11 @@
  */
 
 /**
- * User Routing — client-side tri-state rule evaluator (spec §7).
+ * User Routing — client-side tri-state rule evaluator.
  *
  * Pure, dependency-free logic: it knows nothing about Firefox, Mozilla.Client, or
- * UITour. Signal values arrive through an injected `provider` (the readers in C6),
- * which is the extractability seam (plan §0.4-B).
+ * UITour. Signal values arrive through an injected `provider` (the readers),
+ * which is the extractability seam.
  *
  * Provider contract:
  *   read(signalName)        -> Promise resolving to the signal's value; a rejection
@@ -19,7 +19,7 @@
  *                              PER_UITOUR_KEY_TIMEOUT_MS).
  */
 
-// The tri-state a condition or rule resolves to (spec §7.2).
+// The tri-state a condition or rule resolves to.
 export const MATCHED = 'matched';
 export const NOT_MATCHED = 'not_matched';
 export const PENDING = 'pending';
@@ -29,14 +29,14 @@ export const SIGNAL_PENDING = 'pending';
 export const SIGNAL_AVAILABLE = 'available';
 export const SIGNAL_UNAVAILABLE = 'unavailable';
 
-// Timeout envelope (spec §7.5). The evaluator owns the global cap; per-signal budgets
+// Timeout envelope. The evaluator owns the global cap; per-signal budgets
 // are supplied by the provider (UITour reads get the longer per-key budget).
 export const PER_SIGNAL_TIMEOUT_MS = 500;
 export const PER_UITOUR_KEY_TIMEOUT_MS = 800;
 export const GLOBAL_TIMEOUT_MS = 1500;
 
-// Operator semantics, mirroring the Python registry operators (C1). `compare` is the
-// positive comparison kind; `negated` flips the positive result (spec §4.3, §7.3).
+// Operator semantics, mirroring the Python registry operators. `compare` is the
+// positive comparison kind; `negated` flips the positive result.
 export const OPERATORS = {
     is: { compare: 'eq', negated: false },
     is_not: { compare: 'eq', negated: true },
@@ -80,7 +80,7 @@ function toNumber(value) {
 
 export function normalizeVersion(value) {
     // Accept bare (129), prefixed (rv:129) and fully-qualified (129.0.1) forms by
-    // stripping any leading non-digits, then comparing dot-separated numbers (spec §4.4).
+    // stripping any leading non-digits, then comparing dot-separated numbers.
     if (value === null || value === undefined) {
         return '';
     }
@@ -158,7 +158,7 @@ function comparePositive(kind, valueType, value, expected) {
 }
 
 /**
- * Resolve a single condition against a signal's current state (spec §7.3).
+ * Resolve a single condition against a signal's current state.
  *
  * A pending signal leaves the condition PENDING (negation never touches pending). An
  * unavailable/timed-out signal makes the condition NOT_MATCHED with no negation flip —
@@ -192,7 +192,7 @@ export function evaluateCondition(condition, state) {
 /**
  * Resolve a rule (an ordered conjunction of conditions) against signal states.
  *
- * A `matchAll` rule matches the whole triggered audience immediately (spec P0-2).
+ * A `matchAll` rule matches the whole triggered audience immediately.
  * Otherwise: NOT_MATCHED as soon as any one condition is not-matched (short-circuit,
  * even while siblings are pending); MATCHED only when all conditions match; PENDING
  * otherwise. An empty, non-matchAll rule is NOT_MATCHED (defensive — the serializer
@@ -224,7 +224,7 @@ export function evaluateRule(rule, signalStates) {
 }
 
 /**
- * Priority-strict decision across all rules (spec §7.2).
+ * Priority-strict decision across all rules.
  *
  * Walking rules in priority order, the first MATCHED rule wins — but a PENDING
  * higher-priority rule blocks every lower-priority rule (returns pending), so a slow
@@ -270,7 +270,7 @@ function collectSignalNames(rules) {
 }
 
 /**
- * Evaluate rules against live signals, under the timeout envelope (spec §7).
+ * Evaluate rules against live signals, under the timeout envelope.
  *
  * Resolves as soon as a decision is reachable, or when the global cap forces closure
  * (unresolved signals become unavailable ⇒ not-matched). Never rejects, never hangs.

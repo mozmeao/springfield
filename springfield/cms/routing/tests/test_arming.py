@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the arming-condition abstraction and routing param constants (C7)."""
+"""Tests for the arming-condition abstraction and routing param constants."""
 
 from django.test import RequestFactory
 
@@ -53,7 +53,7 @@ def test_each_consumer_can_use_its_own_param():
 
 
 # ---------------------------------------------------------------------------
-# Value-matching arming condition (plan P0-1): present AND value in the set.
+# Value-matching arming condition: present AND value in the set.
 # ---------------------------------------------------------------------------
 
 

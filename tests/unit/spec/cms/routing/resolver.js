@@ -170,7 +170,7 @@ describe('cms/routing/resolver.es6.js', function () {
             expect(navigated).toEqual('/canon/?utm_source=nope&routed=1');
         });
 
-        it('applies fake signals from the preview data blob (C9)', async function () {
+        it('applies fake signals from the preview data blob', async function () {
             let navigated;
             const rules = [
                 {

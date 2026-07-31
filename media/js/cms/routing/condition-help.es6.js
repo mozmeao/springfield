@@ -5,12 +5,12 @@
  */
 
 /**
- * User Routing — dynamic condition help text in the Wagtail admin (spec §6.2).
+ * User Routing — dynamic condition help text in the Wagtail admin.
  *
  * When an author picks a signal in a routing condition, this surfaces the valid values
  * beneath the expected-value field: the enumerated set for enum signals, or a type hint
  * plus the operator meanings for the rest. Everything human-readable comes from
- * `window.ROUTING_SIGNAL_PAYLOAD` (the registry, localized server-side in C11), so the
+ * `window.ROUTING_SIGNAL_PAYLOAD` (the registry, localized server-side), so the
  * help can never drift from the evaluator and needs no English literals here.
  */
 
@@ -86,7 +86,7 @@ export function buildHelpText(meta, operator) {
 }
 
 export function filterOperators(select, payload, root) {
-    // Restrict the operator dropdown to the operators legal for the chosen signal (ED-2):
+    // Restrict the operator dropdown to the operators legal for the chosen signal:
     // an author should never be offered `in` on a version signal. The server-side
     // RoutingCondition.clean() stays the backstop; this is the usability half.
     const scope = root || document;
@@ -126,8 +126,8 @@ function splitList(value) {
 }
 
 export function classifyValue(meta, operator, value) {
-    // Grade a condition value against RoutingCondition.clean() (ED-4), but split the verdict
-    // into three so the client can block only what it should (C28):
+    // Grade a condition value against RoutingCondition.clean(), but split the verdict
+    // into three so the client can block only what it should:
     //   'ok'       — acceptable.
     //   'advisory' — an off-list `locale`/`country` value. `locale` is a flexible string, so a
     //                non-matching value isn't wrong: it simply fails to match at runtime and the
@@ -137,7 +137,7 @@ export function classifyValue(meta, operator, value) {
     if (!meta) {
         return 'ok'; // unknown/blank signal: leave it to the server
     }
-    // Operator must be legal for the signal (C25 filters the dropdown; this backstops it).
+    // Operator must be legal for the signal (filterOperators narrows the dropdown; this backstops it).
     if (operator && meta.operators) {
         const legal = meta.operators.map((entry) => entry.value);
         if (legal.indexOf(operator) === -1) {
@@ -336,7 +336,7 @@ function isRoutingForm(form) {
 
 function attachSubmitGuard(payload, scope) {
     // Block a save with an illegal condition value inline, instead of round-tripping to a
-    // server error (ED-4). The Wagtail page form is `novalidate` and saves via a Stimulus
+    // server error. The Wagtail page form is `novalidate` and saves via a Stimulus
     // controller whose "Saving…" spinner starts on the button *click* — so intercepting the
     // `submit` event is too late (the spinner is already up when we cancel the POST). We
     // therefore guard the submit-button **click** in the CAPTURE phase (runs before
@@ -417,7 +417,7 @@ export function initConditionHelp(options) {
     // Wagtail hydrates nested InlinePanel rows client-side *after* load, and "Add
     // rule/condition" inserts more rows later — none of which the one-shot scan above
     // sees. Without this observer the help never renders on those rows (the confirmed
-    // ED-3 bug). Re-scan (idempotently) whenever nodes are added.
+    // bug). Re-scan (idempotently) whenever nodes are added.
     const observeTarget =
         opts.root || (typeof document !== 'undefined' ? document.body : null);
     if (observeTarget && typeof MutationObserver !== 'undefined') {

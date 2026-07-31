@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the admin signal payload feeding the dynamic condition help (C11)."""
+"""Tests for the admin signal payload feeding the dynamic condition help."""
 
 from django.utils.functional import Promise
 
@@ -40,7 +40,7 @@ def test_payload_carries_description_and_comma_hint():
 
 
 # ---------------------------------------------------------------------------
-# Request-time value lists for locale / country string signals (ED-3, plan P1-2).
+# Request-time value lists for locale / country string signals.
 # ---------------------------------------------------------------------------
 
 
@@ -59,7 +59,7 @@ def test_free_text_url_signal_carries_no_value_list():
 
 
 # ---------------------------------------------------------------------------
-# The payload is the only source of truth and carries no raw English (spec §9.2).
+# The payload is the only source of truth and carries no raw English.
 # ---------------------------------------------------------------------------
 
 
@@ -79,7 +79,7 @@ def test_operator_labels_trace_to_the_registry():
 
 
 # ---------------------------------------------------------------------------
-# Signals reference rows are generated straight from the registry (C13, spec §4.5).
+# Signals reference rows are generated straight from the registry.
 # ---------------------------------------------------------------------------
 
 
@@ -104,7 +104,7 @@ def test_reference_includes_the_honesty_notes():
 
 
 def test_reference_rows_carry_a_source_key_and_uitour_flag():
-    # C27: source_key drives the per-source badge class; is_uitour drives the delay note.
+    # source_key drives the per-source badge class; is_uitour drives the delay note.
     rows = {row["name"]: row for row in build_signal_reference()}
     assert rows["platform"]["source_key"] == "user_agent"
     assert rows["country"]["source_key"] == "cdn_geo"
@@ -113,7 +113,7 @@ def test_reference_rows_carry_a_source_key_and_uitour_flag():
 
 
 def test_reference_rows_carry_value_lists_for_known_set_string_signals():
-    # C27: locale/country expose their value lists (shown collapsed); free text has none.
+    # locale/country expose their value lists (shown collapsed); free text has none.
     rows = {row["name"]: row for row in build_signal_reference()}
     assert "US" in rows["country"]["values"]
     assert "en-US" in rows["locale"]["values"]
@@ -121,7 +121,7 @@ def test_reference_rows_carry_value_lists_for_known_set_string_signals():
 
 
 def test_reference_rows_carry_a_value_example_per_type():
-    # C27: the Values column shows a "what to type" hint for signals with no fixed set —
+    # The Values column shows a "what to type" hint for signals with no fixed set —
     # true/false for booleans, version examples, a number example, "Free text" for strings.
     rows = {row["name"]: row for row in build_signal_reference()}
     assert str(rows["is_firefox"]["value_example"]) == "true or false"

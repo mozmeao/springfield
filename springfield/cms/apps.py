@@ -21,7 +21,7 @@ class CmsConfig(AppConfig):
 
     @staticmethod
     def _register_routing_signals():
-        """Populate the routing signal registry (spec §4).
+        """Populate the routing signal registry.
 
         Importing the module runs its ``registry.register(...)`` calls exactly once,
         so the registry is ready before any admin surface or resolver reads it.

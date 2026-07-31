@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the routing models and their save-time validation (C3).
+"""Tests for the routing models and their save-time validation.
 
 All framework state keys to ``wagtailcore.Page``, so these tests attach rules and
-config to existing concrete pages (spec §0.3) — no dedicated test-harness page type
+config to existing concrete pages — no dedicated test-harness page type
 is introduced.
 """
 
@@ -46,7 +46,7 @@ def tree():
 
 
 # ---------------------------------------------------------------------------
-# Generic Page keying (plan §0.5, §3): rules attach to any concrete page.
+# Generic Page keying: rules attach to any concrete page.
 # ---------------------------------------------------------------------------
 
 
@@ -58,7 +58,7 @@ def test_rules_attach_to_a_concrete_page_via_the_generic_relation(tree):
 
 
 # ---------------------------------------------------------------------------
-# match_all + name fields (plan P0-2, ED-5).
+# match_all + name fields.
 # ---------------------------------------------------------------------------
 
 
@@ -80,7 +80,7 @@ def test_match_all_and_name_persist(tree):
 
 
 # ---------------------------------------------------------------------------
-# __str__ (ED-5): name when set, else a conditions → target summary.
+# __str__: name when set, else a conditions → target summary.
 # ---------------------------------------------------------------------------
 
 
@@ -112,7 +112,7 @@ def test_str_falls_back_to_no_conditions_summary(tree):
 
 
 # ---------------------------------------------------------------------------
-# Target FK protection (plan P0-3): deleting a targeted page is blocked.
+# Target FK protection: deleting a targeted page is blocked.
 # ---------------------------------------------------------------------------
 
 
@@ -123,7 +123,7 @@ def test_deleting_a_targeted_page_raises_protected_error(tree):
 
 
 # ---------------------------------------------------------------------------
-# Target descendant constraint (spec §5.1, §6.3) — enforced server-side in clean().
+# Target descendant constraint — enforced server-side in clean().
 # ---------------------------------------------------------------------------
 
 
@@ -150,7 +150,7 @@ def test_canonical_itself_is_not_a_valid_target(tree):
 
 def test_self_target_is_rejected(tree):
     # Self-targeting gets its own explicit message, distinct from the generic
-    # descendant error (plan P1-3a).
+    # descendant error.
     rule = RoutingRule(page=tree.canonical, target=tree.canonical, match_all=True)
     with pytest.raises(ValidationError) as exc:
         rule.full_clean()
@@ -158,7 +158,7 @@ def test_self_target_is_rejected(tree):
 
 
 # ---------------------------------------------------------------------------
-# Condition floor (plan P0-2). Enforced on the page form (RoutingPageForm), not the
+# Condition floor. Enforced on the page form (RoutingPageForm), not the
 # model: modelcluster attaches nested conditions only at save time, so a model-level
 # count check can't see them during a Wagtail save. The floor's authoring behaviour is
 # covered in test_authoring.py; here we only assert the model doesn't over-reject.
@@ -179,7 +179,7 @@ def test_conditionless_rule_is_not_rejected_by_model_clean(tree):
 
 
 # ---------------------------------------------------------------------------
-# Canonical-host guard (plan P1-3a): rules only fire on the canonical page.
+# Canonical-host guard: rules only fire on the canonical page.
 # ---------------------------------------------------------------------------
 
 
@@ -214,7 +214,7 @@ def test_rule_on_non_canonical_page_is_rejected(wnp_tree):
 
 
 # ---------------------------------------------------------------------------
-# Condition validation (spec §6.3).
+# Condition validation.
 # ---------------------------------------------------------------------------
 
 
@@ -241,7 +241,7 @@ def test_unknown_signal_raises(rule):
 
 
 def test_illegal_operator_for_value_type_raises(rule):
-    # `in` is a set-membership operator, not legal against a version signal (§4.3).
+    # `in` is a set-membership operator, not legal against a version signal.
     condition = RoutingCondition(rule=rule, signal="firefox_version", operator="in", expected_value="129")
     with pytest.raises(ValidationError) as exc:
         condition.full_clean()
@@ -263,7 +263,7 @@ def test_non_member_in_enum_set_raises(rule):
 
 
 # ---------------------------------------------------------------------------
-# Priority / determinism (spec §5.3): position then id, older rule wins ties.
+# Priority / determinism: position then id, older rule wins ties.
 # ---------------------------------------------------------------------------
 
 
@@ -281,7 +281,7 @@ def test_ordering_is_position_then_id(tree):
 
 
 # ---------------------------------------------------------------------------
-# Lifecycle (spec §5.4): no independent rule status.
+# Lifecycle: no independent rule status.
 # ---------------------------------------------------------------------------
 
 
@@ -292,7 +292,7 @@ def test_rule_has_no_independent_status_field():
 
 
 # ---------------------------------------------------------------------------
-# Kill switch (spec §5.4): missing RoutingConfig reads as not paused.
+# Kill switch: missing RoutingConfig reads as not paused.
 # ---------------------------------------------------------------------------
 
 
@@ -311,7 +311,7 @@ def test_config_present_but_not_paused_reads_as_not_paused(tree):
 
 
 # ---------------------------------------------------------------------------
-# Signal choices grouped by source (ED-6) and target-chooser scoping (ED-9).
+# Signal choices grouped by source and target-chooser scoping.
 # ---------------------------------------------------------------------------
 
 

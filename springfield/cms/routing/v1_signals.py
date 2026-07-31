@@ -4,8 +4,8 @@
 
 """The concrete v1 routing signals.
 
-Registering this module populates the framework-wide ``registry`` (spec §4) with
-the v1 signals across the four live sources (spec §4.2). It is imported once at app
+Registering this module populates the framework-wide ``registry`` with
+the v1 signals across the four live sources. It is imported once at app
 startup (``CmsConfig.ready``) so the registry is populated before any admin surface
 or resolver reads it.
 
@@ -26,7 +26,7 @@ from springfield.cms.routing.signals import (
 )
 
 # ---------------------------------------------------------------------------
-# CDN geo header (spec §4.2)
+# CDN geo header
 # ---------------------------------------------------------------------------
 
 # Country is a large, locale-dependent set (~270 regions sourced from
@@ -45,7 +45,7 @@ registry.register(
 
 
 # ---------------------------------------------------------------------------
-# User-Agent, via Mozilla.Client (spec §4.2)
+# User-Agent, via Mozilla.Client
 # ---------------------------------------------------------------------------
 
 registry.register(
@@ -85,7 +85,7 @@ registry.register(
 
 
 # ---------------------------------------------------------------------------
-# UITour — Firefox-only browser state, read via a per-key ping (spec §4.2)
+# UITour — Firefox-only browser state, read via a per-key ping
 # ---------------------------------------------------------------------------
 
 registry.register(
@@ -135,7 +135,7 @@ registry.register(
 
 
 # ---------------------------------------------------------------------------
-# URL query params (spec §4.2) — reuses the URL-reading machinery that already
+# URL query params — reuses the URL-reading machinery that already
 # exists for the trigger, loop-breaker, and preview flows.
 # ---------------------------------------------------------------------------
 
@@ -149,10 +149,10 @@ for _param in ("utm_source", "utm_medium", "utm_campaign"):
         )
     )
 
-# The version the visitor is updating *from*, sent by Balrog's just-updated flow as
+# The version the visitor is updating *from*, sent by Firefox's just-updated flow as
 # `?oldversion=`. A version signal (not free text) so authors express "lapsed from an
 # old release" with version-aware operators, e.g. `oldversion lte 151` on a canonical
-# for 156 — the plan's replacement for a dedicated `lapsed_user` signal.
+# for 156 — replacing a dedicated `lapsed_user` signal.
 registry.register(
     RoutingSignal(
         name="oldversion",

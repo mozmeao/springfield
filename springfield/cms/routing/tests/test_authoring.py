@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Admin authoring round-trip for the User Routing tab (plan P1-4).
+"""Admin authoring round-trip for the User Routing tab.
 
 Every other routing test builds rules through the ORM; this one drives the real
 Wagtail page edit form — the nested ``routing_rules`` → ``conditions`` InlinePanel
@@ -102,7 +102,7 @@ def test_authoring_a_match_all_rule_round_trips(admin_client, wnp):
 
 
 def test_authoring_an_empty_non_match_all_rule_is_rejected(admin_client, wnp):
-    # The C16 condition floor must fire through the real formset, not just the ORM: a
+    # The condition floor must fire through the real formset, not just the ORM: a
     # rule with no conditions and match_all off is invalid and nothing is persisted.
     canonical, target = wnp
     rules = inline_formset([{"name": "Oops", "match_all": "", "target": target.pk, "conditions": inline_formset([])}])
@@ -117,7 +117,7 @@ def test_authoring_an_empty_non_match_all_rule_is_rejected(admin_client, wnp):
 
 
 # ---------------------------------------------------------------------------
-# Kill switch (ED-1) + non-canonical saves (C22).
+# Kill switch + non-canonical saves.
 # ---------------------------------------------------------------------------
 
 
@@ -160,7 +160,7 @@ def test_non_canonical_page_saves_without_routing_formsets(admin_client, wnp):
 
 
 # ---------------------------------------------------------------------------
-# Target guards enforced admin-side (plan P1-3a, folded into C23).
+# Target guards enforced admin-side.
 # ---------------------------------------------------------------------------
 
 

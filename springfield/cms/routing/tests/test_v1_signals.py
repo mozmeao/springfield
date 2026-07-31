@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the concrete v1 routing signals (C2)."""
+"""Tests for the concrete v1 routing signals."""
 
 from django.utils.functional import Promise
 
@@ -13,7 +13,7 @@ import pytest
 from springfield.cms.routing import v1_signals  # noqa: F401
 from springfield.cms.routing.signals import Source, ValueType, registry
 
-# The v1 registry snapshot, transcribed from spec §4.2 / the design brief signal set.
+# The v1 registry snapshot of the expected signal set.
 EXPECTED_SIGNALS = {
     "country": (Source.CDN_GEO, ValueType.STRING),
     "platform": (Source.USER_AGENT, ValueType.ENUM),
@@ -41,12 +41,12 @@ def test_each_signal_has_expected_source_and_value_type(name, expected):
     source, value_type = expected
     assert signal.source is source
     assert signal.value_type is value_type
-    # Value type is always one of the §4.3 types.
+    # Value type is always one of the value types.
     assert isinstance(signal.value_type, ValueType)
 
 
 def test_every_source_is_represented():
-    # Every §4.2 source (all four live in v1) has at least one signal.
+    # Every source (all four live in v1) has at least one signal.
     assert {signal.source for signal in registry} == set(Source)
 
 
@@ -59,7 +59,7 @@ def test_uitour_signals_carry_a_browser_state_key():
 
 
 # ---------------------------------------------------------------------------
-# L10N wrapping (cross-cutting §0.3 / spec §9.2).
+# L10N wrapping.
 # ---------------------------------------------------------------------------
 
 
@@ -78,7 +78,7 @@ def test_enum_signal_labels_are_wrapped_for_l10n():
 
 
 # ---------------------------------------------------------------------------
-# Operator sets follow value type (spec §4.3).
+# Operator sets follow value type.
 # ---------------------------------------------------------------------------
 
 
@@ -102,7 +102,7 @@ def test_version_signal_advertises_version_operators_only():
 
 
 # ---------------------------------------------------------------------------
-# Signal-value honesty (spec §4.4) — the two required notes.
+# Signal-value honesty — the two required notes.
 # ---------------------------------------------------------------------------
 
 
@@ -114,7 +114,7 @@ def test_is_firefox_notes_cross_platform_coverage():
 
 
 # ---------------------------------------------------------------------------
-# oldversion + locale (plan P1-2): URL-derived, replacing a dedicated lapsed_user.
+# oldversion + locale: URL-derived, replacing a dedicated lapsed_user.
 # ---------------------------------------------------------------------------
 
 

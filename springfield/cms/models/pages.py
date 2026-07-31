@@ -1381,19 +1381,19 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     def noindex(self):
         return True
 
-    # -- User Routing adoption surface (spec §2.2). Enablement is a `user_routing`
+    # -- User Routing adoption surface. Enablement is a `user_routing`
     # -- waffle switch flip, kept off by default; this ships dark. --
 
     # Rule targets are always nested WhatsNewPage2026 variants, so scope the target
-    # chooser to that type (ED-9); the descendant guard remains the correctness backstop.
+    # chooser to that type; the descendant guard remains the correctness backstop.
     routing_target_page_types = ["cms.WhatsNewPage2026"]
 
     def get_routing_trigger(self):
-        """Routing arms only on Balrog's just-updated flow (``?utm_source=update``).
+        """Routing arms only on Firefox's just-updated flow (``?utm_source=update``).
 
         Value-matching, not presence: ``utm_source`` doubles as an available URL
         signal, so the surface must fire for the update flow alone and stay dark for
-        any other ``utm_source`` value (plan P0-1).
+        any other ``utm_source`` value.
         """
         return QueryParamValueArmingCondition("utm_source", {"update"})
 

@@ -5,12 +5,12 @@
  */
 
 /**
- * User Routing — client resolver entrypoint (spec §7.1).
+ * User Routing — client resolver entrypoint.
  *
  * Reads the rules and signal manifest the server rendered into data-* attributes,
- * builds the signal provider (C6), evaluates the rules (C5), and navigates: to the
+ * builds the signal provider, evaluates the rules, and navigates: to the
  * matched rule's target on a match, or to the canonical URL with the loop-breaker
- * marker appended on no-match / timeout (spec §7.4). This is the bundled entrypoint
+ * marker appended on no-match / timeout. This is the bundled entrypoint
  * that pulls in the evaluator and readers.
  */
 
@@ -18,7 +18,7 @@ import { evaluateRules } from './evaluator.es6';
 import { createProvider } from './readers.es6';
 
 /**
- * No-op seam for the deferred telemetry follow-up (§4). The resolver already computes
+ * No-op seam for the deferred telemetry follow-up. The resolver already computes
  * the outcome (match / no-match / timeout); the follow-up attaches here without
  * reopening the resolver. Ships empty in this PR.
  */
@@ -53,7 +53,7 @@ export const RESERVED_ROUTING_PARAMS = [
 
 /**
  * Merge inbound query params onto a destination URL so attribution (utm_*, oldversion,
- * …) survives the redirect (plan P1-1). Framework control params in `reservedParams`
+ * …) survives the redirect. Framework control params in `reservedParams`
  * are dropped, and a key the destination already carries is never overwritten or
  * duplicated (destination wins). Any existing query and fragment on `url` are kept.
  *
@@ -114,7 +114,7 @@ export function initResolver(options) {
 
     const rules = parseJSONAttribute(root, 'data-routing-rules') || [];
     const manifest = parseJSONAttribute(root, 'data-routing-manifest') || {};
-    // Preview fake signals (C9), if any, resolve immediately on the client.
+    // Preview fake signals, if any, resolve immediately on the client.
     const fakes = parseJSONAttribute(root, 'data-routing-fake-signals') || {};
     const canonicalUrl = root.getAttribute('data-canonical-url') || '/';
     const loopBreakerParam =

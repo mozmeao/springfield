@@ -5,10 +5,10 @@
 """Admin-facing helpers for the routing framework.
 
 ``build_signal_payload`` serializes the registry into the payload the condition-help
-admin JS consumes (spec §6.2). It is the *only* source of truth for the dynamic help
+admin JS consumes. It is the *only* source of truth for the dynamic help
 text, so the help can never drift from what the evaluator actually reads. Every human
 string is pre-localized server-side from a ``gettext_lazy`` source (the registry's own
-labels or the value-type hints below) — no raw English literals (spec §9.2).
+labels or the value-type hints below) — no raw English literals.
 """
 
 from django.conf import settings
@@ -56,7 +56,7 @@ def _request_time_value_lists():
     ``insert_editor_js`` hook), rather than modelled as import-time ``ENUM`` signals:
     ``WAGTAIL_CONTENT_LANGUAGES`` and the product-details region set are lazy and
     DB/data-backed, so baking them into the registry at import would reintroduce the
-    app-init data access the framework avoids (plan P1-2). That is *why* these stay
+    app-init data access the framework avoids. That is *why* these stay
     STRING signals.
     """
     return {
@@ -90,7 +90,7 @@ def build_signal_payload():
         if signal.value_type is ValueType.ENUM:
             entry["enumValues"] = [{"value": enum_value.value, "label": str(enum_value.label)} for enum_value in signal.enum_values]
         if signal.name in value_lists:
-            # A known value set surfaced as the primary help line (ED-3), with a
+            # A known value set surfaced as the primary help line, with a
             # values-oriented lead-in instead of the generic STRING "available operators".
             entry["values"] = value_lists[signal.name]
             entry["hint"] = str(VALUE_LIST_HINT)
@@ -99,11 +99,11 @@ def build_signal_payload():
 
 
 def build_signal_reference():
-    """Rows for the auto-generated Signals reference page (spec §4.5).
+    """Rows for the auto-generated Signals reference page.
 
     Generated straight from the registry — one row per registered signal — so the
     reference can never drift from the values the evaluator actually reads. Strings are
-    left lazy so the template localizes them; the honest descriptions (spec §4.4) come
+    left lazy so the template localizes them; the honest descriptions come
     through unchanged.
     """
     value_lists = _request_time_value_lists()

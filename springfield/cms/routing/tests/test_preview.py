@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the admin-only preview flows (C9)."""
+"""Tests for the admin-only preview flows."""
 
 from types import SimpleNamespace
 
@@ -51,7 +51,7 @@ def _content(response):
 
 
 # ---------------------------------------------------------------------------
-# Auth gating — non-admins fall through to normal serve (spec §8).
+# Auth gating — non-admins fall through to normal serve.
 # ---------------------------------------------------------------------------
 
 
@@ -72,7 +72,7 @@ def test_admin_without_preview_params_gets_no_preview(routed_page, staff_user):
 
 
 # ---------------------------------------------------------------------------
-# preview_rule — server-side 302, no-store, bypasses the kill switch (spec §8).
+# preview_rule — server-side 302, no-store, bypasses the kill switch.
 # ---------------------------------------------------------------------------
 
 
@@ -99,7 +99,7 @@ def test_preview_rule_with_invalid_id_falls_through(routed_page, staff_user):
 
 
 # ---------------------------------------------------------------------------
-# preview_signal — fake-signal blob, real evaluation path, no-store (spec §8).
+# preview_signal — fake-signal blob, real evaluation path, no-store.
 # ---------------------------------------------------------------------------
 
 

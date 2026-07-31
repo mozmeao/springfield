@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the routing adoption mixin (C4).
+"""Tests for the routing adoption mixin.
 
-Method-level tests only: no test-harness page type is introduced (plan §0.3), so the
-full serve/edit-view integration lands with the first real consumer (C14). Here we
+Method-level tests only: no test-harness page type is introduced, so the
+full serve/edit-view integration lands with the first real consumer. Here we
 prove the adoption-surface defaults, the tab's panel structure, and the per-instance
 tab-visibility decision.
 """
@@ -27,7 +27,7 @@ from springfield.cms.tests.factories import SimpleRichTextPageFactory
 rf = RequestFactory()
 
 # ---------------------------------------------------------------------------
-# Adoption surface: the three hooks and their defaults (spec §2.2, plan §0.4-A).
+# Adoption surface: the three hooks and their defaults.
 # ---------------------------------------------------------------------------
 
 
@@ -45,7 +45,7 @@ def test_signal_subset_defaults_to_full_registry():
 
 
 # ---------------------------------------------------------------------------
-# The mixin adds no database fields, so adoption produces no migration (§0.5).
+# The mixin adds no database fields, so adoption produces no migration.
 # ---------------------------------------------------------------------------
 
 
@@ -55,7 +55,7 @@ def test_mixin_declares_no_database_fields():
 
 
 # ---------------------------------------------------------------------------
-# The "User Routing" tab wires both panels via Wagtail's inline-panel pattern (§6.1).
+# The "User Routing" tab wires both panels via Wagtail's inline-panel pattern.
 # ---------------------------------------------------------------------------
 
 
@@ -74,7 +74,7 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     assert isinstance(tab, RoutingObjectList)
     assert str(tab.heading) == "User Routing"
 
-    # A generic guidance panel leads the tab (ED-7).
+    # A generic guidance panel leads the tab.
     assert any(isinstance(child, HelpPanel) for child in tab.children)
 
     # Page-level settings sit under an "Options" group so more can nest there later.
@@ -85,7 +85,7 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     assert set(panels) == {"routing_rules", "routing_config"}
 
     # The kill switch is a single-item panel over RoutingConfig (0-or-1 per page). The
-    # checkbox always renders with no "Add" step (ED-1) via RoutingPageForm auto-creating
+    # checkbox always renders with no "Add" step via RoutingPageForm auto-creating
     # the record, not via min_num — so no min_num here (it can't be met by an empty form).
     assert panels["routing_config"].max_num == 1
     assert panels["routing_config"].min_num is None
@@ -93,7 +93,7 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
 
 
 # ---------------------------------------------------------------------------
-# Tab visibility keys off eligibility: shown only on canonical instances (C4).
+# Tab visibility keys off eligibility: shown only on canonical instances.
 # ---------------------------------------------------------------------------
 
 
@@ -122,8 +122,8 @@ def test_bound_panel_is_shown_delegates_to_eligibility():
 
 
 # ---------------------------------------------------------------------------
-# Serve-path flag sources (C10): the thin adapter maps these onto decide_routing.
-# Full request-level serve integration lands with the first consumer (C14).
+# Serve-path flag sources: the thin adapter maps these onto decide_routing.
+# Full request-level serve integration lands with the first consumer.
 # ---------------------------------------------------------------------------
 
 

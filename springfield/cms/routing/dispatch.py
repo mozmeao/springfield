@@ -2,19 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""The serve-path routing decision (spec §2.3, plan §0.5).
+"""The serve-path routing decision.
 
 The decision order is expressed as a **pure function** of boolean flags — no request,
 no page, no Wagtail. This is what makes the highest-risk logic exhaustively testable
-without a mixin-bearing page (plan §0.3) and keeps routing *policy* separate from
+without a mixin-bearing page and keeps routing *policy* separate from
 Wagtail plumbing (the thin ``serve()`` adapter lives on ``RoutingMixin``).
 
 The order is fixed and must not be reordered:
 
-0. Global ``user_routing`` switch off  → canonical  (outermost operational gate, §0.5)
+0. Global ``user_routing`` switch off  → canonical  (outermost operational gate)
 1. Loop-breaker marker present         → canonical  (checked FIRST after the switch, so
                                                       a fallen-through user can never
-                                                      re-enter routing — spec §2.3.1)
+                                                      re-enter routing)
 2. Preview param + admin               → preview flow
 3. Kill switch engaged                 → canonical
 4. Trigger satisfied AND live canonical
@@ -41,7 +41,7 @@ def decide_routing(
     is_canonical,
     has_live_rules,
 ):
-    """Return the serve-path branch for the given flags (spec §2.3, §0.5).
+    """Return the serve-path branch for the given flags.
 
     Keyword-only args so the flag mapping is always explicit at the call site.
     """

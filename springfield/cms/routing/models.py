@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Framework-owned, Page-keyed routing schema (spec §5).
+"""Framework-owned, Page-keyed routing schema.
 
 Three models, all keyed to ``wagtailcore.Page`` so a single generic table set is
 shared by every consumer page type — there is no per-consumer model, and adopting
-the framework adds no migration (plan §0.5, §3):
+the framework adds no migration:
 
 * ``RoutingRule`` — an ordered rule hosted by a canonical page, resolving to a
   target page that must be a descendant of that canonical.
@@ -15,7 +15,7 @@ the framework adds no migration (plan §0.5, §3):
 * ``RoutingConfig`` — a per-page 0-or-1 record carrying the ``routing_paused`` kill
   switch, with headroom for future per-page routing settings.
 
-Save-time validation (spec §6.3) lives in ``clean()`` — server-side, not just admin
+Save-time validation lives in ``clean()`` — server-side, not just admin
 JS: the operator must be legal for the signal's value type, an enum expected value
 must be a member of the enum set, and a rule's target must be a descendant of its
 canonical.
@@ -38,7 +38,7 @@ _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
 
 
 def signal_choices():
-    """Signal choices for admin selects, grouped into optgroups by source (ED-6).
+    """Signal choices for admin selects, grouped into optgroups by source.
 
     Returns Django's grouped-choices shape — ``[(source_label, [(name, name), …]), …]``
     — ordered by the ``Source`` enum, so the signal dropdown is organized by where each
@@ -54,7 +54,7 @@ def signal_choices():
 
 
 def rule_panels(target_page_types=None):
-    """The per-rule inline panels, optionally restricting the target chooser (ED-9).
+    """The per-rule inline panels, optionally restricting the target chooser.
 
     Framework-generic: a consumer narrows the target chooser to its own page type(s) by
     setting ``RoutingMixin.routing_target_page_types``; the descendant/self-target guards
@@ -73,25 +73,25 @@ def rule_panels(target_page_types=None):
 
 
 def operator_choices():
-    """All operator choices; per-signal legality is enforced in ``clean()`` (§6.3)."""
+    """All operator choices; per-signal legality is enforced in ``clean()``."""
     return [(operator.value, operator.label) for operator in OPERATORS.values()]
 
 
 class RoutingRule(ClusterableModel, Orderable):
-    """An ordered routing rule hosted by a canonical page (spec §5.1, §5.3).
+    """An ordered routing rule hosted by a canonical page.
 
     ``ParentalKey`` to ``wagtailcore.Page`` means any consumer page type can host
     rules without its own model or migration. Priority is the ``sort_order``
     position; ties break by ascending id (older rule wins) so ordering is
     deterministic across database engines. There is no draft/status field — a rule
-    exists iff its parent page is published (spec §5.4).
+    exists iff its parent page is published.
     """
 
     page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_rules")
     target = models.ForeignKey(
         "wagtailcore.Page",
         # PROTECT (not CASCADE): deleting a targeted page must be blocked, never
-        # silently take its rule with it (plan P0-3).
+        # silently take its rule with it.
         on_delete=models.PROTECT,
         related_name="+",
         verbose_name=_("Target page"),
@@ -114,9 +114,9 @@ class RoutingRule(ClusterableModel, Orderable):
         verbose_name = _("Routing rule")
         verbose_name_plural = _("Routing rules")
 
-    # Fields shown for each rule inside the "User Routing" tab (C4). Conditions are
-    # authored as a nested inline conjunction (spec §5.2). The framework rebuilds these
-    # per-consumer to scope the target chooser (ED-9); this is the unrestricted default.
+    # Fields shown for each rule inside the "User Routing" tab. Conditions are
+    # authored as a nested inline conjunction. The framework rebuilds these
+    # per-consumer to scope the target chooser; this is the unrestricted default.
     panels = rule_panels()
 
     def __str__(self):
@@ -132,13 +132,13 @@ class RoutingRule(ClusterableModel, Orderable):
         super().clean()
         errors = {}
 
-        # The condition-floor (block an accidental empty match-everyone rule, plan P0-2)
+        # The condition-floor (block an accidental empty match-everyone rule)
         # is enforced on the page form (RoutingPageForm), not here: modelcluster attaches
         # a rule's nested conditions only at save time, so a count check in this model
         # clean() can't see them during a Wagtail save and would reject valid rules.
 
         # Rules only fire on a canonical page; one attached to a variant is dead
-        # config (plan P1-3a). Reuse the consumer's own canonical predicate via the
+        # config. Reuse the consumer's own canonical predicate via the
         # specific instance; page types without the hook are unaffected (defensive
         # getattr).
         if self.page_id:
@@ -146,8 +146,8 @@ class RoutingRule(ClusterableModel, Orderable):
             if callable(is_routing_canonical) and not is_routing_canonical():
                 errors["page"] = _("Attach rules to the canonical page, not a variant.")
 
-        # Target must be a strict descendant of the canonical the rule attaches to
-        # (spec §5.1, §6.3). Guarded so we only validate once both ends are known;
+        # Target must be a strict descendant of the canonical the rule attaches to.
+        # Guarded so we only validate once both ends are known;
         # self-targeting gets its own message rather than the generic descendant one.
         if self.page_id and self.target_id:
             if self.target_id == self.page_id:
@@ -160,7 +160,7 @@ class RoutingRule(ClusterableModel, Orderable):
 
 
 class RoutingCondition(Orderable):
-    """One condition in a rule's conjunction (spec §5.2).
+    """One condition in a rule's conjunction.
 
     Tests one signal with one operator against an expected value. Negation is the
     operator's paired form ("is not", "not in", negated comparisons) — there is no
@@ -173,7 +173,7 @@ class RoutingCondition(Orderable):
     expected_value = models.CharField(
         max_length=255,
         verbose_name=_("Expected value"),
-        # No static help_text: the dynamic per-signal help (condition-help.es6.js, ED-3)
+        # No static help_text: the dynamic per-signal help (condition-help.es6.js)
         # is the primary guidance and a static line here would compete with it.
         help_text="",
     )
@@ -182,7 +182,7 @@ class RoutingCondition(Orderable):
         verbose_name = _("Condition")
         verbose_name_plural = _("Conditions")
 
-    # Fields shown for each condition inside a rule's inline form (C4).
+    # Fields shown for each condition inside a rule's inline form.
     panels = [
         FieldPanel("signal"),
         FieldPanel("operator"),
@@ -201,18 +201,18 @@ class RoutingCondition(Orderable):
 
     def clean(self):
         super().clean()
-        # The signal must be one the registry knows (spec §4).
+        # The signal must be one the registry knows.
         if self.signal not in registry:
             raise ValidationError({"signal": _("Unknown signal “%(name)s”.") % {"name": self.signal}})
         signal = registry.get(self.signal)
 
-        # The operator must be legal for the signal's value type (spec §6.3).
+        # The operator must be legal for the signal's value type.
         if not signal.allows_operator(self.operator):
             raise ValidationError(
                 {"operator": _("Operator “%(operator)s” is not valid for the “%(name)s” signal.") % {"operator": self.operator, "name": self.signal}}
             )
 
-        # An enum condition's expected value(s) must be members of the enum set (spec §6.3).
+        # An enum condition's expected value(s) must be members of the enum set.
         if signal.value_type is ValueType.ENUM:
             members = {enum_value.value for enum_value in signal.enum_values}
             invalid = [value for value in self.expected_values() if value not in members]
@@ -226,12 +226,12 @@ class RoutingCondition(Orderable):
 
 
 class RoutingConfig(models.Model):
-    """Per-page routing settings — a 0-or-1 record keyed to the page (spec §5.4).
+    """Per-page routing settings — a 0-or-1 record keyed to the page.
 
     Holds the ``routing_paused`` kill switch and leaves headroom for future per-page
     routing settings. Keeping the kill switch here (not on the routing mixin) is what
-    keeps the mixin field-free and the whole PR at a single migration (plan §0.5).
-    The 0-or-1 cardinality is enforced by the admin panel's ``max_num=1`` (C4); a
+    keeps the mixin field-free and the whole PR at a single migration.
+    The 0-or-1 cardinality is enforced by the admin panel's ``max_num=1``; a
     missing record reads as *not paused*.
     """
 

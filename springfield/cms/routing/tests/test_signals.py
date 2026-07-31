@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the routing signal vocabulary and registry container (C1)."""
+"""Tests for the routing signal vocabulary and registry container."""
 
 import pytest
 
@@ -18,10 +18,10 @@ from springfield.cms.routing.signals import (
 )
 
 # ---------------------------------------------------------------------------
-# Value type -> operator mapping matches spec §4.3 exactly.
+# Value type -> operator mapping matches the canonical operator table exactly.
 # ---------------------------------------------------------------------------
 
-# The expected mapping, transcribed straight from spec §4.3, kept independent of
+# The expected mapping, transcribed by hand, kept independent of
 # the module's own table so a drift in either is caught here.
 EXPECTED_OPERATORS = {
     ValueType.ENUM: {"is", "is_not", "in", "not_in"},
@@ -63,7 +63,7 @@ def test_signal_operators_reflect_value_type():
 
 
 # ---------------------------------------------------------------------------
-# Operators: paired negations (spec §4.3 / §7.3).
+# Operators: paired negations.
 # ---------------------------------------------------------------------------
 
 
@@ -150,7 +150,7 @@ def test_registry_only_accepts_routing_signals():
 
 
 def test_naming_avoids_django_dispatch_signal_collision():
-    # The metadata class is named RoutingSignal, never bare Signal (spec §3).
+    # The metadata class is named RoutingSignal, never bare Signal.
     import springfield.cms.routing.signals as module
 
     assert not hasattr(module, "Signal")

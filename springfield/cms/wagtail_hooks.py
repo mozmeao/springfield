@@ -124,7 +124,7 @@ def mark_locale_roles_in_admin():
 
 
 # The shared "User Routing" sidebar submenu. Items are contributed via the register
-# hook so later commits (the Signals reference page, C13) can add to the same submenu.
+# hook so later commits (the Signals reference page) can add to the same submenu.
 user_routing_menu = Menu(register_hook_name="register_user_routing_menu_item")
 
 
@@ -153,7 +153,7 @@ def register_routing_signals_menu_item():
 
 @hooks.register("insert_editor_js")
 def routing_condition_help_js():
-    """Deliver the registry payload + condition-help JS to the page editor (spec §6.2).
+    """Deliver the registry payload + condition-help JS to the page editor.
 
     Injects the localized signal payload as a global, then loads the static JS that
     renders dynamic help beneath the expected-value field on signal selection.

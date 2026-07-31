@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the resolver page rendering and serialization (C8)."""
+"""Tests for the resolver page rendering and serialization."""
 
 from types import SimpleNamespace
 
@@ -73,7 +73,7 @@ def test_serialize_rules_emits_match_all_rule_with_no_conditions(routed_page):
 
 def test_serialize_rules_skips_empty_non_match_all_rule(routed_page):
     # A rule with neither conditions nor match_all is defensively dropped, never
-    # emitted as a match-everyone rule (plan P0-2).
+    # emitted as a match-everyone rule.
     RoutingRule.objects.create(page=routed_page.canonical, target=routed_page.target, sort_order=1)
     rules = serialize_rules(routed_page.canonical)
     assert len(rules) == 1
@@ -81,7 +81,7 @@ def test_serialize_rules_skips_empty_non_match_all_rule(routed_page):
 
 
 def test_serialize_rules_drops_a_lone_conditionless_non_match_all_rule():
-    # The C21 page-form floor blocks *authoring* a conditionless, non-match-all rule (it would
+    # The page-form floor blocks *authoring* a conditionless, non-match-all rule (it would
     # match the whole triggered audience), but the ORM/API path has no such floor and does not
     # call clean(). serialize_rules is the runtime backstop, and it is the *only* guard on that
     # path — so pin it directly: a lone ORM-created rule with no conditions and match_all=False
@@ -100,7 +100,7 @@ def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):
 
 
 # ---------------------------------------------------------------------------
-# Rendering (spec §7, §9.1, §10).
+# Rendering.
 # ---------------------------------------------------------------------------
 
 
@@ -130,7 +130,7 @@ def test_resolver_renders_localized_status_and_noscript(routed_page):
 
 def test_resolver_response_is_cacheable(routed_page):
     response, _html = _render(routed_page)
-    # The plain resolver must stay CDN-cacheable — no no-store (previews add it, C9).
+    # The plain resolver must stay CDN-cacheable — no no-store (previews add it).
     assert "no-store" not in response.get("Cache-Control", "")
 
 

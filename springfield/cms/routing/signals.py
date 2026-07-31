@@ -10,7 +10,7 @@ the operator set each value type permits, the ``RoutingSignal`` metadata class, 
 flat source list, and the registry container that signals register into. It has no
 page or database dependency; the concrete v1 signals are registered separately.
 
-Naming note (spec §3): the metadata class is ``RoutingSignal``, deliberately never
+Naming note: the metadata class is ``RoutingSignal``, deliberately never
 bare ``Signal`` — bare ``Signal`` collides with ``django.dispatch.Signal`` and is
 overloaded here.
 """
@@ -28,7 +28,7 @@ class RoutingSignalError(ValueError):
 
 
 class ValueType(str, Enum):
-    """The value type of a signal (spec §4.3).
+    """The value type of a signal.
 
     A signal's value type fixes the operator set a condition may use against it and
     drives the dynamic admin help text.
@@ -42,7 +42,7 @@ class ValueType(str, Enum):
 
 
 class Source(str, Enum):
-    """The flat source list (spec §4.2), four live in v1.
+    """The flat source list, four live in v1.
 
     Each source's reading approach is folded into its description rather than split
     into a parallel taxonomy. All reading happens on the client.
@@ -64,12 +64,11 @@ SOURCE_LABELS: dict[Source, object] = {
 
 @dataclass(frozen=True)
 class Operator:
-    """A match operator (spec §4.3).
+    """A match operator.
 
     Negation is always the operator's *paired form* — it is never a separate rule
     type. Each operator names its ``counterpart`` (the flipped form) so the client
-    evaluator can compute the positive result and flip it for negated operators
-    (spec §7.3).
+    evaluator can compute the positive result and flip it for negated operators.
     """
 
     value: str
@@ -122,8 +121,8 @@ OPERATORS: dict[str, Operator] = {
 
 
 # Value type -> the operators a condition may use against a signal of that type.
-# This mapping is the sole source of truth for §4.3 and is exercised verbatim in
-# the C11 dynamic help text and the C13 reference page.
+# This mapping is the sole source of truth for which operators each value type
+# permits, and is exercised verbatim in the dynamic help text and the reference page.
 VALUE_TYPE_OPERATORS: dict[ValueType, tuple[str, ...]] = {
     ValueType.ENUM: ("is", "is_not", "in", "not_in"),
     ValueType.STRING: ("is", "is_not", "in", "not_in"),
@@ -135,7 +134,7 @@ VALUE_TYPE_OPERATORS: dict[ValueType, tuple[str, ...]] = {
 
 @dataclass(frozen=True)
 class EnumValue:
-    """One member of an enum signal's closed value set (spec §4.1).
+    """One member of an enum signal's closed value set.
 
     Every enum value carries its own localizable label.
     """
@@ -150,10 +149,10 @@ class EnumValue:
 
 @dataclass(frozen=True)
 class RoutingSignal:
-    """Metadata for one signal (spec §4.1).
+    """Metadata for one signal.
 
     Describes a named, typed fact a rule condition can test. This is metadata only:
-    the actual reading of a value happens client-side (spec §4.2), never here.
+    the actual reading of a value happens client-side, never here.
     """
 
     name: str
@@ -176,7 +175,7 @@ class RoutingSignal:
 
     @property
     def operators(self) -> tuple[Operator, ...]:
-        """The operators legal for this signal's value type (spec §4.3)."""
+        """The operators legal for this signal's value type."""
         return tuple(OPERATORS[value] for value in VALUE_TYPE_OPERATORS[self.value_type])
 
     @property
@@ -190,7 +189,7 @@ class RoutingSignal:
 
 
 class RoutingSignalRegistry:
-    """The single source of truth for signal metadata (spec §4).
+    """The single source of truth for signal metadata.
 
     Signals register into a single instance. Registration is name-unique: two
     signals sharing a name is a programming error and raises.
@@ -226,5 +225,5 @@ class RoutingSignalRegistry:
         return len(self._signals)
 
 
-# The framework-wide registry instance. Populated with the v1 signals in C2.
+# The framework-wide registry instance. Populated with the v1 signals separately.
 registry = RoutingSignalRegistry()

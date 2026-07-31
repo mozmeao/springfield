@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Admin-only routing preview flows (spec §8).
+"""Admin-only routing preview flows.
 
 Two flows let authors verify routing, including while a page is paused — both are
 **admin-authenticated only**, both respond ``Cache-Control: no-store``, and both
@@ -15,7 +15,7 @@ Two flows let authors verify routing, including while a page is paused — both 
   the rest of the resolver), so the author exercises the real client evaluation path:
   faked signals resolve immediately, un-faked signals still read live.
 
-The serve-path dispatcher (C10) calls :func:`get_preview_response` before the kill
+The serve-path dispatcher calls :func:`get_preview_response` before the kill
 switch and the trigger checks; a ``None`` return means "no preview — fall through".
 """
 

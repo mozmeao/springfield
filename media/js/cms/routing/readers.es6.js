@@ -5,18 +5,18 @@
  */
 
 /**
- * User Routing — client signal-reader adapters (spec §4.2).
+ * User Routing — client signal-reader adapters.
  *
- * This is the reader seam (plan §0.4-B): every Firefox/Mozilla-specific read —
+ * This is the reader seam: every Firefox/Mozilla-specific read —
  * Mozilla.Client, UITour, the server-rendered geo attribute — lives here, so the
- * evaluator core (C5) stays generic. Each adapter implements a `read(descriptor)`
+ * evaluator core stays generic. Each adapter implements a `read(descriptor)`
  * returning a Promise that resolves to the signal's value, or rejects when the value
  * is unavailable (which the evaluator treats as not-matched).
  *
  * `createProvider(manifest, options)` composes the four adapters into the provider the
  * evaluator consumes. The manifest (signal name -> {source, browserStateKey, valueType})
  * is serialized server-side from the Python registry and delivered on the resolver
- * page (C8); all Firefox/Mozilla globals are injectable for testing.
+ * page; all Firefox/Mozilla globals are injectable for testing.
  */
 
 import {
@@ -25,7 +25,7 @@ import {
     normalizeVersion
 } from './evaluator.es6';
 
-// Source identifiers, mirroring the Python Source enum values (C1).
+// Source identifiers, mirroring the Python Source enum values.
 export const SOURCE_CDN_GEO = 'cdn_geo';
 export const SOURCE_USER_AGENT = 'user_agent';
 export const SOURCE_UITOUR = 'uitour';
@@ -39,7 +39,7 @@ function mozillaGlobal() {
 
 /**
  * CDN geo — country is server-rendered into `data-country-code` on <html>, since the
- * client cannot read the CDN header directly (spec §4.2). Injectable `root` element.
+ * client cannot read the CDN header directly. Injectable `root` element.
  */
 export function createGeoReader(options) {
     const opts = options || {};
@@ -65,7 +65,7 @@ export function createGeoReader(options) {
 }
 
 /**
- * User-Agent — read via Mozilla.Client, the canonical UA parser (spec §4.2). Its UA
+ * User-Agent — read via Mozilla.Client, the canonical UA parser. Its UA
  * methods work in any browser (returning falsey off Firefox), so it is not Firefox-
  * gated. Injectable `client`.
  */
@@ -134,7 +134,7 @@ const UITOUR_EXTRACTORS = {
 
 /**
  * UITour — Firefox-only browser state, read via a ping-gated getConfiguration under a
- * per-key budget (spec §4.2, §7.5). A ping or getConfiguration that never answers
+ * per-key budget. A ping or getConfiguration that never answers
  * leaves the read pending until the budget expires, then rejects (⇒ not-matched).
  * Injectable `uiTour` and `timeout`.
  */
@@ -191,10 +191,10 @@ export function createUITourReader(options) {
 }
 
 /**
- * URL — a signal read from the current URL (spec §4.2). Most URL signals are named
+ * URL — a signal read from the current URL. Most URL signals are named
  * after a query param and read verbatim; two are special-cased:
  *
- *   - `oldversion` is a version signal (Balrog's just-updated flow sends it); its value
+ *   - `oldversion` is a version signal (Firefox's just-updated flow sends it); its value
  *     is normalized the same way `firefox_version` is (bare / rv: / fully-qualified).
  *   - `locale` is the page locale, read from an explicit `?locale=` override and falling
  *     back to the `<html lang>` attribute (server-rendered on the resolver page).
@@ -258,7 +258,7 @@ export function createUrlReader(options) {
 }
 
 /**
- * Compose the four adapters into the provider the evaluator (C5) consumes.
+ * Compose the four adapters into the provider the evaluator consumes.
  *
  * @param manifest signal name -> { source, browserStateKey?, valueType? }
  * @param options  injected dependencies passed through to each adapter (root, client,
@@ -267,7 +267,7 @@ export function createUrlReader(options) {
 export function createProvider(manifest, options) {
     const opts = options || {};
     const signalManifest = manifest || {};
-    // Fake signal values (preview_signal, C9) resolve immediately; everything else
+    // Fake signal values (preview_signal) resolve immediately; everything else
     // reads live through the source adapters.
     const fakes = opts.fakes || {};
     const readers = {};

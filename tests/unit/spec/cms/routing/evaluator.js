@@ -67,7 +67,7 @@ const delayed = (value, ms) => () =>
     });
 
 describe('cms/routing/evaluator.es6.js', function () {
-    describe('compareVersions (spec §4.4)', function () {
+    describe('compareVersions', function () {
         it('normalizes bare, rv-prefixed and fully-qualified versions', function () {
             expect(compareVersions('rv:129', '129')).toEqual(0);
             expect(compareVersions('129', '129.0.0')).toEqual(0);
@@ -81,7 +81,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
     });
 
-    describe('evaluateCondition (spec §7.3)', function () {
+    describe('evaluateCondition', function () {
         it('matches / does not match a resolved positive condition', function () {
             expect(
                 evaluateCondition(
@@ -135,7 +135,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
 
         it('treats an unavailable signal as NOT_MATCHED and never flips it to a match', function () {
-            // The subtle §7.3 point: a negated *unknown* must not become a match.
+            // The subtle point: a negated *unknown* must not become a match.
             expect(
                 evaluateCondition(
                     cond('platform', 'is', 'windows', 'enum'),
@@ -214,7 +214,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
     });
 
-    describe('evaluateRule — conjunction (spec §7.3)', function () {
+    describe('evaluateRule — conjunction', function () {
         const rule = {
             target: 'x',
             conditions: [
@@ -270,7 +270,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
     });
 
-    describe('decideOutcome — priority-strict (spec §7.2)', function () {
+    describe('decideOutcome — priority-strict', function () {
         const high = { target: 'HIGH', conditions: [cond('a', 'is', '1')] };
         const low = { target: 'LOW', conditions: [cond('b', 'is', '1')] };
 
@@ -309,7 +309,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
     });
 
-    describe('evaluateRules — async under the timeout envelope (spec §7.5)', function () {
+    describe('evaluateRules — async under the timeout envelope', function () {
         const high = { target: 'HIGH', conditions: [cond('a', 'is', 'yes')] };
         const low = { target: 'LOW', conditions: [cond('b', 'is', 'yes')] };
 
@@ -378,7 +378,7 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
 
         it('a timed-out signal under a negated condition never becomes a match', async function () {
-            // "platform is_not linux" with platform timing out must NOT route (§7.3).
+            // "platform is_not linux" with platform timing out must NOT route.
             const negatedRule = {
                 target: 'NEG',
                 conditions: [cond('platform', 'is_not', 'linux', 'enum')]

@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""The routing adoption mixin (spec §2.2).
+"""The routing adoption mixin.
 
 ``RoutingMixin`` is the whole adoption surface a consumer page type touches. It
 declares exactly three overridable hooks — a **trigger**, an **eligibility
 predicate**, and a **signal subset** — and wires a "User Routing" edit tab holding
 the rules and kill-switch panels. It adds **no database fields** (all state lives in
-the C3 tables keyed to ``wagtailcore.Page``), so adopting it produces **no
-migration**. The serve-path dispatch is wired later (C10); this mixin only owns the
+the routing tables keyed to ``wagtailcore.Page``), so adopting it produces **no
+migration**. The serve-path dispatch is wired later; this mixin only owns the
 declaration surface and the admin tab.
 """
 
@@ -28,7 +28,7 @@ from springfield.cms.routing.models import RoutingConfig, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
 
-# Consumer-agnostic guidance shown at the top of the "User Routing" tab (ED-7). Kept
+# Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
 # generic (no per-consumer specifics) and localized; HTML is allowed in a HelpPanel.
 ROUTING_TAB_HELP = _(
     "<p>Rules are checked <strong>top to bottom, first match wins</strong> — drag to reorder. "
@@ -45,14 +45,14 @@ class RoutingPageForm(WagtailAdminPageForm):
     Two things live here rather than on the models, both because of *when* Wagtail runs
     things during a save:
 
-    * **Condition-floor (plan P0-2).** A rule with no conditions matches every triggered
+    * **Condition-floor.** A rule with no conditions matches every triggered
       visitor, so it must opt in via ``match_all``. ``RoutingRule.clean()`` can't enforce
       this — modelcluster attaches a rule's nested conditions to the instance only at
       *save* time, after validation, so a model-level count check sees zero conditions
       and rejects valid rules. The floor is checked here, where the nested ``conditions``
       formset is inspectable, and the error lands on the rule's ``match_all`` field.
 
-    * **Hidden-tab formsets (ED-1).** The routing tab is hidden on non-canonical
+    * **Hidden-tab formsets.** The routing tab is hidden on non-canonical
       instances (``RoutingObjectList.is_shown``), so its ``routing_rules`` /
       ``routing_config`` formsets aren't rendered there — nor on the *add* form, where a
       new page isn't yet canonical. Their management forms are therefore absent from the
@@ -61,7 +61,7 @@ class RoutingPageForm(WagtailAdminPageForm):
       ``self.formsets`` is left intact outside that window so panel binding (which reads
       ``self.form.formsets[name]``) still works when the form re-renders.
 
-    * **Kill-switch record (ED-1).** ``__init__`` auto-creates the ``RoutingConfig`` for
+    * **Kill-switch record.** ``__init__`` auto-creates the ``RoutingConfig`` for
       canonical instances so the pause checkbox always renders (no "Add" step) — see
       ``__init__``; this replaces a panel ``min_num``, which can't be satisfied by an
       unchanged empty form.
@@ -71,8 +71,8 @@ class RoutingPageForm(WagtailAdminPageForm):
     ROUTING_FORMSETS = ("routing_rules", "routing_config")
 
     def __init__(self, *args, **kwargs):
-        # Ensure a canonical page always shows its kill-switch checkbox with no "Add" step
-        # (ED-1). Add an (unsaved) RoutingConfig to the instance's in-memory cluster BEFORE
+        # Ensure a canonical page always shows its kill-switch checkbox with no "Add" step.
+        # Add an (unsaved) RoutingConfig to the instance's in-memory cluster BEFORE
         # the formsets are built, so the checkbox renders on the very first load and the
         # record is persisted only when the page is saved. Done here rather than via a
         # panel ``min_num`` (an unchanged empty form can't satisfy ``validate_min``) and via
@@ -138,7 +138,7 @@ class RoutingPageForm(WagtailAdminPageForm):
             rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
 
     def _enforce_target_scope(self, rule_form):
-        # Admin-side counterpart of RoutingRule.clean()'s target guards (plan P1-3a):
+        # Admin-side counterpart of RoutingRule.clean()'s target guards:
         # modelcluster leaves the rule's ``page`` unset at model-clean time during a save,
         # so those guards fire for the ORM path only. Enforce them here, where the page
         # instance and the chosen target are both known, so a bad target is caught inline
@@ -158,7 +158,7 @@ class RoutingPageForm(WagtailAdminPageForm):
 def routing_tab_is_shown(instance):
     """Whether the "User Routing" tab should render for ``instance``.
 
-    The tab is shown only on canonical instances (plan C4): a routing-enabled page
+    The tab is shown only on canonical instances: a routing-enabled page
     *type* can have non-canonical instances (e.g. a variant nested under a canonical)
     whose rules would never fire at dispatch, so presenting a fully-functional-looking
     routing tab there would be dead config. Evaluated from the page's own eligibility
@@ -169,7 +169,7 @@ def routing_tab_is_shown(instance):
 
 
 class RoutingObjectList(ObjectList):
-    """An edit-tab that renders only on canonical instances (plan C4)."""
+    """An edit-tab that renders only on canonical instances."""
 
     class BoundPanel(ObjectList.BoundPanel):
         def is_shown(self):
@@ -177,7 +177,7 @@ class RoutingObjectList(ObjectList):
 
 
 class RoutingMixin(models.Model):
-    """Abstract mixin a Wagtail page type mixes in to adopt routing (spec §2.2).
+    """Abstract mixin a Wagtail page type mixes in to adopt routing.
 
     A consumer declares exactly three things by overriding the hooks below and adds
     no view code, no framework code, and no schema. List this mixin **before** the
@@ -187,43 +187,43 @@ class RoutingMixin(models.Model):
     class Meta:
         abstract = True
 
-    # -- Adoption surface: the only three things a consumer declares (spec §2.2) --
+    # -- Adoption surface: the only three things a consumer declares --
 
     def get_routing_trigger(self):
         """This surface's trigger — the arming condition under which routing fires.
 
         Default **unset** (``None``): absent a trigger, dispatch never fires and
         organic traffic is untouched. A consumer overrides this to return its arming
-        condition (the query-param realization lands in C7; WNP wires it in C14).
+        condition.
         """
         return None
 
     def is_routing_canonical(self):
         """Whether this page may *host* rules — the consumer's notion of "canonical".
 
-        Framework default is **fail-closed** (``False``, plan §0.4-A): a half-adopted
+        Framework default is **fail-closed** (``False``): a half-adopted
         consumer never routes and never shows the routing tab. Each consumer overrides
-        this with a predicate over its own tree (WNP does so in C14).
+        this with a predicate over its own tree.
         """
         return False
 
     def get_routing_signal_names(self):
-        """The registry signals this consumer's authors may test (spec §2.2).
+        """The registry signals this consumer's authors may test.
 
         Defaults to the whole registry; a consumer narrows it to the subset that makes
-        sense for its audience (e.g. WNP's version-centric set in C14).
+        sense for its audience (e.g. WNP's version-centric set).
         """
         return tuple(registry.names())
 
-    # -- Admin wiring: the framework-owned "User Routing" tab (spec §6.1) --
+    # -- Admin wiring: the framework-owned "User Routing" tab --
 
-    # The condition-floor validation (plan P0-2) lives on the page form, not the rule
+    # The condition-floor validation lives on the page form, not the rule
     # model, because modelcluster only attaches nested conditions at save time — see
     # RoutingPageForm. Consumers inherit this; one with its own base_form_class should
     # subclass RoutingPageForm to keep the floor.
     base_form_class = RoutingPageForm
 
-    # Page type(s) a rule's target chooser is scoped to (ED-9). ``None`` = any page; a
+    # Page type(s) a rule's target chooser is scoped to. ``None`` = any page; a
     # consumer sets this to its own type(s) — model class(es) or "app.Model" string(s) —
     # so authors aren't offered unrelated pages. Correctness is still enforced by the
     # descendant/self-target guards, so this is a usability narrowing, not the guard.
@@ -233,18 +233,18 @@ class RoutingMixin(models.Model):
     def get_routing_tab(cls):
         """The "User Routing" tab: guidance, page-level options, then the rules."""
         panels = [
-            # Consumer-agnostic guidance on how matching works (ED-7).
+            # Consumer-agnostic guidance on how matching works.
             HelpPanel(content=ROUTING_TAB_HELP),
             # Page-level routing options, grouped so future per-page settings nest here.
             # For now it holds the kill switch (0-or-1 per page); its pause checkbox always
-            # renders with no "Add" step (ED-1) because RoutingPageForm auto-adds the record
+            # renders with no "Add" step because RoutingPageForm auto-adds the record
             # for canonical pages — not via min_num, which would block saving a page with no
             # record yet.
             MultiFieldPanel(
                 [InlinePanel("routing_config", label=_("Kill switch"), max_num=1)],
                 heading=_("Options"),
             ),
-            # Rules, with the target chooser scoped to the consumer's page type(s) (ED-9).
+            # Rules, with the target chooser scoped to the consumer's page type(s).
             InlinePanel("routing_rules", panels=rule_panels(cls.routing_target_page_types), label=_("Rules")),
         ]
         return RoutingObjectList(panels, heading=_("User Routing"))
@@ -272,7 +272,7 @@ class RoutingMixin(models.Model):
         edit_handler = TabbedInterface(tabs, base_form_class=cls.base_form_class)
         return edit_handler.bind_to_model(cls)
 
-    # -- Serve-path dispatch (spec §2.3, plan §0.5, wired in C10) --
+    # -- Serve-path dispatch --
 
     def _routing_trigger_satisfied(self, request):
         """Whether this request arms routing for the surface (consumer trigger)."""

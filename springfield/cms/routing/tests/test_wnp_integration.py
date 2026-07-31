@@ -2,12 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""End-to-end serve integration for the first consumer, WhatsNewPage2026 (C14).
+"""End-to-end serve integration for the first consumer, WhatsNewPage2026.
 
-This is the first place real request-level ``serve()`` dispatch is exercised (plan
-§0.3, §0.7): organic traffic must be byte-identical to today, the resolver must fire
+This is the first place real request-level ``serve()`` dispatch is exercised:
+organic traffic must be byte-identical to today, the resolver must fire
 only on a triggered live canonical with rules, and the loop-breaker / kill switch /
-global switch must behave per spec §2.3.
+global switch must each behave correctly.
 """
 
 from types import SimpleNamespace
@@ -37,7 +37,7 @@ def wnp():
 
 
 # ---------------------------------------------------------------------------
-# Adoption surface (spec §2.2) and the descendant target (spec §5.1, C3).
+# Adoption surface and the descendant target.
 # ---------------------------------------------------------------------------
 
 
@@ -46,7 +46,7 @@ def test_wnp_declares_only_the_three_adoption_hooks(wnp):
 
     trigger = wnp.canonical.get_routing_trigger()
     assert isinstance(trigger, QueryParamValueArmingCondition)
-    # Armed on Balrog's just-updated flow specifically (plan P0-1).
+    # Armed on Firefox's just-updated flow specifically.
     assert trigger.param_name == "utm_source"
     assert trigger.values == frozenset({"update"})
     assert "firefox_version" in wnp.canonical.get_routing_signal_names()
@@ -60,14 +60,14 @@ def test_is_routing_canonical_only_for_direct_children_of_the_index(wnp):
 
 
 def test_a_child_wnp_is_a_valid_descendant_target(wnp):
-    # The C3 descendant constraint passes for a nested WhatsNewPage2026 target.
-    # match_all satisfies the C16 condition floor so this isolates the target check.
+    # The descendant constraint passes for a nested WhatsNewPage2026 target.
+    # match_all satisfies the condition floor so this isolates the target check.
     rule = RoutingRule(page=wnp.canonical, target=wnp.variant, match_all=True)
     rule.full_clean()  # does not raise
 
 
 def test_wnp_target_chooser_is_scoped_to_whatsnew_pages():
-    # ED-9: the rule's target chooser only offers WhatsNewPage2026 pages.
+    # The rule's target chooser only offers WhatsNewPage2026 pages.
     from wagtail.admin.panels import InlinePanel
     from wagtail.admin.widgets import AdminPageChooser
 
@@ -81,7 +81,7 @@ def test_wnp_target_chooser_is_scoped_to_whatsnew_pages():
 
 
 # ---------------------------------------------------------------------------
-# Serve-path dispatch, end to end (spec §2.3).
+# Serve-path dispatch, end to end.
 # ---------------------------------------------------------------------------
 
 
@@ -105,7 +105,7 @@ def test_triggered_live_canonical_with_rules_serves_the_resolver(client, wnp):
 
 @override_switch("user_routing", active=True)
 def test_untriggered_utm_source_value_serves_canonical(client, wnp):
-    # A non-"update" utm_source does not arm routing (plan P0-1).
+    # A non-"update" utm_source does not arm routing.
     response = client.get(wnp.canonical.get_url() + "?utm_source=newsletter")
     assert response.status_code == 200
     assert RESOLVER_MARKER not in response.content.decode("utf-8")

@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Tests for the browse-only User Routing rules listing (C12)."""
+"""Tests for the browse-only User Routing rules listing."""
 
 from django.urls import NoReverseMatch, reverse
 
@@ -42,7 +42,7 @@ def test_listing_handles_no_rules(admin_client):
 
 
 def test_listing_shows_the_rule_name(admin_client):
-    # ED-5 display: an author-given rule name appears in the browse listing.
+    # Display: an author-given rule name appears in the browse listing.
     rule = _rule_on("c23-named", "Canonical Named")
     rule.name = "Windows updaters"
     rule.save()
@@ -53,7 +53,7 @@ def test_listing_shows_the_rule_name(admin_client):
 
 
 # ---------------------------------------------------------------------------
-# The listing is browse-only: no add affordance (spec §6.1).
+# The listing is browse-only: no add affordance.
 # ---------------------------------------------------------------------------
 
 
@@ -86,7 +86,7 @@ def test_rules_item_is_in_the_submenu():
 
 
 # ---------------------------------------------------------------------------
-# Signals reference page — generated from the registry, never drifts (C13, §4.5).
+# Signals reference page — generated from the registry, never drifts.
 # ---------------------------------------------------------------------------
 
 
@@ -106,21 +106,21 @@ def test_signals_reference_shows_source_type_and_enum_values(admin_client):
 
 
 def test_signals_reference_renders_source_badges(admin_client):
-    # C27: each source gets a per-source badge class (drives the accent + dark-mode styling).
+    # Each source gets a per-source badge class (drives the accent + dark-mode styling).
     content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
     for source_key in ("cdn_geo", "user_agent", "uitour", "url"):
         assert f"routing-badge--{source_key}" in content
 
 
 def test_signals_reference_shows_the_uitour_delay_note(admin_client):
-    # C27: the ~500 ms UITour note is real authoring guidance and must be present.
+    # The ~500 ms UITour note is real authoring guidance and must be present.
     content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
     assert "UITour" in content
     assert "500" in content
 
 
 def test_signals_reference_shows_type_aware_value_hints(admin_client):
-    # C27: booleans read "true or false" (not "Free text"); version shows examples; the
+    # Booleans read "true or false" (not "Free text"); version shows examples; the
     # long country list is available behind a collapsible disclosure.
     content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
     assert "true or false" in content  # boolean signals
