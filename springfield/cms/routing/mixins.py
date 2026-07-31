@@ -13,6 +13,8 @@ migration**. The serve-path dispatch is wired later (C10); this mixin only owns 
 declaration surface and the admin tab.
 """
 
+from contextlib import contextmanager
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -28,19 +30,79 @@ from springfield.cms.routing.signals import registry
 
 
 class RoutingPageForm(WagtailAdminPageForm):
-    """Page form enforcing the rule condition-floor across the nested routing formsets.
+    """Page form owning the admin-side routing validation.
 
-    A rule with no conditions matches every triggered visitor, so it must opt in via
-    ``match_all`` (plan P0-2). The model's ``clean()`` can't enforce this during a
-    Wagtail save: modelcluster attaches a rule's conditions to the rule instance only
-    at *save* time, after validation, so a model-level count check would reject a
-    perfectly valid rule (its conditions aren't visible yet). The floor therefore lives
-    here — where the nested ``conditions`` formset is inspectable — and the error lands
-    on the offending rule's ``match_all`` field.
+    Two things live here rather than on the models, both because of *when* Wagtail runs
+    things during a save:
+
+    * **Condition-floor (plan P0-2).** A rule with no conditions matches every triggered
+      visitor, so it must opt in via ``match_all``. ``RoutingRule.clean()`` can't enforce
+      this — modelcluster attaches a rule's nested conditions to the instance only at
+      *save* time, after validation, so a model-level count check sees zero conditions
+      and rejects valid rules. The floor is checked here, where the nested ``conditions``
+      formset is inspectable, and the error lands on the rule's ``match_all`` field.
+
+    * **Hidden-tab formsets (ED-1).** The routing tab is hidden on non-canonical
+      instances (``RoutingObjectList.is_shown``), so its ``routing_rules`` /
+      ``routing_config`` formsets aren't rendered there — nor on the *add* form, where a
+      new page isn't yet canonical. Their management forms are therefore absent from the
+      POST, and validating/saving them would block the page entirely with ManagementForm
+      errors. So they are excluded from validation/save on non-canonical instances.
+      ``self.formsets`` is left intact outside that window so panel binding (which reads
+      ``self.form.formsets[name]``) still works when the form re-renders.
+
+    * **Kill-switch record (ED-1).** ``__init__`` auto-creates the ``RoutingConfig`` for
+      canonical instances so the pause checkbox always renders (no "Add" step) — see
+      ``__init__``; this replaces a panel ``min_num``, which can't be satisfied by an
+      unchanged empty form.
     """
+
+    # Formsets owned by the routing tab (hidden on non-canonical instances).
+    ROUTING_FORMSETS = ("routing_rules", "routing_config")
+
+    def __init__(self, *args, **kwargs):
+        # Ensure a canonical page always has its kill-switch record, so the pause
+        # checkbox renders on the routing tab with no "Add" step (ED-1). Created here —
+        # before the formsets are built from the instance's relations — rather than via
+        # a panel ``min_num``, which would block saving a page that has no record yet
+        # (an unchanged empty form doesn't satisfy ``validate_min``). Idempotent and
+        # scoped to saved canonical instances.
+        instance = kwargs.get("instance")
+        if instance is not None and getattr(instance, "pk", None):
+            predicate = getattr(instance, "is_routing_canonical", None)
+            if callable(predicate) and predicate():
+                RoutingConfig.objects.get_or_create(page=instance)
+        super().__init__(*args, **kwargs)
+
+    def _is_routing_canonical(self):
+        predicate = getattr(self.instance, "is_routing_canonical", None)
+        return bool(callable(predicate) and predicate())
+
+    @contextmanager
+    def _routing_formsets_scoped(self):
+        """Temporarily drop the routing formsets on non-canonical instances."""
+        if self._is_routing_canonical():
+            yield
+            return
+        original = self.formsets
+        self.formsets = {name: formset for name, formset in original.items() if name not in self.ROUTING_FORMSETS}
+        try:
+            yield
+        finally:
+            self.formsets = original
+
+    def is_valid(self):
+        with self._routing_formsets_scoped():
+            return super().is_valid()
+
+    def save(self, commit=True):
+        with self._routing_formsets_scoped():
+            return super().save(commit=commit)
 
     def clean(self):
         cleaned_data = super().clean()
+        # On non-canonical instances the routing formsets are scoped out (above), so this
+        # is a no-op there; on canonical instances it enforces the condition-floor.
         rules_formset = self.formsets.get("routing_rules")
         if rules_formset is not None:
             # Force nested validation now: ClusterForm validates child formsets only
@@ -135,7 +197,11 @@ class RoutingMixin(models.Model):
 
     routing_panels = [
         InlinePanel("routing_rules", label=_("Rules")),
-        InlinePanel("routing_config", label=_("Kill switch"), max_num=1),
+        # max_num=1 (0-or-1 kill switch per page). The pause checkbox always renders
+        # with no "Add" step (ED-1) because RoutingPageForm auto-creates the record for
+        # canonical pages — not via min_num, which would block saving a page that has no
+        # record yet.
+        InlinePanel("routing_config", label=_("Routing kill switch"), max_num=1),
     ]
 
     @classmethod

@@ -22,7 +22,7 @@ from wagtail.test.utils.form_data import (
     streamfield,
 )
 
-from springfield.cms.routing.models import RoutingCondition, RoutingRule
+from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
 from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
 pytestmark = [pytest.mark.django_db]
@@ -40,6 +40,9 @@ def wnp():
 
 def _edit_post_data(canonical, rules_formset):
     """A complete, publishable WNP edit POST with the given routing_rules formset."""
+    # RoutingPageForm auto-creates the kill-switch record for canonical pages, so a real
+    # edit POST carries it back as an existing form (INITIAL_FORMS=1). Mirror that here.
+    config, _ = RoutingConfig.objects.get_or_create(page=canonical)
     return nested_form_data(
         {
             "title": canonical.title,
@@ -51,7 +54,7 @@ def _edit_post_data(canonical, rules_formset):
             "upper_content": streamfield([]),
             "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
             "routing_rules": rules_formset,
-            "routing_config": inline_formset([]),
+            "routing_config": inline_formset([{"id": config.pk, "routing_paused": ""}], initial=1),
             # Publish so the edited cluster is written to the live child tables (a
             # draft save would only stash it in a revision).
             "action-publish": "action-publish",
@@ -111,3 +114,45 @@ def test_authoring_an_empty_non_match_all_rule_is_rejected(admin_client, wnp):
     assert response.status_code == 200
     assert "Add at least one condition" in response.content.decode("utf-8")
     assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+# ---------------------------------------------------------------------------
+# Kill switch (ED-1) + non-canonical saves (C22).
+# ---------------------------------------------------------------------------
+
+
+def test_kill_switch_checkbox_always_renders_on_canonical(admin_client, wnp):
+    # min_num=1 means the pause checkbox is always present — no "Add kill switch" step.
+    canonical, _target = wnp
+    html = admin_client.get(_edit_url(canonical)).content.decode("utf-8")
+    assert 'name="routing_config-0-routing_paused"' in html
+    assert "Routing kill switch" in html
+
+
+def _content_only_post_data(page):
+    """An edit POST with no routing formsets — as a non-canonical page's hidden tab sends."""
+    return nested_form_data(
+        {
+            "title": page.title,
+            "slug": page.slug,
+            "internal_title": "",
+            "version": page.version,
+            "pre_footer_image": "kit",
+            "upper_content": streamfield([]),
+            "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
+            "action-publish": "action-publish",
+        }
+    )
+
+
+def test_non_canonical_page_saves_without_routing_formsets(admin_client, wnp):
+    # The target is a nested variant → non-canonical, so its routing tab (and the
+    # min_num=1 kill switch) is hidden and omitted from the POST. The page must still
+    # save; the routing formsets are excluded from validation, not forced.
+    _canonical, variant = wnp
+    assert variant.is_routing_canonical() is False
+
+    response = admin_client.post(_edit_url(variant), _content_only_post_data(variant))
+    assert response.status_code == 302
+    # min_num=1 did not force a RoutingConfig onto the non-canonical page.
+    assert not RoutingConfig.objects.filter(page=variant).exists()

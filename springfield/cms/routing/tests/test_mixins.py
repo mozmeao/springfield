@@ -67,8 +67,12 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     panels = {panel.relation_name: panel for panel in tab.children if isinstance(panel, InlinePanel)}
     assert set(panels) == {"routing_rules", "routing_config"}
 
-    # The kill switch is a single-item panel over RoutingConfig (0-or-1 per page).
+    # The kill switch is a single-item panel over RoutingConfig (0-or-1 per page). The
+    # checkbox always renders with no "Add" step (ED-1) via RoutingPageForm auto-creating
+    # the record, not via min_num — so no min_num here (it can't be met by an empty form).
     assert panels["routing_config"].max_num == 1
+    assert panels["routing_config"].min_num is None
+    assert str(panels["routing_config"].label) == "Routing kill switch"
 
 
 # ---------------------------------------------------------------------------
