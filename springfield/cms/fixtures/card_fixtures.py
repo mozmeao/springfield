@@ -108,13 +108,14 @@ def get_card_variants() -> list[dict]:
             "type": "card",
             "value": {
                 "settings": _SETTINGS_OUTLINE,
-                "media": [],
-                "content": [
+                "media": [
                     {
                         "type": "pictogram",
                         "value": _IMAGE_VARIANTS,
                         "id": "card0001-0000-0000-0000-000000000021",
                     },
+                ],
+                "content": [
                     {
                         "type": "heading",
                         "value": {
