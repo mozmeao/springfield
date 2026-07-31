@@ -18,17 +18,35 @@ from product_details import product_details
 
 from springfield.cms.routing.signals import SOURCE_LABELS, Source, ValueType, registry
 
-# Per-value-type hint shown beneath the expected-value field. All localizable.
+# "What to type" hint shown beneath the expected-value field. Value-focused only — the
+# operator dropdown already lists the legal operators, so hints never restate them.
 VALUE_TYPE_HINTS = {
     ValueType.ENUM: _("Enter one of these values:"),
-    ValueType.STRING: _("Free text. Available operators:"),
+    ValueType.STRING: _("Free text."),
     ValueType.BOOLEAN: _("Enter “true” or “false”."),
-    ValueType.VERSION: _("Compared as a version (e.g. 129 or 129.0.1). Available operators:"),
-    ValueType.INTEGER: _("Compared as a whole number. Available operators:"),
+    ValueType.VERSION: _("Enter a version, e.g. 129 or 130.0.1."),
+    ValueType.INTEGER: _("Enter a whole number."),
 }
+
+# Appended to the help only when a set-membership operator (in / not in) is selected.
+COMMA_HINT = _("Separate multiple values with commas.")
+
+# Prepended to the help when a value fails client-side validation, so the flagged field
+# reads as an error and not just a red outline.
+INVALID_HINT = _("That value isn’t valid.")
 
 # Lead-in for STRING signals that carry a known value list (locale / country).
 VALUE_LIST_HINT = _("Enter one of these values:")
+
+# Short, editor-facing "what to type" hint shown in the reference page's Values column for
+# signals that have no fixed set (enum values / locale / country are shown as the values
+# themselves instead). Localized.
+VALUE_TYPE_EXAMPLES = {
+    ValueType.STRING: _("Free text"),
+    ValueType.BOOLEAN: _("true or false"),
+    ValueType.VERSION: _("e.g. 129 or 130.0.1"),
+    ValueType.INTEGER: _("e.g. 30"),
+}
 
 
 def _request_time_value_lists():
@@ -54,11 +72,17 @@ def build_signal_payload():
     concatenates already-localized text.
     """
     value_lists = _request_time_value_lists()
+    comma_hint = str(COMMA_HINT)
+    invalid_hint = str(INVALID_HINT)
     payload = {}
     for signal in registry:
         entry = {
             "valueType": signal.value_type.value,
+            # Short signal description leads the help so editors know what it means.
+            "description": str(signal.description),
             "hint": str(VALUE_TYPE_HINTS[signal.value_type]),
+            "commaHint": comma_hint,
+            "invalidHint": invalid_hint,
             "operators": [{"value": operator.value, "label": str(operator.label)} for operator in signal.operators],
             "enumValues": [],
             "values": [],
@@ -82,6 +106,7 @@ def build_signal_reference():
     left lazy so the template localizes them; the honest descriptions (spec §4.4) come
     through unchanged.
     """
+    value_lists = _request_time_value_lists()
     rows = []
     for signal in registry:
         rows.append(
@@ -96,6 +121,12 @@ def build_signal_reference():
                 "value_type": signal.value_type.value,
                 "operators": [operator.label for operator in signal.operators],
                 "enum_values": [{"value": enum_value.value, "label": enum_value.label} for enum_value in signal.enum_values],
+                # Request-time value list for known-set STRING signals (locale / country),
+                # shown collapsed on the reference page; empty for free-text signals.
+                "values": value_lists.get(signal.name, []),
+                # "What to type" hint for signals with no fixed set (true/false, version
+                # examples, whole number, free text); enums/known-sets show their values.
+                "value_example": VALUE_TYPE_EXAMPLES.get(signal.value_type),
                 "browser_state_key": signal.browser_state_key,
             }
         )

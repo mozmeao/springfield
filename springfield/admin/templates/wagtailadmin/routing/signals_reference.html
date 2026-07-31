@@ -33,15 +33,25 @@
             <td><code class="routing-signal-name">{{ signal.name }}</code></td>
             <td>
               <span class="routing-badge routing-badge--{{ signal.source_key }}">{{ signal.source }}</span>
-              {% if signal.is_uitour %}<span class="routing-uitour-flag" title="{% trans 'Firefox-only; adds ~500 ms for matched visitors.' %}" aria-hidden="true">⏱</span>{% endif %}
             </td>
             <td><span class="routing-badge routing-badge--type">{{ signal.value_type }}</span></td>
             <td class="routing-signal-description">{{ signal.description }}</td>
-            <td>
-              {% for operator in signal.operators %}<code>{{ operator }}</code>{% if not forloop.last %} {% endif %}{% endfor %}
+            <td class="routing-operators">
+              {% for operator in signal.operators %}{{ operator }}{% if not forloop.last %}, {% endif %}{% endfor %}
             </td>
-            <td>
-              {% for value in signal.enum_values %}<code>{{ value.value }}</code>{% if not forloop.last %} {% endif %}{% empty %}<span class="routing-signal-freetext">—</span>{% endfor %}
+            <td class="routing-values">
+              {% if signal.enum_values %}
+                {% for value in signal.enum_values %}<code>{{ value.value }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+              {% elif signal.values %}
+                <details class="routing-value-list">
+                  <summary>{% blocktrans count counter=signal.values|length %}{{ counter }} value{% plural %}{{ counter }} values{% endblocktrans %}</summary>
+                  <div class="routing-value-list__items">
+                    {% for value in signal.values %}<code>{{ value }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+                  </div>
+                </details>
+              {% else %}
+                <span class="routing-signal-freetext">{{ signal.value_example }}</span>
+              {% endif %}
             </td>
           </tr>
         {% endfor %}

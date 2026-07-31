@@ -122,11 +122,12 @@ def test_authoring_an_empty_non_match_all_rule_is_rejected(admin_client, wnp):
 
 
 def test_kill_switch_checkbox_always_renders_on_canonical(admin_client, wnp):
-    # min_num=1 means the pause checkbox is always present — no "Add kill switch" step.
+    # The pause checkbox is always present (no "Add" step), nested under the Options group.
     canonical, _target = wnp
     html = admin_client.get(_edit_url(canonical)).content.decode("utf-8")
     assert 'name="routing_config-0-routing_paused"' in html
-    assert "Routing kill switch" in html
+    assert "Options" in html  # the options group heading
+    assert "Kill switch" in html
 
 
 def _content_only_post_data(page):

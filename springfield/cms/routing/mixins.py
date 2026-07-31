@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 
 import waffle
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import HelpPanel, InlinePanel, ObjectList, TabbedInterface
+from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
@@ -35,7 +35,7 @@ ROUTING_TAB_HELP = _(
     "A visitor is routed to the first rule whose conditions all match; if none match, they stay "
     "on this page.</p>"
     "<p>Each rule needs at least one condition, or “Match all triggered visitors” to route everyone. "
-    "Use the <strong>kill switch</strong> below to pause routing without deleting any rules.</p>"
+    "The <strong>kill switch</strong> in Options pauses routing without deleting any rules.</p>"
 )
 
 
@@ -71,17 +71,17 @@ class RoutingPageForm(WagtailAdminPageForm):
     ROUTING_FORMSETS = ("routing_rules", "routing_config")
 
     def __init__(self, *args, **kwargs):
-        # Ensure a canonical page always has its kill-switch record, so the pause
-        # checkbox renders on the routing tab with no "Add" step (ED-1). Created here —
-        # before the formsets are built from the instance's relations — rather than via
-        # a panel ``min_num``, which would block saving a page that has no record yet
-        # (an unchanged empty form doesn't satisfy ``validate_min``). Idempotent and
-        # scoped to saved canonical instances.
+        # Ensure a canonical page always shows its kill-switch checkbox with no "Add" step
+        # (ED-1). Add an (unsaved) RoutingConfig to the instance's in-memory cluster BEFORE
+        # the formsets are built, so the checkbox renders on the very first load and the
+        # record is persisted only when the page is saved. Done here rather than via a
+        # panel ``min_num`` (an unchanged empty form can't satisfy ``validate_min``) and via
+        # the cluster rather than a DB write (which a same-request formset can miss).
         instance = kwargs.get("instance")
         if instance is not None and getattr(instance, "pk", None):
             predicate = getattr(instance, "is_routing_canonical", None)
-            if callable(predicate) and predicate():
-                RoutingConfig.objects.get_or_create(page=instance)
+            if callable(predicate) and predicate() and not instance.routing_config.all():
+                instance.routing_config.add(RoutingConfig())
         super().__init__(*args, **kwargs)
 
     def _is_routing_canonical(self):
@@ -231,17 +231,21 @@ class RoutingMixin(models.Model):
 
     @classmethod
     def get_routing_tab(cls):
-        """The "User Routing" tab: guidance, the rules panel, and the kill-switch panel."""
+        """The "User Routing" tab: guidance, page-level options, then the rules."""
         panels = [
             # Consumer-agnostic guidance on how matching works (ED-7).
             HelpPanel(content=ROUTING_TAB_HELP),
+            # Page-level routing options, grouped so future per-page settings nest here.
+            # For now it holds the kill switch (0-or-1 per page); its pause checkbox always
+            # renders with no "Add" step (ED-1) because RoutingPageForm auto-adds the record
+            # for canonical pages — not via min_num, which would block saving a page with no
+            # record yet.
+            MultiFieldPanel(
+                [InlinePanel("routing_config", label=_("Kill switch"), max_num=1)],
+                heading=_("Options"),
+            ),
             # Rules, with the target chooser scoped to the consumer's page type(s) (ED-9).
             InlinePanel("routing_rules", panels=rule_panels(cls.routing_target_page_types), label=_("Rules")),
-            # max_num=1 (0-or-1 kill switch per page). The pause checkbox always renders
-            # with no "Add" step (ED-1) because RoutingPageForm auto-creates the record for
-            # canonical pages — not via min_num, which would block saving a page with no
-            # record yet.
-            InlinePanel("routing_config", label=_("Routing kill switch"), max_num=1),
         ]
         return RoutingObjectList(panels, heading=_("User Routing"))
 

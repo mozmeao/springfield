@@ -119,6 +119,16 @@ def test_signals_reference_shows_the_uitour_delay_note(admin_client):
     assert "500" in content
 
 
+def test_signals_reference_shows_type_aware_value_hints(admin_client):
+    # C27: booleans read "true or false" (not "Free text"); version shows examples; the
+    # long country list is available behind a collapsible disclosure.
+    content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
+    assert "true or false" in content  # boolean signals
+    assert "130.0.1" in content  # version example
+    assert "<details" in content  # collapsible locale/country value list
+    assert ">US<" in content or "US" in content  # a country code inside the disclosure
+
+
 def test_adding_a_signal_makes_it_appear_with_no_page_edit(admin_client, temp_signal):
     content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
     assert temp_signal.name in content

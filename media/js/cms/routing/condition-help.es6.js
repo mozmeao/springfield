@@ -55,26 +55,34 @@ function joinCapped(values) {
     return shown;
 }
 
-export function buildHelpText(meta) {
+export function buildHelpText(meta, operator) {
     if (!meta) {
         return '';
     }
-    // Values-first (ED-3): a closed value set is the most useful thing to show, so it
-    // leads the help line for enum signals and for string signals with a known set
-    // (locale / country). The lead-in (`hint`) is localized server-side.
+    const parts = [];
+    // Lead with what the signal means, so editors get context in the form.
+    if (meta.description) {
+        parts.push(meta.description);
+    }
+    // Then what to type. For a closed set (enum) or known-set string (locale/country),
+    // list the accepted values — the codes, since those are what the author types. The
+    // operator dropdown already shows the operators, so help never restates them.
     if (meta.enumValues && meta.enumValues.length) {
-        const values = meta.enumValues
-            .map((entry) => entry.label + ' (' + entry.value + ')')
-            .join(', ');
-        return meta.hint + ' ' + values;
+        parts.push(
+            meta.hint +
+                ' ' +
+                meta.enumValues.map((entry) => entry.value).join(', ')
+        );
+    } else if (meta.values && meta.values.length) {
+        parts.push(meta.hint + ' ' + joinCapped(meta.values));
+    } else if (meta.hint) {
+        parts.push(meta.hint);
     }
-    if (meta.values && meta.values.length) {
-        return meta.hint + ' ' + joinCapped(meta.values);
+    // Only when a set-membership operator is chosen is a comma-separated list meaningful.
+    if (MEMBERSHIP_OPERATORS.indexOf(operator) !== -1 && meta.commaHint) {
+        parts.push(meta.commaHint);
     }
-    const operators = (meta.operators || [])
-        .map((entry) => entry.label)
-        .join(', ');
-    return operators ? meta.hint + ' ' + operators : meta.hint;
+    return parts.join(' ');
 }
 
 export function filterOperators(select, payload, root) {
@@ -166,11 +174,16 @@ export function validateExpectedValue(meta, operator, value) {
 }
 
 function setConditionError(select, payload, scope, hasError) {
-    // Reuse the (localized) help line as the correction guidance; flag it + the field.
+    // renderConditionHelp resets the line to the normal (valid-values) guidance; on error
+    // prepend an explicit "not valid" message so it reads as an error, not just a red box.
     const help = renderConditionHelp(select, payload, scope);
     if (help) {
         if (hasError) {
             help.classList.add(ERROR_CLASSNAME);
+            const meta = payload[select.value];
+            if (meta && meta.invalidHint) {
+                help.textContent = meta.invalidHint + ' ' + help.textContent;
+            }
         } else {
             help.classList.remove(ERROR_CLASSNAME);
         }
@@ -225,13 +238,16 @@ export function renderConditionHelp(select, payload, root) {
     if (!expected || !expected.parentNode) {
         return null;
     }
+    // The comma hint depends on the chosen operator, so read it here.
+    const operatorSelect = operatorFieldFor(select, scope);
+    const operator = operatorSelect ? operatorSelect.value : '';
     let help = expected.parentNode.querySelector('.' + HELP_CLASSNAME);
     if (!help) {
         help = document.createElement('p');
         help.className = HELP_CLASSNAME;
         expected.parentNode.appendChild(help);
     }
-    help.textContent = buildHelpText(payload[select.value]);
+    help.textContent = buildHelpText(payload[select.value], operator);
     return help;
 }
 
@@ -245,6 +261,22 @@ function wireSelect(select, payload, scope) {
         renderConditionHelp(select, payload, scope);
         filterOperators(select, payload, scope);
     });
+    // Refresh the help when the operator changes too, so the comma-separated hint
+    // appears/disappears with in / not in.
+    const operatorSelect = operatorFieldFor(select, scope);
+    if (operatorSelect) {
+        operatorSelect.addEventListener('change', function () {
+            renderConditionHelp(select, payload, scope);
+        });
+    }
+    // Validate this row when the value field is committed (blur/change), so a bad value
+    // turns red with its message immediately — not only when the author tries to save.
+    const expected = expectedFieldFor(select, scope);
+    if (expected) {
+        expected.addEventListener('change', function () {
+            validateConditionRow(select, payload, scope);
+        });
+    }
     // Initial pass filters from the pre-selected signal, so an existing rule opens with
     // its operator dropdown already scoped (and its saved operator preserved).
     renderConditionHelp(select, payload, scope);
@@ -258,32 +290,73 @@ function wireAll(payload, scope) {
     });
 }
 
-function findEditForm(scope) {
-    if (scope.tagName === 'FORM') {
-        return scope;
-    }
-    if (scope.querySelector) {
-        return (
-            scope.querySelector('#page-edit-form') ||
-            scope.querySelector('form')
-        );
-    }
-    return null;
+function isRoutingForm(form) {
+    return !!(
+        form &&
+        typeof form.querySelector === 'function' &&
+        form.querySelector('select[name$="-signal"]')
+    );
 }
 
 function attachSubmitGuard(payload, scope) {
-    // Validate every condition value before the page form submits, so an illegal value is
-    // caught inline instead of round-tripping to a server error that bounces to the
-    // Content tab (ED-4). Bound once per form; capture phase so it runs before Wagtail's.
-    const form = findEditForm(scope);
-    if (!form || form.dataset[SUBMIT_GUARD_FLAG] === '1') {
+    // Block a save with an illegal condition value inline, instead of round-tripping to a
+    // server error (ED-4). The Wagtail page form is `novalidate` and saves via a Stimulus
+    // controller whose "Saving…" spinner starts on the button *click* — so intercepting the
+    // `submit` event is too late (the spinner is already up when we cancel the POST). We
+    // therefore guard the submit-button **click** in the CAPTURE phase (runs before
+    // Wagtail's handlers), with a `submit` backstop for keyboard/programmatic submits.
+    // In the real admin `scope` is `document`; in unit tests it's the (detached) form.
+    const isForm = scope.tagName === 'FORM';
+    const target = isForm
+        ? scope
+        : typeof document !== 'undefined'
+          ? document
+          : null;
+    const flagHost = isForm
+        ? scope
+        : typeof document !== 'undefined'
+          ? document.documentElement
+          : null;
+    if (!target || !flagHost || flagHost.dataset[SUBMIT_GUARD_FLAG] === '1') {
         return;
     }
-    form.dataset[SUBMIT_GUARD_FLAG] = '1';
-    form.addEventListener(
+    flagHost.dataset[SUBMIT_GUARD_FLAG] = '1';
+
+    target.addEventListener(
+        'click',
+        function (event) {
+            const node = event.target;
+            // Save/Publish are <button type="submit">; the "Add rule/condition" buttons
+            // are type="button", so they are intentionally not matched here.
+            const button =
+                node && node.closest
+                    ? node.closest(
+                          'button[type="submit"], input[type="submit"]'
+                      )
+                    : null;
+            if (!button) {
+                return;
+            }
+            const form =
+                button.form || (button.closest && button.closest('form'));
+            if (!isRoutingForm(form)) {
+                return;
+            }
+            if (!validateConditions(form, payload)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        },
+        true
+    );
+
+    target.addEventListener(
         'submit',
         function (event) {
-            if (!validateConditions(form, payload)) {
+            if (!isRoutingForm(event.target)) {
+                return;
+            }
+            if (!validateConditions(event.target, payload)) {
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }

@@ -35,6 +35,36 @@
 }
 /* stylelint-enable */
 
+/* User Routing — the kill switch is always exactly one record (auto-added), so hide its
+   InlinePanel "Add" button entirely rather than leaving it greyed (ED-1). */
+#id_routing_config-ADD {
+    display: none;
+}
+
+/* User Routing — dynamic condition help (C24) and its invalid state (C26). Theme-aware
+   via Wagtail tokens. The invalid help reads as a small red callout, and the value field
+   gets an immediate red outline so a bad value is obvious before saving. */
+.routing-condition-help {
+    margin-block-start: 0.35rem;
+    font-size: 0.8125rem;
+    color: var(--w-color-text-context);
+}
+
+.routing-condition-help--invalid {
+    padding-block: 0.3rem;
+    padding-inline-start: 0.6rem;
+    /* No tinted background: the fixed critical-50 pink doesn't adapt to dark mode and
+       tanks contrast. Use the theme-adaptive error colour for text + a red left border on
+       the normal page background — reads clearly in both light and dark. */
+    border-inline-start: 3px solid var(--w-color-text-error);
+    color: var(--w-color-text-error);
+}
+
+input[name$="-expected_value"][aria-invalid="true"] {
+    border-color: var(--w-color-text-error);
+    box-shadow: 0 0 0 1px var(--w-color-text-error);
+}
+
 /* User Routing — signals reference page (C27). Theme-aware via Wagtail design tokens so
    it follows the admin's light/dark theme; badges carry a per-source accent. */
 .routing-signals-reference__note {
@@ -50,13 +80,39 @@
     color: var(--w-color-text-context);
 }
 
+/* Descriptions come from the registry (detailed, honest) — keep them but visually
+   secondary so the table scans quickly. */
 .routing-signal-description {
-    max-width: 32rem;
+    max-width: 30rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--w-color-text-label);
+}
+
+.routing-operators {
+    font-size: 0.8125rem;
     color: var(--w-color-text-context);
 }
 
 .routing-signal-freetext {
+    font-size: 0.8125rem;
+    font-style: italic;
     color: var(--w-color-text-label);
+}
+
+/* Known-set string signals (locale / country): long lists collapsed behind a summary. */
+.routing-value-list > summary {
+    cursor: pointer;
+    color: var(--w-color-text-link-default);
+    font-size: 0.8125rem;
+}
+
+.routing-value-list__items {
+    margin-block-start: 0.4rem;
+    max-width: 24rem;
+    max-height: 12rem;
+    overflow-y: auto;
+    line-height: 1.7;
 }
 
 .routing-badge {
@@ -95,9 +151,4 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-}
-
-.routing-uitour-flag {
-    margin-inline-start: 0.35em;
-    cursor: help;
 }

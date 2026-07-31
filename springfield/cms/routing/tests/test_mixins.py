@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from django.test import RequestFactory
 
 import pytest
-from wagtail.admin.panels import HelpPanel, InlinePanel
+from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Site
 
 from springfield.cms.routing.arming import QueryParamArmingCondition
@@ -59,6 +59,16 @@ def test_mixin_declares_no_database_fields():
 # ---------------------------------------------------------------------------
 
 
+def _inline_panels(panel):
+    """Every InlinePanel in a panel tree (the kill switch is nested under a group)."""
+    found = []
+    for child in getattr(panel, "children", []):
+        if isinstance(child, InlinePanel):
+            found.append(child)
+        found.extend(_inline_panels(child))
+    return found
+
+
 def test_routing_tab_holds_rules_and_kill_switch_panels():
     tab = RoutingMixin.get_routing_tab()
     assert isinstance(tab, RoutingObjectList)
@@ -67,7 +77,11 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     # A generic guidance panel leads the tab (ED-7).
     assert any(isinstance(child, HelpPanel) for child in tab.children)
 
-    panels = {panel.relation_name: panel for panel in tab.children if isinstance(panel, InlinePanel)}
+    # Page-level settings sit under an "Options" group so more can nest there later.
+    groups = [child for child in tab.children if isinstance(child, MultiFieldPanel)]
+    assert any(str(group.heading) == "Options" for group in groups)
+
+    panels = {panel.relation_name: panel for panel in _inline_panels(tab)}
     assert set(panels) == {"routing_rules", "routing_config"}
 
     # The kill switch is a single-item panel over RoutingConfig (0-or-1 per page). The
@@ -75,7 +89,7 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     # the record, not via min_num — so no min_num here (it can't be met by an empty form).
     assert panels["routing_config"].max_num == 1
     assert panels["routing_config"].min_num is None
-    assert str(panels["routing_config"].label) == "Routing kill switch"
+    assert str(panels["routing_config"].label) == "Kill switch"
 
 
 # ---------------------------------------------------------------------------

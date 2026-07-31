@@ -31,6 +31,14 @@ def test_version_signal_payload_has_operator_meanings_and_a_hint():
     assert version["hint"] == str(VALUE_TYPE_HINTS[ValueType.VERSION])
 
 
+def test_payload_carries_description_and_comma_hint():
+    # The dynamic help leads with the (short) description and appends a comma-separated
+    # hint only for set-membership operators — both delivered per signal in the payload.
+    platform = build_signal_payload()["platform"]
+    assert "operating system" in platform["description"]
+    assert platform["commaHint"]  # non-empty, localized
+
+
 # ---------------------------------------------------------------------------
 # Request-time value lists for locale / country string signals (ED-3, plan P1-2).
 # ---------------------------------------------------------------------------
@@ -102,3 +110,21 @@ def test_reference_rows_carry_a_source_key_and_uitour_flag():
     assert rows["country"]["source_key"] == "cdn_geo"
     assert rows["is_default_browser"]["is_uitour"] is True
     assert rows["utm_source"]["is_uitour"] is False
+
+
+def test_reference_rows_carry_value_lists_for_known_set_string_signals():
+    # C27: locale/country expose their value lists (shown collapsed); free text has none.
+    rows = {row["name"]: row for row in build_signal_reference()}
+    assert "US" in rows["country"]["values"]
+    assert "en-US" in rows["locale"]["values"]
+    assert rows["utm_source"]["values"] == []  # genuinely free text
+
+
+def test_reference_rows_carry_a_value_example_per_type():
+    # C27: the Values column shows a "what to type" hint for signals with no fixed set —
+    # true/false for booleans, version examples, a number example, "Free text" for strings.
+    rows = {row["name"]: row for row in build_signal_reference()}
+    assert str(rows["is_firefox"]["value_example"]) == "true or false"
+    assert "129" in str(rows["firefox_version"]["value_example"])
+    assert "30" in str(rows["profile_age"]["value_example"])
+    assert str(rows["utm_source"]["value_example"]) == "Free text"

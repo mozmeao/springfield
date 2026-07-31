@@ -13,10 +13,16 @@ import {
     initConditionHelp
 } from '../../../../../media/js/cms/routing/condition-help.es6.js';
 
+const COMMA_HINT = 'Separate multiple values with commas.';
+const INVALID_HINT = 'That value is not valid.';
+
 const PAYLOAD = {
     platform: {
         valueType: 'enum',
+        description: 'The visitor operating system.',
         hint: 'Enter one of these values:',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
         operators: [
             { value: 'is', label: 'is' },
             { value: 'is_not', label: 'is not' },
@@ -26,16 +32,21 @@ const PAYLOAD = {
         enumValues: [
             { value: 'windows', label: 'Windows' },
             { value: 'osx', label: 'macOS' }
-        ]
+        ],
+        values: []
     },
     firefox_version: {
         valueType: 'version',
-        hint: 'Compared as a version. Available operators:',
+        description: 'The visitor Firefox version.',
+        hint: 'Enter a version, e.g. 129 or 130.0.1.',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
         operators: [
             { value: 'gte', label: 'is at least' },
             { value: 'lt', label: 'is less than' }
         ],
-        enumValues: []
+        enumValues: [],
+        values: []
     }
 };
 
@@ -91,30 +102,46 @@ function hiddenValues(operatorSelect) {
 
 describe('cms/routing/condition-help.es6.js', function () {
     describe('buildHelpText', function () {
-        it('renders the enumerated set for an enum signal', function () {
-            const text = buildHelpText(PAYLOAD.platform);
-            expect(text).toContain('Windows (windows)');
-            expect(text).toContain('macOS (osx)');
+        it('leads with the description and lists enum value codes (no label parens)', function () {
+            const text = buildHelpText(PAYLOAD.platform, 'is');
+            expect(text).toContain('The visitor operating system.');
             expect(text).toContain('Enter one of these values:');
+            expect(text).toContain('windows');
+            expect(text).toContain('osx');
+            expect(text).not.toContain('(windows)'); // codes only, no label parens
         });
 
-        it('renders the hint and operator meanings for a version signal', function () {
-            const text = buildHelpText(PAYLOAD.firefox_version);
-            expect(text).toContain('Compared as a version');
-            expect(text).toContain('is at least');
-            expect(text).toContain('is less than');
+        it('does not restate operators in the help', function () {
+            const text = buildHelpText(PAYLOAD.platform, 'is');
+            expect(text).not.toContain('is not');
+            const version = buildHelpText(PAYLOAD.firefox_version, 'gte');
+            expect(version).toContain('The visitor Firefox version.');
+            expect(version).toContain('130.0.1');
+            expect(version).not.toContain('is at least');
+        });
+
+        it('adds a comma-separated hint only for set-membership operators', function () {
+            expect(buildHelpText(PAYLOAD.platform, 'is')).not.toContain(
+                COMMA_HINT
+            );
+            expect(buildHelpText(PAYLOAD.platform, 'in')).toContain(COMMA_HINT);
+            expect(buildHelpText(PAYLOAD.platform, 'not_in')).toContain(
+                COMMA_HINT
+            );
         });
 
         it('leads with the value list for a string signal with a known set', function () {
             const meta = {
                 valueType: 'string',
+                description: 'The visitor locale.',
                 hint: 'Enter one of these values:',
-                operators: [{ value: 'is', label: 'is' }],
+                commaHint: COMMA_HINT,
+                operators: [],
                 enumValues: [],
                 values: ['US', 'GB', 'DE']
             };
-            const text = buildHelpText(meta);
-            expect(text).toContain('Enter one of these values:');
+            const text = buildHelpText(meta, 'is');
+            expect(text).toContain('The visitor locale.');
             expect(text).toContain('US');
             expect(text).toContain('DE');
         });
@@ -124,30 +151,35 @@ describe('cms/routing/condition-help.es6.js', function () {
             for (let i = 0; i < 40; i++) {
                 values.push('v' + i);
             }
-            const text = buildHelpText({
-                valueType: 'string',
-                hint: 'Enter one of these values:',
-                operators: [],
-                enumValues: [],
-                values: values
-            });
+            const text = buildHelpText(
+                {
+                    valueType: 'string',
+                    hint: 'Enter one of these values:',
+                    commaHint: COMMA_HINT,
+                    operators: [],
+                    enumValues: [],
+                    values: values
+                },
+                'in'
+            );
             expect(text).toContain('v0');
             expect(text).not.toContain('v39'); // beyond the cap
             expect(text).toContain('(40 total)');
         });
 
         it('is empty for an unknown signal', function () {
-            expect(buildHelpText(undefined)).toEqual('');
+            expect(buildHelpText(undefined, 'is')).toEqual('');
         });
     });
 
     describe('renderConditionHelp', function () {
-        it('inserts enum help beneath the expected-value field', function () {
+        it('inserts help beneath the expected-value field', function () {
             const dom = makeConditionDOM('platform');
             renderConditionHelp(dom.select, PAYLOAD, dom.container);
             const help = dom.fieldWrap.querySelector('.routing-condition-help');
             expect(help).not.toBeNull();
-            expect(help.textContent).toContain('Windows (windows)');
+            expect(help.textContent).toContain('operating system');
+            expect(help.textContent).toContain('windows');
         });
 
         it('updates the help when the signal changes', function () {
@@ -156,8 +188,8 @@ describe('cms/routing/condition-help.es6.js', function () {
             dom.select.value = 'firefox_version';
             renderConditionHelp(dom.select, PAYLOAD, dom.container);
             const help = dom.fieldWrap.querySelector('.routing-condition-help');
-            expect(help.textContent).toContain('is at least');
-            expect(help.textContent).not.toContain('Windows');
+            expect(help.textContent).toContain('Firefox version');
+            expect(help.textContent).not.toContain('operating system');
         });
     });
 
@@ -322,6 +354,8 @@ describe('cms/routing/condition-help.es6.js', function () {
                 expect(
                     help.classList.contains('routing-condition-help--invalid')
                 ).toBe(true);
+                // An explicit message, not just a red outline.
+                expect(help.textContent).toContain(INVALID_HINT);
             } finally {
                 document.body.removeChild(dom.container);
             }
@@ -386,14 +420,14 @@ describe('cms/routing/condition-help.es6.js', function () {
             expect(
                 dom.fieldWrap.querySelector('.routing-condition-help')
                     .textContent
-            ).toContain('Windows');
+            ).toContain('operating system');
 
             dom.select.value = 'firefox_version';
             dom.select.dispatchEvent(new Event('change'));
             expect(
                 dom.fieldWrap.querySelector('.routing-condition-help')
                     .textContent
-            ).toContain('is at least');
+            ).toContain('Firefox version');
         });
 
         it('wires a row inserted AFTER init (regression guard for the missing observer)', async function () {
@@ -412,7 +446,7 @@ describe('cms/routing/condition-help.es6.js', function () {
                     '.routing-condition-help'
                 );
                 expect(help).not.toBeNull();
-                expect(help.textContent).toContain('Windows');
+                expect(help.textContent).toContain('operating system');
             } finally {
                 document.body.removeChild(root);
             }
