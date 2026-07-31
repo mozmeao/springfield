@@ -11,21 +11,22 @@ from django.db.models import Max
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
 
+from springfield.firefox.referral.crypto import invite_code_to_referral_id
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.utils.management.decorators import alert_sentry_on_exception
 
-_HEADER_ROW = ("referral_id", "install_count")
+_HEADER_ROW = ("invite_code", "count")
 
 
 def _iter_rows(reader):
-    """Yield (referral_id, install_count) tuples from a csv.reader.
+    """Yield (invite_code, count_str) tuples from a csv.reader.
 
     Tolerates an optional header row: if the first row exactly matches
-    the expected column names ('referral_id', 'install_count'), skip it.
+    the expected column names ('invite_code', 'count'), skip it.
     Any other first row — including a malformed data row — is yielded so
-    the manager's refresh() can count it as skipped rather than silently
-    dropping it here. Also skips blank lines and rows without exactly two
-    columns.
+    _decrypt_rows / _validated_iter can count it as skipped rather than
+    silently dropping it here. Also skips blank lines and rows without
+    exactly two columns.
     """
     header_checked = False
     for row in reader:
@@ -41,6 +42,24 @@ def _iter_rows(reader):
         yield row[0], row[1]
 
 
+def _decrypt_rows(rows):
+    """Decrypt invite codes to referral IDs, skipping rows that fail.
+
+    Yields (referral_id, count_str) tuples. An invite code that fails
+    decryption (bad format, unknown key version) yields (None, count_str)
+    so _validated_iter counts it as a skipped row rather than aborting
+    the whole refresh. Sentry is notified by invite_code_to_referral_id
+    itself on decryption failure.
+    """
+    for invite_code, count in rows:
+        try:
+            referral_id = invite_code_to_referral_id(invite_code)
+        except Exception:
+            yield None, count
+            continue
+        yield referral_id, count
+
+
 @alert_sentry_on_exception
 class Command(BaseCommand):
     help = (
@@ -50,8 +69,9 @@ class Command(BaseCommand):
         "command lists that prefix, picks the lex-newest name (chronologically "
         "latest for this timestamp format), and imports it. Expected CSV shape "
         "(header optional):\n"
-        "    referral_id,install_count\n"
-        "    ABC1234567,42\n"
+        "    invite_code,count\n"
+        "    1ABCDEFGHJKMNPQST,42\n"
+        "Each invite code is decrypted to a referral ID before storage. "
         "Skips when the newest blob has not been updated since the last "
         "successful import, unless --force is passed."
     )
@@ -100,6 +120,6 @@ class Command(BaseCommand):
 
         with blob.open("r") as fh:
             reader = csv.reader(fh)
-            loaded, skipped = FirefoxReferralData.objects.refresh(_iter_rows(reader))
+            loaded, skipped = FirefoxReferralData.objects.refresh(_decrypt_rows(_iter_rows(reader)))
 
         self._log(f"Loaded {loaded} referral rows from {blob.name!r} ({skipped} skipped)")
