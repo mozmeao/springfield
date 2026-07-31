@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' %}
+{%- set params='?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=nav&utm_content=browser' -%}
 
 <include:nav-folder
   label="{{ ftl('navigation-browser') }}"
@@ -32,7 +32,7 @@
       />
     </ul>
 
-    {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
+    {%- if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
       <span class="fl-nav-separator"></span>
       <ul>
         <include:nav-link

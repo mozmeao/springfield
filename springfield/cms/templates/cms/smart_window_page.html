@@ -13,9 +13,9 @@
 {% block main_class %}{% endblock %}
 
 {% block flare_header %}
-  {% set custom_nav_cta %}
+  {%- set custom_nav_cta -%}
     <div class="nav-cta-wrap">
-      {% set nav_smart_window %}
+      {%- set nav_smart_window -%}
           <include:uitour_button
             theme_class="{{ ui_tour_class }}"
             label="{{ page.smart_window_button_label }}"
@@ -27,7 +27,7 @@
             {% endif %}
           />
       {% endset %}
-      {% set nav_download %}
+      {%- set nav_download -%}
           <include:download-firefox-button
             analytics_id="{{ page.nav_download_button_uid }}"
             label="{{ page.download_button_label }}"
@@ -49,16 +49,16 @@
       {% endif %}
     </div>
   {% endset %}
-  {% set theme = "dark" %}
-  {% set hide_nav_cta = true %}
-  {% set disable_sticky = true %}
-  {% set no_menu_dropdowns = true %}
+  {%- set theme = "dark" -%}
+  {%- set hide_nav_cta = true -%}
+  {%- set disable_sticky = true -%}
+  {%- set no_menu_dropdowns = true -%}
   {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block content %}
 
-{% set intro_download %}
+{%- set intro_download -%}
   <include:download-firefox-button
     analytics_id="{{ page.intro_download_button_uid }}"
     label="{{ page.download_button_label }}"
@@ -70,7 +70,7 @@
   />
 {% endset %}
 
-{% set copy_to_clipboard %}
+{%- set copy_to_clipboard -%}
   <include:copy-to-clipboard-button
     theme_class="button-secondary"
     value="{{ request.build_absolute_uri() }}"
@@ -79,7 +79,7 @@
   />
 {% endset %}
 
-{% set intro_smart_window %}
+{%- set intro_smart_window -%}
     <include:uitour_button
       theme_class="{{ ui_tour_class }}"
       label="{{ page.smart_window_button_label }}"
@@ -92,7 +92,7 @@
     />
 {% endset %}
 
-{% set update_instructions %}
+{%- set update_instructions -%}
   <include:button
     link="{{ page.update_link }}"
     label="{{ page.update_button_label }}"
@@ -102,7 +102,7 @@
   />
 {% endset %}
 
-{% set form %}
+{%- set form -%}
   <form id="newsletter-form" class="fl-smart-window-form fl-newsletterform" action="{{ settings.BASKET_SUBSCRIBE_URL }}" method="post" novalidate data-testid="newsletter-form">
     <div hidden>
       <input type="checkbox" name="newsletters" value="smart-window-waitlist" checked>
@@ -209,7 +209,7 @@
           </div>
 
           {% if page.animation %}
-            {% set img = image(page.image, "width-1200") %}
+            {%- set img = image(page.image, "width-1200") -%}
             <div class="fl-smart-window-intro-featured-image">
               <include:animation
                 video_url="{{ page.animation }}"
@@ -220,7 +220,7 @@
               />
             </div>
           {% else %}
-            {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+            {%- set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) -%}
             <div class="fl-smart-window-intro-featured-image">
               <div class="image-variants-display">
                 {{ srcset_image(
@@ -272,10 +272,10 @@
 
       <div class="fl-split-page-lower no-gap">
         {% for block in page.content %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
-          {% set block_level = 2 %}
+          {%- set block_index = loop.index -%}
+          {%- set block_type = block.block_type -%}
+          {%- set block_position = "block-" ~ block_index ~ "-" ~ block_type -%}
+          {%- set block_level = 2 -%}
           {% include_block block %}
         {% endfor %}
       </div>

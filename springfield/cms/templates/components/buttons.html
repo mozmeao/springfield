@@ -5,7 +5,7 @@
 #}
 
 <div class="fl-buttons {% if orientation == 'stacked' %}is-stacked{% else %}is-horizontal{% endif %} {% if center %}is-center{% endif %}">
-  {% for btn in buttons %}
+  {%- for btn in buttons -%}
     <div>
       <include:button
         label="{{ btn.label }}"
@@ -17,5 +17,5 @@
         icon_position="{{ btn.icon_position }}"
       />
     </div>
-  {% endfor %}
+  {%- endfor -%}
 </div>

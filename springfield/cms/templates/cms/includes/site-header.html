@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#
+{#-
  Renders the site header via the flare-header component, injecting the page's
  custom navigation snippet into the nav slot when one is available and falling
  back to the default navigation otherwise.
@@ -13,41 +13,41 @@
  this partial (all read from context by the flare-header component): theme,
  no_menu, disable_sticky, no_menu_dropdowns, hide_nav_cta,
  hide_nav_download_button, custom_nav_cta.
-#}
+-#}
 
-{% set page_navigation = custom_navigation or get_default_navigation() %}
+{%- set page_navigation = custom_navigation or get_default_navigation() -%}
 
-{% if page_navigation and page_navigation.cta_button %}
-  {% set custom_nav_cta %}
-    {% set block_position = "topnav" %}
-    {% set utm_parameters = {
+{%- if page_navigation and page_navigation.cta_button %}
+  {%- set custom_nav_cta -%}
+    {%- set block_position = "topnav" -%}
+    {%- set utm_parameters = {
         "utm_source": "www.firefox.com",
         "utm_medium": "referral",
         "utm_campaign": "nav",
         "utm_content": "topnav"
-    } %}
-    {% include_block page_navigation.cta_button %}
-  {% endset %}
-{% endif %}
+    } -%}
+    {%- include_block page_navigation.cta_button %}
+  {%- endset -%}
+{%- endif -%}
 
 <include:flare-header>
-  {% if page_navigation and page_navigation.logo %}
-    {% set logo_href = page_navigation.logo_link[0].value.get_url() if page_navigation.logo_link else "/" + LANG + "/" %}
-    {% set logo_classes = image_variant_classes(page_navigation.logo_dark) %}
+  {%- if page_navigation and page_navigation.logo %}
+    {%- set logo_href = page_navigation.logo_link[0].value.get_url() if page_navigation.logo_link else "/" + LANG + "/" -%}
+    {%- set logo_classes = image_variant_classes(page_navigation.logo_dark) -%}
     <content:custom_logo>
       <a href="{{ logo_href }}" class="fl-logo-fx fl-logo-fx-custom" aria-label="Firefox">
         {{ image(page_navigation.logo, "width-400", class=logo_classes.primary) }}
-        {% if page_navigation.logo_dark %}
+        {%- if page_navigation.logo_dark %}
           {{ image(page_navigation.logo_dark, "width-400", class=logo_classes.dark_mode) }}
-        {% endif %}
+        {%- endif %}
       </a>
     </content:custom_logo>
-  {% endif %}
-  {% if page_navigation %}
+  {%- endif %}
+  {%- if page_navigation %}
     <content:nav>
-      {% with value = page_navigation %}
-        {% include 'cms/snippets/navigation-snippet.html' %}
-      {% endwith %}
+      {%- with value = page_navigation -%}
+        {%- include 'cms/snippets/navigation-snippet.html' %}
+      {%- endwith -%}
     </content:nav>
-  {% endif %}
+  {%- endif -%}
 </include:flare-header>
