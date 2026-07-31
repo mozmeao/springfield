@@ -6,7 +6,7 @@
 
 from django.utils.functional import Promise
 
-from springfield.cms.routing.admin import VALUE_TYPE_HINTS, build_signal_payload, build_signal_reference
+from springfield.cms.routing.admin import VALUE_LIST_HINT, VALUE_TYPE_HINTS, build_signal_payload, build_signal_reference
 from springfield.cms.routing.signals import ValueType, registry
 
 
@@ -29,6 +29,25 @@ def test_version_signal_payload_has_operator_meanings_and_a_hint():
     operator_values = {operator["value"] for operator in version["operators"]}
     assert {"gte", "lt", "not_gte"} <= operator_values
     assert version["hint"] == str(VALUE_TYPE_HINTS[ValueType.VERSION])
+
+
+# ---------------------------------------------------------------------------
+# Request-time value lists for locale / country string signals (ED-3, plan P1-2).
+# ---------------------------------------------------------------------------
+
+
+def test_payload_attaches_value_lists_for_locale_and_country():
+    payload = build_signal_payload()
+    assert "US" in payload["country"]["values"]
+    assert "en-US" in payload["locale"]["values"]
+    # These use the values-oriented lead-in, not the generic STRING operators hint.
+    assert payload["country"]["hint"] == str(VALUE_LIST_HINT)
+    assert payload["locale"]["hint"] == str(VALUE_LIST_HINT)
+
+
+def test_free_text_url_signal_carries_no_value_list():
+    # utm_* are genuinely free text — no known option set, so no values list.
+    assert build_signal_payload()["utm_source"]["values"] == []
 
 
 # ---------------------------------------------------------------------------

@@ -97,7 +97,6 @@ class Migration(migrations.Migration):
                 (
                     "expected_value",
                     models.CharField(
-                        help_text="For set-membership operators (in / not in), provide a comma-separated list of values.",
                         max_length=255,
                         verbose_name="Expected value",
                     ),

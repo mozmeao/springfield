@@ -66,6 +66,37 @@ describe('cms/routing/condition-help.es6.js', function () {
             expect(text).toContain('is less than');
         });
 
+        it('leads with the value list for a string signal with a known set', function () {
+            const meta = {
+                valueType: 'string',
+                hint: 'Enter one of these values:',
+                operators: [{ value: 'is', label: 'is' }],
+                enumValues: [],
+                values: ['US', 'GB', 'DE']
+            };
+            const text = buildHelpText(meta);
+            expect(text).toContain('Enter one of these values:');
+            expect(text).toContain('US');
+            expect(text).toContain('DE');
+        });
+
+        it('caps a long value list and reports the total', function () {
+            const values = [];
+            for (let i = 0; i < 40; i++) {
+                values.push('v' + i);
+            }
+            const text = buildHelpText({
+                valueType: 'string',
+                hint: 'Enter one of these values:',
+                operators: [],
+                enumValues: [],
+                values: values
+            });
+            expect(text).toContain('v0');
+            expect(text).not.toContain('v39'); // beyond the cap
+            expect(text).toContain('(40 total)');
+        });
+
         it('is empty for an unknown signal', function () {
             expect(buildHelpText(undefined)).toEqual('');
         });
@@ -106,6 +137,39 @@ describe('cms/routing/condition-help.es6.js', function () {
                 dom.fieldWrap.querySelector('.routing-condition-help')
                     .textContent
             ).toContain('is at least');
+        });
+
+        it('wires a row inserted AFTER init (regression guard for the missing observer)', async function () {
+            const root = document.createElement('div');
+            document.body.appendChild(root);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: root });
+                // A condition row Wagtail adds after load — the one-shot scan never saw it.
+                const dom = makeConditionDOM('platform');
+                root.appendChild(dom.container);
+                // Let the MutationObserver callback run.
+                await new Promise(function (resolve) {
+                    setTimeout(resolve, 0);
+                });
+                const help = dom.fieldWrap.querySelector(
+                    '.routing-condition-help'
+                );
+                expect(help).not.toBeNull();
+                expect(help.textContent).toContain('Windows');
+            } finally {
+                document.body.removeChild(root);
+            }
+        });
+
+        it('does not double-bind a select on repeated scans', function () {
+            const dom = makeConditionDOM('platform');
+            initConditionHelp({ payload: PAYLOAD, root: dom.container });
+            // Re-initialising must be a no-op for an already-wired select.
+            initConditionHelp({ payload: PAYLOAD, root: dom.container });
+            const helps = dom.fieldWrap.querySelectorAll(
+                '.routing-condition-help'
+            );
+            expect(helps.length).toEqual(1);
         });
     });
 });

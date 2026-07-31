@@ -173,7 +173,9 @@ class RoutingCondition(Orderable):
     expected_value = models.CharField(
         max_length=255,
         verbose_name=_("Expected value"),
-        help_text=_("For set-membership operators (in / not in), provide a comma-separated list of values."),
+        # No static help_text: the dynamic per-signal help (condition-help.es6.js, ED-3)
+        # is the primary guidance and a static line here would compete with it.
+        help_text="",
     )
 
     class Meta(Orderable.Meta):
