@@ -90,6 +90,8 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
+from springfield.cms.routing.arming import QueryParamArmingCondition
+from springfield.cms.routing.mixins import RoutingMixin
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
 
@@ -1296,11 +1298,14 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
-    parent_page_types = ["cms.WhatsNewIndexPage"]
-    subpage_types = []
+    # Routing target variants are nested child WhatsNewPage2026 pages, so the type can
+    # host itself. The index's "latest version" query reads only its *direct* children,
+    # so these grandchildren never interfere with it.
+    parent_page_types = ["cms.WhatsNewIndexPage", "cms.WhatsNewPage2026"]
+    subpage_types = ["cms.WhatsNewPage2026"]
 
     ftl_files = ["firefox/whatsnew/evergreen"]
 
@@ -1375,6 +1380,31 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     @property
     def noindex(self):
         return True
+
+    # -- User Routing adoption surface (spec §2.2). Enablement is a `user_routing`
+    # -- waffle switch flip, kept off by default; this ships dark. --
+
+    def get_routing_trigger(self):
+        """Routing arms on the presence of the framework trigger query param."""
+        return QueryParamArmingCondition()
+
+    def is_routing_canonical(self):
+        """WNP's canonicals are the direct children of the What's New index page."""
+        parent = self.get_parent() if self.pk else None
+        return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
+
+    def get_routing_signal_names(self):
+        """A just-updated audience: version, platform and browser state — not the
+        paid-traffic geo/URL signals."""
+        return (
+            "firefox_version",
+            "platform",
+            "is_firefox",
+            "is_default_browser",
+            "profile_age",
+            "fxa_signed_in",
+            "ai_controls",
+        )
 
 
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
