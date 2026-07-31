@@ -57,6 +57,20 @@ def test_normalize_invite_code_rejects_non_string():
         normalize_invite_code(None)
 
 
+def test_normalize_invite_code_folds_crockford_lookalikes():
+    assert normalize_invite_code("O0oIiLl") == "0001111"
+    # `U` is excluded from the alphabet to avoid accidental obscenity, not
+    # because it resembles another symbol, so it is left alone and then fails
+    # validation.
+    assert normalize_invite_code("u") == "U"
+
+
+@pytest.mark.parametrize("value", [None, 123, b"1X3ZQ8R5M7NPQRSTV"], ids=["none", "int", "bytes"])
+def test_validate_invite_code_rejects_non_string(value):
+    with pytest.raises(ValueError):
+        validate_invite_code(value)
+
+
 def test_validate_invite_code_accepts_17_char_crockford():
     validate_invite_code("1X3ZQ8R5M7NPQRSTV")
 

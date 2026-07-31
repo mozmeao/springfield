@@ -27,6 +27,10 @@ from springfield.firefox.referral.utils import CROCKFORD_ALPHABET, REFERRAL_ID_L
 
 ALL_VECTORS = [pytest.param(v, id=v.get("label", v["plaintext"])) for v in NIST_FF1_VECTORS + RANDOM_FF1_VECTORS]
 
+# Any valid 32-byte AES key. The conformance tests use the keys pinned with
+# their vectors, so this is only for the tests where the key value is irrelevant.
+VALID_KEY = bytes(range(32))
+
 
 @pytest.mark.parametrize("v", ALL_VECTORS)
 def test_ff1_encrypt_matches_reference(v):
@@ -61,46 +65,61 @@ def test_random_vectors_include_the_s_expansion_path():
 
 def test_round_trip_property_over_crockford():
     """Encrypt then decrypt is identity for many random Crockford inputs."""
-    key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     rng = random.Random(20260722)
     for _ in range(2000):
         # Hand-picked spread of even and odd input lengths (odd exercises the
         # unequal-half Feistel path), including the production `REFERRAL_ID_LENGTH`.
         n = rng.choice([10, 11, 14, REFERRAL_ID_LENGTH, 19, 24])
         plaintext = "".join(rng.choice(CROCKFORD_ALPHABET) for _ in range(n))
-        ciphertext = ff1_encrypt(key, b"", 32, plaintext, alphabet=CROCKFORD_ALPHABET)
+        ciphertext = ff1_encrypt(VALID_KEY, b"", 32, plaintext, alphabet=CROCKFORD_ALPHABET)
         assert len(ciphertext) == n
-        assert ff1_decrypt(key, b"", 32, ciphertext, alphabet=CROCKFORD_ALPHABET) == plaintext
+        assert ff1_decrypt(VALID_KEY, b"", 32, ciphertext, alphabet=CROCKFORD_ALPHABET) == plaintext
 
 
 def test_character_value_out_of_range_for_radix_is_rejected():
-    key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     # 'w' is index 32 in the default base-36 alphabet, out of range for radix 32.
     # This is a distinct branch from a character that is absent from the alphabet.
     with pytest.raises(ValueError):
-        ff1_encrypt(key, b"", 32, "wwwwwwwwww")
+        ff1_encrypt(VALID_KEY, b"", 32, "wwwwwwwwww")
 
 
 def test_domain_below_minimum_is_rejected():
-    key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     # radix 32, n=3 -> 32**3 = 32768, below the 1,000,000 floor.
     assert 32**3 < MIN_DOMAIN_SIZE
     with pytest.raises(ValueError):
-        ff1_encrypt(key, b"", 32, "ABC", alphabet=CROCKFORD_ALPHABET)
+        ff1_encrypt(VALID_KEY, b"", 32, "ABC", alphabet=CROCKFORD_ALPHABET)
     with pytest.raises(ValueError):
-        ff1_decrypt(key, b"", 32, "ABC", alphabet=CROCKFORD_ALPHABET)
+        ff1_decrypt(VALID_KEY, b"", 32, "ABC", alphabet=CROCKFORD_ALPHABET)
 
 
 def test_radix_out_of_range_is_rejected():
-    key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     with pytest.raises(ValueError):
-        ff1_encrypt(key, b"", 1, "0000000000")
+        ff1_encrypt(VALID_KEY, b"", 1, "0000000000")
     with pytest.raises(ValueError):
-        ff1_encrypt(key, b"", (1 << 16) + 1, "0000000000")
+        ff1_encrypt(VALID_KEY, b"", (1 << 16) + 1, "0000000000")
 
 
 def test_character_outside_alphabet_is_rejected():
-    key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     # 'I' is not in the Crockford alphabet.
     with pytest.raises(ValueError):
-        ff1_encrypt(key, b"", 32, "IIIIIIIIII", alphabet=CROCKFORD_ALPHABET)
+        ff1_encrypt(VALID_KEY, b"", 32, "IIIIIIIIII", alphabet=CROCKFORD_ALPHABET)
+
+
+def test_alphabet_shorter_than_radix_is_rejected():
+    # Input only uses symbols the short alphabet has, so the encode side would
+    # succeed. Without the up-front check the failure surfaces as an
+    # `IndexError` on the way back out, once the cipher emits a numeral above 15.
+    short = CROCKFORD_ALPHABET[:16]
+    with pytest.raises(ValueError):
+        ff1_encrypt(VALID_KEY, b"", 32, "0123456789", alphabet=short)
+    with pytest.raises(ValueError):
+        ff1_decrypt(VALID_KEY, b"", 32, "0123456789", alphabet=short)
+
+
+def test_alphabet_with_duplicate_symbols_is_rejected():
+    # A repeated symbol makes the numeral mapping non-invertible, so the round
+    # trip would silently return the wrong plaintext rather than raise.
+    duplicated = "0" + CROCKFORD_ALPHABET[:31]
+    assert len(duplicated) == 32
+    with pytest.raises(ValueError):
+        ff1_encrypt(VALID_KEY, b"", 32, "0123456789", alphabet=duplicated)

@@ -89,6 +89,7 @@ from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.firefox.referral import crypto
+from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
 
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
@@ -2416,9 +2417,19 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
                 invite_code = crypto.referral_id_to_invite_code(referral_id)
                 context["invite_url"] = crypto.invite_url_for_code(invite_code)
             except ValueError:
-                # A malformed ref_key from the query string is treated the same
-                # as a missing one rather than raising.
-                pass
+                # Treated like a missing `ref_key` rather than raising. Only a
+                # correctly sized one is reported, because this is a public page
+                # and anything can land in the query string. At the right length
+                # it plausibly came from the referral flow, so a spike is worth
+                # seeing. The value itself is masked out of the event by
+                # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
+                if len(referral_id) == REFERRAL_ID_LENGTH:
+                    with new_scope() as scope:
+                        scope.fingerprint = ["referral-hub-invalid-ref-key"]
+                        capture_message(
+                            "ReferralHubPage received a ref_key that is not a valid referral ID",
+                            level="warning",
+                        )
 
         return context
 

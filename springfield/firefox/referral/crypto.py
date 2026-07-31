@@ -13,8 +13,6 @@ Nothing here does database access or logs secrets. The only thing ever logged
 is the single-character key version (safe to log), and only on a decode failure.
 """
 
-from __future__ import annotations
-
 from django.conf import settings
 
 from sentry_sdk import capture_message, new_scope
@@ -58,10 +56,11 @@ def invite_url_for_code(invite_code: str) -> str:
     """Build the shareable download URL for an invite code.
 
     Kept as a function so the URL structure lives in exactly one place. The
-    Crockford alphabet is URL-safe, so no percent-encoding is needed. Does not
-    validate the code.
+    Crockford alphabet is URL-safe, so no percent-encoding is needed. Raises
+    ``ValueError`` on a malformed invite code.
     """
-    return f"https://www.firefox.com/get-firefox/?invitation={invite_code}"
+    validate_invite_code(invite_code)
+    return f"{settings.CANONICAL_URL}/get-firefox/?invitation={invite_code}"
 
 
 def invite_code_to_referral_id(invite_code: str) -> str:
