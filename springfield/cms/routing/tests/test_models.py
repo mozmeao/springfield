@@ -336,3 +336,9 @@ def test_rule_panels_scope_the_target_chooser_to_given_page_types():
     target_panel = _target_panel(rule_panels(["cms.WhatsNewPage2026"]))
     assert isinstance(target_panel.widget, AdminPageChooser)
     assert WhatsNewPage2026 in target_panel.widget.target_models
+
+
+def test_conditions_panel_heading_states_the_and_semantics():
+    # Editors should see the conjunction on the panel itself, not only in the tab help.
+    conditions_panel = next(panel for panel in rule_panels() if getattr(panel, "relation_name", "") == "conditions")
+    assert "AND" in str(conditions_panel.heading)

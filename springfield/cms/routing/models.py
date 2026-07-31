@@ -68,7 +68,7 @@ def rule_panels(target_page_types=None):
         FieldPanel("name"),
         FieldPanel("match_all"),
         target_panel,
-        InlinePanel("conditions", label=_("Conditions")),
+        InlinePanel("conditions", heading=_("Conditions (all must match — AND)"), label=_("Condition")),
     ]
 
 
