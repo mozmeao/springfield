@@ -552,6 +552,15 @@ SECRET_KEY = config("SECRET_KEY", default="ssssshhhhh")
 GS_BUCKET_NAME = config("GS_BUCKET_NAME", default="")
 GS_PROJECT_ID = config("GS_PROJECT_ID", default="")
 
+# Distinct GCS bucket where Data Engineering publishes periodic
+# (referral_id, install_count) snapshots consumed by update_referral_data.
+# Data Eng writes one CSV per publish, named
+# `{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DDZHH:MM:SS.csv`; the
+# command picks the lex-newest name (which sorts chronologically for that
+# timestamp format). Empty bucket name disables the import as a no-op.
+REFERRAL_DATA_GCS_BUCKET = config("REFERRAL_DATA_GCS_BUCKET", default="")
+REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX = config("REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX", default="referral_data")
+
 STORAGES = {
     # In production only the CMS/Editing deployment has write access
     # to the cloud storage bucket. As such, be careful if you introduce
