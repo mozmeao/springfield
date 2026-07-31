@@ -82,6 +82,7 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
+from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page, get_comparison_table_variants
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
@@ -3583,6 +3584,65 @@ def test_uuid_block_is_not_translatable():
     """UUIDBlock stores analytics IDs, not user-facing content — it must not be sent to translators."""
 
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
+
+
+def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
+    value = block_data["value"]
+    mobile_behavior = value["mobile_behavior"]
+    highlighted_column = value.get("highlighted_column") or None
+
+    assert mobile_behavior in wrapper_el.get("class", [])
+
+    header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
+    th_elements = wrapper_el.find_all("th")
+    assert len(th_elements) == len(header_cells_data)
+    for i, (th, cell_data) in enumerate(zip(th_elements, header_cells_data)):
+        assert th.get_text(strip=True) == cell_data["content"]
+        col_index = i + 1
+        if highlighted_column and highlighted_column == col_index:
+            assert "highlighted" in th.get("class", [])
+        else:
+            assert "highlighted" not in th.get("class", [])
+        if cell_data["column_span"] > 1:
+            assert th.get("colspan") == str(cell_data["column_span"])
+
+    content_rows_data = value["content_rows"]
+    tr_elements = wrapper_el.find("tbody").find_all("tr")
+    assert len(tr_elements) == len(content_rows_data)
+    for tr, row_data in zip(tr_elements, content_rows_data):
+        cells_data = [c["value"] for c in row_data["value"]["cells"]]
+        td_elements = tr.find_all("td")
+        assert len(td_elements) == len(cells_data)
+        for i, (td, cell_data) in enumerate(zip(td_elements, cells_data)):
+            assert td.get_text(strip=True) == cell_data["content"]
+            col_index = i + 1
+            if highlighted_column and highlighted_column == col_index:
+                assert "highlighted" in td.get("class", [])
+            else:
+                assert "highlighted" not in td.get("class", [])
+            if cell_data["column_span"] > 1:
+                assert td.get("colspan") == str(cell_data["column_span"])
+
+
+def test_comparison_table_variants(index_page, rf):
+    page = get_comparison_table_test_page()
+    variants = get_comparison_table_variants()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in (upper, lower):
+        tables = region.find_all("div", class_="fl-comparison-table-wrapper")
+        assert len(tables) == len(variants)
+        for index, variant in enumerate(variants):
+            table = tables[index]
+            assert_comparison_table(table, variant)
 
 
 class TestIconDisplayLabel:

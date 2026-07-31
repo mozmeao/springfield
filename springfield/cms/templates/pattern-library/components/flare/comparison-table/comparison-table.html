@@ -1,0 +1,47 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="comparison-table-highlighted">
+  <include:comparison-table mobile_behavior="scroll">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          <th {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</th>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            <td {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+  </include:comparison-table>
+</div>
+
+<div data-testid="comparison-table-stacked">
+  <include:comparison-table mobile_behavior="stacked">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          <th {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</th>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            <td {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+  </include:comparison-table>
+</div>
