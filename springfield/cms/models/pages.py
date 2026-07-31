@@ -129,9 +129,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
-    content_panels = [
-        FieldPanel("title"),
-        FieldPanel("internal_title"),
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("slug"),
     ]
     promote_panels = []
@@ -1347,6 +1345,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("version"),
         SynchronizedField("pre_footer_image"),
     ]
 
