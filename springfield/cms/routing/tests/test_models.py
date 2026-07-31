@@ -12,6 +12,7 @@ is introduced.
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
+from django.db.models import ProtectedError
 
 import pytest
 
@@ -47,6 +48,71 @@ def test_rules_attach_to_a_concrete_page_via_the_generic_relation(tree):
     # The reverse accessor works from the concrete subclass instance, proving the
     # single generic table is shared without a per-consumer model.
     assert list(tree.canonical.routing_rules.all()) == [rule]
+
+
+# ---------------------------------------------------------------------------
+# match_all + name fields (plan P0-2, ED-5).
+# ---------------------------------------------------------------------------
+
+
+def test_match_all_defaults_to_false(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+    assert rule.match_all is False
+
+
+def test_name_defaults_to_blank(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+    assert rule.name == ""
+
+
+def test_match_all_and_name_persist(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant, match_all=True, name="Route everyone")
+    rule.refresh_from_db()
+    assert rule.match_all is True
+    assert rule.name == "Route everyone"
+
+
+# ---------------------------------------------------------------------------
+# __str__ (ED-5): name when set, else a conditions → target summary.
+# ---------------------------------------------------------------------------
+
+
+def test_str_uses_name_when_set(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant, name="My rule")
+    assert str(rule) == "My rule"
+
+
+def test_str_falls_back_to_match_all_summary(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant, match_all=True)
+    result = str(rule)
+    assert "all triggered visitors" in result
+    assert f"target {tree.descendant.id}" in result
+
+
+def test_str_falls_back_to_conditions_summary(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows")
+    result = str(rule)
+    assert "platform is windows" in result
+    assert f"target {tree.descendant.id}" in result
+
+
+def test_str_falls_back_to_no_conditions_summary(tree):
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+    result = str(rule)
+    assert "no conditions" in result
+    assert f"target {tree.descendant.id}" in result
+
+
+# ---------------------------------------------------------------------------
+# Target FK protection (plan P0-3): deleting a targeted page is blocked.
+# ---------------------------------------------------------------------------
+
+
+def test_deleting_a_targeted_page_raises_protected_error(tree):
+    RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+    with pytest.raises(ProtectedError):
+        tree.descendant.delete()
 
 
 # ---------------------------------------------------------------------------

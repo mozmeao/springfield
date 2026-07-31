@@ -63,10 +63,23 @@ class RoutingRule(ClusterableModel, Orderable):
     page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_rules")
     target = models.ForeignKey(
         "wagtailcore.Page",
-        on_delete=models.CASCADE,
+        # PROTECT (not CASCADE): deleting a targeted page must be blocked, never
+        # silently take its rule with it (plan P0-3).
+        on_delete=models.PROTECT,
         related_name="+",
         verbose_name=_("Target page"),
         help_text=_("The page to route matching users to. Must be a descendant of this page."),
+    )
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Rule name"),
+        help_text=_("Optional label for this rule, shown in listings. Falls back to a summary of its conditions."),
+    )
+    match_all = models.BooleanField(
+        default=False,
+        verbose_name=_("Match all triggered visitors"),
+        help_text=_("Route every triggered visitor to the target (no conditions). Matches before any rule below it."),
     )
 
     class Meta(Orderable.Meta):
@@ -77,12 +90,20 @@ class RoutingRule(ClusterableModel, Orderable):
     # Fields shown for each rule inside the "User Routing" tab (C4). Conditions are
     # authored as a nested inline conjunction (spec §5.2).
     panels = [
+        FieldPanel("name"),
+        FieldPanel("match_all"),
         FieldPanel("target"),
         InlinePanel("conditions", label=_("Conditions")),
     ]
 
     def __str__(self):
-        return f"RoutingRule {self.pk} (page {self.page_id} -> target {self.target_id})"
+        if self.name:
+            return self.name
+        if self.match_all:
+            summary = _("all triggered visitors")
+        else:
+            summary = ", ".join(str(condition) for condition in self.conditions.all()) or _("no conditions")
+        return f"{summary} → target {self.target_id}"
 
     def clean(self):
         super().clean()

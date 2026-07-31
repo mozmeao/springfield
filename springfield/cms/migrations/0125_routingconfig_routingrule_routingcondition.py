@@ -56,10 +56,27 @@ class Migration(migrations.Migration):
                     "target",
                     models.ForeignKey(
                         help_text="The page to route matching users to. Must be a descendant of this page.",
-                        on_delete=django.db.models.deletion.CASCADE,
+                        on_delete=django.db.models.deletion.PROTECT,
                         related_name="+",
                         to="wagtailcore.page",
                         verbose_name="Target page",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        blank=True,
+                        help_text="Optional label for this rule, shown in listings. Falls back to a summary of its conditions.",
+                        max_length=255,
+                        verbose_name="Rule name",
+                    ),
+                ),
+                (
+                    "match_all",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Route every triggered visitor to the target (no conditions). Matches before any rule below it.",
+                        verbose_name="Match all triggered visitors",
                     ),
                 ),
             ],
