@@ -40,7 +40,7 @@ def referral_id_to_invite_code(referral_id: str) -> str:
 
     The invite code is the active key version character followed by the FF1
     ciphertext of the referral ID. Deterministic for a given active key,
-    canonical uppercase, and a pure function (no I/O). Raises ``ValueError`` if
+    canonical uppercase, and a pure function (no I/O). Raises `ValueError` if
     the referral ID is not canonical uppercase Crockford base32.
     """
     validate_referral_id(referral_id)
@@ -57,7 +57,7 @@ def invite_url_for_code(invite_code: str) -> str:
 
     Kept as a function so the URL structure lives in exactly one place. The
     Crockford alphabet is URL-safe, so no percent-encoding is needed. Raises
-    ``ValueError`` on a malformed invite code.
+    `ValueError` on a malformed invite code.
     """
     validate_invite_code(invite_code)
     return f"{settings.CANONICAL_URL}/get-firefox/?invitation={invite_code}"
@@ -70,7 +70,7 @@ def invite_code_to_referral_id(invite_code: str) -> str:
     Round-trips exactly with :func:`referral_id_to_invite_code`. There is no
     integrity check by design: any well-formed code with a known key version
     decrypts to some referral ID, so the caller must decide whether that ID
-    corresponds to a real referrer. Raises ``ValueError`` on bad format or an
+    corresponds to a real referrer. Raises `ValueError` on bad format or an
     unknown key version, and reports each rejection to Sentry at warning level.
     """
     try:
@@ -97,7 +97,7 @@ def _report_decode_failure(category: str, *, version: str | None = None) -> None
     """Report a decode rejection to Sentry at warning level.
 
     Fingerprinted by category so Sentry dedupes typo floods and a spike in
-    either category (``bad_format`` or ``version_not_in_keyring``) stands out.
+    either category (`bad_format` or `version_not_in_keyring`) stands out.
     Only the key version character is attached, never the code or referral ID.
     """
     with new_scope() as scope:
