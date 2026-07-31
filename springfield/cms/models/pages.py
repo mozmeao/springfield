@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 import uuid
 from typing import TYPE_CHECKING
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -89,6 +89,8 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
+from springfield.firefox.referral import crypto
+from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
 
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
@@ -2422,15 +2424,11 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
 
-    def _referral_id_to_invite_code(self, referral_id: str) -> str:
-        # placeholder/dummy invite-code-generation for now
-        return referral_id[::-1].replace("TSET", "FAKE")
-
     def get_context(self, request, *args, **kwargs):
         """
         Adds an invite_url to the context using the referral-hub ID
         ("ref_key") in the URL that opens this Referral Hub page.
-        If ref_key is missing, invite_url is empty.
+        If ref_key is missing or invalid, invite_url is empty.
 
         The invite_url is the one that can be copied and sent to friends
         and can be turned into a QR code as needed, etc.
@@ -2438,14 +2436,25 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         context = super().get_context(request, *args, **kwargs)
 
+        context["invite_url"] = ""
         if referral_id := request.GET.get("ref_key"):
-            invite_code = self._referral_id_to_invite_code(referral_id)
-            params = urlencode({"invitation": invite_code})
-            context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
-        else:
-            # No referral-id code == no invite URL. Template needs to handle
-            # this case
-            context["invite_url"] = ""
+            try:
+                invite_code = crypto.referral_id_to_invite_code(referral_id)
+                context["invite_url"] = crypto.invite_url_for_code(invite_code)
+            except ValueError:
+                # Treated like a missing `ref_key` rather than raising. Only a
+                # correctly sized one is reported, because this is a public page
+                # and anything can land in the query string. At the right length
+                # it plausibly came from the referral flow, so a spike is worth
+                # seeing. The value itself is masked out of the event by
+                # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
+                if len(referral_id) == REFERRAL_ID_LENGTH:
+                    with new_scope() as scope:
+                        scope.fingerprint = ["referral-hub-invalid-ref-key"]
+                        capture_message(
+                            "ReferralHubPage received a ref_key that is not a valid referral ID",
+                            level="warning",
+                        )
 
         return context
 
