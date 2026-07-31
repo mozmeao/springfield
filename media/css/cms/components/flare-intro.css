@@ -61,7 +61,7 @@
     gap: var(--token-layout-md);
     grid-template-columns: 1fr;
     margin-inline: auto;
-    max-inline-size: 1440px;
+    max-inline-size: var(--token-width-desktop-wide-banner);
 }
 
 .fl-intro.fl-intro-media-left .fl-intro-content,

@@ -18,5 +18,6 @@ docker run --rm \
     -e FLUENT_REPO_AUTH \
     -e FLUENT_L10N_TEAM_REPO \
     -e FLUENT_L10N_TEAM_REPO_BRANCH \
+    -e REFERRAL_INVITE_CODE_KEY_V1 \
     "$DEPLOYMENT_DOCKER_IMAGE" \
     python manage.py open_ftl_pr
