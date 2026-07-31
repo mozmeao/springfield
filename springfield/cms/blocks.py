@@ -2318,6 +2318,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("comparison_table", ComparisonTableBlock()),
             ],
             required=False,
         )
@@ -2903,6 +2904,72 @@ class EnterpriseDownloadBlock(blocks.StaticBlock):
     class Meta:
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
+
+
+# Comparison Table
+
+
+class ComparisonTableCellBlock(blocks.StructBlock):
+    content = blocks.CharBlock(label="Cell content", required=False, help_text="Leave empty if you want to only fill the space.")
+    column_span = blocks.ChoiceBlock(
+        (
+            (1, 1),
+            (2, 2),
+            (3, 3),
+        ),
+        default=1,
+        help_text="Amount of columns this value will visually occupy in the table.",
+        inline_form=True,
+    )
+
+    class Meta:
+        label = "Comparison table cell"
+        form_layout = blocks.BlockGroup(
+            children=["content"],
+            settings=["column_span"],
+        )
+
+
+class ComparisonTableRowBlock(blocks.StructBlock):
+    cells = blocks.ListBlock(ComparisonTableCellBlock, min_num=1, max_num=4)
+
+    class Meta:
+        label = "Comparison table row"
+
+
+class ComparisonTableBlock(blocks.StructBlock):
+    """Comparison table block, with a highlightable column."""
+
+    highlighted_column = blocks.ChoiceBlock(
+        (
+            (1, "Column 1"),
+            (2, "Column 2"),
+            (3, "Column 3"),
+            (4, "Column 4"),
+        ),
+        default=None,
+        required=False,
+        help_text="Column to be visually highlighted. The column may or not exist. Disabled on mobile if the behavior is stacked.",
+        inline_form=True,
+    )
+    mobile_behavior = blocks.ChoiceBlock(
+        (
+            ("scroll", "Horizontal scroll"),
+            ("stacked", "Stacked"),
+        ),
+        default="scroll",
+        inline_form=True,
+    )
+    header_row = blocks.ListBlock(ComparisonTableRowBlock, min_num=1, max_num=1)
+    content_rows = blocks.ListBlock(ComparisonTableRowBlock, min_num=1)
+
+    class Meta:
+        template = "cms/blocks/comparison-table.html"
+        label = "Comparison Table"
+        form_layout = blocks.BlockGroup(
+            children=["header_row", "content_rows"],
+            settings=["highlighted_column", "mobile_behavior"],
+        )
 
 
 # Contact Page Form Field Blocks

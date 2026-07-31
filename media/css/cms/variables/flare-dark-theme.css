@@ -202,3 +202,8 @@
 --theme-form-field-border-color-focus: var(--token-color-light-purple);
 --theme-form-focus-outline-color: var(--token-color-light-purple-60);
 --theme-form-error-message-color: var(--token-color-error-red-2);
+
+/* Comparison table */
+--comparison-table-highlighted-bg: var(--token-color-light-purple);
+--comparison-table-text-color: var(--token-color-grey-1);
+--comparison-table-border-color: var(--token-color-link-purple);
