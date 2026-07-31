@@ -48,6 +48,7 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+from springfield.cms.routing.admin import build_signal_payload
 
 
 @hooks.register("register_admin_urls")
@@ -118,6 +119,19 @@ def mark_locale_roles_in_admin():
     return mark_safe(
         f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};</script>"
         f'<script src="{static("js/wagtailadmin-locale-badges.js")}"></script>'
+    )
+
+
+@hooks.register("insert_editor_js")
+def routing_condition_help_js():
+    """Deliver the registry payload + condition-help JS to the page editor (spec §6.2).
+
+    Injects the localized signal payload as a global, then loads the static JS that
+    renders dynamic help beneath the expected-value field on signal selection.
+    """
+    payload = json.dumps(build_signal_payload())
+    return mark_safe(
+        f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
 
 
