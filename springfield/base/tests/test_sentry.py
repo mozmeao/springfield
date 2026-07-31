@@ -25,6 +25,8 @@ def test_pre_sentry_sanitisation__before_send_setup():
         "email",
         # "token",  # token is on the default blocklist, which we also use
         "X-Mozilla-Ops-Canary",
+        "ref_key",
+        "invitation",
     ]
 
 
@@ -39,6 +41,8 @@ example_unsanitised_data = {
     "token": "this is in sentry_processor's default set of keys to scrub AND out blocklist of keys",
     # Custom blocklist
     "email": "These items are on our blocklist and should be removed entirely",
+    "ref_key": "a referral ID, on our blocklist and removed entirely",
+    "invitation": "an invite code, on our blocklist and removed entirely",
 }
 
 expected_sanitised_data = {
@@ -51,6 +55,8 @@ expected_sanitised_data = {
     "token": "********",
     # Custom blocklist
     "email": "********",
+    "ref_key": "********",
+    "invitation": "********",
 }
 
 

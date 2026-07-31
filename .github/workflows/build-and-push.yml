@@ -136,7 +136,11 @@ jobs:
             TMP_DIR=static-upload
             TMP_DIR_HASHED=static-upload-hashed
 
-            docker run -d --name assets-tmp $ORG/$IMAGE:$LONG_SHA
+            # The key is only here so `collectstatic` below can import settings.
+            # All zeros, because no invite code is minted or decoded.
+            docker run -d --name assets-tmp \
+              -e REFERRAL_INVITE_CODE_KEY_V1=0000000000000000000000000000000000000000000000000000000000000000 \
+              $ORG/$IMAGE:$LONG_SHA
 
             mkdir -p ./$TMP_DIR ./$TMP_DIR_HASHED
 
