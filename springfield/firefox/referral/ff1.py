@@ -8,9 +8,9 @@
 """Vendored NIST FF1 format-preserving encryption.
 
 Source of truth is NIST SP 800-38G, section 5.1 (Algorithm 7 FF1.Encrypt and
-Algorithm 8 FF1.Decrypt), using AES from ``cryptography`` as the underlying
-block cipher. Ported primarily from Capital One's Go ``fpe`` and cross-checked
-function-by-function against str4d's Rust ``fpe``. Both agree with each other
+Algorithm 8 FF1.Decrypt), using AES from `cryptography` as the underlying
+block cipher. Ported primarily from Capital One's Go `fpe` and cross-checked
+function-by-function against str4d's Rust `fpe`. Both agree with each other
 and with the algorithm below.
 
   Standard:    https://csrc.nist.gov/pubs/sp/800/38/g/upd1/final
@@ -18,13 +18,13 @@ and with the algorithm below.
   Cross-check: https://github.com/str4d/fpe (Rust)
 
 Naming convention: local variables and helper names mirror the SP 800-38G
-symbols (``T`` tweak, ``n`` length, ``radix``, ``A``/``B`` halves, ``P``/``Q``,
-``R``, ``S``, ``y``, ``c``, ``u``, ``v``, ``b``, ``d``) rather than being
-renamed to Pythonic style, so a reviewer with the spec open can verify the
-port line-by-line. That intentionally trips single-letter and uppercase-local
-lint rules, hence the module-level ``noqa`` above.
+symbols (`T` tweak, `n` length, `radix`, `A`/`B` halves, `P`/`Q`, `R`, `S`,
+`y`, `c`, `u`, `v`, `b`, `d`) rather than being renamed to Pythonic style, so
+a reviewer with the spec open can verify the port line-by-line. That
+intentionally trips single-letter and uppercase-local lint rules, hence the
+module-level `noqa` above.
 
-Integer-only radix math: ``b`` is derived from ``(radix ** v - 1).bit_length()``
+Integer-only radix math: `b` is derived from `(radix ** v - 1).bit_length()`
 which is exactly ceil(v * log2(radix)), avoiding floating-point rounding. This
 matches str4d's power-of-two handling and is exact for our radix 32 case.
 
@@ -39,7 +39,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 # Default numeral alphabet for radices up to 36, used by the string-based public
 # API so the NIST conformance vectors (radix 10 and radix 36, lowercase) work
 # out of the box. Callers over a different alphabet (for example Crockford
-# base32) pass their own via the ``alphabet`` keyword.
+# base32) pass their own via the `alphabet` keyword.
 BASE36_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
 
 # FF1 always uses 10 Feistel rounds (SP 800-38G §5.1, Algorithm 7, the "for i from 0 to 9" loop).
@@ -65,7 +65,7 @@ def _num_radix(numerals: Sequence[int], radix: int) -> int:
 
 
 def _str_m_radix(x: int, radix: int, m: int) -> list[int]:
-    """STR^m_radix (SP 800-38G §4.6, Algorithm 3): x as m base-``radix`` numerals, MSB first."""
+    """STR^m_radix (SP 800-38G §4.6, Algorithm 3): x as m base-`radix` numerals, MSB first."""
     out = [0] * m
     for k in range(m - 1, -1, -1):
         out[k] = x % radix
@@ -76,7 +76,7 @@ def _str_m_radix(x: int, radix: int, m: int) -> list[int]:
 def _prf(key: bytes, data: bytes) -> bytes:
     """PRF (SP 800-38G §4.6, Algorithm 6): AES-CBC-MAC with a zero IV, returning the last block.
 
-    ``data`` (which is P || Q) is always a whole number of 16-byte blocks, so a
+    `data` (which is P || Q) is always a whole number of 16-byte blocks, so a
     single CBC encryption over a zero IV yields the CBC-MAC as its final block.
     """
     encryptor = Cipher(algorithms.AES(key), modes.CBC(b"\x00" * 16)).encryptor()
@@ -87,7 +87,7 @@ def _prf(key: bytes, data: bytes) -> bytes:
 def _generate_s(key: bytes, R: bytes, d: int) -> bytes:
     """Build S (SP 800-38G §5.1, Algorithm 7, step 6 iii).
 
-    S is the first ``d`` bytes of R || CIPH_K(R xor [1]) || CIPH_K(R xor [2]) ...
+    S is the first `d` bytes of R || CIPH_K(R xor [1]) || CIPH_K(R xor [2]) ...
     where [j] is the 16-byte big-endian encoding of the block counter j. For our
     parameters d <= 16 so only R itself is needed, but the full expansion is
     implemented for conformance with larger domains. A fresh ECB encryptor per
@@ -219,7 +219,7 @@ def _validate_alphabet(radix: int, alphabet: str) -> None:
 
     FF1 output digits span the full 0..radix-1 range regardless of which digits
     the input used, so an alphabet shorter than the radix would encode fine and
-    then fail with an ``IndexError`` on the way back out. Duplicate symbols are
+    then fail with an `IndexError` on the way back out. Duplicate symbols are
     rejected for the same reason: they make the numeral mapping non-invertible,
     which would silently break the round trip rather than raise.
     """
@@ -230,9 +230,9 @@ def _validate_alphabet(radix: int, alphabet: str) -> None:
 
 
 def _string_to_numerals(text: str, radix: int, alphabet: str) -> list[int]:
-    """Map each character to its numeral value via ``alphabet``.
+    """Map each character to its numeral value via `alphabet`.
 
-    Raises ``ValueError`` if a character is not in the alphabet or its value is
+    Raises `ValueError` if a character is not in the alphabet or its value is
     out of range for the radix. The offending value is not echoed (it may be
     plaintext or ciphertext).
     """
@@ -252,9 +252,9 @@ def _numerals_to_string(numerals: Sequence[int], alphabet: str) -> str:
 
 
 def ff1_encrypt(key: bytes, tweak: bytes, radix: int, plaintext: str, *, alphabet: str = BASE36_ALPHABET) -> str:
-    """Encrypt ``plaintext`` with FF1, returning a same-length ciphertext string.
+    """Encrypt `plaintext` with FF1, returning a same-length ciphertext string.
 
-    ``plaintext`` is interpreted over ``alphabet`` (the first ``radix`` symbols
+    `plaintext` is interpreted over `alphabet` (the first `radix` symbols
     define the numeral values). Output uses the same alphabet, so the mapping is
     format-preserving.
     """

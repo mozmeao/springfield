@@ -4,10 +4,10 @@
 
 """Validation and normalization helpers for referral invite codes.
 
-``settings.py`` imports this module while it is still being evaluated (it calls
-``validate_invite_code_keyring`` at Django startup), so it must stay safe to
+`settings.py` imports this module while it is still being evaluated (it calls
+`validate_invite_code_keyring` at Django startup), so it must stay safe to
 import from there: pure functions only, and nothing that reads
-``django.conf.settings`` or touches the app registry. It deliberately never
+`django.conf.settings` or touches the app registry. It deliberately never
 logs, echoes, or embeds the referral ID or invite code in an exception message,
 because those are the plaintext and ciphertext of the FF1 mapping.
 """
@@ -42,14 +42,14 @@ KEY_LENGTH_BYTES = 32
 
 
 def is_canonical_crockford(value: str) -> bool:
-    """True if every character of ``value`` is an uppercase Crockford symbol."""
+    """True if every character of `value` is an uppercase Crockford symbol."""
     return all(char in CROCKFORD_SYMBOLS for char in value)
 
 
 def validate_referral_id(referral_id: str) -> None:
-    """Validate a referral ID has the expected length (``REFERRAL_ID_LENGTH``), canonical uppercase Crockford base32.
+    """Validate a referral ID has the expected length (`REFERRAL_ID_LENGTH`), canonical uppercase Crockford base32.
 
-    Raises ``ValueError`` on any deviation. The referral ID is expected to
+    Raises `ValueError` on any deviation. The referral ID is expected to
     arrive already-canonical from Firefox, so a lowercase, mixed-case, or
     wrong-length value is an upstream bug rather than user input to forgive.
     The offending value is never included in the message (it is plaintext).
@@ -67,10 +67,10 @@ def normalize_invite_code(raw: str) -> str:
 
     Strips all whitespace (leading, trailing, and internal, to tolerate codes
     copied out of messengers or wrapped emails), uppercases, then applies
-    ``CROCKFORD_DECODE_SUBSTITUTIONS``. This is the only place case-folding and
+    `CROCKFORD_DECODE_SUBSTITUTIONS`. This is the only place case-folding and
     glyph-folding happen. Every step downstream operates on the canonical
-    uppercase form. Non-string input raises ``ValueError`` so the caller can
-    surface a "code not recognized" UX rather than a ``TypeError``.
+    uppercase form. Non-string input raises `ValueError` so the caller can
+    surface a "code not recognized" UX rather than a `TypeError`.
     """
     if not isinstance(raw, str):
         raise ValueError("invite code must be a string")
@@ -78,14 +78,14 @@ def normalize_invite_code(raw: str) -> str:
 
 
 def validate_invite_code(invite_code: str) -> None:
-    """Validate a normalized invite code has the expected length (``INVITE_CODE_LENGTH``), Crockford base32.
+    """Validate a normalized invite code has the expected length (`INVITE_CODE_LENGTH`), Crockford base32.
 
-    Raises ``ValueError`` on non-string input, wrong length, or any
+    Raises `ValueError` on non-string input, wrong length, or any
     non-Crockford character. This catches typos and rejects separators
-    (hyphens, dots, underscores) that ``normalize_invite_code`` intentionally
+    (hyphens, dots, underscores) that `normalize_invite_code` intentionally
     does not strip. The string check is redundant when called straight after
-    ``normalize_invite_code``, but this is also a public helper, so it should
-    not turn a non-string into a ``TypeError`` on ``len()``.
+    `normalize_invite_code`, but this is also a public helper, so it should
+    not turn a non-string into a `TypeError` on `len()`.
     """
     if not isinstance(invite_code, str):
         raise ValueError("invite code must be a string")
@@ -99,7 +99,7 @@ def validate_invite_code_keyring(keys: Mapping[str, bytes], active_version: str)
     """Validate the referral-invite-code keyring at Django startup.
 
     Misconfiguration must fail loudly at boot, not lazily on the first request,
-    so ``settings.py`` calls this and any failure raises ``ImproperlyConfigured``
+    so `settings.py` calls this and any failure raises `ImproperlyConfigured`
     (Django then refuses to start). Key material is never included in messages.
     """
     if not keys:
