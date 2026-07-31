@@ -5,7 +5,8 @@
 import base64
 import csv
 import re
-from io import StringIO
+import zlib
+from io import BytesIO, StringIO
 from xml.etree import ElementTree
 
 from django.core.management import call_command
@@ -15,6 +16,7 @@ import pytest
 import requests
 import responses
 from bs4 import BeautifulSoup
+from PIL import Image
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
@@ -47,8 +49,11 @@ POST_DEFAULTS = {
     "image_featured": "https://example.com/hero.jpg",
     "image_title": "Hero Image",
     "image_alt_text": "",
+    "image_description": "",
+    "image_caption": "",
     "categories": "Firefox",
     "tags": "",
+    "authors": "",
     "author_username": "someone@example.com",
     "author_first": "Nick",
     "author_last": "Nguyen",
@@ -71,13 +76,13 @@ def post_xml(**overrides):
         <ImagePath>/nas/hero.jpg</ImagePath>
         <ImageID>1</ImageID>
         <ImageTitle>{values["image_title"]}</ImageTitle>
-        <ImageCaption/>
-        <ImageDescription/>
+        <ImageCaption>{values["image_caption"]}</ImageCaption>
+        <ImageDescription>{values["image_description"]}</ImageDescription>
         <ImageAltText>{values["image_alt_text"]}</ImageAltText>
         <ImageFeatured>{values["image_featured"]}</ImageFeatured>
         <Categories>{values["categories"]}</Categories>
         <Tags>{values["tags"]}</Tags>
-        <Authors/>
+        <Authors>{values["authors"]}</Authors>
         <AuthorUsername>{values["author_username"]}</AuthorUsername>
         <AuthorFirstName>{values["author_first"]}</AuthorFirstName>
         <AuthorLastName>{values["author_last"]}</AuthorLastName>
@@ -100,9 +105,28 @@ def parse_post(xml_string):
 ANY_URL = re.compile(r"https?://.+")
 
 
-def mock_image_downloads(url=ANY_URL, content=PNG_BYTES):
-    """Serve a valid PNG for the image downloads the import makes, any URL by default."""
-    responses.add(responses.GET, url, body=content, content_type="image/png")
+def png_for(url):
+    """A small valid PNG whose bytes are particular to `url`."""
+    checksum = zlib.crc32(url.encode())
+    colour = (checksum & 0xFF, checksum >> 8 & 0xFF, checksum >> 16 & 0xFF)
+    buffer = BytesIO()
+    Image.new("RGB", (2, 2), colour).save(buffer, "PNG")
+    return buffer.getvalue()
+
+
+def mock_image_downloads(url=ANY_URL, content=None):
+    """Serve a valid PNG for the image downloads the import makes, any URL by default.
+
+    Each URL gets bytes of its own, as a real media server would. That matters because the import
+    identifies an image by its contents: serving one fixed PNG everywhere would make every
+    unrelated image in a test look like the same file. Pass `content` where the bytes are the
+    point - two URLs standing in for one file, say.
+    """
+
+    def serve(request):
+        return 200, {"Content-Type": "image/png"}, content if content is not None else png_for(request.url)
+
+    responses.add_callback(responses.GET, url, callback=serve)
 
 
 # The command tries each download three times before giving up.
@@ -602,7 +626,67 @@ def test_dry_run_creates_nothing(tmp_path, index_page):
     # No responses are registered, so any request would raise rather than be recorded.
     assert len(responses.calls) == 0, "dry-run must not hit the network"
     assert "[dry-run] importing: A Test Post" in out.getvalue()
-    assert "Done. 1 imported, 0 skipped, 0 failed." in out.getvalue()
+    assert "Done. 1 would be imported, 0 skipped, 0 failed." in out.getvalue()
+
+
+@responses.activate
+def test_links_to_other_posts_in_the_import_point_at_their_new_pages(tmp_path, index_page):
+    """These posts cross-link heavily; left alone the links send the reader back to WordPress."""
+    mock_image_downloads()
+    linking = post_xml(
+        id="1",
+        slug="post-one",
+        content='<p>See <a href="https://blog.mozilla.org/blog/2018/03/29/add-ons-manager/">the add-ons manager</a>.</p>',
+    )
+    target = post_xml(id="2", slug="add-ons-manager", title="The Add-ons Manager")
+    xml_path = write_xml(tmp_path, linking, target)
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    html = str(BlogArticlePage.objects.get(slug="post-one").content[0].value)
+    assert f'href="{index_page.url}add-ons-manager/"' in html
+    assert "blog.mozilla.org" not in html
+
+
+@responses.activate
+def test_links_to_pages_outside_the_import_are_left_alone(tmp_path, index_page):
+    mock_image_downloads()
+    content = '<p>See <a href="https://blog.mozilla.org/firefox/some-post-we-are-not-importing/">this</a>.</p>'
+    xml_path = write_xml(tmp_path, post_xml(content=content))
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    html = str(BlogArticlePage.objects.get(slug="a-test-post").content[0].value)
+    assert 'href="https://blog.mozilla.org/firefox/some-post-we-are-not-importing/"' in html
+
+
+def test_dry_run_reports_a_post_that_would_fail(tmp_path, index_page):
+    """A dry run is a preview, so the check that fails a post has to run in it too."""
+    xml_path = write_xml(tmp_path, post_xml(categories=""))
+    err = StringIO()
+    out = StringIO()
+
+    call_command("import_wordpress_blog_posts", str(xml_path), dry_run=True, url_map_out=str(tmp_path / "url_map.csv"), stdout=out, stderr=err)
+
+    assert "has no Category" in err.getvalue()
+    assert BlogArticlePage.objects.count() == 0
+    assert "Done. 0 would be imported, 0 skipped, 1 failed." in out.getvalue()
+
+
+@responses.activate
+def test_url_map_generated_on_a_local_site_says_so(tmp_path, index_page):
+    """The map is for the blog.mozilla.org team's redirects, so localhost rows are no use to them."""
+    mock_image_downloads()
+    from wagtail.models import Site
+
+    Site.objects.filter(is_default_site=True).update(hostname="localhost", port=8000)
+    xml_path = write_xml(tmp_path, post_xml())
+    out = StringIO()
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stdout=out)
+
+    assert "localhost" in out.getvalue()
+    assert "regenerate" in out.getvalue().lower()
 
 
 @responses.activate
@@ -702,7 +786,7 @@ def test_get_or_create_image_blank_url_returns_none():
 
 
 @responses.activate
-def test_get_or_create_image_reuses_same_filename_within_a_run_without_network_call():
+def test_get_or_create_image_reuses_the_same_url_within_a_run_without_network_call():
     mock_image_downloads()
     cmd = make_command()
 
@@ -710,7 +794,21 @@ def test_get_or_create_image_reuses_same_filename_within_a_run_without_network_c
     second = cmd.get_or_create_image("https://example.com/whatever.png", "A Different Title")
 
     assert second.pk == first.pk
-    assert len(responses.calls) == 1, "the second call for the same filename must not hit the network"
+    assert len(responses.calls) == 1, "the second call for the same URL must not hit the network"
+
+
+@responses.activate
+def test_get_or_create_image_does_not_reuse_a_different_url_with_the_same_filename():
+    """WordPress names files per upload month, so unrelated posts routinely share a basename."""
+    mock_image_downloads()
+    cmd = make_command()
+
+    first = cmd.get_or_create_image("https://blog.mozilla.org/files/2024/11/image.png", "First")
+    second = cmd.get_or_create_image("https://blog.mozilla.org/files/2025/10/image.png", "Second")
+
+    assert first is not None
+    assert second is not None
+    assert second.pk != first.pk, "two different files that happen to share a name must not collapse into one image"
 
 
 @responses.activate
@@ -726,15 +824,32 @@ def test_get_or_create_image_does_not_reuse_unrelated_image_with_same_title():
 
 
 @responses.activate
-def test_get_or_create_image_does_not_reuse_a_filename_suffix_match():
+def test_get_or_create_image_reuses_an_image_whose_contents_already_arrived_in_an_earlier_run():
+    """Resuming an import must not add a second copy of a file already in the library.
+
+    The stored name is no guide: Django's storage appends a random suffix when the name is
+    taken, so the same source file can end up as 'hero.jpg' one run and 'hero_A1b2c3.jpg' the
+    next. The file contents are what identify it.
+    """
+    # One file served from two URLs, so its contents are what the two calls have in common.
+    mock_image_downloads(content=PNG_BYTES)
+    first = make_command().get_or_create_image("https://example.com/2024/11/hero.jpg", "Hero")
+
+    second = make_command().get_or_create_image("https://example.com/2025/10/hero.jpg", "Hero Again")
+
+    assert second.pk == first.pk
+    assert SpringfieldImage.objects.count() == 1
+
+
+@responses.activate
+def test_get_or_create_image_stores_a_youtube_poster_under_its_video_id():
+    """Every YouTube thumbnail URL ends in the same 'hqdefault.jpg', so the id has to go in the name."""
     mock_image_downloads()
     cmd = make_command()
 
-    first = cmd.get_or_create_image("https://example.com/bobcat.jpg", "Bobcat")
-    # 'cat.jpg' is a suffix of the stored 'bobcat.jpg' but a different asset - must not be reused.
-    second = cmd.get_or_create_image("https://example.com/cat.jpg", "Cat")
+    image = cmd.get_or_create_image("https://img.youtube.com/vi/qxrVsN9kkog/hqdefault.jpg", "A video")
 
-    assert second.pk != first.pk
+    assert "qxrVsN9kkog" in image.file.name
 
 
 @responses.activate
@@ -787,6 +902,118 @@ def test_parse_content_plain_text_becomes_single_text_spec():
     assert len(specs) == 1
     assert specs[0][0] == "text"
     assert "Hello" in specs[0][1] and "World" in specs[0][1]
+
+
+def test_parse_content_promotes_an_image_alone_in_a_paragraph_to_a_block():
+    """WordPress renders such a paragraph as a block-level image, and a block survives editing."""
+    specs, warnings = parse_content('<p>Before.</p><p><img src="https://example.com/a.png" alt="A screenshot"></p><p>After.</p>')
+    assert warnings == []
+    assert specs == [
+        ("text", "<p>Before.</p>"),
+        ("image", {"src": "https://example.com/a.png", "alt": "A screenshot", "caption": ""}),
+        ("text", "<p>After.</p>"),
+    ]
+
+
+def test_parse_content_drops_a_link_that_only_points_at_the_images_own_file():
+    """WordPress's 'link to media file' lightbox link goes nowhere useful once the image is ours."""
+    html = (
+        '<p><a href="https://blog.mozilla.org/wp-content/uploads/2015/11/welcome-en.jpg">'
+        '<img src="https://blog.mozilla.org/wp-content/uploads/2015/11/welcome-en.jpg" alt="A screenshot"></a></p>'
+    )
+    specs, warnings = parse_content(html)
+    assert warnings == []
+    assert specs == [("image", {"src": "https://blog.mozilla.org/wp-content/uploads/2015/11/welcome-en.jpg", "alt": "A screenshot", "caption": ""})]
+
+
+def test_parse_content_keeps_an_image_linked_to_a_real_destination_and_warns():
+    """A linked banner is a CTA, so the link stays - but the editor will pull the image out of it."""
+    html = '<p><a href="https://www.mozilla.org/firefox/new/"><img src="https://example.com/banner.png" alt="Get Firefox"></a></p>'
+    specs, warnings = parse_content(html)
+    assert [kind for kind, _ in warnings] == ["inline-image"]
+    assert 'href="https://www.mozilla.org/firefox/new/"' in specs[0][1]
+    assert [kind for kind, _ in specs] == ["text"]
+
+
+def test_parse_content_keeps_an_image_inside_a_list_item_and_warns():
+    """Promoting it would break the list, so it stays put and the operator is told."""
+    specs, warnings = parse_content('<div><ul><li>Step one <img src="https://example.com/step.png" alt="Step"></li></ul></div>')
+    assert [kind for kind, _ in warnings] == ["inline-image"]
+    assert "https://example.com/step.png" in warnings[0][1]
+    # The list item is what keeps the image inline, not the layout <div> wrapped around it.
+    assert "<li>" in warnings[0][1]
+    assert [kind for kind, _ in specs] == ["text"]
+
+
+def test_parse_content_keeps_an_image_that_shares_its_paragraph_with_text():
+    specs, warnings = parse_content('<p>See <img src="https://example.com/icon.png" alt="the icon"> in the toolbar.</p>')
+    assert [kind for kind, _ in warnings] == ["inline-image"]
+    assert [kind for kind, _ in specs] == ["text"]
+
+
+def test_parse_content_demotes_h1_section_headings_to_h2():
+    """The page title is the page's h1, and Draftail drops an h1 in the body to plain text."""
+    specs, _ = parse_content("<h1>For the cozy gamer</h1><p>Body copy.</p>")
+    assert specs == [("text", "<h2>For the cozy gamer</h2><p>Body copy.</p>")]
+
+
+def test_parse_content_leaves_other_heading_levels_where_they_are():
+    """Only h1 moves: demoting the whole tree would push real sections down for no reason."""
+    specs, _ = parse_content("<h2>Section</h2><h3>Subsection</h3><h4>Detail</h4>")
+    assert specs == [("text", "<h2>Section</h2><h3>Subsection</h3><h4>Detail</h4>")]
+
+
+def test_parse_content_does_not_rewrite_headings_inside_a_code_block():
+    specs, _ = parse_content("<pre>document.querySelector('h1')</pre>")
+    assert specs == [("code", {"code": "document.querySelector('h1')"})]
+
+
+def test_parse_content_embed_shortcode_becomes_a_video_spec():
+    """The older posts wrap a video URL in [embed] rather than a Gutenberg embed figure."""
+    specs, warnings = parse_content("<p>Watch:</p>\n\n[embed]https://www.youtube.com/watch?v=oKprr3tEBew[/embed]\n\n<p>After.</p>")
+    assert warnings == []
+    assert [spec[0] for spec in specs] == ["text", "video", "text"]
+    assert specs[1][1] == {"url": "https://www.youtube.com/watch?v=oKprr3tEBew", "alt": ""}
+    assert "[embed]" not in specs[0][1] and "[embed]" not in specs[2][1]
+
+
+def test_parse_content_embed_shortcode_for_another_provider_becomes_a_link_with_a_warning():
+    specs, warnings = parse_content("[embed]https://player.vimeo.com/video/123[/embed]")
+    assert [kind for kind, _ in warnings] == ["embed"]
+    assert specs == [("text", '<p><a href="https://player.vimeo.com/video/123">Watch video</a></p>')]
+
+
+def test_parse_content_bare_text_separated_by_blank_lines_becomes_paragraphs():
+    """Classic posts hold no <p> at all - WordPress adds them at render time, so the import must."""
+    specs, _ = parse_content("First paragraph.\n\nSecond paragraph.\n\nThird.")
+    assert specs == [("text", "<p>First paragraph.</p><p>Second paragraph.</p><p>Third.</p>")]
+
+
+def test_parse_content_wraps_a_single_run_of_bare_text_in_a_paragraph():
+    specs, _ = parse_content("Just the one paragraph.")
+    assert specs == [("text", "<p>Just the one paragraph.</p>")]
+
+
+def test_parse_content_gives_a_bolded_pseudo_heading_its_own_paragraph():
+    """These posts mark their section headings with <strong> on a line of its own."""
+    specs, _ = parse_content("<strong>Private Browsing</strong>\n\nWe first added Private Browsing.")
+    assert specs == [("text", "<p><strong>Private Browsing</strong></p><p>We first added Private Browsing.</p>")]
+
+
+def test_parse_content_wraps_bare_text_that_runs_into_a_list():
+    specs, _ = parse_content("<b>More information:</b>\n<ul><li>Release notes</li></ul>")
+    assert specs == [("text", "<p><b>More information:</b></p><ul><li>Release notes</li></ul>")]
+
+
+def test_parse_content_keeps_inline_markup_inside_the_paragraph_it_belongs_to():
+    specs, _ = parse_content('Read the <a href="https://example.com">release notes</a> for more.\n\nNext.')
+    assert specs == [("text", '<p>Read the <a href="https://example.com">release notes</a> for more.</p><p>Next.</p>')]
+
+
+def test_parse_content_leaves_existing_block_markup_alone():
+    """Gutenberg posts already carry their own markup, which must not be wrapped a second time."""
+    specs, _ = parse_content("<p>One</p>\n\n<ul><li>Two</li></ul>\n\n<h2>Three</h2>")
+    assert specs == [("text", "<p>One</p><ul><li>Two</li></ul><h2>Three</h2>")]
 
 
 def test_parse_content_strips_html_comments():
@@ -1057,6 +1284,9 @@ def test_parse_content_self_hosted_video_warns_and_stays_in_the_text():
     assert len(warnings) == 1
     assert warnings[0][0] == "video"
     assert "self-hosted video https://blog.mozilla.org/files/tab-groups.mp4" in warnings[0][1]
+    # The <video> is not a rich text feature, so it does not merely stay hotlinked: the editor
+    # drops it entirely on the first save, leaving the caption behind. Say so.
+    assert "editing the page will drop it" in warnings[0][1]
 
 
 def test_parse_content_bare_video_element_warns():
@@ -1129,6 +1359,25 @@ def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster():
 
 
 @responses.activate
+def test_materialize_content_gives_each_video_its_own_poster():
+    """Two videos in one run must not share a thumbnail just because both URLs end in hqdefault.jpg."""
+    mock_image_downloads()
+    cmd = make_command()
+
+    blocks = cmd.materialize_content(
+        [
+            ("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "First video"}),
+            ("video", {"url": "https://www.youtube.com/watch?v=xyz789", "alt": "Second video"}),
+        ],
+        "A Test Post",
+    )
+
+    first_poster = blocks[0][1][0][1]["poster"]
+    second_poster = blocks[1][1][0][1]["poster"]
+    assert first_poster.pk != second_poster.pk
+
+
+@responses.activate
 def test_materialize_content_video_without_caption_falls_back_to_post_title_for_alt():
     mock_image_downloads()
     cmd = make_command()
@@ -1137,13 +1386,17 @@ def test_materialize_content_video_without_caption_falls_back_to_post_title_for_
 
 
 @responses.activate
-def test_materialize_content_drops_video_whose_poster_download_fails(no_retry_backoff):
-    """The video block requires a poster, so a video without one is dropped rather than
-    written as an invalid block."""
+def test_materialize_content_links_a_video_whose_poster_download_fails(no_retry_backoff):
+    """The block requires a poster, but the video shouldn't vanish for want of a thumbnail.
+
+    YouTube serves no thumbnail at all for a video that has since been deleted, which is the case
+    for one of the videos in this export.
+    """
     mock_failed_downloads()
     cmd = make_command()
     blocks = cmd.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
-    assert blocks == []
+    # The link keeps its query string here: a YouTube watch URL carries the video id in it.
+    assert blocks == [("text", '<p><a href="https://www.youtube.com/watch?v=abc123">Watch video</a></p>')]
 
 
 @responses.activate
@@ -1250,6 +1503,72 @@ def test_image_description_keeps_real_descriptions(text):
 
 def test_image_description_strips_surrounding_whitespace():
     assert image_description("  A menu button in Firefox  ") == "A menu button in Firefox"
+
+
+@responses.activate
+def test_wordpress_bookkeeping_tags_are_not_imported(tmp_path, index_page):
+    """'export' is the export tool's own marker and 'homepage' a placement flag - neither is a subject."""
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(tags="export|homepage|Uncategorized|Privacy"))
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert [tag.name for tag in page.tags.all()] == ["Privacy"]
+    assert not Tag.objects.filter(slug="export").exists(), "the marker must not even reach the Tag snippets"
+
+
+@responses.activate
+def test_a_post_with_several_bylines_warns_because_only_one_author_can_be_kept(tmp_path, index_page):
+    """The Author* fields hold the post's owner, who is not always one of the bylines, and
+    BlogArticlePage.author is a single FK - so these need checking by hand."""
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(authors="kim-bryant|jamie-teh|anna-yeddi", author_first="Kristina", author_last="Bravo"))
+    err = StringIO()
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert page.author.name == "Kristina Bravo"
+    assert "kim-bryant|jamie-teh|anna-yeddi" in err.getvalue()
+    assert "[author]" in err.getvalue()
+
+
+@responses.activate
+def test_a_single_byline_needs_no_author_warning(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(authors="dkessler@mozilla.com"))
+    err = StringIO()
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
+
+    assert "[author]" not in err.getvalue()
+
+
+@responses.activate
+def test_hero_alt_text_falls_back_to_the_export_image_description(tmp_path, index_page):
+    """ImageDescription describes the image by definition, so it beats the file-name-ish title."""
+    mock_image_downloads()
+    xml_path = write_xml(
+        tmp_path,
+        post_xml(image_alt_text="", image_title="mozilla_blog-post_visuals_grayscale", image_description="A brain in grayscale"),
+    )
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"))
+
+    assert BlogArticlePage.objects.get(slug="a-test-post").image.description == "A brain in grayscale"
+
+
+@responses.activate
+def test_hero_image_caption_is_reported_because_the_page_has_nowhere_to_show_it(tmp_path, index_page):
+    mock_image_downloads()
+    xml_path = write_xml(tmp_path, post_xml(image_caption="Image source: imdb.com"))
+    err = StringIO()
+
+    call_command("import_wordpress_blog_posts", str(xml_path), url_map_out=str(tmp_path / "url_map.csv"), stderr=err)
+
+    assert "Image source: imdb.com" in err.getvalue()
+    assert "[caption]" in err.getvalue()
 
 
 @responses.activate
