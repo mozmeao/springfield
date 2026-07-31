@@ -8,6 +8,8 @@ import {
     buildHelpText,
     renderConditionHelp,
     filterOperators,
+    validateExpectedValue,
+    validateConditions,
     initConditionHelp
 } from '../../../../../media/js/cms/routing/condition-help.es6.js';
 
@@ -216,6 +218,164 @@ describe('cms/routing/condition-help.es6.js', function () {
             ]);
             // 'is' was selected and is now illegal -> reset to the first version operator.
             expect(dom.operatorSelect.value).toEqual('gte');
+        });
+    });
+
+    describe('validateExpectedValue', function () {
+        const enumMeta = PAYLOAD.platform;
+        const versionMeta = PAYLOAD.firefox_version;
+
+        it('accepts an enum member and rejects a non-member', function () {
+            expect(validateExpectedValue(enumMeta, 'is', 'windows')).toBe(true);
+            expect(validateExpectedValue(enumMeta, 'is', 'beos')).toBe(false);
+        });
+
+        it('checks every value in a set-membership list', function () {
+            expect(validateExpectedValue(enumMeta, 'in', 'windows, osx')).toBe(
+                true
+            );
+            expect(validateExpectedValue(enumMeta, 'in', 'windows, beos')).toBe(
+                false
+            );
+        });
+
+        it('rejects an empty value', function () {
+            expect(validateExpectedValue(enumMeta, 'is', '   ')).toBe(false);
+        });
+
+        it('rejects an operator illegal for the signal', function () {
+            expect(validateExpectedValue(enumMeta, 'gte', 'windows')).toBe(
+                false
+            );
+        });
+
+        it('validates version format (bare, rv-prefixed, dotted)', function () {
+            expect(validateExpectedValue(versionMeta, 'gte', '129.0.1')).toBe(
+                true
+            );
+            expect(validateExpectedValue(versionMeta, 'gte', 'rv:129')).toBe(
+                true
+            );
+            expect(validateExpectedValue(versionMeta, 'gte', 'abc')).toBe(
+                false
+            );
+        });
+
+        it('validates integer and boolean values', function () {
+            const intMeta = {
+                valueType: 'integer',
+                operators: [{ value: 'gte', label: 'x' }],
+                enumValues: []
+            };
+            expect(validateExpectedValue(intMeta, 'gte', '30')).toBe(true);
+            expect(validateExpectedValue(intMeta, 'gte', '3.5')).toBe(false);
+            const boolMeta = {
+                valueType: 'boolean',
+                operators: [{ value: 'is', label: 'x' }],
+                enumValues: []
+            };
+            expect(validateExpectedValue(boolMeta, 'is', 'true')).toBe(true);
+            expect(validateExpectedValue(boolMeta, 'is', 'yes')).toBe(false);
+        });
+
+        it('checks membership for a known-set string signal (locale/country)', function () {
+            const localeMeta = {
+                valueType: 'string',
+                operators: [
+                    { value: 'is', label: 'x' },
+                    { value: 'in', label: 'y' }
+                ],
+                enumValues: [],
+                values: ['en-US', 'de']
+            };
+            expect(validateExpectedValue(localeMeta, 'is', 'de')).toBe(true);
+            expect(validateExpectedValue(localeMeta, 'is', 'zz')).toBe(false);
+        });
+
+        it('accepts any non-empty free-text string', function () {
+            const strMeta = {
+                valueType: 'string',
+                operators: [{ value: 'is', label: 'x' }],
+                enumValues: [],
+                values: []
+            };
+            expect(validateExpectedValue(strMeta, 'is', 'anything')).toBe(true);
+        });
+
+        it('is valid for an unknown signal (server backstop)', function () {
+            expect(validateExpectedValue(undefined, 'is', 'x')).toBe(true);
+        });
+    });
+
+    describe('validateConditions', function () {
+        it('returns false and flags the row for an invalid value', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'is'; // value left empty -> invalid
+            document.body.appendChild(dom.container);
+            try {
+                expect(validateConditions(dom.container, PAYLOAD)).toBe(false);
+                const expected = dom.fieldWrap.querySelector('input');
+                expect(expected.getAttribute('aria-invalid')).toEqual('true');
+                const help = dom.fieldWrap.querySelector(
+                    '.routing-condition-help'
+                );
+                expect(
+                    help.classList.contains('routing-condition-help--invalid')
+                ).toBe(true);
+            } finally {
+                document.body.removeChild(dom.container);
+            }
+        });
+
+        it('returns true and clears flags for valid values', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'is';
+            dom.fieldWrap.querySelector('input').value = 'windows';
+            expect(validateConditions(dom.container, PAYLOAD)).toBe(true);
+            expect(
+                dom.fieldWrap
+                    .querySelector('input')
+                    .getAttribute('aria-invalid')
+            ).toBeNull();
+        });
+    });
+
+    describe('initConditionHelp — pre-submit guard', function () {
+        // The form is left DETACHED from the document on purpose: a synthetic submit that
+        // the guard does NOT block would otherwise navigate the test runner away.
+        function formWith(signalValue, operator, expectedValue) {
+            const form = document.createElement('form');
+            const dom = makeConditionDOM(signalValue);
+            dom.operatorSelect.value = operator;
+            dom.fieldWrap.querySelector('input').value = expectedValue;
+            form.appendChild(dom.container);
+            return { form: form, dom: dom };
+        }
+
+        function submit(form) {
+            const event = new Event('submit', {
+                cancelable: true,
+                bubbles: true
+            });
+            form.dispatchEvent(event);
+            return event;
+        }
+
+        it('blocks submit when a condition value is invalid', function () {
+            const { form, dom } = formWith('platform', 'is', 'beos');
+            initConditionHelp({ payload: PAYLOAD, root: form });
+            const event = submit(form);
+            expect(event.defaultPrevented).toBe(true);
+            const help = dom.fieldWrap.querySelector('.routing-condition-help');
+            expect(
+                help.classList.contains('routing-condition-help--invalid')
+            ).toBe(true);
+        });
+
+        it('allows submit when every condition value is valid', function () {
+            const { form } = formWith('platform', 'is', 'windows');
+            initConditionHelp({ payload: PAYLOAD, root: form });
+            expect(submit(form).defaultPrevented).toBe(false);
         });
     });
 

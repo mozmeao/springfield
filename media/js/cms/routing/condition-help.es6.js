@@ -15,8 +15,15 @@
  */
 
 const HELP_CLASSNAME = 'routing-condition-help';
+// Added to the help element (and aria-invalid on the field) when a value fails
+// pre-submit validation, so the same help line doubles as the correction guidance.
+const ERROR_CLASSNAME = 'routing-condition-help--invalid';
 // Flag set on a wired signal <select> so re-scans never double-bind it.
 const BOUND_FLAG = 'springfieldRoutingBound';
+// Flag set on the edit <form> so its submit guard is attached only once.
+const SUBMIT_GUARD_FLAG = 'springfieldRoutingSubmitGuard';
+// Set-membership operators carry a comma-separated list (matches the Python convention).
+const MEMBERSHIP_OPERATORS = ['in', 'not_in'];
 // Cap on how many known values are spelled out inline (locale/country are long); the
 // full set lives on the Signals reference page.
 const VALUE_LIST_CAP = 15;
@@ -103,6 +110,115 @@ export function filterOperators(select, payload, root) {
     return operatorSelect;
 }
 
+function splitList(value) {
+    return String(value)
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+}
+
+export function validateExpectedValue(meta, operator, value) {
+    // Mirror RoutingCondition.clean() on the client (ED-4) so a bad value is caught before
+    // submit instead of bouncing to the Content tab. The server clean() stays the backstop.
+    if (!meta) {
+        return true; // unknown/blank signal: leave it to the server
+    }
+    // Operator must be legal for the signal (C25 filters the dropdown; this backstops it).
+    if (operator && meta.operators) {
+        const legal = meta.operators.map((entry) => entry.value);
+        if (legal.indexOf(operator) === -1) {
+            return false;
+        }
+    }
+    const raw = String(
+        value === undefined || value === null ? '' : value
+    ).trim();
+    if (!raw) {
+        return false; // a condition always needs a value
+    }
+    const isMembership = MEMBERSHIP_OPERATORS.indexOf(operator) !== -1;
+    // Enum / known-set string (locale, country): every value must be a member.
+    let members = null;
+    if (meta.enumValues && meta.enumValues.length) {
+        members = meta.enumValues.map((entry) => entry.value);
+    } else if (meta.values && meta.values.length) {
+        members = meta.values;
+    }
+    if (members) {
+        const parts = isMembership ? splitList(value) : [raw];
+        return (
+            parts.length > 0 &&
+            parts.every((part) => members.indexOf(part) !== -1)
+        );
+    }
+    if (meta.valueType === 'boolean') {
+        return /^(true|false|1|0)$/i.test(raw);
+    }
+    if (meta.valueType === 'integer') {
+        return /^-?\d+$/.test(raw);
+    }
+    if (meta.valueType === 'version') {
+        // Accept bare / rv:-prefixed / dotted forms (matches normalizeVersion).
+        return /^\d+(\.\d+)*$/.test(raw.replace(/^[^\d]*/, ''));
+    }
+    // Free-text string (utm_*): any non-empty value is acceptable.
+    return true;
+}
+
+function setConditionError(select, payload, scope, hasError) {
+    // Reuse the (localized) help line as the correction guidance; flag it + the field.
+    const help = renderConditionHelp(select, payload, scope);
+    if (help) {
+        if (hasError) {
+            help.classList.add(ERROR_CLASSNAME);
+        } else {
+            help.classList.remove(ERROR_CLASSNAME);
+        }
+    }
+    const expected = expectedFieldFor(select, scope);
+    if (expected) {
+        if (hasError) {
+            expected.setAttribute('aria-invalid', 'true');
+        } else {
+            expected.removeAttribute('aria-invalid');
+        }
+    }
+    return expected;
+}
+
+function validateConditionRow(select, payload, scope) {
+    // Skip rows being deleted — they won't be saved.
+    const del = siblingFieldFor(select, scope, '-DELETE');
+    if (del && del.checked) {
+        setConditionError(select, payload, scope, false);
+        return true;
+    }
+    const operatorSelect = operatorFieldFor(select, scope);
+    const expected = expectedFieldFor(select, scope);
+    const valid = validateExpectedValue(
+        payload[select.value],
+        operatorSelect ? operatorSelect.value : '',
+        expected ? expected.value : ''
+    );
+    setConditionError(select, payload, scope, !valid);
+    return valid;
+}
+
+export function validateConditions(root, payload) {
+    const scope = root || document;
+    const selects = scope.querySelectorAll('select[name$="-signal"]');
+    let firstInvalid = null;
+    Array.prototype.forEach.call(selects, function (select) {
+        if (!validateConditionRow(select, payload, scope) && !firstInvalid) {
+            firstInvalid = expectedFieldFor(select, scope);
+        }
+    });
+    if (firstInvalid && typeof firstInvalid.focus === 'function') {
+        firstInvalid.focus();
+    }
+    return firstInvalid === null;
+}
+
 export function renderConditionHelp(select, payload, root) {
     const scope = root || document;
     const expected = expectedFieldFor(select, scope);
@@ -142,6 +258,40 @@ function wireAll(payload, scope) {
     });
 }
 
+function findEditForm(scope) {
+    if (scope.tagName === 'FORM') {
+        return scope;
+    }
+    if (scope.querySelector) {
+        return (
+            scope.querySelector('#page-edit-form') ||
+            scope.querySelector('form')
+        );
+    }
+    return null;
+}
+
+function attachSubmitGuard(payload, scope) {
+    // Validate every condition value before the page form submits, so an illegal value is
+    // caught inline instead of round-tripping to a server error that bounces to the
+    // Content tab (ED-4). Bound once per form; capture phase so it runs before Wagtail's.
+    const form = findEditForm(scope);
+    if (!form || form.dataset[SUBMIT_GUARD_FLAG] === '1') {
+        return;
+    }
+    form.dataset[SUBMIT_GUARD_FLAG] = '1';
+    form.addEventListener(
+        'submit',
+        function (event) {
+            if (!validateConditions(form, payload)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        },
+        true
+    );
+}
+
 export function initConditionHelp(options) {
     const opts = options || {};
     const payload =
@@ -153,6 +303,7 @@ export function initConditionHelp(options) {
     const scope = opts.root || document;
 
     wireAll(payload, scope);
+    attachSubmitGuard(payload, scope);
 
     // Wagtail hydrates nested InlinePanel rows client-side *after* load, and "Add
     // rule/condition" inserts more rows later — none of which the one-shot scan above
