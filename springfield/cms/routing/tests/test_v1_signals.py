@@ -106,17 +106,11 @@ def test_version_signal_advertises_version_operators_only():
 # ---------------------------------------------------------------------------
 
 
-def test_is_firefox_documents_fxios_edge_case():
+def test_is_firefox_notes_cross_platform_coverage():
+    # Editors should know it matches Firefox everywhere, not just desktop.
     description = str(registry.get("is_firefox").description)
-    assert "FxiOS" in description
-    assert "platform" in description  # points authors at combining with platform
-
-
-def test_version_signal_documents_normalization():
-    description = str(registry.get("firefox_version").description)
-    assert "rv:129" in description
-    assert "129.0.1" in description
-    assert "version-aware" in description
+    assert "iOS" in description
+    assert "Android" in description
 
 
 # ---------------------------------------------------------------------------

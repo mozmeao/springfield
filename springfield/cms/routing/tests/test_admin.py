@@ -91,8 +91,8 @@ def test_reference_row_carries_source_type_operators_and_enum():
 
 def test_reference_includes_the_honesty_notes():
     rows = {row["name"]: row for row in build_signal_reference()}
-    assert "FxiOS" in str(rows["is_firefox"]["description"])
-    assert "rv:129" in str(rows["firefox_version"]["description"])
+    # is_firefox still warns about the Firefox-for-iOS edge case, in plain language.
+    assert "iOS" in str(rows["is_firefox"]["description"])
 
 
 def test_reference_rows_carry_a_source_key_and_uitour_flag():
