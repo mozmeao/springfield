@@ -25,10 +25,10 @@ from django.core.exceptions import ImproperlyConfigured
 CROCKFORD_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 CROCKFORD_SYMBOLS = frozenset(CROCKFORD_ALPHABET)
 
-# Assumed input format from Firefox: 15-char Crockford base32 referral IDs.
-REFERRAL_ID_LENGTH = 15
-# 1 version char + 15 ciphertext chars.
-INVITE_CODE_LENGTH = 16
+# Assumed input format from Firefox: canonical uppercase Crockford base32 referral IDs.
+REFERRAL_ID_LENGTH = 16
+# 1 version char + the ciphertext (same length as the referral ID).
+INVITE_CODE_LENGTH = 17
 # Each keyring key is a 256-bit AES key.
 KEY_LENGTH_BYTES = 32
 
@@ -39,7 +39,7 @@ def is_canonical_crockford(value: str) -> bool:
 
 
 def validate_referral_id(referral_id: str) -> None:
-    """Validate a referral ID is 15-char, canonical (uppercase) Crockford base32.
+    """Validate a referral ID has the expected length (``REFERRAL_ID_LENGTH``), canonical uppercase Crockford base32.
 
     Raises ``ValueError`` on any deviation. The referral ID is expected to
     arrive already-canonical from Firefox, so a lowercase, mixed-case, or
@@ -69,7 +69,7 @@ def normalize_invite_code(raw: str) -> str:
 
 
 def validate_invite_code(invite_code: str) -> None:
-    """Validate a normalized invite code is 16-char Crockford base32.
+    """Validate a normalized invite code has the expected length (``INVITE_CODE_LENGTH``), Crockford base32.
 
     Raises ``ValueError`` on wrong length or any non-Crockford character. This
     catches typos and rejects separators (hyphens, dots, underscores) that

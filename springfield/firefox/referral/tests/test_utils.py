@@ -19,9 +19,9 @@ VALID_KEY = bytes(range(32))
 
 
 def test_validate_referral_id_accepts_canonical():
-    validate_referral_id("A7B9K2M4PXQRSTV")
-    validate_referral_id("000000000000000")
-    validate_referral_id("ZZZZZZZZZZZZZZZ")
+    validate_referral_id("A7B9K2M4PXQRSTVW")
+    validate_referral_id("0000000000000000")
+    validate_referral_id("ZZZZZZZZZZZZZZZZ")
 
 
 @pytest.mark.parametrize(
@@ -30,14 +30,14 @@ def test_validate_referral_id_accepts_canonical():
         None,
         "",
         "SHORT",  # too short
-        "AAAAAAAAAAAAAAAA",  # 16 chars, too long
-        "a7b9k2m4pxqrstv",  # lowercase (15 chars)
-        "A7B9K2M4PXQRSTI",  # I is excluded from Crockford (15 chars)
-        "A7B9K2M4PXQRSTL",  # L is excluded (15 chars)
-        "A7B9K2M4PXQRSTO",  # O is excluded (15 chars)
-        "A7B9K2M4PXQRSTU",  # U is excluded (15 chars)
-        "A7B9K2M4PXQRS-V",  # separator (15 chars)
-        "A7B9K2M4PXQRS V",  # space (15 chars)
+        "AAAAAAAAAAAAAAAAA",  # 17 chars, too long
+        "a7b9k2m4pxqrstvw",  # lowercase (16 chars)
+        "A7B9K2M4PXQRSTVI",  # I is excluded from Crockford (16 chars)
+        "A7B9K2M4PXQRSTVL",  # L is excluded (16 chars)
+        "A7B9K2M4PXQRSTVO",  # O is excluded (16 chars)
+        "A7B9K2M4PXQRSTVU",  # U is excluded (16 chars)
+        "A7B9K2M4PXQRST-W",  # separator (16 chars)
+        "A7B9K2M4PXQRST W",  # space (16 chars)
     ],
 )
 def test_validate_referral_id_rejects(value):
@@ -57,18 +57,18 @@ def test_normalize_invite_code_rejects_non_string():
         normalize_invite_code(None)
 
 
-def test_validate_invite_code_accepts_16_char_crockford():
-    validate_invite_code("1X3ZQ8R5M7NPQRST")
+def test_validate_invite_code_accepts_17_char_crockford():
+    validate_invite_code("1X3ZQ8R5M7NPQRSTV")
 
 
 @pytest.mark.parametrize(
     "value",
     [
         "",
-        "1X3ZQ8R5M7NPQRS",  # 15 chars, one short
-        "1X3ZQ8R5M7NPQRST9",  # 17 chars, one long
-        "1X3ZQ8R5M7NPQRSI",  # I not in alphabet (16 chars)
-        "1-X3ZQ8R5M7NPQRS",  # separator (16 chars)
+        "1X3ZQ8R5M7NPQRST",  # 16 chars, one short
+        "1X3ZQ8R5M7NPQRSTV9",  # 18 chars, one long
+        "1X3ZQ8R5M7NPQRSTI",  # I not in alphabet (17 chars)
+        "1-X3ZQ8R5M7NPQRST",  # separator (17 chars)
     ],
 )
 def test_validate_invite_code_rejects(value):
