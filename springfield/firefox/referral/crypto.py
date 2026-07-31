@@ -38,10 +38,10 @@ FF1_TWEAK = b""
 
 
 def referral_id_to_invite_code(referral_id: str) -> str:
-    """Turn a 15-char referral ID into a 16-char invite code.
+    """Turn a referral ID into an invite code (version char + FF1 ciphertext).
 
-    The invite code is the active key version character followed by the 15-char
-    FF1 ciphertext of the referral ID. Deterministic for a given active key,
+    The invite code is the active key version character followed by the FF1
+    ciphertext of the referral ID. Deterministic for a given active key,
     canonical uppercase, and a pure function (no I/O). Raises ``ValueError`` if
     the referral ID is not canonical uppercase Crockford base32.
     """
@@ -65,7 +65,7 @@ def invite_url_for_code(invite_code: str) -> str:
 
 
 def invite_code_to_referral_id(invite_code: str) -> str:
-    """Reverse an invite code back to its 15-char referral ID.
+    """Reverse an invite code back to its referral ID.
 
     Input is treated case-insensitively and tolerates surrounding whitespace.
     Round-trips exactly with :func:`referral_id_to_invite_code`. There is no
@@ -81,7 +81,7 @@ def invite_code_to_referral_id(invite_code: str) -> str:
         _report_decode_failure("bad_format")
         raise
 
-    # Position 0 is the key version, positions 1-15 are the ciphertext.
+    # Position 0 is the key version, the rest is the ciphertext.
     version = normalized[0]
     ciphertext = normalized[1:]
 

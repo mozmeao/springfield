@@ -23,7 +23,7 @@ from springfield.firefox.referral.tests.vectors import (
     NIST_FF1_VECTORS,
     RANDOM_FF1_VECTORS,
 )
-from springfield.firefox.referral.utils import CROCKFORD_ALPHABET
+from springfield.firefox.referral.utils import CROCKFORD_ALPHABET, REFERRAL_ID_LENGTH
 
 ALL_VECTORS = [pytest.param(v, id=v.get("label", v["plaintext"])) for v in NIST_FF1_VECTORS + RANDOM_FF1_VECTORS]
 
@@ -64,7 +64,9 @@ def test_round_trip_property_over_crockford():
     key = bytes.fromhex("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd")
     rng = random.Random(20260722)
     for _ in range(2000):
-        n = rng.choice([10, 11, 14, 15, 19, 24])
+        # Hand-picked spread of even and odd input lengths (odd exercises the
+        # unequal-half Feistel path), including the production `REFERRAL_ID_LENGTH`.
+        n = rng.choice([10, 11, 14, REFERRAL_ID_LENGTH, 19, 24])
         plaintext = "".join(rng.choice(CROCKFORD_ALPHABET) for _ in range(n))
         ciphertext = ff1_encrypt(key, b"", 32, plaintext, alphabet=CROCKFORD_ALPHABET)
         assert len(ciphertext) == n
