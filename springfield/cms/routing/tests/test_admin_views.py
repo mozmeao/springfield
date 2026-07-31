@@ -41,6 +41,17 @@ def test_listing_handles_no_rules(admin_client):
     assert "No routing rules" in response.content.decode("utf-8")
 
 
+def test_listing_shows_the_rule_name(admin_client):
+    # ED-5 display: an author-given rule name appears in the browse listing.
+    rule = _rule_on("c23-named", "Canonical Named")
+    rule.name = "Windows updaters"
+    rule.save()
+
+    content = admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8")
+    assert "Rule" in content  # the new column header
+    assert "Windows updaters" in content
+
+
 # ---------------------------------------------------------------------------
 # The listing is browse-only: no add affordance (spec §6.1).
 # ---------------------------------------------------------------------------

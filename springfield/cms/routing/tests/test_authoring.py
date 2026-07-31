@@ -156,3 +156,32 @@ def test_non_canonical_page_saves_without_routing_formsets(admin_client, wnp):
     assert response.status_code == 302
     # min_num=1 did not force a RoutingConfig onto the non-canonical page.
     assert not RoutingConfig.objects.filter(page=variant).exists()
+
+
+# ---------------------------------------------------------------------------
+# Target guards enforced admin-side (plan P1-3a, folded into C23).
+# ---------------------------------------------------------------------------
+
+
+def test_self_target_rule_is_rejected_in_admin(admin_client, wnp):
+    canonical, _target = wnp
+    rules = inline_formset([{"name": "Self", "match_all": "on", "target": canonical.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "cannot target its own page" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_non_descendant_target_is_rejected_in_admin(admin_client, wnp):
+    canonical, _target = wnp
+    # A sibling canonical (direct child of the index) is a valid WhatsNewPage2026 but
+    # NOT a descendant of `canonical`, so the chooser type-scope wouldn't catch it.
+    index = canonical.get_parent()
+    sibling = WhatsNewPage2026Factory(parent=index, slug="c21-201", version="201", live=True)
+    rules = inline_formset([{"name": "Sibling", "match_all": "on", "target": sibling.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "must be a descendant" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()

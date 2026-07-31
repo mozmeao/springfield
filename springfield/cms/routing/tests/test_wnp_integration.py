@@ -66,6 +66,20 @@ def test_a_child_wnp_is_a_valid_descendant_target(wnp):
     rule.full_clean()  # does not raise
 
 
+def test_wnp_target_chooser_is_scoped_to_whatsnew_pages():
+    # ED-9: the rule's target chooser only offers WhatsNewPage2026 pages.
+    from wagtail.admin.panels import InlinePanel
+    from wagtail.admin.widgets import AdminPageChooser
+
+    from springfield.cms.models import WhatsNewPage2026
+
+    tab = WhatsNewPage2026.get_routing_tab()
+    rules_panel = next(p for p in tab.children if isinstance(p, InlinePanel) and p.relation_name == "routing_rules")
+    target_panel = next(p for p in rules_panel.panels if getattr(p, "field_name", "") == "target")
+    assert isinstance(target_panel.widget, AdminPageChooser)
+    assert WhatsNewPage2026 in target_panel.widget.target_models
+
+
 # ---------------------------------------------------------------------------
 # Serve-path dispatch, end to end (spec §2.3).
 # ---------------------------------------------------------------------------

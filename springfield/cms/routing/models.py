@@ -28,21 +28,48 @@ from django.utils.translation import gettext_lazy as _
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.widgets import AdminPageChooser
 from wagtail.models import Orderable
 
-from springfield.cms.routing.signals import OPERATORS, ValueType, registry
+from springfield.cms.routing.signals import OPERATORS, SOURCE_LABELS, Source, ValueType, registry
 
 # Operators that carry a comma-separated list of expected values (set membership).
 _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
 
 
 def signal_choices():
-    """Signal choices for admin selects, drawn live from the registry.
+    """Signal choices for admin selects, grouped into optgroups by source (ED-6).
 
-    A callable so choices stay in lockstep with the registry and adding a signal
-    never generates a migration (Django serializes the reference, not the result).
+    Returns Django's grouped-choices shape — ``[(source_label, [(name, name), …]), …]``
+    — ordered by the ``Source`` enum, so the signal dropdown is organized by where each
+    signal is read from (CDN geo / User-Agent / UITour / URL) instead of one flat list.
+
+    A callable so choices stay in lockstep with the registry and adding a signal never
+    generates a migration (Django serializes the reference, not the result).
     """
-    return [(signal.name, signal.name) for signal in registry]
+    grouped = {}
+    for signal in registry:
+        grouped.setdefault(signal.source, []).append((signal.name, signal.name))
+    return [(SOURCE_LABELS[source], grouped[source]) for source in Source if source in grouped]
+
+
+def rule_panels(target_page_types=None):
+    """The per-rule inline panels, optionally restricting the target chooser (ED-9).
+
+    Framework-generic: a consumer narrows the target chooser to its own page type(s) by
+    setting ``RoutingMixin.routing_target_page_types``; the descendant/self-target guards
+    (model ``clean()`` + ``RoutingPageForm``) remain the correctness backstop.
+    """
+    if target_page_types:
+        target_panel = FieldPanel("target", widget=AdminPageChooser(target_models=target_page_types))
+    else:
+        target_panel = FieldPanel("target")
+    return [
+        FieldPanel("name"),
+        FieldPanel("match_all"),
+        target_panel,
+        InlinePanel("conditions", label=_("Conditions")),
+    ]
 
 
 def operator_choices():
@@ -88,13 +115,9 @@ class RoutingRule(ClusterableModel, Orderable):
         verbose_name_plural = _("Routing rules")
 
     # Fields shown for each rule inside the "User Routing" tab (C4). Conditions are
-    # authored as a nested inline conjunction (spec §5.2).
-    panels = [
-        FieldPanel("name"),
-        FieldPanel("match_all"),
-        FieldPanel("target"),
-        InlinePanel("conditions", label=_("Conditions")),
-    ]
+    # authored as a nested inline conjunction (spec §5.2). The framework rebuilds these
+    # per-consumer to scope the target chooser (ED-9); this is the unrestricted default.
+    panels = rule_panels()
 
     def __str__(self):
         if self.name:

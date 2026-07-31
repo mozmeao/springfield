@@ -15,6 +15,7 @@
   <table class="listing">
     <thead>
       <tr>
+        <th>Rule</th>
         <th>Page</th>
         <th>Target</th>
         <th>Conditions</th>
@@ -23,6 +24,7 @@
     <tbody>
       {% for rule in rules %}
         <tr>
+          <td>{{ rule.name|default:"—" }}</td>
           <td>
             <a href="{% url 'wagtailadmin_pages:edit' rule.page_id %}">{{ rule.page }}</a>
           </td>
@@ -31,7 +33,7 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="3">No routing rules have been created yet.</td>
+          <td colspan="4">No routing rules have been created yet.</td>
         </tr>
       {% endfor %}
     </tbody>

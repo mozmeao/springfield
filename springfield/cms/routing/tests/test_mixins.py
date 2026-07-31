@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from django.test import RequestFactory
 
 import pytest
-from wagtail.admin.panels import InlinePanel
+from wagtail.admin.panels import HelpPanel, InlinePanel
 from wagtail.models import Site
 
 from springfield.cms.routing.arming import QueryParamArmingCondition
@@ -63,6 +63,9 @@ def test_routing_tab_holds_rules_and_kill_switch_panels():
     tab = RoutingMixin.get_routing_tab()
     assert isinstance(tab, RoutingObjectList)
     assert str(tab.heading) == "User Routing"
+
+    # A generic guidance panel leads the tab (ED-7).
+    assert any(isinstance(child, HelpPanel) for child in tab.children)
 
     panels = {panel.relation_name: panel for panel in tab.children if isinstance(panel, InlinePanel)}
     assert set(panels) == {"routing_rules", "routing_config"}

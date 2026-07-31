@@ -15,9 +15,11 @@ from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
 
 import pytest
+from wagtail.admin.widgets import AdminPageChooser
 from wagtail.models import Site
 
-from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
+from springfield.cms.models import WhatsNewPage2026
+from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule, rule_panels, signal_choices
 from springfield.cms.tests.factories import (
     SimpleRichTextPageFactory,
     WhatsNewIndexPageFactory,
@@ -306,3 +308,31 @@ def test_config_reports_paused_state(tree):
 def test_config_present_but_not_paused_reads_as_not_paused(tree):
     RoutingConfig.objects.create(page=tree.canonical, routing_paused=False)
     assert RoutingConfig.is_paused_for(tree.canonical) is False
+
+
+# ---------------------------------------------------------------------------
+# Signal choices grouped by source (ED-6) and target-chooser scoping (ED-9).
+# ---------------------------------------------------------------------------
+
+
+def test_signal_choices_are_grouped_by_source():
+    # Django grouped-choices shape: [(source_label, [(name, name), ...]), ...].
+    groups = {str(label): [value for value, _label in options] for label, options in signal_choices()}
+    assert "platform" in groups["User-Agent"]
+    assert "country" in groups["CDN geo header"]
+    assert {"oldversion", "locale", "utm_source"} <= set(groups["URL"])
+
+
+def _target_panel(panels):
+    return next(panel for panel in panels if getattr(panel, "field_name", "") == "target")
+
+
+def test_rule_panels_target_chooser_is_unrestricted_by_default():
+    # No page-type scope -> a plain page chooser (no explicit AdminPageChooser widget).
+    assert not isinstance(_target_panel(rule_panels()).widget, AdminPageChooser)
+
+
+def test_rule_panels_scope_the_target_chooser_to_given_page_types():
+    target_panel = _target_panel(rule_panels(["cms.WhatsNewPage2026"]))
+    assert isinstance(target_panel.widget, AdminPageChooser)
+    assert WhatsNewPage2026 in target_panel.widget.target_models

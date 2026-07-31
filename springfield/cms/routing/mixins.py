@@ -20,13 +20,23 @@ from django.utils.translation import gettext_lazy as _
 
 import waffle
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import InlinePanel, ObjectList, TabbedInterface
+from wagtail.admin.panels import HelpPanel, InlinePanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
-from springfield.cms.routing.models import RoutingConfig
+from springfield.cms.routing.models import RoutingConfig, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
+
+# Consumer-agnostic guidance shown at the top of the "User Routing" tab (ED-7). Kept
+# generic (no per-consumer specifics) and localized; HTML is allowed in a HelpPanel.
+ROUTING_TAB_HELP = _(
+    "<p>Rules are checked <strong>top to bottom, first match wins</strong> — drag to reorder. "
+    "A visitor is routed to the first rule whose conditions all match; if none match, they stay "
+    "on this page.</p>"
+    "<p>Each rule needs at least one condition, or “Match all triggered visitors” to route everyone. "
+    "Use the <strong>kill switch</strong> below to pause routing without deleting any rules.</p>"
+)
 
 
 class RoutingPageForm(WagtailAdminPageForm):
@@ -110,6 +120,7 @@ class RoutingPageForm(WagtailAdminPageForm):
             rules_formset.is_valid()
             for rule_form in rules_formset.forms:
                 self._enforce_condition_floor(rule_form)
+                self._enforce_target_scope(rule_form)
         return cleaned_data
 
     @staticmethod
@@ -125,6 +136,23 @@ class RoutingPageForm(WagtailAdminPageForm):
         )
         if not has_condition:
             rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
+
+    def _enforce_target_scope(self, rule_form):
+        # Admin-side counterpart of RoutingRule.clean()'s target guards (plan P1-3a):
+        # modelcluster leaves the rule's ``page`` unset at model-clean time during a save,
+        # so those guards fire for the ORM path only. Enforce them here, where the page
+        # instance and the chosen target are both known, so a bad target is caught inline
+        # (the type-scoped chooser narrows the choices, this guarantees correctness).
+        data = getattr(rule_form, "cleaned_data", None)
+        if not data or data.get("DELETE"):
+            return
+        target = data.get("target")
+        if target is None:
+            return
+        if target.pk == self.instance.pk:
+            rule_form.add_error("target", _("A rule cannot target its own page."))
+        elif not target.is_descendant_of(self.instance):
+            rule_form.add_error("target", _("The target page must be a descendant of the page this rule is attached to."))
 
 
 def routing_tab_is_shown(instance):
@@ -195,19 +223,27 @@ class RoutingMixin(models.Model):
     # subclass RoutingPageForm to keep the floor.
     base_form_class = RoutingPageForm
 
-    routing_panels = [
-        InlinePanel("routing_rules", label=_("Rules")),
-        # max_num=1 (0-or-1 kill switch per page). The pause checkbox always renders
-        # with no "Add" step (ED-1) because RoutingPageForm auto-creates the record for
-        # canonical pages — not via min_num, which would block saving a page that has no
-        # record yet.
-        InlinePanel("routing_config", label=_("Routing kill switch"), max_num=1),
-    ]
+    # Page type(s) a rule's target chooser is scoped to (ED-9). ``None`` = any page; a
+    # consumer sets this to its own type(s) — model class(es) or "app.Model" string(s) —
+    # so authors aren't offered unrelated pages. Correctness is still enforced by the
+    # descendant/self-target guards, so this is a usability narrowing, not the guard.
+    routing_target_page_types = None
 
     @classmethod
     def get_routing_tab(cls):
-        """The "User Routing" tab: the rules panel and the single kill-switch panel."""
-        return RoutingObjectList(cls.routing_panels, heading=_("User Routing"))
+        """The "User Routing" tab: guidance, the rules panel, and the kill-switch panel."""
+        panels = [
+            # Consumer-agnostic guidance on how matching works (ED-7).
+            HelpPanel(content=ROUTING_TAB_HELP),
+            # Rules, with the target chooser scoped to the consumer's page type(s) (ED-9).
+            InlinePanel("routing_rules", panels=rule_panels(cls.routing_target_page_types), label=_("Rules")),
+            # max_num=1 (0-or-1 kill switch per page). The pause checkbox always renders
+            # with no "Add" step (ED-1) because RoutingPageForm auto-creates the record for
+            # canonical pages — not via min_num, which would block saving a page with no
+            # record yet.
+            InlinePanel("routing_config", label=_("Routing kill switch"), max_num=1),
+        ]
+        return RoutingObjectList(panels, heading=_("User Routing"))
 
     @cached_classmethod
     def get_edit_handler(cls):
