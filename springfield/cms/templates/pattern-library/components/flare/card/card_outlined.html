@@ -10,12 +10,15 @@
       <include:cards-list container_width="wide">
         {% for card in cards %}
           <include:card variant="outline" expand_link="{{ card.expand_link }}">
-            <content:body>
-              {% if card.pictogram %}
+            {% if card.pictogram %}
+              <content:media>
                 <div class="fl-card-media fl-card-media-pictogram">
                   <img src="{{ card.pictogram }}" alt="" loading="lazy" />
                 </div>
-              {% endif %}
+              </content:media>
+            {% endif %}
+
+            <content:body>
               <include:heading
                 level="h3"
                 heading_size="fl-heading-xs"
