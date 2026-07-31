@@ -49,7 +49,7 @@ from springfield.cms.models import (
     Tag,
 )
 from springfield.cms.routing.admin import build_signal_payload
-from springfield.cms.routing.admin_views import RoutingRulesIndexView
+from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 
 
 @hooks.register("register_admin_urls")
@@ -132,6 +132,7 @@ user_routing_menu = Menu(register_hook_name="register_user_routing_menu_item")
 def register_routing_admin_urls():
     return [
         path("user-routing/rules/", RoutingRulesIndexView.as_view(), name="cms_routing_rules"),
+        path("user-routing/signals/", RoutingSignalsReferenceView.as_view(), name="cms_routing_signals"),
     ]
 
 
@@ -143,6 +144,11 @@ def register_user_routing_menu():
 @hooks.register("register_user_routing_menu_item")
 def register_routing_rules_menu_item():
     return MenuItem("Rules", reverse("cms_routing_rules"), icon_name="list-ul")
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_routing_signals_menu_item():
+    return MenuItem("Signals reference", reverse("cms_routing_signals"), icon_name="help")
 
 
 @hooks.register("insert_editor_js")

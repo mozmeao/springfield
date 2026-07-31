@@ -11,6 +11,7 @@ from wagtail.models import Site
 
 from springfield.cms import wagtail_hooks
 from springfield.cms.routing.models import RoutingRule
+from springfield.cms.routing.signals import registry
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -71,3 +72,33 @@ def test_user_routing_submenu_is_registered():
 def test_rules_item_is_in_the_submenu():
     labels = [str(item.label) for item in wagtail_hooks.user_routing_menu.registered_menu_items]
     assert "Rules" in labels
+
+
+# ---------------------------------------------------------------------------
+# Signals reference page — generated from the registry, never drifts (C13, §4.5).
+# ---------------------------------------------------------------------------
+
+
+def test_signals_reference_lists_every_registered_signal(admin_client):
+    response = admin_client.get(reverse("cms_routing_signals"))
+    assert response.status_code == 200
+    content = response.content.decode("utf-8")
+    for name in registry.names():
+        assert name in content
+
+
+def test_signals_reference_shows_source_type_and_enum_values(admin_client):
+    content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
+    assert "User-Agent" in content  # a source label
+    assert "enum" in content  # a value type
+    assert "windows" in content  # an enum value
+
+
+def test_adding_a_signal_makes_it_appear_with_no_page_edit(admin_client, temp_signal):
+    content = admin_client.get(reverse("cms_routing_signals")).content.decode("utf-8")
+    assert temp_signal.name in content
+
+
+def test_signals_reference_item_is_in_the_submenu():
+    labels = [str(item.label) for item in wagtail_hooks.user_routing_menu.registered_menu_items]
+    assert "Signals reference" in labels

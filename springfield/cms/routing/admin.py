@@ -13,7 +13,7 @@ labels or the value-type hints below) — no raw English literals (spec §9.2).
 
 from django.utils.translation import gettext_lazy as _
 
-from springfield.cms.routing.signals import ValueType, registry
+from springfield.cms.routing.signals import SOURCE_LABELS, ValueType, registry
 
 # Per-value-type hint shown beneath the expected-value field. All localizable.
 VALUE_TYPE_HINTS = {
@@ -43,3 +43,27 @@ def build_signal_payload():
             entry["enumValues"] = [{"value": enum_value.value, "label": str(enum_value.label)} for enum_value in signal.enum_values]
         payload[signal.name] = entry
     return payload
+
+
+def build_signal_reference():
+    """Rows for the auto-generated Signals reference page (spec §4.5).
+
+    Generated straight from the registry — one row per registered signal — so the
+    reference can never drift from the values the evaluator actually reads. Strings are
+    left lazy so the template localizes them; the honest descriptions (spec §4.4) come
+    through unchanged.
+    """
+    rows = []
+    for signal in registry:
+        rows.append(
+            {
+                "name": signal.name,
+                "description": signal.description,
+                "source": SOURCE_LABELS[signal.source],
+                "value_type": signal.value_type.value,
+                "operators": [operator.label for operator in signal.operators],
+                "enum_values": [{"value": enum_value.value, "label": enum_value.label} for enum_value in signal.enum_values],
+                "browser_state_key": signal.browser_state_key,
+            }
+        )
+    return rows

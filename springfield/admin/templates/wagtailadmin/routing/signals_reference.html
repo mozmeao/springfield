@@ -1,0 +1,42 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "wagtailadmin/generic/base.html" %}
+
+{% block main_content %}
+  <p class="help-block help-info">
+    Auto-generated from the signal registry — this is exactly what the client evaluator reads.
+  </p>
+
+  <table class="listing">
+    <thead>
+      <tr>
+        <th>Signal</th>
+        <th>Description</th>
+        <th>Source</th>
+        <th>Type</th>
+        <th>Operators</th>
+        <th>Values</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for signal in signals %}
+        <tr>
+          <td><code>{{ signal.name }}</code></td>
+          <td>{{ signal.description }}</td>
+          <td>{{ signal.source }}</td>
+          <td>{{ signal.value_type }}</td>
+          <td>
+            {% for operator in signal.operators %}{{ operator }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          </td>
+          <td>
+            {% for value in signal.enum_values %}{{ value.label }} ({{ value.value }}){% if not forloop.last %}, {% endif %}{% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

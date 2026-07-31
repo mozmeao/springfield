@@ -7,7 +7,28 @@ from django.test import override_settings
 
 import pytest
 
+from springfield.cms.routing.signals import RoutingSignal, Source, ValueType, registry
+
 User = get_user_model()
+
+
+@pytest.fixture
+def temp_signal():
+    """Register a throwaway signal into the global registry, then clean it up.
+
+    Lets a test prove the reference page reflects registry changes with no page edit.
+    """
+    signal = RoutingSignal(
+        name="c13_temp_signal",
+        description="Temporary signal for testing the reference page.",
+        source=Source.URL,
+        value_type=ValueType.STRING,
+    )
+    registry.register(signal)
+    try:
+        yield signal
+    finally:
+        registry._signals.pop(signal.name, None)
 
 
 @pytest.fixture
