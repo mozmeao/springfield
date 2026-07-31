@@ -3630,9 +3630,9 @@ def test_comparison_table_variants(index_page, rf):
 
     for region in (upper, lower):
         tables = region.find_all("div", class_="fl-comparison-table-wrapper")
-        for variant in variants:
-            mobile_behavior = variant["value"]["mobile_behavior"]
-            table = next(t for t in tables if mobile_behavior in t.get("class", []))
+        assert len(tables) == len(variants)
+        for index, variant in enumerate(variants):
+            table = tables[index]
             assert_comparison_table(table, variant)
 
 

@@ -5,11 +5,11 @@
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 # Firefox Enterprise support tier data (used by both variants)
-_HEADER_CELLS = ["", "PREMIUM", "STANDARD"]
-_CONTENT_ROWS = [
+HEADER_CELLS = ["", "PREMIUM", "STANDARD"]
+CONTENT_ROWS = [
     ["Best for", "High-assurance operational support", "Direct support for managed Firefox"],
     ["Availability", "24 hrs/day, Mon–Fri", "09:00–17:00, Mon–Fri"],
     ["Response (business-halting)", "30 minutes", "2 hours"],
@@ -19,7 +19,7 @@ _CONTENT_ROWS = [
 ]
 
 
-def _cell(content, column_span=1, cell_id=""):
+def cell(content, column_span=1, cell_id=""):
     return {
         "type": "item",
         "value": {
@@ -30,7 +30,7 @@ def _cell(content, column_span=1, cell_id=""):
     }
 
 
-def _row(cells, row_id=""):
+def row(cells, row_id=""):
     return {
         "type": "item",
         "value": {"cells": cells},
@@ -38,33 +38,33 @@ def _row(cells, row_id=""):
     }
 
 
-def _make_header_row(prefix):
-    return _row(
+def make_header_row(prefix):
+    return row(
         cells=[
-            _cell(_HEADER_CELLS[0], cell_id=f"{prefix}-h0"),
-            _cell(_HEADER_CELLS[1], cell_id=f"{prefix}-h1"),
-            _cell(_HEADER_CELLS[2], cell_id=f"{prefix}-h2"),
+            cell(HEADER_CELLS[0], cell_id=f"{prefix}-h0"),
+            cell(HEADER_CELLS[1], cell_id=f"{prefix}-h1"),
+            cell(HEADER_CELLS[2], cell_id=f"{prefix}-h2"),
         ],
         row_id=f"{prefix}-hr",
     )
 
 
-def _make_content_rows(prefix):
+def make_content_rows(prefix):
     return [
-        _row(
-            cells=[_cell(row_cells[j], cell_id=f"{prefix}-r{i}c{j}") for j in range(3)],
+        row(
+            cells=[cell(row_cells[j], cell_id=f"{prefix}-r{i}c{j}") for j in range(3)],
             row_id=f"{prefix}-r{i}",
         )
-        for i, row_cells in enumerate(_CONTENT_ROWS)
+        for i, row_cells in enumerate(CONTENT_ROWS)
     ]
 
 
-def _section(heading_text, table_block, section_id):
+def section(heading_text, table_block, section_id):
     return {
         "type": "section",
         "id": section_id,
         "value": {
-            "settings": {"show_to": _SHOW_TO_ALL, "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": f'<p data-block-key="{section_id}h">{heading_text}</p>',
@@ -84,8 +84,8 @@ def get_comparison_table_variants() -> list[dict]:
             "value": {
                 "highlighted_column": 2,
                 "mobile_behavior": "scroll",
-                "header_row": [_make_header_row("ctbl01")],
-                "content_rows": _make_content_rows("ctbl01"),
+                "header_row": [make_header_row("ctbl01")],
+                "content_rows": make_content_rows("ctbl01"),
             },
             "id": "ctbl0001-0000-0000-0000-000000000001",
         },
@@ -95,8 +95,8 @@ def get_comparison_table_variants() -> list[dict]:
             "value": {
                 "highlighted_column": 2,
                 "mobile_behavior": "stacked",
-                "header_row": [_make_header_row("ctbl02")],
-                "content_rows": _make_content_rows("ctbl02"),
+                "header_row": [make_header_row("ctbl02")],
+                "content_rows": make_content_rows("ctbl02"),
             },
             "id": "ctbl0002-0000-0000-0000-000000000002",
         },
@@ -115,8 +115,8 @@ def get_comparison_table_test_page() -> FreeFormPage2026:
 
     variants = get_comparison_table_variants()
     sections = [
-        _section("Scroll — highlighted column 2", variants[0], "ctblsec01-0000-0000-0000-000000000001"),
-        _section("Stacked — highlighted column 2 (disabled on mobile)", variants[1], "ctblsec02-0000-0000-0000-000000000002"),
+        section("Scroll — highlighted column 2", variants[0], "ctblsec01-0000-0000-0000-000000000001"),
+        section("Stacked — highlighted column 2 (disabled on mobile)", variants[1], "ctblsec02-0000-0000-0000-000000000002"),
     ]
     page.upper_content = sections
     page.content = sections
