@@ -54,6 +54,46 @@ def test_payload_attaches_value_lists_for_locale_and_country():
     assert payload["locale"]["hint"] == str(VALUE_LIST_HINT)
 
 
+def test_browser_language_accepts_languages_we_do_not_serve():
+    # The signal exists to reveal visitors whose language we DON'T publish in — a Norwegian
+    # served English, say. Restricting it to served languages would leave it unable to say
+    # anything `locale` doesn't already say. Validated against CLDR instead.
+    values = set(build_signal_payload()["browser_language"]["values"])
+    served = {code.split("-")[0] for code, _label in settings.LANGUAGES}
+
+    # Real languages Springfield publishes nothing in, all of which browsers can report.
+    assert {"mt", "yo", "dz", "no"} <= values
+    # ...and our own base languages are still in there, including any CLDR lacks.
+    assert served <= values
+    assert len(values) > len(served)
+
+
+def test_browser_language_still_rejects_typos():
+    values = set(build_signal_payload()["browser_language"]["values"])
+    # A closed set beats a shape check here: "xx" is well-formed but not a language.
+    for typo in ("english", "en_US", "en-au", "xx", "e", "123", ""):
+        assert typo not in values
+
+
+def test_browser_language_shows_served_languages_as_examples():
+    # 600-odd CLDR codes would be noise as guidance, so the help shows what we publish in
+    # while validation stays permissive.
+    entry = build_signal_payload()["browser_language"]
+    served = sorted({code.split("-")[0] for code, _label in settings.LANGUAGES})
+
+    assert entry["exampleValues"] == served
+    assert len(entry["values"]) > len(entry["exampleValues"])
+    # The lead-in must not imply the shown list is exhaustive.
+    assert "include" in entry["hint"]
+
+
+def test_closed_set_signals_carry_no_example_list():
+    # locale/country show their real values; only browser_language needs the distinction.
+    payload = build_signal_payload()
+    assert payload["locale"]["exampleValues"] == []
+    assert payload["country"]["exampleValues"] == []
+
+
 def test_locale_values_are_every_served_locale_not_just_cms_content_languages():
     # The signal reads the *visitor's* page locale, so the offerable set is every locale
     # the site serves — not WAGTAIL_CONTENT_LANGUAGES, which is the far smaller set of

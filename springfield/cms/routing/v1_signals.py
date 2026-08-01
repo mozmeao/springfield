@@ -191,10 +191,19 @@ registry.register(
 # language has no translation is served the best available one, so `locale` alone cannot
 # tell you what they actually read. Read client-side from `navigator.languages` — never
 # from the Accept-Language header, which would fragment the cacheable resolver page.
+#
+# Only the *top* preference is read. Reading the whole ordered list would make targeting
+# browser-dependent rather than visitor-dependent: Safari and Brave always report a single
+# language, and Chrome does so in private windows, so the same rule would define a wider
+# audience for some browsers than others. Anti-fingerprinting settings (Firefox's
+# privacy.resistFingerprinting among them) can also replace the value outright — the
+# description says so rather than letting authors assume it is always the truth.
 registry.register(
     RoutingSignal(
         name="browser_language",
-        description=_("The language the visitor's browser prefers, which may differ from the page they were served."),
+        description=_(
+            "The visitor's top browser language preference, which may differ from the page they were served. Some privacy settings hide or change it."
+        ),
         source=Source.USER_AGENT,
         value_type=ValueType.STRING,
     )

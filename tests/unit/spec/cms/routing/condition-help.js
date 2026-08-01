@@ -63,6 +63,22 @@ const PAYLOAD = {
         enumValues: [],
         values: ['en-US', 'de', 'fr']
     },
+    // A signal whose legal set is far larger than what is worth showing: validation runs
+    // against `values`, but the help displays the shorter `exampleValues`.
+    browser_language: {
+        valueType: 'string',
+        description: 'The visitor browser language.',
+        hint: 'Enter a language code. Languages we publish in include:',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
+        operators: [
+            { value: 'is', label: 'is' },
+            { value: 'in', label: 'in' }
+        ],
+        enumValues: [],
+        values: ['en', 'de', 'fr', 'no', 'dz', 'mt'],
+        exampleValues: ['en', 'de', 'fr']
+    },
     // A boolean signal: a malformed value ("yess" → false) silently mis-routes, so it stays a
     // hard block.
     is_default_browser: {
@@ -171,6 +187,15 @@ describe('cms/routing/condition-help.es6.js', function () {
             expect(text).toContain('The visitor locale.');
             expect(text).toContain('US');
             expect(text).toContain('DE');
+        });
+
+        it('shows exampleValues instead of the full legal set when present', function () {
+            const text = buildHelpText(PAYLOAD.browser_language, 'is');
+            expect(text).toContain('en');
+            expect(text).toContain('de');
+            // Valid, but not worth listing as guidance — the hint says these are examples.
+            expect(text).not.toContain('dz');
+            expect(text).toContain('include');
         });
 
         it('caps a long value list and reports the total', function () {
@@ -283,6 +308,19 @@ describe('cms/routing/condition-help.es6.js', function () {
     describe('validateExpectedValue', function () {
         const enumMeta = PAYLOAD.platform;
         const versionMeta = PAYLOAD.firefox_version;
+
+        it('validates against the full legal set, not the shown examples', function () {
+            const meta = PAYLOAD.browser_language;
+            // Not in exampleValues, but legal — targeting a language we don't publish in
+            // is the entire point of the signal.
+            expect(validateExpectedValue(meta, 'is', 'dz')).toBe(true);
+            expect(validateExpectedValue(meta, 'is', 'no')).toBe(true);
+            expect(validateExpectedValue(meta, 'is', 'en')).toBe(true);
+            // Well-formed but not a language, and a regional tag the reader could never
+            // produce — both rejected rather than silently never matching.
+            expect(validateExpectedValue(meta, 'is', 'xx')).toBe(false);
+            expect(validateExpectedValue(meta, 'is', 'en-au')).toBe(false);
+        });
 
         it('accepts an enum member and rejects a non-member', function () {
             expect(validateExpectedValue(enumMeta, 'is', 'windows')).toBe(true);

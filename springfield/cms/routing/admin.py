@@ -14,7 +14,7 @@ labels or the value-type hints below) — no raw English literals.
 from django.utils.translation import gettext_lazy as _
 
 from springfield.cms.routing.signals import SOURCE_LABELS, Source, ValueType, registry
-from springfield.cms.routing.value_lists import known_value_lists
+from springfield.cms.routing.value_lists import known_value_lists, suggested_value_lists
 
 # "What to type" hint shown beneath the expected-value field. Value-focused only — the
 # operator dropdown already lists the legal operators, so hints never restate them.
@@ -36,6 +36,10 @@ INVALID_HINT = _("That value isn’t valid.")
 # Lead-in for STRING signals that carry a known value list (locale / country).
 VALUE_LIST_HINT = _("Enter one of these values:")
 
+# Lead-in where the legal set is far larger than what is worth listing — any valid
+# language code is accepted, so the shown values are examples rather than the whole set.
+EXAMPLE_LIST_HINT = _("Enter a language code. Languages we publish in include:")
+
 # Short, editor-facing "what to type" hint shown in the reference page's Values column for
 # signals that have no fixed set (enum values / locale / country are shown as the values
 # themselves instead). Localized.
@@ -54,6 +58,7 @@ def build_signal_payload():
     concatenates already-localized text.
     """
     value_lists = known_value_lists()
+    suggestions = suggested_value_lists()
     comma_hint = str(COMMA_HINT)
     invalid_hint = str(INVALID_HINT)
     payload = {}
@@ -68,6 +73,9 @@ def build_signal_payload():
             "operators": [{"value": operator.value, "label": str(operator.label)} for operator in signal.operators],
             "enumValues": [],
             "values": [],
+            # Shown instead of ``values`` when the legal set is too large to be useful
+            # guidance; validation still runs against the full ``values``.
+            "exampleValues": [],
         }
         if signal.value_type is ValueType.ENUM:
             entry["enumValues"] = [{"value": enum_value.value, "label": str(enum_value.label)} for enum_value in signal.enum_values]
@@ -76,6 +84,9 @@ def build_signal_payload():
             # values-oriented lead-in instead of the generic STRING "available operators".
             entry["values"] = value_lists[signal.name]
             entry["hint"] = str(VALUE_LIST_HINT)
+        if signal.name in suggestions:
+            entry["exampleValues"] = suggestions[signal.name]
+            entry["hint"] = str(EXAMPLE_LIST_HINT)
         payload[signal.name] = entry
     return payload
 

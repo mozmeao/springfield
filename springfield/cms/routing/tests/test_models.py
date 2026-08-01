@@ -291,6 +291,29 @@ def test_served_locale_without_cms_content_is_accepted(rule):
     condition.full_clean()  # must not raise
 
 
+def test_browser_language_accepts_an_unserved_language(rule):
+    # Targeting a Norwegian who was served English is the point of the signal, so the
+    # server must accept a language we publish nothing in.
+    RoutingCondition(rule=rule, signal="browser_language", operator="is", expected_value="no").full_clean()
+    RoutingCondition(rule=rule, signal="browser_language", operator="is", expected_value="dz").full_clean()
+
+
+def test_browser_language_rejects_a_non_language(rule):
+    condition = RoutingCondition(rule=rule, signal="browser_language", operator="is", expected_value="xx")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+def test_browser_language_rejects_a_regional_tag(rule):
+    # The reader strips the region, so a regional tag could never match — fail loudly at
+    # authoring time rather than saving a rule that silently never fires.
+    condition = RoutingCondition(rule=rule, signal="browser_language", operator="is", expected_value="en-au")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
 def test_valid_country_and_membership_list_pass(rule):
     RoutingCondition(rule=rule, signal="country", operator="is", expected_value="DE").full_clean()
     RoutingCondition(rule=rule, signal="country", operator="in", expected_value="DE, GB\nUS").full_clean()

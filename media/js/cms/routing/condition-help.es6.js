@@ -73,6 +73,10 @@ export function buildHelpText(meta, operator) {
                 ' ' +
                 meta.enumValues.map((entry) => entry.value).join(', ')
         );
+    } else if (meta.exampleValues && meta.exampleValues.length) {
+        // The legal set is far larger than is useful to read (any language code), so show
+        // a representative subset. `meta.hint` says these are examples, not the whole set.
+        parts.push(meta.hint + ' ' + joinCapped(meta.exampleValues));
     } else if (meta.values && meta.values.length) {
         parts.push(meta.hint + ' ' + joinCapped(meta.values));
     } else if (meta.hint) {
