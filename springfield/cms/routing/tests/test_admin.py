@@ -4,6 +4,7 @@
 
 """Tests for the admin signal payload feeding the dynamic condition help."""
 
+from django.conf import settings
 from django.utils.functional import Promise
 
 from springfield.cms.routing.admin import VALUE_LIST_HINT, VALUE_TYPE_HINTS, build_signal_payload, build_signal_reference
@@ -51,6 +52,22 @@ def test_payload_attaches_value_lists_for_locale_and_country():
     # These use the values-oriented lead-in, not the generic STRING operators hint.
     assert payload["country"]["hint"] == str(VALUE_LIST_HINT)
     assert payload["locale"]["hint"] == str(VALUE_LIST_HINT)
+
+
+def test_locale_values_are_every_served_locale_not_just_cms_content_languages():
+    # The signal reads the *visitor's* page locale, so the offerable set is every locale
+    # the site serves — not WAGTAIL_CONTENT_LANGUAGES, which is the far smaller set of
+    # locales CMS content is translated into. Using the latter would tell authors that
+    # dozens of perfectly targetable locales are invalid.
+    values = build_signal_payload()["locale"]["values"]
+    served = {code for code, _label in settings.LANGUAGES}
+    cms_content = {code for code, _label in settings.WAGTAIL_CONTENT_LANGUAGES}
+
+    assert set(values) == served
+    assert len(served) > len(cms_content)
+    # A locale the site serves but has no CMS content for must still be offerable.
+    outside_cms = sorted(served - cms_content)
+    assert outside_cms and outside_cms[0] in values
 
 
 def test_free_text_url_signal_carries_no_value_list():

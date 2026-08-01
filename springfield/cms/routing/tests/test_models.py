@@ -11,6 +11,7 @@ is introduced.
 
 from types import SimpleNamespace
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
 
@@ -260,6 +261,39 @@ def test_non_member_in_enum_set_raises(rule):
     with pytest.raises(ValidationError) as exc:
         condition.full_clean()
     assert "expected_value" in exc.value.error_dict
+
+
+def test_off_list_country_raises(rule):
+    # country is a STRING signal, but its value set is the complete ISO region list, so an
+    # off-list value can never match and would leave the rule silently dead. Enforced like
+    # an enum rather than left to the client.
+    condition = RoutingCondition(rule=rule, signal="country", operator="is", expected_value="bleh")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+def test_off_list_locale_raises(rule):
+    condition = RoutingCondition(rule=rule, signal="locale", operator="is", expected_value="zz")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+def test_served_locale_without_cms_content_is_accepted(rule):
+    # The set is every locale the site serves, not the smaller CMS-content set — targeting
+    # a locale that has no CMS translations is legitimate and must not be rejected.
+    served = {code for code, _label in settings.LANGUAGES}
+    cms_content = {code for code, _label in settings.WAGTAIL_CONTENT_LANGUAGES}
+    outside_cms = sorted(served - cms_content)[0]
+
+    condition = RoutingCondition(rule=rule, signal="locale", operator="is", expected_value=outside_cms)
+    condition.full_clean()  # must not raise
+
+
+def test_valid_country_and_membership_list_pass(rule):
+    RoutingCondition(rule=rule, signal="country", operator="is", expected_value="DE").full_clean()
+    RoutingCondition(rule=rule, signal="country", operator="in", expected_value="DE, GB\nUS").full_clean()
 
 
 def test_expected_values_splits_on_newlines_and_commas(rule):

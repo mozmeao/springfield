@@ -128,14 +128,13 @@ function splitList(value) {
 }
 
 export function classifyValue(meta, operator, value) {
-    // Grade a condition value against RoutingCondition.clean(), but split the verdict
-    // into three so the client can block only what it should:
-    //   'ok'       — acceptable.
-    //   'advisory' — an off-list `locale`/`country` value. `locale` is a flexible string, so a
-    //                non-matching value isn't wrong: it simply fails to match at runtime and the
-    //                canonical page serves (fail-safe). Shows the red hint, but never blocks.
-    //   'hard'     — the server would reject it, or it would silently mis-route (a malformed
-    //                boolean like "yess" → false). Blocks the save when the field is on-screen.
+    // Grade a condition value against RoutingCondition.clean():
+    //   'ok'   — acceptable.
+    //   'hard' — the server would reject it, it would silently mis-route (a malformed
+    //            boolean like "yess" → false), or it could never match anything (a value
+    //            outside a signal's complete set). Blocks the save when the field is
+    //            on-screen; a row on an inactive tab still falls through to the server so
+    //            Wagtail owns error/tab routing natively.
     if (!meta) {
         return 'ok'; // unknown/blank signal: leave it to the server
     }
@@ -162,13 +161,15 @@ export function classifyValue(meta, operator, value) {
             parts.every((part) => members.indexOf(part) !== -1);
         return allMembers ? 'ok' : 'hard';
     }
-    // Known-set string (locale/country): membership is advisory, not enforced (fail-safe).
+    // Known-set string (locale/country): the set is the signal's *complete* domain, so an
+    // off-list value can never match anything at runtime — the rule would be silently dead.
+    // Treated exactly like an enum; these are enums in all but declaration.
     if (meta.values && meta.values.length) {
         const parts = isMembership ? splitList(value) : [raw];
         const allMembers =
             parts.length > 0 &&
             parts.every((part) => meta.values.indexOf(part) !== -1);
-        return allMembers ? 'ok' : 'advisory';
+        return allMembers ? 'ok' : 'hard';
     }
     if (meta.valueType === 'boolean') {
         return /^(true|false|1|0)$/i.test(raw) ? 'ok' : 'hard';
@@ -185,10 +186,9 @@ export function classifyValue(meta, operator, value) {
 }
 
 export function validateExpectedValue(meta, operator, value) {
-    // The advisory-aware "is this value acceptable?" check that drives the inline red hint:
-    // anything short of 'ok' (including an off-list locale) fails here, so the author still
-    // sees a correction. Whether that failure *blocks the save* is a separate question —
-    // classifyValue distinguishes 'advisory' from 'hard' for that.
+    // The "is this value acceptable?" check that drives the inline red hint. Whether a
+    // failure also *blocks the save* is a separate question — see validateConditionRow,
+    // which additionally requires the field to be visible.
     return classifyValue(meta, operator, value) === 'ok';
 }
 
@@ -243,11 +243,9 @@ function validateConditionRow(select, payload, scope) {
         operatorSelect ? operatorSelect.value : '',
         expected ? expected.value : ''
     );
-    // Always surface the red hint for anything not 'ok' — advisory and hard alike — so the
-    // author sees the problem inline (on blur/change and on a blocked submit).
+    // Surface the red hint inline for any failure (on blur/change and on a blocked submit).
     setConditionError(select, payload, scope, status !== 'ok');
-    // But only a *hard* failure on a *visible* field blocks the save. Advisory failures
-    // (off-list locale/country — fail-safe to canonical) and rows on an inactive tab fall
+    // Only block when the field is actually on-screen: a row on an inactive tab falls
     // through to the server, where Wagtail owns error/tab routing natively.
     if (status === 'hard' && isFieldVisible(expected)) {
         return false;

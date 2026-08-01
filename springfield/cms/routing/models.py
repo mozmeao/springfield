@@ -33,6 +33,7 @@ from wagtail.admin.widgets import AdminPageChooser
 from wagtail.models import Orderable
 
 from springfield.cms.routing.signals import OPERATORS, SOURCE_LABELS, Source, ValueType, registry
+from springfield.cms.routing.value_lists import known_value_lists
 
 # Operators that carry a comma-separated list of expected values (set membership).
 _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
@@ -277,6 +278,13 @@ class RoutingCondition(Orderable):
         # An enum condition's expected value(s) must be members of the enum set.
         if signal.value_type is ValueType.ENUM:
             members = {enum_value.value for enum_value in signal.enum_values}
+        else:
+            # A STRING signal whose domain is fully known (locale / country) is an enum in
+            # all but declaration — see value_lists. Its set is complete, so an off-list
+            # value can never match at runtime and would leave the rule silently dead.
+            members = set(known_value_lists().get(self.signal, ()))
+
+        if members:
             invalid = [value for value in self.expected_values() if value not in members]
             if invalid:
                 raise ValidationError(

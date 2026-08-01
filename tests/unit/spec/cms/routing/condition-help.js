@@ -48,8 +48,8 @@ const PAYLOAD = {
         enumValues: [],
         values: []
     },
-    // A known-set STRING signal (locale/country): the values list is advisory, not enforced —
-    // an off-list value fails to match at runtime and the canonical page serves (fail-safe).
+    // A known-set STRING signal (locale/country): the values list is the signal's COMPLETE
+    // domain, so an off-list value can never match — enforced like an enum.
     locale: {
         valueType: 'string',
         description: 'The visitor locale.',
@@ -410,16 +410,16 @@ describe('cms/routing/condition-help.es6.js', function () {
             ).toBeNull();
         });
 
-        it('treats an off-list locale/country value as advisory: red hint, but no submit block', function () {
+        it('blocks an off-list locale/country value and shows the valid values', function () {
             const dom = makeConditionDOM('locale');
             dom.operatorSelect.value = 'is';
-            // A real, valid visitor locale that just isn't one of the CMS content locales.
+            // 'zz' is not a locale the site serves, so the condition could never match.
             dom.fieldWrap.querySelector('input').value = 'zz';
             document.body.appendChild(dom.container);
             try {
-                // Advisory ⇒ the save is allowed to proceed...
-                expect(validateConditions(dom.container, PAYLOAD)).toBe(true);
-                // ...but the author still sees the red hint (with the valid values).
+                // The set is the signal's complete domain, so this is a hard block...
+                expect(validateConditions(dom.container, PAYLOAD)).toBe(false);
+                // ...with the red hint listing what is actually valid.
                 const help = dom.fieldWrap.querySelector(
                     '.routing-condition-help'
                 );
@@ -513,10 +513,18 @@ describe('cms/routing/condition-help.es6.js', function () {
             expect(submit(form).defaultPrevented).toBe(false);
         });
 
-        it('allows submit for an off-list locale value (advisory, not a hard block)', function () {
+        it('blocks submit for an off-list locale value', function () {
+            // The locale list is the complete set of locales the site serves, so 'zz' can
+            // never match — the rule would be silently dead. Attached (see above): safe
+            // because the guard blocks, so the runner is never navigated.
             const { form } = formWith('locale', 'is', 'zz');
-            initConditionHelp({ payload: PAYLOAD, root: form });
-            expect(submit(form).defaultPrevented).toBe(false);
+            document.body.appendChild(form);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: form });
+                expect(submit(form).defaultPrevented).toBe(true);
+            } finally {
+                document.body.removeChild(form);
+            }
         });
     });
 

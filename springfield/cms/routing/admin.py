@@ -11,12 +11,10 @@ string is pre-localized server-side from a ``gettext_lazy`` source (the registry
 labels or the value-type hints below) — no raw English literals.
 """
 
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from product_details import product_details
-
 from springfield.cms.routing.signals import SOURCE_LABELS, Source, ValueType, registry
+from springfield.cms.routing.value_lists import known_value_lists
 
 # "What to type" hint shown beneath the expected-value field. Value-focused only — the
 # operator dropdown already lists the legal operators, so hints never restate them.
@@ -49,29 +47,13 @@ VALUE_TYPE_EXAMPLES = {
 }
 
 
-def _request_time_value_lists():
-    """Value lists for STRING signals with a known option set (locale / country).
-
-    Computed here, at request time (``build_signal_payload`` runs per editor load via the
-    ``insert_editor_js`` hook), rather than modelled as import-time ``ENUM`` signals:
-    ``WAGTAIL_CONTENT_LANGUAGES`` and the product-details region set are lazy and
-    DB/data-backed, so baking them into the registry at import would reintroduce the
-    app-init data access the framework avoids. That is *why* these stay
-    STRING signals.
-    """
-    return {
-        "locale": [code for code, _label in settings.WAGTAIL_CONTENT_LANGUAGES],
-        "country": sorted({code.upper() for code in product_details.get_regions("en-US").keys()}),
-    }
-
-
 def build_signal_payload():
     """Serialize the registry for the admin JS: signal name -> help metadata.
 
     Strings are resolved to the active admin locale here (server-side), so the JS only
     concatenates already-localized text.
     """
-    value_lists = _request_time_value_lists()
+    value_lists = known_value_lists()
     comma_hint = str(COMMA_HINT)
     invalid_hint = str(INVALID_HINT)
     payload = {}
@@ -106,7 +88,7 @@ def build_signal_reference():
     left lazy so the template localizes them; the honest descriptions come
     through unchanged.
     """
-    value_lists = _request_time_value_lists()
+    value_lists = known_value_lists()
     rows = []
     for signal in registry:
         rows.append(
