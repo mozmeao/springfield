@@ -23,6 +23,24 @@ RESOLVER_TEMPLATE = "cms/routing/resolver.html"
 RESOLVER_FTL = "cms-routing-resolver"
 
 
+def localized_target(target, page):
+    """The version of ``target`` that belongs in ``page``'s locale, or ``None``.
+
+    Translating a page copies its rules, but the copied ``target`` foreign key still
+    points at the *source* locale's page — so without this a German canonical's rule
+    would route German visitors to the English variant. Resolving against the hosting
+    page's locale fixes rules that have already been copied as well as future ones.
+
+    Returns ``None`` when the target has no counterpart in this locale, which drops the
+    rule and leaves the visitor on the canonical — in their own language. Falling back to
+    the stored target instead would route them to content they may not read, and would
+    also produce a cross-tree target that the descendant guard rejects.
+    """
+    if target is None or target.locale_id == page.locale_id:
+        return target
+    return target.get_translation_or_none(page.locale)
+
+
 def serialize_rules(page, request=None):
     """Serialize a page's live rules into the shape the client evaluator consumes.
 
@@ -31,10 +49,12 @@ def serialize_rules(page, request=None):
     unpublished page. Each condition carries the signal's value type from the registry
     so the evaluator can compare correctly. A rule's ``matchAll`` flag is emitted so the
     client can route the whole triggered audience for an intentional match-all rule.
+
+    Targets are resolved into the page's own locale — see ``localized_target``.
     """
     serialized = []
     for rule in page.routing_rules.all():
-        target = rule.target
+        target = localized_target(rule.target, page)
         if not target or not target.live:
             continue
         conditions = []

@@ -27,6 +27,7 @@ from wagtail.utils.decorators import cached_classmethod
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
+from springfield.cms.routing.resolver import localized_target
 from springfield.cms.routing.signals import registry
 
 # Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
@@ -169,7 +170,10 @@ class RoutingPageForm(WagtailAdminPageForm):
         data = getattr(rule_form, "cleaned_data", None)
         if not data or data.get("DELETE"):
             return
-        target = data.get("target")
+        # Resolve into this page's locale first: a rule copied here by a translation still
+        # stores the source locale's target, and that is corrected at serialize time rather
+        # than being the author's mistake to fix.
+        target = localized_target(data.get("target"), self.instance)
         if target is None:
             return
         if target.pk == self.instance.pk:

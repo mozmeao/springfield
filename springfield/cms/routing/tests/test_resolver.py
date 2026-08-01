@@ -10,7 +10,7 @@ from django.test import RequestFactory
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Site
+from wagtail.models import Locale, Site
 
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
 from springfield.cms.routing.resolver import render_resolver, serialize_manifest, serialize_rules
@@ -143,3 +143,57 @@ def test_resolver_has_no_inline_script_or_style(routed_page):
     assert all(script.get("src") for script in scripts)
     # All CSS ships via <link> bundles; no inline <style>.
     assert soup.find_all("style") == []
+
+
+# ---------------------------------------------------------------------------
+# Translated pages: rules are copied by Wagtail but their target FK is not remapped.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def translated_tree(routed_page):
+    """The routed page copied into a German locale, as copy_for_translation leaves it."""
+    german = Locale.objects.get_or_create(language_code="de")[0]
+    canonical_de = routed_page.canonical.copy_for_translation(german, copy_parents=True)
+    canonical_de.save()
+    canonical_de.refresh_from_db()
+    target_de = routed_page.target.copy_for_translation(german)
+    target_de.live = True
+    target_de.save()
+    return SimpleNamespace(canonical=canonical_de, target=target_de, source=routed_page)
+
+
+def test_translation_copies_rules_still_pointing_at_the_source_locale(translated_tree):
+    # Pins the Wagtail behaviour the fix exists for: the rule comes across, but its
+    # stored target is still the English variant. If Wagtail ever remaps this itself,
+    # this test fails and localized_target can be reconsidered.
+    rule = translated_tree.canonical.routing_rules.get()
+    assert rule.target_id == translated_tree.source.target.pk
+    assert not rule.target.is_descendant_of(translated_tree.canonical)
+
+
+def test_serialize_routes_a_translated_page_to_its_own_locale_target(translated_tree):
+    # The German page must route to the German variant, never the English one.
+    serialized = serialize_rules(translated_tree.canonical)
+    assert len(serialized) == 1
+    assert serialized[0]["target"] == translated_tree.target.get_url()
+    assert serialized[0]["target"] != translated_tree.source.target.get_url()
+
+
+def test_serialize_drops_a_rule_whose_target_is_not_translated(translated_tree):
+    # Fail safe the way the rest of the framework does: with no German variant, the
+    # visitor stays on the German canonical rather than being sent to English content.
+    translated_tree.target.delete()
+    assert serialize_rules(translated_tree.canonical) == []
+
+
+def test_serialize_drops_a_rule_whose_translated_target_is_unpublished(translated_tree):
+    # Same outcome by a different route — the existing live check catches this one.
+    translated_tree.target.live = False
+    translated_tree.target.save()
+    assert serialize_rules(translated_tree.canonical) == []
+
+
+def test_serialize_is_unaffected_for_an_untranslated_page(routed_page):
+    serialized = serialize_rules(routed_page.canonical)
+    assert serialized[0]["target"] == routed_page.target.get_url()
