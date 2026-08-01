@@ -25,8 +25,8 @@ INVITE_CODE_B = "1BBBBBBBBBBBBBBBB"  # decrypts → BBBBBBBBBBBBBBBB
 REFERRAL_ID_A = INVITE_CODE_A[1:]
 REFERRAL_ID_B = INVITE_CODE_B[1:]
 
-FIXTURE_CSV = f"invite_code,count\n{INVITE_CODE_A},42\n{INVITE_CODE_B},3\n"
-DEFAULT_BLOB_NAME = "referral_data-2026-07-22Z10:00:00.csv"
+FIXTURE_CSV = f"{INVITE_CODE_A},42\n{INVITE_CODE_B},3\n"
+DEFAULT_BLOB_NAME = "referral_data-2026-07-22.csv"
 
 
 def _make_blob(updated, csv_body=FIXTURE_CSV, name=DEFAULT_BLOB_NAME):
@@ -95,12 +95,12 @@ class TestUpdateReferralDataCommand(TestCase):
         older = _make_blob(
             updated=timezone.now() - timedelta(days=1),
             csv_body=old_body,
-            name="referral_data-2026-07-21Z10:00:00.csv",
+            name="referral_data-2026-07-21.csv",
         )
         newer = _make_blob(
             updated=timezone.now(),
             csv_body=new_body,
-            name="referral_data-2026-07-22Z10:00:00.csv",
+            name="referral_data-2026-07-22.csv",
         )
         # List in intentionally scrambled order to prove we sort, not "trust list order".
         with _patch_storage_client([newer, older]):
@@ -174,41 +174,11 @@ class TestUpdateReferralDataCommand(TestCase):
 
         self.assertEqual(FirefoxReferralData.objects.count(), 1)
 
-    def test_header_row_is_tolerated(self):
-        blob = _make_blob(updated=timezone.now())
-        with _patch_storage_client(blob):
-            call_command(COMMAND, quiet=True)
-
-        # Header skipped: only the two data rows are in the table.
-        self.assertEqual(FirefoxReferralData.objects.count(), 2)
-        self.assertFalse(FirefoxReferralData.objects.filter(referral_id="nvite_code").exists())
-
-    def test_malformed_first_data_row_is_counted_as_skipped_not_header(self):
-        # If the first row doesn't match the expected header names but has a
-        # non-integer count, it must NOT be silently swallowed as a "header"
-        # — it should reach refresh() and be counted as a skipped row.
-        body = f"{INVITE_CODE_A},not-an-int\n{INVITE_CODE_B},5\n"
-        blob = _make_blob(updated=timezone.now(), csv_body=body)
-        with _patch_storage_client(blob):
-            call_command(COMMAND, quiet=True)
-
-        # INVITE_CODE_B decrypts and loads; INVITE_CODE_A counted as skipped.
-        self.assertEqual(FirefoxReferralData.objects.count(), 1)
-        self.assertTrue(FirefoxReferralData.objects.filter(referral_id=REFERRAL_ID_B).exists())
-
-    def test_headerless_csv_loads_all_rows(self):
-        body = f"{INVITE_CODE_A},42\n{INVITE_CODE_B},3\n"
-        blob = _make_blob(updated=timezone.now(), csv_body=body)
-        with _patch_storage_client(blob):
-            call_command(COMMAND, quiet=True)
-
-        self.assertEqual(FirefoxReferralData.objects.count(), 2)
-
     def test_rows_with_extra_columns_are_dropped(self):
         # _iter_rows requires exactly two columns. If Data Eng ever emits a
         # third column, those rows are dropped rather than silently accepted
         # with the extras ignored, so the schema drift is more visible.
-        body = f"invite_code,count\n{INVITE_CODE_A},42\n{INVITE_CODE_B},3,unexpected\n"
+        body = f"{INVITE_CODE_A},42\n{INVITE_CODE_B},3,unexpected\n"
         blob = _make_blob(updated=timezone.now(), csv_body=body)
         with _patch_storage_client(blob):
             call_command(COMMAND, quiet=True)
@@ -221,7 +191,7 @@ class TestUpdateReferralDataCommand(TestCase):
         # An invite code that fails decryption is counted as a skipped row,
         # not a crash. The remaining valid codes are still imported.
         bad_code = "NOTAVALIDCODE1234"  # wrong length/format, decrypt will raise
-        body = f"invite_code,count\n{bad_code},42\n{INVITE_CODE_B},3\n"
+        body = f"{bad_code},42\n{INVITE_CODE_B},3\n"
         blob = _make_blob(updated=timezone.now(), csv_body=body)
 
         # Override: bad_code raises, good code decrypts normally.
@@ -243,11 +213,11 @@ class TestUpdateReferralDataCommand(TestCase):
         self.assertTrue(FirefoxReferralData.objects.filter(referral_id=REFERRAL_ID_B).exists())
 
     def test_empty_csv_raises_and_preserves_existing_data(self):
-        # An empty (or header-only) snapshot from Data Eng must not wipe the
-        # table. The command should let refresh()'s ValueError propagate so
-        # run-db-update.sh flags failure_detected and DMS is not pinged.
+        # An empty snapshot from Data Eng must not wipe the table. The command
+        # should let refresh()'s ValueError propagate so run-db-update.sh
+        # flags failure_detected and DMS is not pinged.
         FirefoxReferralData.objects.create(referral_id="KEEP000001", install_count=99)
-        blob = _make_blob(updated=timezone.now(), csv_body="invite_code,count\n")
+        blob = _make_blob(updated=timezone.now(), csv_body="")
         with _patch_storage_client(blob), self.assertRaisesRegex(ValueError, "no valid rows"):
             call_command(COMMAND, quiet=True)
 
