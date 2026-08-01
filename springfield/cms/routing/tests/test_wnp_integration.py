@@ -41,7 +41,7 @@ def wnp():
 # ---------------------------------------------------------------------------
 
 
-def test_wnp_declares_only_the_three_adoption_hooks(wnp):
+def test_wnp_declares_only_the_two_adoption_hooks(wnp):
     from springfield.cms.routing.arming import QueryParamValueArmingCondition
 
     trigger = wnp.canonical.get_routing_trigger()
@@ -49,8 +49,6 @@ def test_wnp_declares_only_the_three_adoption_hooks(wnp):
     # Armed on Firefox's just-updated flow specifically.
     assert trigger.param_name == "utm_source"
     assert trigger.values == frozenset({"update"})
-    assert "firefox_version" in wnp.canonical.get_routing_signal_names()
-    assert "country" not in wnp.canonical.get_routing_signal_names()  # not the paid set
 
 
 def test_is_routing_canonical_only_for_direct_children_of_the_index(wnp):

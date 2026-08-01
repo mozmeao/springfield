@@ -174,6 +174,87 @@ def test_self_target_rule_is_rejected_in_admin(admin_client, wnp):
     assert not RoutingRule.objects.filter(page=canonical).exists()
 
 
+# ---------------------------------------------------------------------------
+# The arming param is not offerable as a condition signal.
+# ---------------------------------------------------------------------------
+
+
+def _offered_signals(form):
+    """The signal names a condition form's dropdown actually offers."""
+    names = []
+    for value, label in form.fields["signal"].widget.choices:
+        if isinstance(label, (list, tuple)):
+            names.extend(option[0] for option in label)
+        else:
+            names.append(value)
+    return names
+
+
+def _condition_forms(page_form):
+    """Every condition form on the page form, including the add-a-row templates."""
+    rules = page_form.formsets["routing_rules"]
+    for rule_form in [*rules.forms, rules.empty_form]:
+        conditions = rule_form.formsets["conditions"]
+        yield from [*conditions.forms, conditions.empty_form]
+
+
+def test_arming_param_is_not_offered_as_a_condition_signal(admin_client, wnp):
+    # WNP arms on ?utm_source=update, so the resolver only ever runs with utm_source
+    # already at that value — a condition testing it could never do anything useful.
+    # empty_form is covered too: it's the template Wagtail clones for "Add condition".
+    canonical, _target = wnp
+    page_form = admin_client.get(_edit_url(canonical)).context["form"]
+
+    forms = list(_condition_forms(page_form))
+    assert forms, "expected at least the add-a-row template"
+    for form in forms:
+        offered = _offered_signals(form)
+        assert "utm_source" not in offered, "the arming param must not be offerable"
+        # Only the arming param is withheld — everything else stays available.
+        assert {"country", "utm_medium", "utm_campaign", "firefox_version"} <= set(offered)
+
+
+def test_posting_the_arming_param_as_a_signal_is_rejected(admin_client, wnp):
+    # The narrowed dropdown is presentation only, so the save path has to reject it too:
+    # a hand-crafted POST is refused with an explanatory error and nothing is written.
+    canonical, target = wnp
+    rules = inline_formset(
+        [
+            {
+                "name": "Always true",
+                "match_all": "",
+                "target": target.pk,
+                "conditions": inline_formset([{"signal": "utm_source", "operator": "is", "expected_value": "update"}]),
+            }
+        ]
+    )
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "always matches" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_other_url_signals_are_still_authorable(admin_client, wnp):
+    # Only the arming param is withheld. Geo and the other utm signals stay usable —
+    # guards against the exclusion widening to the whole URL source.
+    canonical, target = wnp
+    rules = inline_formset(
+        [
+            {
+                "name": "Germany",
+                "match_all": "",
+                "target": target.pk,
+                "conditions": inline_formset([{"signal": "country", "operator": "is", "expected_value": "DE"}]),
+            }
+        ]
+    )
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 302
+    assert RoutingCondition.objects.get(rule__page=canonical).signal == "country"
+
+
 def test_non_descendant_target_is_rejected_in_admin(admin_client, wnp):
     canonical, _target = wnp
     # A sibling canonical (direct child of the index) is a valid WhatsNewPage2026 but

@@ -21,6 +21,7 @@ must be a member of the enum set, and a rule's target must be a descendant of it
 canonical.
 """
 
+from django import forms
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -53,12 +54,62 @@ def signal_choices():
     return [(SOURCE_LABELS[source], grouped[source]) for source in Source if source in grouped]
 
 
-def rule_panels(target_page_types=None):
+class ExcludingSelect(forms.Select):
+    """A ``Select`` that always withholds one option value.
+
+    Filtering on *assignment* rather than once at construction is deliberate:
+    ``ChoiceField`` pushes its own choices onto its widget whenever they are set, so
+    choices passed to the constructor are overwritten before the field ever renders.
+    Optgroups left empty are dropped rather than rendered as bare headings.
+    """
+
+    def __init__(self, *args, excluded=None, **kwargs):
+        self.excluded = excluded
+        super().__init__(*args, **kwargs)
+
+    @property
+    def choices(self):
+        return self._choices
+
+    @choices.setter
+    def choices(self, value):
+        narrowed = []
+        for choice_value, label in value:
+            if isinstance(label, (list, tuple)):
+                kept = [option for option in label if option[0] != self.excluded]
+                if kept:
+                    narrowed.append((choice_value, kept))
+            elif choice_value != self.excluded:
+                narrowed.append((choice_value, label))
+        self._choices = narrowed
+
+
+def condition_panels(arming_param=None):
+    """The per-condition panels, optionally withholding the surface's arming param.
+
+    A surface that arms on a query param only ever reaches the resolver with that param
+    at its arming value, so a condition testing it is always true (or, for any other
+    value, always false) and quietly does nothing. Withholding it from the dropdown keeps
+    authors out of that trap; ``RoutingPageForm`` enforces it on save, since a narrowed
+    widget is presentation only.
+    """
+    if not arming_param:
+        return None
+    return [
+        FieldPanel("signal", widget=ExcludingSelect(excluded=arming_param)),
+        FieldPanel("operator"),
+        FieldPanel("expected_value"),
+    ]
+
+
+def rule_panels(target_page_types=None, arming_param=None):
     """The per-rule inline panels, optionally restricting the target chooser.
 
     Framework-generic: a consumer narrows the target chooser to its own page type(s) by
     setting ``RoutingMixin.routing_target_page_types``; the descendant/self-target guards
-    (model ``clean()`` + ``RoutingPageForm``) remain the correctness backstop.
+    (model ``clean()`` + ``RoutingPageForm``) remain the correctness backstop. The
+    condition panels are narrowed from the consumer's own trigger — see
+    ``condition_panels``.
     """
     if target_page_types:
         target_panel = FieldPanel("target", widget=AdminPageChooser(target_models=target_page_types))
@@ -68,7 +119,12 @@ def rule_panels(target_page_types=None):
         FieldPanel("name"),
         FieldPanel("match_all"),
         target_panel,
-        InlinePanel("conditions", heading=_("Conditions (all must match — AND)"), label=_("Condition")),
+        InlinePanel(
+            "conditions",
+            panels=condition_panels(arming_param),
+            heading=_("Conditions (all must match — AND)"),
+            label=_("Condition"),
+        ),
     ]
 
 

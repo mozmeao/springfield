@@ -5,9 +5,10 @@
 """The routing adoption mixin.
 
 ``RoutingMixin`` is the whole adoption surface a consumer page type touches. It
-declares exactly three overridable hooks — a **trigger**, an **eligibility
-predicate**, and a **signal subset** — and wires a "User Routing" edit tab holding
-the rules and kill-switch panels. It adds **no database fields** (all state lives in
+declares exactly two overridable hooks — a **trigger** and an **eligibility predicate**
+— and wires a "User Routing" edit tab holding the rules and kill-switch panels. The tab's
+condition signals are narrowed from the trigger itself, so nothing extra is declared for
+that. It adds **no database fields** (all state lives in
 the routing tables keyed to ``wagtailcore.Page``), so adopting it produces **no
 migration**. The serve-path dispatch is wired later; this mixin only owns the
 declaration surface and the admin tab.
@@ -121,7 +122,29 @@ class RoutingPageForm(WagtailAdminPageForm):
             for rule_form in rules_formset.forms:
                 self._enforce_condition_floor(rule_form)
                 self._enforce_target_scope(rule_form)
+                self._enforce_signal_scope(rule_form)
         return cleaned_data
+
+    def _enforce_signal_scope(self, rule_form):
+        # A condition on the surface's own arming param can never be useful: the
+        # resolver only runs once that param already holds its arming value, so the
+        # condition is always true (or, for any other value, always false). The narrowed
+        # dropdown keeps authors away from it; this makes it an actual rejection rather
+        # than a hidden <option>, and also covers the ORM/API path into the admin.
+        param = type(self.instance).get_routing_arming_param()
+        if not param:
+            return
+        conditions_formset = rule_form.formsets.get("conditions")
+        if conditions_formset is None:
+            return
+        for condition_form in conditions_formset.forms:
+            data = getattr(condition_form, "cleaned_data", None)
+            if not data or data.get("DELETE") or data.get("signal") != param:
+                continue
+            condition_form.add_error(
+                "signal",
+                _("“%(name)s” is what triggers routing on this page, so a condition on it always matches.") % {"name": param},
+            )
 
     @staticmethod
     def _enforce_condition_floor(rule_form):
@@ -179,7 +202,7 @@ class RoutingObjectList(ObjectList):
 class RoutingMixin(models.Model):
     """Abstract mixin a Wagtail page type mixes in to adopt routing.
 
-    A consumer declares exactly three things by overriding the hooks below and adds
+    A consumer declares exactly two things by overriding the hooks below and adds
     no view code, no framework code, and no schema. List this mixin **before** the
     page base class so its ``get_edit_handler`` wins in the MRO.
     """
@@ -187,7 +210,7 @@ class RoutingMixin(models.Model):
     class Meta:
         abstract = True
 
-    # -- Adoption surface: the only three things a consumer declares --
+    # -- Adoption surface: the only two things a consumer declares --
 
     def get_routing_trigger(self):
         """This surface's trigger — the arming condition under which routing fires.
@@ -207,13 +230,24 @@ class RoutingMixin(models.Model):
         """
         return False
 
-    def get_routing_signal_names(self):
-        """The registry signals this consumer's authors may test.
+    @classmethod
+    def get_routing_arming_param(cls):
+        """The query param this surface arms on, if it is also a registry signal.
 
-        Defaults to the whole registry; a consumer narrows it to the subset that makes
-        sense for its audience (e.g. WNP's version-centric set).
+        Derived from the trigger rather than declared separately, so it can never drift
+        from what actually arms the surface. Read from a bare instance because the panels
+        are built per class: a trigger describes the *surface*, so it must not depend on
+        one page's saved state. Returns ``None`` for a surface with no trigger, a
+        non-param trigger, or a param that isn't a signal — in every case there is
+        nothing to withhold.
         """
-        return tuple(registry.names())
+        # The mixin itself is abstract and so can't be instantiated; it also declares no
+        # trigger, so there is nothing to derive until a concrete consumer adopts it.
+        if cls._meta.abstract:
+            return None
+        trigger = cls().get_routing_trigger()
+        param = getattr(trigger, "param_name", None)
+        return param if param in registry else None
 
     # -- Admin wiring: the framework-owned "User Routing" tab --
 
@@ -244,8 +278,13 @@ class RoutingMixin(models.Model):
                 [InlinePanel("routing_config", label=_("Kill switch"), max_num=1)],
                 heading=_("Options"),
             ),
-            # Rules, with the target chooser scoped to the consumer's page type(s).
-            InlinePanel("routing_rules", panels=rule_panels(cls.routing_target_page_types), label=_("Rules")),
+            # Rules, with the target chooser scoped to the consumer's page type(s) and
+            # the condition signals narrowed by the consumer's own trigger.
+            InlinePanel(
+                "routing_rules",
+                panels=rule_panels(cls.routing_target_page_types, cls.get_routing_arming_param()),
+                label=_("Rules"),
+            ),
         ]
         return RoutingObjectList(panels, heading=_("User Routing"))
 

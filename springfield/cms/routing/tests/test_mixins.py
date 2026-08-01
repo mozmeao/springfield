@@ -21,13 +21,12 @@ from wagtail.models import Site
 from springfield.cms.routing.arming import QueryParamArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin, RoutingObjectList, routing_tab_is_shown
 from springfield.cms.routing.models import RoutingRule
-from springfield.cms.routing.signals import registry
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 rf = RequestFactory()
 
 # ---------------------------------------------------------------------------
-# Adoption surface: the three hooks and their defaults.
+# Adoption surface: the two hooks and their defaults.
 # ---------------------------------------------------------------------------
 
 
@@ -40,8 +39,10 @@ def test_routing_trigger_is_unset_by_default():
     assert RoutingMixin.get_routing_trigger(SimpleNamespace()) is None
 
 
-def test_signal_subset_defaults_to_full_registry():
-    assert RoutingMixin.get_routing_signal_names(SimpleNamespace()) == tuple(registry.names())
+def test_arming_param_is_none_without_a_trigger():
+    # Derived from the trigger, so an unadopted surface withholds nothing. The mixin is
+    # abstract and cannot be instantiated, so this also pins that it never tries.
+    assert RoutingMixin.get_routing_arming_param() is None
 
 
 # ---------------------------------------------------------------------------

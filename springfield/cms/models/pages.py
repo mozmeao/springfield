@@ -1402,21 +1402,6 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         parent = self.get_parent() if self.pk else None
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
-    def get_routing_signal_names(self):
-        """A just-updated audience: version, platform and browser state, plus the
-        update-from version and locale — not the paid-traffic geo/utm signals."""
-        return (
-            "firefox_version",
-            "oldversion",
-            "locale",
-            "platform",
-            "is_firefox",
-            "is_default_browser",
-            "profile_age",
-            "fxa_signed_in",
-            "ai_controls",
-        )
-
 
 class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
