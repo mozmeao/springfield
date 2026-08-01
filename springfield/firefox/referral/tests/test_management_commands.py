@@ -90,8 +90,8 @@ class TestUpdateReferralDataCommand(TestCase):
         # by lex-sort of the blob name (chronological for their format).
         invite_code_old = "1CCCCCCCCCCCCCCC1"
         invite_code_new = "1DDDDDDDDDDDDDDD1"
-        old_body = f"invite_code,count\n{invite_code_old},1\n"
-        new_body = f"invite_code,count\n{invite_code_new},2\n"
+        old_body = f"{invite_code_old},1\n"
+        new_body = f"{invite_code_new},2\n"
         older = _make_blob(
             updated=timezone.now() - timedelta(days=1),
             csv_body=old_body,
