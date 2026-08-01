@@ -88,11 +88,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         ),
     )
 
-    # Surface the editor-only `internal_title` at the top of the Content tab, above
-    # the public `title` field (which WagtailBasePage.content_panels provides).
     content_panels = [
-        FieldPanel("internal_title"),
         *WagtailBasePage.content_panels,
+        FieldPanel("internal_title"),
     ]
 
     promote_panels = WagtailBasePage.promote_panels + [
@@ -107,11 +105,6 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         index.AutocompleteField("internal_title"),
     ]
 
-    # Make the `slug` field 'synchronised', so it automatically gets copied over to
-    # every localized variant of the page and shouldn't get sent for translation.
-    # `internal_title` is likewise synchronised: it's a locale-agnostic organizational
-    # label, so we copy it across translations rather than send it for translation.
-    # See https://wagtail-localize.org/stable/how-to/field-configuration/
     override_translatable_fields = [
         SynchronizedField("slug"),
         SynchronizedField("custom_navigation"),
