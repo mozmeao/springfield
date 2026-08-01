@@ -29,11 +29,20 @@ def known_value_lists():
 
     A signal absent from this mapping has no closed set and its values are unconstrained.
     """
+    # Every locale Springfield serves. Deliberately NOT WAGTAIL_CONTENT_LANGUAGES: that is
+    # the much smaller set of locales CMS *content* is translated into, while these signals
+    # read what the *visitor* has, which can be any served locale.
+    locales = [code for code, _label in settings.LANGUAGES]
+    # The same set with the region dropped, so one condition covers every regional variant
+    # of a language (`en` covers en-US, en-GB, en-CA).
+    languages = sorted({code.split("-")[0] for code in locales})
     return {
-        # Every locale Springfield serves. Deliberately NOT WAGTAIL_CONTENT_LANGUAGES: that
-        # is the much smaller set of locales CMS *content* is translated into, while this
-        # signal reads the *visitor's* page locale, which can be any served locale.
-        "locale": [code for code, _label in settings.LANGUAGES],
+        "locale": locales,
+        "language": languages,
+        # Constrained to the languages Springfield serves. A visitor may well prefer a
+        # language outside that set, but there is no content to route them to, so targeting
+        # one could only ever produce a rule that never fires.
+        "browser_language": languages,
         # Every region product_details knows, matching the uppercase ISO codes the geo
         # reader produces.
         "country": sorted({code.upper() for code in product_details.get_regions("en-US").keys()}),

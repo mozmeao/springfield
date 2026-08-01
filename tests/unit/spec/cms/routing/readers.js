@@ -58,6 +58,48 @@ describe('cms/routing/readers.es6.js', function () {
             expect(await reader.read({ name: 'is_firefox' })).toBe(true);
         });
 
+        it('reads browser_language as the top preference, region dropped', async function () {
+            const reader = createUserAgentReader({
+                client: firefox,
+                navigator: { languages: ['fr-CA', 'en-US'], language: 'fr-CA' }
+            });
+            expect(await reader.read({ name: 'browser_language' })).toEqual(
+                'fr'
+            );
+        });
+
+        it('reads browser_language without Mozilla.Client present', async function () {
+            // navigator.languages is a plain browser API, so this must work off Firefox
+            // where the Mozilla.Client global is absent.
+            const reader = createUserAgentReader({
+                client: null,
+                navigator: { languages: ['de'], language: 'de' }
+            });
+            expect(await reader.read({ name: 'browser_language' })).toEqual(
+                'de'
+            );
+        });
+
+        it('falls back to navigator.language when languages is empty', async function () {
+            const reader = createUserAgentReader({
+                client: firefox,
+                navigator: { languages: [], language: 'es-MX' }
+            });
+            expect(await reader.read({ name: 'browser_language' })).toEqual(
+                'es'
+            );
+        });
+
+        it('is unavailable for browser_language when the browser reports none', async function () {
+            const reader = createUserAgentReader({
+                client: firefox,
+                navigator: { languages: [], language: '' }
+            });
+            expect(
+                await settle(reader.read({ name: 'browser_language' }))
+            ).toBe(REJECTED);
+        });
+
         it('yields false for is_firefox when stubbed non-Firefox', async function () {
             const reader = createUserAgentReader({
                 client: {
@@ -180,6 +222,33 @@ describe('cms/routing/readers.es6.js', function () {
         it('is unavailable when neither ?locale= nor <html lang> is set', async function () {
             const reader = createUrlReader({ search: '', lang: null });
             expect(await settle(reader.read({ name: 'locale' }))).toBe(
+                REJECTED
+            );
+        });
+
+        it('reads language as the locale with the region dropped', async function () {
+            // One condition covers every regional variant: en matches en-US/en-GB/en-CA.
+            const reader = createUrlReader({ search: '', lang: 'en-CA' });
+            expect(await reader.read({ name: 'language' })).toEqual('en');
+            expect(await reader.read({ name: 'locale' })).toEqual('en-CA');
+        });
+
+        it('reads language from a region-free locale unchanged', async function () {
+            const reader = createUrlReader({ search: '', lang: 'de' });
+            expect(await reader.read({ name: 'language' })).toEqual('de');
+        });
+
+        it('derives language from an explicit ?locale= override too', async function () {
+            const reader = createUrlReader({
+                search: '?locale=pt-BR',
+                lang: 'de'
+            });
+            expect(await reader.read({ name: 'language' })).toEqual('pt');
+        });
+
+        it('is unavailable for language when no locale can be determined', async function () {
+            const reader = createUrlReader({ search: '', lang: null });
+            expect(await settle(reader.read({ name: 'language' }))).toBe(
                 REJECTED
             );
         });

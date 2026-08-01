@@ -38,6 +38,17 @@ function mozillaGlobal() {
 }
 
 /**
+ * A locale/language tag reduced to its base language subtag: `en-US` -> `en`.
+ * Lowercased because browsers are inconsistent about tag casing, while the base
+ * subtag is always lowercase in the value list authors pick from.
+ */
+export function baseLanguage(tag) {
+    return String(tag || '')
+        .split('-')[0]
+        .toLowerCase();
+}
+
+/**
  * CDN geo — country is server-rendered into `data-country-code` on <html>, since the
  * client cannot read the CDN header directly. Injectable `root` element.
  */
@@ -73,9 +84,26 @@ export function createUserAgentReader(options) {
     const opts = options || {};
     const client =
         opts.client || (mozillaGlobal() ? mozillaGlobal().Client : null);
+    const nav =
+        opts.navigator || (typeof navigator !== 'undefined' ? navigator : null);
     return {
         read: function (descriptor) {
             return new Promise(function (resolve, reject) {
+                if (descriptor.name === 'browser_language') {
+                    // Checked before the Mozilla.Client guard below: this is a plain
+                    // browser API, available off Firefox too. Only the top preference is
+                    // read — the ordered list would need list-valued signal support the
+                    // evaluator does not have.
+                    const preferred =
+                        nav &&
+                        ((nav.languages && nav.languages[0]) || nav.language);
+                    if (preferred) {
+                        resolve(baseLanguage(preferred));
+                    } else {
+                        reject();
+                    }
+                    return;
+                }
                 if (!client) {
                     reject();
                     return;
@@ -198,6 +226,8 @@ export function createUITourReader(options) {
  *     is normalized the same way `firefox_version` is (bare / rv: / fully-qualified).
  *   - `locale` is the page locale, read from an explicit `?locale=` override and falling
  *     back to the `<html lang>` attribute (server-rendered on the resolver page).
+ *   - `language` is that same locale with the region dropped, so one condition covers
+ *     every regional variant of a language.
  *
  * Injectable `search` string, `root` element, and `lang` override.
  */
@@ -235,13 +265,22 @@ export function createUrlReader(options) {
                     }
                     return;
                 }
-                if (descriptor.name === 'locale') {
+                if (
+                    descriptor.name === 'locale' ||
+                    descriptor.name === 'language'
+                ) {
                     // Explicit ?locale= wins; otherwise fall back to <html lang>.
                     const locale = params.has('locale')
                         ? params.get('locale')
                         : htmlLang();
                     if (locale) {
-                        resolve(locale);
+                        // `language` is the same value with the region dropped, so one
+                        // condition matches every regional variant.
+                        resolve(
+                            descriptor.name === 'language'
+                                ? baseLanguage(locale)
+                                : locale
+                        );
                     } else {
                         reject();
                     }

@@ -169,8 +169,33 @@ registry.register(
 registry.register(
     RoutingSignal(
         name="locale",
-        description=_("The visitor's page locale (e.g. en-US, de, pt-BR)."),
+        description=_("The visitor's page locale, including region (e.g. en-US, de, pt-BR). Use “language” to match every region at once."),
         source=Source.URL,
+        value_type=ValueType.STRING,
+    )
+)
+
+# The same locale with the region dropped, so one condition covers every regional variant
+# of a language. Only four languages have variants (en, es, pt, zh), but hand-listing them
+# goes stale the moment another is added.
+registry.register(
+    RoutingSignal(
+        name="language",
+        description=_("The visitor's page language, ignoring region — “en” matches en-US, en-GB and en-CA."),
+        source=Source.URL,
+        value_type=ValueType.STRING,
+    )
+)
+
+# What the *browser* prefers, which is not always what the page is in: a visitor whose
+# language has no translation is served the best available one, so `locale` alone cannot
+# tell you what they actually read. Read client-side from `navigator.languages` — never
+# from the Accept-Language header, which would fragment the cacheable resolver page.
+registry.register(
+    RoutingSignal(
+        name="browser_language",
+        description=_("The language the visitor's browser prefers, which may differ from the page they were served."),
+        source=Source.USER_AGENT,
         value_type=ValueType.STRING,
     )
 )

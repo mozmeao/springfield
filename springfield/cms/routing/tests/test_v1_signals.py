@@ -28,6 +28,8 @@ EXPECTED_SIGNALS = {
     "utm_campaign": (Source.URL, ValueType.STRING),
     "oldversion": (Source.URL, ValueType.VERSION),
     "locale": (Source.URL, ValueType.STRING),
+    "language": (Source.URL, ValueType.STRING),
+    "browser_language": (Source.USER_AGENT, ValueType.STRING),
 }
 
 
@@ -139,3 +141,25 @@ def test_locale_is_a_url_string_signal_using_membership_operators():
     assert locale.value_type is ValueType.STRING
     assert locale.allows_operator("is")
     assert locale.allows_operator("in")
+
+
+def test_language_is_the_region_free_companion_to_locale():
+    language = registry.get("language")
+    assert language.source is Source.URL
+    assert language.value_type is ValueType.STRING
+    assert language.allows_operator("is")
+    assert language.allows_operator("in")
+
+
+def test_browser_language_is_read_from_the_user_agent_not_the_url():
+    # Deliberately NOT a URL signal: it reflects what the browser prefers, which the
+    # served page's locale cannot tell you once content fell back to another language.
+    browser_language = registry.get("browser_language")
+    assert browser_language.source is Source.USER_AGENT
+    assert browser_language.value_type is ValueType.STRING
+
+
+def test_locale_and_language_descriptions_point_authors_at_each_other():
+    # The pair is only useful if an author can tell which one they want.
+    assert "language" in str(registry.get("locale").description)
+    assert "en-US" in str(registry.get("language").description)
