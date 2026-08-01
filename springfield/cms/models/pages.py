@@ -63,6 +63,7 @@ from springfield.cms.blocks import (
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
+    ImageCaptionBlock,
     IntroBlock,
     KitBannerBlock,
     KitIntroBlock,
@@ -1899,6 +1900,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("media", MediaBlock()),
+            ("image_caption", ImageCaptionBlock()),
             ("code", CodeBlock()),
             ("quote", QuoteBlock()),
         ],

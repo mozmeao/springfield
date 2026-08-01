@@ -59,6 +59,15 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.blog_fixtures import (
+    FEATURED_DESCRIPTIONS,
+    FEATURED_TITLES,
+    IMAGE_CAPTION,
+    create_blog_article,
+    get_blog_article_content,
+    get_blog_index_page,
+    get_blog_topics,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -4260,3 +4269,71 @@ def test_card_block(index_page, placeholder_images, rf):
                     block_index=section_index + 1,
                     card_index=card_i + 1,
                 )
+
+
+def test_image_caption_block(minimal_site, placeholder_images, rf):
+    index_page = get_blog_index_page()
+    image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
+    privacy = get_blog_topics()["privacy"]
+    content = get_blog_article_content(image, image_caption=IMAGE_CAPTION)
+    # A second block covers the image variants, which the fixture image doesn't use.
+    content.append(
+        {
+            "type": "image_caption",
+            "value": {
+                "image": {
+                    "image": image.id,
+                    "settings": {
+                        "dark_mode_image": dark_image.id,
+                        "mobile_image": mobile_image.id,
+                        "dark_mode_mobile_image": dark_mobile_image.id,
+                    },
+                },
+                "caption": '<p data-block-key="eee55555">Caption below an image with dark mode and mobile variants.</p>',
+            },
+            "id": "88888888-8888-8888-8888-888888888888",
+        }
+    )
+    article = create_blog_article(
+        index_page=index_page,
+        title=FEATURED_TITLES[0],
+        slug="test-image-caption-article",
+        topic=privacy,
+        tags=[privacy],
+        image=image,
+        description=FEATURED_DESCRIPTIONS[0],
+        content=content,
+    )
+
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    assert response.status_code == 200
+
+    context = article.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+    blocks_data = [block for block in content if block["type"] == "image_caption"]
+    figures = soup.find_all("figure", class_="fl-image-caption")
+    assert len(figures) == len(blocks_data)
+
+    for figure, block_data in zip(figures, blocks_data):
+        assert_image_variants_attributes(
+            figure.find("div", class_="image-variants-display"),
+            block_data["value"]["image"],
+        )
+
+        caption_source = BeautifulSoup(block_data["value"]["caption"], "html.parser")
+        figcaption = figure.find("figcaption", class_="fl-image-caption-text")
+        assert figcaption
+        assert "fl-body" in figcaption["class"]
+        assert "fl-body-sm" in figcaption["class"]
+        assert figcaption.get_text().strip() == caption_source.get_text().strip()
+        # The caption is rendered without its wrapping <p>, but inline rich text formatting is kept.
+        assert not figcaption.find("p")
+        for tag_name in ("b", "i"):
+            assert bool(figcaption.find(tag_name)) == bool(caption_source.find(tag_name))
+        expected_link = caption_source.find("a")
+        rendered_link = figcaption.find("a")
+        assert bool(rendered_link) == bool(expected_link)
+        if expected_link:
+            assert rendered_link["href"] == add_utm_parameters(context, expected_link["href"])
+            assert rendered_link.get_text() == expected_link.get_text()

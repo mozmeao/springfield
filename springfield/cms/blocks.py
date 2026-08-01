@@ -1178,6 +1178,21 @@ def ImageVariantsBlock(required=True, *args, **kwargs):
     return _ImageVariantsBlock(*args, **kwargs)
 
 
+class ImageCaptionBlock(blocks.StructBlock):
+    image = ImageVariantsBlock()
+    caption = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        label="Caption",
+        help_text="Text displayed below the image.",
+    )
+
+    class Meta:
+        icon = "image"
+        label = "Image + Caption"
+        label_format = "Image + Caption - {caption}"
+        template = "cms/blocks/image-caption.html"
+
+
 class VideoBlock(blocks.StructBlock):
     video_url = blocks.URLBlock(
         label="Video URL",
