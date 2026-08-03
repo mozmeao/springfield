@@ -26,8 +26,8 @@ User = get_user_model()
 @pytest.fixture
 def routed_page():
     site_root = Site.objects.get(is_default_site=True).root_page
-    canonical = SimpleRichTextPageFactory(slug="c9-canonical", parent=site_root)
-    target = SimpleRichTextPageFactory(slug="c9-variant", parent=canonical, live=True)
+    canonical = SimpleRichTextPageFactory(slug="preview-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="preview-variant", parent=canonical, live=True)
     rule = RoutingRule.objects.create(page=canonical, target=target)
     RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
     return SimpleNamespace(canonical=canonical, target=target, rule=rule)

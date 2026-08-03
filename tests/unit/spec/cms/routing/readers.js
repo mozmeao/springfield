@@ -308,7 +308,7 @@ describe('cms/routing/readers.es6.js', function () {
         });
     });
 
-    describe('createProvider — fake signals (preview_signal, C9)', function () {
+    describe('createProvider — fake signals (preview_signal)', function () {
         it('resolves faked signals immediately and reads the rest live', async function () {
             const manifest = {
                 platform: { source: 'user_agent' },

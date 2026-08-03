@@ -25,8 +25,8 @@ def _rule_on(slug, title):
 
 
 def test_listing_renders_rules_from_multiple_pages(admin_client):
-    _rule_on("c12-alpha", "Canonical Alpha")
-    _rule_on("c12-beta", "Canonical Beta")
+    _rule_on("canonical-alpha", "Canonical Alpha")
+    _rule_on("canonical-beta", "Canonical Beta")
 
     response = admin_client.get(reverse("cms_routing_rules"))
     assert response.status_code == 200
@@ -43,7 +43,7 @@ def test_listing_handles_no_rules(admin_client):
 
 def test_listing_shows_the_rule_name(admin_client):
     # Display: an author-given rule name appears in the browse listing.
-    rule = _rule_on("c23-named", "Canonical Named")
+    rule = _rule_on("canonical-named", "Canonical Named")
     rule.name = "Windows updaters"
     rule.save()
 

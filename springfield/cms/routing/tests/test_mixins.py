@@ -140,15 +140,15 @@ def test_routing_trigger_satisfied_maps_the_trigger_hook():
 @pytest.mark.django_db
 def test_has_live_routing_rules_counts_only_live_targets():
     site_root = Site.objects.get(is_default_site=True).root_page
-    canonical = SimpleRichTextPageFactory(slug="c10-canonical", parent=site_root)
-    live_target = SimpleRichTextPageFactory(slug="c10-live", parent=canonical, live=True)
+    canonical = SimpleRichTextPageFactory(slug="live-rules-canonical", parent=site_root)
+    live_target = SimpleRichTextPageFactory(slug="live-target", parent=canonical, live=True)
     # No rules yet.
     assert RoutingMixin._has_live_routing_rules(canonical) is False
     RoutingRule.objects.create(page=canonical, target=live_target)
     assert RoutingMixin._has_live_routing_rules(canonical) is True
 
     # A rule pointing only at an unpublished target does not count.
-    other = SimpleRichTextPageFactory(slug="c10-other", parent=site_root)
-    dead_target = SimpleRichTextPageFactory(slug="c10-dead", parent=other, live=False)
+    other = SimpleRichTextPageFactory(slug="other-canonical", parent=site_root)
+    dead_target = SimpleRichTextPageFactory(slug="draft-target", parent=other, live=False)
     RoutingRule.objects.create(page=other, target=dead_target)
     assert RoutingMixin._has_live_routing_rules(other) is False

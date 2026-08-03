@@ -19,7 +19,7 @@ def temp_signal():
     Lets a test prove the reference page reflects registry changes with no page edit.
     """
     signal = RoutingSignal(
-        name="c13_temp_signal",
+        name="temp_test_signal",
         description="Temporary signal for testing the reference page.",
         source=Source.URL,
         value_type=ValueType.STRING,

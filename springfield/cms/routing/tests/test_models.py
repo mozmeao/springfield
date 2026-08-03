@@ -39,10 +39,10 @@ def tree():
     │   └── descendant (a valid target — descendant of canonical)
     └── outsider       (an invalid target — not under canonical)
     """
-    root = SimpleRichTextPageFactory(slug="c3-root")
-    canonical = SimpleRichTextPageFactory(slug="c3-canonical", parent=root)
-    descendant = SimpleRichTextPageFactory(slug="c3-variant", parent=canonical)
-    outsider = SimpleRichTextPageFactory(slug="c3-outsider", parent=root)
+    root = SimpleRichTextPageFactory(slug="rules-root")
+    canonical = SimpleRichTextPageFactory(slug="rules-canonical", parent=root)
+    descendant = SimpleRichTextPageFactory(slug="rules-variant", parent=canonical)
+    outsider = SimpleRichTextPageFactory(slug="rules-outsider", parent=root)
     return SimpleNamespace(root=root, canonical=canonical, descendant=descendant, outsider=outsider)
 
 
@@ -194,10 +194,10 @@ def wnp_tree():
             └── grandchild  (a valid descendant target of the variant)
     """
     site = Site.objects.get(is_default_site=True)
-    index = WhatsNewIndexPageFactory(parent=site.root_page, slug="c16-whatsnew")
-    canonical = WhatsNewPage2026Factory(parent=index, slug="c16-200", version="200", live=True)
-    variant = WhatsNewPage2026Factory(parent=canonical, slug="c16-200-b", version="200", live=True)
-    grandchild = WhatsNewPage2026Factory(parent=variant, slug="c16-200-c", version="200", live=True)
+    index = WhatsNewIndexPageFactory(parent=site.root_page, slug="whatsnew")
+    canonical = WhatsNewPage2026Factory(parent=index, slug="wnp-200", version="200", live=True)
+    variant = WhatsNewPage2026Factory(parent=canonical, slug="wnp-200-variant", version="200", live=True)
+    grandchild = WhatsNewPage2026Factory(parent=variant, slug="wnp-200-nested", version="200", live=True)
     return SimpleNamespace(index=index, canonical=canonical, variant=variant, grandchild=grandchild)
 
 

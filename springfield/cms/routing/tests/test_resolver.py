@@ -25,8 +25,8 @@ rf = RequestFactory()
 def routed_page():
     # Build under the default site's root so pages have real URLs.
     site_root = Site.objects.get(is_default_site=True).root_page
-    canonical = SimpleRichTextPageFactory(slug="c8-canonical", parent=site_root)
-    target = SimpleRichTextPageFactory(slug="c8-variant", parent=canonical, live=True)
+    canonical = SimpleRichTextPageFactory(slug="resolver-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="resolver-variant", parent=canonical, live=True)
     rule = RoutingRule.objects.create(page=canonical, target=target)
     RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
     RoutingCondition.objects.create(rule=rule, signal="country", operator="is", expected_value="US", sort_order=1)
@@ -87,8 +87,8 @@ def test_serialize_rules_drops_a_lone_conditionless_non_match_all_rule():
     # path — so pin it directly: a lone ORM-created rule with no conditions and match_all=False
     # is dropped entirely and never reaches the client, even with a perfectly live target.
     site_root = Site.objects.get(is_default_site=True).root_page
-    canonical = SimpleRichTextPageFactory(slug="c29-canonical", parent=site_root)
-    target = SimpleRichTextPageFactory(slug="c29-variant", parent=canonical, live=True)
+    canonical = SimpleRichTextPageFactory(slug="conditionless-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="conditionless-variant", parent=canonical, live=True)
     RoutingRule.objects.create(page=canonical, target=target, match_all=False)
     assert serialize_rules(canonical) == []
 

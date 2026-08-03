@@ -32,9 +32,9 @@ pytestmark = [pytest.mark.django_db]
 def wnp():
     """A canonical WhatsNewPage2026 (direct child of the index) with a valid target."""
     site_root = Site.objects.get(is_default_site=True).root_page
-    index = WhatsNewIndexPageFactory(parent=site_root, slug="c21-whatsnew")
-    canonical = WhatsNewPage2026Factory(parent=index, slug="c21-200", version="200", live=True)
-    target = WhatsNewPage2026Factory(parent=canonical, slug="c21-200-b", version="200", live=True)
+    index = WhatsNewIndexPageFactory(parent=site_root, slug="whatsnew")
+    canonical = WhatsNewPage2026Factory(parent=index, slug="wnp-200", version="200", live=True)
+    target = WhatsNewPage2026Factory(parent=canonical, slug="wnp-200-variant", version="200", live=True)
     return canonical, target
 
 
@@ -260,7 +260,7 @@ def test_non_descendant_target_is_rejected_in_admin(admin_client, wnp):
     # A sibling canonical (direct child of the index) is a valid WhatsNewPage2026 but
     # NOT a descendant of `canonical`, so the chooser type-scope wouldn't catch it.
     index = canonical.get_parent()
-    sibling = WhatsNewPage2026Factory(parent=index, slug="c21-201", version="201", live=True)
+    sibling = WhatsNewPage2026Factory(parent=index, slug="wnp-201", version="201", live=True)
     rules = inline_formset([{"name": "Sibling", "match_all": "on", "target": sibling.pk, "conditions": inline_formset([])}])
 
     response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
