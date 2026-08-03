@@ -79,6 +79,15 @@ describe('cms/routing/evaluator.es6.js', function () {
             expect(compareVersions('100', '9')).toEqual(1);
             expect(compareVersions('129.1', '129.0.5')).toEqual(1);
         });
+
+        it('reports no comparison at all when either side has no version in it', function () {
+            // Not 0 — "no answer" and "equal" must not be the same value, or every
+            // ordered operator reads a garbage value as equal and matches on it.
+            expect(compareVersions('unknown', '129')).toBeNull();
+            expect(compareVersions('129', 'unknown')).toBeNull();
+            expect(compareVersions('', '129')).toBeNull();
+            expect(compareVersions(null, '129')).toBeNull();
+        });
     });
 
     describe('evaluateCondition', function () {
@@ -212,6 +221,80 @@ describe('cms/routing/evaluator.es6.js', function () {
                     available(false)
                 )
             ).toEqual(NOT_MATCHED);
+        });
+
+        // A value that arrived but says nothing — Firefox itself sends
+        // `?oldversion=unknown` when it has no prior version to report, so this is live
+        // traffic. The evaluator must treat it like a signal it never got.
+        const ORDERED = ['lt', 'lte', 'gt', 'gte'];
+        const NEGATED_ORDERED = ['not_lt', 'not_lte', 'not_gt', 'not_gte'];
+
+        it('never matches an ordered version comparison against an unparseable value', function () {
+            ORDERED.concat(NEGATED_ORDERED).forEach(function (operator) {
+                expect(
+                    evaluateCondition(
+                        cond('oldversion', operator, '128', 'version'),
+                        available('unknown')
+                    )
+                ).toEqual(NOT_MATCHED);
+            });
+        });
+
+        it('never matches an ordered integer comparison against an unparseable value', function () {
+            ORDERED.concat(NEGATED_ORDERED).forEach(function (operator) {
+                expect(
+                    evaluateCondition(
+                        cond('profile_age', operator, '30', 'integer'),
+                        available('unknown')
+                    )
+                ).toEqual(NOT_MATCHED);
+            });
+        });
+
+        it('does not turn an unparseable value into a match by negating it', function () {
+            // The whole point: a negated unknown must stay not-matched. Equality and
+            // membership go through the same rule, so `is_not` and `not_in` cannot
+            // claim a garbage value differs from what the author asked for.
+            expect(
+                evaluateCondition(
+                    cond('oldversion', 'not_gte', '128', 'version'),
+                    available('unknown')
+                )
+            ).toEqual(NOT_MATCHED);
+            expect(
+                evaluateCondition(
+                    cond('oldversion', 'not_equals', '128', 'version'),
+                    available('unknown')
+                )
+            ).toEqual(NOT_MATCHED);
+            expect(
+                evaluateCondition(
+                    cond('oldversion', 'not_in', '128, 129', 'version'),
+                    available('unknown')
+                )
+            ).toEqual(NOT_MATCHED);
+            expect(
+                evaluateCondition(
+                    cond('profile_age', 'not_equals', '30', 'integer'),
+                    available('unknown')
+                )
+            ).toEqual(NOT_MATCHED);
+        });
+
+        it('still compares a parseable value that happens to be zero', function () {
+            // Guard for the sentinel: 0 is a real value, not "no value".
+            expect(
+                evaluateCondition(
+                    cond('profile_age', 'lte', '30', 'integer'),
+                    available(0)
+                )
+            ).toEqual(MATCHED);
+            expect(
+                evaluateCondition(
+                    cond('profile_age', 'equals', '0', 'integer'),
+                    available('0')
+                )
+            ).toEqual(MATCHED);
         });
 
         it('every operator is present and paired with its negation', function () {

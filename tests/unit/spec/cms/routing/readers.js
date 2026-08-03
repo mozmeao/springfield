@@ -206,6 +206,14 @@ describe('cms/routing/readers.es6.js', function () {
             );
         });
 
+        it('resolves oldversion=unknown with no version rather than rejecting', async function () {
+            // Firefox sends this when it has no prior version to report. The visitor did
+            // supply a value, so the read succeeds; deciding that an unparseable value
+            // proves nothing is the evaluator's job, and it fails closed on this.
+            const reader = createUrlReader({ search: '?oldversion=unknown' });
+            expect(await reader.read({ name: 'oldversion' })).toBeNull();
+        });
+
         it('reads locale from the <html lang> attribute', async function () {
             const reader = createUrlReader({ search: '', lang: 'de' });
             expect(await reader.read({ name: 'locale' })).toEqual('de');

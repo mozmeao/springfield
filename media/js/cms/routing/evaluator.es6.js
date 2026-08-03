@@ -75,27 +75,45 @@ function toBoolean(value) {
     return normalized === 'true' || normalized === '1';
 }
 
+// `null` is the "no parseable value here" sentinel, shared by the parsers and the
+// comparisons below. It has to be distinct from every real answer: 0 is a valid number
+// and an "equal" comparison result, so returning either for a garbage value makes the
+// ordered operators read it as equal and match on it.
 function toNumber(value) {
-    return Number(String(value).trim());
+    const text = String(value).trim();
+    if (text === '') {
+        return null;
+    }
+    const number = Number(text);
+    return Number.isNaN(number) ? null : number;
 }
 
 export function normalizeVersion(value) {
     // Accept bare (129), prefixed (rv:129) and fully-qualified (129.0.1) forms by
-    // stripping any leading non-digits, then comparing dot-separated numbers.
+    // stripping any leading non-digits, then comparing dot-separated numbers. A value
+    // with no digits at all carries no version — `oldversion=unknown`, which Firefox
+    // sends when it has no prior version to report, is the common one.
     if (value === null || value === undefined) {
-        return '';
+        return null;
     }
-    return String(value)
+    const stripped = String(value)
         .trim()
         .replace(/^[^\d]*/, '');
+    return stripped === '' ? null : stripped;
 }
 
 /**
- * Version-aware comparison. Returns -1, 0 or 1.
+ * Version-aware comparison. Returns -1, 0 or 1, or `null` when either side carries no
+ * version to compare.
  */
 export function compareVersions(a, b) {
-    const partsA = normalizeVersion(a).split('.');
-    const partsB = normalizeVersion(b).split('.');
+    const normalizedA = normalizeVersion(a);
+    const normalizedB = normalizeVersion(b);
+    if (normalizedA === null || normalizedB === null) {
+        return null;
+    }
+    const partsA = normalizedA.split('.');
+    const partsB = normalizedB.split('.');
     const length = Math.max(partsA.length, partsB.length);
     for (let i = 0; i < length; i++) {
         const numA = parseInt(partsA[i], 10) || 0;
@@ -110,12 +128,18 @@ export function compareVersions(a, b) {
     return 0;
 }
 
+// The comparisons below return true, false, or `null` for "cannot be compared".
 function valuesEqual(valueType, value, expected) {
     if (valueType === 'version') {
-        return compareVersions(value, expected) === 0;
+        const comparison = compareVersions(value, expected);
+        return comparison === null ? null : comparison === 0;
     }
     if (valueType === 'integer') {
-        return toNumber(value) === toNumber(expected);
+        const number = toNumber(value);
+        const expectedNumber = toNumber(expected);
+        return number === null || expectedNumber === null
+            ? null
+            : number === expectedNumber;
     }
     if (valueType === 'boolean') {
         return toBoolean(value) === toBoolean(expected);
@@ -127,14 +151,41 @@ function compareOrdered(valueType, value, expected) {
     if (valueType === 'version') {
         return compareVersions(value, expected);
     }
-    const diff = toNumber(value) - toNumber(expected);
-    if (diff < 0) {
+    const number = toNumber(value);
+    const expectedNumber = toNumber(expected);
+    if (number === null || expectedNumber === null) {
+        return null;
+    }
+    if (number < expectedNumber) {
         return -1;
     }
-    if (diff > 0) {
+    if (number > expectedNumber) {
         return 1;
     }
     return 0;
+}
+
+function membership(valueType, value, expected) {
+    // A single match settles it. Otherwise, if any member could not be compared at all,
+    // the answer is unknown rather than "no" — the alternative lets a negated operator
+    // claim the value differs from a list it was never actually compared against.
+    let unknown = false;
+    const members = splitList(expected);
+    for (let i = 0; i < members.length; i++) {
+        const equal = valuesEqual(valueType, value, members[i]);
+        if (equal === true) {
+            return true;
+        }
+        if (equal === null) {
+            unknown = true;
+        }
+    }
+    return unknown ? null : false;
+}
+
+function ordered(valueType, value, expected, test) {
+    const comparison = compareOrdered(valueType, value, expected);
+    return comparison === null ? null : test(comparison);
 }
 
 function comparePositive(kind, valueType, value, expected) {
@@ -142,17 +193,15 @@ function comparePositive(kind, valueType, value, expected) {
         case 'eq':
             return valuesEqual(valueType, value, expected);
         case 'in':
-            return splitList(expected).some((member) =>
-                valuesEqual(valueType, value, member)
-            );
+            return membership(valueType, value, expected);
         case 'lt':
-            return compareOrdered(valueType, value, expected) < 0;
+            return ordered(valueType, value, expected, (c) => c < 0);
         case 'lte':
-            return compareOrdered(valueType, value, expected) <= 0;
+            return ordered(valueType, value, expected, (c) => c <= 0);
         case 'gt':
-            return compareOrdered(valueType, value, expected) > 0;
+            return ordered(valueType, value, expected, (c) => c > 0);
         case 'gte':
-            return compareOrdered(valueType, value, expected) >= 0;
+            return ordered(valueType, value, expected, (c) => c >= 0);
         default:
             return false;
     }
@@ -165,6 +214,11 @@ function comparePositive(kind, valueType, value, expected) {
  * unavailable/timed-out signal makes the condition NOT_MATCHED with no negation flip —
  * a negated *unknown* must never become a match. Only a resolved (available) value is
  * operator-evaluated and then negation-flipped.
+ *
+ * A value that arrived but cannot be compared — a version with no digits in it, an
+ * integer that isn't a number — is unknown for the same reason and takes the same exit.
+ * It is not a comparison that happens to be false: reporting false here would let the
+ * negated form of every operator match on it.
  *
  * @param state {status, value?} — a signal state, or undefined (treated as pending).
  */
@@ -186,6 +240,9 @@ export function evaluateCondition(condition, state) {
         state.value,
         condition.expected
     );
+    if (positive === null) {
+        return NOT_MATCHED;
+    }
     const matched = operator.negated ? !positive : positive;
     return matched ? MATCHED : NOT_MATCHED;
 }
