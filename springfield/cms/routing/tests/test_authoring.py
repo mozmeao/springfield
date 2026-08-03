@@ -194,6 +194,93 @@ def test_a_translated_page_with_copied_rules_saves_and_publishes(admin_client, t
     assert page.routing_rules.first().target_id == translated_wnp.variant.pk
 
 
+def test_editing_a_rules_other_fields_does_not_implicate_its_target(admin_client, translated_wnp):
+    # The subtle one: the target is unresolvable here (no German variant yet), and the author
+    # renames the rule and ticks match-all. Touching the rule must not be read as touching the
+    # target they never went near.
+    translated_wnp.de_variant.delete()
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "Renamed by the translator", "match_all": "on", "target": str(rule.target_id), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    rule.refresh_from_db()
+    assert rule.name == "Renamed by the translator"
+
+
+def test_repointing_a_rule_at_a_page_missing_from_this_locale_is_rejected(admin_client, translated_wnp):
+    # Now the author *does* choose it, so it is their mistake to fix: this target could never
+    # route anyone from this page.
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    # An English-only page: never translated, so it has no German version to route to.
+    english_only = WhatsNewPage2026Factory(parent=translated_wnp.canonical, slug="146-b", version="146", live=True)
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "", "match_all": "on", "target": str(english_only.pk), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 200
+    assert "no version in this page" in response.content.decode("utf-8")
+    rule.refresh_from_db()
+    assert rule.target_id == translated_wnp.variant.pk  # unchanged
+
+
+def test_repointing_a_rule_at_a_variant_in_this_locale_succeeds(admin_client, translated_wnp):
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "", "match_all": "on", "target": str(translated_wnp.de_variant.pk), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    rule.refresh_from_db()
+    assert rule.target_id == translated_wnp.de_variant.pk
+
+
+def test_adding_a_rule_targeting_a_variant_in_this_locale_succeeds(admin_client, translated_wnp):
+    page = translated_wnp.de_canonical
+    existing = page.routing_rules.first()
+    rules = inline_formset(
+        [
+            {"id": existing.pk, "name": "", "match_all": "on", "target": str(existing.target_id), "conditions": inline_formset([])},
+            {"name": "New German rule", "match_all": "on", "target": str(translated_wnp.de_variant.pk), "conditions": inline_formset([])},
+        ],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    assert page.routing_rules.filter(name="New German rule").exists()
+
+
+def test_adding_a_rule_targeting_a_page_missing_from_this_locale_is_rejected(admin_client, translated_wnp):
+    # A new rule's target is always "just chosen", so an unresolvable one is rejected — while
+    # the untouched copied rule alongside it, unresolvable for the same reason, is left alone.
+    translated_wnp.de_variant.delete()
+    page = translated_wnp.de_canonical
+    existing = page.routing_rules.first()
+    rules = inline_formset(
+        [
+            {"id": existing.pk, "name": "", "match_all": "on", "target": str(existing.target_id), "conditions": inline_formset([])},
+            {"name": "Points at English", "match_all": "on", "target": str(translated_wnp.variant.pk), "conditions": inline_formset([])},
+        ],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 200
+    assert "no version in this page" in response.content.decode("utf-8")
+    assert not page.routing_rules.filter(name="Points at English").exists()
+
+
 def test_a_same_locale_target_outside_the_page_is_still_rejected(translated_wnp):
     # The locale-aware resolution must not become a way to smuggle a bad target past the
     # model guard: within one locale, the descendant rule still holds.

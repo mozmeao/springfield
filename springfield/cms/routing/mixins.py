@@ -171,12 +171,30 @@ class RoutingPageForm(WagtailAdminPageForm):
         data = getattr(rule_form, "cleaned_data", None)
         if not data or data.get("DELETE"):
             return
-        # Resolve into this page's locale first: a rule copied here by a translation still
-        # stores the source locale's target, and that is corrected at serialize time rather
-        # than being the author's mistake to fix.
+        if data.get("target") is None:
+            return
+        # Resolve into this page's locale first, so the guards judge the page a visitor here
+        # would actually be sent to.
         target = localized_target(data.get("target"), self.instance)
         if target is None:
+            # The chosen page exists only in another language. Two very different situations
+            # produce this, and only one is a mistake:
+            #
+            # * a rule copied here when the page was translated still stores the source
+            #   locale's target. The author never chose it and may not even have opened the
+            #   routing tab; the rule stays inert until the target is translated, then starts
+            #   working on its own. Erroring would block saves for unrelated edits.
+            # * the author just picked this page. It can never route anyone from here, so
+            #   telling them now is the whole point — after saving, nothing would ever say so.
+            #
+            # An untouched page chooser does not appear in ``changed_data``, and Django's
+            # ModelChoiceField compares initial and submitted values as strings, so the stored
+            # id coming back as "5" against an initial 5 is correctly read as unchanged.
+            if "target" in rule_form.changed_data:
+                rule_form.add_error("target", _("That page has no version in this page's language, so this rule could never fire."))
             return
+        # A resolved target is in this page's language by construction, so the self-target and
+        # descendant checks below are the only ones that can still apply.
         if target.pk == self.instance.pk:
             rule_form.add_error("target", _("A rule cannot target its own page."))
         elif not target.is_descendant_of(self.instance):
