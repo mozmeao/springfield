@@ -22,7 +22,7 @@ switch and the trigger checks; a ``None`` return means "no preview — fall thro
 from django.shortcuts import redirect
 
 from springfield.cms.routing.params import PREVIEW_RULE_PARAM, PREVIEW_SIGNAL_PARAM
-from springfield.cms.routing.resolver import render_resolver
+from springfield.cms.routing.resolver import patch_request_for_resolver, render_resolver
 from springfield.cms.routing.signals import registry
 
 
@@ -68,7 +68,10 @@ def _preview_rule(request, page):
 
 def _preview_signal(request, page):
     fakes = parse_fake_signals(request.GET.getlist(PREVIEW_SIGNAL_PARAM))
-    return _no_store(render_resolver(request, page, fake_signals=fakes))
+    # A live request from an author, not a Wagtail preview, so it needs the same request
+    # setup as the serve path — including the page's locales, or the author is redirected
+    # out of the locale they are trying to check.
+    return _no_store(render_resolver(patch_request_for_resolver(request, page), page, fake_signals=fakes))
 
 
 def get_preview_response(request, page):

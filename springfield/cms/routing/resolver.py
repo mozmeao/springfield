@@ -99,6 +99,23 @@ def serialize_manifest(rules):
     return manifest
 
 
+def patch_request_for_resolver(request, page):
+    """Apply the request setup a normal page serve does, for the resolver path.
+
+    Rendering the resolver skips ``AbstractSpringfieldCMSPage.serve()``, and with it both
+    the ``is_preview`` flag and the page's own list of available locales. Without that list
+    the Fluent render falls back to the resolver strings' activation state and redirects any
+    visitor whose locale is missing from it — a German visitor asking for the German
+    canonical is sent to ``/en-US/``. Every other CMS page resolves locales from the page
+    tree; the resolver must not be the one exception.
+
+    Called from the branches that render the resolver, so canonical traffic pays nothing
+    for the locale queries.
+    """
+    request.is_preview = False
+    return page._patch_request_for_springfield(request)
+
+
 def render_resolver(request, page, fake_signals=None):
     """Render the resolver page for ``page`` and its live rules.
 

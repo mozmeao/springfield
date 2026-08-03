@@ -141,6 +141,31 @@ def test_triggered_canonical_without_rules_serves_canonical(client, wnp):
 
 
 # ---------------------------------------------------------------------------
+# Serving the resolver outside en-US.
+#
+# The resolver renders through l10n_utils.render, which redirects a visitor whose
+# locale has no translation of the strings being rendered — unless the request carries
+# the CMS page's own locale list. A German visitor must reach the resolver on the German
+# canonical, not be bounced to /en-US/, and the `resolver_strings_english_only` fixture
+# is what makes that observable (see its docstring).
+# ---------------------------------------------------------------------------
+
+
+@override_switch("user_routing", active=True)
+def test_triggered_visitor_is_not_redirected_out_of_their_locale(client, translated_wnp, resolver_strings_english_only):
+    response = client.get(translated_wnp.de_canonical.get_url() + "?utm_source=update")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER in response.content.decode("utf-8")
+
+
+@override_switch("user_routing", active=True)
+def test_preview_signal_is_not_redirected_out_of_their_locale(admin_client, translated_wnp, resolver_strings_english_only):
+    response = admin_client.get(translated_wnp.de_canonical.get_url() + "?preview_signal=platform:windows")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER in response.content.decode("utf-8")
+
+
+# ---------------------------------------------------------------------------
 # The index's latest-version redirect is unaffected by nested variants.
 # ---------------------------------------------------------------------------
 
