@@ -170,6 +170,47 @@ describe('cms/routing/resolver.es6.js', function () {
             expect(navigated).toEqual('/canon/?utm_source=nope&routed=1');
         });
 
+        // The resolver renders *at* the canonical URL. If the destination is pushed, the
+        // interstitial sits one Back press away — where it either bounces the visitor
+        // forward again or, restored from the back/forward cache, shows a frozen
+        // "Preparing your page…" with no heading, no link and no control.
+        function spyLocation() {
+            return {
+                assign: jasmine.createSpy('assign'),
+                replace: jasmine.createSpy('replace')
+            };
+        }
+
+        it('replaces the resolver in history when routing to a target', async function () {
+            const windowLocation = spyLocation();
+            await initResolver({
+                root: makeRoot(RULES, MANIFEST, '/canon/', 'routed'),
+                windowLocation: windowLocation,
+                providerOptions: { search: '?utm_source=x' },
+                evaluatorOptions: { globalTimeoutMs: 500 }
+            });
+            expect(windowLocation.replace).toHaveBeenCalledWith(
+                '/target/?utm_source=x'
+            );
+            expect(windowLocation.assign).not.toHaveBeenCalled();
+        });
+
+        it('replaces the resolver in history on the canonical fallback too', async function () {
+            // The fallback carries the loop-breaker, so replacing here also stops
+            // ?routed=1 accumulating in the visitor's history.
+            const windowLocation = spyLocation();
+            await initResolver({
+                root: makeRoot(RULES, MANIFEST, '/canon/', 'routed'),
+                windowLocation: windowLocation,
+                providerOptions: { search: '?utm_source=nope' },
+                evaluatorOptions: { globalTimeoutMs: 500 }
+            });
+            expect(windowLocation.replace).toHaveBeenCalledWith(
+                '/canon/?utm_source=nope&routed=1'
+            );
+            expect(windowLocation.assign).not.toHaveBeenCalled();
+        });
+
         it('applies fake signals from the preview data blob', async function () {
             let navigated;
             const rules = [

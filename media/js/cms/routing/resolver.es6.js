@@ -93,7 +93,7 @@ export function preserveQueryString(url, incomingSearch, reservedParams) {
 
 /**
  * Wire the resolver against the DOM. `options` allow injecting the root element, a
- * navigate function, and provider options (used in tests).
+ * navigate function, a location object, and provider options (used in tests).
  */
 export function initResolver(options) {
     const opts = options || {};
@@ -106,10 +106,19 @@ export function initResolver(options) {
         return null;
     }
 
+    const windowLocation =
+        opts.windowLocation ||
+        (typeof window !== 'undefined' ? window.location : null);
     const navigate =
         opts.navigate ||
         function (url) {
-            window.location.assign(url);
+            // replace(), not assign(): this page renders *at* the canonical URL, so
+            // pushing the destination would leave the interstitial one Back press away —
+            // where it either bounces the visitor forward again or, restored from the
+            // back/forward cache, shows a frozen holding message with nothing to click.
+            // The same applies to the canonical fallback, whose loop-breaker would
+            // otherwise accumulate in history.
+            windowLocation.replace(url);
         };
 
     const rules = parseJSONAttribute(root, 'data-routing-rules') || [];
