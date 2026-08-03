@@ -49,10 +49,20 @@ def cldr_language_codes():
     return frozenset(code for code in Locale("en").languages if code.isalpha())
 
 
+# The signals that are supposed to have a closed set, named explicitly so the difference
+# between "this signal has no value list by design" and "this signal's value list came back
+# empty" is knowable. Every set below is *derived* from settings or product data rather than
+# written out, so a rename or a data problem upstream can empty one — and an empty set read as
+# "unconstrained" would switch validation off without a word, accepting values that can never
+# match anything at runtime.
+CLOSED_SET_SIGNALS = frozenset({"locale", "language", "browser_language", "country"})
+
+
 def known_value_lists():
     """Signal name -> the complete set of legal values, for validation.
 
     A signal absent from this mapping has no closed set and its values are unconstrained.
+    Every name in ``CLOSED_SET_SIGNALS`` must be present with a non-empty set.
     """
     # Every locale Springfield serves. Deliberately NOT WAGTAIL_CONTENT_LANGUAGES: that is
     # the much smaller set of locales CMS *content* is translated into, while these signals

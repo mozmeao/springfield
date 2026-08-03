@@ -63,6 +63,21 @@ const PAYLOAD = {
         enumValues: [],
         values: ['en-US', 'de', 'fr']
     },
+    // The region-free counterpart of `locale`: its set is derived by dropping the region
+    // from every served locale, so a regional tag can never be a member.
+    language: {
+        valueType: 'string',
+        description: 'The visitor page language.',
+        hint: 'Enter one of these values:',
+        commaHint: COMMA_HINT,
+        invalidHint: INVALID_HINT,
+        operators: [
+            { value: 'is', label: 'is' },
+            { value: 'in', label: 'in' }
+        ],
+        enumValues: [],
+        values: ['en', 'de', 'fr']
+    },
     // A signal whose legal set is far larger than what is worth showing: validation runs
     // against `values`, but the help displays the shorter `exampleValues`.
     browser_language: {
@@ -460,6 +475,23 @@ describe('cms/routing/condition-help.es6.js', function () {
             };
             expect(validateExpectedValue(localeMeta, 'is', 'de')).toBe(true);
             expect(validateExpectedValue(localeMeta, 'is', 'zz')).toBe(false);
+        });
+
+        it('checks membership for language, where a regional tag is never a member', function () {
+            // `language` drops the region on purpose, so en-US can only ever be a typo here
+            // even though it is a perfectly valid `locale` value.
+            expect(validateExpectedValue(PAYLOAD.language, 'is', 'de')).toBe(
+                true
+            );
+            expect(
+                validateExpectedValue(PAYLOAD.language, 'in', 'de, fr')
+            ).toBe(true);
+            expect(validateExpectedValue(PAYLOAD.language, 'is', 'en-US')).toBe(
+                false
+            );
+            expect(validateExpectedValue(PAYLOAD.language, 'is', 'zz')).toBe(
+                false
+            );
         });
 
         it('accepts any non-empty free-text string', function () {

@@ -9,6 +9,7 @@ from django.utils.functional import Promise
 
 from springfield.cms.routing.admin import VALUE_LIST_HINT, VALUE_TYPE_HINTS, build_signal_payload, build_signal_reference
 from springfield.cms.routing.signals import ValueType, registry
+from springfield.cms.routing.value_lists import CLOSED_SET_SIGNALS
 
 
 def test_payload_covers_every_registered_signal():
@@ -52,6 +53,28 @@ def test_payload_attaches_value_lists_for_locale_and_country():
     # These use the values-oriented lead-in, not the generic STRING operators hint.
     assert payload["country"]["hint"] == str(VALUE_LIST_HINT)
     assert payload["locale"]["hint"] == str(VALUE_LIST_HINT)
+
+
+def test_payload_attaches_the_region_free_value_list_for_language():
+    # `language` had no payload coverage at all, and its list is derived from the served
+    # locales by dropping the region — so a break in that derivation would silently reach
+    # authors as an empty help line.
+    payload = build_signal_payload()
+    values = payload["language"]["values"]
+
+    assert "de" in values
+    assert "en" in values
+    # Region-free by construction: every regional locale collapses to its base language.
+    assert not [value for value in values if "-" in value]
+    assert payload["language"]["hint"] == str(VALUE_LIST_HINT)
+
+
+def test_every_signal_meant_to_have_a_value_list_has_a_non_empty_one():
+    # The guard behind the fail-loudly check in RoutingCondition.clean(): if one of these
+    # derivations breaks, the payload is where an author meets the consequence first.
+    payload = build_signal_payload()
+    for name in CLOSED_SET_SIGNALS:
+        assert payload[name]["values"], f"{name} has no values"
 
 
 def test_browser_language_accepts_languages_we_do_not_serve():

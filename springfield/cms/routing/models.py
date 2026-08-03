@@ -33,7 +33,7 @@ from wagtail.admin.widgets import AdminPageChooser
 from wagtail.models import Orderable
 
 from springfield.cms.routing.signals import OPERATORS, SOURCE_LABELS, Source, ValueType, registry
-from springfield.cms.routing.value_lists import known_value_lists
+from springfield.cms.routing.value_lists import CLOSED_SET_SIGNALS, known_value_lists
 
 # Operators that carry a comma-separated list of expected values (set membership).
 _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
@@ -296,10 +296,21 @@ class RoutingCondition(Orderable):
         if signal.value_type is ValueType.ENUM:
             members = {enum_value.value for enum_value in signal.enum_values}
         else:
-            # A STRING signal whose domain is fully known (locale / country) is an enum in
-            # all but declaration — see value_lists. Its set is complete, so an off-list
-            # value can never match at runtime and would leave the rule silently dead.
+            # A STRING signal whose domain is fully known (locale / language / country) is an
+            # enum in all but declaration — see value_lists. Its set is complete, so an
+            # off-list value can never match at runtime and would leave the rule silently dead.
             members = set(known_value_lists().get(self.signal, ()))
+            # An empty set for a signal that is meant to have one means the derivation broke
+            # upstream, not that anything goes. Refuse the value rather than wave it through:
+            # a rule saved without validation looks fine and never matches anyone. The message
+            # names the real cause, since no value the author types can fix it.
+            if not members and self.signal in CLOSED_SET_SIGNALS:
+                raise ValidationError(
+                    {
+                        "expected_value": _("The list of valid values for “%(name)s” is unavailable, so this value cannot be checked. Report this.")
+                        % {"name": self.signal}
+                    }
+                )
 
         if members:
             invalid = [value for value in self.expected_values() if value not in members]

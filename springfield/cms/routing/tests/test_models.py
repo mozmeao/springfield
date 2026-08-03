@@ -10,6 +10,7 @@ is introduced.
 """
 
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -21,6 +22,7 @@ from wagtail.models import Site
 
 from springfield.cms.models import WhatsNewPage2026
 from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule, rule_panels, signal_choices
+from springfield.cms.routing.value_lists import CLOSED_SET_SIGNALS
 from springfield.cms.tests.factories import (
     SimpleRichTextPageFactory,
     WhatsNewIndexPageFactory,
@@ -312,6 +314,48 @@ def test_browser_language_rejects_a_regional_tag(rule):
     with pytest.raises(ValidationError) as exc:
         condition.full_clean()
     assert "expected_value" in exc.value.error_dict
+
+
+def test_off_list_language_raises(rule):
+    # `language` had no coverage on any side until now, and its set is *derived* from the
+    # served locales rather than written out — so a break in that derivation lands here.
+    condition = RoutingCondition(rule=rule, signal="language", operator="is", expected_value="zz")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+def test_language_accepts_a_region_free_served_language(rule):
+    RoutingCondition(rule=rule, signal="language", operator="is", expected_value="de").full_clean()
+    RoutingCondition(rule=rule, signal="language", operator="in", expected_value="de, fr\nes").full_clean()
+
+
+def test_language_rejects_a_regional_locale(rule):
+    # The signal drops the region on purpose — `en` covers en-US, en-GB and en-CA — so a
+    # regional tag could never match.
+    condition = RoutingCondition(rule=rule, signal="language", operator="is", expected_value="en-US")
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+@pytest.mark.parametrize("signal", sorted(CLOSED_SET_SIGNALS))
+def test_an_empty_value_list_blocks_the_save_instead_of_accepting_anything(rule, signal):
+    # Every one of these sets is computed from settings or product data, so a rename or a
+    # data problem upstream can empty one. Read as "unconstrained", that would switch
+    # validation off in silence and let through values that can never match at runtime.
+    with patch("springfield.cms.routing.models.known_value_lists", return_value={}):
+        condition = RoutingCondition(rule=rule, signal=signal, operator="is", expected_value="anything at all")
+        with pytest.raises(ValidationError) as exc:
+            condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+    # The message must name the real cause: no value the author can type will fix it.
+    assert "unavailable" in str(exc.value)
+
+
+def test_a_signal_with_no_value_list_by_design_stays_unconstrained(rule):
+    # The counterpart guard: utm_* signals are free text, and an empty list is correct there.
+    RoutingCondition(rule=rule, signal="utm_campaign", operator="is", expected_value="anything at all").full_clean()
 
 
 def test_valid_country_and_membership_list_pass(rule):
