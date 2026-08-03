@@ -30,8 +30,8 @@ from springfield.cms.routing.resolver import (
     localized_target,
     patch_request_for_resolver,
     render_resolver,
+    rule_problems,
     url_in_requested_locale,
-    usable_rules,
 )
 from springfield.cms.routing.signals import registry
 
@@ -70,27 +70,6 @@ def _inert(message):
     return _no_store(HttpResponse(message, content_type="text/plain; charset=utf-8"))
 
 
-def _why_the_rule_never_fires(rule, page):
-    """Why ``rule`` cannot route a visitor on ``page``, or ``None`` if it can.
-
-    The decision comes from the serve path itself, so preview can never disagree with what
-    visitors get — that agreement is the whole value of the flow. The per-floor checks below
-    only pick the wording for a rule already known to be unusable.
-    """
-    if any(usable.rule.pk == rule.pk for usable in usable_rules(page)):
-        return None
-    if rule.target is None:
-        return _("This rule has no target, so it never fires.")
-    target = localized_target(rule.target, page)
-    if target is None:
-        return _("This rule's target has no version in this locale, so it never fires here.")
-    if not target.live:
-        return _("This rule's target is not published, so it never fires.")
-    if not target.is_descendant_of(page):
-        return _("This rule's target is not part of this page, so it never fires.")
-    return _("This rule cannot match anyone as configured, so it never fires.")
-
-
 def _preview_rule(request, page):
     rule_id = request.GET.get(PREVIEW_RULE_PARAM)
     if not rule_id or not rule_id.isdigit():
@@ -98,9 +77,11 @@ def _preview_rule(request, page):
     rule = page.routing_rules.filter(pk=int(rule_id)).first()
     if not rule:
         return None
-    never_fires = _why_the_rule_never_fires(rule, page)
-    if never_fires:
-        return _inert(never_fires)
+    # The same reason vocabulary the rules listing shows, so the two surfaces cannot describe
+    # one rule differently.
+    problem = rule_problems(page).get(rule.pk)
+    if problem:
+        return _inert(_("This rule never fires: %(reason)s.") % {"reason": problem.message})
     # Resolved exactly as the resolver resolves it: this locale's version of the target,
     # carrying the locale prefix the requester asked for.
     url = url_in_requested_locale(localized_target(rule.target, page), request)

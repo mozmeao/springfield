@@ -137,6 +137,31 @@ input[name$="-expected_value"][aria-invalid="true"] {
     border-inline-start-width: 4px;
 }
 
+/* Rules listing status. "Waiting" is the ordinary state of a rule whose target is still being
+   translated or published, so it must not look like an error; "won't fire" is a rule that stays
+   broken until somebody edits it. Accent colours follow the same left-border-only approach as
+   the source badges below, which reads on both light and dark. */
+.routing-badge--active {
+    border-inline-start-color: var(--w-color-text-meta);
+    font-weight: 500;
+}
+
+.routing-badge--pending {
+    border-inline-start-color: #7f5f00;
+}
+
+.routing-badge--wont-fire {
+    border-inline-start-color: var(--w-color-text-error);
+    color: var(--w-color-text-error);
+}
+
+.routing-status-reason {
+    display: block;
+    margin-block-start: 0.2rem;
+    font-size: 0.8125rem;
+    color: var(--w-color-text-context);
+}
+
 /* Per-source accent (left border only, so it reads on both light and dark). */
 .routing-badge--cdn_geo {
     border-inline-start-color: #0060df;

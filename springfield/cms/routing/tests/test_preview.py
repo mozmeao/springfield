@@ -126,7 +126,8 @@ def test_preview_rule_reports_a_target_missing_from_this_locale(translated_wnp, 
     response = get_preview_response(request, translated_wnp.de_canonical)
     assert response.status_code == 200
     assert "never fires" in _content(response)
-    assert "this locale" in _content(response)
+    # Same wording the rules listing uses for this state — one vocabulary, two surfaces.
+    assert "not translated" in _content(response)
 
 
 def test_preview_rule_with_invalid_id_falls_through(routed_page, staff_user):

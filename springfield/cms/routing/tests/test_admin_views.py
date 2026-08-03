@@ -7,10 +7,11 @@
 from django.urls import NoReverseMatch, reverse
 
 import pytest
+from bs4 import BeautifulSoup
 from wagtail.models import Site
 
 from springfield.cms import wagtail_hooks
-from springfield.cms.routing.models import RoutingRule
+from springfield.cms.routing.models import RoutingCondition, RoutingRule
 from springfield.cms.routing.signals import registry
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
@@ -39,6 +40,85 @@ def test_listing_handles_no_rules(admin_client):
     response = admin_client.get(reverse("cms_routing_rules"))
     assert response.status_code == 200
     assert "No routing rules" in response.content.decode("utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Status column: a rule the serve path drops looks perfectly healthy in a plain
+# listing, so each way that happens has to be named here.
+# ---------------------------------------------------------------------------
+
+
+def _matchable(rule):
+    """Give a rule a condition so the status column reports its target, not its emptiness."""
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+    return rule
+
+
+def _status_cell(content, rule_name):
+    """The status text for the row carrying ``rule_name``."""
+    row = next(tr for tr in BeautifulSoup(content, "html.parser").select("table.listing tbody tr") if rule_name in tr.get_text())
+    return " ".join(row.select("td")[-1].get_text(" ", strip=True).split())
+
+
+def test_listing_marks_a_healthy_rule_as_firing(admin_client):
+    rule = _matchable(_rule_on("healthy-canonical", "Healthy"))
+    rule.name = "Healthy rule"
+    rule.save()
+
+    content = admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8")
+    assert "Will fire" in _status_cell(content, "Healthy rule")
+
+
+def test_listing_flags_an_unpublished_target_as_waiting(admin_client):
+    # Publishing the variant is work already in flight, so this must not read as an error.
+    rule = _matchable(_rule_on("draft-target-canonical", "Draft target"))
+    rule.name = "Awaiting publish"
+    rule.save()
+    rule.target.unpublish()
+
+    status = _status_cell(admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8"), "Awaiting publish")
+    assert "Waiting" in status
+    assert "not published" in status
+    assert "Won" not in status  # not the won't-fire treatment
+
+
+def test_listing_flags_an_untranslated_target_as_waiting(admin_client, translated_wnp):
+    # The ordinary state of a staged translation: the German page's rule points at a variant
+    # that has not been translated yet.
+    translated_wnp.de_variant.delete()
+    rule = translated_wnp.de_canonical.routing_rules.first()
+    rule.name = "Awaiting translation"
+    rule.save()
+
+    status = _status_cell(admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8"), "Awaiting translation")
+    assert "Waiting" in status
+    assert "not translated" in status
+
+
+def test_listing_flags_a_target_outside_the_page_as_wont_fire(admin_client):
+    # A page-copy artefact: nothing in the row itself reveals that the target belongs to a
+    # different page's subtree. This one stays broken until an author fixes it.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="stray-host", title="Stray host", parent=site_root)
+    unrelated = SimpleRichTextPageFactory(slug="unrelated-host", title="Unrelated", parent=site_root)
+    stray = SimpleRichTextPageFactory(slug="stray-target", title="Stray target", parent=unrelated, live=True)
+    rule = _matchable(RoutingRule.objects.create(page=canonical, target=stray, name="Cross subtree"))
+
+    status = _status_cell(admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8"), "Cross subtree")
+    assert "Won" in status  # won't fire
+    assert "not part of this page" in status
+    assert "Waiting" not in status
+    assert rule.target_id == stray.pk
+
+
+def test_listing_flags_a_rule_that_can_never_match_as_wont_fire(admin_client):
+    rule = _rule_on("conditionless-host", "Conditionless host")
+    rule.name = "No conditions"
+    rule.save()
+
+    status = _status_cell(admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8"), "No conditions")
+    assert "Won" in status
+    assert "No conditions" in status
 
 
 def test_listing_shows_the_rule_name(admin_client):

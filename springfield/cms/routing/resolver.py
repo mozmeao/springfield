@@ -17,6 +17,8 @@ headers. The preview flows add ``no-store`` themselves.
 
 from collections import namedtuple
 
+from django.utils.translation import gettext_lazy as _
+
 from lib import l10n_utils
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
@@ -102,6 +104,45 @@ def usable_rules(page):
             continue
         usable.append(UsableRule(rule, target))
     return usable
+
+
+RuleProblem = namedtuple("RuleProblem", ["message", "pending"])
+
+
+def rule_problems(page):
+    """Why each of ``page``'s rules cannot route a visitor: ``{rule pk: RuleProblem}``.
+
+    Rules that *can* route are absent from the map. Which rules are unusable is decided by
+    ``usable_rules`` — the same answer the serve path acts on — so an authoring surface can
+    report what visitors get without forming its own opinion. The checks below only choose
+    the wording.
+
+    ``pending`` separates the two states that clear themselves through work already under
+    way — the target is translated or published later — from the ones that stay broken until
+    somebody changes the rule. Without that distinction the whole report is noise: an
+    ordinary staged translation would light up exactly like a page-copy mistake, and authors
+    would learn to ignore both.
+    """
+    usable_ids = {usable.rule.pk for usable in usable_rules(page)}
+    problems = {}
+    for rule in page.routing_rules.all():
+        if rule.pk in usable_ids:
+            continue
+        problems[rule.pk] = _rule_problem(rule, page)
+    return problems
+
+
+def _rule_problem(rule, page):
+    if rule.target is None:
+        return RuleProblem(_("No target page"), pending=False)
+    target = localized_target(rule.target, page)
+    if target is None:
+        return RuleProblem(_("Target not translated into this language yet"), pending=True)
+    if not target.live:
+        return RuleProblem(_("Target not published yet"), pending=True)
+    if not target.is_descendant_of(page):
+        return RuleProblem(_("Target is not part of this page"), pending=False)
+    return RuleProblem(_("No conditions, and not set to match all"), pending=False)
 
 
 def serialize_rules(page, request=None):
