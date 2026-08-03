@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 from waffle.testutils import override_switch
 from wagtail.models import Site
 
+from springfield.cms.models import WhatsNewPage2026
 from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
 from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
@@ -199,6 +200,47 @@ def test_routing_runs_when_only_the_translated_target_is_published(client, trans
     response = client.get(translated_wnp.de_canonical.get_url() + "?utm_source=update")
     assert response.status_code == 200
     assert RESOLVER_MARKER in response.content.decode("utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Pausing is a page change like any other: a draft save stages it, publishing
+# applies it. These assert that it *stays* that way — draft-not-live is the
+# correct contract, not a bug to fix.
+# ---------------------------------------------------------------------------
+
+
+@override_switch("user_routing", active=True)
+def test_a_staged_pause_does_not_stop_live_routing(client, wnp):
+    config = RoutingConfig.objects.create(page=wnp.canonical, routing_paused=False)
+    config.routing_paused = True
+    wnp.canonical.routing_config = [config]
+    wnp.canonical.save_revision()
+
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
+    assert RESOLVER_MARKER in response.content.decode("utf-8")
+    assert RoutingConfig.is_paused_for(WhatsNewPage2026.objects.get(pk=wnp.canonical.pk)) is False
+
+
+@override_switch("user_routing", active=True)
+def test_publishing_the_pause_stops_routing(client, wnp):
+    config = RoutingConfig.objects.create(page=wnp.canonical, routing_paused=False)
+    config.routing_paused = True
+    wnp.canonical.routing_config = [config]
+    revision = wnp.canonical.save_revision()
+    revision.publish()
+
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
+    assert RESOLVER_MARKER not in response.content.decode("utf-8")
+
+
+def test_reading_the_pause_costs_a_single_query(wnp, django_assert_num_queries):
+    # Reading through the page object rather than querying the table must not cost more. Every
+    # request to a routing page pays this, so pin it at one query.
+    RoutingConfig.objects.create(page=wnp.canonical, routing_paused=False)
+    page = WhatsNewPage2026.objects.get(pk=wnp.canonical.pk)
+
+    with django_assert_num_queries(1):
+        assert RoutingConfig.is_paused_for(page) is False
 
 
 # ---------------------------------------------------------------------------

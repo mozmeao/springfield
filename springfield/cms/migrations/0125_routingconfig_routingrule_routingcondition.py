@@ -27,7 +27,11 @@ class Migration(migrations.Migration):
                     "routing_paused",
                     models.BooleanField(
                         default=False,
-                        help_text="When enabled, routing is bypassed and canonical content is served directly. Previews still work.",
+                        help_text=(
+                            "When enabled, routing is bypassed and canonical content is served directly. "
+                            "Takes effect when you publish the page — a draft save stages it, like any other "
+                            "change. Previews still work."
+                        ),
                         verbose_name="Pause routing",
                     ),
                 ),
@@ -42,6 +46,10 @@ class Migration(migrations.Migration):
                 "verbose_name": "Routing configuration",
                 "verbose_name_plural": "Routing configurations",
             },
+        ),
+        migrations.AddConstraint(
+            model_name="routingconfig",
+            constraint=models.UniqueConstraint(fields=("page",), name="unique_routing_config_per_page"),
         ),
         migrations.CreateModel(
             name="RoutingRule",

@@ -328,27 +328,46 @@ class RoutingConfig(models.Model):
 
     Holds the ``routing_paused`` kill switch and leaves headroom for future per-page
     routing settings. Keeping the kill switch here (not on the routing mixin) is what
-    keeps the mixin field-free and the whole PR at a single migration.
-    The 0-or-1 cardinality is enforced by the admin panel's ``max_num=1``; a
-    missing record reads as *not paused*.
+    keeps the mixin field-free and the whole PR at a single migration. A missing record
+    reads as *not paused*.
+
+    One record per page is enforced by a database constraint. The admin panel's ``max_num=1``
+    is presentation only: two editors who open the same page before either saves would
+    otherwise create two rows, and whichever the pause read happened to see first would win.
     """
 
     page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_config")
     routing_paused = models.BooleanField(
         default=False,
         verbose_name=_("Pause routing"),
-        help_text=_("When enabled, routing is bypassed and canonical content is served directly. Previews still work."),
+        help_text=_(
+            "When enabled, routing is bypassed and canonical content is served directly. "
+            "Takes effect when you publish the page — a draft save stages it, like any other "
+            "change. Previews still work."
+        ),
     )
 
     class Meta:
         verbose_name = _("Routing configuration")
         verbose_name_plural = _("Routing configurations")
+        constraints = [models.UniqueConstraint(fields=["page"], name="unique_routing_config_per_page")]
 
     def __str__(self):
         return f"RoutingConfig for page {self.page_id} (paused={self.routing_paused})"
 
     @classmethod
     def is_paused_for(cls, page):
-        """Whether routing is paused for ``page``. A missing record reads as not paused."""
-        config = cls.objects.filter(page=page).first()
-        return bool(config and config.routing_paused)
+        """Whether routing is paused for ``page``. A missing record reads as not paused.
+
+        Read through the page object rather than querying the live table, because the page
+        handed to us is not always the live one: in a Wagtail preview it is built by
+        ``get_latest_revision_as_object()``, and the staged ``routing_config`` lives on *that*
+        object. Querying the table would report the live pause state while every other field
+        on the page previews as staged.
+
+        Live semantics are unchanged — a draft save stages the pause, publishing makes it real.
+
+        Any row saying paused counts, so a duplicate left behind by a database that predates
+        the uniqueness constraint cannot shadow a pause by being read first.
+        """
+        return any(config.routing_paused for config in page.routing_config.all())

@@ -15,6 +15,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
+from django.db.utils import IntegrityError
 
 import pytest
 from wagtail.admin.widgets import AdminPageChooser
@@ -429,6 +430,45 @@ def test_config_reports_paused_state(tree):
 def test_config_present_but_not_paused_reads_as_not_paused(tree):
     RoutingConfig.objects.create(page=tree.canonical, routing_paused=False)
     assert RoutingConfig.is_paused_for(tree.canonical) is False
+
+
+def test_a_second_config_for_one_page_is_rejected(tree):
+    # The admin panel's max_num=1 is presentation only: two editors opening the same page
+    # before either saves would otherwise produce two rows.
+    RoutingConfig.objects.create(page=tree.canonical, routing_paused=False)
+    with pytest.raises(IntegrityError):
+        RoutingConfig.objects.create(page=tree.canonical, routing_paused=True)
+
+
+def test_any_paused_config_counts_as_paused(tree):
+    # Defence for a database that predates the constraint and already holds a duplicate: the
+    # unpaused row must not be able to shadow the paused one by being read first. Asserted on
+    # the page's own children, since the constraint now stops two such rows being *created*.
+    page = tree.canonical
+    page.routing_config = [
+        RoutingConfig(page=page, routing_paused=False),
+        RoutingConfig(page=page, routing_paused=True),
+    ]
+    assert RoutingConfig.is_paused_for(page) is True
+
+
+def test_a_page_built_from_a_revision_reports_its_staged_pause(tree):
+    # A Wagtail preview builds the page with get_latest_revision_as_object(), so the staged
+    # config lives on *that* object. Reading the live table instead would report the live
+    # pause state while every other field on the page previews as staged.
+    RoutingConfig.objects.create(page=tree.canonical, routing_paused=False)
+    page = tree.canonical
+    config = page.routing_config.first()
+    config.routing_paused = True
+    # Assignment, not mutation: modelcluster's manager hands back fresh instances, so
+    # editing one in place never reaches the cluster that gets serialized into the revision.
+    page.routing_config = [config]
+    page.save_revision()
+
+    staged = page.get_latest_revision_as_object()
+    assert RoutingConfig.is_paused_for(staged) is True
+    # The live page is untouched: a draft save stages the pause, it does not apply it.
+    assert RoutingConfig.is_paused_for(type(page).objects.get(pk=page.pk)) is False
 
 
 # ---------------------------------------------------------------------------
