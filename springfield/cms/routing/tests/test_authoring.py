@@ -11,6 +11,7 @@ end to end. Uses the ``admin_client`` fixture (routing ``conftest.py``): a naive
 ``force_login`` 302s to Auth0 on CI, so the fixture's ``override_settings`` is required.
 """
 
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 import pytest
@@ -38,28 +39,67 @@ def wnp():
     return canonical, target
 
 
-def _edit_post_data(canonical, rules_formset):
-    """A complete, publishable WNP edit POST with the given routing_rules formset."""
+def _edit_post_data(canonical, rules_formset, publish=True):
+    """A complete WNP edit POST with the given routing_rules formset.
+
+    Publishes by default, so the edited cluster is written to the live child tables (a draft
+    save would only stash it in a revision). Pass ``publish=False`` for **Save draft**, which
+    is Wagtail's primary button and therefore the more common author action.
+    """
     # RoutingPageForm auto-creates the kill-switch record for canonical pages, so a real
     # edit POST carries it back as an existing form (INITIAL_FORMS=1). Mirror that here.
     config, _ = RoutingConfig.objects.get_or_create(page=canonical)
-    return nested_form_data(
-        {
-            "title": canonical.title,
-            "slug": canonical.slug,
-            "internal_title": "",
-            "version": canonical.version,
-            # Required by PreFooterImageMixin; the form has no implicit default on POST.
-            "pre_footer_image": "kit",
-            "upper_content": streamfield([]),
-            "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
-            "routing_rules": rules_formset,
-            "routing_config": inline_formset([{"id": config.pk, "routing_paused": ""}], initial=1),
-            # Publish so the edited cluster is written to the live child tables (a
-            # draft save would only stash it in a revision).
-            "action-publish": "action-publish",
-        }
-    )
+    data = {
+        "title": canonical.title,
+        "slug": canonical.slug,
+        "internal_title": "",
+        "version": canonical.version,
+        # Required by PreFooterImageMixin; the form has no implicit default on POST.
+        "pre_footer_image": "kit",
+        "upper_content": streamfield([]),
+        "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
+        "routing_rules": rules_formset,
+        "routing_config": inline_formset([{"id": config.pk, "routing_paused": ""}], initial=1),
+    }
+    if publish:
+        data["action-publish"] = "action-publish"
+    return nested_form_data(data)
+
+
+def _rules_resubmitted_unchanged(page):
+    """The routing_rules formset a browser posts back when the author touches nothing.
+
+    The target chooser renders a hidden input holding the stored page id, so resubmitting
+    that id is what "left the field alone" looks like on the wire.
+    """
+    forms = []
+    for rule in page.routing_rules.all():
+        conditions = [
+            {
+                "id": condition.pk,
+                "signal": condition.signal,
+                "operator": condition.operator,
+                "expected_value": condition.expected_value,
+            }
+            for condition in rule.conditions.all()
+        ]
+        forms.append(
+            {
+                "id": rule.pk,
+                "name": rule.name,
+                "match_all": "on" if rule.match_all else "",
+                "target": str(rule.target_id),
+                "conditions": inline_formset(conditions, initial=len(conditions)),
+            }
+        )
+    return inline_formset(forms, initial=len(forms))
+
+
+def _routing_errors(response):
+    """Routing formset errors from a rejected save, for a useful assertion message."""
+    form = response.context.get("form") if response.context else None
+    formset = getattr(form, "formsets", {}).get("routing_rules") if form else None
+    return f"routing_rules errors: {formset.errors}" if formset else "no form in response"
 
 
 def _edit_url(page):
@@ -128,6 +168,39 @@ def test_kill_switch_checkbox_always_renders_on_canonical(admin_client, wnp):
     assert 'name="routing_config-0-routing_paused"' in html
     assert "Options" in html  # the options group heading
     assert "Kill switch" in html
+
+
+# ---------------------------------------------------------------------------
+# Translating a page copies its rules, and the copies keep pointing at the source
+# locale's target. Saving such a page must not report that as the author's mistake:
+# the target is resolved per-locale when the page is served.
+# ---------------------------------------------------------------------------
+
+
+def test_a_translated_page_with_copied_rules_saves_and_publishes(admin_client, translated_wnp):
+    # The common authoring flow — translate strings, then publish — with the routing tab
+    # untouched. Both buttons must go through.
+    page = translated_wnp.de_canonical
+    assert page.routing_rules.first().target_id == translated_wnp.variant.pk  # still the English one
+
+    draft = admin_client.post(_edit_url(page), _edit_post_data(page, _rules_resubmitted_unchanged(page), publish=False))
+    assert draft.status_code == 302, _routing_errors(draft)
+
+    published = admin_client.post(_edit_url(page), _edit_post_data(page, _rules_resubmitted_unchanged(page)))
+    assert published.status_code == 302, _routing_errors(published)
+
+    # The stored target is left exactly as it was; nothing "repaired" it behind the author.
+    page.routing_rules.first().refresh_from_db()
+    assert page.routing_rules.first().target_id == translated_wnp.variant.pk
+
+
+def test_a_same_locale_target_outside_the_page_is_still_rejected(translated_wnp):
+    # The locale-aware resolution must not become a way to smuggle a bad target past the
+    # model guard: within one locale, the descendant rule still holds.
+    rule = RoutingRule(page=translated_wnp.de_canonical, target=translated_wnp.de_index, match_all=True)
+    with pytest.raises(ValidationError) as exc:
+        rule.full_clean()
+    assert "must be a descendant" in str(exc.value)
 
 
 def test_the_editor_says_conditions_are_ignored_on_a_match_all_rule(admin_client, wnp):

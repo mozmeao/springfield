@@ -207,13 +207,26 @@ class RoutingRule(ClusterableModel, Orderable):
             if callable(is_routing_canonical) and not is_routing_canonical():
                 errors["page"] = _("Attach rules to the canonical page, not a variant.")
 
-        # Target must be a strict descendant of the canonical the rule attaches to.
-        # Guarded so we only validate once both ends are known;
-        # self-targeting gets its own message rather than the generic descendant one.
+        # Target must be a strict descendant of the canonical the rule attaches to, judged on
+        # the version of the target that would actually be served from this page — the same
+        # resolution the serve path performs. Translating a page copies its rules with the
+        # source locale's target still stored, so checking the raw target here would reject
+        # every translated page's own rules: an error on a target the author never chose,
+        # blocking a save they made for unrelated reasons.
+        #
+        # A target with no counterpart in this locale is left alone. The rule simply does not
+        # fire on this page, which is the fail-safe outcome, and it starts working by itself
+        # once the target is translated.
+        #
+        # Imported at call time to keep the resolver's l10n import chain out of model loading.
+        from springfield.cms.routing.resolver import localized_target
+
         if self.page_id and self.target_id:
-            if self.target_id == self.page_id:
+            target = localized_target(self.target, self.page)
+            # Self-targeting gets its own message rather than the generic descendant one.
+            if target is not None and target.pk == self.page_id:
                 errors["target"] = _("A rule cannot target its own page.")
-            elif not self.target.is_descendant_of(self.page):
+            elif target is not None and not target.is_descendant_of(self.page):
                 errors["target"] = _("The target page must be a descendant of the page this rule is attached to.")
 
         if errors:

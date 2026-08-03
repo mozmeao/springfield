@@ -162,11 +162,12 @@ class RoutingPageForm(WagtailAdminPageForm):
             rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
 
     def _enforce_target_scope(self, rule_form):
-        # Admin-side counterpart of RoutingRule.clean()'s target guards:
-        # modelcluster leaves the rule's ``page`` unset at model-clean time during a save,
-        # so those guards fire for the ORM path only. Enforce them here, where the page
-        # instance and the chosen target are both known, so a bad target is caught inline
-        # (the type-scoped chooser narrows the choices, this guarantees correctness).
+        # Admin-side counterpart of RoutingRule.clean()'s target guards. A rule the author is
+        # *adding* has no ``page`` set when the model cleans (modelcluster attaches it on
+        # save), so the model guards cannot see the hosting page for new rules — they do run
+        # for a rule that already exists, and for the ORM path. Enforcing them here catches a
+        # bad target inline however the rule arrived (the type-scoped chooser narrows the
+        # choices; this guarantees correctness).
         data = getattr(rule_form, "cleaned_data", None)
         if not data or data.get("DELETE"):
             return
