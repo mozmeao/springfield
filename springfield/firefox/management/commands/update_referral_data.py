@@ -15,30 +15,18 @@ from springfield.firefox.referral.crypto import invite_code_to_referral_id
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.utils.management.decorators import alert_sentry_on_exception
 
-_HEADER_ROW = ("invite_code", "count")
-
 
 def _iter_rows(reader):
     """Yield (invite_code, count_str) tuples from a csv.reader.
 
-    Tolerates an optional header row: if the first row exactly matches
-    the expected column names ('invite_code', 'count'), skip it.
-    Any other first row — including a malformed data row — is yielded so
-    _decrypt_rows / _validated_iter can count it as skipped rather than
-    silently dropping it here. Also skips blank lines and rows without
-    exactly two columns.
+    The CSV has no header row. Skips blank lines and rows without exactly
+    two columns (surfaces schema drift rather than silently ignoring extras).
     """
-    header_checked = False
     for row in reader:
         if not row:
             continue
         if len(row) != 2:
-            # Surface schema drift rather than silently accepting extra columns.
             continue
-        if not header_checked:
-            header_checked = True
-            if (row[0].strip().lower(), row[1].strip().lower()) == _HEADER_ROW:
-                continue
         yield row[0], row[1]
 
 
@@ -65,11 +53,9 @@ class Command(BaseCommand):
     help = (
         "Refreshes the FirefoxReferralData table from the newest CSV published "
         "to GCS by Data Engineering. Data Eng writes one CSV per publish, named "
-        "'{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DDZHH:MM:SS.csv'; the "
-        "command lists that prefix, picks the lex-newest name (chronologically "
-        "latest for this timestamp format), and imports it. Expected CSV shape "
-        "(header optional):\n"
-        "    invite_code,count\n"
+        "'{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DD.csv'; the command "
+        "lists that prefix, picks the lex-newest name (chronologically latest "
+        "for that date format), and imports it. Expected CSV shape (no header):\n"
         "    1ABCDEFGHJKMNPQST,42\n"
         "Each invite code is decrypted to a referral ID before storage. "
         "Skips when the newest blob has not been updated since the last "
