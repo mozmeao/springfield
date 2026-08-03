@@ -115,6 +115,13 @@
         color: var(--fl-theme-color-text);
     }
 
+    /* No space for the CTA button on mobile */
+    @media (--viewport-xs) {
+        .fl-header-main-download-button {
+            display: none;
+        }
+    }
+
     @media (--viewport-md-up) {
         .fl-logo-fx {
             background-size: 237px 36px;
