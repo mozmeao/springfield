@@ -165,6 +165,26 @@ def test_preview_signal_is_not_redirected_out_of_their_locale(admin_client, tran
     assert RESOLVER_MARKER in response.content.decode("utf-8")
 
 
+@override_switch("user_routing", active=True)
+def test_a_rule_that_cannot_route_here_does_not_serve_the_resolver(client, translated_wnp):
+    # The rule's target exists only in English. Serving the resolver would show the
+    # visitor a holding page and then bounce them straight back to where they already are.
+    translated_wnp.de_variant.delete()
+    response = client.get(translated_wnp.de_canonical.get_url() + "?utm_source=update")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER not in response.content.decode("utf-8")
+
+
+@override_switch("user_routing", active=True)
+def test_routing_runs_when_only_the_translated_target_is_published(client, translated_wnp):
+    # Unpublishing the English variant must not disable routing on the German page, whose
+    # rule resolves to the published German variant.
+    translated_wnp.variant.unpublish()
+    response = client.get(translated_wnp.de_canonical.get_url() + "?utm_source=update")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER in response.content.decode("utf-8")
+
+
 # ---------------------------------------------------------------------------
 # The index's latest-version redirect is unaffected by nested variants.
 # ---------------------------------------------------------------------------

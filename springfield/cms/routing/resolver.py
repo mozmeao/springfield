@@ -15,6 +15,8 @@ Resolver responses are CDN-cacheable: this function sets no cache-busting
 headers. The preview flows add ``no-store`` themselves.
 """
 
+from collections import namedtuple
+
 from lib import l10n_utils
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
@@ -41,22 +43,51 @@ def localized_target(target, page):
     return target.get_translation_or_none(page.locale)
 
 
-def serialize_rules(page, request=None):
-    """Serialize a page's live rules into the shape the client evaluator consumes.
+UsableRule = namedtuple("UsableRule", ["rule", "target"])
 
-    Rules are emitted in priority order (the model's position-then-id ordering). Rules
-    whose target is not live are skipped — the client should never route to an
-    unpublished page. Each condition carries the signal's value type from the registry
-    so the evaluator can compare correctly. A rule's ``matchAll`` flag is emitted so the
-    client can route the whole triggered audience for an intentional match-all rule.
 
-    Targets are resolved into the page's own locale — see ``localized_target``.
+def usable_rules(page):
+    """The page's rules that could actually route a visitor, in priority order.
+
+    The single definition of "this page has routing", shared by the serve-path gate and
+    the serializer so the two can never disagree. When they did, a page either served a
+    resolver with no rules in it — a holding page and an immediate bounce back to where
+    the visitor already was — or refused to route on rules that would have worked.
+
+    Every floor lives here rather than at either caller:
+
+    * the target resolved into the page's own locale (see ``localized_target``), which
+      drops a rule whose target has no version in this locale
+    * that resolved target must be published — never route to an unpublished page
+    * a rule with neither conditions nor ``match_all`` is dropped: it would match every
+      triggered visitor. Authoring one is blocked, but the ORM/API path has no such
+      floor, so this is the backstop.
+
+    Returns ``(rule, target)`` pairs in the model's position-then-id order; empty means
+    the page has nothing to route with. Evaluating each rule's conditions here caches
+    them on the rule instance, so the serializer's formatting pass is free.
     """
-    serialized = []
+    usable = []
     for rule in page.routing_rules.all():
         target = localized_target(rule.target, page)
         if not target or not target.live:
             continue
+        if not rule.conditions.all() and not rule.match_all:
+            continue
+        usable.append(UsableRule(rule, target))
+    return usable
+
+
+def serialize_rules(page, request=None):
+    """Format the page's usable rules into the shape the client evaluator consumes.
+
+    Pure formatting over ``usable_rules`` — every decision about which rules survive
+    belongs there. Each condition carries the signal's value type from the registry so
+    the evaluator can compare correctly, and a rule's ``matchAll`` flag is emitted so the
+    client can route the whole triggered audience for an intentional match-all rule.
+    """
+    serialized = []
+    for rule, target in usable_rules(page):
         conditions = []
         for condition in rule.conditions.all():
             signal = registry.get(condition.signal) if condition.signal in registry else None
@@ -68,11 +99,6 @@ def serialize_rules(page, request=None):
                     "valueType": signal.value_type.value if signal else None,
                 }
             )
-        # Defensive floor (mirrors clean()'s): a rule with neither
-        # conditions nor match_all would match every triggered visitor on the client.
-        # Authoring one is blocked, but never emit one even if the DB somehow holds it.
-        if not conditions and not rule.match_all:
-            continue
         serialized.append({"target": target.get_url(request), "matchAll": rule.match_all, "conditions": conditions})
     return serialized
 

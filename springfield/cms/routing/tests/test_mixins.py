@@ -144,11 +144,60 @@ def test_has_live_routing_rules_counts_only_live_targets():
     live_target = SimpleRichTextPageFactory(slug="live-target", parent=canonical, live=True)
     # No rules yet.
     assert RoutingMixin._has_live_routing_rules(canonical) is False
-    RoutingRule.objects.create(page=canonical, target=live_target)
+    # match_all so the rule can route someone; a rule that cannot route is a separate
+    # question, covered below.
+    RoutingRule.objects.create(page=canonical, target=live_target, match_all=True)
     assert RoutingMixin._has_live_routing_rules(canonical) is True
 
     # A rule pointing only at an unpublished target does not count.
     other = SimpleRichTextPageFactory(slug="other-canonical", parent=site_root)
     dead_target = SimpleRichTextPageFactory(slug="draft-target", parent=other, live=False)
-    RoutingRule.objects.create(page=other, target=dead_target)
+    RoutingRule.objects.create(page=other, target=dead_target, match_all=True)
     assert RoutingMixin._has_live_routing_rules(other) is False
+
+
+# ---------------------------------------------------------------------------
+# "This page has routing" and "these are the rules the client gets" must be the
+# same question. When they diverge, a page either serves a resolver with nothing
+# in it (holding page, then a bounce straight back) or refuses to route on rules
+# that would have worked.
+# ---------------------------------------------------------------------------
+
+
+def _assert_gate_agrees_with_the_serializer(page):
+    from springfield.cms.routing.resolver import serialize_rules
+
+    assert RoutingMixin._has_live_routing_rules(page) is bool(serialize_rules(page))
+
+
+@pytest.mark.django_db
+def test_a_conditionless_rule_neither_routes_nor_counts():
+    # No conditions and match_all off: the serializer drops it, so the gate must not
+    # count it. Built via the ORM because the page form blocks authoring one.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="conditionless-canonical", parent=site_root)
+    target = SimpleRichTextPageFactory(slug="conditionless-target", parent=canonical, live=True)
+    RoutingRule.objects.create(page=canonical, target=target, match_all=False)
+
+    _assert_gate_agrees_with_the_serializer(canonical)
+    assert RoutingMixin._has_live_routing_rules(canonical) is False
+
+
+@pytest.mark.django_db
+def test_a_target_with_no_version_in_this_locale_neither_routes_nor_counts(translated_wnp):
+    # The German page's rule points at a variant that exists only in English, so it can
+    # never route a German visitor.
+    translated_wnp.de_variant.delete()
+
+    _assert_gate_agrees_with_the_serializer(translated_wnp.de_canonical)
+    assert RoutingMixin._has_live_routing_rules(translated_wnp.de_canonical) is False
+
+
+@pytest.mark.django_db
+def test_routing_survives_the_source_locale_target_being_unpublished(translated_wnp):
+    # Only the English variant is a draft; the German one is live. The German page's rule
+    # resolves to the German variant, so it still routes.
+    translated_wnp.variant.unpublish()
+
+    _assert_gate_agrees_with_the_serializer(translated_wnp.de_canonical)
+    assert RoutingMixin._has_live_routing_rules(translated_wnp.de_canonical) is True

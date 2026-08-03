@@ -323,8 +323,17 @@ class RoutingMixin(models.Model):
         return bool(trigger is not None and trigger.is_satisfied(request))
 
     def _has_live_routing_rules(self):
-        """Whether the page hosts at least one rule with a live target page."""
-        return self.routing_rules.filter(target__live=True).exists()
+        """Whether the page hosts at least one rule that could route a visitor.
+
+        Asks the same question the serializer answers, through the same code, so the gate
+        can never let a page serve a resolver the serializer then empties — or withhold
+        one whose rules resolve perfectly well in this locale.
+        """
+        # Imported at call time for the same reason serve() does: keeps the resolver's
+        # l10n import chain out of model loading.
+        from springfield.cms.routing.resolver import usable_rules
+
+        return bool(usable_rules(self))
 
     def serve(self, request, *args, **kwargs):
         """Thin adapter: map request/page state onto flags, then act on the decision.
