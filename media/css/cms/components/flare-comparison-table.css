@@ -7,13 +7,16 @@
     inline-size: 100%;
 }
 
-.fl-comparison-table th {
+/* Column headers only. Row-label cells are also <th>, but are styled by the
+   :first-child rules below. */
+.fl-comparison-table thead th,
+.fl-comparison-table thead td {
     font-weight: var(--fl-theme-font-weight-headline);
     min-inline-size: 200px;
     text-transform: uppercase;
 }
 
-.fl-comparison-table th:not(:first-child) {
+.fl-comparison-table thead th:not(:first-child) {
     inline-size: 25%;
     padding: var(--token-spacing-lg);
 }
@@ -42,7 +45,8 @@
     color: var(--fl-theme-color-text);
 }
 
-.fl-comparison-table th.highlighted {
+.fl-comparison-table thead th.highlighted,
+.fl-comparison-table thead td.highlighted {
     border-start-end-radius: var(--token-spacing-lg);
     border-start-start-radius: var(--token-spacing-lg);
     padding-block-start: var(--token-spacing-xl);
@@ -52,6 +56,7 @@
     border-block-start: 1px solid var(--token-color-soft-purple-2);
 }
 
+.fl-comparison-table tbody tr:last-child th.highlighted,
 .fl-comparison-table tbody tr:last-child td.highlighted {
     border-end-end-radius: var(--token-spacing-lg);
     border-end-start-radius: var(--token-spacing-lg);
@@ -76,7 +81,8 @@
         inline-size: 100%;
     }
 
-    .fl-comparison-table-wrapper.stacked thead th:first-child {
+    .fl-comparison-table-wrapper.stacked thead th:first-child,
+    .fl-comparison-table-wrapper.stacked thead td:first-child {
         display: none;
     }
 
@@ -85,7 +91,8 @@
         text-align: center;
     }
 
-    .fl-comparison-table-wrapper.stacked .fl-comparison-table th {
+    .fl-comparison-table-wrapper.stacked .fl-comparison-table thead th,
+    .fl-comparison-table-wrapper.stacked .fl-comparison-table thead td {
         min-inline-size: unset;
     }
 
@@ -95,6 +102,7 @@
         inline-size: 100%;
     }
 
+    .fl-comparison-table-wrapper.stacked tbody th:first-child,
     .fl-comparison-table-wrapper.stacked tbody td:first-child {
         display: block;
         flex: 0 0 100%;
@@ -112,12 +120,15 @@
         background-color: unset;
     }
 
-    .fl-comparison-table-wrapper.stacked .fl-comparison-table th.highlighted,
+    .fl-comparison-table-wrapper.stacked
+        .fl-comparison-table
+        thead
+        .highlighted,
     .fl-comparison-table-wrapper.stacked
         .fl-comparison-table
         tbody
         tr:last-child
-        td.highlighted {
+        .highlighted {
         border-radius: 0;
         padding: var(--token-spacing-lg);
     }

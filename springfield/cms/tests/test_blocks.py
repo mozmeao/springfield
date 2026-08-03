@@ -3594,34 +3594,48 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
     assert mobile_behavior in wrapper_el.get("class", [])
 
     header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
-    th_elements = wrapper_el.find_all("th")
-    assert len(th_elements) == len(header_cells_data)
-    for i, (th, cell_data) in enumerate(zip(th_elements, header_cells_data)):
-        assert th.get_text(strip=True) == cell_data["content"]
+    header_cell_els = wrapper_el.find("thead").find_all(["th", "td"])
+    assert len(header_cell_els) == len(header_cells_data)
+    for i, (cell_el, cell_data) in enumerate(zip(header_cell_els, header_cells_data)):
+        assert cell_el.get_text(strip=True) == cell_data["content"]
+        # A column header carries an accessible name; an empty cell is a plain
+        # <td>, so it never trips the empty-table-header accessibility check.
+        if cell_data["content"]:
+            assert cell_el.name == "th"
+            assert cell_el.get("scope") == "col"
+        else:
+            assert cell_el.name == "td"
         col_index = i + 1
         if highlighted_column and highlighted_column == col_index:
-            assert "highlighted" in th.get("class", [])
+            assert "highlighted" in cell_el.get("class", [])
         else:
-            assert "highlighted" not in th.get("class", [])
+            assert "highlighted" not in cell_el.get("class", [])
         if cell_data["column_span"] > 1:
-            assert th.get("colspan") == str(cell_data["column_span"])
+            assert cell_el.get("colspan") == str(cell_data["column_span"])
 
     content_rows_data = value["content_rows"]
     tr_elements = wrapper_el.find("tbody").find_all("tr")
     assert len(tr_elements) == len(content_rows_data)
     for tr, row_data in zip(tr_elements, content_rows_data):
         cells_data = [c["value"] for c in row_data["value"]["cells"]]
-        td_elements = tr.find_all("td")
-        assert len(td_elements) == len(cells_data)
-        for i, (td, cell_data) in enumerate(zip(td_elements, cells_data)):
-            assert td.get_text(strip=True) == cell_data["content"]
+        cell_els = tr.find_all(["th", "td"])
+        assert len(cell_els) == len(cells_data)
+        for i, (cell_el, cell_data) in enumerate(zip(cell_els, cells_data)):
+            assert cell_el.get_text(strip=True) == cell_data["content"]
+            # The row's label cell is its row header, so screen readers can
+            # announce which row a value belongs to.
+            if i == 0 and cell_data["content"]:
+                assert cell_el.name == "th"
+                assert cell_el.get("scope") == "row"
+            else:
+                assert cell_el.name == "td"
             col_index = i + 1
             if highlighted_column and highlighted_column == col_index:
-                assert "highlighted" in td.get("class", [])
+                assert "highlighted" in cell_el.get("class", [])
             else:
-                assert "highlighted" not in td.get("class", [])
+                assert "highlighted" not in cell_el.get("class", [])
             if cell_data["column_span"] > 1:
-                assert td.get("colspan") == str(cell_data["column_span"])
+                assert cell_el.get("colspan") == str(cell_data["column_span"])
 
 
 def test_comparison_table_variants(index_page, rf):

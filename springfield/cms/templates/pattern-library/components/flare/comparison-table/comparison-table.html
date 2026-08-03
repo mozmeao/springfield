@@ -9,7 +9,8 @@
     <content:header>
       <tr>
         {% for cell in header_cells %}
-          <th {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</th>
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
         {% endfor %}
       </tr>
     </content:header>
@@ -17,7 +18,8 @@
       {% for row in content_rows %}
         <tr>
           {% for cell in row.cells %}
-            <td {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</td>
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
           {% endfor %}
         </tr>
       {% endfor %}
@@ -30,7 +32,8 @@
     <content:header>
       <tr>
         {% for cell in header_cells %}
-          <th {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</th>
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
         {% endfor %}
       </tr>
     </content:header>
@@ -38,7 +41,8 @@
       {% for row in content_rows %}
         <tr>
           {% for cell in row.cells %}
-            <td {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</td>
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
           {% endfor %}
         </tr>
       {% endfor %}
