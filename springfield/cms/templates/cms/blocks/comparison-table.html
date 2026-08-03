@@ -9,7 +9,12 @@
     {% for header_row in value.header_row %}
       <tr>
         {% for cell in header_row.cells %}
-          <th
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }}
+            {% if cell.content %}
+              scope="col"
+            {% endif %}
+
             {% if cell.column_span|int > 1 %}
               colspan="{{ cell.column_span }}"
             {% endif %}
@@ -19,7 +24,7 @@
             {% endif %}
           >
             {{ cell.content }}
-          </th>
+          </{{ cell_tag }}>
         {% endfor %}
       </tr>
     {% endfor %}
@@ -29,7 +34,12 @@
     {% for row in value.content_rows %}
       <tr>
         {% for cell in row.cells %}
-          <td
+          {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+          <{{ cell_tag }}
+            {% if cell_tag == 'th' %}
+              scope="row"
+            {% endif %}
+
             {% if cell.column_span|int > 1 %}
               colspan="{{ cell.column_span }}"
             {% endif %}
@@ -39,7 +49,7 @@
             {% endif %}
           >
             {{ cell.content }}
-          </td>
+          </{{ cell_tag }}>
         {% endfor %}
       </tr>
     {% endfor %}

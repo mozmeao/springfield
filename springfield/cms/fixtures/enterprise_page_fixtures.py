@@ -17,6 +17,7 @@ from django.core.files.base import ContentFile
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.comparison_table_fixtures import make_content_rows, make_header_row
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import ContactPage, FreeFormPage2026, NavigationSnippet, SpringfieldImage
 
@@ -109,8 +110,11 @@ def featured_image_section():
             "scroll_to_see_more_snippet": None,
             "heading": heading(
                 "enthero",
-                heading_text="Secure enterprise browsing, powered by Firefox.",
-                subheading_text="Make the browser a governed control layer for data governance, audit readiness, and sovereignty.",
+                heading_text="Your workforce runs through the browser. Firefox gives you enterprise control.",
+                subheading_text=(
+                    "Firefox Enterprise puts security controls where work happens. Make the browser a governed control "
+                    "layer for data governance, audit readiness, and sovereignty."
+                ),
             ),
             "content": [
                 button_row(
@@ -229,7 +233,7 @@ def control_layer_section():
                             ),
                             illustration_card(
                                 "ent-b3-card2",
-                                headline="Control your architecture.",
+                                headline="Own your architecture.",
                                 content=(
                                     "Run Firefox Enterprise through a local partner, sovereign cloud, or fully on prem. "
                                     "Identity, telemetry, logs, and policy stay inside your boundaries. Access the auditable "
@@ -308,10 +312,11 @@ def two_ways_section():
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": heading(
                 "enttwoways",
-                heading_text="Two ways to work with Firefox.",
+                heading_text="Ready to scale when you are.",
                 subheading_text=(
-                    "Deploy the full governed browser, or get expert support for the Firefox you already run. "
-                    "Both give your team a direct line to the people behind the product."
+                    "Begin with the free managed browser and enterprise policy controls, then move to Premium for "
+                    "centralized management, built-in DLP, SIEM integration, and AI governance in a sovereign cloud "
+                    "or fully on-prem."
                 ),
             ),
             "content": [
@@ -327,7 +332,7 @@ def two_ways_section():
                         "cards": [
                             two_column_card(
                                 "ent-b6-card1",
-                                heading_text="Firefox Enterprise On-Prem",
+                                heading_text="Firefox Enterprise - On-Prem",
                                 subheading_text=(
                                     "Full-scale governance for critical regulated infrastructures, including financial "
                                     "services, utilities, healthcare and public sector."
@@ -342,13 +347,13 @@ def two_ways_section():
                                 buttons=[
                                     button(
                                         "ent-b6-card1-btn1",
-                                        label="Request Early Access",
+                                        label="Request Early Access & Pricing",
                                         url=CONTACT_URL,
                                         analytics_id="2e585499-c15a-4880-855c-ec1a3af9e258",
                                     ),
                                     button(
                                         "ent-b6-card1-btn2",
-                                        label="Learn More",
+                                        label="Learn more",
                                         url=PRODUCT_URL,
                                         analytics_id="d052ea9b-ef6a-4e3d-8e64-4c0b6cccfe0d",
                                         theme="link",
@@ -367,13 +372,13 @@ def two_ways_section():
                                 buttons=[
                                     button(
                                         "ent-b6-card2-btn1",
-                                        label="Request Early Access",
+                                        label="Talk to an expert",
                                         url=CONTACT_URL,
                                         analytics_id="827bbc00-d5a9-4b9d-8d55-cc39b726bc4b",
                                     ),
                                     button(
                                         "ent-b6-card2-btn2",
-                                        label="Learn More",
+                                        label="Learn more",
                                         url=SUPPORT_URL,
                                         analytics_id="f5a73705-fcb9-4b93-baf2-ce664f005b59",
                                         theme="link",
@@ -408,28 +413,20 @@ def browser_stat_media_content():
                     ),
                     "id": "ent-b9-body",
                 },
-                {
-                    "type": "buttons",
-                    "value": [
-                        button(
-                            "ent-b9-btn1",
-                            label="Learn more about Firefox Enterprise",
-                            url=PRODUCT_URL,
-                            analytics_id="3a5b3398-18ae-4d1f-b2fc-0d119e4199ef",
-                            theme="secondary",
-                        )
-                    ],
-                    "id": "ent-b9-buttons",
-                },
             ],
         },
         "id": "ent-b9-media-content",
     }
 
 
-def enterprise_content():
+def enterprise_upper_content():
     return [
         featured_image_section(),
+    ]
+
+
+def enterprise_content():
+    return [
         trusted_media_content(),
         control_layer_section(),
         showcase(
@@ -451,6 +448,7 @@ def enterprise_content():
                     theme="secondary",
                 )
             ],
+            spacing="small",
         ),
         two_ways_section(),
         showcase(
@@ -473,6 +471,7 @@ def enterprise_content():
                     theme="secondary",
                 )
             ],
+            spacing="small",
         ),
         browser_stat_media_content(),
         button_row(
@@ -511,6 +510,7 @@ def get_enterprise_test_page() -> FreeFormPage2026:
 
     page.theme = "enterprise"
     page.show_pre_footer = False
+    page.upper_content = enterprise_upper_content()
     page.content = enterprise_content()
     page.save_revision().publish()
     return page
@@ -532,13 +532,18 @@ def buttons_block(block_id, buttons):
     return {"type": "buttons", "value": buttons, "id": block_id}
 
 
-def hero(block_id, heading_text, subheading_text, buttons):
+def hero(block_id, heading_text, subheading_text, buttons, superheading_text=""):
     """A featured_image_section hero: heading, a button row, and the hero image."""
     return {
         "type": "featured_image_section",
         "value": {
             "scroll_to_see_more_snippet": None,
-            "heading": heading(block_id, heading_text=heading_text, subheading_text=subheading_text),
+            "heading": heading(
+                block_id,
+                heading_text=heading_text,
+                subheading_text=subheading_text,
+                superheading_text=superheading_text,
+            ),
             "content": [button_row(f"{block_id}-btnrow", buttons=buttons)],
             "media": image_media(f"{block_id}-media"),
         },
@@ -546,15 +551,16 @@ def hero(block_id, heading_text, subheading_text, buttons):
     }
 
 
-def icon_card(block_id, icon, headline, content):
-    """A Card with an icon in the media area above the heading and body copy."""
+def icon_card(block_id, icon, content, headline=""):
+    """A Card with an icon in the media area above the body copy, optionally
+    preceded by a heading."""
+    content_blocks = [card_content(block_id, content)]
+    if headline:
+        content_blocks.insert(0, card_heading(block_id, headline))
     return card(
         block_id,
         card_settings(),
-        [
-            card_heading(block_id, headline),
-            card_content(block_id, content),
-        ],
+        content_blocks,
         media=[{"type": "icon", "value": icon, "id": f"{block_id}-icon"}],
     )
 
@@ -675,15 +681,16 @@ def product_content(contact_page):
     return [
         hero(
             "prod-hero",
-            heading_text="The browser, secured and under your control.",
+            superheading_text="Product",
+            heading_text="Your Browser. Your Business.",
             subheading_text=(
-                "Firefox Enterprise gives security and IT teams a governed browser that supports data governance, "
-                "compliance and audit readiness, and sovereignty requirements."
+                "Firefox Enterprise gives IT and security teams control over browser policy, data movement, access, "
+                "and visibility. Deploy it within the infrastructure your organization controls."
             ),
             buttons=[
                 button(
                     "prod-hero-btn",
-                    label="Request early access",
+                    label="Request Early Access",
                     analytics_id="c1000000-0000-0000-0000-000000000001",
                     page=contact_page,
                 )
@@ -835,11 +842,26 @@ def product_content(contact_page):
     ]
 
 
+def support_plans_table():
+    """The Premium/Standard support tier table, with the Premium column highlighted."""
+    return {
+        "type": "comparison_table",
+        "value": {
+            "highlighted_column": 2,
+            "mobile_behavior": "scroll",
+            "header_row": [make_header_row("supp-plans")],
+            "content_rows": make_content_rows("supp-plans"),
+        },
+        "id": "supp-plans-table",
+    }
+
+
 def support_content(contact_page):
     return [
         hero(
             "supp-hero",
-            heading_text="A direct line to Mozilla for teams running Firefox.",
+            superheading_text="Support",
+            heading_text="Expert Firefox support, direct from Mozilla.",
             subheading_text=(
                 "Firefox Professional Support gives your IT team a direct, private path to the people behind the product. "
                 "Resolve issues faster with expert triage, guidance, and escalation."
@@ -847,7 +869,7 @@ def support_content(contact_page):
             buttons=[
                 button(
                     "supp-hero-btn",
-                    label="Request early access",
+                    label="Contact Sales",
                     analytics_id="c2000000-0000-0000-0000-000000000001",
                     page=contact_page,
                 )
@@ -863,25 +885,21 @@ def support_content(contact_page):
                         icon_card(
                             "supp-card1",
                             icon="arrow-trending",
-                            headline="Headline",
                             content=("A direct escalation path with guaranteed response times to keep rollouts and critical work on track"),
                         ),
                         icon_card(
                             "supp-card2",
                             icon="closed-caption",
-                            headline="Headline",
                             content="A private support portal for incident handling and diagnosis to ensure timely resolution",
                         ),
                         icon_card(
                             "supp-card3",
                             icon="applied-policy",
-                            headline="Headline",
                             content=("Expert integration guidance across enterprise policies, supported apps, updates, extensions, and certificates"),
                         ),
                         icon_card(
                             "supp-card4",
                             icon="avatar-signed-out",
-                            headline="Headline",
                             content="Named contacts, business reviews, and local-language support on higher tiers",
                         ),
                     ],
@@ -889,9 +907,17 @@ def support_content(contact_page):
                 )
             ],
         ),
+        section(
+            "supp-plans-section",
+            heading_text="Choose your level of coverage.",
+            subheading_text=(
+                "Paid support plans for the free-to-download Firefox and Firefox ESR your team already manages. No platform migration required."
+            ),
+            content_blocks=[support_plans_table()],
+        ),
         media_content(
             "supp-feature",
-            heading_text="Going further? Support comes built in with Firefox Enterprise.",
+            heading_text="Going further? Support comes built in.",
             subheading_text=(
                 "Firefox Enterprise adds centralized management, built-in DLP, SIEM integration, and sovereign deployment "
                 "with our highest tier of support included. No separate support contract."
@@ -908,7 +934,7 @@ def support_content(contact_page):
         ),
         rich_text(
             "supp-fineprint",
-            '<h2 data-block-key="suppfp0">The fine print</h2>'
+            '<h2 data-block-key="suppfp0">The fine print.</h2>'
             '<p data-block-key="suppfp1">What support covers</p>'
             "<ul>"
             '<li data-block-key="suppfp2">Firefox and Firefox ESR deployment, configuration, policy management, and updates</li>'
@@ -931,7 +957,7 @@ def support_content(contact_page):
             buttons=[
                 button(
                     "supp-banner-btn",
-                    label="Request early access",
+                    label="Talk to an expert",
                     analytics_id="c2000000-0000-0000-0000-000000000002",
                     page=contact_page,
                 )
@@ -956,7 +982,7 @@ def download_content(contact_page):
                     [
                         download_button(
                             "dl-intro-dlbtn",
-                            label="Download Firefox",
+                            label="Download",
                             analytics_id="c3000000-0000-0000-0000-000000000001",
                         )
                     ],
@@ -967,7 +993,7 @@ def download_content(contact_page):
         ),
         banner(
             "dl-banner-1",
-            theme="dark-purple-gradient",
+            theme="purple-radial-gradient",
             heading_text="Firefox Professional Support",
             subheading_text=(
                 "Early access is now open for our new support program. Built for organizations that use Firefox to ensure "
@@ -1020,7 +1046,7 @@ def download_content(contact_page):
         ),
         banner(
             "dl-banner-2",
-            theme="purple-radial-gradient",
+            theme="dark-purple-gradient-inverted",
             heading_text="Firefox Professional Support documentation",
             subheading_text=(
                 "Firefox Professional Support is a dedicated offering for teams who need private issue triage and "
@@ -1149,12 +1175,12 @@ def get_enterprise_navigation_snippet(parent, product_page, support_page, contac
         locale=locale,
         defaults={
             "items": [
+                nav_top_level_link("ent-nav-overview", "Overview", parent, "c5000000-0000-0000-0000-000000000005"),
                 nav_top_level_link("ent-nav-product", "Product", product_page, "c5000000-0000-0000-0000-000000000001"),
                 nav_top_level_link("ent-nav-support", "Support", support_page, "c5000000-0000-0000-0000-000000000002"),
-                nav_top_level_link("ent-nav-contact", "Contact", contact_page, "c5000000-0000-0000-0000-000000000003"),
             ],
-            "logo": get_enterprise_logo("Firefox Enterprise Logo", "firefox-enterprise.svg"),
-            "logo_dark": get_enterprise_logo("Firefox Enterprise Logo (Dark)", "firefox-enterprise-dark.svg"),
+            "logo": get_enterprise_logo("Firefox Enterprise Logo", "firefox-enterprise-orange.svg"),
+            "logo_dark": None,
             "logo_link": [{"type": "link", "value": link_value(page=parent), "id": "ent-nav-logolink"}],
             "cta_button": [
                 {
