@@ -19,8 +19,10 @@
     width: fit-content;
 }
 
-.compact-form > div:has(.w-field--draftail_rich_text_area, input[type="text"]),
-.compact-form .w-panel__content > div:has(.w-field--draftail_rich_text_area, input[type="text"]) {
+.compact-form > div:has(.w-field--draftail_rich_text_area, input[type='text']),
+.compact-form
+    .w-panel__content
+    > div:has(.w-field--draftail_rich_text_area, input[type='text']) {
     width: 100%;
 }
 
