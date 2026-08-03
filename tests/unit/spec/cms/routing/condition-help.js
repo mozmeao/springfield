@@ -133,6 +133,69 @@ function makeConditionDOM(signalValue) {
     };
 }
 
+// A rule row as the admin renders it: the "match all" checkbox, then the conditions in a
+// nested-InlinePanel wrapper around the formset's FORMS container. Both the id and the
+// wrapper class are what Wagtail actually emits (verified against a rendered edit page) —
+// the cue derives the panel from them, so the fixture has to carry them.
+function makeRuleDOM(options) {
+    const opts = options || {};
+    const index = opts.index === undefined ? 0 : opts.index;
+    const prefix = 'routing_rules-' + index;
+
+    const rule = document.createElement('div');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.setAttribute('name', prefix + '-match_all');
+    checkbox.checked = !!opts.matchAll;
+    rule.appendChild(checkbox);
+
+    const panel = document.createElement('div');
+    panel.className = 'w-panel__wrapper w-panel--nested';
+    const forms = document.createElement('div');
+    forms.id = 'id_' + prefix + '-conditions-FORMS';
+    panel.appendChild(forms);
+    rule.appendChild(panel);
+
+    const select = document.createElement('select');
+    select.setAttribute('name', prefix + '-conditions-0-signal');
+    Object.keys(PAYLOAD).forEach(function (name) {
+        const option = document.createElement('option');
+        option.value = name;
+        select.appendChild(option);
+    });
+    select.value = opts.signal || 'platform';
+
+    const operatorSelect = document.createElement('select');
+    operatorSelect.setAttribute('name', prefix + '-conditions-0-operator');
+    OPERATOR_OPTIONS.forEach(function (value) {
+        const option = document.createElement('option');
+        option.value = value;
+        operatorSelect.appendChild(option);
+    });
+    operatorSelect.value = 'is';
+
+    const fieldWrap = document.createElement('div');
+    const input = document.createElement('input');
+    input.setAttribute('name', prefix + '-conditions-0-expected_value');
+    input.value = opts.value === undefined ? 'windows' : opts.value;
+    fieldWrap.appendChild(input);
+
+    forms.appendChild(select);
+    forms.appendChild(operatorSelect);
+    forms.appendChild(fieldWrap);
+
+    return {
+        rule: rule,
+        checkbox: checkbox,
+        panel: panel,
+        select: select,
+        input: input,
+        fieldWrap: fieldWrap
+    };
+}
+
+const IGNORED_CLASS = 'routing-conditions--ignored';
+
 function hiddenValues(operatorSelect) {
     const hidden = [];
     Array.prototype.forEach.call(operatorSelect.options, function (option) {
@@ -621,6 +684,73 @@ describe('cms/routing/condition-help.es6.js', function () {
                 ).toBe(true);
             } finally {
                 document.body.removeChild(dom.container);
+            }
+        });
+
+        // A match-all rule routes the whole triggered audience, so the server drops its
+        // conditions. The editor has to show that, or the author is looking at conditions
+        // they wrote that will never be consulted.
+        it('dims the conditions of a rule that is already set to match all', function () {
+            const dom = makeRuleDOM({ matchAll: true });
+            initConditionHelp({ payload: PAYLOAD, root: dom.rule });
+            expect(dom.panel.classList.contains(IGNORED_CLASS)).toBe(true);
+        });
+
+        it('dims and undims the conditions as the box is ticked and unticked', function () {
+            const dom = makeRuleDOM();
+            initConditionHelp({ payload: PAYLOAD, root: dom.rule });
+            expect(dom.panel.classList.contains(IGNORED_CLASS)).toBe(false);
+
+            dom.checkbox.checked = true;
+            dom.checkbox.dispatchEvent(new Event('change'));
+            expect(dom.panel.classList.contains(IGNORED_CLASS)).toBe(true);
+
+            dom.checkbox.checked = false;
+            dom.checkbox.dispatchEvent(new Event('change'));
+            expect(dom.panel.classList.contains(IGNORED_CLASS)).toBe(false);
+        });
+
+        it('dims a rule row inserted AFTER init', async function () {
+            const root = document.createElement('div');
+            document.body.appendChild(root);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: root });
+                // "Add rule" inserts a row the one-shot scan never saw.
+                const dom = makeRuleDOM({ index: 1, matchAll: true });
+                root.appendChild(dom.rule);
+                await new Promise(function (resolve) {
+                    setTimeout(resolve, 0);
+                });
+                expect(dom.panel.classList.contains(IGNORED_CLASS)).toBe(true);
+            } finally {
+                document.body.removeChild(root);
+            }
+        });
+
+        it('does not block a save on a bad value in an ignored condition', function () {
+            // The value is invalid, but the rule matches all triggered visitors so the
+            // server never reads it. Blocking the save would be the editor insisting on a
+            // value it has just told the author is ignored.
+            const dom = makeRuleDOM({ matchAll: true, value: 'beos' });
+            document.body.appendChild(dom.rule);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: dom.rule });
+                expect(validateConditions(dom.rule, PAYLOAD)).toBe(true);
+            } finally {
+                document.body.removeChild(dom.rule);
+            }
+        });
+
+        it('still blocks a save on a bad value once match-all is unticked', function () {
+            const dom = makeRuleDOM({ matchAll: true, value: 'beos' });
+            document.body.appendChild(dom.rule);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: dom.rule });
+                dom.checkbox.checked = false;
+                dom.checkbox.dispatchEvent(new Event('change'));
+                expect(validateConditions(dom.rule, PAYLOAD)).toBe(false);
+            } finally {
+                document.body.removeChild(dom.rule);
             }
         });
 

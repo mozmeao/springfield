@@ -111,11 +111,17 @@ def serialize_rules(page, request=None):
     belongs there. Each condition carries the signal's value type from the registry so
     the evaluator can compare correctly, and a rule's ``matchAll`` flag is emitted so the
     client can route the whole triggered audience for an intentional match-all rule.
+
+    A match-all rule is emitted **without** its conditions. The client matches such a rule
+    outright, so any conditions stored against it are inert; shipping them anyway would
+    make the payload contradict itself, and invite a later reader to "fix" the client into
+    honouring conditions the author was told were ignored. The editor says so too — see
+    ``match_all``'s help text and the conditions panel's.
     """
     serialized = []
     for rule, target in usable_rules(page):
         conditions = []
-        for condition in rule.conditions.all():
+        for condition in [] if rule.match_all else rule.conditions.all():
             signal = registry.get(condition.signal) if condition.signal in registry else None
             conditions.append(
                 {

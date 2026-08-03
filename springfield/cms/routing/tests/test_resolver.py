@@ -73,6 +73,19 @@ def test_serialize_rules_emits_match_all_rule_with_no_conditions(routed_page):
     assert match_all_rules[0]["conditions"] == []
 
 
+def test_serialize_rules_omits_conditions_from_a_match_all_rule(routed_page):
+    # match_all means "every triggered visitor", which is what the client already does with
+    # such a rule — so conditions on it are inert. Emitting them would make the payload
+    # contradict itself and invite a future reader to "fix" the client into honouring them.
+    rule = routed_page.rule
+    rule.match_all = True
+    rule.save()
+
+    rules = serialize_rules(routed_page.canonical)
+    assert rules[0]["matchAll"] is True
+    assert rules[0]["conditions"] == []
+
+
 def test_serialize_rules_skips_empty_non_match_all_rule(routed_page):
     # A rule with neither conditions nor match_all is defensively dropped, never
     # emitted as a match-everyone rule.

@@ -41,6 +41,14 @@
     display: none;
 }
 
+/* User Routing — a rule matching all triggered visitors ignores its conditions, so dim them
+   while its checkbox is ticked. Dimmed rather than disabled: the fields stay editable and
+   keep submitting, so ticking the box never quietly discards conditions the author wrote.
+   The explanation is server-rendered next to the checkbox and on the conditions panel. */
+.routing-conditions--ignored {
+    opacity: 0.5;
+}
+
 /* User Routing — dynamic condition help and its invalid state. Theme-aware
    via Wagtail tokens. The invalid help reads as a small red callout, and the value field
    gets an immediate red outline so a bad value is obvious before saving. */

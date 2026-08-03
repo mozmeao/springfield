@@ -125,6 +125,7 @@ def rule_panels(target_page_types=None, arming_param=None):
             panels=condition_panels(arming_param),
             heading=_("Conditions (all must match — AND)"),
             label=_("Condition"),
+            help_text=_("Ignored while “Match all triggered visitors” is ticked above."),
         ),
     ]
 
@@ -163,7 +164,10 @@ class RoutingRule(ClusterableModel, Orderable):
     match_all = models.BooleanField(
         default=False,
         verbose_name=_("Match all triggered visitors"),
-        help_text=_("Route every triggered visitor to the target (no conditions). Matches before any rule below it."),
+        help_text=_(
+            "Route every triggered visitor to the target. Any conditions on this rule are "
+            "ignored while this is ticked. Matches before any rule below it."
+        ),
     )
 
     class Meta(Orderable.Meta):

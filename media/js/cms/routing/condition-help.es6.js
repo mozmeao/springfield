@@ -18,8 +18,15 @@ const HELP_CLASSNAME = 'routing-condition-help';
 // Added to the help element (and aria-invalid on the field) when a value fails
 // pre-submit validation, so the same help line doubles as the correction guidance.
 const ERROR_CLASSNAME = 'routing-condition-help--invalid';
+// Added to a rule's conditions panel while its "match all" box is ticked, so the author can
+// see the conditions are inert. Styled in the admin CSS.
+const IGNORED_CLASSNAME = 'routing-conditions--ignored';
+// Wagtail's wrapper class for a nested InlinePanel — the conditions panel inside a rule.
+const NESTED_PANEL_CLASSNAME = 'w-panel--nested';
 // Flag set on a wired signal <select> so re-scans never double-bind it.
 const BOUND_FLAG = 'springfieldRoutingBound';
+// Flag set on a wired "match all" checkbox, same reason as BOUND_FLAG.
+const MATCH_ALL_BOUND_FLAG = 'springfieldRoutingMatchAllBound';
 // Flag set on the edit <form> so its submit guard is attached only once.
 const SUBMIT_GUARD_FLAG = 'springfieldRoutingSubmitGuard';
 // Set-membership operators carry a comma-separated list (matches the Python convention).
@@ -222,6 +229,60 @@ function setConditionError(select, payload, scope, hasError) {
     return expected;
 }
 
+// --- match-all rules ignore their conditions -------------------------------
+//
+// The serializer drops conditions from a match-all rule, so the editor has to show that
+// rather than leaving an author looking at conditions they wrote which will never be
+// consulted. The *explanation* is server-rendered and translated (the checkbox's help text
+// and the conditions panel's); all this adds is the live state.
+
+function matchAllCheckboxFor(select, root) {
+    // "…-conditions-3-signal" belongs to the rule whose checkbox is "…-match_all".
+    const name = select.getAttribute('name') || '';
+    const checkboxName = name.replace(/-conditions-\d+-signal$/, '-match_all');
+    if (checkboxName === name) {
+        return null;
+    }
+    return root.querySelector('[name="' + checkboxName + '"]');
+}
+
+function conditionIsIgnored(select, root) {
+    const checkbox = matchAllCheckboxFor(select, root);
+    return !!(checkbox && checkbox.checked);
+}
+
+function conditionsPanelFor(checkbox, root) {
+    // Derived from the formset naming rather than the surrounding markup: Wagtail wraps a
+    // nested InlinePanel's rows in "id_<prefix>-FORMS", and the panel around that carries
+    // the heading and the Add button. Falling back to the rows alone keeps the cue working
+    // if that outer wrapper is ever restyled.
+    const name = checkbox.getAttribute('name') || '';
+    const formsId = 'id_' + name.replace(/-match_all$/, '-conditions-FORMS');
+    const forms = root.querySelector('[id="' + formsId + '"]');
+    if (!forms) {
+        return null;
+    }
+    const panel =
+        typeof forms.closest === 'function'
+            ? forms.closest('.' + NESTED_PANEL_CLASSNAME)
+            : null;
+    return panel || forms;
+}
+
+export function syncIgnoredConditions(checkbox, root) {
+    const scope = root || document;
+    const panel = conditionsPanelFor(checkbox, scope);
+    if (!panel) {
+        return null;
+    }
+    if (checkbox.checked) {
+        panel.classList.add(IGNORED_CLASSNAME);
+    } else {
+        panel.classList.remove(IGNORED_CLASSNAME);
+    }
+    return panel;
+}
+
 function isFieldVisible(el) {
     // "Visible" ⇒ the field is laid out, i.e. the author is on the routing tab. `offsetParent`
     // is null (and getClientRects() empty) for a `display:none` ancestor — exactly how Wagtail
@@ -237,6 +298,12 @@ function validateConditionRow(select, payload, scope) {
     // Skip rows being deleted — they won't be saved.
     const del = siblingFieldFor(select, scope, '-DELETE');
     if (del && del.checked) {
+        setConditionError(select, payload, scope, false);
+        return true;
+    }
+    // Skip conditions the server will ignore anyway: blocking a save on a value that has
+    // no effect would be the editor contradicting itself twice over.
+    if (conditionIsIgnored(select, scope)) {
         setConditionError(select, payload, scope, false);
         return true;
     }
@@ -323,10 +390,42 @@ function wireSelect(select, payload, scope) {
     filterOperators(select, payload, scope);
 }
 
+function revalidateRuleConditions(checkbox, payload, scope) {
+    const selects = scope.querySelectorAll('select[name$="-signal"]');
+    Array.prototype.forEach.call(selects, function (select) {
+        if (matchAllCheckboxFor(select, scope) === checkbox) {
+            validateConditionRow(select, payload, scope);
+        }
+    });
+}
+
+function wireMatchAll(checkbox, payload, scope) {
+    // Idempotent, like wireSelect: the observer re-scans on every DOM change.
+    if (checkbox.dataset[MATCH_ALL_BOUND_FLAG] === '1') {
+        return;
+    }
+    checkbox.dataset[MATCH_ALL_BOUND_FLAG] = '1';
+    checkbox.addEventListener('change', function () {
+        syncIgnoredConditions(checkbox, scope);
+        // Ticking clears the red hints on the conditions just made inert; unticking brings
+        // back any that are genuinely wrong. Row-by-row rather than validateConditions(),
+        // which moves focus to the first invalid field — jarring on a checkbox click.
+        revalidateRuleConditions(checkbox, payload, scope);
+    });
+    // Initial pass, so a saved match-all rule opens with its conditions already dimmed.
+    syncIgnoredConditions(checkbox, scope);
+}
+
 function wireAll(payload, scope) {
     const selects = scope.querySelectorAll('select[name$="-signal"]');
     Array.prototype.forEach.call(selects, function (select) {
         wireSelect(select, payload, scope);
+    });
+    const checkboxes = scope.querySelectorAll(
+        'input[type="checkbox"][name$="-match_all"]'
+    );
+    Array.prototype.forEach.call(checkboxes, function (checkbox) {
+        wireMatchAll(checkbox, payload, scope);
     });
 }
 

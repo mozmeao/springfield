@@ -130,6 +130,17 @@ def test_kill_switch_checkbox_always_renders_on_canonical(admin_client, wnp):
     assert "Kill switch" in html
 
 
+def test_the_editor_says_conditions_are_ignored_on_a_match_all_rule(admin_client, wnp):
+    # The serializer drops conditions from a match-all rule, so the author has to be told —
+    # once next to the checkbox they tick, and once on the panel holding the conditions the
+    # decision affects. Both are server-rendered and translated; the dimming is only the
+    # live state on top of them.
+    canonical, _target = wnp
+    html = admin_client.get(_edit_url(canonical)).content.decode("utf-8")
+    assert "ignored while this is ticked" in html
+    assert "Ignored while" in html
+
+
 def _content_only_post_data(page):
     """An edit POST with no routing formsets — as a non-canonical page's hidden tab sends."""
     return nested_form_data(

@@ -75,7 +75,10 @@ class Migration(migrations.Migration):
                     "match_all",
                     models.BooleanField(
                         default=False,
-                        help_text="Route every triggered visitor to the target (no conditions). Matches before any rule below it.",
+                        help_text=(
+                            "Route every triggered visitor to the target. Any conditions on this rule are "
+                            "ignored while this is ticked. Matches before any rule below it."
+                        ),
                         verbose_name="Match all triggered visitors",
                     ),
                 ),
