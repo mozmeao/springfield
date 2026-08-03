@@ -30,6 +30,10 @@
     position: relative;
 }
 
+.fl-two-column-card .fl-button-row {
+    margin-block-start: auto;
+}
+
 .fl-two-column-card .fl-icon-text-list li {
     padding-block: 0;
 }

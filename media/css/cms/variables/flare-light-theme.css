@@ -193,3 +193,8 @@
 --theme-form-focus-outline-color: var(--token-color-soft-purple-3);
 --theme-checkbox-border-color: var(--token-color-light-purple);
 --theme-form-error-message-color: var(--token-color-error-red);
+
+/* Comparison table */
+--comparison-table-highlighted-bg: var(--token-color-soft-purple);
+--comparison-table-border-color: var(--token-color-soft-purple-2);
+--comparison-table-text-color: var(--token-color-grey-3);

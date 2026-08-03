@@ -53,6 +53,7 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
+    ComparisonTableBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -129,9 +130,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
-    content_panels = [
-        FieldPanel("internal_title"),
-        FieldPanel("title"),
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("slug"),
     ]
     promote_panels = []
@@ -1057,6 +1056,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("comparison_table", ComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -1321,8 +1321,8 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
     )
 
     content_panels = [
-        FieldPanel("internal_title"),
         FieldPanel("title"),
+        FieldPanel("internal_title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
@@ -1346,6 +1346,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("version"),
         SynchronizedField("pre_footer_image"),
     ]
 
