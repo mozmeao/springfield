@@ -92,6 +92,43 @@ def test_preview_rule_bypasses_kill_switch(routed_page, staff_user):
     assert response.status_code == 302
 
 
+def test_preview_rule_302s_to_the_variant_in_this_locale(translated_wnp, staff_user):
+    # Preview has to answer "where do visitors on *this* page end up", and on a translated
+    # page that is the translated variant. The stored target is still the English one.
+    rule = translated_wnp.de_canonical.routing_rules.first()
+    request = _request(f"/de/whatsnew/145/?preview_rule={rule.pk}", staff_user)
+
+    response = get_preview_response(request, translated_wnp.de_canonical)
+    assert response.status_code == 302
+    assert response["Location"] == translated_wnp.de_variant.get_url(request)
+    assert response["Location"].startswith("/de/")
+
+
+def test_preview_rule_reports_an_unpublished_target_rather_than_redirecting(routed_page, staff_user):
+    # Visitors are never routed to an unpublished page, so redirecting the author into a 404
+    # would misreport what the rule does.
+    routed_page.target.unpublish()
+    request = _request(f"/?preview_rule={routed_page.rule.pk}", staff_user)
+
+    response = get_preview_response(request, routed_page.canonical)
+    assert response.status_code == 200
+    assert "never fires" in _content(response)
+    assert "not published" in _content(response)
+    assert response["Cache-Control"] == "no-store"
+
+
+def test_preview_rule_reports_a_target_missing_from_this_locale(translated_wnp, staff_user):
+    # The German page's rule points at a variant that exists only in English.
+    translated_wnp.de_variant.delete()
+    rule = translated_wnp.de_canonical.routing_rules.first()
+    request = _request(f"/de/whatsnew/145/?preview_rule={rule.pk}", staff_user)
+
+    response = get_preview_response(request, translated_wnp.de_canonical)
+    assert response.status_code == 200
+    assert "never fires" in _content(response)
+    assert "this locale" in _content(response)
+
+
 def test_preview_rule_with_invalid_id_falls_through(routed_page, staff_user):
     for value in ("99999", "not-a-number"):
         request = _request(f"/?preview_rule={value}", staff_user)

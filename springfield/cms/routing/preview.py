@@ -9,7 +9,9 @@ Two flows let authors verify routing, including while a page is paused — both 
 **bypass the kill switch**:
 
 * ``preview_rule={id}`` — a server-side 302 straight to the rule's target, skipping
-  signal evaluation entirely.
+  signal evaluation entirely. The target is resolved the way the serve path resolves it, and
+  a rule that could not route a visitor is *reported as such* rather than redirected to:
+  preview exists to say what visitors get, so it must never flatter a broken rule.
 * ``preview_signal=name:value`` (repeatable) — renders the resolver with *fake* signal
   values injected via a ``data-*`` blob (the same attribute-on-the-page convention as
   the rest of the resolver), so the author exercises the real client evaluation path:
@@ -19,10 +21,18 @@ The serve-path dispatcher calls :func:`get_preview_response` before the kill
 switch and the trigger checks; a ``None`` return means "no preview — fall through".
 """
 
+from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.utils.translation import gettext as _
 
 from springfield.cms.routing.params import PREVIEW_RULE_PARAM, PREVIEW_SIGNAL_PARAM
-from springfield.cms.routing.resolver import patch_request_for_resolver, render_resolver
+from springfield.cms.routing.resolver import (
+    localized_target,
+    patch_request_for_resolver,
+    render_resolver,
+    url_in_requested_locale,
+    usable_rules,
+)
 from springfield.cms.routing.signals import registry
 
 
@@ -55,15 +65,50 @@ def _no_store(response):
     return response
 
 
+def _inert(message):
+    """Report a rule that will not fire, instead of redirecting to a page visitors never see."""
+    return _no_store(HttpResponse(message, content_type="text/plain; charset=utf-8"))
+
+
+def _why_the_rule_never_fires(rule, page):
+    """Why ``rule`` cannot route a visitor on ``page``, or ``None`` if it can.
+
+    The decision comes from the serve path itself, so preview can never disagree with what
+    visitors get — that agreement is the whole value of the flow. The per-floor checks below
+    only pick the wording for a rule already known to be unusable.
+    """
+    if any(usable.rule.pk == rule.pk for usable in usable_rules(page)):
+        return None
+    if rule.target is None:
+        return _("This rule has no target, so it never fires.")
+    target = localized_target(rule.target, page)
+    if target is None:
+        return _("This rule's target has no version in this locale, so it never fires here.")
+    if not target.live:
+        return _("This rule's target is not published, so it never fires.")
+    if not target.is_descendant_of(page):
+        return _("This rule's target is not part of this page, so it never fires.")
+    return _("This rule cannot match anyone as configured, so it never fires.")
+
+
 def _preview_rule(request, page):
     rule_id = request.GET.get(PREVIEW_RULE_PARAM)
     if not rule_id or not rule_id.isdigit():
         return None
     rule = page.routing_rules.filter(pk=int(rule_id)).first()
-    if not rule or not rule.target:
+    if not rule:
         return None
+    never_fires = _why_the_rule_never_fires(rule, page)
+    if never_fires:
+        return _inert(never_fires)
+    # Resolved exactly as the resolver resolves it: this locale's version of the target,
+    # carrying the locale prefix the requester asked for.
+    url = url_in_requested_locale(localized_target(rule.target, page), request)
+    if not url:
+        # An unroutable page (no site) has no URL, and redirect(None) would 500.
+        return _inert(_("This rule's target has no URL, so it never fires."))
     # Straight 302 to the target; signal evaluation is skipped entirely.
-    return _no_store(redirect(rule.target.get_url(request)))
+    return _no_store(redirect(url))
 
 
 def _preview_signal(request, page):
