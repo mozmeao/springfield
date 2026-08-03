@@ -14,7 +14,6 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models import ProtectedError
 from django.db.utils import IntegrityError
 
 import pytest
@@ -116,14 +115,58 @@ def test_str_falls_back_to_no_conditions_summary(tree):
 
 
 # ---------------------------------------------------------------------------
-# Target FK protection: deleting a targeted page is blocked.
+# Deleting a target clears it from its rules. This deliberately reverses the
+# earlier PROTECT behaviour: blocking the delete made any *ancestor* of a
+# rule-bearing page undeletable through the admin, and never protected the case
+# that actually hurts (unpublishing has the same cached-resolver window).
 # ---------------------------------------------------------------------------
 
 
-def test_deleting_a_targeted_page_raises_protected_error(tree):
+def test_deleting_a_targeted_page_clears_the_target_and_keeps_the_rule(tree):
+    # Kept as the record that this behaviour was changed on purpose: it used to raise
+    # ProtectedError.
+    rule = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+
+    tree.descendant.delete()
+
+    rule.refresh_from_db()
+    assert rule.target_id is None
+    assert RoutingRule.objects.filter(pk=rule.pk).exists()
+
+
+def test_deleting_the_page_that_hosts_a_rule_succeeds(tree):
+    # The reported bug: the rule is cascade-deleted with its own page, but PROTECT saw the
+    # target reference and refused, so the admin 500'd.
     RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
-    with pytest.raises(ProtectedError):
-        tree.descendant.delete()
+
+    tree.canonical.delete()
+
+    assert not RoutingRule.objects.filter(page_id=tree.canonical.pk).exists()
+
+
+def test_deleting_an_ancestor_of_a_rule_bearing_page_succeeds(tree):
+    # The case a friendlier error message would not have fixed: the whole subtree goes,
+    # including both the rule and its target.
+    RoutingRule.objects.create(page=tree.canonical, target=tree.descendant)
+
+    tree.root.delete()
+
+    assert not RoutingRule.objects.exists()
+
+
+def test_deleting_one_target_leaves_other_rules_alone(tree):
+    # Blast radius is per-target, not per-page: a sibling rule pointing at a live variant
+    # keeps working.
+    survivor_target = SimpleRichTextPageFactory(slug="surviving-variant", parent=tree.canonical, live=True)
+    doomed = RoutingRule.objects.create(page=tree.canonical, target=tree.descendant, sort_order=0)
+    survivor = RoutingRule.objects.create(page=tree.canonical, target=survivor_target, sort_order=1)
+
+    tree.descendant.delete()
+
+    doomed.refresh_from_db()
+    survivor.refresh_from_db()
+    assert doomed.target_id is None
+    assert survivor.target_id == survivor_target.pk
 
 
 # ---------------------------------------------------------------------------

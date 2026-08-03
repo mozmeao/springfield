@@ -111,6 +111,20 @@ def test_listing_flags_a_target_outside_the_page_as_wont_fire(admin_client):
     assert rule.target_id == stray.pk
 
 
+def test_listing_flags_a_deleted_target_as_wont_fire(admin_client):
+    # The listing is what makes deleting a target a discoverable mistake rather than an
+    # invisible one — the whole reason blocking the delete was judged unnecessary.
+    rule = _matchable(_rule_on("deleted-target-canonical", "Deleted target"))
+    rule.name = "Target deleted"
+    rule.save()
+    rule.target.delete()
+
+    status = _status_cell(admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8"), "Target deleted")
+    assert "Won" in status
+    assert "No target page" in status
+    assert "Waiting" not in status
+
+
 def test_listing_flags_a_rule_that_can_never_match_as_wont_fire(admin_client):
     rule = _rule_on("conditionless-host", "Conditionless host")
     rule.name = "No conditions"

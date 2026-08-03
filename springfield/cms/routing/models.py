@@ -148,12 +148,29 @@ class RoutingRule(ClusterableModel, Orderable):
     page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_rules")
     target = models.ForeignKey(
         "wagtailcore.Page",
-        # PROTECT (not CASCADE): deleting a targeted page must be blocked, never
-        # silently take its rule with it.
-        on_delete=models.PROTECT,
+        # SET_NULL (not CASCADE, and not PROTECT): deleting the target clears it from this rule
+        # and leaves the rule itself alone, so only the rules pointing at that page stop firing
+        # and visitors stay on the canonical in their own language.
+        #
+        # PROTECT was tried first and is worse than it sounds. Django's collector checks
+        # protected references across the *whole subtree* being deleted, so deleting any
+        # ancestor of a rule-bearing page raised ProtectedError even though the protecting rule
+        # was about to be cascade-deleted in the same operation — and Wagtail does not catch it,
+        # so the admin 500s and the page cannot be deleted through the UI at all. It also never
+        # protected the case that actually hurts: unpublishing a target has the identical window
+        # of cached resolvers pointing at a URL that now 404s.
+        on_delete=models.SET_NULL,
+        # Nullable in the database only — the form still requires a target, so a rule cannot be
+        # *authored* without one. Null means "the page this pointed at is gone".
+        null=True,
         related_name="+",
         verbose_name=_("Target page"),
-        help_text=_("The page to route matching users to. Must be a descendant of this page."),
+        help_text=_(
+            "The page to route matching users to. Must be a descendant of this page. "
+            "Deleting a target page clears it from its rules, so retire a variant by "
+            "unpublishing it first and confirming routing has settled — never delete a live "
+            "target mid-campaign."
+        ),
     )
     name = models.CharField(
         max_length=255,

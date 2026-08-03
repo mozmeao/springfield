@@ -137,6 +137,15 @@ def test_serialize_rules_drops_a_rule_that_targets_its_own_page():
     assert RoutingMixin._has_live_routing_rules(canonical) is False
 
 
+def test_serialize_rules_drops_a_rule_whose_target_was_deleted(routed_page):
+    # Deleting the target nulls it rather than blocking the delete, so the serializer meets a
+    # rule with no target at all. It must drop it and carry on, not raise.
+    routed_page.target.delete()
+
+    assert serialize_rules(routed_page.canonical) == []
+    assert RoutingMixin._has_live_routing_rules(routed_page.canonical) is False
+
+
 def test_serialize_rules_keeps_the_alias_locale_the_visitor_asked_for(fallback_locale_wnp):
     # es-AR has no pages of its own, so the es-MX page is served at the es-AR URL. A target
     # URL carrying /es-MX/ would move the visitor out of the locale they asked for, on the

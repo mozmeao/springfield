@@ -63,8 +63,14 @@ class Migration(migrations.Migration):
                 (
                     "target",
                     models.ForeignKey(
-                        help_text="The page to route matching users to. Must be a descendant of this page.",
-                        on_delete=django.db.models.deletion.PROTECT,
+                        help_text=(
+                            "The page to route matching users to. Must be a descendant of this page. "
+                            "Deleting a target page clears it from its rules, so retire a variant by "
+                            "unpublishing it first and confirming routing has settled — never delete a live "
+                            "target mid-campaign."
+                        ),
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
                         related_name="+",
                         to="wagtailcore.page",
                         verbose_name="Target page",

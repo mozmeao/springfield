@@ -233,6 +233,17 @@ def test_publishing_the_pause_stops_routing(client, wnp):
     assert RESOLVER_MARKER not in response.content.decode("utf-8")
 
 
+@override_switch("user_routing", active=True)
+def test_a_triggered_visitor_gets_the_canonical_after_the_target_is_deleted(client, wnp):
+    # Fail-safe rather than a 500 or a redirect to a dead URL: the rule's target is nulled by
+    # the delete, so the page simply has nothing to route with.
+    wnp.variant.delete()
+
+    response = client.get(wnp.canonical.get_url() + "?utm_source=update")
+    assert response.status_code == 200
+    assert RESOLVER_MARKER not in response.content.decode("utf-8")
+
+
 def test_reading_the_pause_costs_a_single_query(wnp, django_assert_num_queries):
     # Reading through the page object rather than querying the table must not cost more. Every
     # request to a routing page pays this, so pin it at one query.
