@@ -13,6 +13,7 @@ global switch must each behave correctly.
 from types import SimpleNamespace
 
 import pytest
+from bs4 import BeautifulSoup
 from waffle.testutils import override_switch
 from wagtail.models import Site
 
@@ -163,6 +164,21 @@ def test_preview_signal_is_not_redirected_out_of_their_locale(admin_client, tran
     response = admin_client.get(translated_wnp.de_canonical.get_url() + "?preview_signal=platform:windows")
     assert response.status_code == 200
     assert RESOLVER_MARKER in response.content.decode("utf-8")
+
+
+@override_switch("user_routing", active=True)
+def test_every_url_the_resolver_emits_keeps_the_requested_alias_locale(client, fallback_locale_wnp):
+    # The visitor asked for /es-AR/ and is served es-MX content at that URL. Both URLs the
+    # resolver hands the client — the rule's target and the canonical it falls back to —
+    # must stay on /es-AR/.
+    response = client.get(fallback_locale_wnp.alias_url + "?utm_source=update")
+    assert response.status_code == 200
+
+    resolver = BeautifulSoup(response.content.decode("utf-8"), "html.parser").select_one("main.routing-resolver")
+    assert resolver["data-canonical-url"].startswith("/es-AR/")
+    assert "/es-MX/" not in resolver["data-canonical-url"]
+    assert "/es-AR/" in resolver["data-routing-rules"]
+    assert "/es-MX/" not in resolver["data-routing-rules"]
 
 
 @override_switch("user_routing", active=True)

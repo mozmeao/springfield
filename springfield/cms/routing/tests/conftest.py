@@ -45,6 +45,32 @@ def _publish_translation(page, locale):
     return translation.specific
 
 
+def _english_wnp_with_rule():
+    """An ``en-US`` canonical + nested variant, with a rule targeting the variant."""
+    site = Site.objects.get(is_default_site=True)
+    index = WhatsNewIndexPageFactory(parent=site.root_page, slug="whatsnew")
+    canonical = WhatsNewPage2026Factory(parent=index, slug="145", version="145", live=True)
+    variant = WhatsNewPage2026Factory(parent=canonical, slug="145-b", version="145", live=True)
+    rule = RoutingRule.objects.create(page=canonical, target=variant)
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+    return SimpleNamespace(site=site, index=index, canonical=canonical, variant=variant, rule=rule)
+
+
+def _publish_tree_in(tree, language_code):
+    """Publish a whole ``_english_wnp_with_rule`` tree in another locale.
+
+    The locale's root page is copied too, or its URLs do not route at all.
+    """
+    locale = LocaleFactory(language_code=language_code)
+    _publish_translation(tree.site.root_page, locale)
+    return SimpleNamespace(
+        locale=locale,
+        index=_publish_translation(tree.index, locale),
+        canonical=_publish_translation(tree.canonical, locale),
+        variant=_publish_translation(tree.variant, locale),
+    )
+
+
 @pytest.fixture
 def translated_wnp(db):
     """A canonical + variant published in both ``en-US`` and ``de``, with a rule.
@@ -54,30 +80,44 @@ def translated_wnp(db):
 
     The German canonical carries the rule Wagtail copied with it, whose stored target
     still points at the *English* variant — resolved to the German one at serve time.
-    The German locale's root page is copied too, or German URLs do not route.
     """
-    site = Site.objects.get(is_default_site=True)
-    index = WhatsNewIndexPageFactory(parent=site.root_page, slug="whatsnew")
-    canonical = WhatsNewPage2026Factory(parent=index, slug="145", version="145", live=True)
-    variant = WhatsNewPage2026Factory(parent=canonical, slug="145-b", version="145", live=True)
-    rule = RoutingRule.objects.create(page=canonical, target=variant)
-    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+    tree = _english_wnp_with_rule()
+    de = _publish_tree_in(tree, "de")
+    return SimpleNamespace(
+        index=tree.index,
+        canonical=tree.canonical,
+        variant=tree.variant,
+        rule=tree.rule,
+        de=de.locale,
+        de_index=de.index,
+        de_canonical=de.canonical,
+        de_variant=de.variant,
+    )
 
-    de = LocaleFactory(language_code="de")
-    _publish_translation(site.root_page, de)
-    de_index = _publish_translation(index, de)
-    de_canonical = _publish_translation(canonical, de)
-    de_variant = _publish_translation(variant, de)
+
+@pytest.fixture
+def fallback_locale_wnp(db):
+    """A tree published in ``es-MX``, plus an ``es-AR`` locale that has no pages of its own.
+
+    ``settings.FALLBACK_LOCALES`` maps es-AR to es-MX, so a visitor asking for
+    ``/es-AR/whatsnew/145/`` is served the **es-MX** page at the **es-AR** URL. The alias
+    locale needs a live root page for that fallback to happen at all, and nothing below it.
+
+    Returns the served (es-MX) pages plus the es-AR URL the visitor actually requests.
+    """
+    tree = _english_wnp_with_rule()
+    es_mx = _publish_tree_in(tree, "es-MX")
+
+    alias_locale = LocaleFactory(language_code="es-AR")
+    alias_root = tree.site.root_page.copy_for_translation(alias_locale)
+    alias_root.save_revision().publish()
 
     return SimpleNamespace(
-        index=index,
-        canonical=canonical,
-        variant=variant,
-        rule=rule,
-        de=de,
-        de_index=de_index,
-        de_canonical=de_canonical,
-        de_variant=de_variant,
+        locale=es_mx.locale,
+        canonical=es_mx.canonical,
+        variant=es_mx.variant,
+        alias_locale=alias_locale,
+        alias_url=es_mx.canonical.get_url().replace("/es-MX/", "/es-AR/", 1),
     )
 
 

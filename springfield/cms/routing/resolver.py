@@ -43,6 +43,24 @@ def localized_target(target, page):
     return target.get_translation_or_none(page.locale)
 
 
+def url_in_requested_locale(page, request):
+    """The page's URL carrying the locale prefix the visitor actually asked for.
+
+    For an alias locale (es-AR served from es-MX, pt-PT from pt-BR, en-GB from en-US) the
+    content comes from the fallback locale while the URL keeps the requested one. Raw
+    ``get_url`` returns the *page's* prefix, which would move the visitor out of the locale
+    they asked for on the one navigation this page exists to perform.
+
+    Rule targets are stored as base ``Page``, so the specific instance is what carries the
+    helper. A target whose type isn't a springfield CMS page falls back to ``get_url``: the
+    ORM/API path can attach any page, and an un-rewritten prefix beats a 500 for a
+    triggered visitor.
+    """
+    specific = page.specific
+    active_locale_url = getattr(specific, "get_active_locale_url", None)
+    return active_locale_url(request) if active_locale_url else specific.get_url(request)
+
+
 UsableRule = namedtuple("UsableRule", ["rule", "target"])
 
 
@@ -107,7 +125,7 @@ def serialize_rules(page, request=None):
                     "valueType": signal.value_type.value if signal else None,
                 }
             )
-        serialized.append({"target": target.get_url(request), "matchAll": rule.match_all, "conditions": conditions})
+        serialized.append({"target": url_in_requested_locale(target, request), "matchAll": rule.match_all, "conditions": conditions})
     return serialized
 
 
@@ -163,7 +181,7 @@ def render_resolver(request, page, fake_signals=None):
         "page": page,
         "routing_rules": rules,
         "routing_manifest": serialize_manifest(rules),
-        "canonical_url": page.get_url(request),
+        "canonical_url": url_in_requested_locale(page, request),
         "loop_breaker_param": LOOP_BREAKER_PARAM,
         "routing_fake_signals": fake_signals or None,
     }

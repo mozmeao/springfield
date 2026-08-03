@@ -7,10 +7,11 @@
 from types import SimpleNamespace
 
 from django.test import RequestFactory
+from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Site
+from wagtail.models import Locale, Page, Site
 
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
@@ -121,6 +122,32 @@ def test_serialize_rules_drops_a_rule_that_targets_its_own_page():
 
     assert serialize_rules(canonical) == []
     assert RoutingMixin._has_live_routing_rules(canonical) is False
+
+
+def test_serialize_rules_keeps_the_alias_locale_the_visitor_asked_for(fallback_locale_wnp):
+    # es-AR has no pages of its own, so the es-MX page is served at the es-AR URL. A target
+    # URL carrying /es-MX/ would move the visitor out of the locale they asked for, on the
+    # one navigation the resolver exists to perform.
+    request = rf.get(fallback_locale_wnp.alias_url + "?utm_source=update")
+    with translation.override("es-AR"):
+        rules = serialize_rules(fallback_locale_wnp.canonical, request)
+
+    assert rules[0]["target"].startswith("/es-AR/")
+    assert "/es-MX/" not in rules[0]["target"]
+
+
+def test_serialize_rules_still_emits_a_url_for_a_plain_page_target():
+    # Only springfield CMS pages carry the alias-aware URL helper, and the ORM/API path can
+    # attach any page as a target. Such a rule must still serve — a triggered visitor
+    # getting a 500 would be worse than a URL with the un-rewritten locale prefix.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="plain-target-canonical", parent=site_root)
+    plain = Page(title="Plain target", slug="plain-target", live=True)
+    canonical.add_child(instance=plain)
+    RoutingRule.objects.create(page=canonical, target=plain, match_all=True)
+
+    rules = serialize_rules(canonical)
+    assert rules[0]["target"].endswith("/plain-target/")
 
 
 def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):
