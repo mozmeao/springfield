@@ -10,8 +10,13 @@
 /* Enterprise theme styles */
 @layer page {
     :root,
+    .fl-split-page-upper,
     .fl-split-page-upper .fl-force-light-theme,
     .fl-force-light-theme {
+        --fl-theme-color-text: var(--token-color-black-4);
+        --fl-theme-color-link: var(--token-color-link-purple);
+        --fl-theme-color-link-hover: var(--token-color-link-purple);
+        --fl-theme-color-link-alt-hover: var(--token-color-black-4);
         --fl-logo-url: url('/media/img/logos/firefox-enterprise/firefox-enterprise.svg');
         --upper-page-theme-color: white;
 
