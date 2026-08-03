@@ -577,9 +577,9 @@ GS_PROJECT_ID = config("GS_PROJECT_ID", default="")
 # Distinct GCS bucket where Data Engineering publishes periodic
 # (referral_id, install_count) snapshots consumed by update_referral_data.
 # Data Eng writes one CSV per publish, named
-# `{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DDZHH:MM:SS.csv`; the
+# `{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DD.csv`; the
 # command picks the lex-newest name (which sorts chronologically for that
-# timestamp format). Empty bucket name disables the import as a no-op.
+# date format). Empty bucket name disables the import as a no-op.
 REFERRAL_DATA_GCS_BUCKET = config("REFERRAL_DATA_GCS_BUCKET", default="")
 REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX = config("REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX", default="referral_data")
 
@@ -1070,8 +1070,12 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+# The site identifier events are attributed to (rendered as `data-domain`), not
+# where the tracker is hosted. See PLAUSIBLE_SCRIPT_URL for the tracker origin.
 PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
-PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+# Served from our own subdomain so the script and its events endpoint are both
+# first-party. plausible.es6.js derives /api/event on this same origin.
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://pa.firefox.com/js/script.js")
 
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
