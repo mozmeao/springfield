@@ -8,13 +8,14 @@
 
 {% block flare_header %}
   {% set hide_nav_cta = true %}
+  {% set theme = "light" if page.theme == "enterprise" else "" %}
   {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
 {% block main_class %}{% endblock %}
 
 {% block content %}
-<div class="fl-main has-gradient-bottom">
+<div class="fl-main has-gradient-bottom {% if page.theme == "enterprise" %}fl-force-light-theme{% endif %}">
   <noscript>
     <include:notification color="orange">
       {{ ftl("ui-please-turn-on-javascript") }}
