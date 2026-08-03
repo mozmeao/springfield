@@ -81,20 +81,21 @@
     display: block;
 }
 
-/* Progress bar (mobile fallback, hidden on desktop) */
+/* Progress bar: vertical strip on the left edge */
 
 .fl-sliding-carousel-progress-wrapper {
-    border-radius: 4px 4px 0 0;
+    border-radius: 0;
     contain: paint;
-    inset-block-start: 2px;
-    inset-inline: 0;
-    padding-inline: 16px;
+    inline-size: 4px;
+    inset-block: 0;
+    inset-inline-start: 0;
     position: absolute;
 }
 
 .fl-sliding-carousel-progress {
-    block-size: 2px;
-    border-radius: 4px;
+    block-size: 100%;
+    border-radius: 0;
+    inline-size: 100%;
     position: relative;
 }
 
@@ -104,18 +105,19 @@
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress {
     background-color: var(--token-color-soft-purple);
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .fl-sliding-carousel-control.is-active .fl-sliding-carousel-progress::after {
     animation: fl-sliding-carousel-progress var(--fl-slide-interval, 10000ms)
         linear forwards;
     background-color: var(--token-color-light-purple);
-    block-size: 100%;
-    border-radius: 4px;
+    block-size: 0%;
+    border-radius: 0;
     content: '';
-    inline-size: 0%;
-    inset: 0;
+    inline-size: 100%;
+    inset-block-start: 0;
+    inset-inline: 0;
     position: absolute;
 }
 
@@ -133,7 +135,27 @@
 }
 
 .fl-sliding-carousel-heading-text {
-    margin-block-end: var(--token-spacing-lg);
+    margin-block-end: 0;
+}
+
+/* Subheading: hidden on inactive controls, expands when active */
+
+.fl-sliding-carousel-subheading-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition:
+        grid-template-rows var(--token-transition-base),
+        margin-block-start var(--token-transition-base);
+}
+
+.fl-sliding-carousel-control.is-active .fl-sliding-carousel-subheading-wrapper {
+    grid-template-rows: 1fr;
+    margin-block-start: var(--token-spacing-lg);
+}
+
+.fl-sliding-carousel-subheading {
+    min-block-size: 0;
+    overflow: hidden;
 }
 
 /* disable border animation and hide progress bar when user has reduced motion preferences enabled */
@@ -147,15 +169,19 @@
     .fl-sliding-carousel-progress-wrapper {
         display: none;
     }
+
+    .fl-sliding-carousel-subheading-wrapper {
+        transition: none;
+    }
 }
 
 @keyframes fl-sliding-carousel-progress {
     from {
-        inline-size: 0%;
+        block-size: 0%;
     }
 
     to {
-        inline-size: 100%;
+        block-size: 100%;
     }
 }
 
@@ -169,11 +195,10 @@
     .fl-sliding-carousel-control.is-active
         .fl-sliding-carousel-progress::after {
         animation: none;
-        inline-size: 100%;
+        block-size: 100%;
     }
 
-    .fl-sliding-carousel-heading-text,
-    .fl-sliding-carousel-subheading {
+    .fl-sliding-carousel-heading-text {
         transition: none;
     }
 }
@@ -241,6 +266,13 @@
 .fl-sliding-carousel-controls-swiper.swiper-initialized
     .fl-sliding-carousel-progress {
     display: none;
+}
+
+.fl-sliding-carousel-controls-swiper.swiper-initialized
+    .fl-sliding-carousel-subheading-wrapper {
+    grid-template-rows: 1fr;
+    margin-block-start: var(--token-spacing-lg);
+    transition: none;
 }
 
 .fl-sliding-carousel-controls-swiper.swiper-initialized
@@ -428,6 +460,6 @@
 
 @media (--viewport-lg-up) {
     .fl-sliding-carousel-box {
-        padding: var(--token-spacing-3xl);
+        padding: var(--token-spacing-2xl) var(--token-spacing-xl);
     }
 }
