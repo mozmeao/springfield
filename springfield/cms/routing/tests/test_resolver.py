@@ -12,6 +12,7 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale, Site
 
+from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
 from springfield.cms.routing.resolver import render_resolver, serialize_manifest, serialize_rules
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
@@ -91,6 +92,35 @@ def test_serialize_rules_drops_a_lone_conditionless_non_match_all_rule():
     target = SimpleRichTextPageFactory(slug="conditionless-variant", parent=canonical, live=True)
     RoutingRule.objects.create(page=canonical, target=target, match_all=False)
     assert serialize_rules(canonical) == []
+
+
+def test_serialize_rules_drops_a_target_under_a_different_page():
+    # Copying a page copies its rules, and the copies still point into the *source* page's
+    # subtree — so a visitor to the copy would be routed to content belonging to the page
+    # they didn't ask for. The page form blocks authoring this; the ORM/API path does not,
+    # and a copy arrives that way.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="hosting-canonical", parent=site_root)
+    unrelated = SimpleRichTextPageFactory(slug="unrelated-canonical", parent=site_root)
+    stray = SimpleRichTextPageFactory(slug="unrelated-variant", parent=unrelated, live=True)
+    rule = RoutingRule.objects.create(page=canonical, target=stray, match_all=True)
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+
+    assert serialize_rules(canonical) == []
+    assert RoutingMixin._has_live_routing_rules(canonical) is False
+
+
+def test_serialize_rules_drops_a_rule_that_targets_its_own_page():
+    # Routing a visitor to the URL they are already on re-renders the resolver, which
+    # evaluates and navigates again: the loop-breaker only rides along on the *fallback*
+    # path, so nothing stops the cycle. The page form blocks it; the ORM/API path does not.
+    site_root = Site.objects.get(is_default_site=True).root_page
+    canonical = SimpleRichTextPageFactory(slug="self-targeting-canonical", parent=site_root, live=True)
+    rule = RoutingRule.objects.create(page=canonical, target=canonical, match_all=True)
+    RoutingCondition.objects.create(rule=rule, signal="platform", operator="is", expected_value="windows", sort_order=0)
+
+    assert serialize_rules(canonical) == []
+    assert RoutingMixin._has_live_routing_rules(canonical) is False
 
 
 def test_serialize_manifest_maps_signals_to_source_metadata(routed_page):

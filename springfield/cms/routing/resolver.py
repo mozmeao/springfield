@@ -59,6 +59,10 @@ def usable_rules(page):
     * the target resolved into the page's own locale (see ``localized_target``), which
       drops a rule whose target has no version in this locale
     * that resolved target must be published — never route to an unpublished page
+    * the target must be a strict descendant of the hosting page. Copying a page copies
+      its rules, whose targets still point into the *source* page's subtree; and a target
+      that is the page itself would send the visitor to the URL they are already on,
+      re-rendering the resolver with no loop-breaker to stop the cycle.
     * a rule with neither conditions nor ``match_all`` is dropped: it would match every
       triggered visitor. Authoring one is blocked, but the ORM/API path has no such
       floor, so this is the backstop.
@@ -71,6 +75,10 @@ def usable_rules(page):
     for rule in page.routing_rules.all():
         target = localized_target(rule.target, page)
         if not target or not target.live:
+            continue
+        # Strict descendant, so a rule targeting its own page is dropped here too — a page
+        # is not its own descendant.
+        if not target.is_descendant_of(page):
             continue
         if not rule.conditions.all() and not rule.match_all:
             continue
