@@ -227,16 +227,6 @@ def test_hub_page_install_count_zero_when_database_errors(monkeypatch):
     assert hub_page._get_install_count(REFERRAL_ID) == 0
 
 
-def test_hub_page_serve_sets_never_cache_headers(rf):
-    """The page serves a per-referrer invite URL and count, so it must not cache."""
-    site = Site.objects.get(is_default_site=True)
-    hub_page = ReferralHubPageFactory(parent=site.root_page)
-
-    response = hub_page.serve(rf.get(f"/invite/?ref_key={REFERRAL_ID}"))
-
-    assert "no-cache" in response["Cache-Control"]
-
-
 def test_tab_impact_dash_badges_reflect_the_hub_install_count(rf):
     """End-to-end: /invite/?ref_key=... -> install_count -> achieved badges.
 

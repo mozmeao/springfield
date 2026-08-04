@@ -2493,7 +2493,9 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         try:
             return FirefoxReferralData.objects.get(referral_id=referral_id).install_count
-        except FirefoxReferralData.DoesNotExist as exc:
+        except FirefoxReferralData.DoesNotExist:
+            return 0
+        except DatabaseError as exc:
             with new_scope() as scope:
                 scope.set_extra("exception", str(exc))
                 capture_message("Failed to read FirefoxReferralData install count", level="error")
