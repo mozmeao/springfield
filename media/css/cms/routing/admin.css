@@ -34,23 +34,22 @@
    via Wagtail tokens. The invalid help reads as a small red callout, and the value field
    gets an immediate red outline so a bad value is obvious before saving. */
 .routing-condition-help {
-    margin-block-start: 0.35rem;
-    font-size: 0.8125rem;
     color: var(--w-color-text-context);
+    font-size: 0.8125rem;
+    margin-block-start: 0.35rem;
 }
 
 .routing-condition-help--invalid {
-    padding-block: 0.3rem;
-    padding-inline-start: 0.6rem;
-
     /* No tinted background: the fixed critical-50 pink doesn't adapt to dark mode and
        tanks contrast. Use the theme-adaptive error colour for text + a red left border on
        the normal page background — reads clearly in both light and dark. */
     border-inline-start: 3px solid var(--w-color-text-error);
     color: var(--w-color-text-error);
+    padding-block: 0.3rem;
+    padding-inline-start: 0.6rem;
 }
 
-input[name$="-expected_value"][aria-invalid="true"] {
+input[name$='-expected_value'][aria-invalid='true'] {
     border-color: var(--w-color-text-error);
     box-shadow: 0 0 0 1px var(--w-color-text-error);
 }
@@ -58,12 +57,12 @@ input[name$="-expected_value"][aria-invalid="true"] {
 /* User Routing — signals reference page. Theme-aware via Wagtail design tokens so
    it follows the admin's light/dark theme; badges carry a per-source accent. */
 .routing-signals-reference__note {
-    padding: 0.75rem 1rem;
-    margin-block: 1rem;
-    border-inline-start: 4px solid var(--w-color-border-furniture);
     background: var(--w-color-surface-field-inactive);
-    color: var(--w-color-text-context);
+    border-inline-start: 4px solid var(--w-color-border-furniture);
     border-radius: 3px;
+    color: var(--w-color-text-context);
+    margin-block: 1rem;
+    padding: 0.75rem 1rem;
 }
 
 .routing-signals-reference__table code {
@@ -73,50 +72,50 @@ input[name$="-expected_value"][aria-invalid="true"] {
 /* Descriptions come from the registry (detailed, honest) — keep them but visually
    secondary so the table scans quickly. */
 .routing-signal-description {
-    max-width: 30rem;
+    color: var(--w-color-text-label);
     font-size: 0.8125rem;
     line-height: 1.45;
-    color: var(--w-color-text-label);
+    max-width: 30rem;
 }
 
 .routing-operators {
-    font-size: 0.8125rem;
     color: var(--w-color-text-context);
+    font-size: 0.8125rem;
 }
 
 .routing-signal-freetext {
+    color: var(--w-color-text-label);
     font-size: 0.8125rem;
     font-style: italic;
-    color: var(--w-color-text-label);
 }
 
 /* Known-set string signals (locale / country): long lists collapsed behind a summary. */
 .routing-value-list > summary {
-    cursor: pointer;
     color: var(--w-color-text-link-default);
+    cursor: pointer;
     font-size: 0.8125rem;
 }
 
 .routing-value-list__items {
-    margin-block-start: 0.4rem;
-    max-width: 24rem;
-    max-height: 12rem;
-    overflow-y: auto;
     line-height: 1.7;
+    margin-block-start: 0.4rem;
+    max-height: 12rem;
+    max-width: 24rem;
+    overflow-y: auto;
 }
 
 .routing-badge {
-    display: inline-block;
-    padding: 0.05em 0.5em;
-    border-radius: 1em;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.6;
-    white-space: nowrap;
-    color: var(--w-color-text-label);
     background: var(--w-color-surface-field-inactive);
     border: 1px solid var(--w-color-border-furniture);
     border-inline-start-width: 4px;
+    border-radius: 1em;
+    color: var(--w-color-text-label);
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.6;
+    padding: 0.05em 0.5em;
+    white-space: nowrap;
 }
 
 /* Rules listing status. "Waiting" is the ordinary state of a rule whose target is still being
@@ -138,10 +137,10 @@ input[name$="-expected_value"][aria-invalid="true"] {
 }
 
 .routing-status-reason {
-    display: block;
-    margin-block-start: 0.2rem;
-    font-size: 0.8125rem;
     color: var(--w-color-text-context);
+    display: block;
+    font-size: 0.8125rem;
+    margin-block-start: 0.2rem;
 }
 
 /* Per-source accent (left border only, so it reads on both light and dark). */
@@ -164,7 +163,7 @@ input[name$="-expected_value"][aria-invalid="true"] {
 .routing-badge--type {
     border-inline-start-width: 1px;
     font-weight: 500;
-    text-transform: uppercase;
     letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 /* stylelint-enable selector-class-pattern, selector-id-pattern */
