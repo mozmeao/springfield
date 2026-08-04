@@ -1077,21 +1077,65 @@ def test_get_or_create_snippet_reuses_existing_by_slug(command):
     assert Tag.objects.count() == 1
 
 
-def test_get_or_create_author_uses_first_and_last_name(command):
-    post = parse_post(post_xml(author_first="Nick", author_last="Nguyen", author_username="someone@example.com"))
-    author = command.get_or_create_author(post, Locale.get_default())
-    assert author.name == "Nick Nguyen"
+def test_known_authors_keys_owners_by_email_and_name_slug(command):
+    posts = [parse_post(post_xml(author_first="Chris", author_last="Novak", author_username="cnovak@mozilla.com"))]
+    known = command.build_known_authors(posts)
+
+    assert known["cnovak@mozilla.com"] == ("Chris Novak", "cnovak@mozilla.com")
+    assert known["chris-novak"] == ("Chris Novak", "cnovak@mozilla.com")
 
 
-def test_get_or_create_author_falls_back_to_username(command):
-    post = parse_post(post_xml(author_first="", author_last="", author_username="someone@example.com"))
-    author = command.get_or_create_author(post, Locale.get_default())
-    assert author.name == "someone@example.com"
+def test_known_authors_lowercases_email_keys(command):
+    posts = [parse_post(post_xml(author_first="Chris", author_last="Novak", author_username="CNovak@Mozilla.com"))]
+    assert "cnovak@mozilla.com" in command.build_known_authors(posts)
 
 
-def test_get_or_create_author_returns_none_when_all_blank(command):
-    post = parse_post(post_xml(author_first="", author_last="", author_username=""))
-    assert command.get_or_create_author(post, Locale.get_default()) is None
+def test_known_authors_skips_owners_with_no_name(command):
+    posts = [parse_post(post_xml(author_first="", author_last="", author_username="nobody@mozilla.com"))]
+    assert command.build_known_authors(posts) == {}
+
+
+def test_get_or_create_authors_falls_back_to_the_owner_when_there_is_no_byline(command):
+    post = parse_post(post_xml(authors="", author_first="Nick", author_last="Nguyen", author_username="nnguyen@mozilla.com"))
+    authors = command.get_or_create_authors(post)
+
+    assert [(author.name, author.email) for author in authors] == [("Nick Nguyen", "nnguyen@mozilla.com")]
+
+
+def test_get_or_create_authors_falls_back_to_the_username_when_the_owner_has_no_name(command):
+    post = parse_post(post_xml(authors="", author_first="", author_last="", author_username="someone@example.com"))
+    assert [author.name for author in command.get_or_create_authors(post)] == ["someone@example.com"]
+
+
+def test_get_or_create_authors_returns_nothing_when_the_post_names_no_one(command):
+    post = parse_post(post_xml(authors="", author_first="", author_last="", author_username=""))
+    assert command.get_or_create_authors(post) == []
+
+
+def test_get_or_create_authors_resolves_a_byline_through_the_known_authors(command):
+    command.known_authors = {"cnovak@mozilla.com": ("Chris Novak", "cnovak@mozilla.com")}
+    post = parse_post(post_xml(authors="cnovak@mozilla.com", author_first="Sarah", author_last="Devaney"))
+    authors = command.get_or_create_authors(post)
+
+    assert [(author.name, author.email, author.slug) for author in authors] == [("Chris Novak", "cnovak@mozilla.com", "chris-novak")]
+
+
+def test_get_or_create_authors_keeps_export_order(command):
+    command.known_authors = {
+        "tziade@mozilla.com": ("Tarek Ziade", "tziade@mozilla.com"),
+        "paul-adenot": ("Paul Adenot", "padenot@mozilla.com"),
+    }
+    post = parse_post(post_xml(authors="tziade@mozilla.com|paul-adenot"))
+    assert [author.name for author in command.get_or_create_authors(post)] == ["Tarek Ziade", "Paul Adenot"]
+
+
+def test_get_or_create_authors_reuses_one_snippet_per_person(command):
+    command.known_authors = {"kim-bryant": ("Kim Bryant", "kbryant@mozilla.com")}
+    first = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant")))
+    second = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant", slug="another-post")))
+
+    assert first[0].pk == second[0].pk
+    assert Author.objects.count() == 1
 
 
 # -------------------------------------------------------------------------
@@ -1257,7 +1301,7 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
     assert page.display_image is True
     assert page.topic.name == "Firefox"
     assert {t.name for t in page.tags.all()} == {"Privacy", "Security"}
-    assert page.author.name == "Nick Nguyen"
+    assert [author.name for author in page.get_authors()] == ["Nick Nguyen"]
     assert page.image.title == "Hero Image"
     assert [b.block_type for b in page.content] == ["text"]
     assert "Done. 1 imported, 0 skipped, 0 failed." in run.stdout
@@ -1308,23 +1352,41 @@ def test_wordpress_bookkeeping_tags_are_not_imported(tmp_path, index_page):
 
 
 @responses.activate
-def test_a_post_with_several_bylines_warns_because_only_one_author_can_be_kept(tmp_path, index_page):
-    """The Author* fields hold the post's owner, who is not always one of the bylines, and
-    BlogArticlePage.author is a single FK - so these need checking by hand."""
+def test_a_post_with_several_bylines_imports_every_author_in_order(tmp_path, index_page):
+    """The export's Authors field is the published byline, and a co-written post lists several."""
     mock_image_downloads()
-    run = run_import(tmp_path, post_xml(authors="kim-bryant|jamie-teh|anna-yeddi", author_first="Kristina", author_last="Bravo"))
+    run_import(
+        tmp_path,
+        post_xml(authors="tziade@mozilla.com|paul-adenot", author_first="Tarek", author_last="Ziade", author_username="tziade@mozilla.com"),
+        post_xml(slug="adenot-post", authors="", author_first="Paul", author_last="Adenot", author_username="padenot@mozilla.com"),
+    )
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
-    assert page.author.name == "Kristina Bravo"
-    assert "kim-bryant|jamie-teh|anna-yeddi" in run.stderr
-    assert "[author]" in run.stderr
+    assert [author.name for author in page.get_authors()] == ["Tarek Ziade", "Paul Adenot"]
+    assert [author.email for author in page.get_authors()] == ["tziade@mozilla.com", "padenot@mozilla.com"]
 
 
 @responses.activate
-def test_a_single_byline_needs_no_author_warning(tmp_path, index_page):
+def test_a_byline_the_export_never_names_is_imported_raw_and_warned(tmp_path, index_page):
+    """13 bylines in the real export appear only as a bare slug, with no name or email anywhere."""
     mock_image_downloads()
-    run = run_import(tmp_path, post_xml(authors="dkessler@mozilla.com"))
+    run = run_import(tmp_path, post_xml(authors="kim-bryant", author_first="Kristina", author_last="Bravo"))
 
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert [(author.name, author.email) for author in page.get_authors()] == [("kim-bryant", "")]
+    assert "[author]" in run.stderr
+    assert "kim-bryant" in run.stderr
+
+
+@responses.activate
+def test_a_byline_the_export_names_needs_no_author_warning(tmp_path, index_page):
+    mock_image_downloads()
+    run = run_import(
+        tmp_path, post_xml(authors="kbravo@mozilla.com", author_first="Kristina", author_last="Bravo", author_username="kbravo@mozilla.com")
+    )
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert [author.name for author in page.get_authors()] == ["Kristina Bravo"]
     assert "[author]" not in run.stderr
 
 

@@ -557,9 +557,10 @@ class TagViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["name", "locale", "live"]
 
 
-class AuthorViewSet(LocaleDefaultingSnippetViewSet):
+class AuthorViewSet(SnippetViewSet):
     model = Author
-    list_display = ["name", "locale", "live"]
+    list_display = ["name", "email", "slug"]
+    search_fields = ["name", "email"]
 
 
 class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):

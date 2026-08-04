@@ -6,7 +6,6 @@ from django.db.models import Count
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
@@ -22,7 +21,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_pages,
     get_blog_topics,
 )
-from springfield.cms.models import BlogArticlePage
+from springfield.cms.models import BlogArticlePage, BlogArticlePageAuthor
 from springfield.cms.models.snippets import Author, Tag
 
 pytestmark = [pytest.mark.django_db]
@@ -778,7 +777,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(23):
+    with django_assert_max_num_queries(24):
         index_page.serve(request)
 
 
@@ -794,58 +793,60 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(26):
+    with django_assert_max_num_queries(28):
         index_page.all_route(request)
 
 
 # ---------------------------------------------------------------------------
-# Author (get_author, ?author= filtering on the "all" route)
+# Author (get_authors, ?author= filtering on the "all" route)
 # ---------------------------------------------------------------------------
 
 
-def make_author(name="Nick Nguyen", slug="nick-nguyen"):
-    return Author.objects.create(name=name, slug=slug, locale=Locale.get_default())
+def make_author(name="Nick Nguyen", slug="nick-nguyen", email=""):
+    return Author.objects.create(name=name, slug=slug, email=email)
 
 
-def test_author_str():
-    author = make_author()
-    assert str(author) == f"{author.name} – {author.locale}"
+def test_author_str_is_the_name():
+    assert str(make_author()) == "Nick Nguyen"
 
 
-def test_get_author_returns_localized_author(single_article):
-    _, article = single_article
-    author = make_author()
-    article.author = author
+def add_authors(article, *authors):
+    """Attach `authors` to `article` in the order given, as the InlinePanel would."""
+    article.article_authors = [BlogArticlePageAuthor(author=author, sort_order=order) for order, author in enumerate(authors)]
+    article.save()
     article.save_revision().publish()
 
-    assert article.get_author() == author.get_localized()
 
-
-def test_get_author_returns_none_when_not_set(single_article):
+def test_get_authors_returns_authors_in_editor_order(single_article):
     _, article = single_article
-    assert article.author is None
-    assert article.get_author() is None
+    second = make_author(name="Ada Lovelace", slug="ada-lovelace")
+    first = make_author()
+    add_authors(article, first, second)
+
+    assert article.get_authors() == [first, second]
 
 
-def test_get_author_result_is_cached(single_article):
+def test_get_authors_is_empty_when_none_are_set(single_article):
+    _, article = single_article
+    assert article.get_authors() == []
+
+
+def test_get_authors_result_is_cached(single_article, django_assert_max_num_queries):
     _, article = single_article
     author = make_author()
-    article.author = author
-    article.save_revision().publish()
+    add_authors(article, author)
 
-    first = article.get_author()
-    # Mutate the underlying relation directly in the DB; the cached
-    # attribute on the in-memory instance should still be returned.
-    BlogArticlePage.objects.filter(pk=article.pk).update(author=None)
-    assert article.get_author() is first
+    with django_assert_max_num_queries(1):
+        article.get_authors()
+        article.get_authors()  # second call should hit the cache
 
 
 def test_blog_all_author_filter_filters_articles(blog_setup, rf):
     index_page, articles = blog_setup
     author = make_author()
+    co_author = make_author(name="Ada Lovelace", slug="ada-lovelace")
     target = articles[0]
-    target.author = author
-    target.save_revision().publish()
+    add_authors(target, co_author, author)
 
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url, {"author": author.slug})
