@@ -1,0 +1,91 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.fl-impact-dash-summary {
+    font-size: var(--token-font-size-lg);
+    margin: var(--token-layout-xs) auto 0;
+    text-align: center;
+}
+
+.fl-impact-dash {
+    display: grid;
+    gap: var(--token-spacing-lg);
+    grid-template-columns: 1fr;
+    list-style: none;
+    margin: var(--token-layout-xs) auto 0;
+    padding: 0;
+}
+
+/*
+ * The list already owns the space above itself, so tighten it when a summary is
+ * what it follows -- the two are one unit, not two stacked sections.
+ */
+.fl-impact-dash-summary + .fl-impact-dash {
+    margin-block-start: var(--token-spacing-md);
+}
+
+@media (--viewport-md-up) {
+    .fl-impact-dash {
+        grid-auto-columns: 1fr;
+        grid-auto-flow: column;
+        grid-template-columns: none;
+    }
+}
+
+/*
+ * Locked is the default state; .is-achieved is added by ImpactDashBlock once the
+ * referrer's install count reaches the badge's number. Only the artwork is
+ * dimmed: the number and label stay at full contrast in both states so the
+ * distinction is carried by appearance alone.
+ */
+.fl-badge {
+    --badge-image-filter: grayscale(1);
+    --badge-image-opacity: 0.4;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+    text-align: center;
+}
+
+.fl-badge.is-achieved {
+    --badge-image-filter: none;
+    --badge-image-opacity: 1;
+}
+
+.fl-badge-media {
+    margin-inline: auto;
+}
+
+.fl-badge-image {
+    block-size: auto;
+    filter: var(--badge-image-filter);
+    inline-size: 80px;
+    max-inline-size: 100%;
+    opacity: var(--badge-image-opacity);
+}
+
+.fl-badge-value {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.fl-badge-number {
+    font-family: var(--token-font-family-mozilla-headline);
+    font-size: var(--token-font-size-xl);
+    font-weight: var(--token-font-weight-bold);
+    line-height: 1.2;
+}
+
+.fl-badge-label {
+    font-size: var(--token-font-size-lg);
+}
+
+.fl-badge-name {
+    font-family: var(--token-font-family-mozilla-headline);
+    font-weight: var(--token-font-weight-bold);
+    margin: var(--token-spacing-xs) 0 0;
+}

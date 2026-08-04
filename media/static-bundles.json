@@ -441,6 +441,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-referral-hub.css"
+      ],
+      "name": "flare-referral-hub"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
@@ -675,12 +681,6 @@
         "js/privacy/cookie-settings-form-init.es6.js"
       ],
       "name": "cookie-settings-form"
-    },
-    {
-      "files": [
-        "js/firefox/enterprise/landing.es6.js"
-      ],
-      "name": "firefox-enterprise"
     },
     {
       "files": [

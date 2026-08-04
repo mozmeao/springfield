@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  {# Sized larger than the open panel so element screenshots capture it — the
+     panel is absolutely positioned and would otherwise overflow the frame. #}
+  <div class="pl-dropdown-sample" data-testid="dropdown-sample">
+    <include:dropdown label="Select your download" id="sample-dropdown">
+      <ul>
+        <li><a href="#">Firefox latest</a></li>
+        <li><a href="#">Firefox ESR</a></li>
+        <li><a href="#">Firefox latest MSI</a></li>
+        <li><a href="#">Firefox ESR MSI</a></li>
+      </ul>
+    </include:dropdown>
+  </div>
+</div>

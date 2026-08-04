@@ -61,84 +61,78 @@
       />
 
       <include:cards-list>
-        <include:illustration-card variant="sticker">
-          <content:media>
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
-              alt="Shield."
-              width="60"
-              height="70"
-            />
-          </content:media>
-          <content:heading>
+        <include:card variant="filled" align="center">
+          <content:body>
+            <div class="fl-card-media-pictogram">
+              <img
+                src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Shield.svg') }}"
+                alt="Shield."
+                width="60"
+                height="70"
+              />
+            </div>
             <include:heading
               level="h3"
               heading_size="fl-heading-sm"
               heading_text="1+ trillion trackers blocked"
             />
-          </content:heading>
-          <content:body>
             <p>Firefox automatically blocks trackers to stop companies from following you around the web.</p>
+            <div class="fl-buttons">
+              <a href="https://www.firefox.com/en-US/user-privacy/">
+                {{ ftl('ui-learn-more') }}
+              </a>
+            </div>
           </content:body>
-          <content:buttons>
-            <a href="https://www.firefox.com/en-US/user-privacy/">
-              {{ ftl('ui-learn-more') }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+        </include:card>
 
-        <include:illustration-card variant="sticker">
-          <content:media>
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
-              alt="Heart."
-              width="79"
-              height="70"
-            />
-          </content:media>
-          <content:heading>
+        <include:card variant="filled" align="center">
+          <content:body>
+            <div class="fl-card-media-pictogram">
+              <img
+                src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Heart.svg') }}"
+                alt="Heart."
+                width="79"
+                height="70"
+              />
+            </div>
             <include:heading
               level="h3"
               heading_size="fl-heading-sm"
               heading_text="200+ million people protected"
             />
-          </content:heading>
-          <content:body>
             <p>Our browser is built around you. We've been putting people over profits for more than 20 years.</p>
+            <div class="fl-buttons">
+              <a href="{{ url('firefox.features.private') }}">
+                {{ ftl('ui-learn-more') }}
+              </a>
+            </div>
           </content:body>
-          <content:buttons>
-            <a href="{{ url('firefox.features.private') }}">
-              {{ ftl('ui-learn-more') }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+        </include:card>
 
-        <include:illustration-card variant="sticker">
-          <content:media>
-            <img
-              src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
-              alt="Lightning."
-              width="36"
-              height="70"
-            />
-          </content:media>
-          <content:heading>
+        <include:card variant="filled" align="center">
+          <content:body>
+            <div class="fl-card-media-pictogram">
+              <img
+                src="{{ static('img/firefox/landing/year-in-review/fx_Nothing-Personal_Sticker_Fast.svg') }}"
+                alt="Lightning."
+                width="36"
+                height="70"
+              />
+            </div>
             <include:heading
               level="h3"
               heading_size="fl-heading-sm"
               heading_text="110 new features"
             />
-          </content:heading>
-          <content:body>
             <p>You spoke, and we listened. This year we built many ideas submitted by the community,
               with even more on the way.</p>
+            <div class="fl-buttons">
+              <a href="https://blog.mozilla.org/en/firefox/firefox-2025-updates/">
+                {{ ftl('ui-learn-more') }}
+              </a>
+            </div>
           </content:body>
-          <content:buttons>
-            <a href="https://blog.mozilla.org/en/firefox/firefox-2025-updates/">
-              {{ ftl('ui-learn-more') }}
-            </a>
-          </content:buttons>
-        </include:illustration-card>
+        </include:card>
       </include:cards-list>
     </div>
   </div>

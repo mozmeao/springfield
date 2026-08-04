@@ -93,6 +93,8 @@ import { createFocusTrap } from 'focus-trap';
 
     /* Sets up and tears down delegated event listeners based on desktop media query */
     function setupEventListeners() {
+        if (!nav) return;
+
         if (viewportMdUpQuery.matches) {
             nav.addEventListener('click', handleCategoryToggle);
             nav.addEventListener('keydown', handleNonLinkAnchorClick);

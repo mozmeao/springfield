@@ -18,7 +18,7 @@
 {% block page_title %}{{ ftl('nightly-whatsnew-youve-just-been', version=num_version) }}{% endblock %}
 {% block page_title_prefix %}{% endblock %}
 {% block page_title_suffix %}{% endblock %}
-{% block page_desc %}{{ ftl('nightly-whatsnew-every-4-to-5-weeks') }}{% endblock %}
+{% block page_desc %}{{ ftl('nightly-whatsnew-every-2-to-3-weeks') }}{% endblock %}
 {% block page_image %}{{ static('protocol/img/logos/firefox/browser/nightly/og.png') }}{% endblock %}
 {% block page_favicon %}{{ static('img/favicons/firefox/browser/nightly/favicon.ico') }}{% endblock %}
 {% block page_favicon_large %}{{ static('img/favicons/firefox/browser/nightly/favicon-196x196.png') }}{% endblock %}
@@ -58,16 +58,16 @@
       </section>
       <br>
       {% endif %}
-      <p>{{ ftl('nightly-whatsnew-every-4-to-5-weeks') }}</p>
+      <p>{{ ftl('nightly-whatsnew-every-2-to-3-weeks') }}</p>
 
       <p>{{ ftl('nightly-whatsnew-this-is-a-good') }}</p>
 
       <p>{{ ftl('nightly-whatsnew-if-you-want-to', blog='href="https://blog.nightly.mozilla.org/"', twitter='href="https://twitter.com/FirefoxNightly"', mastodon='href="https://mastodon.social/@FirefoxNightly"', bluesky='href="https://bsky.app/profile/firefoxnightly.bsky.social"') }}</p>
 
       <p>
-          {% set attrs = 'href="#" class="nightly-experiments-link"' %}
-          {{ ftl('nightly-whatsnew-want-to-know-which', attrs=attrs) }}
-        </p>
+        {% set attrs = 'href="#" class="nightly-experiments-link"' %}
+        {{ ftl('nightly-whatsnew-want-to-know-which', attrs=attrs) }}
+      </p>
 
       <p>{{ ftl('nightly-whatsnew-do-you-experience', bugzilla='https://bugzilla.mozilla.org') }}</p>
 
@@ -81,5 +81,5 @@
   {{ js_bundle('whatsnew_nightly') }}
 {% endblock %}
 
-{# Exclude stub attribution for in-product pages: issus 9620 #}
+{# Exclude stub attribution for in-product pages, see bedrock#9620 #}
 {% block stub_attribution %}{% endblock %}

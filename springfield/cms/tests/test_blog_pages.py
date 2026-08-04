@@ -15,7 +15,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
-    _create_blog_article,
+    create_blog_article,
     get_blog_article_content,
     get_blog_index_page,
     get_blog_pages,
@@ -39,7 +39,7 @@ def single_article(minimal_site):
     image, _, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
-    article = _create_blog_article(
+    article = create_blog_article(
         index_page=idx,
         title=FEATURED_TITLES[0],
         slug="test-single-article",
@@ -66,7 +66,7 @@ def privacy_articles(minimal_site):
     articles = []
     for i in range(9):
         articles.append(
-            _create_blog_article(
+            create_blog_article(
                 index_page=idx,
                 title=all_titles[i],
                 slug=f"test-privacy-{i + 1}",
@@ -211,13 +211,13 @@ def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup,
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-illustration-card")
+    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-card")
     assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 4  # 8 total - 1 hero - 3 list items = 4 cards
 
     for fixture_article, card in zip(all_articles[4:8], cards):
         assert "fl-card-expand-link" in card.get("class", [])
 
-        media = card.find("div", class_="fl-card-media")
+        media = card.find("div", class_="fl-card-top-media")
         assert media and media.find("img")
 
         topic = card.find("p", class_="fl-superheading")
@@ -246,12 +246,12 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     for cards_list in cards_list_divs:
         assert cards_list.find(class_="fl-heading")
         assert cards_list.find("a", class_="fl-blog-cards-list-link")
-        cards = cards_list.find_all("article", class_="fl-illustration-card")
+        cards = cards_list.find_all("article", class_="fl-card")
         assert cards
         for card in cards:
             assert "fl-card-expand-link" in card.get("class", [])
 
-            media = card.find("div", class_="fl-card-media")
+            media = card.find("div", class_="fl-card-top-media")
             assert media and media.find("img")
 
             assert card.find("p", class_="fl-superheading")

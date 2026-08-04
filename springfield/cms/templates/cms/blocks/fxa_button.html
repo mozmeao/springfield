@@ -4,13 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# analytics_text / utm_campaign use the stable English label so analytics aggregate across locales #}
-{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label_en_us or "") %}
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label or "") %}
 
 {% set utm_parameters = utm_parameters or {
   "utm_source": "www.firefox.com",
   "utm_medium": "referral",
-  "utm_campaign": (button_label_en_us or "").lower().replace(" ", "_"),
+  "utm_campaign": (button_label or "").lower().replace(" ", "_"),
 } %}
 
 <include:fxa_button

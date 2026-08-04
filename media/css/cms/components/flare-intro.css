@@ -61,7 +61,7 @@
     gap: var(--token-layout-md);
     grid-template-columns: 1fr;
     margin-inline: auto;
-    max-inline-size: 1440px;
+    max-inline-size: var(--token-width-desktop-wide-banner);
 }
 
 .fl-intro.fl-intro-media-left .fl-intro-content,
@@ -263,6 +263,11 @@
 .fl-channel-page .fl-split-page-lower .fl-intro:last-child,
 .fl-page-user-privacy .fl-section:last-child .fl-intro {
     padding-block: 0;
+}
+
+/* Contact form pages: the intro sits directly above the form, so reduce the intro's bottom padding */
+.fl-main:has(.contact-form) .fl-intro {
+    padding-block-end: var(--token-spacing-lg);
 }
 
 @media (--viewport-sm-up) {

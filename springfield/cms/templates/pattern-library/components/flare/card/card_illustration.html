@@ -1,0 +1,55 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <h4>Card - Illustration</h4>
+
+  <include:cards-list container_width="wide">
+    {% for card in cards %}
+      <div data-testid="{{ card.testid }}">
+        <p style="margin-bottom: 8px;"><strong>{{ card.note }}</strong></p>
+        <include:card expand_link="{{ card.expand_link }}">
+          {% if card.icon %}
+            <content:media>
+              <div class="fl-card-media fl-card-media-icon">
+                <include:icon icon_name="{{ card.icon }}" hidden=true />
+              </div>
+            </content:media>
+          {% elif card.variant == "pictogram" %}
+            <content:media>
+              <div class="fl-card-media fl-card-media-pictogram">
+                <img src="{{ card.image }}" alt="" loading="lazy" />
+              </div>
+            </content:media>
+          {% else %}
+            <content:media>
+              <img src="{{ card.image }}" alt="" loading="lazy" />
+            </content:media>
+          {% endif %}
+          <content:body>
+            <include:heading
+              level="h3"
+              heading_size="fl-heading-size-3"
+              heading_text="{{ card.heading }}"
+            />
+            <div class="fl-body">{{ card.body }}</div>
+            {% if card.buttons %}
+              <div class="fl-buttons">
+                {% for button in card.buttons %}
+                  <include:button
+                    label="{{ button.label }}"
+                    link="{{ button.link }}"
+                    theme_class="{{ button.theme_class }}"
+                  />
+                {% endfor %}
+              </div>
+            {% endif %}
+          </content:body>
+        </include:card>
+      </div>
+    {% endfor %}
+  </include:cards-list>
+</div>

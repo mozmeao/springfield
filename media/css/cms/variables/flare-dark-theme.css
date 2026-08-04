@@ -37,7 +37,7 @@
 --fl-menu-category-link-hover-bg-color: var(--token-color-link-purple);
 
 /* Cards */
---sticker-card-border-color: transparent;
+--fl-card-filled-border-color: transparent;
 --fl-step-card-bg: var(--token-color-medium-purple);
 --fl-step-card-index-bg: var(--token-color-dark-purple);
 --fl-theme-illustration-icon-bg: var(--token-color-medium-purple);
@@ -194,6 +194,12 @@
 --theme-roadmap-list-background: var(--token-color-dark-purple-2-40);
 --theme-roadmap-list-border-color: var(--token-color-soft-purple-6);
 
+/* Tabs */
+--theme-tabs-nav-background: var(--token-color-purple);
+--theme-tabs-tab-color-hover: var(--fl-theme-color-link-hover);
+--theme-tabs-tab-selected-background: var(--token-color-medium-purple);
+--theme-tabs-tab-selected-color: var(--fl-theme-color-text);
+
 /* Form fields */
 --theme-form-field-background: var(--token-color-white);
 --theme-form-field-background-focus: var(--token-color-white);
@@ -202,3 +208,8 @@
 --theme-form-field-border-color-focus: var(--token-color-light-purple);
 --theme-form-focus-outline-color: var(--token-color-light-purple-60);
 --theme-form-error-message-color: var(--token-color-error-red-2);
+
+/* Comparison table */
+--comparison-table-highlighted-bg: var(--token-color-light-purple);
+--comparison-table-text-color: var(--token-color-grey-1);
+--comparison-table-border-color: var(--token-color-link-purple);

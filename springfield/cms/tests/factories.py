@@ -164,3 +164,21 @@ class FlareDocsIndexPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.FlareDocsIndexPage
+
+
+class ReferralHubPageFactory(wagtail_factories.PageFactory):
+    title = "Test Referral Hub Page"
+    live = True
+    slug = "invite"
+
+    class Meta:
+        model = models.ReferralHubPage
+
+
+class ReferralGetFirefoxPageFactory(wagtail_factories.PageFactory):
+    title = "Test Referral Get Firefox Page"
+    live = True
+    slug = "get-firefox"
+
+    class Meta:
+        model = models.ReferralGetFirefoxPage

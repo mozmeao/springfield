@@ -4,6 +4,27 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+/* Image with a caption below it */
+.fl-image-caption {
+    margin: 0 0 var(--token-layout-3xs);
+}
+
+.fl-image-caption img {
+    inline-size: 100%;
+    margin: 0;
+}
+
+.fl-image-caption-text {
+    margin-block-start: var(--token-spacing-md);
+    text-align: center;
+}
+
+@media (--viewport-sm-up) {
+    .fl-image-caption {
+        margin-block-end: var(--token-layout-2xs);
+    }
+}
+
 .fl-media-qr-code {
     display: grid;
     grid-template-columns: 1fr;
@@ -100,8 +121,8 @@
     transform: translate(-50%, -50%);
 }
 
-/* illustration cards always bottom-right */
-.fl-illustration-card .fl-video .fl-video-play-icon {
+/* cards with video: play icon always bottom-right */
+.fl-card .fl-video .fl-video-play-icon {
     block-size: 36px;
     inline-size: 36px;
     inset-block-start: auto;

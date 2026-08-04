@@ -43,24 +43,11 @@
         flex-direction: column;
     }
 
-    .fl-page-developer .fl-card .fl-card-sticker {
+    .fl-page-developer .fl-card .fl-card-media-pictogram {
         margin: 0 auto var(--token-spacing-lg) 0;
-        order: 1;
     }
 
-    .fl-page-developer .fl-card .fl-card-heading-group {
-        order: 2;
-    }
-
-    .fl-page-developer .fl-card .fl-body {
-        order: 3;
-    }
-
-    .fl-page-developer .fl-card .fl-buttons {
-        order: 4;
-    }
-
-    .fl-page-developer .fl-illustration-card .fl-card-content {
+    .fl-page-developer .fl-card .fl-card-content {
         gap: 0;
     }
 

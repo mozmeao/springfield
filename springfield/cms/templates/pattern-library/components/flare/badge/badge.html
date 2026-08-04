@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  <div class="pl-row">
+    <p>
+      A badge is locked by default and gains <code>is-achieved</code> once the
+      referrer's install count reaches its number. Only the artwork changes
+      between states; the number and label stay at full contrast.
+    </p>
+    <ul class="fl-impact-dash" data-testid="badge">
+      {% for variant in variants %}
+        <include:badge
+          number="{{ variant.number }}"
+          label="{{ variant.label }}"
+          badge_name="{{ variant.badge_name }}"
+          is_achieved="{{ variant.is_achieved }}"
+        >
+          {% if variant.image %}
+            <content:media>
+              <img class="fl-badge-image" src="{{ variant.image }}" alt="" width="80" height="80" />
+            </content:media>
+          {% endif %}
+        </include:badge>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

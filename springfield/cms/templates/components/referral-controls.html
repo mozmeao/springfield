@@ -1,0 +1,52 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props invite_url="", copy_label="", copy_success_label="", qr_label="", email_label="", email_subject="", email_body="" #}
+
+{% if invite_url %}
+  <div class="fl-referral-controls">
+    <div class="fl-referral-controls-invite">
+      <p>{{ invite_url }}</p>
+    </div>
+    <div class="fl-referral-options">
+      <div class="fl-referral-controls-link">
+        <include:copy-to-clipboard-button
+          value="{{ invite_url }}"
+          label="{{ copy_label }}"
+          success_label="{{ copy_success_label }}"
+        />
+      </div>
+
+      <div class="fl-referral-controls-email">
+        {#
+        The editor writes the email body with an {invite link} placeholder marking
+        where the invitation link goes. If the placeholder was removed, append it
+        so the body always carries the link.
+        #}
+        {% set invite_token = '{invite link}' %}
+        {% set email_body_text = email_body if invite_token in email_body else email_body ~ '\n\n' ~ invite_token %}
+        {% set email_body_text = email_body_text|replace(invite_token, invite_url) %}
+        <a
+          class="fl-button button-secondary fl-referral-controls-share-email"
+          href="mailto:?subject={{ email_subject|mailtoencode }}&body={{ email_body_text|mailtoencode }}"
+        >
+          {{ email_label }}
+          <span class="fl-icon fl-icon-right fl-icon-mail" aria-hidden="true"></span>
+        </a>
+
+        <div class="fl-referral-controls-qr">
+          {# A QR code carries nothing a screen reader user can act on, and the
+            copy button already exposes the link, so it is hidden from a11y tools
+            and described by the visible label below. #}
+          <div class="fl-referral-controls-qr-code" aria-hidden="true">
+            {{ qrcode(invite_url, 8) }}
+          </div>
+          <p class="fl-referral-controls-qr-label">{{ qr_label }}</p>
+        </div>
+      </div>
+    </div><!-- closing .fl-referral-options -->
+  </div><!-- closing .fl-referral-controls -->
+{% endif %}

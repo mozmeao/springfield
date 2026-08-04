@@ -23,4 +23,4 @@ media/js/ie/libs/**/
 *.yml
 *.yaml
 *.json
-!media/css/cms/**/flare*.css
+!media/css/cms/**/*.css

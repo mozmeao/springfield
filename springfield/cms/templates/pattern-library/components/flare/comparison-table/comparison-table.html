@@ -1,0 +1,51 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="comparison-table-highlighted">
+  <include:comparison-table mobile_behavior="scroll">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+  </include:comparison-table>
+</div>
+
+<div data-testid="comparison-table-stacked">
+  <include:comparison-table mobile_behavior="stacked">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+  </include:comparison-table>
+</div>

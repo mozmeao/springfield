@@ -27,7 +27,7 @@ function showUITourElements() {
         element.classList.remove('is-hidden');
     });
     // Single reflow to commit the opacity: 0 state before animating.
-    document.body.offsetHeight; // eslint-disable-line no-unused-expressions
+    document.body.offsetHeight;
     uiTourElements.forEach((element) => {
         element.style.opacity = '1';
     });

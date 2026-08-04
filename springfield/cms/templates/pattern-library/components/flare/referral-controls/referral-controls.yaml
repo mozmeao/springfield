@@ -1,0 +1,15 @@
+name: Referral Controls
+context:
+  # The invite link handed to friends, as built by ReferralHubPage.get_context
+  # from the ref_key on the referrer's own hub page (/invite/?ref_key=...).
+  # The hub URL itself must never appear in these controls.
+  invite_url: "https://www.firefox.com/get-firefox/?invitation=FEDCBAFAKE"
+  copy_label: "Copy link"
+  copy_success_label: "Link copied!"
+  email_label: "Share by email"
+  email_subject: "I am inviting you to try Firefox"
+  # {invite link} marks where invite_url is substituted into the body.
+  email_body: >-
+    Here's how to download Firefox. I wanted to share a browser with you that
+    protects your privacy and gives you more control online. {invite link}
+  qr_label: "Scan to open the invite link"

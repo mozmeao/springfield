@@ -14,14 +14,23 @@
     color: #15141a;
 }
 
+/*
+ * Reserve enough height for the dropdown sample so the open panel — which is
+ * absolutely positioned and overflows the frame — stays within the captured
+ * element's box in visual-regression screenshots.
+ */
+.pl-dropdown-sample {
+    min-block-size: 320px;
+}
+
 .pl-row {
     margin-bottom: 80px;
 }
 
 .pl-frame hr {
-    margin: 80px 0;
     border: none;
     border-top: 1px solid gray;
+    margin: 80px 0;
 }
 
 .pl-wrapper {
@@ -35,8 +44,8 @@
 }
 
 .pl-narrow-content {
-    max-width: 688px;
     margin: 0 auto;
+    max-width: 688px;
     padding: 4rem;
 }
 
@@ -45,10 +54,10 @@
 }
 
 .pl-grid-4 {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
     align-items: start;
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(4, 1fr);
 }
 
 .pl-column {
@@ -64,13 +73,13 @@
 }
 
 .pl-column-heading {
-    margin: 0;
     font-size: 14px;
     font-weight: 600;
+    margin: 0;
 }
 
 .pl-button-note {
-    margin: 0;
-    font-size: 12px;
     color: #666;
+    font-size: 12px;
+    margin: 0;
 }

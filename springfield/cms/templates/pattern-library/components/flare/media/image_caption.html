@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="image-caption">
+  <include:image-caption>
+    <content:image>
+      <div class="image-variants-display">
+        <img src="{{ image.url }}" alt="{{ image.alt }}" />
+      </div>
+    </content:image>
+    <content:caption>{{ caption }}</content:caption>
+  </include:image-caption>
+</div>
