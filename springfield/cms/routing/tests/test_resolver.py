@@ -271,6 +271,22 @@ def test_resolver_response_is_cacheable(routed_page):
     assert "no-store" not in response.get("Cache-Control", "")
 
 
+def test_render_resolver_patches_the_request_itself(routed_page):
+    # Not a caller's job to remember. Rendering the resolver bypasses the normal CMS page
+    # serve, so without this the Fluent render falls back to the resolver strings' activation
+    # state and redirects any visitor whose locale is missing from it. A caller that forgot
+    # would reintroduce that silently: the page still renders and the suite still passes, and
+    # only non-English visitors are affected. Pin it here so moving the call back out fails.
+    request = rf.get("/en-US/whatsnew/?utm_source=update")
+    assert not hasattr(request, "is_cms_page")
+
+    render_resolver(request, routed_page.canonical)
+
+    assert request.is_cms_page is True
+    assert hasattr(request, "_locales_available_via_cms")
+    assert request.is_preview is False
+
+
 def test_resolver_states_its_own_cache_lifetime(routed_page):
     # The resolver freezes target URLs, the pause state and the visitor's country into a
     # cacheable body, and nothing purges it — so how long it may be reused is a property of

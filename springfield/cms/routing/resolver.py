@@ -241,8 +241,11 @@ def patch_request_for_resolver(request, page):
     canonical is sent to ``/en-US/``. Every other CMS page resolves locales from the page
     tree; the resolver must not be the one exception.
 
-    Called from the branches that render the resolver, so canonical traffic pays nothing
-    for the locale queries.
+    Called by ``render_resolver`` itself, deliberately: a caller that has to remember this
+    reintroduces that redirect the moment one forgets, and the failure is invisible — the
+    page renders, the suite stays green, and only non-English visitors are affected. Since
+    nothing renders the resolver without going through ``render_resolver``, the locale
+    queries land on the resolver path only, never on canonical traffic.
     """
     request.is_preview = False
     return page._patch_request_for_springfield(request)
@@ -259,6 +262,7 @@ def render_resolver(request, page, fake_signals=None):
     page freezes state into a cacheable body that nothing purges — see
     ``ROUTING_RESOLVER_CACHE_SECONDS``. The preview flows overwrite this with ``no-store``.
     """
+    request = patch_request_for_resolver(request, page)
     rules = serialize_rules(page, request)
     context = {
         "page": page,

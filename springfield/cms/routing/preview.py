@@ -28,7 +28,6 @@ from django.utils.translation import gettext as _
 from springfield.cms.routing.params import PREVIEW_RULE_PARAM, PREVIEW_SIGNAL_PARAM
 from springfield.cms.routing.resolver import (
     localized_target,
-    patch_request_for_resolver,
     render_resolver,
     rule_problems,
     url_in_requested_locale,
@@ -94,10 +93,10 @@ def _preview_rule(request, page):
 
 def _preview_signal(request, page):
     fakes = parse_fake_signals(request.GET.getlist(PREVIEW_SIGNAL_PARAM))
-    # A live request from an author, not a Wagtail preview, so it needs the same request
-    # setup as the serve path — including the page's locales, or the author is redirected
-    # out of the locale they are trying to check.
-    return _no_store(render_resolver(patch_request_for_resolver(request, page), page, fake_signals=fakes))
+    # ``render_resolver`` patches the request itself, which matters here: this is a live
+    # request from an author, not a Wagtail preview, so it needs the page's locales like any
+    # other serve — otherwise the author is redirected out of the locale they are checking.
+    return _no_store(render_resolver(request, page, fake_signals=fakes))
 
 
 def get_preview_response(request, page):

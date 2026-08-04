@@ -367,7 +367,7 @@ class RoutingMixin(models.Model):
         # Imported here (request time) to keep the resolver/preview + l10n import chain
         # out of model loading; dispatch only matters when a page is actually served.
         from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
-        from springfield.cms.routing.resolver import patch_request_for_resolver, render_resolver
+        from springfield.cms.routing.resolver import render_resolver
 
         decision = decide_routing(
             routing_enabled=waffle.switch_is_active(USER_ROUTING_SWITCH),
@@ -380,7 +380,7 @@ class RoutingMixin(models.Model):
         )
 
         if decision == SERVE_RESOLVER:
-            return render_resolver(patch_request_for_resolver(request, self), self)
+            return render_resolver(request, self)
         if decision == SERVE_PREVIEW:
             preview_response = get_preview_response(request, self)
             if preview_response is not None:
