@@ -40,7 +40,7 @@
         max-inline-size: 566px;
     }
 
-    .fl-referral-hub-page .fl-showcase-image:has(.fl-media-tabs) {
+    .fl-referral-hub-page .fl-showcase-media:has(.fl-media-tabs) {
         inline-size: 100%;
         max-inline-size: var(--token-width-desktop-content-lg);
     }

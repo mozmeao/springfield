@@ -40,6 +40,7 @@ from springfield.cms.blocks import (
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
+    ShowcaseBlock,
     SpringfieldLinkBlock,
     TabBlock,
     TwoColumnCardBlock,
@@ -2680,7 +2681,7 @@ def test_showcase_block(index_page, placeholder_images, rf):
             else:
                 assert not description, "Expected .fl-showcase-description to be absent when no description is set"
 
-            figure = showcase_el.find("figure", class_="fl-showcase-image")
+            figure = showcase_el.find("figure", class_="fl-showcase-media")
             assert figure
 
             # Image variants — sizes depend on layout
@@ -2712,6 +2713,54 @@ def test_showcase_block(index_page, placeholder_images, rf):
                 assert cta, "Expected .fl-showcase-cta to be present when CTA buttons are set"
             else:
                 assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
+
+
+def _render_showcase(media):
+    """Render a ShowcaseBlock around the given raw media stream."""
+    block = ShowcaseBlock()
+    value = block.to_python(
+        {
+            "settings": {"layout": "default"},
+            "headline": '<p data-block-key="2026shx1">Showcase headline</p>',
+            "media": media,
+            "caption_description": '<p data-block-key="2026shx2">Showcase caption</p>',
+        }
+    )
+    return BeautifulSoup(block.render(value, context={}), "html.parser")
+
+
+def test_showcase_block_wraps_tabs_media_in_a_div_not_a_figure():
+    """Tabs are controls the visitor operates, so <figure> is the wrong element.
+
+    The classes have to stay the same either way -- the layout CSS hangs off
+    .fl-showcase-media, not off the tag name.
+    """
+    soup = _render_showcase(
+        [
+            {
+                "type": "tabs",
+                "value": {"section_id": "hub", "tabs": [{"tab_name": "First tab", "description": "<p>Tab description</p>"}]},
+                "id": "2026shx0-0000-0000-0000-000000000001",
+            }
+        ]
+    )
+
+    assert soup.find("figure") is None
+    assert soup.find("figcaption") is None
+
+    media = soup.find("div", class_="fl-showcase-media")
+    assert media and media.find("div", class_="fl-media-tabs")
+    assert media.find("div", class_="fl-showcase-caption")
+
+
+def test_showcase_block_keeps_figure_for_non_interactive_media(placeholder_images):
+    soup = _render_showcase(get_showcase_variants()[0]["value"]["media"])
+
+    assert soup.find("div", class_="fl-showcase-media") is None
+
+    figure = soup.find("figure", class_="fl-showcase-media")
+    assert figure and figure.find("img")
+    assert figure.find("figcaption", class_="fl-showcase-caption")
 
 
 def test_card_gallery_block(index_page, placeholder_images, rf):

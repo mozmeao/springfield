@@ -7,7 +7,13 @@
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
 {% set subheading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:showcase layout="{{ value.settings.layout }}">
+{# The component only ever sees rendered media, so the block type has to be read here. #}
+{% set media_is_interactive = value.media|selectattr("block_type", "equalto", "tabs")|list|length > 0 %}
+
+<include:showcase
+  layout="{{ value.settings.layout }}"
+  media_is_interactive="{{ media_is_interactive }}"
+>
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
