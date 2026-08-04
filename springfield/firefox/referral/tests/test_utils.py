@@ -8,7 +8,10 @@ from django.core.exceptions import ImproperlyConfigured
 
 import pytest
 
+from springfield.firefox.management.commands.bootstrap_dummy_referral_data import DUMMY_ROWS
+from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import (
+    REFERRAL_ID_LENGTH,
     normalize_invite_code,
     validate_invite_code,
     validate_invite_code_keyring,
@@ -115,3 +118,18 @@ def test_keyring_validation_rejects_wrong_key_length(bad_key):
 def test_keyring_validation_rejects_bad_version_identifier(bad_version):
     with pytest.raises(ImproperlyConfigured):
         validate_invite_code_keyring({bad_version: VALID_KEY}, bad_version)
+
+
+def test_referral_id_length_matches_the_model_field():
+    """`REFERRAL_ID_LENGTH` is duplicated to keep `utils` free of ORM imports."""
+    assert REFERRAL_ID_LENGTH == FirefoxReferralData._meta.get_field("referral_id").max_length
+
+
+@pytest.mark.parametrize("referral_id", [row[0] for row in DUMMY_ROWS])
+def test_every_dummy_referral_id_is_well_formed(referral_id):
+    """Guards the local dev seed data against drifting out of the accepted shape.
+
+    The dummy rows are written straight into the referral table as referral IDs,
+    so a malformed one would 404 the hub page it advertises.
+    """
+    validate_referral_id(referral_id)

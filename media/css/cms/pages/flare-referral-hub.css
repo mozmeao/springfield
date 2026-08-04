@@ -1,0 +1,124 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+@import 'components/flare-impact-dash.css';
+@import 'components/flare-referral-controls.css';
+
+@layer page {
+    /* Custom header */
+    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx {
+        background-image: none;
+        inline-size: 209px;
+    }
+
+    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx > img {
+        display: block;
+        margin: 0;
+        max-block-size: unset;
+    }
+
+    .fl-referral-hub-page .fl-header:has(.fl-logo-share-fx) {
+        padding: var(--token-spacing-lg);
+    }
+
+    /* ================================================
+       Hero (upper band)
+       The hub's upper band holds a single showcase whose media slot is a set of
+       tabs carrying the referral controls and the impact dashboard.
+       ================================================ */
+    .fl-referral-hub-page .fl-split-page-upper {
+        padding-block-end: 0;
+    }
+
+    .fl-referral-hub-page .fl-showcase-description {
+        margin: auto;
+        max-inline-size: 566px;
+    }
+
+    .fl-referral-hub-page .fl-showcase-media:has(.fl-media-tabs) {
+        inline-size: 100%;
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    .fl-referral-hub-page .fl-media-tabs {
+        inline-size: 100%;
+    }
+
+    .fl-referral-hub-page .fl-tabs {
+        padding: var(--token-layout-2xs) 0 0;
+    }
+
+    .fl-referral-hub-page .fl-tabs .fl-tab-image {
+        margin-block-end: var(--token-spacing-xl);
+        max-inline-size: 110px;
+    }
+
+    /*
+     * Copy button, share links, QR block and badge row all sit in the same tab
+     * panel. Holding them to the reading measure keeps the panel from spreading
+     * them apart on wide screens.
+     */
+    .fl-referral-hub-page .fl-referral-controls,
+    .fl-referral-hub-page .fl-impact-dash,
+    .fl-referral-hub-page .fl-impact-dash-summary {
+        max-inline-size: var(--token-width-desktop-content);
+    }
+
+    .fl-referral-hub-page .fl-impact-dash-summary {
+        margin-inline: auto;
+    }
+
+    .fl-referral-hub-page .fl-tab-note-wrapper {
+        border-block-start: 1px solid var(--token-color-medium-purple);
+        color: #b89cff;
+        display: block;
+        padding: var(--token-spacing-xl) var(--token-layout-xs);
+    }
+
+    .fl-referral-hub-page .fl-tab-note p {
+        margin-block-end: 0;
+    }
+
+    /* ================================================
+       Lower band
+       ================================================ */
+    .fl-referral-hub-page .fl-split-page-lower > :last-child {
+        padding-block-end: 0;
+    }
+
+    /* ================================================
+       Extra band (pre-footer)
+       Rendered outside .fl-main, directly on the dark body background, with the
+       dark theme forced by the template. Only this page uses
+       .fl-split-page-extra, so it is styled here rather than in the template
+       layer.
+       ================================================ */
+
+    .fl-referral-hub-page .fl-split-page-extra {
+        color: var(--fl-theme-color-text);
+        margin: 0 auto;
+        padding-block: var(--fl-section-v-padding);
+        position: relative;
+    }
+
+    .fl-referral-hub-page .fl-split-page-extra > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .fl-referral-hub-page .fl-split-page-extra .fl-showcase {
+        margin-inline: auto;
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    @media (--viewport-md-up) {
+        .fl-referral-hub-page {
+            --section-border-radius: var(--token-border-radius-xl);
+        }
+    }
+}

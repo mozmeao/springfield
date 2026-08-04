@@ -22,6 +22,8 @@ const setupEasterEggLogo = () => {
     if (document.body.classList.contains('flare26-kick-page')) return;
     // Enterprise pages use a wider (200x40) wordmark; our sizing tweaks don't fit.
     if (document.body.classList.contains('fl-theme-enterprise')) return;
+    // Fx referral page has a custom header
+    if (document.querySelector('header.fl-fx-share')) return;
     if (isAlphaWebmUnsupported()) return;
     if (
         window.matchMedia &&

@@ -1021,7 +1021,7 @@ def MixedButtonsBlock(
     )
 
 
-def ButtonRowBlock(allow_uitour=False, **kwargs):
+def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
         orientation = blocks.ChoiceBlock(
             choices=[
@@ -1052,7 +1052,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=1,
-            max_num=3,
+            max_num=max_buttons,
         )
         help_text = blocks.RichTextBlock(required=False)
 
@@ -1259,11 +1259,286 @@ class QRCodeBlock(blocks.StructBlock):
         template = "cms/blocks/qr-code.html"
 
 
+class ReferralControlsBlock(blocks.StructBlock):
+    """Copy / QR / share controls for a referral invite link.
+
+    Two different URLs are in play, and these controls must only ever expose the
+    second one:
+
+    * ``/invite/?ref_key=TEST23456X000000`` -- the referrer's own hub page. Private.
+    * ``/get-firefox/?invitation=1ABCDEFGHJKMNPQRS`` -- the link handed to friends.
+
+    ``ReferralHubPage.get_context`` maps the first to the second and publishes it
+    as ``invite_url`` on the template context, so the URL is deliberately not
+    editable here; editors only control the labels. Renders nothing when
+    ``invite_url`` is empty, which is the case for a hub page opened without a
+    ``ref_key``.
+    """
+
+    copy_label = blocks.CharBlock(default="Copy link", help_text="Label for the button that copies the invite link.")
+    copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
+    email_label = blocks.CharBlock(default="Share by email", help_text="Label for the link that opens an email draft.")
+    email_subject = blocks.CharBlock(
+        default="I am inviting you to try Firefox",
+        help_text="Subject line of the email draft.",
+    )
+    email_body = blocks.TextBlock(
+        default=(
+            "Here's how to download Firefox. I wanted to share a browser with you "
+            "that protects your privacy and gives you more control online. {invite link}"
+        ),
+        help_text=(
+            "Body of the email draft. Use {invite link} where the invitation link should go. "
+            "If you leave it out, the link is appended to the end so it is never missing."
+        ),
+    )
+    qr_label = blocks.CharBlock(default="Scan to open the invite link", help_text="Accessible label shown under the QR code.")
+
+    class Meta:
+        label = "Referral controls"
+        label_format = "Referral controls"
+        template = "cms/blocks/referral-controls.html"
+
+
+class TabReferralControlsBlock(blocks.StreamBlock):
+    """Wrapper making ReferralControlsBlock a genuinely optional tab field.
+
+    A nested StructBlock cannot be used directly: StructValue is an OrderedDict
+    that is always populated with its children's defaults, so it is always
+    truthy and the template could never tell "not added" from "added". A
+    StreamBlock capped at one child is the same approach MediaBlock uses.
+    """
+
+    referral_controls = ReferralControlsBlock()
+
+    class Meta:
+        label = "Referral controls"
+
+
+class BadgeBlock(blocks.StructBlock):
+    """One milestone marker in an impact dashboard.
+
+    ``number`` does double duty: it is the threshold compared against the
+    referrer's install count, and the number rendered on the badge. There is
+    deliberately no separate "display" field to drift out of sync with it.
+
+    The singular/plural pair encodes the English "1 vs. everything else" rule and
+    agrees with this badge's own ``number``, not the install count -- otherwise a
+    badge reading 5 would render "5 person" whenever the referrer had exactly one
+    install. Locales with three or more plural categories cannot be expressed;
+    that is a repo-wide constraint, as there is no ngettext usage and no Fluent
+    plural selector anywhere in the codebase.
+
+    ``message`` is the dashboard's summary line for the stretch of the journey
+    where this badge is the last one earned, so it belongs to the badge rather
+    than to the dashboard: the copy that suits 1 install does not suit 100.
+    """
+
+    image = ImageChooserBlock(required=False, help_text="Badge artwork. Optional.")
+    number = blocks.IntegerBlock(
+        min_value=1,
+        help_text=(
+            "The milestone this badge marks, and the number shown on it. The badge is "
+            "marked achieved once the referrer's install count reaches this number."
+        ),
+    )
+    singular_label = blocks.CharBlock(
+        default="person",
+        help_text='Word after the number when the number is exactly 1, e.g. "person" in "1 person".',
+    )
+    plural_label = blocks.CharBlock(
+        default="people",
+        help_text='Word after the number for any other number, e.g. "people" in "5 people".',
+    )
+    badge_name = blocks.CharBlock(
+        required=True,
+        help_text='Badge name, like "Connector", "Supporter", etc.',
+    )
+    message = blocks.CharBlock(
+        required=False,
+        label="Message",
+        help_text=(
+            "Optional line shown above the badges while this is the highest badge unlocked. "
+            "Use {install count} where the number of successful installs should go, e.g. "
+            '"You have helped {install count} people switch to Firefox." Leave blank to show '
+            "no message at this milestone."
+        ),
+    )
+
+    class Meta:
+        label = "Badge"
+        label_format = "{badge_name} - {number}"
+        # No template: rendered by the loop in cms/blocks/impact-dash.html, the
+        # same way RoadmapItemBlock is rendered by roadmap-list-section.html.
+
+
+class ImpactDashBlock(blocks.StructBlock):
+    """Badge array showing a referrer's progress against invite milestones.
+
+    Only lights up on the Referral Hub page, which is the only page that puts
+    ``install_count`` on the template context. TabBlock is reachable from
+    MediaBlock on many other page models, where every badge stays locked.
+
+    Above the badges sits one optional message, chosen by progress: the message
+    of the furthest badge unlocked, or ``locked_summary`` while none is. Exactly
+    one is rendered, so the two never compete for the same line.
+    """
+
+    #: Placeholder an editor writes in a message to mark where the install count
+    #: goes. Same convention as {invite link} in ReferralControlsBlock.email_body.
+    INSTALL_COUNT_TOKEN = "{install count}"
+
+    locked_summary = blocks.CharBlock(
+        required=False,
+        label="Message if no badge is unlocked",
+        help_text=(
+            "Optional line shown above the badges while no badge has been unlocked yet. Once a "
+            "badge is unlocked, that badge's own message replaces it. Use {install count} where "
+            "the number of successful installs should go. Leave blank to show no message."
+        ),
+    )
+    badges = blocks.ListBlock(BadgeBlock(), min_num=1, label="Badges")
+
+    class Meta:
+        icon = "list-ul"
+        label = "Impact dashboard"
+        label_format = "Impact dashboard"
+        template = "cms/blocks/impact-dash.html"
+
+    def get_context(self, value, parent_context=None):
+        """Resolve each badge against the referrer's install count.
+
+        The count lives on the page context rather than in the block value, so
+        this is the only layer that can see both. Doing the comparison and the
+        singular/plural choice here rather than in Jinja keeps the coercion of a
+        missing or non-numeric count in one place -- comparing against an
+        undefined in a template would raise instead.
+        """
+        context = super().get_context(value, parent_context=parent_context)
+        install_count = self._coerce_count((parent_context or {}).get("install_count"))
+        badges = [self._badge_context(badge, install_count) for badge in value.get("badges") or []]
+        context["install_count"] = install_count
+        context["badges"] = badges
+        context["summary"] = self._resolve_summary(self._summary_source(value, badges), install_count)
+        return context
+
+    @staticmethod
+    def _summary_source(value, badges) -> str:
+        """The message to show above the badges, before token substitution.
+
+        The furthest milestone reached is the interesting one, so the achieved
+        badge with the largest number wins -- picked by number rather than by
+        position, because the editor's list is not guaranteed to be sorted. max()
+        keeps the first of equal numbers, so duplicate thresholds resolve to the
+        one the editor listed first.
+
+        With nothing unlocked there is no badge message to show, so the
+        dashboard's own locked_summary stands in. A badge whose message is blank
+        shows nothing rather than falling back to locked_summary, which would
+        claim no badge had been earned.
+        """
+        achieved = [badge for badge in badges if badge["is_achieved"]]
+        if not achieved:
+            return value.get("locked_summary") or ""
+
+        return max(achieved, key=lambda badge: badge["number"])["message"]
+
+    @classmethod
+    def _resolve_summary(cls, raw, install_count: int) -> str:
+        """Substitute the editor's {install count} token with the resolved count.
+
+        A literal replace rather than str.format, so any other braces the editor
+        typed pass through untouched instead of raising KeyError or ValueError and
+        taking down the render. A message that never mentions the count is a legitimate thing to write.
+        """
+        summary = (raw or "").strip()
+        if not summary:
+            return ""
+
+        return summary.replace(cls.INSTALL_COUNT_TOKEN, str(install_count))
+
+    @staticmethod
+    def _coerce_count(raw) -> int:
+        """Never let a missing, empty or non-numeric context value raise."""
+        try:
+            return max(int(raw), 0)
+        except (TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _badge_context(badge, install_count: int) -> dict:
+        # Clamped to the same floor the editor field enforces: a 0 or negative
+        # threshold, only reachable via legacy/imported JSON, would satisfy
+        # ``install_count >= number`` for everyone and show as achieved on a
+        # first visit. Clamping the number itself rather than only the
+        # comparison keeps the rendered number and the threshold the one value
+        # BadgeBlock documents them to be.
+        number = max(badge.get("number") or 0, 1)
+        singular = (badge.get("singular_label") or "").strip()
+        # Only reachable via legacy/imported JSON, as both fields are required
+        # with defaults. Falling back means a badge can never render a bare
+        # number with no word after it.
+        plural = (badge.get("plural_label") or "").strip() or singular
+        return {
+            "image": badge.get("image"),
+            "number": number,
+            "label": singular if number == 1 else plural,
+            "badge_name": (badge.get("badge_name") or "").strip(),
+            "is_achieved": install_count >= number,
+            # Read by _summary_source, not by the badge itself: only the highest
+            # achieved badge's message is rendered, above the badge array.
+            "message": (badge.get("message") or "").strip(),
+        }
+
+
+class TabImpactDashBlock(blocks.StreamBlock):
+    """Wrapper making ImpactDashBlock a genuinely optional tab field.
+
+    Same reason as TabReferralControlsBlock: a nested StructBlock's StructValue
+    is an always-populated OrderedDict, so it is always truthy and the template
+    could never tell "not added" from "added".
+    """
+
+    impact_dash = ImpactDashBlock()
+
+    class Meta:
+        label = "Impact dashboard"
+
+
+class TabBlock(blocks.StructBlock):
+    tab_name = blocks.CharBlock(label="Tab name")
+    heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    image = ImageChooserBlock(required=False)
+    description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
+    referral_controls = TabReferralControlsBlock(max_num=1, min_num=0, required=False)
+    impact_dash = TabImpactDashBlock(max_num=1, min_num=0, required=False)
+    note = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        label = "Tab"
+        label_format = "{tab_name}"
+        template = "cms/blocks/tab.html"
+
+
+class TabsBlock(blocks.StructBlock):
+    section_id = blocks.CharBlock(
+        label="Section ID",
+        help_text="Unique identifier used to namespace the tab element IDs. Must be unique across the page.",
+    )
+    tabs = blocks.ListBlock(TabBlock(), required=False)
+
+    class Meta:
+        label = "Tabs"
+        label_format = "Tabs"
+        template = "cms/blocks/tabs.html"
+
+
 class MediaBlock(blocks.StreamBlock):
     image = ImageVariantsBlock(required=False)
     video = VideoBlock(required=False)
     animation = AnimationBlock(required=False)
     qr_code = QRCodeBlock(required=False)
+    tabs = TabsBlock(required=False)
 
     class Meta:
         label = "Media"
@@ -1291,7 +1566,7 @@ def BaseContentBlock(allow_uitour=False, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=3,
+            max_num=5,
             required=False,
         )
 
@@ -1689,7 +1964,7 @@ class CardMediaBlock(blocks.StreamBlock):
         label = "Media"
 
 
-def CardBlock(allow_uitour=False, *args, **kwargs):
+def CardBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
     class _CardSettings(blocks.StructBlock):
         variant = blocks.ChoiceBlock(
             choices=[
@@ -1738,7 +2013,7 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
                 ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
                 ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")),
                 ("testimonial", CardTestimonialBlock()),
-                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour, max_buttons=max_buttons)),
             ]
         )
 
@@ -1750,12 +2025,13 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
     return _CardBlock(*args, **kwargs)
 
 
-def CardsListBlock(allow_uitour=False, *args, **kwargs):
+def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
+        max_buttons: Maximum number of buttons allowed in each card's button row.
     """
 
     class _CardsListSettings(blocks.StructBlock):
@@ -1797,7 +2073,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
-                ("card", CardBlock(allow_uitour=allow_uitour)),
+                ("card", CardBlock(allow_uitour=allow_uitour, max_buttons=max_buttons)),
             ]
         )
 
@@ -2658,9 +2934,10 @@ class ShowcaseSettings(blocks.StructBlock):
 class ShowcaseBlock(blocks.StructBlock):
     settings = ShowcaseSettings()
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     media = MediaBlock(max_num=1)
     caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     cta = MixedButtonsBlock(
         button_types=get_button_types(),
         min_num=0,

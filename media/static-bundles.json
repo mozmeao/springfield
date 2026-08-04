@@ -441,6 +441,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-referral-hub.css"
+      ],
+      "name": "flare-referral-hub"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
