@@ -33,8 +33,8 @@ const RELEASES = {
     NIGHTLY: 'nightly',
     ESR: 'esr',
     ESR_NEXT: 'esr-next',
-    ESR_115: 'esr-115',
-}
+    ESR_115: 'esr-115'
+};
 
 const UNSUPPORTED_PLATFORMS_BY_RELEASE = {
     [RELEASES.STABLE]: [OS.LINUX32],
@@ -53,42 +53,42 @@ const UNSUPPORTED_PLATFORMS_BY_RELEASE = {
 };
 
 const RELEASE_NOTES_FOR_DESKTOP = {
-    [RELEASES.STABLE]: "/firefox/notes/",
-    [RELEASES.BETA]: "/firefox/beta/notes/",
-    [RELEASES.DEV]: "/firefox/developer/notes/",
-    [RELEASES.NIGHTLY]: "/firefox/nightly/notes/",
-    [RELEASES.ESR]: "/firefox/organizations/notes/",
-    [RELEASES.ESR_115]: "/firefox/organizations/notes/",
-    [RELEASES.ESR_NEXT]: "/firefox/organizations/notes/",
+    [RELEASES.STABLE]: '/firefox/notes/',
+    [RELEASES.BETA]: '/firefox/beta/notes/',
+    [RELEASES.DEV]: '/firefox/developer/notes/',
+    [RELEASES.NIGHTLY]: '/firefox/nightly/notes/',
+    [RELEASES.ESR]: '/firefox/organizations/notes/',
+    [RELEASES.ESR_115]: '/firefox/organizations/notes/',
+    [RELEASES.ESR_NEXT]: '/firefox/organizations/notes/'
 };
 
 const SYSTEM_REQUIREMENTS_FOR_DESKTOP = {
-    [RELEASES.STABLE]: "/firefox/system-requirements/",
-    [RELEASES.BETA]: "/firefox/beta/system-requirements/",
-    [RELEASES.DEV]: "/firefox/developer/system-requirements/",
-    [RELEASES.NIGHTLY]: "/firefox/nightly/system-requirements/",
-    [RELEASES.ESR]: "/firefox/organizations/system-requirements/",
-    [RELEASES.ESR_115]: "/firefox/organizations/system-requirements/",
-    [RELEASES.ESR_NEXT]: "/firefox/organizations/system-requirements/",
+    [RELEASES.STABLE]: '/firefox/system-requirements/',
+    [RELEASES.BETA]: '/firefox/beta/system-requirements/',
+    [RELEASES.DEV]: '/firefox/developer/system-requirements/',
+    [RELEASES.NIGHTLY]: '/firefox/nightly/system-requirements/',
+    [RELEASES.ESR]: '/firefox/organizations/system-requirements/',
+    [RELEASES.ESR_115]: '/firefox/organizations/system-requirements/',
+    [RELEASES.ESR_NEXT]: '/firefox/organizations/system-requirements/'
 };
 
 const RELEASE_NOTES_FOR_MOBILE = {
     [OS.IOS]: {
-        [RELEASES.STABLE]: "/firefox/ios/notes/",
-        [RELEASES.BETA]: "/firefox/ios/beta/notes/",
+        [RELEASES.STABLE]: '/firefox/ios/notes/',
+        [RELEASES.BETA]: '/firefox/ios/beta/notes/'
     },
     [OS.ANDROID]: {
-        [RELEASES.STABLE]: "/firefox/android/notes/",
-        [RELEASES.BETA]: "/firefox/android/beta/notes/",
-        [RELEASES.NIGHTLY]: "/firefox/android/nightly/notes/",
-    },
+        [RELEASES.STABLE]: '/firefox/android/notes/',
+        [RELEASES.BETA]: '/firefox/android/beta/notes/',
+        [RELEASES.NIGHTLY]: '/firefox/android/nightly/notes/'
+    }
 };
 
 /**
  * Generate a Firefox download URL for desktop and Android APT based on the form choices.
  */
 class FirefoxDownloadURL extends URL {
-	static base = 'https://download.mozilla.org/';
+    static base = 'https://download.mozilla.org/';
 
     static releaseChoiceToDownloadChannel = {
         [RELEASES.STABLE]: '',
@@ -97,26 +97,36 @@ class FirefoxDownloadURL extends URL {
         [RELEASES.DEV]: 'devedition',
         [RELEASES.ESR]: 'esr',
         [RELEASES.ESR_NEXT]: 'esr-next',
-        [RELEASES.ESR_115]: 'esr115',
+        [RELEASES.ESR_115]: 'esr115'
     };
 
     static resolveOS(choices) {
-        return choices.os.endsWith('-msi') || choices.os.endsWith('-pkg') ? choices.os.slice(0, -4) : choices.os;
+        return choices.os.endsWith('-msi') || choices.os.endsWith('-pkg')
+            ? choices.os.slice(0, -4)
+            : choices.os;
     }
 
     static resolveProduct(choices) {
         const name = ['firefox'];
-        name.push(FirefoxDownloadURL.releaseChoiceToDownloadChannel[choices.release]);
+        name.push(
+            FirefoxDownloadURL.releaseChoiceToDownloadChannel[choices.release]
+        );
         if (choices.os.endsWith('pkg')) name.push('pkg');
         if (choices.os.endsWith('msi')) name.push('msi');
         name.push('latest');
-        if (choices.os !== 'android' && choices.release === 'nightly' && choices.language !== 'en-US') name.push('l10n');
+        if (
+            choices.os !== 'android' &&
+            choices.release === 'nightly' &&
+            choices.language !== 'en-US'
+        )
+            name.push('l10n');
         name.push('ssl');
         return name.filter(Boolean).join('-');
     }
 
     static resolveLang(choices) {
-        if (choices.os.startsWith('osx') && choices.language === 'ja') return 'ja-JP-mac';
+        if (choices.os.startsWith('osx') && choices.language === 'ja')
+            return 'ja-JP-mac';
         else if (choices.os === 'android') return 'multi';
 
         return choices.language;
@@ -125,7 +135,10 @@ class FirefoxDownloadURL extends URL {
     constructor(choices) {
         super(FirefoxDownloadURL.base);
         this.searchParams.set('os', FirefoxDownloadURL.resolveOS(choices));
-        this.searchParams.set('product', FirefoxDownloadURL.resolveProduct(choices));
+        this.searchParams.set(
+            'product',
+            FirefoxDownloadURL.resolveProduct(choices)
+        );
         this.searchParams.set('lang', FirefoxDownloadURL.resolveLang(choices));
     }
 }
@@ -197,7 +210,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #handleInvalid(event) {
         event.preventDefault();
 
-        if (!event.target.matches(":user-invalid")) return;
+        if (!event.target.matches(':user-invalid')) return;
 
         const fieldWrap = event.target.closest('.fl-field-wrap');
 
@@ -232,9 +245,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #setConditionalDisplay() {
         const { os, release, language } = this.form.elements;
 
-        this.style.setProperty("--os", os.value);
-        this.style.setProperty("--release", release.value);
-        this.style.setProperty("--language", language.value);
+        this.style.setProperty('--os', os.value);
+        this.style.setProperty('--release', release.value);
+        this.style.setProperty('--language', language.value);
 
         const isMobile = os.value === 'ios' || os.value === 'android';
 
@@ -290,15 +303,19 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #updateActions() {
         if (!this.form.checkValidity()) return;
 
-        const { os, release, language } = Object.fromEntries(new FormData(this.form))
+        const { os, release, language } = Object.fromEntries(
+            new FormData(this.form)
+        );
 
         let primaryAction = this.form.querySelector('[data-primary-action]');
 
         if (primaryAction.matches('button')) {
-            const link = document.importNode(
-                document.getElementById('download-button-template').content,
-                true
-            ).querySelector('a');
+            const link = document
+                .importNode(
+                    document.getElementById('download-button-template').content,
+                    true
+                )
+                .querySelector('a');
             link.dataset.primaryAction = '';
             primaryAction.after(link);
             primaryAction.remove();
@@ -306,27 +323,35 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
 
         switch (os) {
-            case "ios":
+            case 'ios':
                 primaryAction.href = {
-                    stable: "https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8",
-                    beta: "https://www.firefox.com/channel/ios/testflight/",
+                    stable: 'https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8',
+                    beta: 'https://www.firefox.com/channel/ios/testflight/'
                 }[release];
                 releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
-                systemRequirements.href = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device";
+                systemRequirements.href =
+                    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
                 break;
-            case "android":
+            case 'android':
                 primaryAction.href = {
-                    stable: "https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
-                    beta: "https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
-                    nightly: "https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all",
+                    stable: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
+                    beta: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
+                    nightly:
+                        'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all'
                 }[release];
                 releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
-                systemRequirements.href = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device";
+                systemRequirements.href =
+                    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
                 break;
             default:
-                primaryAction.href = new FirefoxDownloadURL({ os, release, language });
+                primaryAction.href = new FirefoxDownloadURL({
+                    os,
+                    release,
+                    language
+                });
                 releaseNotes.href = RELEASE_NOTES_FOR_DESKTOP[release];
-                systemRequirements.href = SYSTEM_REQUIREMENTS_FOR_DESKTOP[release];
+                systemRequirements.href =
+                    SYSTEM_REQUIREMENTS_FOR_DESKTOP[release];
                 break;
         }
     }
