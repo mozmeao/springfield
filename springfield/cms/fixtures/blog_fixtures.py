@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, Tag
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, Tag
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -50,17 +50,17 @@ NUM_LIST_ARTICLES = 28
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
-def get_blog_topics() -> dict[str, Tag]:
+def get_blog_topics() -> dict[str, BlogTopic]:
     locale = Locale.get_default()
     topics = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _ = Tag.objects.update_or_create(
+        topic, _ = BlogTopic.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
         )
-        topics[slug] = tag
+        topics[slug] = topic
     return topics
 
 
@@ -150,7 +150,7 @@ def create_blog_article(
     title: str,
     slug: str,
     display_image: bool = False,
-    topic: Tag,
+    topic: BlogTopic,
     tags: list[Tag],
     image,
     description: str,

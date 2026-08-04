@@ -23,7 +23,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_topics,
 )
 from springfield.cms.models import BlogArticlePage
-from springfield.cms.models.snippets import Tag
+from springfield.cms.models.snippets import BlogTopic
 
 pytestmark = [pytest.mark.django_db]
 
@@ -129,7 +129,9 @@ def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
-    all_topics = Tag.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
+    all_topics = (
+        BlogTopic.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
+    )
 
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
@@ -467,7 +469,7 @@ def test_blog_all_unknown_topic_shows_all_articles(blog_setup, rf):
 
 def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
     index_page, articles = privacy_articles
-    topic = Tag.objects.get(slug="privacy")
+    topic = BlogTopic.objects.get(slug="privacy")
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url, {"topic": "privacy"})
     response = index_page.all_route(request)
