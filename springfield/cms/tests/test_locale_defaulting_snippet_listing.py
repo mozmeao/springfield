@@ -11,8 +11,8 @@ from wagtail.snippets.models import get_snippet_models
 from springfield.cms.tests.factories import LocaleFactory
 
 EXPECTED_TRANSLATABLE_SNIPPETS = {
-    "BlogTopic",
     "BannerSnippet",
+    "BlogTopic",
     "PencilBannerSnippet",
     "PreFooterCTAFormSnippet",
     "PreFooterCTASnippet",

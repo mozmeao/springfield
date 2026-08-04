@@ -1825,7 +1825,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         topic_slug = request.GET.get("topic")
         if topic_slug:
             topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).first()
-            base_qs = base_qs.filter(topic=topic)
+            if topic:
+                base_qs = base_qs.filter(topic=topic)
 
         list_articles_qs = base_qs.order_by("-first_published_at")
         paginator = Paginator(list_articles_qs, 10)

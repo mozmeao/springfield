@@ -71,7 +71,7 @@ def get_blog_tags() -> dict[str, Tag]:
     tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _created = Tag.objects.update_or_create(
+        tag, _ = Tag.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
