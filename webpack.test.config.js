@@ -8,7 +8,6 @@
 
 const path = require('path');
 const glob = require('glob');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -30,9 +29,9 @@ module.exports = {
     },
     output: {
         filename: '[name].js',
-        path: path.resolve(__dirname, 'tests/unit/dist')
+        path: path.resolve(__dirname, 'tests/unit/dist'),
+        clean: true
     },
-    plugins: [new CleanWebpackPlugin()],
     resolve: {
         modules: [__dirname, 'src', 'node_modules'],
         extensions: ['*', '.js']
