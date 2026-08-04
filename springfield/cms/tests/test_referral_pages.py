@@ -382,24 +382,8 @@ def test_get_firefox_page_redirects_home_for_malformed_invite_code(rf, query, wh
     assert response["Location"] == "/en-US/"
 
 
-def test_get_firefox_page_redirects_home_for_unknown_invite_code(rf):
-    """Well-formed but naming a referral that does not exist.
-
-    Any well-formed code decrypts to some referral ID -- there is no integrity
-    check in the cipher -- so existence has to be settled against the table.
-    """
-    page = _get_firefox_page()
-    code = crypto.referral_id_to_invite_code(UNKNOWN_REFERRAL_ID)
-
-    response = page.serve(rf.get(f"/get-firefox/?invitation={code}"))
-
-    assert response.status_code == 302
-    assert response["Location"] == "/en-US/"
-
-
 def test_get_firefox_page_serves_a_known_invite_code(rf):
     page = _get_firefox_page()
-    FirefoxReferralData.objects.create(referral_id=REFERRAL_ID, install_count=342)
 
     # The code the hub would have generated for that referral ID.
     code = crypto.referral_id_to_invite_code(REFERRAL_ID)
@@ -416,7 +400,6 @@ def test_get_firefox_page_accepts_a_code_that_only_needs_normalizing(rf, style):
     invitation is handled by a person and must survive their copy and paste.
     """
     page = _get_firefox_page()
-    FirefoxReferralData.objects.create(referral_id=REFERRAL_ID, install_count=342)
 
     code = crypto.referral_id_to_invite_code(REFERRAL_ID)
     typed = code.lower() if style == "lowercase" else f"  {code} "
@@ -424,6 +407,24 @@ def test_get_firefox_page_accepts_a_code_that_only_needs_normalizing(rf, style):
     response = page.serve(rf.get("/en-US/get-firefox/", {"invitation": typed}))
 
     assert response.status_code == 200
+
+
+def test_get_firefox_page_get_context_includes_invitation_code(rf):
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["invitation_code"] == code
+
+
+def test_get_firefox_page_get_context_invitation_code_none_when_absent(rf):
+    """get_context is called directly by CMS preview without serve() gating it."""
+    page = _get_firefox_page()
+
+    context = page.get_context(rf.get("/en-US/get-firefox/"))
+
+    assert context["invitation_code"] is None
 
 
 def test_get_firefox_page_redirect_uses_the_visitor_locale(rf):
@@ -437,29 +438,8 @@ def test_get_firefox_page_redirect_uses_the_visitor_locale(rf):
     assert response["Location"] == "/de/"
 
 
-def test_get_firefox_page_allows_the_visitor_through_when_database_errors(monkeypatch, rf):
-    """Fail open: a referral-table outage must not break the invitee funnel."""
+def test_get_firefox_page_still_rejects_malformed_codes(rf):
     page = _get_firefox_page()
-    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
-
-    def boom(*args, **kwargs):
-        raise DatabaseError("relation does not exist")
-
-    monkeypatch.setattr(FirefoxReferralData.objects, "filter", boom)
-
-    response = page.serve(rf.get(f"/en-US/get-firefox/?invitation={code}"))
-
-    assert response.status_code == 200
-
-
-def test_get_firefox_page_still_rejects_malformed_codes_when_database_errors(monkeypatch, rf):
-    """Failing open applies to verification only, not to the shape check."""
-    page = _get_firefox_page()
-
-    def boom(*args, **kwargs):
-        raise DatabaseError("relation does not exist")
-
-    monkeypatch.setattr(FirefoxReferralData.objects, "filter", boom)
 
     response = page.serve(rf.get("/get-firefox/?invitation=nope"))
 

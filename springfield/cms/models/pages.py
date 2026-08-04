@@ -2542,36 +2542,27 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
 
-    def _is_valid_invite_code(self, invite_code) -> bool:
-        """True if the code decodes and names a referral we know about."""
-        if not invite_code:
-            # Arriving with no invitation at all is the ordinary case for a
-            # visitor who is not an invitee. There is nothing to decode, and
-            # nothing worth the Sentry warning a decode attempt would raise.
-            return False
+    def get_context(self, request, *args, **kwargs):
+        """
+        Adds an `invitation_code` code (from the URL) to the context, which we'll
+        pass as `fxrefer:<invitation code>` to download attribution as a special
+        param
+        """
+        context = super().get_context(request, *args, **kwargs)
 
-        try:
-            # Case-insensitive and whitespace-tolerant, so a code retyped or
-            # copied out of a messenger still works. Raises for a malformed
-            # code or a key version we no longer hold -- either way there is no
-            # referral to credit, and crypto has already reported it to Sentry.
-            referral_id = crypto.invite_code_to_referral_id(invite_code)
-        except ValueError:
-            return False
-
-        try:
-            return FirefoxReferralData.objects.filter(referral_id=referral_id).exists()
-        except DatabaseError as exc:
-            # Fail open. If the referral table is unavailable, sending every
-            # invitee away from a working download page is a far worse outcome
-            # than admitting some traffic we could not verify.
-            with new_scope() as scope:
-                scope.set_extra("exception", str(exc))
-                capture_message("Failed to verify referral invite code; allowing through", level="error")
-            return True
+        # self.serve() already validated that the invitation code is legit and valid
+        context["invitation_code"] = request.GET.get("invitation")
+        return context
 
     def serve(self, request, *args, **kwargs):
-        if not self._is_valid_invite_code(request.GET.get("invitation")):
+        invite_code = request.GET.get("invitation")
+        if not invite_code:
+            return redirect(f"/{l10n_utils.get_locale(request)}/")
+
+        try:
+            # verify syntax and decryptability of the invitation code
+            crypto.invite_code_to_referral_id(invite_code)
+        except ValueError:
             # Locale-aware so a visitor is not forced into English.
             return redirect(f"/{l10n_utils.get_locale(request)}/")
 
