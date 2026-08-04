@@ -230,6 +230,12 @@ def test_hub_page_install_count_uses_a_single_query(django_assert_num_queries):
         assert hub_page._get_install_count(REFERRAL_ID) == 342
 
 
+@pytest.mark.parametrize("referral_id", [None, ""])
+def test_hub_page_install_count_zero_without_referral_id(referral_id):
+    hub_page = ReferralHubPageFactory.build()
+    assert hub_page._get_install_count(referral_id) == 0
+
+
 def test_hub_page_install_count_zero_when_database_errors(monkeypatch):
     """The impact dashboard is optional and must not be able to fail the page."""
     hub_page = ReferralHubPageFactory.build()
@@ -239,7 +245,11 @@ def test_hub_page_install_count_zero_when_database_errors(monkeypatch):
 
     monkeypatch.setattr(FirefoxReferralData.objects, "get", boom)
 
-    assert hub_page._get_install_count(REFERRAL_ID) == 0
+    with patch(CAPTURE_MESSAGE) as capture:
+        result = hub_page._get_install_count(REFERRAL_ID)
+
+    assert result == 0
+    assert capture.call_count == 1
 
 
 def test_tab_impact_dash_badges_reflect_the_hub_install_count(rf):
