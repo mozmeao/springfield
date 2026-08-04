@@ -38,7 +38,8 @@ ROUTING_TAB_HELP = _(
     "on this page.</p>"
     "<p>Each rule needs at least one condition, or “Match all triggered visitors” to route everyone. "
     "The <strong>kill switch</strong> in Options pauses routing without deleting any rules — "
-    "it takes effect when you <strong>publish</strong>, like every other change on this page.</p>"
+    "it takes effect when you <strong>publish</strong>, like every other change on this page, "
+    "and reaches already-cached pages shortly after.</p>"
 )
 
 

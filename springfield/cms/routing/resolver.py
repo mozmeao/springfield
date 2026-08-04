@@ -11,13 +11,16 @@ the client needs — the page's rules and the metadata for the signals they test
 attribute and localized status strings via Fluent. All rule evaluation happens on the
 client; the server does no matching.
 
-Resolver responses are CDN-cacheable: this function sets no cache-busting
-headers. The preview flows add ``no-store`` themselves.
+Resolver responses are CDN-cacheable, and state their own lifetime — see
+``ROUTING_RESOLVER_CACHE_SECONDS``, which is how long the frozen target URLs, pause state and
+country may be stale, since nothing purges this page. The preview flows add ``no-store``
+themselves.
 """
 
 from collections import namedtuple
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from lib import l10n_utils
@@ -248,10 +251,13 @@ def patch_request_for_resolver(request, page):
 def render_resolver(request, page, fake_signals=None):
     """Render the resolver page for ``page`` and its live rules.
 
-    A framework function against a page + its rules; not yet invoked by ``serve()``.
     ``fake_signals`` (a ``{name: value}`` map, used by the preview_signal flow) is
     serialized into a ``data-*`` blob so the client
     resolves those signals immediately while reading the rest live.
+
+    States its own cache lifetime rather than inheriting the site-wide default, because this
+    page freezes state into a cacheable body that nothing purges — see
+    ``ROUTING_RESOLVER_CACHE_SECONDS``. The preview flows overwrite this with ``no-store``.
     """
     rules = serialize_rules(page, request)
     context = {
@@ -264,4 +270,9 @@ def render_resolver(request, page, fake_signals=None):
         "loop_breaker_param": LOOP_BREAKER_PARAM,
         "routing_fake_signals": fake_signals or None,
     }
-    return l10n_utils.render(request, RESOLVER_TEMPLATE, context, ftl_files=[RESOLVER_FTL])
+    response = l10n_utils.render(request, RESOLVER_TEMPLATE, context, ftl_files=[RESOLVER_FTL])
+    if response.status_code == 200:
+        # Setting this here also stops the site-wide cache middleware stamping its own value:
+        # it defers to any response that already carries Cache-Control.
+        response["Cache-Control"] = f"max-age={settings.ROUTING_RESOLVER_CACHE_SECONDS}"
+    return response

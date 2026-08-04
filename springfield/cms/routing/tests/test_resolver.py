@@ -6,7 +6,8 @@
 
 from types import SimpleNamespace
 
-from django.test import RequestFactory
+from django.conf import settings
+from django.test import RequestFactory, override_settings
 from django.utils import translation
 
 import pytest
@@ -268,6 +269,22 @@ def test_resolver_response_is_cacheable(routed_page):
     response, _html = _render(routed_page)
     # The plain resolver must stay CDN-cacheable — no no-store (previews add it).
     assert "no-store" not in response.get("Cache-Control", "")
+
+
+def test_resolver_states_its_own_cache_lifetime(routed_page):
+    # The resolver freezes target URLs, the pause state and the visitor's country into a
+    # cacheable body, and nothing purges it — so how long it may be reused is a property of
+    # this page, not something to inherit from the site-wide default by accident.
+    response, _html = _render(routed_page)
+    assert response["Cache-Control"] == f"max-age={settings.ROUTING_RESOLVER_CACHE_SECONDS}"
+
+
+@override_settings(ROUTING_RESOLVER_CACHE_SECONDS=5)
+def test_the_cache_lifetime_is_configurable(routed_page):
+    # Tunable without a deploy: the right window depends on traffic and CDN shielding, which
+    # are only knowable when the switch is actually turned on.
+    response, _html = _render(routed_page)
+    assert response["Cache-Control"] == "max-age=5"
 
 
 def test_resolver_has_no_inline_script_or_style(routed_page):
