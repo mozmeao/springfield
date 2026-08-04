@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import functools
 import re
 import uuid
 from typing import TYPE_CHECKING
@@ -2391,6 +2392,19 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
         return context
 
 
+def referral_geo_check(serve_method):
+    """Redirect visitors outside the relevant area for the referral program to the homepage"""
+
+    @functools.wraps(serve_method)
+    def wrapper(self, request, *args, **kwargs):
+        country = get_country_from_request(request)
+        if country not in settings.FF_REFERRAL_COUNTRY_CODES:
+            return redirect(settings.CANONICAL_URL)
+        return serve_method(self, request, *args, **kwargs)
+
+    return wrapper
+
+
 class ReferralHubPage(AbstractSpringfieldCMSPage):
     """Page where a user gets their invitation link and
     can monitor their invites' impact (an anonymous install count)
@@ -2501,6 +2515,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
                 capture_message("Failed to read FirefoxReferralData install count", level="error")
                 return 0
 
+    @referral_geo_check
     def serve(self, request, *args, **kwargs):
         """Require a well-formed ref_key
 
@@ -2531,9 +2546,8 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     Will use custom, privacy-respecting attribution so we can tally up
     how many people install via the invite code used to open this page.
 
-    Reached via /get-firefox/?invitation=<code>. A visitor arriving without a
-    usable invitation is not an invitee, so they are sent to the ordinary
-    localized home page instead of seeing a referral landing page.
+    A visitor arriving without a usable invitation, or from outside the
+    applicable geographic territory, is not served this page.
     """
 
     parent_page_types = ["cms.HomePage"]
@@ -2554,16 +2568,18 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
         context["invitation_code"] = request.GET.get("invitation")
         return context
 
+    @referral_geo_check
     def serve(self, request, *args, **kwargs):
         invite_code = request.GET.get("invitation")
         if not invite_code:
-            return redirect(f"/{l10n_utils.get_locale(request)}/")
+            mark_locale_fallback_exempt(request)
+            raise Http404("Referral invitee page is missing an invitation code") from None
 
         try:
             # verify syntax and decryptability of the invitation code
             crypto.invite_code_to_referral_id(invite_code)
         except ValueError:
-            # Locale-aware so a visitor is not forced into English.
-            return redirect(f"/{l10n_utils.get_locale(request)}/")
+            mark_locale_fallback_exempt(request)
+            raise Http404("Referral invitee page did not get a well-formed invitation code") from None
 
         return super().serve(request, *args, **kwargs)
