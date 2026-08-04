@@ -118,7 +118,7 @@
     },
     {
       "files": [
-        "css/firefox/all-form/all-form.scss"
+        "css/firefox/all-form/all-form.css"
       ],
       "name": "firefox_all_form"
     },

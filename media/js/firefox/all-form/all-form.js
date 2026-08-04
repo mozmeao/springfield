@@ -245,9 +245,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #setConditionalDisplay() {
         const { os, release, language } = this.form.elements;
 
-        this.style.setProperty('--os', os.value);
-        this.style.setProperty('--release', release.value);
-        this.style.setProperty('--language', language.value);
+        this.dataset.os = os.value;
+        this.dataset.release = release.value;
+        this.dataset.language = language.value;
 
         const isMobile = os.value === 'ios' || os.value === 'android';
 
