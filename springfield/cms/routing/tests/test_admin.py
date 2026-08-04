@@ -4,12 +4,33 @@
 
 """Tests for the admin signal payload feeding the dynamic condition help."""
 
+from unittest.mock import patch
+
 from django.conf import settings
 from django.utils.functional import Promise
 
+import pytest
+
+from springfield.cms.routing import value_lists
 from springfield.cms.routing.admin import VALUE_LIST_HINT, VALUE_TYPE_HINTS, build_signal_payload, build_signal_reference
 from springfield.cms.routing.signals import ValueType, registry
-from springfield.cms.routing.value_lists import CLOSED_SET_SIGNALS
+
+# The closed value lists are derived from ambient data — `settings.LANGUAGES` (itself filtered
+# through product-details) and the product-details region list. An environment without
+# product-details data loaded has empty lists, which is exactly what CI has: a fresh test
+# database. These tests are about the *derivation*, not the data, so they supply their own.
+SERVED_LOCALES = [("en-US", "English (US)"), ("en-CA", "English (Canada)"), ("de", "Deutsch"), ("fr", "Français"), ("es-MX", "Español")]
+CMS_CONTENT_LOCALES = [("en-US", "English (US)"), ("de", "Deutsch")]
+REGIONS = {"us": "United States", "de": "Germany", "gb": "United Kingdom"}
+
+
+@pytest.fixture
+def served_locales_and_regions(settings):
+    """Pin the two ambient sources the closed value lists are built from."""
+    settings.LANGUAGES = SERVED_LOCALES
+    settings.WAGTAIL_CONTENT_LANGUAGES = CMS_CONTENT_LOCALES
+    with patch.object(value_lists.product_details, "get_regions", return_value=REGIONS):
+        yield
 
 
 def test_payload_covers_every_registered_signal():
@@ -46,8 +67,9 @@ def test_payload_carries_description_and_comma_hint():
 # ---------------------------------------------------------------------------
 
 
-def test_payload_attaches_value_lists_for_locale_and_country():
+def test_payload_attaches_value_lists_for_locale_and_country(served_locales_and_regions):
     payload = build_signal_payload()
+    # Regions arrive lowercase and are upper-cased to match what the geo reader produces.
     assert "US" in payload["country"]["values"]
     assert "en-US" in payload["locale"]["values"]
     # These use the values-oriented lead-in, not the generic STRING operators hint.
@@ -55,7 +77,7 @@ def test_payload_attaches_value_lists_for_locale_and_country():
     assert payload["locale"]["hint"] == str(VALUE_LIST_HINT)
 
 
-def test_payload_attaches_the_region_free_value_list_for_language():
+def test_payload_attaches_the_region_free_value_list_for_language(served_locales_and_regions):
     # `language` had no payload coverage at all, and its list is derived from the served
     # locales by dropping the region — so a break in that derivation would silently reach
     # authors as an empty help line.
@@ -69,15 +91,19 @@ def test_payload_attaches_the_region_free_value_list_for_language():
     assert payload["language"]["hint"] == str(VALUE_LIST_HINT)
 
 
-def test_every_signal_meant_to_have_a_value_list_has_a_non_empty_one():
-    # The guard behind the fail-loudly check in RoutingCondition.clean(): if one of these
-    # derivations breaks, the payload is where an author meets the consequence first.
+def test_every_closed_set_signal_gets_its_values_from_the_expected_source(served_locales_and_regions):
+    # Deliberately not "every list is non-empty": that asserts a property of the *environment*
+    # (product-details data being loaded), which is false on a fresh database — CI included.
+    # What is worth pinning is that each signal draws from the source it should.
     payload = build_signal_payload()
-    for name in CLOSED_SET_SIGNALS:
-        assert payload[name]["values"], f"{name} has no values"
+    assert set(payload["locale"]["values"]) == {code for code, _label in SERVED_LOCALES}
+    assert set(payload["language"]["values"]) == {code.split("-")[0] for code, _label in SERVED_LOCALES}
+    assert set(payload["country"]["values"]) == {code.upper() for code in REGIONS}
+    # browser_language is the one deliberately wider than what we serve.
+    assert set(payload["browser_language"]["values"]) > set(payload["language"]["values"])
 
 
-def test_browser_language_accepts_languages_we_do_not_serve():
+def test_browser_language_accepts_languages_we_do_not_serve(served_locales_and_regions):
     # The signal exists to reveal visitors whose language we DON'T publish in — a Norwegian
     # served English, say. Restricting it to served languages would leave it unable to say
     # anything `locale` doesn't already say. Validated against CLDR instead.
@@ -98,7 +124,7 @@ def test_browser_language_still_rejects_typos():
         assert typo not in values
 
 
-def test_browser_language_shows_served_languages_as_examples():
+def test_browser_language_shows_served_languages_as_examples(served_locales_and_regions):
     # 600-odd CLDR codes would be noise as guidance, so the help shows what we publish in
     # while validation stays permissive.
     entry = build_signal_payload()["browser_language"]
@@ -117,7 +143,7 @@ def test_closed_set_signals_carry_no_example_list():
     assert payload["country"]["exampleValues"] == []
 
 
-def test_locale_values_are_every_served_locale_not_just_cms_content_languages():
+def test_locale_values_are_every_served_locale_not_just_cms_content_languages(served_locales_and_regions):
     # The signal reads the *visitor's* page locale, so the offerable set is every locale
     # the site serves — not WAGTAIL_CONTENT_LANGUAGES, which is the far smaller set of
     # locales CMS content is translated into. Using the latter would tell authors that
@@ -192,7 +218,7 @@ def test_reference_rows_carry_a_source_key_and_uitour_flag():
     assert rows["utm_source"]["is_uitour"] is False
 
 
-def test_reference_rows_carry_value_lists_for_known_set_string_signals():
+def test_reference_rows_carry_value_lists_for_known_set_string_signals(served_locales_and_regions):
     # locale/country expose their value lists (shown collapsed); free text has none.
     rows = {row["name"]: row for row in build_signal_reference()}
     assert "US" in rows["country"]["values"]
