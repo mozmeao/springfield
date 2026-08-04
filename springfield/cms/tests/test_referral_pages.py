@@ -18,6 +18,7 @@ from springfield.cms.middleware import CMSLocaleFallbackMiddleware
 from springfield.cms.tests.factories import ReferralGetFirefoxPageFactory, ReferralHubPageFactory
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
+from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
 
 pytestmark = [pytest.mark.django_db]
 
@@ -98,6 +99,20 @@ def test_hub_page_stays_quiet_for_wrong_length_ref_key(rf):
 
     assert context["invite_url"] == ""
     assert capture.call_count == 0
+
+
+def test_hub_page_returns_install_count_of_zero_for_ref_key_with_no_data_match(rf):
+    site = Site.objects.get(is_default_site=True)
+    hub_page = ReferralHubPageFactory(parent=site.root_page)
+
+    # Anything can land in a public query string, so a ref_key that is not even
+    # the right length is ignored rather than filling Sentry with scanner noise.
+    _unused_id = "TESTTESTTESTTEST"
+    assert len(_unused_id) == REFERRAL_ID_LENGTH
+    assert not FirefoxReferralData.objects.filter(referral_id=_unused_id).exists()
+    context = hub_page.get_context(rf.get(f"/invite/?ref_key={_unused_id}"))
+
+    assert context["install_count"] == 0
 
 
 def test_tab_referral_controls_render_the_invite_url_from_the_hub_context(rf):
