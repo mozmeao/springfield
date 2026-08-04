@@ -249,7 +249,8 @@
     },
     {
       "files": [
-        "css/cms/wagtail-admin.css"
+        "css/cms/wagtail-admin.css",
+        "css/cms/routing/admin.css"
       ],
       "name": "wagtail-admin"
     },
