@@ -65,8 +65,6 @@ def get_blog_topics() -> dict[str, BlogTopic]:
 
 
 def get_blog_tags() -> dict[str, Tag]:
-    """Tag snippets for the `tags` M2M, kept separate from topics so fixtures
-    don't rely on a topic and a tag being the same object."""
     locale = Locale.get_default()
     tags = {}
     for name in BLOG_TOPIC_NAMES:
