@@ -12,4 +12,5 @@ context:
   email_body: >-
     Here's how to download Firefox. I wanted to share a browser with you that
     protects your privacy and gives you more control online. {invite link}
+  qr_heading: "QR code"
   qr_label: "Scan to open the invite link"

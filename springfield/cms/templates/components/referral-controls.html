@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props invite_url="", copy_label="", copy_success_label="", qr_label="", email_label="", email_subject="", email_body="" #}
+{# props invite_url="", copy_label="", copy_success_label="", qr_heading="", qr_label="", email_label="", email_subject="", email_body="", qr_dialog_id="fl-referral-controls-qr-dialog" #}
 
 {% if invite_url %}
   <div class="fl-referral-controls">
@@ -20,7 +20,7 @@
         />
       </div>
 
-      <div class="fl-referral-controls-email">
+      <div class="fl-referral-controls-email-and-qr">
         {#
         The editor writes the email body with an {invite link} placeholder marking
         where the invitation link goes. If the placeholder was removed, append it
@@ -30,23 +30,44 @@
         {% set email_body_text = email_body if invite_token in email_body else email_body ~ '\n\n' ~ invite_token %}
         {% set email_body_text = email_body_text|replace(invite_token, invite_url) %}
         <a
-          class="fl-button button-secondary fl-referral-controls-share-email"
+          class="fl-button button-primary fl-referral-controls-share-email"
           href="mailto:?subject={{ email_subject|mailtoencode }}&body={{ email_body_text|mailtoencode }}"
         >
-          {{ email_label }}
           <span class="fl-icon fl-icon-right fl-icon-mail" aria-hidden="true"></span>
+          <span class="fl-referral-controls-email-text visually-hidden">{{ email_label }}</span>
         </a>
 
-        <div class="fl-referral-controls-qr">
-          {# A QR code carries nothing a screen reader user can act on, and the
-            copy button already exposes the link, so it is hidden from a11y tools
-            and described by the visible label below. #}
-          <div class="fl-referral-controls-qr-code" aria-hidden="true">
-            {{ qrcode(invite_url, 8) }}
-          </div>
-          <p class="fl-referral-controls-qr-label">{{ qr_label }}</p>
-        </div>
+        <button
+          type="button"
+          class="fl-button button-primary fl-referral-controls-qr-button fl-dialog-trigger"
+          data-target-id="{{ qr_dialog_id }}"
+        >
+          <span class="fl-icon fl-icon-right fl-icon-qr-code" aria-hidden="true"></span>
+          <span class="fl-referral-controls-qr-text visually-hidden">{{ qr_label }}</span>
+        </button>
       </div>
     </div><!-- closing .fl-referral-options -->
+    <include:dialog id="{{ qr_dialog_id }}" label="{{ qr_label }}">
+      {# The dialog renders its heading slot above the body, which is what puts
+        the heading before the QR code itself. #}
+      {% if qr_heading %}
+        <content:heading>
+          <include:heading
+            level="h3"
+            heading_size="fl-heading-xs"
+            heading_text="{{ qr_heading }}"
+          />
+        </content:heading>
+      {% endif %}
+      <content:body>
+        {# A QR code carries nothing a screen reader user can act on, and the
+          copy button already exposes the link, so it is hidden from a11y tools
+          and described by the visible label below. #}
+        <div class="fl-referral-controls-qr-code" aria-hidden="true">
+          {{ qrcode(invite_url, 8) }}
+        </div>
+        <p class="fl-referral-controls-qr-label">{{ qr_label }}</p>
+      </content:body>
+    </include:dialog>
   </div><!-- closing .fl-referral-controls -->
 {% endif %}

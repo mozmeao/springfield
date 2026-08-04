@@ -31,7 +31,6 @@
         background: var(--theme-tabs-nav-background);
         border: none;
         font-weight: var(--token-font-weight-bold);
-        min-inline-size: 122px;
     }
 
     [role='tab'],
@@ -75,5 +74,11 @@
 
     [role='tabpanel'].is-hidden {
         display: block;
+    }
+}
+
+@media (--viewport-md-up) {
+    button[role='tab'] {
+        min-inline-size: 122px;
     }
 }
