@@ -22,3 +22,11 @@ LOOP_BREAKER_PARAM = "routed"
 # Preview flow params, both admin-authenticated only.
 PREVIEW_RULE_PARAM = "preview_rule"
 PREVIEW_SIGNAL_PARAM = "preview_signal"
+
+# The framework's own control params, which must never be carried onto a destination: they
+# would re-arm routing, re-enter the loop, or leak preview state. Anything else a visitor
+# arrived with is attribution and rides along.
+#
+# ``RESERVED_ROUTING_PARAMS`` in ``resolver.es6.js`` mirrors this list by hand — the client
+# has no way to read it — so a change here needs the same change there.
+RESERVED_ROUTING_PARAMS = (TRIGGER_PARAM, LOOP_BREAKER_PARAM, PREVIEW_RULE_PARAM, PREVIEW_SIGNAL_PARAM)

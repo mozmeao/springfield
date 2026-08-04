@@ -41,9 +41,11 @@ export function appendLoopBreaker(url, param) {
 }
 
 // Framework control params that must never be carried onto the destination — they
-// would re-arm routing, re-enter the loop, or leak preview state. Mirrors the names in
-// springfield/cms/routing/params.py; the active loop-breaker param is added at runtime
-// from the data attribute in case a consumer overrode it.
+// would re-arm routing, re-enter the loop, or leak preview state. Mirrors
+// RESERVED_ROUTING_PARAMS in springfield/cms/routing/params.py, which the server uses for
+// the same purpose on the no-JS paths; a change to either list needs the same change to the
+// other. The active loop-breaker param is added at runtime from the data attribute in case a
+// consumer overrode it.
 export const RESERVED_ROUTING_PARAMS = [
     'routing',
     'routed',

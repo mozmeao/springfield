@@ -16,11 +16,12 @@ headers. The preview flows add ``no-store`` themselves.
 """
 
 from collections import namedtuple
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from django.utils.translation import gettext_lazy as _
 
 from lib import l10n_utils
-from springfield.cms.routing.params import LOOP_BREAKER_PARAM
+from springfield.cms.routing.params import LOOP_BREAKER_PARAM, RESERVED_ROUTING_PARAMS
 from springfield.cms.routing.signals import registry
 
 RESOLVER_TEMPLATE = "cms/routing/resolver.html"
@@ -61,6 +62,35 @@ def url_in_requested_locale(page, request):
     specific = page.specific
     active_locale_url = getattr(specific, "get_active_locale_url", None)
     return active_locale_url(request) if active_locale_url else specific.get_url(request)
+
+
+def fallback_url(page, request):
+    """Where a visitor goes when the client never redirects them.
+
+    The canonical URL, keeping the visitor's own query string so their attribution survives —
+    minus the framework's control params, plus the loop-breaker. The loop-breaker is not
+    optional: this URL still carries whatever armed routing in the first place, so without it
+    the destination would serve the resolver again.
+
+    Mirrors what ``preserveQueryString`` plus ``appendLoopBreaker`` do on the client, for the
+    two paths the client never reaches — the ``<noscript>`` refresh and the escape link.
+
+    **Depends on the CDN keying on the full URL, query string included.** That is what makes it
+    safe to render per-request data into a cacheable body: the response can only ever be served
+    to a request whose query string is the one rendered into it. If that ever stops being true,
+    this has to go back to a bare canonical URL.
+    """
+    url = url_in_requested_locale(page, request)
+    parts = urlsplit(url)
+    kept = parse_qsl(parts.query, keep_blank_values=True)
+    seen = {name for name, _value in kept}
+    if request is not None:
+        for name, value in parse_qsl(request.META.get("QUERY_STRING", ""), keep_blank_values=True):
+            if name in RESERVED_ROUTING_PARAMS or name in seen:
+                continue
+            kept.append((name, value))
+    kept.append((LOOP_BREAKER_PARAM, "1"))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))
 
 
 UsableRule = namedtuple("UsableRule", ["rule", "target"])
@@ -229,6 +259,8 @@ def render_resolver(request, page, fake_signals=None):
         "routing_rules": rules,
         "routing_manifest": serialize_manifest(rules),
         "canonical_url": url_in_requested_locale(page, request),
+        # Where a stranded visitor goes: canonical, attribution intact, loop-breaker attached.
+        "fallback_url": fallback_url(page, request),
         "loop_breaker_param": LOOP_BREAKER_PARAM,
         "routing_fake_signals": fake_signals or None,
     }

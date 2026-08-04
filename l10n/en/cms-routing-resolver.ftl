@@ -7,5 +7,6 @@
 # Shown briefly while the client evaluates routing rules and redirects.
 routing-resolver-preparing = Preparing your page…
 
-# No-JavaScript fallback link to the canonical page.
-routing-resolver-noscript = Continue to the page
+# Link to the canonical page, used in two places: the always-present escape hatch for a
+# visitor whose redirect never happens, and the no-JavaScript fallback.
+routing-resolver-continue = Continue to the page

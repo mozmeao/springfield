@@ -207,6 +207,63 @@ def test_resolver_renders_localized_status_and_noscript(routed_page):
     assert "<noscript>" in html
 
 
+def test_the_resolver_offers_a_way_out_that_does_not_depend_on_javascript(routed_page):
+    # <noscript> does not render when JS is *enabled* but the bundle fails to load or throws —
+    # and `static/` is build output, so a missing bundle is a realistic deploy failure. Without
+    # a link outside that block, such a visitor is stranded on a page with no heading, no link
+    # and no control. (CSS keeps it out of the way of visitors whose redirect works.)
+    _response, html = _render(routed_page)
+    soup = BeautifulSoup(html, "html.parser")
+
+    escape = soup.select_one(".routing-resolver-escape a")
+    assert escape is not None
+    assert escape["href"].startswith(routed_page.canonical.get_url())
+    # Outside <noscript>: nothing about JS being enabled may hide it.
+    assert not escape.find_parents("noscript")
+
+
+def _render_for(routed_page, request):
+    """Render the resolver for a specific request, so its query string reaches the template."""
+    response = render_resolver(request, routed_page.canonical)
+    if hasattr(response, "render"):
+        response.render()
+    return response.content.decode("utf-8")
+
+
+def _fallback_targets(html):
+    """Both server-rendered escape routes: the no-JS refresh and the visible link."""
+    soup = BeautifulSoup(html, "html.parser")
+    refresh = soup.select_one("noscript meta[http-equiv='refresh']")["content"]
+    return refresh.split("url=", 1)[1], soup.select_one(".routing-resolver-escape a")["href"]
+
+
+def test_the_no_js_paths_keep_the_visitors_attribution(routed_page):
+    # A visitor without JS keeps their content today but loses their utm_* entirely — silently,
+    # in exactly the population hardest to measure. Both server-rendered escape routes carry the
+    # inbound query string through, the way the client does for everyone else.
+    request = rf.get("/en-US/whatsnew/?utm_source=update&utm_campaign=spring&oldversion=143")
+    html = _render_for(routed_page, request)
+
+    for url in _fallback_targets(html):
+        assert "utm_campaign=spring" in url
+        assert "oldversion=143" in url
+
+
+def test_the_no_js_paths_drop_control_params_and_carry_the_loop_breaker(routed_page):
+    # utm_source is WNP's arming param, so it rides along as attribution — which means the
+    # destination would serve this page again without the loop-breaker. Framework control params
+    # are dropped instead of duplicated.
+    request = rf.get("/en-US/whatsnew/?utm_source=update&routing=1&routed=1&preview_rule=3")
+    html = _render_for(routed_page, request)
+
+    for url in _fallback_targets(html):
+        assert "routed=1" in url
+        assert url.count("routed=") == 1
+        assert "routing=1" not in url
+        assert "preview_rule" not in url
+        assert "utm_source=update" in url
+
+
 def test_resolver_response_is_cacheable(routed_page):
     response, _html = _render(routed_page)
     # The plain resolver must stay CDN-cacheable — no no-store (previews add it).

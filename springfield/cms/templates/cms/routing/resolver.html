@@ -19,8 +19,9 @@
     <meta name="robots" content="noindex,nofollow">
     <title>{{ ftl('routing-resolver-preparing') }}</title>
 
-    {# No-JS fallback: send the visitor straight to canonical content. #}
-    <noscript><meta http-equiv="refresh" content="0; url={{ canonical_url }}"></noscript>
+    {# No-JS fallback: straight to canonical content, keeping the visitor's attribution and
+       carrying the loop-breaker so the destination doesn't serve this page again. #}
+    <noscript><meta http-equiv="refresh" content="0; url={{ fallback_url }}"></noscript>
 
     {{ css_bundle('cms_routing_resolver') }}
 
@@ -41,8 +42,17 @@
       {% if routing_fake_signals %}data-routing-fake-signals='{{ routing_fake_signals|tojson }}'{% endif %}
     >
       <p class="routing-resolver-status">{{ ftl('routing-resolver-preparing') }}</p>
+      {#
+       The escape hatch. <noscript> does not render when JS is enabled but the bundle fails to
+       load or throws — and `static/` is build output, so a missing bundle is a real deploy
+       failure. Without this, such a visitor is stranded on a page with no link and no control.
+       Always present in the markup (so it works with no CSS and no JS, and screen readers and
+       keyboard users reach it immediately); CSS fades it in after the evaluator's own budget has
+       elapsed, so a visitor whose redirect is working never sees it.
+      #}
+      <p class="routing-resolver-escape"><a href="{{ fallback_url }}">{{ ftl('routing-resolver-continue') }}</a></p>
       <noscript>
-        <p><a href="{{ canonical_url }}">{{ ftl('routing-resolver-noscript') }}</a></p>
+        <p><a href="{{ fallback_url }}">{{ ftl('routing-resolver-continue') }}</a></p>
       </noscript>
     </main>
 
