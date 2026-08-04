@@ -48,7 +48,7 @@ from bs4 import BeautifulSoup, Comment, NavigableString, Tag as HtmlTag
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
-from springfield.cms.models import Author, BlogArticlePage, BlogIndexPage, SpringfieldImage, Tag
+from springfield.cms.models import Author, BlogArticlePage, BlogArticlePageAuthor, BlogIndexPage, SpringfieldImage, Tag
 
 # Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
 # shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.
@@ -686,6 +686,8 @@ class Command(BaseCommand):
         # slug -> path on this site, for every post in the export, so a link to one of them can be
         # rewritten whether or not it has been imported yet. Filled in by handle().
         self.new_paths = {}
+        # Every person the export names, keyed by each form a byline takes. Filled in by handle().
+        self.known_authors = {}
 
     def add_arguments(self, parser):
         parser.add_argument("xml_path", help="Path to the WordPress export XML file.")
@@ -729,6 +731,10 @@ class Command(BaseCommand):
         self.new_paths = {
             element_text(post, "Slug"): f"{index_page.url}{element_text(post, 'Slug')}/" for post in posts if element_text(post, "Slug")
         }
+
+        # Built before importing anything, so a byline on one post can be named by another's
+        # owner record.
+        self.known_authors = self.build_known_authors(posts)
 
         self.url_map_csv = IncrementalCsv(options["url_map_out"], ["wp_id", "old_url", "new_url"])
         self.warnings_csv = IncrementalCsv(options["warnings_out"], ["wp_id", "title", "old_url", "new_url", "type", "warning"])
@@ -820,7 +826,7 @@ class Command(BaseCommand):
         topic = self.get_or_create_snippet(Tag, categories[0], locale)
         exported_tags = [name for name in element_text(post, "Tags").split("|") if name.strip() and name.strip().lower() not in IGNORED_TAG_NAMES]
         tags = [self.get_or_create_snippet(Tag, name, locale) for name in exported_tags + categories[1:]]
-        author = self.get_or_create_author(post, locale)
+        authors = self.get_or_create_authors(post)
         # ImageURL lists every image attached to the post, pipe-separated, with ImageTitle and the
         # other Image* fields as parallel lists. The hero image is the single URL in ImageFeatured,
         # which is the first of those, so its title is the first ImageTitle. A post whose
@@ -846,12 +852,13 @@ class Command(BaseCommand):
             slug=slug,
             locale=locale,
             topic=topic,
-            author=author,
             image=image,
             display_image=True,
             content=content,
             first_published_at=self.parse_wp_date(element_text(post, "Date")),
         )
+        # sort_order is set here rather than left to modelcluster: export order is byline order.
+        page.article_authors = [BlogArticlePageAuthor(author=author, sort_order=order) for order, author in enumerate(authors)]
         index_page.add_child(instance=page)
         if tags:
             page.tags.set(tags)
@@ -945,24 +952,70 @@ class Command(BaseCommand):
         snippet, _ = model.objects.get_or_create(slug=slug, locale=locale, defaults={"name": name})
         return snippet
 
-    def get_or_create_author(self, post, locale):
-        """Resolve the post's author, reporting any byline that can't come with it.
+    def build_known_authors(self, posts):
+        """Map every byline form the export uses to the person's real name and email.
 
-        The Author* fields hold the WordPress post owner, which is what we import. `Authors` is
-        the byline the post was published under, and for a co-written post it lists several - and
-        occasionally none of them is the owner. The page has one author field, so the rest can
-        only be flagged for someone to fix by hand.
+        `Authors` holds the published byline as either an email or a bare name-slug, never a
+        display name, and the Author* fields describe the post's owner rather than its byline.
+        One post's owner record is therefore what names that same person's byline on another
+        post - so this is built from every post before any of them is imported.
+        """
+        known = {}
+        for post in posts:
+            name = f"{element_text(post, 'AuthorFirstName')} {element_text(post, 'AuthorLastName')}".strip()
+            email = element_text(post, "AuthorUsername").strip()
+            if not name:
+                continue
+            if email:
+                known[email.lower()] = (name, email)
+            known[slugify(name)] = (name, email)
+        return known
+
+    def get_or_create_author(self, name, email=""):
+        """Fetch or create the Author for `name`, keyed on the slug of that name.
+
+        Keying on the slug is what lets a byline like `kim-bryant` and an owner record naming
+        "Kim Bryant" land on one snippet, whichever the import meets first.
+        """
+        name = name.strip()
+        if not name:
+            return None
+
+        author, _ = Author.objects.get_or_create(slug=slugify(name), defaults={"name": name, "email": email})
+        return author
+
+    def get_or_create_authors(self, post):
+        """Resolve the post's byline into Authors, in the order the export lists them.
+
+        A byline no owner record names is someone the export describes nowhere: all it carries is
+        a slug or an address, so that raw string becomes the snippet's name and a warning asks for
+        a real one. A post with no byline at all falls back to its owner, the only person it names.
         """
         bylines = [byline.strip() for byline in element_text(post, "Authors").split("|") if byline.strip()]
-        name = f"{element_text(post, 'AuthorFirstName')} {element_text(post, 'AuthorLastName')}".strip()
-        if not name:
-            name = element_text(post, "AuthorUsername")
-        if len(bylines) > 1:
+        if not bylines:
+            email = element_text(post, "AuthorUsername").strip()
+            name = f"{element_text(post, 'AuthorFirstName')} {element_text(post, 'AuthorLastName')}".strip() or email
+            owner = self.get_or_create_author(name, email)
+            return [owner] if owner else []
+
+        authors = []
+        unnamed = []
+        for byline in bylines:
+            entry = self.known_authors.get(byline.lower()) or self.known_authors.get(slugify(byline))
+            if entry is None:
+                unnamed.append(byline)
+                entry = (byline, "")
+            author = self.get_or_create_author(*entry)
+            if author:
+                authors.append(author)
+
+        if unnamed:
             self.warn(
                 WARNING_AUTHOR,
-                f"post is bylined to {len(bylines)} authors ({'|'.join(bylines)}) but only {name!r} was imported - check the byline",
+                f"the export names no one for {'|'.join(unnamed)} - imported under that byline, "
+                "so fill in the real name and email on the author snippet",
             )
-        return self.get_or_create_snippet(Author, name, locale)
+        return authors
 
     def get_or_create_image(self, url, title, description=""):
         """Download `url` into an image, reusing one the library already holds.
