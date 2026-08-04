@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, Tag
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, Tag
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -50,9 +50,25 @@ NUM_LIST_ARTICLES = 28
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
-def get_blog_topics() -> dict[str, Tag]:
+def get_blog_topics() -> dict[str, BlogTopic]:
     locale = Locale.get_default()
     topics = {}
+    for name in BLOG_TOPIC_NAMES:
+        slug = slugify(name)
+        topic, _ = BlogTopic.objects.update_or_create(
+            slug=slug,
+            locale=locale,
+            defaults={"name": name},
+        )
+        topics[slug] = topic
+    return topics
+
+
+def get_blog_tags() -> dict[str, Tag]:
+    """Tag snippets for the `tags` M2M, kept separate from topics so fixtures
+    don't rely on a topic and a tag being the same object."""
+    locale = Locale.get_default()
+    tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
         tag, _ = Tag.objects.update_or_create(
@@ -60,8 +76,8 @@ def get_blog_topics() -> dict[str, Tag]:
             locale=locale,
             defaults={"name": name},
         )
-        topics[slug] = tag
-    return topics
+        tags[slug] = tag
+    return tags
 
 
 def get_blog_article_content(image, image_caption: str = "") -> list:
@@ -134,7 +150,7 @@ def create_blog_article(
     title: str,
     slug: str,
     display_image: bool = False,
-    topic: Tag,
+    topic: BlogTopic,
     tags: list[Tag],
     image,
     description: str,
@@ -192,6 +208,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
 
     topic_list = list(topics.values())
     privacy = topics["privacy"]
+    tags = get_blog_tags()
+    tag_list = list(tags.values())
     articles = []
 
     # 5 articles spread across all topics
@@ -202,7 +220,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             title=FEATURED_TITLES[i - 1],
             slug=f"test-featured-blog-article-{i}",
             topic=topic,
-            tags=topic_list[:2],
+            tags=tag_list[:2],
             image=image,
             description=FEATURED_DESCRIPTIONS[i - 1],
             content=captioned_content,
@@ -216,7 +234,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             title=title,
             slug=f"test-privacy-extra-featured-{i}",
             topic=privacy,
-            tags=topic_list[:2],
+            tags=tag_list[:2],
             image=image,
             description=description,
             content=captioned_content,
@@ -232,7 +250,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             slug=f"test-regular-blog-article-{i}",
             display_image=(i % 2 == 0),
             topic=topic,
-            tags=[topic_list[i % len(topic_list)]],
+            tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
             description=REGULAR_DESCRIPTIONS[i - 1],
             content=plain_content,
@@ -247,7 +265,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             slug=f"test-privacy-extra-regular-{i}",
             display_image=(i % 2 == 0),
             topic=privacy,
-            tags=[topic_list[i % len(topic_list)]],
+            tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
             description=description,
             content=plain_content,

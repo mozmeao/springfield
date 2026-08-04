@@ -1710,7 +1710,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def _prefetch_streamfield_articles(self):
         """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
         and populate _article_cache on each block value to avoid per-block DB queries."""
-        from springfield.cms.models.snippets import Tag
+        from springfield.cms.models.snippets import BlogTopic, Tag
 
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
         # ListBlock iteration yields StructValues (BlockArticleValue) directly.
@@ -1746,6 +1746,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         }
 
         active_locale = SpringfieldLocale.get_active()
+        localized_topics = BlogTopic.objects.filter(locale=active_locale).live()
+        localized_topics_by_slug = {topic.slug: topic for topic in localized_topics}
         localized_tags = Tag.objects.filter(locale=active_locale).live()
         localized_tags_by_slug = {tag.slug: tag for tag in localized_tags}
 
@@ -1753,8 +1755,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             page = value.get("article")
             if page and page.pk in articles_by_pk:
                 article = articles_by_pk[page.pk]
-                if article.topic and article.topic.slug in localized_tags_by_slug:
-                    article._topic_cache = localized_tags_by_slug[article.topic.slug]
+                if article.topic and article.topic.slug in localized_topics_by_slug:
+                    article._topic_cache = localized_topics_by_slug[article.topic.slug]
                 tags_cache = []
                 for tag in article.tags.all():
                     if tag.slug in localized_tags_by_slug:
@@ -1763,7 +1765,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 value._article_cache = article
 
     def get_context(self, request, *args, **kwargs):
-        from springfield.cms.models.snippets import Tag
+        from springfield.cms.models.snippets import BlogTopic
 
         context = super().get_context(request, *args, **kwargs)
 
@@ -1771,7 +1773,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         base_qs = BlogArticlePage.objects.child_of(self).live().public()
         all_topics = (
-            Tag.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .order_by("-article_count")
         )
@@ -1796,7 +1798,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("all/")
     def all_route(self, request):
-        from springfield.cms.models.snippets import Tag
+        from springfield.cms.models.snippets import BlogTopic
 
         base_qs = (
             BlogArticlePage.objects.child_of(self)
@@ -1822,8 +1824,9 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         topic = None
         topic_slug = request.GET.get("topic")
         if topic_slug:
-            topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
-            base_qs = base_qs.filter(topic=topic)
+            topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).first()
+            if topic:
+                base_qs = base_qs.filter(topic=topic)
 
         list_articles_qs = base_qs.order_by("-first_published_at")
         paginator = Paginator(list_articles_qs, 10)
@@ -1858,8 +1861,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         help_text="Display image on the article's list",
     )
 
+    # Null so rows without a topic remain valid; blank stays False (the
+    # default) so the Wagtail admin form still requires one.
     topic = models.ForeignKey(
-        "cms.Tag",
+        "cms.BlogTopic",
+        null=True,
         on_delete=models.PROTECT,
         related_name="blog_articles",
     )
@@ -1961,10 +1967,18 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        related = (
-            BlogArticlePage.objects.sibling_of(self).live().public().filter(topic=self.topic).exclude(pk=self.pk).order_by("-first_published_at")[:4]
-        )
-        context["related_articles"] = list(related)
+        if self.topic_id:
+            related = (
+                BlogArticlePage.objects.sibling_of(self)
+                .live()
+                .public()
+                .filter(topic=self.topic)
+                .exclude(pk=self.pk)
+                .order_by("-first_published_at")[:4]
+            )
+            context["related_articles"] = list(related)
+        else:
+            context["related_articles"] = []
         return context
 
     def get_topic(self):
