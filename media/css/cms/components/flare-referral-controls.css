@@ -1,0 +1,36 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.fl-referral-controls {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-layout-xs);
+    margin: 0 auto;
+}
+
+.fl-referral-controls-invite {
+    border-radius: var(--token-border-radius-xl);
+}
+
+.fl-referral-controls-qr {
+    text-align: center;
+}
+
+/* The QR code is generated as an inline SVG sized in modules, so it needs an
+   explicit box to sit in. */
+.fl-referral-controls-qr-code svg {
+    block-size: auto;
+    inline-size: 100%;
+    max-inline-size: 180px;
+}
+
+/* Unlike flare-mobile-qr.css, the white quiet zone is deliberately kept: this
+   QR sits directly on the dark tab panel and needs the contrast to scan. */
+
+.fl-referral-controls-qr-label {
+    margin: var(--token-spacing-sm) 0 0;
+}

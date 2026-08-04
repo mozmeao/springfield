@@ -16,6 +16,18 @@ from springfield.cms.views import _serve_fallback_page
 
 logger = logging.getLogger(__name__)
 
+# Request attribute a page can set to say "my 404 is deliberate -- do not try to
+# locale-fall-back it". Needed because this middleware treats a 404 as "no page
+# matched this path", which is false for a page that rejects its own request; the
+# fallback lookup would rediscover that page and redirect to it in a loop.
+# Set it via mark_locale_fallback_exempt() before raising Http404.
+LOCALE_FALLBACK_EXEMPT_ATTR = "cms_locale_fallback_exempt"
+
+
+def mark_locale_fallback_exempt(request):
+    """Exempt this request's 404 from CMS locale-fallback redirection."""
+    setattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, True)
+
 
 class CMSLocaleFallbackMiddleware:
     """Middleware that handles two locale-fallback concerns for 404 responses:
@@ -46,6 +58,13 @@ class CMSLocaleFallbackMiddleware:
             if self._has_null_byte(request) is True:
                 # Don't bother processing URLs with null-byte content - they
                 # are fake/vuln scan requests
+                return response
+
+            if getattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, False):
+                # A page *was* found at this path and deliberately returned 404
+                # (e.g. required query params were missing or malformed). The
+                # fallback logic below assumes a 404 means no page matched, so
+                # it would find that same page again and redirect to it forever.
                 return response
 
             _path = request.path.lstrip("/")

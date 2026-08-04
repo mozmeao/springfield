@@ -1,0 +1,36 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  <div class="pl-row">
+    <include:referral-controls
+      invite_url="{{ invite_url }}"
+      copy_label="{{ copy_label }}"
+      copy_success_label="{{ copy_success_label }}"
+      email_label="{{ email_label }}"
+      email_subject="{{ email_subject }}"
+      email_body="{{ email_body }}"
+      qr_label="{{ qr_label }}"
+    />
+  </div>
+
+  <div class="pl-row">
+    <p>
+      Below: the same component with an empty <code>invite_url</code>, which is
+      what the Referral Hub page (<code>/invite/</code>) renders when opened
+      without a <code>ref_key</code> query param. It should output nothing.
+    </p>
+    <include:referral-controls
+      invite_url=""
+      copy_label="{{ copy_label }}"
+      copy_success_label="{{ copy_success_label }}"
+      email_label="{{ email_label }}"
+      email_subject="{{ email_subject }}"
+      email_body="{{ email_body }}"
+      qr_label="{{ qr_label }}"
+    />
+  </div>
+</div>

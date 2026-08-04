@@ -1,5 +1,6 @@
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
 @import 'variables/flare-media-query-tokens.css';
+@import 'components/flare-referral-controls.css';
 
 @layer page {
     .fl-smart-window-explainer-hero {
