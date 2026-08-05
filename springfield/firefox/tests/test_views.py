@@ -4,7 +4,7 @@
 
 import json
 from unittest.mock import patch
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, quote
 
 from django.http import HttpResponse
 from django.test import override_settings
@@ -929,3 +929,40 @@ class TestDownloadRedirect(TestCase):
         resp = download_redirect(req)
         assert resp.status_code == 302
         assert resp["Location"] == "/en-US/"
+
+
+class TestFirefoxThanksAndroidUTMParameters(TestCase):
+    def test_thanks_contains_matching_utm(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.test.com") in href
+
+    def test_thanks_passes_default_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.firefox.com") in href
+        assert quote("utm_medium=referral") in href
+        assert quote("utm_campaign=download") in href
+
+    def test_thanks_overwrites_default_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com&utm_medium=test&utm_campaign=test", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.firefox.com") not in href
+        assert quote("utm_source=www.test.com") in href
+        assert quote("utm_medium=referral") not in href
+        assert quote("utm_medium=test") in href
+        assert quote("utm_campaign=download") not in href
+        assert quote("utm_campaign=test") in href
+
+    def test_thanks_passes_all_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com&utm_medium=test&utm_campaign=test&utm_content=abc123", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_content=abc123") in href
