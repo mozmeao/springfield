@@ -452,7 +452,7 @@ def firefox_all_form_result(request):
         # No session state: bounce back to the form, which revalidates the same
         # query string and renders the error inline. The whole query string is
         # preserved so campaign params survive too.
-        return HttpResponseRedirect(all_form.form_url(request.GET))
+        return HttpResponseRedirect(all_form.form_url(request.GET), status=303)
     return l10n_utils.render(request, "firefox/all-form/result.html", all_form.get_download_options(selection))
 
 
