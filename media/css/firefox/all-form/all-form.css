@@ -3,8 +3,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+:has([name="release"]:where(:user-invalid, :user-valid)) .fl-notification-wrapper {
+    display: none;
+}
+
 firefox-download-form {
     display: block;
+
+    :target {
+        scroll-margin-block-start: 1rem;
+    }
 
     form {
         display: grid;
@@ -37,21 +45,6 @@ firefox-download-form {
     }
 
 
-    .c-or-divider {
-      display: flex;
-      align-items: center;
-      gap: var(--token-spacing-xs);
-      margin: var(--token-spacing-xs) 0;
-      font-size: var(--fl-theme-font-size-body-xs);
-      color: var(--token-color-grey-4);
-
-      &::before,
-      &::after {
-          content: '';
-          width: 3rem;
-          border-top: 1px solid var(--fl-subtle-border-color);
-      }
-    }
 
     .ms-store,
     .ms-store-beta,
@@ -70,16 +63,25 @@ firefox-download-form {
         height: 100px;
     }
 
+    &:not(:defined) .firefox-logo {
+        display: revert-layer;
+    }
+
     &:defined {
         :where(form:valid) .download { display: contents; }
 
-        &:where([data-release="esr"]) {
+        &:where([data-release="esr"], :not([data-os="ios"], [data-os="android"])) {
             .download { display: none; }
             .esr { display: contents; }
-            .esr-115 {
-                display: grid;
-                justify-items: center;
-                text-align: center;
+
+            &:where(
+                :not([data-os="linux"], [data-os$="aarch64"])
+            ) {
+                .esr-115 {
+                    display: grid;
+                    justify-items: center;
+                    text-align: center;
+                }
             }
 
             .recommendation { display: none; }
@@ -121,4 +123,20 @@ firefox-download-form {
             }
         }
     }
+}
+
+.c-or-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--token-spacing-xs);
+  margin: var(--token-spacing-xs) 0;
+  font-size: var(--fl-theme-font-size-body-xs);
+  color: var(--token-color-grey-4);
+
+  &::before,
+  &::after {
+      content: '';
+      width: 3rem;
+      border-top: 1px solid var(--fl-subtle-border-color);
+  }
 }

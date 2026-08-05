@@ -425,87 +425,35 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
 def firefox_all_form(request):
     # Temporary, switch-gated URL for the new "all-form" download page iteration.
     # Hidden (404) until the `all-form` switch is enabled.
+    #
+    # This view must never redirect: it is where the result view sends invalid
+    # submissions, so redirecting from here would loop.
     if not waffle.switch("all-form"):
         raise Http404()
-    languages = all_form.get_languages()
-    language_codes = {code for code, _ in languages}
-    selected_language = request.locale if request.locale in language_codes else "en-US"
+    # A page load counts as a prefill only when it carries one of our own field
+    # names — a query string of nothing but campaign params is not a submission.
+    is_prefilled = bool(set(all_form.FIELD_NAMES) & set(request.GET))
+    selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
     return l10n_utils.render(
         request,
         "firefox/all-form/base.html",
-        {
-            "installers": all_form.get_installers(),
-            "installer_channel_actions": all_form.get_installer_channel_actions(),
-            "release_types": all_form.get_release_types(),
-            "languages": languages,
-            "selected_language": selected_language,
-        },
+        all_form.get_form_context(selection, is_prefilled=is_prefilled),
     )
 
 
 @require_safe
 def firefox_all_form_result(request):
     # Temporary, switch-gated results page for the new "all-form" download form.
-    # Echoes the submitted values back; hidden (404) until the `all-form` switch is enabled.
+    # Hidden (404) until the `all-form` switch is enabled.
     if not waffle.switch("all-form"):
         raise Http404()
-    os_slug = request.GET.get("os", "")
-    release = request.GET.get("release", "")
-    language = request.GET.get("language", "")
-    form_data = {key: request.GET.get(key) for key in request.GET}
-
-    installers = all_form.get_installers()
-    release_types = all_form.get_release_types()
-
-    validation_errors = []
-    if not os_slug:
-        validation_errors.append("No operating system selected.")
-    elif os_slug not in {slug for slug, _ in installers}:
-        validation_errors.append(f"'{os_slug}' is not a recognised operating system.")
-    if not release:
-        validation_errors.append("No release type selected.")
-    elif release not in {val for val, _ in release_types}:
-        validation_errors.append(f"'{release}' is not a recognised release type.")
-    if not language and os_slug not in ("android", "ios"):
-        validation_errors.append("No language selected.")
-
-    ctx = {"form_data": form_data, "validation_errors": validation_errors, "language_valid": None}
-
-    if not validation_errors:
-        os_label = next((lbl for sl, lbl in installers if sl == os_slug), os_slug)
-        channel_label = next((lbl for val, lbl in release_types if val == release), release)
-        lang_info = product_details.languages.get(language)
-        language_label = lang_info["English"] if lang_info else language
-
-        _, language_valid = all_form.get_valid_language(os_slug, release, language)
-        download_url = all_form.get_download_url(os_slug=os_slug, release=release, language=language) if language_valid is not False else None
-        store_url = all_form.get_store_url(os_slug, release)
-        apk_url = all_form.get_android_apk_url(release) if os_slug == "android" else None
-        apt_url = all_form.get_apt_url(os_slug, release)
-
-        store_label = {
-            "android": "Play Store",
-            "ios": "App Store",
-            "win": "Microsoft Store",
-            "win64": "Microsoft Store",
-            "win64-aarch64": "Microsoft Store",
-        }.get(os_slug, "Store")
-
-        ctx.update(
-            {
-                "os_label": os_label,
-                "channel_label": channel_label,
-                "language_label": language_label,
-                "language_valid": language_valid,
-                "download_url": download_url,
-                "store_url": store_url,
-                "store_label": store_label,
-                "apk_url": apk_url,
-                "apt_url": apt_url,
-            }
-        )
-
-    return l10n_utils.render(request, "firefox/all-form/result.html", ctx)
+    selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
+    if not selection.is_valid:
+        # No session state: bounce back to the form, which revalidates the same
+        # query string and renders the error inline. The whole query string is
+        # preserved so campaign params survive too.
+        return HttpResponseRedirect(all_form.form_url(request.GET))
+    return l10n_utils.render(request, "firefox/all-form/result.html", all_form.get_download_options(selection))
 
 
 class DownloadThanksView(L10nTemplateView):

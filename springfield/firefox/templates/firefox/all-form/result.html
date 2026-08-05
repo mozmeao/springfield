@@ -12,57 +12,76 @@
 
 {% block content %}
 <div class="fl-main">
-  <div class="fl-section">
-
-    {% if validation_errors %}
-      <h2>Incomplete form submission</h2>
-      <ul>
-        {% for error in validation_errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
+  <div class="fl-section" style="display: grid; justify-items: center; gap:
+    24px; text-align: center;">
+    <h1 class="text-align: center;">{{ release_label }} for {{ os_label }}</h1>
+    <include:button
+        theme_class="button-link"
+        link="{{ form_url }}"
+        label="Change selection"
+    />
+    <div class="downloads" style="display: grid; justify-items: center; gap: 8px;">
+    {% if is_mobile %}
+      <include:button
+        link="{{ primary_url }}"
+        label="Download Firefox on {{ store_kind }}"
+        icon_name="downloads"
+        icon_position="right"
+      />
+      {% if apk_url %}
+        <include:button
+          link="{{ apk_url }}"
+          label="Download APK"
+          icon_name="downloads"
+          icon_position="right"
+        />
+      {% endif %}
     {% else %}
-      <h2 class="fl-heading-lg">{{ channel_label }} for {{ os_label }}</h2>
+      {% if esr_next_url %}
+        <include:button
+          link="{{ esr_next_url }}"
+          label="Download ESR Next {{ esr_next_version }}"
+          icon_name="downloads"
+          icon_position="right"
+        />
+        <div class="c-or-divider">or</div>
+      {% endif %}
+      <include:button
+        theme_class="{% if esr_next_url %}button-secondary{% endif %}"
+        link="{{ primary_url }}"
+        label="Download {{ release_label }} {{ version }}"
+        icon_name="downloads"
+        icon_position="right"
+      />
+      {% if esr_115_url %}
+        <div class="c-or-divider">or</div>
+        <include:button
+          theme_class="button-secondary"
+          size_class="fl-button-small"
+          link="{{ esr_115_url }}"
+          label="Download ESR 115"
+          icon_name="downloads"
+          icon_position="right"
+        />
+      {% endif %}
 
-      {% set has_any = download_url or store_url or apk_url or apt_url %}
-
-      {% if not has_any %}
-        {% if language_valid is false %}
-          <p>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}.</p>
-        {% else %}
-          <p>{{ channel_label }} is not available for {{ os_label }}.</p>
-        {% endif %}
-      {% else %}
-        <ul>
-          {% if download_url %}
-            <li><a href="{{ download_url }}">Download</a></li>
-          {% elif language_valid is false %}
-            <li>{{ language_label }} is not available for {{ channel_label }} on {{ os_label }}. Direct download unavailable.</li>
-          {% endif %}
-          {% if store_url %}<li><a href="{{ store_url }}">{{ store_label }}</a></li>{% endif %}
-          {% if apk_url %}<li><a href="{{ apk_url }}">APK</a></li>{% endif %}
-          {% if apt_url %}<li><a href="{{ apt_url }}">APT</a></li>{% endif %}
-        </ul>
+      {% if store_kind == "microsoft-store" %}
+        <div class="c-or-divider">or</div>
+        <include:button
+          theme_class="button-secondary"
+          link="{{ store_url }}"
+          label="Download from the Microsoft Store"
+          icon_name="external-link"
+          icon_position="right"
+        />
       {% endif %}
     {% endif %}
-
-    <h2 class="fl-heading-sm">Form values</h2>
-    {% if form_data %}
-      <dl>
-        {% for key, value in form_data.items() %}
-          <dt><strong>{{ key }}</strong>
-            {% if key == 'language' and not validation_errors %}
-              {% if language_valid is none %}(not validated — universal build)
-              {% elif language_valid %}(validated)
-              {% else %}(not available)
-              {% endif %}
-            {% endif %}
-          </dt>
-          <dd><pre>{{ value }}</pre></dd>
-        {% endfor %}
-      </dl>
-    {% else %}
-      <p>No data submitted.</p>
-    {% endif %}
-
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <a href="{{ system_requirements_url }}">System requirements</a>
+      <a href="{{ release_notes_url }}">Release notes</a>
+      <a href="{{ privacy_url }}">Privacy policy</a>
+    </div>
   </div>
 </div>
 {% endblock %}
