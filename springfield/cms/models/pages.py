@@ -1711,7 +1711,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def _prefetch_streamfield_articles(self):
         """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
         and populate _article_cache on each block value to avoid per-block DB queries."""
-        from springfield.cms.models.snippets import BlogTopic, Tag
+        from springfield.cms.models.snippets import BlogTopic, Tag  # circular import
 
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
         # ListBlock iteration yields StructValues (BlockArticleValue) directly.
