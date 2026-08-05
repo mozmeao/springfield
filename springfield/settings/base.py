@@ -568,6 +568,10 @@ REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION = config("REFERRAL_INVITE_CODE_ACTIVE_KE
 # Fail loudly at boot on a broken keyring rather than lazily on the first request.
 validate_invite_code_keyring(REFERRAL_INVITE_CODE_KEYS, REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION)
 
+# Countries where the referral hub and invitee download page are available.
+# Defaults to US-only; can be extended via env without a code deploy.
+FF_REFERRAL_COUNTRY_CODES = {c.strip() for c in config("FF_REFERRAL_COUNTRY_CODES", default="US").split(",") if c.strip()}
+
 # If config is available, we use Google Cloud Storage, else (for local dev)
 # fall back to filesytem storage
 
