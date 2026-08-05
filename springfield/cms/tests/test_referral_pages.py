@@ -510,30 +510,38 @@ def test_referral_pages_geo_lockout_redirects_to_firefox_homepage(rf, page_facto
     page = page_factory(parent=site.root_page)
 
     with patch(GEO_MOCK, return_value="DE"):
-        response = page.serve(rf.get(f"/en-US/page/{valid_query}"))
+        request = rf.get(f"/en-US/invite/{valid_query}")
+        request.locale = "en-US"
+        response = page.serve(request)
 
     assert response.status_code == 302
-    assert response["Location"] == settings.CANONICAL_URL
+    assert response["Location"] == "/en-US/"
 
 
-def test_hub_page_geo_lockout_fires_before_ref_key_validation(rf, settings):
+@pytest.mark.parametrize("locale", ["en-US", "en-CA", "de"])
+def test_hub_page_geo_lockout_fires_before_ref_key_validation(rf, settings, locale):
     """A geo-locked visitor with a bad ref_key gets the geo redirect, not a 404."""
     site = Site.objects.get(is_default_site=True)
     hub_page = ReferralHubPageFactory(parent=site.root_page)
 
     with patch(GEO_MOCK, return_value="DE"):
-        response = hub_page.serve(rf.get("/en-US/invite/?ref_key=bad"))
+        request = rf.get(f"/{locale}/invite/?ref_key=bad")
+        request.locale = locale
+        response = hub_page.serve(request)
 
     assert response.status_code == 302
-    assert response["Location"] == settings.CANONICAL_URL
+    assert response["Location"] == f"/{locale}/"
 
 
-def test_get_firefox_page_geo_lockout_fires_before_invitation_validation(rf, settings):
+@pytest.mark.parametrize("locale", ["en-US", "en-CA", "de"])
+def test_get_firefox_page_geo_lockout_fires_before_invitation_validation(rf, settings, locale):
     """A geo-locked visitor with a bad invitation gets the geo redirect, not a 404."""
     page = _get_firefox_page()
 
     with patch(GEO_MOCK, return_value="DE"):
-        response = page.serve(rf.get("/en-US/get-firefox/?invitation=bad"))
+        request = rf.get(f"/{locale}/get-firefox/?invitation=bad")
+        request.locale = locale
+        response = page.serve(request)
 
     assert response.status_code == 302
-    assert response["Location"] == settings.CANONICAL_URL
+    assert response["Location"] == f"/{locale}/"

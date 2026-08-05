@@ -2399,7 +2399,10 @@ def referral_geo_check(serve_method):
     def wrapper(self, request, *args, **kwargs):
         country = get_country_from_request(request)
         if country not in settings.FF_REFERRAL_COUNTRY_CODES:
-            return redirect(settings.CANONICAL_URL)
+            if locale := getattr(request, "locale"):
+                return redirect(f"/{locale}/")
+            else:
+                return redirect("/")
         return serve_method(self, request, *args, **kwargs)
 
     return wrapper
