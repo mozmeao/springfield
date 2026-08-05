@@ -26,6 +26,20 @@
   {% set form_template="cms/newsletter_enterprise_form.html" %}
 
   <include:newsletter-form>
+  {% if LANG == "de" %}
+    <include:heading
+      level="h2"
+      heading_size="fl-heading-size-3"
+      heading_text="Bleiben Sie informiert: Mozilla Enterprise Updates"
+    />
+    <p class="fl-subheading">Sichern Sie sich wertvolle Insights für Ihre IT-Infrastruktur. Erhalten Sie aktuelle Informationen zu Firefox Enterprise, dem Firefox Professional Support sowie exklusive Einladungen zu Webinaren und Events – maßgeschneidert für IT-, Sicherheits- und Compliance-Verantwortliche.</p>
+    <ul>
+      <li><strong>Relevante Produkt-Updates</strong> direkt aus erster Hand.</li>
+      <li><strong>Experten-Wissen</strong> für mehr Sicherheit und Compliance.</li>
+      <li><strong>Kein Spam</strong> – nur Inhalte, die Ihr Business weiterbringen.</li>
+    </ul>
+    <p class="fl-subheading">Hinweis: Ihr Abonnement ist freiwillig und kann jederzeit mit einem Klick wieder abbestellt werden.</p>
+  {% else %}
     <include:heading
       level="h2"
       heading_size="fl-heading-size-3"
@@ -33,6 +47,7 @@
     />
     <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-v3') }}</p>
     <p class="fl-subheading">{{ ftl('newsletter-enterprise-description-note') }}</p>
+  {% endif %}
   </include:newsletter-form>
 </div>
 {% endblock %}
