@@ -10,12 +10,16 @@
  nothing in that case.
 #}
 
+{% set controls_id = ('fl-referral-controls-' ~ section_id ~ '-' ~ tab_index) if section_id and tab_index else 'fl-referral-controls' %}
+
 <include:referral-controls
+  id="{{ controls_id }}"
   invite_url="{{ invite_url|default('', true) }}"
   copy_label="{{ value.copy_label }}"
   copy_success_label="{{ value.copy_success_label }}"
   email_label="{{ value.email_label }}"
   email_subject="{{ value.email_subject }}"
   email_body="{{ value.email_body }}"
+  qr_heading="{{ value.qr_heading }}"
   qr_label="{{ value.qr_label }}"
 />
