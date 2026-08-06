@@ -31,13 +31,33 @@
         </a>
 
         <div class="fl-blog-index-header">
-          <include:heading
-            level="h1"
-            heading_text="{{ topic.name }}"
-            heading_size="fl-heading-xl"
-            alignment_class="text-center"
-          />
+          {% if topic_page and topic_page.page_heading %}
+            {% for block in topic_page.page_heading %}
+              {% if block.block_type == "heading" %}
+                <include:heading
+                  level="h1"
+                  heading_size="fl-heading-xl"
+                  superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
+                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
+                  subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
+                  alignment_class="text-center"
+                />
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <include:heading
+              level="h1"
+              heading_text="{{ topic.name }}"
+              heading_size="fl-heading-xl"
+              alignment_class="text-center"
+            />
+          {% endif %}
         </div>
+
+        {% if topic_page %}
+          {% set featured_articles = topic_page.featured_articles %}
+          {% include "cms/includes/blog-featured-articles.html" %}
+        {% endif %}
 
         {% set pagination_prev_url = topic_url ~ '?page=' ~ list_articles.previous_page_number() if list_articles.has_previous() else '' %}
         {% set pagination_next_url = topic_url ~ '?page=' ~ list_articles.next_page_number() if list_articles.has_next() else '' %}

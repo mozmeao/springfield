@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.core.exceptions import ValidationError
 from django.http import Http404
 
 import pytest
@@ -9,7 +10,7 @@ from bs4 import BeautifulSoup
 from wagtail.models import Locale
 from wagtail_localize.operations import translate_object
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -25,7 +26,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
-from springfield.cms.models import BlogArticlePage
+from springfield.cms.models import BlogArticlePage, BlogTopicPage
 from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
 from springfield.cms.models.snippets import BlogTopic
 
@@ -818,6 +819,119 @@ def test_blog_topic_with_no_articles_renders_empty(index_page, rf):
 
     assert response.status_code == 200
     assert not BeautifulSoup(response.content, "html.parser").find("article", class_="fl-blog-article-list-item")
+
+
+@pytest.fixture
+def privacy_topic_page(index_page):
+    """A BlogTopicPage for Privacy under an index page that has no articles."""
+    topic = get_blog_topics()["privacy"]
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-topic-page",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": topic},
+    )
+    topic_page.save_revision().publish()
+    return index_page, topic_page, topic
+
+
+def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
+    index_page, topic_page, _ = privacy_topic_page
+    assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+
+def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):
+    _, topic_page, _ = privacy_topic_page
+    with pytest.raises(Http404):
+        topic_page.route(rf.get("/"), [])
+
+
+def test_blog_topic_page_rejects_a_second_page_for_the_same_topic(privacy_topic_page):
+    index_page, topic_page, topic = privacy_topic_page
+
+    duplicate = BlogTopicPage(title="Another Privacy", slug="another-privacy", topic=topic, locale=index_page.locale)
+
+    with pytest.raises(ValidationError) as excinfo:
+        duplicate.clean()
+    assert "topic" in excinfo.value.message_dict
+    assert topic_page.title in str(excinfo.value)
+
+
+@pytest.fixture
+def curated_topic_page(topic_blog):
+    """A BlogTopicPage for Privacy featuring that topic's 4 most recent articles.
+
+    Read back from the database rather than sorting the fixture's objects: create_blog_article
+    returns instances whose first_published_at is still unset from before the publish."""
+    index_page, _ = topic_blog
+    featured = list(BlogArticlePage.objects.child_of(index_page).filter(topic__slug="privacy").order_by("-first_published_at")[:4])
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-curated",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": get_blog_topics()["privacy"]},
+    )
+    topic_page.page_heading = [
+        {
+            "type": "heading",
+            "value": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="tph00001">Curated Privacy</p>',
+                "subheading_text": "",
+            },
+            "id": "tph00001-0000-0000-0000-000000000001",
+        }
+    ]
+    topic_page.featured_articles = [
+        {
+            "type": "article",
+            "value": {
+                "article": article.pk,
+                "image": {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}},
+                "topic": "",
+                "title": "",
+                "description": "",
+                "tags": [],
+            },
+            "id": f"tpf00000-0000-0000-0000-{number:012d}",
+        }
+        for number, article in enumerate(featured, start=1)
+    ]
+    topic_page.save_revision().publish()
+    return index_page, topic_page, featured
+
+
+def test_blog_topic_renders_curated_header(curated_topic_page, rf):
+    """With a BlogTopicPage the route renders its heading and featured articles in place
+    of the plain topic name, and still renders the automatic list below."""
+    index_page, _, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    response = index_page.topic_route(rf.get(url), "privacy")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Curated Privacy" in heading.get_text()
+
+    featured_block = soup.find("div", class_="fl-blog-featured")
+    assert featured_block
+    assert featured[0].title in featured_block.get_text()
+
+    assert soup.select_one(".fl-section-container > .fl-blog-article-list")
+
+
+def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
+    index_page, topic_page, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    context = topic_page.get_context(rf.get(url))
+
+    listed = context["list_articles"]
+    assert {article.pk for article in listed}.isdisjoint({article.pk for article in featured})
+    assert listed.paginator.count == 7, "11 privacy articles minus the 4 featured"
+    assert listed.paginator.num_pages == 1
 
 
 # ---------------------------------------------------------------------------
