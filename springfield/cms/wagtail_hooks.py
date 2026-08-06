@@ -32,7 +32,7 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.admin_views import ContentSearchView
+from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -53,10 +53,11 @@ from springfield.cms.models import (
 
 
 @hooks.register("register_admin_urls")
-def register_content_search_url():
+def register_cms_admin_urls():
     return [
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+        path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
     ]
 
 
