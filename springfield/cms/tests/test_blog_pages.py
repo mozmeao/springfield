@@ -346,6 +346,82 @@ def test_blog_index_edit_handler_has_a_blog_options_tab():
     assert "featured_topics" in edit_handler.get_form_class().base_fields
 
 
+def test_blog_index_header_topics_use_featured_topics_in_order(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["open-source"]])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips", "open-source"]
+
+
+def test_blog_index_header_topics_fall_back_to_topics_with_most_articles(topics_with_article_counts):
+    index_page, _ = topics_with_article_counts
+
+    header_topics = index_page.get_header_topics()
+
+    assert [topic.slug for topic in header_topics] == ["privacy", "security", "tips"]
+    assert [topic.article_count for topic in header_topics] == [3, 2, 1]
+
+
+def test_blog_index_header_topics_fallback_stops_at_the_maximum(more_topics_than_the_header_shows):
+    """The count-based fallback shows no more topics than the featured field allows."""
+    index_page = more_topics_than_the_header_shows
+
+    assert BlogTopic.objects.count() > MAX_HEADER_TOPICS
+    assert len(index_page.get_header_topics()) == MAX_HEADER_TOPICS
+
+
+def test_blog_index_header_topics_skip_unpublished_featured_topic(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    unpublished_topic = topics["security"]
+    unpublished_topic.live = False
+    unpublished_topic.save()
+    index_page.featured_topics = featured_topics_stream([topics["tips"], unpublished_topic])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips"]
+
+
+def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
+    """A translated index page shows the published topic translations for its own
+    locale. Translating a page creates the topic translations as drafts, so only
+    the published ones reach the header."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    translate_object(index_page, [fr_locale])
+    fr_tips = BlogTopic.objects.get(translation_key=topics["tips"].translation_key, locale=fr_locale)
+    fr_tips.name = "Astuces"
+    fr_tips.save_revision().publish()
+
+    fr_index_page = index_page.get_translation(fr_locale)
+    header_topics = fr_index_page.get_header_topics()
+
+    assert [topic.name for topic in header_topics] == ["Astuces"]
+    assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_blog_index_featured_topics_skip_the_article_count_query(index_page_and_topics, django_assert_num_queries):
+    """With featured topics set, the header costs only the chooser lookup and the
+    localized topic query — the article count aggregation never runs."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    page = BlogIndexPage.objects.get(pk=index_page.pk)
+    with django_assert_num_queries(2):
+        page.get_header_topics()
+
+
+def test_blog_index_edit_handler_has_a_blog_options_tab():
+    edit_handler = BlogIndexPage.get_edit_handler()
+
+    assert [str(child.heading) for child in edit_handler.children] == ["Content", "Blog Options", "Promote", "Settings"]
+    assert "featured_topics" in edit_handler.get_form_class().base_fields
+
+
 def test_blog_index_view_all_topics_link(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
