@@ -4,6 +4,7 @@
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
@@ -28,7 +29,7 @@ from springfield.cms.fixtures.blog_fixtures import (
 )
 from springfield.cms.models import BlogArticlePage, BlogTopicPage
 from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
-from springfield.cms.models.snippets import BlogTopic
+from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
 
@@ -1140,3 +1141,68 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     request = rf.get(url)
     with django_assert_max_num_queries(28):
         index_page.all_route(request)
+
+
+def test_article_revision_carries_tags(single_article):
+    """The fixture sets tags before save_revision, so the revision serializes them: a
+    ClusterTaggableManager stores its rows in the revision, and restoring a revision that
+    predates the tags would otherwise silently clear them."""
+    _, article = single_article
+
+    # Replacing the live row's tags after the revision was saved is what makes this test
+    # discriminating: a plain M2M would report the current database state here.
+    replacement_tag = BlogTag.objects.create(name="Encryption", slug="encryption", locale=Locale.get_default())
+    article.tags.set([replacement_tag])
+    article.save()
+
+    revision_article = article.get_latest_revision_as_object()
+
+    assert [tag.name for tag in revision_article.tags.all()] == ["Privacy"]
+
+
+def test_translated_article_carries_tags(single_article):
+    """wagtail-localize skips ManyToManyFields, but taggit's relation is a ParentalKey child
+    relation, so it is synchronised to translations."""
+    _, article = single_article
+    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+
+    translate_object(article, [fr_locale])
+
+    translated = article.get_translation(fr_locale)
+    assert [tag.name for tag in translated.tags.all()] == ["Privacy"]
+
+
+def test_get_tags_skips_tags_with_no_live_localization(single_article):
+    """An unpublished tag must not render. get_tags() returns a list either way, because
+    BlockArticleValue.get_tags iterates the result unguarded."""
+    _, article = single_article
+    tag = article.tags.first()
+    tag.live = False
+    tag.save()
+
+    article = BlogArticlePage.objects.get(pk=article.pk)
+
+    assert article.get_tags() == []
+
+
+def test_all_page_renders_localized_tag_names(privacy_articles, rf):
+    """The all-articles listing must show the active locale's tag name, not the
+    default-locale one it is joined to."""
+    index_page, _ = privacy_articles
+    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
+    BlogTag.objects.create(
+        name="Confidentialité",
+        slug="privacy",
+        locale=fr_locale,
+        translation_key=en_tag.translation_key,
+    )
+
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    with override("fr"):
+        response = index_page.all_route(rf.get(url))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
+    assert "Confidentialité" in tag_labels
+    assert "Privacy" not in tag_labels
