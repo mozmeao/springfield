@@ -32,6 +32,12 @@
         background: none;
     }
 
+    .fl-split-page-lower,
+    .fl-showcase,
+    .fl-section {
+        padding-block: var(--token-layout-md);
+    }
+
     .fl-section-container > .fl-heading,
     .fl-section-container > .fl-heading-group {
         margin-inline: auto;
@@ -59,6 +65,10 @@
     .fl-logo-fx {
         background-size: 200px 40px;
         inline-size: 200px;
+    }
+
+    .fl-featured-image-section {
+        padding-block-start: var(--token-layout-md);
     }
 
     .fl-featured-image-section,
