@@ -20,6 +20,18 @@ from springfield.cms.forms import SpringfieldCopyForm
 from springfield.cms.utils import compute_cms_page_locales
 
 
+class QROpenBehavior(models.TextChoices):
+    """Starting state for the floating QR code snippet.
+
+    Shared between the snippet model and the per-page override mixin, so it
+    lives here in the dependency-free base module rather than in either.
+    """
+
+    OPEN = "open", "Open on page load"
+    CLOSED = "closed", "Closed"
+    DELAYED = "delayed", "Closed, then opens automatically"
+
+
 class PromotedPageMixin(models.Model):
     """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
 
