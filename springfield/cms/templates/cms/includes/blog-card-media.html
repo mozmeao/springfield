@@ -1,0 +1,40 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Shared card media macro for blog article cards. Import with:
+  {% from "cms/includes/blog-card-media.html" import illustration_card_media, full_width_filterspec with context %}
+#}
+
+{% set full_width_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+
+{% macro illustration_card_media(article, list_size, filterspec=full_width_filterspec) %}
+  {% set sizes_by_count = {
+    2: "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw",
+    3: "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw",
+    4: "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"
+  } %}
+  {% set default_sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw" %}
+  {% set sizes = sizes_by_count[list_size] if list_size in sizes_by_count else default_sizes %}
+  {% set image = article.get_image() %}
+  {% if image %}
+    {% if image.focal_point_x %}
+      {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
+    {% else %}
+      {% set focal_point = "center" %}
+    {% endif %}
+    {% set dark_image = article.get_dark_image() %}
+    {% set mobile_image = article.get_mobile_image() %}
+    {% set dark_mobile_image = article.get_mobile_dark_image() %}
+    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+    <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
+      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", class=classes.primary) }}
+      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
+      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
