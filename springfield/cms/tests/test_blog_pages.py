@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.http import Http404
+
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
@@ -713,6 +715,109 @@ def test_blog_topics_shows_article_count_badge(blog_setup, rf):
     assert len(badges) == len(topics), "Each topic link should show an article count badge, visible on hover."
     for badge in badges:
         assert badge.get_text(strip=True).isdigit()
+
+
+# ---------------------------------------------------------------------------
+# Blog topic page (/topics/<slug>/)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def topic_blog(minimal_site):
+    """Index page with 11 Privacy articles — enough to paginate — and 2 Security ones.
+
+    Deliberately leaner than blog_setup: no images, no body content, no tags, no featured
+    articles or cards lists, and only the two topics these tests read. The topic route
+    only reads title, description, topic and first_published_at, so nothing else is set
+    up — skipping get_placeholder_images() in particular avoids generating image files."""
+    index_page = get_blog_index_page()
+    topics = get_blog_topics()
+
+    articles = {"privacy": [], "security": []}
+    for topic_slug, count in (("privacy", 11), ("security", 2)):
+        for number in range(1, count + 1):
+            articles[topic_slug].append(
+                create_blog_article(
+                    index_page=index_page,
+                    title=f"{topics[topic_slug].name} article {number}",
+                    slug=f"test-{topic_slug}-{number}",
+                    topic=topics[topic_slug],
+                    tags=[],
+                    image=None,
+                    description=REGULAR_DESCRIPTIONS[number % len(REGULAR_DESCRIPTIONS)],
+                    content=[],
+                )
+            )
+    return index_page, articles
+
+
+def test_blog_topic_renders(topic_blog, rf):
+    """The plain variant renders the topic name, the back link, and the article list."""
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    response = index_page.topic_route(rf.get(url), "security")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Security" in heading.get_text()
+
+    assert soup.find("a", class_="fl-blog-back-link")
+
+    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == 2
+
+
+def test_blog_topic_unknown_slug_404s(topic_blog, rf):
+    index_page, _ = topic_blog
+    with pytest.raises(Http404):
+        index_page.topic_route(rf.get(index_page.url + "topics/nonexistent/"), "nonexistent")
+
+
+def test_blog_topic_context_holds_only_that_topics_articles(topic_blog, rf):
+    index_page, articles = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    topic = BlogTopic.objects.get(slug="security", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    assert {article.pk for article in context["list_articles"]} == {article.pk for article in articles["security"]}
+
+
+def test_blog_topic_context_orders_articles_most_recent_first(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    dates = [article.first_published_at for article in context["list_articles"]]
+    assert dates == sorted(dates, reverse=True)
+
+
+def test_blog_topic_context_paginates(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    first_page = index_page.get_topic_context(rf.get(url), topic)["list_articles"]
+    assert first_page.paginator.count == 11
+    assert first_page.paginator.num_pages == 2
+    assert len(first_page.object_list) == 10
+
+    second_page = index_page.get_topic_context(rf.get(url, {"page": "2"}), topic)["list_articles"]
+    assert len(second_page.object_list) == 1
+
+
+def test_blog_topic_with_no_articles_renders_empty(index_page, rf):
+    BlogTopic.objects.create(name="Lonely", slug="lonely", locale=index_page.locale)
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["lonely"])
+
+    response = index_page.topic_route(rf.get(url), "lonely")
+
+    assert response.status_code == 200
+    assert not BeautifulSoup(response.content, "html.parser").find("article", class_="fl-blog-article-list-item")
 
 
 # ---------------------------------------------------------------------------

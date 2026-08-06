@@ -1,0 +1,50 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Served by BlogIndexPage.topic_route for /topics/<slug>/. Renders the curated header
+  when topic_page is set, and the topic name otherwise. `page` is the blog index in the
+  plain case and the BlogTopicPage in the curated one, so index URLs always go through
+  `blog_index`.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
+
+{% block body_class %}fl-blog-topic-body{% endblock %}
+
+{% block content %}
+{% set topic_url = blog_index.url ~ blog_index.reverse_subpage('topic_route', args=[topic.slug]) %}
+
+<div class="fl-page fl-page-blog-topic">
+  <main class="fl-main">
+    <section class="fl-section">
+      <div class="fl-section-container">
+
+        <a href="{{ blog_index.url }}" class="fl-blog-back-link">
+          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+          {{ ftl('blog-back') }}
+        </a>
+
+        <div class="fl-blog-index-header">
+          <include:heading
+            level="h1"
+            heading_text="{{ topic.name }}"
+            heading_size="fl-heading-xl"
+            alignment_class="text-center"
+          />
+        </div>
+
+        {% set pagination_prev_url = topic_url ~ '?page=' ~ list_articles.previous_page_number() if list_articles.has_previous() else '' %}
+        {% set pagination_next_url = topic_url ~ '?page=' ~ list_articles.next_page_number() if list_articles.has_next() else '' %}
+        {% include "cms/includes/blog-article-list.html" %}
+
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

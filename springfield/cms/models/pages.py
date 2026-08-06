@@ -1810,6 +1810,29 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             .order_by("-article_count")
         )
 
+    def get_topic_context(self, request, topic, topic_page=None):
+        """Context for the topics/<slug>/ route, shared by the plain listing and by
+        BlogTopicPage. Articles already shown in a curated header are dropped from the
+        list before pagination, so the count matches what is rendered."""
+        articles = article_list_queryset(self.live_articles()).filter(topic=topic)
+
+        if topic_page:
+            featured_values = [block.value for block in (topic_page.featured_articles or [])]
+            prefetch_article_blocks(featured_values)
+            featured_pks = [value["article"].pk for value in featured_values if value.get("article")]
+            if featured_pks:
+                articles = articles.exclude(pk__in=featured_pks)
+
+        paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
+        topic.article_count = paginator.count
+
+        return {
+            "blog_index": self,
+            "topic": topic,
+            "topic_page": topic_page,
+            "list_articles": paginator.get_page(request.GET.get("page", 1)),
+        }
+
     def get_header_topics(self):
         """Topics for the page header: the editor-selected featured topics, or the
         topics with the most articles when none are selected.
@@ -1850,6 +1873,17 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     @path("topics/")
     def topics_route(self, request):
         return self._render_route(request, "cms/blog_topics_page.html")
+
+    @path("topics/<slug:topic_slug>/")
+    def topic_route(self, request, topic_slug):
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTopic
+
+        topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).live().first()
+        if topic is None:
+            raise Http404
+
+        return self._render_route(request, "cms/blog_topic_page.html", self.get_topic_context(request, topic))
 
     @path("all/")
     def all_route(self, request):
