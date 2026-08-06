@@ -6,7 +6,8 @@
 
 {# props id, invite_url="", copy_label="", copy_success_label="", qr_heading="", qr_label="", email_label="", email_subject="", email_body="" #}
 
-{% set qr_dialog_id = id ~ '-fl-referral-controls-qr-dialog' %}
+{# `id` already namespaces this instance, so the suffix only has to say which of its elements this is. #}
+{% set qr_dialog_id = id ~ '-qr-dialog' %}
 
 {% if invite_url %}
   <div class="fl-referral-controls">
