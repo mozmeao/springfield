@@ -46,6 +46,13 @@ def mobile_app(request, *args, **kwargs):
 
 
 redirectpatterns = (
+    # Issue #444 - iOS "shake to summarize" landing page retired; forward to the
+    # blog. Temporary (302) because the blog content is due to migrate to a new URL.
+    redirect(
+        r"^landing/ios-summarizer/?$",
+        "https://blog.mozilla.org/en/firefox/shake-to-summarize-expansion/",
+        permanent=False,
+    ),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172

@@ -23,6 +23,15 @@ from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH
 pytestmark = [pytest.mark.django_db]
 
 CAPTURE_MESSAGE = "springfield.cms.models.pages.capture_message"
+GEO_MOCK = "springfield.cms.models.pages.get_country_from_request"
+
+
+@pytest.fixture(autouse=True)
+def _default_geo_us():
+    """All referral-page serve() calls see country 'US' unless overridden."""
+    with patch(GEO_MOCK, return_value="US"):
+        yield
+
 
 # Referral IDs are 16 characters of canonical uppercase Crockford base32.
 # This one mirrors a row from bootstrap_dummy_referral_data.
@@ -353,7 +362,7 @@ def test_hub_page_get_context_stays_tolerant_of_a_missing_ref_key(rf):
     assert context["install_count"] == 0
 
 
-# Invitee page: an unusable invite code goes to the localized home page
+# Invitee page: an unusable invite code is not found
 
 
 def _get_firefox_page():
@@ -373,13 +382,11 @@ def _get_firefox_page():
         ("?other=10123456789ABCDEF", "wrong parameter name"),
     ],
 )
-def test_get_firefox_page_redirects_home_for_malformed_invite_code(rf, query, why):
+def test_get_firefox_page_raises_404_for_malformed_invite_code(rf, query, why):
     page = _get_firefox_page()
 
-    response = page.serve(rf.get(f"/get-firefox/{query}"))
-
-    assert response.status_code == 302
-    assert response["Location"] == "/en-US/"
+    with pytest.raises(Http404):
+        page.serve(rf.get(f"/get-firefox/{query}"))
 
 
 def test_get_firefox_page_serves_a_known_invite_code(rf):
@@ -427,23 +434,11 @@ def test_get_firefox_page_get_context_invitation_code_none_when_absent(rf):
     assert context["invitation_code"] is None
 
 
-def test_get_firefox_page_redirect_uses_the_visitor_locale(rf):
-    """A non-English visitor must not be forced into /en-US/."""
-    page = _get_firefox_page()
-    request = rf.get("/get-firefox/")
-    request.locale = "de"
-
-    response = page.serve(request)
-
-    assert response["Location"] == "/de/"
-
-
 def test_get_firefox_page_still_rejects_malformed_codes(rf):
     page = _get_firefox_page()
 
-    response = page.serve(rf.get("/get-firefox/?invitation=nope"))
-
-    assert response.status_code == 302
+    with pytest.raises(Http404):
+        page.serve(rf.get("/get-firefox/?invitation=nope"))
 
 
 def test_get_firefox_page_does_not_report_a_missing_invitation_to_sentry(rf):
@@ -451,7 +446,8 @@ def test_get_firefox_page_does_not_report_a_missing_invitation_to_sentry(rf):
     page = _get_firefox_page()
 
     with patch("springfield.firefox.referral.crypto.capture_message") as capture:
-        page.serve(rf.get("/get-firefox/"))
+        with pytest.raises(Http404):
+            page.serve(rf.get("/get-firefox/"))
 
     assert capture.call_count == 0
 
@@ -479,3 +475,73 @@ def test_hub_page_404_is_exempt_from_locale_fallback_redirection(rf):
 
         assert response.status_code == 404, query
         assert "Location" not in response, query
+
+
+def test_get_firefox_page_404_is_exempt_from_locale_fallback_redirection(rf):
+    """Regression: /en-US/get-firefox/ with no invitation must not redirect-loop."""
+    page = _get_firefox_page()
+
+    def get_response(request):
+        try:
+            return page.serve(request)
+        except Http404:
+            return HttpResponseNotFound("not found")
+
+    for query in ["", "?invitation=", "?invitation=nope"]:
+        request = rf.get(f"/en-US/get-firefox/{query}")
+        response = CMSLocaleFallbackMiddleware(get_response)(request)
+
+        assert response.status_code == 404, query
+        assert "Location" not in response, query
+
+
+# Geo lockout
+
+
+@pytest.mark.parametrize(
+    ("page_factory", "valid_query"),
+    [
+        (ReferralHubPageFactory, f"?ref_key={REFERRAL_ID}"),
+        (ReferralGetFirefoxPageFactory, "?invitation=PLACEHOLDER"),
+    ],
+)
+def test_referral_pages_geo_lockout_redirects_to_firefox_homepage(rf, page_factory, valid_query, settings):
+    site = Site.objects.get(is_default_site=True)
+    page = page_factory(parent=site.root_page)
+
+    with patch(GEO_MOCK, return_value="DE"):
+        request = rf.get(f"/en-US/invite/{valid_query}")
+        request.locale = "en-US"
+        response = page.serve(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == "/en-US/"
+
+
+@pytest.mark.parametrize("locale", ["en-US", "en-CA", "de"])
+def test_hub_page_geo_lockout_fires_before_ref_key_validation(rf, settings, locale):
+    """A geo-locked visitor with a bad ref_key gets the geo redirect, not a 404."""
+    site = Site.objects.get(is_default_site=True)
+    hub_page = ReferralHubPageFactory(parent=site.root_page)
+
+    with patch(GEO_MOCK, return_value="DE"):
+        request = rf.get(f"/{locale}/invite/?ref_key=bad")
+        request.locale = locale
+        response = hub_page.serve(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == f"/{locale}/"
+
+
+@pytest.mark.parametrize("locale", ["en-US", "en-CA", "de"])
+def test_get_firefox_page_geo_lockout_fires_before_invitation_validation(rf, settings, locale):
+    """A geo-locked visitor with a bad invitation gets the geo redirect, not a 404."""
+    page = _get_firefox_page()
+
+    with patch(GEO_MOCK, return_value="DE"):
+        request = rf.get(f"/{locale}/get-firefox/?invitation=bad")
+        request.locale = locale
+        response = page.serve(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == f"/{locale}/"
