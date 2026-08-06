@@ -7,6 +7,7 @@
 <div class="pl-frame">
   <div class="pl-row">
     <include:referral-controls
+      id="pl-referral-controls-populated"
       invite_url="{{ invite_url }}"
       copy_label="{{ copy_label }}"
       copy_success_label="{{ copy_success_label }}"
@@ -25,6 +26,7 @@
       without a <code>ref_key</code> query param. It should output nothing.
     </p>
     <include:referral-controls
+      id="pl-referral-controls-empty"
       invite_url=""
       copy_label="{{ copy_label }}"
       copy_success_label="{{ copy_success_label }}"

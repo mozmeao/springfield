@@ -78,7 +78,7 @@
 }
 
 @media (--viewport-md-up) {
-    button[role='tab'] {
+    .fl-tabs button[role='tab'] {
         min-inline-size: 122px;
     }
 }

@@ -24,8 +24,8 @@
     border-radius: var(--token-border-radius-xl);
     margin: var(--token-spacing-xl) auto;
     max-inline-size: 100%;
-    padding: var(--token-spacing-sm) 0 var(--token-spacing-sm)
-        var(--token-spacing-lg);
+    padding-block: var(--token-spacing-sm);
+    padding-inline: var(--token-spacing-lg) 0;
 }
 
 .fl-referral-controls-invite p {
