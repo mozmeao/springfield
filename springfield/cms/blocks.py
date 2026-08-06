@@ -1292,7 +1292,12 @@ class ReferralControlsBlock(blocks.StructBlock):
             "If you leave it out, the link is appended to the end so it is never missing."
         ),
     )
-    qr_label = blocks.CharBlock(default="Scan to open the invite link", help_text="Accessible label shown under the QR code.")
+    qr_heading = blocks.CharBlock(
+        default="Scan the QR code",
+        required=False,
+        help_text="Heading shown above the QR code. Leave empty to show no heading.",
+    )
+    qr_label = blocks.CharBlock(default="Scan to open the invite link", help_text="Accessible label for the QR dialog and shown under the QR code.")
 
     class Meta:
         label = "Referral controls"

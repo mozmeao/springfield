@@ -8,29 +8,129 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    gap: var(--token-layout-xs);
-    margin: 0 auto;
+    justify-content: flex-start;
+    margin: 0 auto var(--token-layout-xs);
+}
+
+.fl-referral-options {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
 }
 
 .fl-referral-controls-invite {
+    background-color: var(--token-color-medium-purple);
     border-radius: var(--token-border-radius-xl);
+    margin: var(--token-spacing-xl) auto;
+    max-inline-size: 100%;
+    padding-block: var(--token-spacing-sm);
+    padding-inline: var(--token-spacing-lg) 0;
 }
 
-.fl-referral-controls-qr {
+.fl-referral-controls-invite p {
+    margin-block-end: 0;
+    mask-image: linear-gradient(
+        to right,
+        black calc(100% - var(--token-spacing-lg)),
+        transparent
+    );
+    overflow: hidden;
+    padding-inline-end: var(--token-spacing-lg);
+    white-space: nowrap;
+}
+
+[dir='rtl'] .fl-referral-controls-invite p {
+    mask-image: linear-gradient(
+        to left,
+        black calc(100% - var(--token-spacing-lg)),
+        transparent
+    );
+}
+
+.fl-referral-controls-share-email.fl-button.button-primary,
+.fl-referral-controls-qr-button.fl-button.button-primary {
+    border-radius: 50%;
+    margin: 0;
+    padding: var(--token-spacing-sm);
+}
+
+.fl-referral-controls .fl-button.fl-copy-to-clipboard-button {
+    justify-content: space-between;
+    padding: var(--token-spacing-sm) var(--token-spacing-xl);
+}
+
+.fl-referral-controls .fl-copy-to-clipboard-label,
+.fl-referral-controls .fl-copy-to-clipboard-label-success {
+    min-inline-size: 101px;
+}
+
+.fl-referral-controls-email-and-qr {
+    display: flex;
+    gap: var(--token-spacing-sm);
+}
+
+.fl-referral-controls .fl-dialog {
+    background-clip: padding-box, border-box;
+    background-color: var(--token-color-black);
+    background-image:
+        linear-gradient(var(--token-color-black), var(--token-color-black)),
+        linear-gradient(to right, var(--token-color-soft-purple-5), #ff9566);
+    background-origin: border-box;
+    border: 1px solid transparent;
+    border-radius: var(--token-spacing-lg);
+    margin: 40vmin auto 0;
+    max-inline-size: fit-content;
+    padding: var(--token-layout-3xs) var(--token-spacing-lg)
+        var(--token-spacing-2xl);
     text-align: center;
 }
 
-/* The QR code is generated as an inline SVG sized in modules, so it needs an
-   explicit box to sit in. */
+.fl-referral-controls .fl-dialog-close-button {
+    inset-block-start: var(--token-spacing-sm);
+    inset-inline-end: var(--token-spacing-sm);
+    padding: 0;
+}
+
+.fl-referral-controls .fl-dialog-content .fl-heading {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-referral-controls-qr-code {
+    display: flex;
+    justify-content: center;
+}
+
 .fl-referral-controls-qr-code svg {
     block-size: auto;
+    border-radius: var(--token-spacing-lg);
     inline-size: 100%;
+    margin-block-end: 0;
     max-inline-size: 180px;
 }
 
-/* Unlike flare-mobile-qr.css, the white quiet zone is deliberately kept: this
-   QR sits directly on the dark tab panel and needs the contrast to scan. */
-
 .fl-referral-controls-qr-label {
+    font-size: var(--fl-theme-label-caps-xs);
     margin: var(--token-spacing-sm) 0 0;
+}
+
+.fl-referral-controls .fl-dialog-content-text {
+    padding-block: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-referral-options {
+        flex-direction: row;
+    }
+
+    .fl-referral-controls .fl-dialog {
+        margin: 25vmin auto 0;
+        padding: var(--token-spacing-2xl) var(--token-spacing-2xl)
+            var(--token-spacing-3xl);
+    }
+
+    .fl-referral-controls-qr-code svg {
+        max-inline-size: none;
+        min-inline-size: 300px;
+    }
 }

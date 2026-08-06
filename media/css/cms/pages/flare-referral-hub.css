@@ -26,12 +26,14 @@
         padding: var(--token-spacing-lg);
     }
 
-    /* ================================================
-       Hero (upper band)
-       The hub's upper band holds a single showcase whose media slot is a set of
-       tabs carrying the referral controls and the impact dashboard.
-       ================================================ */
+    /* Upper band */
     .fl-referral-hub-page .fl-split-page-upper {
+        background: linear-gradient(
+            0deg,
+            rgba(57, 21, 112, 1) 0%,
+            rgba(46, 14, 91, 1) 28%,
+            var(--token-color-dark-purple) 100%
+        );
         padding-block-end: 0;
     }
 
@@ -50,7 +52,7 @@
     }
 
     .fl-referral-hub-page .fl-tabs {
-        padding: var(--token-layout-2xs) 0 0;
+        padding: var(--token-layout-2xs) var(--token-spacing-lg) 0;
     }
 
     .fl-referral-hub-page .fl-tabs .fl-tab-image {
@@ -58,11 +60,10 @@
         max-inline-size: 110px;
     }
 
-    /*
-     * Copy button, share links, QR block and badge row all sit in the same tab
-     * panel. Holding them to the reading measure keeps the panel from spreading
-     * them apart on wide screens.
-     */
+    .fl-referral-hub-page .fl-tabs .fl-tab-heading {
+        margin-block-end: 0;
+    }
+
     .fl-referral-hub-page .fl-referral-controls,
     .fl-referral-hub-page .fl-impact-dash,
     .fl-referral-hub-page .fl-impact-dash-summary {
@@ -74,32 +75,62 @@
     }
 
     .fl-referral-hub-page .fl-tab-note-wrapper {
-        border-block-start: 1px solid var(--token-color-medium-purple);
-        color: #b89cff;
-        display: block;
-        padding: var(--token-spacing-xl) var(--token-layout-xs);
+        display: none;
     }
 
     .fl-referral-hub-page .fl-tab-note p {
-        margin-block-end: 0;
+        font-size: var(--token-font-size-xs);
+        margin: 0 auto;
+        max-inline-size: 480px;
     }
 
-    /* ================================================
-       Lower band
-       ================================================ */
+    .fl-referral-hub-page .fl-split-page-upper .fl-showcase {
+        padding-block-end: var(--token-layout-md);
+        position: relative;
+    }
+
+    .fl-referral-hub-page .fl-split-page-upper .fl-showcase-cta {
+        display: block;
+        inset-block-end: 0;
+        inset-inline-start: 0;
+        min-inline-size: 100%;
+        position: absolute;
+        text-transform: uppercase;
+    }
+
+    .fl-referral-hub-page .fl-split-page-upper .fl-showcase-cta a.fl-button {
+        background: rgba(58, 15, 110, 0.5);
+        border-color: transparent;
+        border-radius: var(--token-border-radius-lg)
+            var(--token-border-radius-lg) 0 0;
+        font-size: var(--token-font-size-xs);
+    }
+
+    /* Lower band */
+    .fl-referral-hub-page .fl-split-page-lower > .fl-intro {
+        padding-block-end: 0;
+    }
+
+    .fl-referral-hub-page .fl-split-page-lower .fl-section:first-of-type {
+        padding-block-start: 0;
+    }
+
+    .fl-referral-hub-page .fl-banner-kit {
+        background-image: none;
+    }
+
     .fl-referral-hub-page .fl-split-page-lower > :last-child {
         padding-block-end: 0;
     }
 
-    /* ================================================
-       Extra band (pre-footer)
-       Rendered outside .fl-main, directly on the dark body background, with the
-       dark theme forced by the template. Only this page uses
-       .fl-split-page-extra, so it is styled here rather than in the template
-       layer.
-       ================================================ */
+    /* Extra band  */
 
     .fl-referral-hub-page .fl-split-page-extra {
+        background: linear-gradient(
+            0deg,
+            rgba(66, 30, 131, 1) 0%,
+            var(--token-color-dark-purple) 100%
+        );
         color: var(--fl-theme-color-text);
         margin: 0 auto;
         padding-block: var(--fl-section-v-padding);
@@ -116,9 +147,33 @@
         max-inline-size: var(--token-width-desktop-content-lg);
     }
 
+    .fl-referral-hub-page .fl-split-page-extra .fl-showcase .fl-video img {
+        border-radius: var(--token-border-radius-sm);
+    }
+
     @media (--viewport-md-up) {
         .fl-referral-hub-page {
             --section-border-radius: var(--token-border-radius-xl);
+        }
+
+        .fl-referral-hub-page .fl-tabs {
+            padding: var(--token-layout-2xs) 0 0;
+        }
+
+        .fl-referral-hub-page .fl-tab-note-wrapper {
+            border-block-start: 1px solid var(--token-color-medium-purple);
+            color: var(--token-color-soft-purple-5);
+            display: block;
+            margin: auto;
+            padding: var(--token-spacing-xl) var(--token-layout-xs);
+        }
+
+        .fl-referral-hub-page .fl-showcase-media {
+            padding-block-end: var(--token-layout-xs);
+        }
+
+        .fl-banner-kit-small {
+            --kit-img-size: 20% auto;
         }
     }
 }
