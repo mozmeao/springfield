@@ -11,7 +11,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0128_editors_moderators_blogtopic_permissions"),
+        ("cms", "0129_blogindexpage_featured_topics"),
     ]
 
     operations = [

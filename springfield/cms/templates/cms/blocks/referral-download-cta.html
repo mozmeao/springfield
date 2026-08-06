@@ -1,0 +1,85 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  data-referral-code invitation_code is set by
+  ReferralGetFirefoxPage.get_context() and passed through to this block
+  template via {% include_block %}. It is read by the referral-attribution JS.
+#}
+<div data-referral-code="{{ invitation_code }}">
+  <div class="fl-referral-download-cta">
+    {#
+      Desktop: use specific_version so we have a direct download link.
+      The JS appends referral attribution_code/sig directly to href and
+      avoids the usual downloadAttribution process.
+    #}
+    <include:conditional-display platform_conditions="{{ ['windows'] }}">
+      <include:download-firefox-button
+        analytics_id="referral-download-cta-win"
+        label="{{ ftl('download-button-download-firefox') }}"
+        cta_text="{{ ftl('download-button-download-firefox') }}"
+        block_position="primary cta"
+        specific_version="win"
+        exclude_unsupported_content=True
+      />
+    </include:conditional-display>
+
+    <include:conditional-display platform_conditions="{{ ['osx'] }}">
+      <include:download-firefox-button
+        analytics_id="referral-download-cta-osx"
+        label="{{ ftl('download-button-download-firefox') }}"
+        cta_text="{{ ftl('download-button-download-firefox') }}"
+        block_position="primary cta"
+        specific_version="osx"
+        exclude_unsupported_content=True
+      />
+    </include:conditional-display>
+    {# Fallback to /thanks link for Linux which doesn't get referral support (yet) #}
+    <include:conditional-display platform_conditions="{{ ['linux'] }}">
+      <include:download-firefox-button
+        analytics_id="referral-download-cta-linux"
+        label="{{ ftl('download-button-download-firefox') }}"
+        cta_text="{{ ftl('download-button-download-firefox') }}"
+        block_position="primary cta"
+        exclude_unsupported_content=True
+      />
+    </include:conditional-display>
+
+    {#
+      Mobile: store badges. JS handles the Google Play referral
+      utm_content for Android; iOS only gets a badge - it can't
+      process referrals (yet).
+    #}
+    <include:conditional-display platform_conditions="{{ ['android', 'ios'] }}">
+      <include:download-firefox-button
+        analytics_id="referral-download-cta-mobile"
+        label="{{ ftl('download-button-download-firefox') }}"
+        cta_text="{{ ftl('download-button-download-firefox') }}"
+        block_position="primary cta"
+        show_store_button=true
+        exclude_unsupported_content=True
+      />
+    </include:conditional-display>
+
+    {#
+      The referral consent checkbox is hidden by default via the 'hidden'
+      class. The referral-attribution JS bundle removes 'hidden' and sets
+      the checkbox to checked on supported platforms.
+    #}
+    <label for="referral-consent" class="referral-consent-label hidden">
+      <input
+        type="checkbox"
+        id="referral-consent"
+        class="referral-consent-checkbox"
+      >
+      <span class="referral-consent-text">
+        {# English only because this page is restricted to English and has a US geofence #}
+        Let Mozilla count your install as a referral
+      </span>
+    </label>
+
+  </div>
+</div>
