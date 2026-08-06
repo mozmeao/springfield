@@ -82,6 +82,22 @@
         color: var(--fl-theme-color-text);
     }
 
+    .fl-featured-image-section .fl-subheading {
+        margin-block-start: var(--token-layout-xs);
+    }
+
+    .fl-featured-image-section .fl-section-container {
+        gap: var(--token-layout-xs);
+    }
+
+    .fl-showcase-caption {
+        margin-block-start: var(--token-layout-xs);
+    }
+
+    .fl-showcase-caption > *:last-child {
+        margin-block-end: 0;
+    }
+
     /* footer overrides  */
 
     body {
