@@ -6,8 +6,85 @@
 
 import { getConsentCookie } from '../../base/consent/utils.es6';
 
+const COOKIE_ID = 'moz-qr-snippet-dismissed';
+const DEFAULT_OPEN_DELAY_MS = 3000;
+
+/**
+ * Toggle the snippet's icon and keep the button's accessible label in sync.
+ * The label text is rendered server-side onto the button as data attributes
+ * so it stays localized.
+ */
+function setToggleState(snippetEl, isOpen) {
+    const icon = snippetEl.querySelector(
+        isOpen ? '.fl-icon-add' : '.fl-icon-subtract'
+    );
+
+    if (icon) {
+        icon.classList.remove(isOpen ? 'fl-icon-add' : 'fl-icon-subtract');
+        icon.classList.add(isOpen ? 'fl-icon-subtract' : 'fl-icon-add');
+
+        const button = snippetEl.querySelector('.fl-qr-code-snippet-close');
+        const label =
+            button &&
+            button.getAttribute(isOpen ? 'data-label-hide' : 'data-label-show');
+
+        if (label) {
+            icon.setAttribute('aria-label', label);
+        }
+    }
+}
+
+function openSnippet(snippetEl) {
+    if (snippetEl.classList.contains('is-open')) {
+        return;
+    }
+    setToggleState(snippetEl, true);
+    snippetEl.classList.add('is-open');
+}
+
+function closeSnippet(snippetEl) {
+    if (!snippetEl.classList.contains('is-open')) {
+        return;
+    }
+    setToggleState(snippetEl, false);
+    snippetEl.classList.remove('is-open');
+}
+
+function dismiss(cookiesEnabled) {
+    if (!cookiesEnabled) {
+        return;
+    }
+
+    /**
+     * Set a preference cookie to remember the user dismissed the QR code
+     * snippet. Legal are OK to set this without explicit consent because:
+     *
+     * 1) The cookie is not used for tracking purposes.
+     * 2) The cookie is set only after an explicit user action.
+     *
+     * We still honor not setting this cookie if preference cookies have been
+     * explicitly rejected by the user.
+     */
+    const cookie = getConsentCookie();
+    if (cookie && !cookie.preference) {
+        return;
+    }
+
+    const date = new Date();
+    const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
+    date.setTime(date.getTime() + cookieDuration);
+    Mozilla.Cookies.setItem(
+        COOKIE_ID,
+        true,
+        date.toUTCString(),
+        '/',
+        undefined,
+        false,
+        'lax'
+    );
+}
+
 function initQRCodeSnippet() {
-    const COOKIE_ID = 'moz-qr-snippet-dismissed';
     const oldSnippet = document.querySelector('.js-qr-code-snippet');
 
     const qrCodeSnippetEl =
@@ -29,14 +106,7 @@ function initQRCodeSnippet() {
     }
 
     if (wasDismissed) {
-        qrCodeSnippetEl.classList.remove('is-open');
-
-        const toggleButton = qrCodeSnippetEl.querySelector('.fl-icon-subtract');
-
-        if (toggleButton) {
-            toggleButton.classList.remove('fl-icon-subtract');
-            toggleButton.classList.add('fl-icon-add');
-        }
+        closeSnippet(qrCodeSnippetEl);
     }
 
     const showHideButton = qrCodeSnippetEl.querySelector(
@@ -45,82 +115,38 @@ function initQRCodeSnippet() {
 
     qrCodeSnippetEl.setAttribute('aria-live', 'polite');
 
-    setTimeout(function () {
-        if (oldSnippet) {
+    // Legacy snippet: always auto-opens after a fixed delay.
+    let autoOpenTimer;
+    if (oldSnippet) {
+        autoOpenTimer = setTimeout(function () {
             qrCodeSnippetEl.classList.add('is-open');
-        }
-    }, 3000);
+        }, DEFAULT_OPEN_DELAY_MS);
+    } else if (
+        qrCodeSnippetEl.dataset.openBehavior === 'delayed' &&
+        !wasDismissed
+    ) {
+        // Floating snippet set to "closed, then opens automatically".
+        const parsed = parseInt(qrCodeSnippetEl.dataset.openDelay, 10);
+        const delay = Number.isFinite(parsed) ? parsed : DEFAULT_OPEN_DELAY_MS;
+        autoOpenTimer = setTimeout(function () {
+            openSnippet(qrCodeSnippetEl);
+        }, delay);
+    }
 
     if (qrCodeSnippetEl.classList.contains('fl-qr-code-snippet-closable')) {
         if (showHideButton) {
             qrCodeSnippetEl.addEventListener('click', function () {
-                if (!qrCodeSnippetEl.classList.contains('is-open')) {
-                    const toggleButton =
-                        qrCodeSnippetEl.querySelector('.fl-icon-add');
-
-                    if (toggleButton) {
-                        toggleButton.classList.remove('fl-icon-add');
-                        toggleButton.classList.add('fl-icon-subtract');
-                    }
-
-                    qrCodeSnippetEl.classList.add('is-open');
-                }
+                clearTimeout(autoOpenTimer);
+                openSnippet(qrCodeSnippetEl);
             });
             showHideButton.addEventListener('click', function (e) {
                 e.stopPropagation();
+                clearTimeout(autoOpenTimer);
                 if (qrCodeSnippetEl.classList.contains('is-open')) {
-                    qrCodeSnippetEl.classList.remove('is-open');
-
-                    const toggleButton =
-                        qrCodeSnippetEl.querySelector('.fl-icon-subtract');
-
-                    if (toggleButton) {
-                        toggleButton.classList.remove('fl-icon-subtract');
-                        toggleButton.classList.add('fl-icon-add');
-                    }
-
-                    if (!cookiesEnabled) {
-                        return;
-                    }
-
-                    /**
-                     * Set a preference cookie to remember the user dismissed
-                     * the QR code snippet. Legal are OK to set this without
-                     * explicit consent because:
-                     *
-                     * 1) The cookie is not used for tracking purposes.
-                     * 2) The cookie is set only after an explicit user action.
-                     *
-                     * We still honor not setting this cookie if preference
-                     * cookies have been explicitly rejected by the user.
-                     */
-                    const cookie = getConsentCookie();
-                    if (cookie && !cookie.preference) {
-                        return;
-                    }
-
-                    const date = new Date();
-                    const cookieDuration = 24 * 60 * 60 * 1000; // 24 hours
-                    date.setTime(date.getTime() + cookieDuration);
-                    Mozilla.Cookies.setItem(
-                        COOKIE_ID,
-                        true,
-                        date.toUTCString(),
-                        '/',
-                        undefined,
-                        false,
-                        'lax'
-                    );
+                    closeSnippet(qrCodeSnippetEl);
+                    dismiss(cookiesEnabled);
                 } else {
-                    const toggleButton =
-                        qrCodeSnippetEl.querySelector('.fl-icon-add');
-
-                    if (toggleButton) {
-                        toggleButton.classList.remove('fl-icon-add');
-                        toggleButton.classList.add('fl-icon-subtract');
-                    }
-
-                    qrCodeSnippetEl.classList.add('is-open');
+                    openSnippet(qrCodeSnippetEl);
                 }
             });
         }
