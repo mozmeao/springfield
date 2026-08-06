@@ -13,9 +13,7 @@ module.exports = {
     entry: './media/index.js',
     output: {
         path: path.resolve(__dirname, 'assets/'),
-        publicPath: '/media/',
-        // Clean out /assets before processing
-        clean: true
+        publicPath: '/media/'
     },
     performance: {
         hints: 'warning'
