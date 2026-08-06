@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage, Tag
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -69,12 +69,14 @@ def featured_topics_stream(topics: list[BlogTopic]) -> list[dict]:
     return [{"type": "topic", "value": topic.pk, "id": f"ftopic00-0000-0000-0000-{i:012d}"} for i, topic in enumerate(topics, start=1)]
 
 
-def get_blog_tags() -> dict[str, Tag]:
+def get_blog_tags() -> dict[str, BlogTag]:
+    """Tag snippets for the `tags` relation, kept separate from topics so fixtures
+    don't rely on a topic and a tag being the same object."""
     locale = Locale.get_default()
     tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _ = Tag.objects.update_or_create(
+        tag, _created = BlogTag.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
@@ -154,7 +156,7 @@ def create_blog_article(
     slug: str,
     display_image: bool = False,
     topic: BlogTopic,
-    tags: list[Tag],
+    tags: list[BlogTag],
     image,
     description: str,
     content: list,
@@ -175,8 +177,8 @@ def create_blog_article(
     article.image = image
     article.description = description
     article.content = content
-    article.save_revision().publish()
     article.tags.set(tags)
+    article.save_revision().publish()
 
     return article
 

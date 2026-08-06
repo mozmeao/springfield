@@ -18,7 +18,6 @@ from django.core.paginator import Paginator
 from django.db import DatabaseError, models
 from django.db.models import Count
 from django.db.models.expressions import F
-from django.forms.widgets import CheckboxSelectMultiple
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -90,7 +89,7 @@ from springfield.cms.blocks import (
     VideoBlock,
     validate_animation_url,
 )
-from springfield.cms.fields import StreamField
+from springfield.cms.fields import LocalizedClusterTaggableManager, StreamField
 from springfield.cms.middleware import mark_locale_fallback_exempt
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
@@ -1647,6 +1646,19 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
 
 
+def cache_localized_tags(articles):
+    """Populate _tags_cache on each article from a single BlogTag lookup, so rendering
+    localized tag names costs one query rather than one per tag."""
+    # Inline import: snippets.py imports cms_tags, which imports this module at load time,
+    # so a module-level snippet import here would be circular. Every other snippet
+    # reference in this file is deferred the same way.
+    from springfield.cms.models.snippets import BlogTag
+
+    localized_tags_by_slug = {tag.slug: tag for tag in BlogTag.objects.filter(locale=SpringfieldLocale.get_active()).live()}
+    for article in articles:
+        article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
+
+
 MAX_HEADER_TOPICS = 8
 
 
@@ -1679,17 +1691,17 @@ def prefetch_article_blocks(values):
     Topics and tags are swapped for their active-locale equivalents at the same time,
     because the referenced article is always the source-locale page."""
     # Inline import: snippets and pages import from each other at module scope.
-    from springfield.cms.models.snippets import BlogTopic, Tag
+    from springfield.cms.models.snippets import BlogTopic
 
     pks = [value["article"].pk for value in values if value.get("article")]
     if not pks:
         return
 
     articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=pks))}
+    cache_localized_tags(articles_by_pk.values())
 
     active_locale = SpringfieldLocale.get_active()
     localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=active_locale).live()}
-    localized_tags_by_slug = {tag.slug: tag for tag in Tag.objects.filter(locale=active_locale).live()}
 
     for value in values:
         page = value.get("article")
@@ -1697,7 +1709,6 @@ def prefetch_article_blocks(values):
             article = articles_by_pk[page.pk]
             if article.topic and article.topic.slug in localized_topics_by_slug:
                 article._topic_cache = localized_topics_by_slug[article.topic.slug]
-            article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
             value._article_cache = article
 
 
@@ -1826,13 +1837,15 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
         topic.article_count = paginator.count
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+        cache_localized_tags(list_articles.object_list)
 
         return {
             "blog_index": self,
             "topic": topic,
             "all_topics": self.get_all_topics(),
             "topic_page": topic_page,
-            "list_articles": paginator.get_page(request.GET.get("page", 1)),
+            "list_articles": list_articles,
         }
 
     def get_header_topics(self):
@@ -1911,6 +1924,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if topic:
             topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
+        cache_localized_tags(list_articles.object_list)
 
         return self._render_route(
             request,
@@ -2040,11 +2054,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         on_delete=models.PROTECT,
         related_name="blog_articles",
     )
-    tags = models.ManyToManyField(
-        "cms.Tag",
-        related_name="blog_articles_tags",
-        blank=True,
-    )
+    tags = LocalizedClusterTaggableManager(through="cms.TaggedBlogArticle", blank=True)
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,
@@ -2098,7 +2108,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("topic"),
-                FieldPanel("tags", widget=CheckboxSelectMultiple()),
+                FieldPanel("tags"),
             ],
             heading="Tags",
         ),
@@ -2145,9 +2155,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 .public()
                 .filter(topic=self.topic)
                 .exclude(pk=self.pk)
+                .prefetch_related("tags")
                 .order_by("-first_published_at")[:4]
             )
             context["related_articles"] = list(related)
+            cache_localized_tags(context["related_articles"])
         else:
             context["related_articles"] = []
         return context
@@ -2162,10 +2174,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_tags(self):
         if not hasattr(self, "_tags_cache"):
-            if self.tags.all():
-                self._tags_cache = [tag.get_localized() for tag in self.tags.all()]
-            else:
-                self._tags_cache = None
+            self._tags_cache = [localized for tag in self.tags.all() if (localized := tag.get_localized())]
         return self._tags_cache
 
 
