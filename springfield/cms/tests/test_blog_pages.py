@@ -19,11 +19,10 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_article_content,
     get_blog_index_page,
     get_blog_pages,
-    get_blog_tags,
     get_blog_topics,
 )
 from springfield.cms.models import BlogArticlePage
-from springfield.cms.models.snippets import BlogTopic
+from springfield.cms.models.snippets import Tag
 
 pytestmark = [pytest.mark.django_db]
 
@@ -40,13 +39,12 @@ def single_article(minimal_site):
     image, _, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
-    privacy_tag = get_blog_tags()["privacy"]
     article = create_blog_article(
         index_page=idx,
         title=FEATURED_TITLES[0],
         slug="test-single-article",
         topic=privacy,
-        tags=[privacy_tag],
+        tags=[privacy],
         image=image,
         description=FEATURED_DESCRIPTIONS[0],
         content=get_blog_article_content(image),
@@ -60,7 +58,6 @@ def privacy_articles(minimal_site):
     image, dark_image, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
-    privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image)
 
     all_titles = FEATURED_TITLES + REGULAR_TITLES[:4]
@@ -75,7 +72,7 @@ def privacy_articles(minimal_site):
                 slug=f"test-privacy-{i + 1}",
                 display_image=(i % 2 == 0),
                 topic=privacy,
-                tags=[privacy_tag],
+                tags=[privacy],
                 image=image if i < 5 else dark_image,
                 description=all_descriptions[i],
                 content=content,
@@ -129,9 +126,7 @@ def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
-    all_topics = (
-        BlogTopic.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
-    )
+    all_topics = Tag.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
 
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
@@ -469,7 +464,7 @@ def test_blog_all_unknown_topic_shows_all_articles(blog_setup, rf):
 
 def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
     index_page, articles = privacy_articles
-    topic = BlogTopic.objects.get(slug="privacy")
+    topic = Tag.objects.get(slug="privacy")
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url, {"topic": "privacy"})
     response = index_page.all_route(request)
@@ -782,7 +777,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(25):
+    with django_assert_max_num_queries(23):
         index_page.serve(request)
 
 
@@ -798,5 +793,5 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(26):
         index_page.all_route(request)
