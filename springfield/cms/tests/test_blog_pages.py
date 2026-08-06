@@ -2,10 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.db.models import Count
-
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
+from wagtail_localize.operations import translate_object
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
@@ -16,6 +16,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
     create_blog_article,
+    featured_topics_stream,
     get_blog_article_content,
     get_blog_index_page,
     get_blog_pages,
@@ -23,6 +24,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_topics,
 )
 from springfield.cms.models import BlogArticlePage
+from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
 from springfield.cms.models.snippets import BlogTopic
 
 pytestmark = [pytest.mark.django_db]
@@ -91,6 +93,53 @@ def blog_setup(minimal_site):
     return get_blog_index_page(), articles
 
 
+@pytest.fixture
+def index_page_and_topics(minimal_site):
+    """Index page + topic snippets, no articles."""
+    return get_blog_index_page(), get_blog_topics()
+
+
+@pytest.fixture
+def topics_with_article_counts(minimal_site):
+    """Index page + three topics with 3, 2 and 1 published articles, for the
+    count-based header fallback."""
+    index_page = get_blog_index_page()
+    topics = get_blog_topics()
+    article_counts = {"privacy": 3, "security": 2, "tips": 1}
+    for slug, count in article_counts.items():
+        for number in range(count):
+            create_blog_article(
+                index_page=index_page,
+                title=f"{slug} article {number}",
+                slug=f"test-{slug}-{number}",
+                topic=topics[slug],
+                tags=[],
+                image=None,
+                description="",
+                content=[],
+            )
+    return index_page, topics
+
+
+@pytest.fixture
+def more_topics_than_the_header_shows(minimal_site):
+    """Index page + one more topic than the header can show, each with one article."""
+    index_page = get_blog_index_page()
+    for number in range(MAX_HEADER_TOPICS + 1):
+        topic = BlogTopic.objects.create(name=f"Topic {number}", slug=f"topic-{number}", locale=index_page.locale)
+        create_blog_article(
+            index_page=index_page,
+            title=f"Article {number}",
+            slug=f"test-article-{number}",
+            topic=topic,
+            tags=[],
+            image=None,
+            description="",
+            content=[],
+        )
+    return index_page
+
+
 # ---------------------------------------------------------------------------
 # Blog index page (/)
 # ---------------------------------------------------------------------------
@@ -129,18 +178,92 @@ def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
-    all_topics = (
-        BlogTopic.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
-    )
+    header_topics = index_page.get_header_topics()
 
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
-    assert len(topic_links) == len(all_topics)
+    assert len(topic_links) == len(header_topics)
 
-    for index, topic in enumerate(all_topics):
+    for index, topic in enumerate(header_topics):
         link = topic_links[index]
         assert topic.name in link.get_text()
         assert link["href"] == f"{all_route_url}?topic={topic.slug}"
+
+
+def test_blog_index_header_topics_use_featured_topics_in_order(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["open-source"]])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips", "open-source"]
+
+
+def test_blog_index_header_topics_fall_back_to_topics_with_most_articles(topics_with_article_counts):
+    index_page, _ = topics_with_article_counts
+
+    header_topics = index_page.get_header_topics()
+
+    assert [topic.slug for topic in header_topics] == ["privacy", "security", "tips"]
+    assert [topic.article_count for topic in header_topics] == [3, 2, 1]
+
+
+def test_blog_index_header_topics_fallback_stops_at_the_maximum(more_topics_than_the_header_shows):
+    """The count-based fallback shows no more topics than the featured field allows."""
+    index_page = more_topics_than_the_header_shows
+
+    assert BlogTopic.objects.count() > MAX_HEADER_TOPICS
+    assert len(index_page.get_header_topics()) == MAX_HEADER_TOPICS
+
+
+def test_blog_index_header_topics_skip_unpublished_featured_topic(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    unpublished_topic = topics["security"]
+    unpublished_topic.live = False
+    unpublished_topic.save()
+    index_page.featured_topics = featured_topics_stream([topics["tips"], unpublished_topic])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips"]
+
+
+def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
+    """A translated index page shows the published topic translations for its own
+    locale. Translating a page creates the topic translations as drafts, so only
+    the published ones reach the header."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    translate_object(index_page, [fr_locale])
+    fr_tips = BlogTopic.objects.get(translation_key=topics["tips"].translation_key, locale=fr_locale)
+    fr_tips.name = "Astuces"
+    fr_tips.save_revision().publish()
+
+    fr_index_page = index_page.get_translation(fr_locale)
+    header_topics = fr_index_page.get_header_topics()
+
+    assert [topic.name for topic in header_topics] == ["Astuces"]
+    assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_blog_index_featured_topics_skip_the_article_count_query(index_page_and_topics, django_assert_num_queries):
+    """With featured topics set, the header costs only the chooser lookup and the
+    localized topic query — the article count aggregation never runs."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    page = BlogIndexPage.objects.get(pk=index_page.pk)
+    with django_assert_num_queries(2):
+        page.get_header_topics()
+
+
+def test_blog_index_edit_handler_has_a_blog_options_tab():
+    edit_handler = BlogIndexPage.get_edit_handler()
+
+    assert [str(child.heading) for child in edit_handler.children] == ["Content", "Blog Options", "Promote", "Settings"]
+    assert "featured_topics" in edit_handler.get_form_class().base_fields
 
 
 def test_blog_index_view_all_topics_link(blog_setup, rf):
@@ -782,7 +905,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(25):
+    with django_assert_max_num_queries(26):
         index_page.serve(request)
 
 
