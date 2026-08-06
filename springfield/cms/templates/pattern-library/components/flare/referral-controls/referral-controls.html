@@ -7,12 +7,14 @@
 <div class="pl-frame">
   <div class="pl-row">
     <include:referral-controls
+      id="pl-referral-controls-populated"
       invite_url="{{ invite_url }}"
       copy_label="{{ copy_label }}"
       copy_success_label="{{ copy_success_label }}"
       email_label="{{ email_label }}"
       email_subject="{{ email_subject }}"
       email_body="{{ email_body }}"
+      qr_heading="{{ qr_heading }}"
       qr_label="{{ qr_label }}"
     />
   </div>
@@ -24,12 +26,14 @@
       without a <code>ref_key</code> query param. It should output nothing.
     </p>
     <include:referral-controls
+      id="pl-referral-controls-empty"
       invite_url=""
       copy_label="{{ copy_label }}"
       copy_success_label="{{ copy_success_label }}"
       email_label="{{ email_label }}"
       email_subject="{{ email_subject }}"
       email_body="{{ email_body }}"
+      qr_heading="{{ qr_heading }}"
       qr_label="{{ qr_label }}"
     />
   </div>

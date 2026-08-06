@@ -4439,6 +4439,7 @@ REFERRAL_CONTROLS_LABELS = {
     "email_label": "Send an email",
     "email_subject": "Firefox is worth a look",
     "email_body": "Try this browser. {invite link} Hope you like it.",
+    "qr_heading": "QR code",
     "qr_label": "Point a camera at this",
 }
 
@@ -4516,7 +4517,31 @@ def test_tab_block_renders_referral_controls_with_all_labels():
     assert REFERRAL_CONTROLS_LABELS["email_label"] in email_link.get_text(strip=True)
     assert email_link["href"].startswith("mailto:?subject=")
 
+    qr_button = controls.find("button", class_="fl-referral-controls-qr-button")
+    assert qr_button.get_text(strip=True) == REFERRAL_CONTROLS_LABELS["qr_label"]
     assert controls.find("p", class_="fl-referral-controls-qr-label").get_text(strip=True) == (REFERRAL_CONTROLS_LABELS["qr_label"])
+    assert controls.find("h3", class_="fl-heading").get_text(strip=True) == REFERRAL_CONTROLS_LABELS["qr_heading"]
+
+
+def test_tab_block_referral_controls_qr_button_targets_its_dialog():
+    """The QR is behind a dialog, so the trigger has to actually reach it.
+
+    flare-dialogs.es6.js pairs the two by id alone: a trigger whose
+    data-target-id matches nothing is a silently dead button, which no
+    label or markup assertion would catch.
+    """
+    controls = BeautifulSoup(_render_tab(), "html.parser").find("div", class_="fl-referral-controls")
+
+    qr_button = controls.find("button", class_="fl-referral-controls-qr-button")
+    assert "fl-dialog-trigger" in qr_button["class"]
+
+    dialog = controls.find("dialog", id=qr_button["data-target-id"])
+    assert dialog is not None
+    assert dialog["aria-label"] == REFERRAL_CONTROLS_LABELS["qr_label"]
+    # The code itself is in the dialog, not on the page behind it.
+    assert dialog.find("div", class_="fl-referral-controls-qr-code") is not None
+    # ...and the dialog can be dismissed once open.
+    assert dialog.find("button", class_="fl-dialog-close-button") is not None
 
 
 def _email_href(html):
@@ -4586,9 +4611,38 @@ def test_tab_block_referral_controls_qr_code_encodes_invite_url():
     soup = BeautifulSoup(_render_tab(), "html.parser")
     qr = soup.find("div", class_="fl-referral-controls-qr-code")
 
-    # The QR is decorative: the copy button already exposes the link.
+    # The QR is decorative: the copy button already exposes the link, and the
+    # trigger button carries qr_label as its accessible name.
     assert qr["aria-hidden"] == "true"
     assert qr.find("svg") is not None
+
+
+def test_tab_block_referral_controls_qr_heading_precedes_the_code():
+    """The heading introduces the QR code, so it has to come before it.
+
+    The dialog places its heading slot above its body, and the assertion is on
+    document order rather than on the slot markup so that restructuring the
+    dialog cannot silently drop the heading below the image.
+    """
+    dialog = BeautifulSoup(_render_tab(), "html.parser").find("dialog")
+
+    heading = dialog.find("h3", class_="fl-heading")
+    assert heading.get_text(strip=True) == REFERRAL_CONTROLS_LABELS["qr_heading"]
+
+    svg = dialog.find("div", class_="fl-referral-controls-qr-code").find("svg")
+    # find_all_next only walks forwards, so reaching the svg proves the order.
+    assert svg in heading.find_all_next("svg")
+
+
+def test_tab_block_referral_controls_omits_qr_heading_when_blank():
+    """qr_heading is optional, and an empty one must not leave an empty <h3>."""
+    labels = dict(REFERRAL_CONTROLS_LABELS, qr_heading="")
+    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+    dialog = BeautifulSoup(html, "html.parser").find("dialog")
+
+    assert dialog.find("h3") is None
+    # ...and the QR code itself is still there.
+    assert dialog.find("div", class_="fl-referral-controls-qr-code").find("svg") is not None
 
 
 def test_tab_block_referral_controls_never_expose_the_hub_url():
@@ -4895,8 +4949,8 @@ def test_tab_block_renders_badge_name_below_the_number_and_label():
     name = badges[0].find("p", class_="fl-badge-name")
     assert name.get_text(strip=True) == "Connector"
 
-    # The name must follow the number/label pair, not precede it.
-    children = [el for el in badges[0].find_all(["p", "div"], recursive=False)]
+    description = badges[0].find("div", class_="fl-badge-description")
+    children = description.find_all(["p", "div"], recursive=False)
     classes = [c for el in children for c in (el.get("class") or [])]
     assert classes.index("fl-badge-value") < classes.index("fl-badge-name")
 
