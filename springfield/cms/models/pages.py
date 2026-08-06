@@ -121,6 +121,8 @@ THEME_CHOICES = (
     (ENTERPRISE_THEME, "Enterprise"),
 )
 
+ARTICLES_PER_PAGE = 10
+
 
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
@@ -1648,6 +1650,57 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 MAX_HEADER_TOPICS = 8
 
 
+def article_list_queryset(queryset):
+    """Add everything the article list and card templates render to a BlogArticlePage
+    queryset, so rendering does not fan out into a query per article."""
+    return (
+        queryset.select_related(
+            "topic",
+            "image",
+            "image_dark_mode",
+            "image_mobile",
+            "image_dark_mode_mobile",
+        )
+        .prefetch_related(
+            "tags",
+            "image__renditions",
+            "image_dark_mode__renditions",
+            "image_mobile__renditions",
+            "image_dark_mode_mobile__renditions",
+        )
+        .defer("content")
+    )
+
+
+def prefetch_article_blocks(values):
+    """Bulk-fetch the BlogArticlePages referenced by a list of BlockArticleValues and
+    populate _article_cache on each, so rendering does not issue a query per block.
+
+    Topics and tags are swapped for their active-locale equivalents at the same time,
+    because the referenced article is always the source-locale page."""
+    # Inline import: snippets and pages import from each other at module scope.
+    from springfield.cms.models.snippets import BlogTopic, Tag
+
+    pks = [value["article"].pk for value in values if value.get("article")]
+    if not pks:
+        return
+
+    articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=pks))}
+
+    active_locale = SpringfieldLocale.get_active()
+    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=active_locale).live()}
+    localized_tags_by_slug = {tag.slug: tag for tag in Tag.objects.filter(locale=active_locale).live()}
+
+    for value in values:
+        page = value.get("article")
+        if page and page.pk in articles_by_pk:
+            article = articles_by_pk[page.pk]
+            if article.topic and article.topic.slug in localized_topics_by_slug:
+                article._topic_cache = localized_topics_by_slug[article.topic.slug]
+            article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
+            value._article_cache = article
+
+
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
@@ -1733,70 +1786,26 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def __str__(self):
         return f"BlogIndexPage: {self.title} - {self.locale}"
 
-    def _prefetch_streamfield_articles(self):
-        """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
-        and populate _article_cache on each block value to avoid per-block DB queries."""
-        from springfield.cms.models.snippets import BlogTopic, Tag  # circular import
-
+    def prefetch_streamfield_articles(self):
+        """Prefetch every article referenced by this page's featured_articles and cards_lists."""
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
         # ListBlock iteration yields StructValues (BlockArticleValue) directly.
-        featured_articles_values = [b.value for b in (self.featured_articles or [])]
-        cards_lists_values = []
+        values = [block.value for block in (self.featured_articles or [])]
         for cards_list_block in self.cards_lists or []:
-            cards_lists_values.extend(list(cards_list_block.value["articles"]))
+            values.extend(list(cards_list_block.value["articles"]))
+        prefetch_article_blocks(values)
 
-        all_values = featured_articles_values + cards_lists_values
-        pks = [value["article"].pk for value in all_values if value.get("article")]
-
-        if not pks:
-            return
-
-        articles_by_pk = {
-            a.pk: a
-            for a in BlogArticlePage.objects.filter(pk__in=pks)
-            .select_related(
-                "topic",
-                "image",
-                "image_dark_mode",
-                "image_mobile",
-                "image_dark_mode_mobile",
-            )
-            .prefetch_related(
-                "tags",
-                "image__renditions",
-                "image_dark_mode__renditions",
-                "image_mobile__renditions",
-                "image_dark_mode_mobile__renditions",
-            )
-            .defer("content")
-        }
-
-        active_locale = SpringfieldLocale.get_active()
-        localized_topics = BlogTopic.objects.filter(locale=active_locale).live()
-        localized_topics_by_slug = {topic.slug: topic for topic in localized_topics}
-        localized_tags = Tag.objects.filter(locale=active_locale).live()
-        localized_tags_by_slug = {tag.slug: tag for tag in localized_tags}
-
-        for value in all_values:
-            page = value.get("article")
-            if page and page.pk in articles_by_pk:
-                article = articles_by_pk[page.pk]
-                if article.topic and article.topic.slug in localized_topics_by_slug:
-                    article._topic_cache = localized_topics_by_slug[article.topic.slug]
-                tags_cache = []
-                for tag in article.tags.all():
-                    if tag.slug in localized_tags_by_slug:
-                        tags_cache.append(localized_tags_by_slug[tag.slug])
-                article._tags_cache = tags_cache
-                value._article_cache = article
+    def live_articles(self):
+        """Published, publicly visible articles under this index."""
+        return BlogArticlePage.objects.child_of(self).live().public()
 
     def get_all_topics(self):
-        """Topics with at least one published article, most articles first."""
-        from springfield.cms.models.snippets import BlogTopic  # circular import
+        """Topics that have at least one live article here, most-populated first."""
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTopic
 
-        base_qs = BlogArticlePage.objects.child_of(self).live().public()
         return (
-            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=self.live_articles().values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .order_by("-article_count")
         )
@@ -1821,7 +1830,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        self._prefetch_streamfield_articles()
+        self.prefetch_streamfield_articles()
         context["all_topics"] = self.get_all_topics()
         context["header_topics"] = SimpleLazyObject(self.get_header_topics)
         return context
@@ -1844,28 +1853,10 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("all/")
     def all_route(self, request):
+        # Inline import: snippets and pages import from each other at module scope.
         from springfield.cms.models.snippets import BlogTopic
 
-        base_qs = (
-            BlogArticlePage.objects.child_of(self)
-            .live()
-            .public()
-            .select_related(
-                "topic",
-                "image",
-                "image_dark_mode",
-                "image_mobile",
-                "image_dark_mode_mobile",
-            )
-            .prefetch_related(
-                "tags",
-                "image__renditions",
-                "image_dark_mode__renditions",
-                "image_mobile__renditions",
-                "image_dark_mode_mobile__renditions",
-            )
-            .defer("content")
-        )
+        base_qs = article_list_queryset(self.live_articles())
 
         topic = None
         topic_slug = request.GET.get("topic")
@@ -1875,7 +1866,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 base_qs = base_qs.filter(topic=topic)
 
         list_articles_qs = base_qs.order_by("-first_published_at")
-        paginator = Paginator(list_articles_qs, 10)
+        paginator = Paginator(list_articles_qs, ARTICLES_PER_PAGE)
 
         if topic:
             topic.article_count = paginator.count
