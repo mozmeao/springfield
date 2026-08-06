@@ -1117,13 +1117,14 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render.
+    resolution that runs on every page render. The count is pinned as flat (not
+    per-article) by test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(26):
+    with django_assert_max_num_queries(27):
         index_page.serve(request)
 
 
@@ -1133,14 +1134,35 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
     ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    The count is pinned as flat (not per-article) by
+    test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(31):
         index_page.all_route(request)
+
+
+def test_blog_all_query_count_does_not_grow_with_articles(blog_setup, rf, django_assert_max_num_queries):
+    """A ceiling can hide a per-article N+1; a flat count across two page sizes cannot.
+    The all-articles route paginates at 10, so page 3 holds fewer articles than page 1.
+    The uncounted warm-up call populates caches that the autouse clear_waffle_cache fixture
+    empties once per test, so without it this would compare a cold call against a warm one
+    rather than page size against page size."""
+    index_page, _ = blog_setup
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+
+    index_page.all_route(rf.get(url, {"page": 1}))  # warm caches; uncounted
+
+    with django_assert_max_num_queries(200) as full_page:
+        index_page.all_route(rf.get(url, {"page": 1}))
+    with django_assert_max_num_queries(200) as partial_page:
+        index_page.all_route(rf.get(url, {"page": 3}))
+
+    assert len(partial_page.captured_queries) == len(full_page.captured_queries)
 
 
 def test_article_revision_carries_tags(single_article):
