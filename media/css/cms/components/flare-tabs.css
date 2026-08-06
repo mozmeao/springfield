@@ -28,9 +28,15 @@
     }
 
     button[role='tab'] {
+        align-items: center;
         background: var(--theme-tabs-nav-background);
         border: none;
+        border-radius: var(--token-border-radius-md);
+        display: inline-flex;
         font-weight: var(--token-font-weight-bold);
+        gap: var(--token-spacing-sm);
+        justify-content: center;
+        padding: var(--token-spacing-md);
     }
 
     [role='tab'],
@@ -44,14 +50,14 @@
         color: var(--theme-tabs-tab-selected-color);
     }
 
-    [role='tab'] span.focus {
-        display: inline-block;
-        padding: var(--token-spacing-md);
+    /* The icon is optional, so it must not shrink the label when present. */
+    .fl-tabs-tab-icon {
+        flex-shrink: 0;
     }
 
-    [role='tab']:hover span.focus,
-    [role='tab']:focus span.focus,
-    [role='tab']:active span.focus {
+    [role='tab']:hover,
+    [role='tab']:focus,
+    [role='tab']:active {
         color: var(--theme-tabs-tab-color-hover);
     }
 
