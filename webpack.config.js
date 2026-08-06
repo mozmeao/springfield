@@ -120,7 +120,9 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             sassOptions: {
-                                silenceDeprecations: ['mixed-decls', 'import']
+                                silenceDeprecations: ['mixed-decls', 'import'],
+                                // Prevents a UTF-8 BOM appearing mid-file between concatenated CSS chunks, breaking selectors that follow it.
+                                charset: false
                             }
                         }
                     }

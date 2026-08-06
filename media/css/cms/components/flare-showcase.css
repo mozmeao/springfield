@@ -30,6 +30,11 @@
     margin: 0 auto;
 }
 
+.fl-showcase-media:has(.fl-video),
+.fl-showcase-media:has(.fl-media-tabs) {
+    inline-size: 100%;
+}
+
 .fl-showcase-cta {
     margin: 0 auto;
 }
@@ -64,6 +69,7 @@
     }
 
     .fl-showcase.fl-showcase-expanded .fl-showcase-media {
+        inline-size: calc(100% + 260px);
         margin-inline: -130px;
     }
 }
