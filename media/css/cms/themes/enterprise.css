@@ -98,6 +98,10 @@
         margin-block-end: 0;
     }
 
+    .fl-two-column-card li {
+        margin-block-end: var(--token-spacing-sm);
+    }
+
     /* footer overrides  */
 
     body {
