@@ -170,16 +170,16 @@ def get_scroll_to_see_more_snippet() -> ScrollToSeeMoreSnippet:
     return snippet
 
 
-def get_tags() -> list[Tag]:
+def get_tags() -> dict[str, Tag]:
     tag_names = ["Security", "Privacy", "Performance", "Tips", "Updates"]
     locale = Locale.get_default()
     tags = {}
     for name in tag_names:
         slug = slugify(name)
         tag, _ = Tag.objects.update_or_create(
-            name=name,
             slug=slug,
             locale=locale,
+            defaults={"name": name},
         )
         tags[slug] = tag
     return tags

@@ -37,6 +37,7 @@ from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
+    BlogTopic,
     NavigationSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
@@ -551,6 +552,11 @@ class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading_plain", "locale", "live"]
 
 
+class BlogTopicViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogTopic
+    list_display = ["name", "locale", "live"]
+
+
 class TagViewSet(LocaleDefaultingSnippetViewSet):
     model = Tag
     list_display = ["name", "locale", "live"]
@@ -598,6 +604,7 @@ for _viewset in (
     PreFooterCTASnippetViewSet,
     PreFooterCTAFormSnippetViewSet,
     BannerSnippetViewSet,
+    BlogTopicViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,
