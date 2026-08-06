@@ -53,7 +53,7 @@
                       </a>
                     </span>
                   {% else %}
-                    <a href="{{ all_route_url }}?topic={{ topic_item.slug }}" class="fl-blog-topic-link fl-tag">
+                    <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic_item.slug]) }}" class="fl-blog-topic-link fl-tag">
                       {{ topic_item.name }}
                     </a>
                   {% endif %}

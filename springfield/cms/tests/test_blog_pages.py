@@ -176,21 +176,20 @@ def test_blog_index_context_all_topics(blog_setup, rf):
     assert counts == sorted(counts, reverse=True)
 
 
-def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
+def test_blog_index_topic_links_point_to_topic_route(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
     header_topics = index_page.get_header_topics()
 
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
     assert len(topic_links) == len(header_topics)
 
     for index, topic in enumerate(header_topics):
         link = topic_links[index]
         assert topic.name in link.get_text()
-        assert link["href"] == f"{all_route_url}?topic={topic.slug}"
+        assert link["href"] == index_page.url + index_page.reverse_subpage("topic_route", args=[topic.slug])
 
 
 def test_blog_index_header_topics_use_featured_topics_in_order(index_page_and_topics):
@@ -691,7 +690,6 @@ def test_blog_topics_renders_heading(blog_setup, rf):
 def test_blog_topics_renders_topic_links(blog_setup, rf):
     index_page, _ = blog_setup
     topics = get_blog_topics()
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
@@ -700,8 +698,8 @@ def test_blog_topics_renders_topic_links(blog_setup, rf):
     topic_links = [a for a in soup.find_all("a", class_="fl-tag") if "is-large" in a.get("class", [])]
     assert len(topic_links) == len(topics)
     for link in topic_links:
-        assert link["href"].startswith(all_route_url)
-        assert "topic=" in link["href"]
+        assert link["href"].startswith(index_page.url + "topics/")
+        assert link["href"].endswith("/")
 
 
 def test_blog_topics_shows_article_count_badge(blog_setup, rf):
