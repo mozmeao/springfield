@@ -190,6 +190,7 @@ DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
 QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
+REFERRAL_DOWNLOAD_BUTTON_TYPE = "referral_download"
 
 
 BUTTON_PRIMARY = ""
@@ -444,18 +445,22 @@ class PricingHeadingBlock(blocks.StructBlock):
 # Buttons
 
 
-def get_button_types(allow_uitour=False):
-    """Helper function to get button types based on allow_uitour flag.
+def get_button_types(allow_uitour=False, allow_referral_download=False):
+    """Helper function to get button types based on feature flags.
 
     Args:
-        allow_uitour: If True, includes UI Tour button type.
+        allow_uitour: If True, includes UI Tour, Set as Default, and QR Code Modal types.
+        allow_referral_download: If True, includes the referral download CTA type.
+            Only used in ReferralGetFirefoxPage's KitIntroBlock.
 
     Returns:
         List of button type strings.
     """
     base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
+        base_button_types = [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
+    if allow_referral_download:
+        base_button_types = [*base_button_types, REFERRAL_DOWNLOAD_BUTTON_TYPE]
     return base_button_types
 
 
@@ -984,6 +989,18 @@ def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
     return _FirefoxFocusButtonBlock(**kwargs)
 
 
+class ReferralDownloadBlock(blocks.StaticBlock):
+    """Download buttons + referral consent checkbox for the referral invitee page.
+
+    No editable fields — the invitation code is injected at request time via
+    ReferralGetFirefoxPage.get_context(). Only valid in ReferralGetFirefoxPage.
+    """
+
+    class Meta:
+        template = "cms/blocks/referral-download-cta.html"
+        label = "Referral Download CTA"
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -1010,6 +1027,7 @@ def MixedButtonsBlock(
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
         QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
+        REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -2842,13 +2860,12 @@ class KitBlockSettings(blocks.StructBlock):
     )
 
 
-def KitIntroBlock(allow_uitour=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            allow_uitour=allow_uitour,
-            button_types=get_button_types(),
+            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
             min_num=0,
             max_num=2,
             required=False,

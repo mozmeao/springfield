@@ -2556,19 +2556,44 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.HomePage"]
     template = "cms/referral_get_firefox_page.html"
 
+    content = StreamField(
+        [("kit_intro", KitIntroBlock(allow_referral_download=True))],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("content"),
+    ]
+
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
 
     def get_context(self, request, *args, **kwargs):
         """
-        Adds an `invitation_code` code (from the URL) to the context, which we'll
-        pass as `fxrefer:<invitation code>` to download attribution as a special
-        param
+        Adds an `invitation_code` code (from the URL) to the context, which is
+        carried as `fxrefer:<invitation code>` in utm_content by the referral
+        attribution JS.
+
+        Also adds `utm_parameters` with the referral campaign so that the
+        download-firefox-button component builds an attributed Android Play Store
+        URL for the server-rendered badge (the JS checkbox module further modifies
+        this href when toggled).
         """
         context = super().get_context(request, *args, **kwargs)
 
         # self.serve() already validated that the invitation code is legit and valid
         context["invitation_code"] = request.GET.get("invitation")
+        # Provide the referral utm_campaign so play_store_url() includes a referrer
+        # on the server-rendered Android badge. Must match REFERRAL_CAMPAIGN in
+        # media/js/firefox/referral/referral-attribution.es6.js.
+        context["utm_parameters"] = {
+            "utm_source": "www.firefox.com",
+            "utm_medium": "referral",
+            "utm_campaign": "firefox-referral",
+        }
         return context
 
     @referral_geo_check

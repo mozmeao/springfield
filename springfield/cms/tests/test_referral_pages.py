@@ -545,3 +545,74 @@ def test_get_firefox_page_geo_lockout_fires_before_invitation_validation(rf, set
 
     assert response.status_code == 302
     assert response["Location"] == f"/{locale}/"
+
+
+# Attribution context
+
+
+def test_get_firefox_page_get_context_includes_utm_parameters(rf):
+    """The referral page context must include utm_parameters with the referral
+    campaign so the download-firefox-button component builds an attributed
+    Android Play Store URL for the server-rendered badge."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["utm_parameters"]["utm_campaign"] == "firefox-referral"
+    assert context["utm_parameters"]["utm_source"] == "www.firefox.com"
+    assert context["utm_parameters"]["utm_medium"] == "referral"
+
+
+def test_get_firefox_page_renders_download_button(client, settings):
+    """The referral page template must render an actual download button (not the
+    context-dump skeleton) so the referral-attribution JS has a link to decorate."""
+    settings.STUB_ATTRIBUTION_RATE = 1
+    settings.STUB_ATTRIBUTION_HMAC_KEY = "test-hmac-key"
+
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page, slug="get-firefox")
+    # Populate the StreamField so the referral download CTA block is rendered.
+    # An empty content field produces only the context-dump skeleton with no
+    # download links, which means the referral-attribution JS has nothing to decorate.
+    page.content = [
+        {
+            "type": "kit_intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"slim": False},
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": "Download Firefox",
+                    "subheading_text": "",
+                },
+                "buttons": [
+                    {
+                        "type": "referral_download",
+                        "id": "bb000000-0000-0000-0000-000000000001",
+                        "value": {},
+                    }
+                ],
+            },
+        }
+    ]
+    page.save()
+
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+    with patch(GEO_MOCK, return_value="US"):
+        response = client.get(f"/en-US/get-firefox/?invitation={code}")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # A .download-link element (required by stub attribution JS) must be present.
+    assert soup.find(class_="download-link") is not None
+
+    # The referral consent checkbox must exist (hidden by default; JS reveals it).
+    checkbox = soup.find("input", {"class": "referral-consent-checkbox"})
+    assert checkbox is not None
+
+    # The data-referral-code attribute must carry the invitation code.
+    referral_root = soup.find(attrs={"data-referral-code": True})
+    assert referral_root is not None
+    assert referral_root["data-referral-code"] == code

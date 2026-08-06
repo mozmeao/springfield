@@ -126,6 +126,61 @@ describe('mobile-attribution.js', function () {
             );
             expect(url).toContain('utm_campaign%3Dhello%20world');
         });
+
+        // Referral attribution extension
+
+        it('appends utm_content to the Android referrer when referralContent is provided', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                'fxrefer:1HR4FZ672Z8Y0E4HW'
+            );
+            expect(url.indexOf(ANDROID_STORE_PREFIX)).toBe(0);
+            expect(url).toContain('utm_campaign%3Dfirefox-referral');
+            expect(url).toContain(
+                '%26utm_content%3Dfxrefer%3A1HR4FZ672Z8Y0E4HW'
+            );
+        });
+
+        it('omits utm_content from the Android referrer when referralContent is null', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                null
+            );
+            expect(url).not.toContain('utm_content');
+        });
+
+        it('omits utm_content from the Android referrer when referralContent is undefined (backward compat)', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true
+            );
+            expect(url).not.toContain('utm_content');
+        });
+
+        it('does not append utm_content to the iOS URL even when referralContent is provided', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                false,
+                'fxrefer:1HR4FZ672Z8Y0E4HW'
+            );
+            expect(url.indexOf(IOS_STORE_PREFIX)).toBe(0);
+            // iOS uses ct= for campaign; referral content is not a parameter here
+            expect(url).not.toContain('utm_content');
+            expect(url).not.toContain('fxrefer');
+        });
+
+        it('URL-encodes referralContent correctly (colon in code)', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                'fxrefer:ABCDEFGHJKMNPQR'
+            );
+            // Colon in the content must be percent-encoded within the
+            // already-encoded referrer param string
+            expect(url).toContain('fxrefer%3AABCDEFGHJKMNPQR');
+        });
     });
 
     describe('rewriteLinks', function () {
