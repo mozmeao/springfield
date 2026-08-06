@@ -222,6 +222,27 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
         return f"{self.name} – {self.locale}"
 
 
+class Author(models.Model):
+    """An author byline for blog articles, used to filter the blog index by author."""
+
+    name = models.CharField()
+    slug = models.SlugField(unique=True)
+    email = models.EmailField(blank=True)
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+        FieldPanel("email"),
+    ]
+
+    class Meta:
+        verbose_name = "Author"
+        verbose_name_plural = "Authors"
+
+    def __str__(self):
+        return self.name
+
+
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a floating QR code."""
 

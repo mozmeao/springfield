@@ -1812,6 +1812,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             )
             .prefetch_related(
                 "tags",
+                "article_authors__author",
                 "image__renditions",
                 "image_dark_mode__renditions",
                 "image_mobile__renditions",
@@ -1826,6 +1827,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             topic = Tag.objects.filter(slug=topic_slug, locale=self.locale).first()
             base_qs = base_qs.filter(topic=topic)
 
+        author = None
+        author_slug = request.GET.get("author")
+        if author_slug:
+            base_qs = base_qs.filter(article_authors__author__slug=author_slug).distinct()
+
         list_articles_qs = base_qs.order_by("-first_published_at")
         paginator = Paginator(list_articles_qs, 10)
 
@@ -1839,6 +1845,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             {
                 "list_articles": list_articles,
                 "topic": topic,
+                "author": author,
             },
         )
 
@@ -1923,6 +1930,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("topic"),
                 FieldPanel("tags", widget=CheckboxSelectMultiple()),
+                InlinePanel("article_authors", label="Authors"),
             ],
             heading="Tags",
         ),
@@ -1983,6 +1991,27 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             else:
                 self._tags_cache = None
         return self._tags_cache
+
+    def get_authors(self):
+        if not hasattr(self, "_authors_cache"):
+            self._authors_cache = [placement.author for placement in self.article_authors.all().select_related("author")]
+        return self._authors_cache
+
+
+class BlogArticlePageAuthor(Orderable):
+    page = ParentalKey("cms.BlogArticlePage", on_delete=models.CASCADE, related_name="article_authors")
+    author = models.ForeignKey("cms.Author", on_delete=models.PROTECT, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Blog Article Author"
+        verbose_name_plural = "Blog Article Authors"
+
+    panels = [
+        FieldPanel("author"),
+    ]
+
+    def __str__(self):
+        return f"{self.page.title} -> {self.author.name}"
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

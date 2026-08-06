@@ -49,7 +49,7 @@ a.fl-tag:hover {
 
 a.fl-tag:hover {
     background-color: var(--notification-link-hover-bg);
-    color: var(--token-color-white);
+    color: var(--notification-link-hover-color);
     transition:
         background-color 0.3s ease,
         color 0.3s ease;

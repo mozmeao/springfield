@@ -162,11 +162,11 @@ def create_blog_article(
     return article
 
 
-def get_blog_index_page() -> BlogIndexPage:
+def get_blog_index_page(slug="test-blog-index") -> BlogIndexPage:
     root_page = get_flare_pages_docs_page()
     index_page = get_or_create_page(
         BlogIndexPage,
-        slug="test-blog-index",
+        slug=slug,
         parent=root_page,
         defaults={"title": "Blog"},
     )
