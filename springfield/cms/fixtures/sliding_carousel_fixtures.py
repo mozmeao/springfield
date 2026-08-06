@@ -74,6 +74,30 @@ def get_sliding_carousel_slides() -> list[dict]:
             },
             "id": "2026sc01-0000-0000-0000-000000000003",
         },
+        {
+            "type": "item",
+            "value": {
+                "heading": _heading(
+                    "Browse faster with fewer interruptions",
+                    superheading_text="Speed",
+                    subheading_text="Firefox is built to be fast so you can get more done.",
+                ),
+                "media": [_image(dark, img, block_id="2026sc01-0000-0000-0000-0000000000a4")],
+            },
+            "id": "2026sc01-0000-0000-0000-000000000004",
+        },
+        {
+            "type": "item",
+            "value": {
+                "heading": _heading(
+                    "Make Firefox yours with themes and extensions",
+                    superheading_text="Customise",
+                    subheading_text="Thousands of add-ons let you tailor your browser experience.",
+                ),
+                "media": [_image(img, dark, block_id="2026sc01-0000-0000-0000-0000000000a5")],
+            },
+            "id": "2026sc01-0000-0000-0000-000000000005",
+        },
     ]
 
 

@@ -16,3 +16,13 @@ context:
       subheading_text: "Enhanced tracking protection keeps your data yours, always."
       video_url: "/media/img/firefox/flare/placeholder.webm"
       poster: /media/img/firefox/flare/placeholder.png
+    - superheading_text: "Speed"
+      heading_text: "Browse faster with fewer interruptions"
+      subheading_text: "Firefox is built to be fast so you can get more done."
+      video_url: "/media/img/firefox/flare/placeholder.webm"
+      poster: /media/img/firefox/flare/placeholder.png
+    - superheading_text: "Customise"
+      heading_text: "Make Firefox yours with themes and extensions"
+      subheading_text: "Thousands of add-ons let you tailor your browser experience."
+      video_url: "/media/img/firefox/flare/placeholder.webm"
+      poster: /media/img/firefox/flare/placeholder.png
