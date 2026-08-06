@@ -723,12 +723,7 @@ def test_blog_topics_shows_article_count_badge(blog_setup, rf):
 
 @pytest.fixture
 def topic_blog(minimal_site):
-    """Index page with 11 Privacy articles — enough to paginate — and 2 Security ones.
-
-    Deliberately leaner than blog_setup: no images, no body content, no tags, no featured
-    articles or cards lists, and only the two topics these tests read. The topic route
-    only reads title, description, topic and first_published_at, so nothing else is set
-    up — skipping get_placeholder_images() in particular avoids generating image files."""
+    """Index page with 11 Privacy articles — enough to paginate — and 2 Security ones."""
     index_page = get_blog_index_page()
     topics = get_blog_topics()
 
@@ -762,7 +757,8 @@ def test_blog_topic_renders(topic_blog, rf):
     heading = soup.find("h1")
     assert heading and "Security" in heading.get_text()
 
-    assert soup.find("a", class_="fl-blog-back-link")
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link and back_link["href"] == index_page.url
 
     items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
     assert len(items) == 2
@@ -849,18 +845,15 @@ def test_blog_topic_page_rejects_a_second_page_for_the_same_topic(privacy_topic_
 
     duplicate = BlogTopicPage(title="Another Privacy", slug="another-privacy", topic=topic, locale=index_page.locale)
 
-    with pytest.raises(ValidationError) as excinfo:
+    with pytest.raises(ValidationError) as exc_info:
         duplicate.clean()
-    assert "topic" in excinfo.value.message_dict
-    assert topic_page.title in str(excinfo.value)
+    assert "topic" in exc_info.value.message_dict
+    assert topic_page.title in str(exc_info.value)
 
 
 @pytest.fixture
 def curated_topic_page(topic_blog):
-    """A BlogTopicPage for Privacy featuring that topic's 4 most recent articles.
-
-    Read back from the database rather than sorting the fixture's objects: create_blog_article
-    returns instances whose first_published_at is still unset from before the publish."""
+    """A BlogTopicPage for Privacy featuring that topic's 4 most recent articles."""
     index_page, _ = topic_blog
     featured = list(BlogArticlePage.objects.child_of(index_page).filter(topic__slug="privacy").order_by("-first_published_at")[:4])
     topic_page = get_or_create_page(
