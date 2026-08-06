@@ -222,26 +222,6 @@ class Tag(BaseDraftTranslatableSnippetMixin, models.Model):
         return f"{self.name} – {self.locale}"
 
 
-class BlogTopic(BaseDraftTranslatableSnippetMixin, models.Model):
-    """A topic for categorizing blog articles."""
-
-    name = models.CharField()
-    slug = models.SlugField()
-
-    panels = [
-        TitleFieldPanel("name"),
-        FieldPanel("slug"),
-    ]
-
-    class Meta(TranslatableMixin.Meta):
-        verbose_name = "Blog Topic"
-        verbose_name_plural = "Blog Topics"
-        unique_together = [*TranslatableMixin.Meta.unique_together, ("slug", "locale")]
-
-    def __str__(self):
-        return f"{self.name} – {self.locale}"
-
-
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a floating QR code."""
 

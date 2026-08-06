@@ -188,7 +188,6 @@ python manage.py dumpdata \
     cms.PretranslatedPhrase \
     cms.PencilBannerSnippet \
     cms.QRCodeSnippet \
-    cms.BlogTopic \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
     cms.PencilBannerPlacement \
