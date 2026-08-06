@@ -91,6 +91,30 @@ def get_smart_window_sliding_carousel() -> dict:
             },
             "id": "swpsc01-0000-0000-0000-000000000003",
         },
+        {
+            "type": "item",
+            "value": {
+                "heading": _heading(
+                    "Ut enim ad minim veniam",
+                    superheading_text="Amet",
+                    subheading_text="Excepteur sint occaecat cupidatat non proident.",
+                ),
+                "media": [_animation_media(dark, "swpsc01-0000-0000-0000-000000000040")],
+            },
+            "id": "swpsc01-0000-0000-0000-000000000004",
+        },
+        {
+            "type": "item",
+            "value": {
+                "heading": _heading(
+                    "Sunt in culpa qui officia deserunt",
+                    superheading_text="Sit",
+                    subheading_text="Mollit anim id est laborum.",
+                ),
+                "media": [_animation_media(img, "swpsc01-0000-0000-0000-000000000050")],
+            },
+            "id": "swpsc01-0000-0000-0000-000000000005",
+        },
     ]
     return {
         "type": "sliding_carousel",

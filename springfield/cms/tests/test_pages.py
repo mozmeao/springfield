@@ -407,14 +407,14 @@ def test_smart_window_page_content_blocks(smart_window_page: SmartWindowPage, rf
     content_region = soup.find("div", class_="fl-split-page-lower")
     assert content_region
 
-    # Sliding carousel: 3 slides
+    # Sliding carousel: 5 slides
     carousel_el = content_region.find("div", class_="fl-sliding-carousel")
     assert carousel_el
     slides_data = carousel_fixture["value"]["slides"]
     controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
     slide_panels = carousel_el.find_all("div", class_="fl-sliding-carousel-slide")
-    assert len(controls) == len(slides_data) == 3
-    assert len(slide_panels) == 3
+    assert len(controls) == len(slides_data) == 5
+    assert len(slide_panels) == 5
 
     for i, slide in enumerate(slides_data):
         heading_text = BeautifulSoup(slide["value"]["heading"]["heading_text"], "html.parser").get_text()
