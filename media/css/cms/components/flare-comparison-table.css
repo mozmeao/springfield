@@ -1,5 +1,7 @@
 .fl-comparison-table-wrapper {
     inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
     overflow-x: auto;
 }
 
