@@ -10,7 +10,12 @@
  nothing in that case.
 #}
 
-{% set controls_id = ('fl-referral-controls-' ~ section_id ~ '-' ~ tab_index) if section_id and tab_index else 'fl-referral-controls' %}
+{#
+ The id namespaces this instance's dialog, so it has to differ per tab. It tests
+ `is defined` rather than truthiness so that switching `tabs.html` to
+ `loop.index0` cannot silently drop the first tab onto the fallback id.
+#}
+{% set controls_id = ('fl-referral-controls-' ~ section_id ~ '-' ~ tab_index) if section_id is defined and tab_index is defined else 'fl-referral-controls' %}
 
 <include:referral-controls
   id="{{ controls_id }}"
