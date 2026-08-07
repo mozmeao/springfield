@@ -64,6 +64,11 @@ def get_blog_topics() -> dict[str, BlogTopic]:
     return topics
 
 
+def featured_topics_stream(topics: list[BlogTopic]) -> list[dict]:
+    """StreamField data for BlogIndexPage.featured_topics from an ordered list of topics."""
+    return [{"type": "topic", "value": topic.pk, "id": f"ftopic00-0000-0000-0000-{i:012d}"} for i, topic in enumerate(topics, start=1)]
+
+
 def get_blog_tags() -> dict[str, Tag]:
     locale = Locale.get_default()
     tags = {}
@@ -303,6 +308,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
         }
     ]
     index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
     index_page.featured_articles = [article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
     index_page.cards_lists = [
         {
