@@ -33,49 +33,8 @@
           {% endif %}
 
           {% if all_topics %}
-            <div class="fl-blog-topics-filter">
-              <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-prev" aria-label="{{ ftl('ui-previous') }}" hidden>
-                <span class="fl-icon fl-icon-chevron-left" aria-hidden="true"></span>
-              </button>
-
-
-              <div class="fl-blog-topics-list is-carousel">
-                  {% for topic_item in all_topics %}
-                  {% set selected_topic = topic and topic.slug == topic_item.slug %}
-                  {% set all_route_url = page.url ~ page.reverse_subpage('all_route') %}
-                  {% if selected_topic %}
-                    <span class="fl-tag fl-blog-selected-topic">
-                      {{ topic_item.name }}
-
-                      <a href="{{ all_route_url }}" class="close-button">
-                        <include:icon icon_name="close" aria_hidden="true" />
-                        <span class="visually-hidden">{{ ftl('blog-clear-topic-filter') }}</span>
-                      </a>
-                    </span>
-                  {% else %}
-                    <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic_item.slug]) }}" class="fl-blog-topic-link fl-tag">
-                      {{ topic_item.name }}
-                    </a>
-                  {% endif %}
-                {% endfor %}
-
-
-
-
-                <div class="fl-blog-topics-all">
-                  <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
-                </div>
-              </div>
-
-
-
-
-
-
-              <button class="fl-blog-topics-scroll-btn fl-blog-topics-scroll-next" aria-label="{{ ftl('ui-next') }}" hidden>
-                <span class="fl-icon fl-icon-chevron-right" aria-hidden="true"></span>
-              </button>
-            </div>
+            {% set index_page = page %}
+            {% include "cms/includes/blog/blog-all-topics.html" %}
           {% endif %}
         </div>
 
@@ -83,7 +42,7 @@
         {% set topic_param = '&topic=' ~ topic.slug if topic else '' %}
         {% set pagination_prev_url = base_url ~ '?page=' ~ list_articles.previous_page_number() ~ topic_param if list_articles.has_previous() else '' %}
         {% set pagination_next_url = base_url ~ '?page=' ~ list_articles.next_page_number() ~ topic_param if list_articles.has_next() else '' %}
-        {% include "cms/includes/blog-article-list.html" %}
+        {% include "cms/includes/blog/blog-article-list.html" %}
 
       </div>
     </section>

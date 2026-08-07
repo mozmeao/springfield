@@ -9,7 +9,7 @@
   Requires: featured_articles (a StreamField value of BlogArticleBlock).
 #}
 
-{% from "cms/includes/blog-card-media.html" import illustration_card_media, full_width_filterspec with context %}
+{% from "cms/includes/blog/blog-card-media.html" import illustration_card_media, full_width_filterspec with context %}
 
 {% if featured_articles %}
   <div class="fl-blog-featured">

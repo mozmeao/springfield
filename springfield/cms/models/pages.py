@@ -1829,6 +1829,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return {
             "blog_index": self,
             "topic": topic,
+            "all_topics": self.get_all_topics(),
             "topic_page": topic_page,
             "list_articles": paginator.get_page(request.GET.get("page", 1)),
         }

@@ -12,7 +12,7 @@
 
 {% block content %}
 
-{% from "cms/includes/blog-card-media.html" import illustration_card_media with context %}
+{% from "cms/includes/blog/blog-card-media.html" import illustration_card_media with context %}
 
 {% set all_url = page.url ~ page.reverse_subpage('all_route') %}
 
@@ -58,7 +58,7 @@
 
 
         {% set featured_articles = page.featured_articles %}
-        {% include "cms/includes/blog-featured-articles.html" %}
+        {% include "cms/includes/blog/blog-featured-articles.html" %}
 
         {% if page.cards_lists %}
           <include:heading

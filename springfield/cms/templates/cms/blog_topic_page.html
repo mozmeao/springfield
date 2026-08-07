@@ -52,16 +52,21 @@
               alignment_class="text-center"
             />
           {% endif %}
+
+          {% if all_topics %}
+            {% set index_page = blog_index %}
+            {% include "cms/includes/blog/blog-all-topics.html" %}
+          {% endif %}
         </div>
 
         {% if topic_page %}
           {% set featured_articles = topic_page.featured_articles %}
-          {% include "cms/includes/blog-featured-articles.html" %}
+          {% include "cms/includes/blog/blog-featured-articles.html" %}
         {% endif %}
 
         {% set pagination_prev_url = topic_url ~ '?page=' ~ list_articles.previous_page_number() if list_articles.has_previous() else '' %}
         {% set pagination_next_url = topic_url ~ '?page=' ~ list_articles.next_page_number() if list_articles.has_next() else '' %}
-        {% include "cms/includes/blog-article-list.html" %}
+        {% include "cms/includes/blog/blog-article-list.html" %}
 
       </div>
     </section>
