@@ -3977,10 +3977,16 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     assert "uitour_button" not in button_types_without
 
 
-def _make_button_row_raw(count=1, spacing="", alignment="", help_text=""):
+def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
     variants = get_button_variants()
     buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
-    return {"spacing": spacing, "alignment": alignment, "buttons": buttons, "help_text": help_text}
+    return {
+        "spacing": spacing,
+        "alignment": alignment,
+        "buttons": buttons,
+        "help_text": help_text,
+        "auto_width_buttons": auto_width_buttons,
+    }
 
 
 def _render_button_row(raw_value, rf):
@@ -4026,6 +4032,16 @@ def test_button_row_renders_help_text(rf):
 def test_button_row_omits_help_text_div_when_empty(rf):
     html = _render_button_row(_make_button_row_raw(help_text=""), rf)
     assert "fl-button-row-help-text" not in html
+
+
+def test_button_row_renders_auto_width_buttons_class(rf):
+    html = _render_button_row(_make_button_row_raw(auto_width_buttons=True), rf)
+    assert "auto-width-buttons" in html
+
+
+def test_button_row_omits_auto_width_buttons_class_by_default(rf):
+    html = _render_button_row(_make_button_row_raw(auto_width_buttons=False), rf)
+    assert "auto-width-buttons" not in html
 
 
 @override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})

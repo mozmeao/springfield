@@ -1049,6 +1049,12 @@ def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
             default="",
             required=False,
         )
+        auto_width_buttons = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            label="Auto-width Buttons",
+            help_text="When stacked, shrink buttons to fit their content instead of stretching full width.",
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=1,
@@ -1062,7 +1068,7 @@ def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["orientation", "spacing", "alignment"],
+                settings=["orientation", "spacing", "alignment", "auto_width_buttons"],
             )
 
     return _ButtonRowBlock(**kwargs)
