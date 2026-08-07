@@ -2,12 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.core.exceptions import ValidationError
+from django.http import Http404
+
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
 from wagtail_localize.operations import translate_object
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -23,7 +26,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
-from springfield.cms.models import BlogArticlePage
+from springfield.cms.models import BlogArticlePage, BlogTopicPage
 from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
 from springfield.cms.models.snippets import BlogTopic
 
@@ -173,21 +176,20 @@ def test_blog_index_context_all_topics(blog_setup, rf):
     assert counts == sorted(counts, reverse=True)
 
 
-def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
+def test_blog_index_topic_links_point_to_topic_route(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
     header_topics = index_page.get_header_topics()
 
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
     assert len(topic_links) == len(header_topics)
 
     for index, topic in enumerate(header_topics):
         link = topic_links[index]
         assert topic.name in link.get_text()
-        assert link["href"] == f"{all_route_url}?topic={topic.slug}"
+        assert link["href"] == index_page.url + index_page.reverse_subpage("topic_route", args=[topic.slug])
 
 
 def test_blog_index_header_topics_use_featured_topics_in_order(index_page_and_topics):
@@ -328,7 +330,6 @@ def test_blog_index_renders_three_featured_articles_as_articles_list(blog_setup,
         description = item.find("div", class_="fl-body")
         assert description and BeautifulSoup(article.description, "html.parser").get_text() in description.get_text()
 
-        assert item.find("p", class_="fl-blog-article-date")
         assert item.find("span", class_="fl-tag")
 
 
@@ -688,7 +689,6 @@ def test_blog_topics_renders_heading(blog_setup, rf):
 def test_blog_topics_renders_topic_links(blog_setup, rf):
     index_page, _ = blog_setup
     topics = get_blog_topics()
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
@@ -697,8 +697,8 @@ def test_blog_topics_renders_topic_links(blog_setup, rf):
     topic_links = [a for a in soup.find_all("a", class_="fl-tag") if "is-large" in a.get("class", [])]
     assert len(topic_links) == len(topics)
     for link in topic_links:
-        assert link["href"].startswith(all_route_url)
-        assert "topic=" in link["href"]
+        assert link["href"].startswith(index_page.url + "topics/")
+        assert link["href"].endswith("/")
 
 
 def test_blog_topics_shows_article_count_badge(blog_setup, rf):
@@ -713,6 +713,223 @@ def test_blog_topics_shows_article_count_badge(blog_setup, rf):
     assert len(badges) == len(topics), "Each topic link should show an article count badge, visible on hover."
     for badge in badges:
         assert badge.get_text(strip=True).isdigit()
+
+
+# ---------------------------------------------------------------------------
+# Blog topic page (/topics/<slug>/)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def topic_blog(minimal_site):
+    """Index page with 11 Privacy articles — enough to paginate — and 2 Security ones."""
+    index_page = get_blog_index_page()
+    topics = get_blog_topics()
+
+    articles = {"privacy": [], "security": []}
+    for topic_slug, count in (("privacy", 11), ("security", 2)):
+        for number in range(1, count + 1):
+            articles[topic_slug].append(
+                create_blog_article(
+                    index_page=index_page,
+                    title=f"{topics[topic_slug].name} article {number}",
+                    slug=f"test-{topic_slug}-{number}",
+                    topic=topics[topic_slug],
+                    tags=[],
+                    image=None,
+                    description=REGULAR_DESCRIPTIONS[number % len(REGULAR_DESCRIPTIONS)],
+                    content=[],
+                )
+            )
+    return index_page, articles
+
+
+def test_blog_topic_renders(topic_blog, rf):
+    """The plain variant renders the topic name, the back link, and the article list."""
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    response = index_page.topic_route(rf.get(url), "security")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Security" in heading.get_text()
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link and back_link["href"] == index_page.url
+
+    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == 2
+
+
+def test_blog_topic_unknown_slug_404s(topic_blog, rf):
+    index_page, _ = topic_blog
+    with pytest.raises(Http404):
+        index_page.topic_route(rf.get(index_page.url + "topics/nonexistent/"), "nonexistent")
+
+
+def test_blog_topic_context_holds_only_that_topics_articles(topic_blog, rf):
+    index_page, articles = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    topic = BlogTopic.objects.get(slug="security", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    assert {article.pk for article in context["list_articles"]} == {article.pk for article in articles["security"]}
+
+
+def test_blog_topic_context_orders_articles_most_recent_first(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    dates = [article.first_published_at for article in context["list_articles"]]
+    assert dates == sorted(dates, reverse=True)
+
+
+def test_blog_topic_context_paginates(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    first_page = index_page.get_topic_context(rf.get(url), topic)["list_articles"]
+    assert first_page.paginator.count == 11
+    assert first_page.paginator.num_pages == 2
+    assert len(first_page.object_list) == 10
+
+    second_page = index_page.get_topic_context(rf.get(url, {"page": "2"}), topic)["list_articles"]
+    assert len(second_page.object_list) == 1
+
+
+def test_blog_topic_with_no_articles_renders_empty(index_page, rf):
+    BlogTopic.objects.create(name="Lonely", slug="lonely", locale=index_page.locale)
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["lonely"])
+
+    response = index_page.topic_route(rf.get(url), "lonely")
+
+    assert response.status_code == 200
+    assert not BeautifulSoup(response.content, "html.parser").find("article", class_="fl-blog-article-list-item")
+
+
+@pytest.fixture
+def privacy_topic_page(index_page):
+    """A BlogTopicPage for Privacy under an index page that has no articles."""
+    topic = get_blog_topics()["privacy"]
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-topic-page",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": topic},
+    )
+    topic_page.save_revision().publish()
+    return index_page, topic_page, topic
+
+
+def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
+    index_page, topic_page, _ = privacy_topic_page
+    assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+
+def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):
+    _, topic_page, _ = privacy_topic_page
+    with pytest.raises(Http404):
+        topic_page.route(rf.get("/"), [])
+
+
+def test_blog_topic_page_rejects_a_second_page_for_the_same_topic(privacy_topic_page):
+    index_page, topic_page, topic = privacy_topic_page
+
+    duplicate = BlogTopicPage(title="Another Privacy", slug="another-privacy", topic=topic, locale=index_page.locale)
+
+    with pytest.raises(ValidationError) as exc_info:
+        duplicate.clean()
+    assert "topic" in exc_info.value.message_dict
+    assert topic_page.title in str(exc_info.value)
+
+
+@pytest.fixture
+def curated_topic_page(topic_blog):
+    """A BlogTopicPage for Privacy featuring that topic's 4 most recent articles."""
+    index_page, _ = topic_blog
+    featured = list(BlogArticlePage.objects.child_of(index_page).filter(topic__slug="privacy").order_by("-first_published_at")[:4])
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-curated",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": get_blog_topics()["privacy"]},
+    )
+    topic_page.page_heading = [
+        {
+            "type": "heading",
+            "value": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="tph00001">Curated Privacy</p>',
+                "subheading_text": "",
+            },
+            "id": "tph00001-0000-0000-0000-000000000001",
+        }
+    ]
+    topic_page.featured_articles = [
+        {
+            "type": "article",
+            "value": {
+                "article": article.pk,
+                "image": {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}},
+                "topic": "",
+                "title": "",
+                "description": "",
+                "tags": [],
+            },
+            "id": f"tpf00000-0000-0000-0000-{number:012d}",
+        }
+        for number, article in enumerate(featured, start=1)
+    ]
+    topic_page.save_revision().publish()
+    return index_page, topic_page, featured
+
+
+def test_blog_topic_renders_curated_header(curated_topic_page, rf):
+    """With a BlogTopicPage the route renders its heading and featured articles in place
+    of the plain topic name, and still renders the automatic list below."""
+    index_page, _, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    response = index_page.topic_route(rf.get(url), "privacy")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Curated Privacy" in heading.get_text()
+
+    featured_block = soup.find("div", class_="fl-blog-featured")
+    assert featured_block
+    assert featured[0].title in featured_block.get_text()
+
+    assert soup.select_one(".fl-section-container > .fl-blog-article-list")
+
+
+def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
+    index_page, topic_page, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    context = topic_page.get_context(rf.get(url))
+
+    listed = context["list_articles"]
+    assert {article.pk for article in listed}.isdisjoint({article.pk for article in featured})
+    assert listed.paginator.count == 7, "11 privacy articles minus the 4 featured"
+    assert listed.paginator.num_pages == 1
+
+
+def test_blog_fixtures_create_a_topic_page(blog_setup):
+    index_page, _ = blog_setup
+    topic_page = BlogTopicPage.objects.child_of(index_page).first()
+    assert topic_page, "The blog fixtures should create one BlogTopicPage"
+    assert topic_page.topic.slug == "privacy"
+    assert len(topic_page.featured_articles) == 4
 
 
 # ---------------------------------------------------------------------------
