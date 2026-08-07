@@ -1,0 +1,37 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set sizes = "(min-width: 768px) 200px, 33vw" %}
+{% set widths = "width-{100,200,300,400}" %}
+{% set classes = image_variant_classes(value.dark_mode_image) %}
+
+<include:comparison-image-header label="{{ value.label }}">
+  <content:image>
+    {{ srcset_image(
+        value.image,
+        widths,
+        sizes=sizes,
+        width=value.image.width,
+        height=value.image.height,
+        loading="lazy",
+        alt=value.alt,
+        class=classes.primary,
+    ) }}
+
+    {% if value.dark_mode_image %}
+      {{ srcset_image(
+          value.dark_mode_image,
+          widths,
+          sizes=sizes,
+          width=value.dark_mode_image.width,
+          height=value.dark_mode_image.height,
+          loading="lazy",
+          alt=value.alt,
+          class=classes.dark_mode,
+      ) }}
+    {% endif %}
+  </content:image>
+</include:comparison-image-header>
