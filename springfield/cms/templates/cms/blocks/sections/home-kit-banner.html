@@ -4,8 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set block_position = block_position or "banner" %}
-{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{%- set block_position = block_position or "banner" -%}
+{%- set block_text = value.heading.heading_text|richtext|remove_tags -%}
 
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
@@ -15,7 +15,7 @@
     anchor_id="{{ value.settings.anchor_id }}">
 
     <content:heading>
-      {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
+      {%- set heading_level = 'h' ~ block_level if block_level else 'h2' -%}
       <include:heading
         level="{{ heading_level }}"
         heading_size="fl-heading-size-2"
@@ -31,7 +31,7 @@
       <content:content>
         <div class="fl-buttons">
           {% for button in value.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
+            {%- set block_position = block_position ~ ".button-" ~ loop.index -%}
             {% include_block button %}
           {% endfor %}
         </div>

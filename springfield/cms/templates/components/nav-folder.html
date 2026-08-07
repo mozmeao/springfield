@@ -4,10 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#
+{#-
  A top-level navigation category whose label opens a dropdown panel.
  The panel's columns are passed in as the component contents.
-#}
+-#}
 
 <li class="fl-menu-category" data-testid="{{ category_testid or panel_id }}">
   <a class="fl-menu-title"{% if href %} href="{{ href }}"{% endif %}{% if link_testid %} data-testid="{{ link_testid }}"{% endif %}>

@@ -4,14 +4,14 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set sizes = sizes or "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw" %}
-{% set widths = widths or "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-{% set break_at = break_at or "sm" %}
+{%- set sizes = sizes or "(min-width: 1200px) 680px, (min-width: 600px) 50vw, 100vw" -%}
+{%- set widths = widths or "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" -%}
+{%- set break_at = break_at or "sm" -%}
 
-{% set classes = image_variant_classes(value.settings.dark_mode_image, value.settings.mobile_image, value.settings.dark_mode_mobile_image, break_at=break_at) %}
+{%- set classes = image_variant_classes(value.settings.dark_mode_image, value.settings.mobile_image, value.settings.dark_mode_mobile_image, break_at=break_at) -%}
 
 <div class="image-variants-display">
-{# Default/desktop light mode image #}
+{#- Default/desktop light mode image -#}
 {{ srcset_image(
     value.image,
     widths,
@@ -22,8 +22,8 @@
     class=classes.primary,
 ) }}
 
-{# Light mode mobile image #}
-{% if value.settings.mobile_image %}
+{#- Light mode mobile image -#}
+{%- if value.settings.mobile_image %}
   {{ srcset_image(
       value.settings.mobile_image,
       widths,
@@ -33,10 +33,10 @@
       loading="lazy",
       class=classes.mobile,
   ) }}
-{% endif %}
+{%- endif %}
 
-{# Dark mode mobile image #}
-{% if value.settings.dark_mode_mobile_image %}
+{#- Dark mode mobile image -#}
+{%- if value.settings.dark_mode_mobile_image %}
   {{ srcset_image(
       value.settings.dark_mode_mobile_image,
       widths,
@@ -46,10 +46,10 @@
       loading="lazy",
       class=classes.dark_mode_mobile,
   ) }}
-{% endif %}
+{%- endif %}
 
-{# Dark mode desktop image #}
-{% if value.settings.dark_mode_image %}
+{#- Dark mode desktop image -#}
+{%- if value.settings.dark_mode_image %}
   {{ srcset_image(
       value.settings.dark_mode_image,
       widths,
@@ -59,5 +59,5 @@
       loading="lazy",
       class=classes.dark_mode,
   ) }}
-{% endif %}
+{%- endif %}
 </div>

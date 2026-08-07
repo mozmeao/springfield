@@ -4,9 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% if not custom_nav_cta %}
+{%- if not custom_nav_cta %}
 <div
-    class="nav-cta-wrap {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
+    class="nav-cta-wrap{% if hide_nav_cta %} hide-cta-on-desktop{% endif %}{% if hide_nav_download_button %} hide-nav-download-on-desktop{% endif %}"
 >
   <include:download-firefox-button
     analytics_id="nav-download-firefox"
@@ -18,6 +18,6 @@
     exclude_unsupported_content="True"
   />
 </div>
-{% else %}
+{%- else %}
   {{ custom_nav_cta }}
-{% endif %}
+{%- endif %}

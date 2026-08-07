@@ -92,7 +92,7 @@
 {% block body_class %}fl-home-body{% endblock %}
 
 {% block flare_header %}
-  {% set theme = "dark" %}
+  {%- set theme = "dark" -%}
   {% include 'cms/includes/site-header.html' %}
 {% endblock %}
 
@@ -102,35 +102,35 @@
 <div class="fl-page">
   <div class="fl-main">
     <div class="fl-split-page-upper">
-      {% set ns = namespace(headings=0) %}
-      {% set block_level = 1 %}
-      {% for block in page.upper_content %}
-        {% set block_index = loop.index %}
-        {% set block_type = block.block_type %}
-        {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+      {%- set ns = namespace(headings=0) -%}
+      {%- set block_level = 1 -%}
+      {%- for block in page.upper_content %}
+        {%- set block_index = loop.index -%}
+        {%- set block_type = block.block_type -%}
+        {%- set block_position = "upper-block-" ~ block_index + "-" + block_type -%}
 
-        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
-          {% set ns.headings = ns.headings + 1 %}
-        {% endif %}
+        {%- if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {%- set block_level = 1 if ns.headings == 0 else 2 -%}
+          {%- set ns.headings = ns.headings + 1 -%}
+        {%- endif %}
 
-        {% include_block block %}
-      {% endfor %}
+        {%- include_block block %}
+      {%- endfor %}
     </div>
 
     <div class="fl-split-page-lower has-gradient-top">
-      {% for block in page.lower_content %}
-        {% set block_index = loop.index %}
-        {% set block_type = block.block_type %}
-        {% set block_position = "lower-block-" ~ block_index + "-" + block_type %}
+      {%- for block in page.lower_content %}
+        {%- set block_index = loop.index -%}
+        {%- set block_type = block.block_type -%}
+        {%- set block_position = "lower-block-" ~ block_index + "-" + block_type -%}
 
-        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
-          {% set ns.headings = ns.headings + 1 %}
-        {% endif %}
+        {%- if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {%- set block_level = 1 if ns.headings == 0 else 2 -%}
+          {%- set ns.headings = ns.headings + 1 -%}
+        {%- endif %}
 
-        {% include_block block %}
-      {% endfor %}
+        {%- include_block block %}
+      {%- endfor %}
     </div>
   </div>
 </div>

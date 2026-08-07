@@ -12,27 +12,27 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {# TODO: refactor both sections into a single one while keeping design consistent #}
 
     <div class="fl-footer-sections-list fl-footer-sections-list-desktop" data-testid="fl-footer-desktop">
-      {% include 'cms/includes/flare-footer/download.html' %}
-      {% include 'cms/includes/flare-footer/builds.html' %}
-      {% include 'cms/includes/flare-footer/community.html' %}
-      {% include 'cms/includes/flare-footer/resources.html' %}
-      {% include 'cms/includes/flare-footer/follow.html' %}
-      {% include 'cms/includes/flare-footer/lang-switcher.html' %}
+      {%- include 'cms/includes/flare-footer/download.html' %}
+      {%- include 'cms/includes/flare-footer/builds.html' %}
+      {%- include 'cms/includes/flare-footer/community.html' %}
+      {%- include 'cms/includes/flare-footer/resources.html' %}
+      {%- include 'cms/includes/flare-footer/follow.html' %}
+      {%- include 'cms/includes/flare-footer/lang-switcher.html' %}
     </div>
 
     <div class="fl-footer-sections-list fl-footer-sections-list-mobile" data-testid="fl-footer-mobile">
       <div class="fl-footer-sections-list-column">
-        {% include 'cms/includes/flare-footer/download.html' %}
-        {% include 'cms/includes/flare-footer/resources.html' %}
+        {%- include 'cms/includes/flare-footer/download.html' %}
+        {%- include 'cms/includes/flare-footer/resources.html' %}
       </div>
 
       <div class="fl-footer-sections-list-column">
-        {% include 'cms/includes/flare-footer/builds.html' %}
-        {% include 'cms/includes/flare-footer/community.html' %}
-        {% include 'cms/includes/flare-footer/follow.html' %}
+        {%- include 'cms/includes/flare-footer/builds.html' %}
+        {%- include 'cms/includes/flare-footer/community.html' %}
+        {%- include 'cms/includes/flare-footer/follow.html' %}
       </div>
 
-      {% include 'cms/includes/flare-footer/lang-switcher.html' %}
+      {%- include 'cms/includes/flare-footer/lang-switcher.html' %}
     </div>
 
   </div>
@@ -40,10 +40,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   <div class="fl-footer-secondary">
     <div class="fl-footer-legal">
       <ul class="fl-footer-terms">
-        {% if LANG == "de" %}
+        {%- if LANG == "de" %}
           {# Legal requirement in Germany see bedrock issue #14240 #}
           <li><a href="https://www.mozilla.org/de/about/legal/impressum/" data-link-position="footer" data-link-text="Impressum">Impressum</a></li>
-        {% endif %}
+        {%- endif %}
         <li><a href="https://www.mozilla.org/{{ LANG }}/privacy/websites/{{ params }}" data-link-position="footer" data-link-text="Privacy">{{ ftl('footer-websites-privacy-notice') }}</a></li>
         <li><a href="https://www.mozilla.org/about/legal/terms/firefox/{{ params }}" data-link-position="footer" data-link-text="Terms of Use">{{ ftl('footer-terms-of-use') }}</a></li>
         <li>

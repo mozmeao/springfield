@@ -5,15 +5,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set card_heading_level = card_heading_level or "h3" %}
+{%- set card_heading_level = card_heading_level or "h3" -%}
 
 <section class="fl-section">
   <div class="fl-section-container">
     <div class="fl-card-gallery">
       <div class="fl-heading-group">
-        {% if contents.heading %}
+        {%- if contents.heading %}
           {{ contents.heading }}
-        {% endif %}
+        {%- endif %}
       </div>
 
       <div class="fl-card-gallery-grid swap-mobile-images-at-md">
@@ -40,11 +40,11 @@
         </div>
       </div>
 
-      {% if contents.cta %}
+      {%- if contents.cta %}
         <div class="fl-section-cta-wrap">
           {{ contents.cta }}
         </div>
-      {% endif %}
+      {%- endif %}
     </div>
   </div>
 </section>
