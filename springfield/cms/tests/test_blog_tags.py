@@ -8,6 +8,7 @@ from django.urls import reverse
 
 import pytest
 from wagtail.models import Locale
+from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
 from springfield.cms.forms import BlogTagField
 from springfield.cms.models import BlogTag
@@ -96,3 +97,9 @@ def test_blog_tag_autocomplete_without_term_returns_nothing(admin_client):
     response = admin_client.get(reverse("cms_blog_tag_autocomplete"))
 
     assert response.json() == []
+
+
+def test_tag_slug_is_synchronized_rather_than_translated():
+    translatable_names = {field.field_name for field in get_translatable_fields(BlogTag) if isinstance(field, TranslatableField)}
+
+    assert translatable_names == {"name"}
