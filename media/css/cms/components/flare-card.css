@@ -271,6 +271,10 @@ Outlined Card variant
     margin: 0;
 }
 
+.fl-card.fl-card-outline .fl-card-content {
+    flex-grow: 0;
+}
+
 /* =====================================================================
 Filled Card variant
 ===================================================================== */
@@ -346,6 +350,10 @@ Card Testimonial content block
 /* Testimonial cards use xl padding on mobile; md-up upgrades font to body-sm. */
 .fl-card.fl-card-outline:has(.fl-card-testimonial) {
     padding: var(--token-spacing-xl);
+}
+
+.fl-card.fl-card.fl-card-outline:has(.fl-card-testimonial) .fl-card-content {
+    flex-grow: 1;
 }
 
 @media (--viewport-md-up) {
