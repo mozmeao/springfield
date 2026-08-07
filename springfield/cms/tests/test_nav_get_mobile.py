@@ -61,7 +61,7 @@ def test_flare_header_renders_get_mobile_qr_gated_to_firefox_desktop(client):
     # The designed QR image is referenced from /media/ (matches flare convention).
     img = dropdown.find("img", class_="nav-get-mobile-qr-img")
     assert img is not None
-    assert img["src"] == "/media/img/firefox/flare/get-mobile-qr.png"
+    assert img["src"] == "/media/img/firefox/flare/fxcom-nav-mobile-qr.png"
 
     # Compact label on the button, descriptive caption in the panel.
     trigger = dropdown.find(class_="fl-dropdown-trigger")
