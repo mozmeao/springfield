@@ -43,6 +43,7 @@ from springfield.cms.blocks import (
     ShowcaseBlock,
     SpringfieldLinkBlock,
     TabBlock,
+    TabsBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -4461,6 +4462,11 @@ INVITE_CODE = "1ABCDEFGHJKMNPQRS"
 INVITE_URL = f"http://testserver/get-firefox/?invitation={INVITE_CODE}"
 
 
+def _referral_controls_stream(**overrides):
+    """The raw stream value for a tab's referral controls, with default labels."""
+    return [{"type": "referral_controls", "value": dict(REFERRAL_CONTROLS_LABELS, **overrides)}]
+
+
 def _tab_value(referral_controls=True, **overrides):
     """Build a TabBlock value.
 
@@ -4475,7 +4481,7 @@ def _tab_value(referral_controls=True, **overrides):
         "referral_controls": [],
     }
     if referral_controls is True:
-        raw["referral_controls"] = [{"type": "referral_controls", "value": dict(REFERRAL_CONTROLS_LABELS)}]
+        raw["referral_controls"] = _referral_controls_stream()
     elif referral_controls:
         raw["referral_controls"] = referral_controls
     raw.update(overrides)
@@ -4544,6 +4550,36 @@ def test_tab_block_referral_controls_qr_button_targets_its_dialog():
     assert dialog.find("button", class_="fl-dialog-close-button") is not None
 
 
+def test_tabs_block_renders_a_distinct_qr_dialog_id_per_tab():
+    """Two tabs on one page must not share a dialog id.
+
+    flare-dialogs.es6.js resolves a trigger through `getElementById`, which
+    returns the first match in the document, so an id that did not vary per tab
+    would leave every QR button opening the first tab's dialog. Only TabsBlock
+    can show this: the single-tab tests render one instance, where a hardcoded
+    id looks perfectly correct.
+    """
+    block = TabsBlock()
+    value = block.to_python(
+        {
+            "section_id": "hub",
+            "tabs": [{"tab_name": name, "referral_controls": _referral_controls_stream()} for name in ("First tab", "Second tab")],
+        }
+    )
+    soup = BeautifulSoup(block.render(value, context={"invite_url": INVITE_URL}), "html.parser")
+
+    # Pair each panel's trigger with the dialog in that same panel, rather than
+    # zipping two document-order lists that would line up either way. Keying on
+    # the trigger's target collapses the mapping if the tabs share an id.
+    targets_to_dialogs = {
+        panel.select_one(".fl-referral-controls-qr-button")["data-target-id"]: panel.select_one(".fl-referral-controls dialog")["id"]
+        for panel in soup.select(".fl-tab")
+    }
+
+    assert len(targets_to_dialogs) == 2
+    assert all(target == dialog_id for target, dialog_id in targets_to_dialogs.items())
+
+
 def _email_href(html):
     return BeautifulSoup(html, "html.parser").find("a", class_="fl-referral-controls-share-email")["href"]
 
@@ -4581,15 +4617,13 @@ def test_tab_block_referral_controls_email_href_encodes_subject_and_body():
 
 def test_tab_block_referral_controls_email_body_appends_link_when_placeholder_removed():
     """The link must survive an editor deleting the {invite link} placeholder."""
-    labels = dict(REFERRAL_CONTROLS_LABELS, email_body="Just some copy with no placeholder.")
-    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+    html = _render_tab(referral_controls=_referral_controls_stream(email_body="Just some copy with no placeholder."))
 
     assert _email_params(html)["body"] == f"Just some copy with no placeholder.\n\n{INVITE_URL}"
 
 
 def test_tab_block_referral_controls_email_body_replaces_every_placeholder():
-    labels = dict(REFERRAL_CONTROLS_LABELS, email_body="{invite link} or later: {invite link}")
-    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+    html = _render_tab(referral_controls=_referral_controls_stream(email_body="{invite link} or later: {invite link}"))
 
     assert _email_params(html)["body"] == f"{INVITE_URL} or later: {INVITE_URL}"
     assert "{invite link}" not in html
@@ -4636,8 +4670,7 @@ def test_tab_block_referral_controls_qr_heading_precedes_the_code():
 
 def test_tab_block_referral_controls_omits_qr_heading_when_blank():
     """qr_heading is optional, and an empty one must not leave an empty <h3>."""
-    labels = dict(REFERRAL_CONTROLS_LABELS, qr_heading="")
-    html = _render_tab(referral_controls=[{"type": "referral_controls", "value": labels}])
+    html = _render_tab(referral_controls=_referral_controls_stream(qr_heading=""))
     dialog = BeautifulSoup(html, "html.parser").find("dialog")
 
     assert dialog.find("h3") is None
