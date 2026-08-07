@@ -1154,6 +1154,22 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
         return self.page.title + " -> " + self.snippet.title
 
 
+class BlogArticleAuthor(Orderable):
+    page = ParentalKey("cms.BlogArticlePage", on_delete=models.CASCADE, related_name="article_authors")
+    author = models.ForeignKey("cms.BlogAuthor", on_delete=models.PROTECT, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Blog Article Author"
+        verbose_name_plural = "Blog Article Authors"
+
+    panels = [
+        FieldPanel("author"),
+    ]
+
+    def __str__(self):
+        return f"{self.page.title} -> {self.author.name}"
+
+
 class FreeFormPage2026(
     PageThemeMixin, PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
 ):
@@ -2123,6 +2139,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ],
             heading="Tags",
         ),
+        InlinePanel("article_authors", label="Authors"),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
@@ -2187,6 +2204,18 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         if not hasattr(self, "_tags_cache"):
             self._tags_cache = [localized for tag in self.tags.all() if (localized := tag.get_localized())]
         return self._tags_cache
+
+    def get_authors(self):
+        """The article's authors in editor order, localized where a live translation
+        exists and falling back to the stored author otherwise. Authors that are not
+        live in any usable locale are omitted."""
+        if not hasattr(self, "_authors_cache"):
+            self._authors_cache = [
+                resolved
+                for placement in self.article_authors.select_related("author")
+                if (resolved := placement.author.get_localized() or (placement.author if placement.author.live else None))
+            ]
+        return self._authors_cache
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
