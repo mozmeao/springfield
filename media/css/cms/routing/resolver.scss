@@ -1,0 +1,48 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+// Minimal styles for the lightweight client resolver bounce page.
+
+@use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
+
+.routing-resolver {
+    @include text-body-lg;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 100vh;
+    padding: $spacing-lg;
+    text-align: center;
+}
+
+// The escape hatch is in the markup from the start — it has to work with no JS and no
+// stylesheet — but a visitor whose redirect is working should never see it. Fade it in once
+// the client evaluator's own budget has passed, so it only surfaces to someone actually
+// stranded. Opacity, not visibility or display: the link stays focusable and available to
+// screen readers throughout, and it is visible for anyone who gets no CSS at all.
+// The 1600ms delay sits just past the evaluator's global cap (GLOBAL_TIMEOUT_MS, 1500ms in
+// evaluator.es6.js). If that cap changes, raise this with it — too early and the link flashes
+// up for visitors who are about to be redirected anyway.
+.routing-resolver-escape {
+    animation: routing-resolver-escape-in 300ms ease-in 1600ms both;
+}
+
+@keyframes routing-resolver-escape-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+// Reduced motion (and any engine that skips animations): show it immediately rather than
+// leaving the only way off the page permanently transparent.
+@media (prefers-reduced-motion: reduce) {
+    .routing-resolver-escape {
+        animation: none;
+    }
+}
