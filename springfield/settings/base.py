@@ -92,6 +92,18 @@ CACHE_TIME_SHORT = 60 * 10  # 10 mins
 CACHE_TIME_MED = 60 * 60  # 1 hour
 CACHE_TIME_LONG = 60 * 60 * 6  # 6 hours
 
+# How long the User Routing resolver page may be reused. It is a CDN-cacheable page that freezes
+# per-page state into its body — the rules' target URLs, whether routing is paused, and the
+# visitor's country — and nothing purges it, so this is how long any of those may be stale.
+#
+# Deliberately a setting rather than a constant, and deliberately the same value the page already
+# inherited from the cache middleware, so nothing about its caching changes on merge. Lowering it
+# shrinks every staleness window but costs origin work on each miss, and that trade depends on
+# release traffic and whether CDN shielding is on — neither knowable from here, and neither live
+# until the `user_routing` waffle switch is on, because no resolver is served while it is off.
+# Tunable by env var so the number can be chosen by whoever owns that trade, without a deploy.
+ROUTING_RESOLVER_CACHE_SECONDS = config("ROUTING_RESOLVER_CACHE_SECONDS", default="600", parser=int)
+
 
 CACHES = {
     "default": {
