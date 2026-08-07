@@ -4,20 +4,22 @@
 
 from __future__ import annotations
 
+import functools
 import re
 import uuid
 from typing import TYPE_CHECKING
-from urllib.parse import urlencode, urlparse
+from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
-from django.db import models
+from django.db import DatabaseError, models
 from django.db.models import Count
 from django.db.models.expressions import F
 from django.forms.widgets import CheckboxSelectMultiple
+from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -53,6 +55,7 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
+    ComparisonTableBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -62,6 +65,7 @@ from springfield.cms.blocks import (
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
+    ImageCaptionBlock,
     IntroBlock,
     KitBannerBlock,
     KitIntroBlock,
@@ -86,8 +90,12 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.middleware import mark_locale_fallback_exempt
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
+from springfield.firefox.referral import crypto
+from springfield.firefox.referral.models import FirefoxReferralData
+from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
 from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
 
@@ -126,8 +134,7 @@ class StructuralPage(AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         FieldPanel("show_in_menus"),
     ]
-    content_panels = [
-        FieldPanel("title"),
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("slug"),
     ]
     promote_panels = []
@@ -1054,6 +1061,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("comparison_table", ComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -1319,6 +1327,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
 
     content_panels = [
         FieldPanel("title"),
+        FieldPanel("internal_title"),
         TitleFieldPanel("version", placeholder="123"),
         FieldPanel("upper_content"),
         FieldPanel("content"),
@@ -1342,6 +1351,7 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
+        SynchronizedField("version"),
         SynchronizedField("pre_footer_image"),
     ]
 
@@ -1895,6 +1905,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("media", MediaBlock()),
+            ("image_caption", ImageCaptionBlock()),
             ("code", CodeBlock()),
             ("quote", QuoteBlock()),
         ],
@@ -2179,11 +2190,9 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        form = getattr(request, "form", None)
-        context["form_errors"] = getattr(form, "errors", {})
+        context["form"] = getattr(request, "form", None)
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        context["form_data"] = self._get_display_data(form)
         return context
 
     def serve(self, request, *args, **kwargs):
@@ -2210,55 +2219,52 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         add_never_cache_headers(response)
         return response
 
+    def serve_preview(self, request, mode_name):
+        request.form = self.get_form(request)
+        return super().serve_preview(request, mode_name)
+
     def get_form(self, request):
         """Return a Django Form instance generated from the form_fields StreamField.
 
         Bound to ``request.POST`` for POST requests, unbound otherwise.
         """
+        locale = self.locale.language_code
         form_fields = {}
         for field in self.form_fields:
             value = field.value
-            form_fields[value["internal_identifier"]] = value.get_form_field()
-
-        ContactForm = type("ContactForm", (forms.Form,), form_fields)
+            form_field = value.get_form_field(locale=locale)
+            if field.block_type == "hidden_field":
+                override_param = value["query_param_override"]
+                if override_param and (override := request.GET.get(override_param)):
+                    form_field.initial = override
+            form_fields[value["internal_identifier"]] = form_field
 
         # Hidden fields always arrive in POST, they must not be considered when checking for an empty submission.
         hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
         visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
 
-        def clean_form(_self):
-            # The honeypot must stay empty, and every hidden field must have a value
-            honeypot = _self.data.get("office_fax")
-            empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
-            if honeypot or empty_hidden_fields:
-                raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
-            # Only flag an empty submission when no per-field error already exists
-            has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
-            if not has_any_data and not _self.errors:
-                raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+        class ContactForm(forms.Form):
+            def __init__(_self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                _self.fields.update(form_fields)
 
-        ContactForm.clean = clean_form
+            def clean(_self):
+                # The honeypot must stay empty, and every hidden field must have a value
+                honeypot = _self.data.get("office_fax")
+                empty_hidden_fields = any(not _self.data.get(identifier) for identifier in hidden_identifiers)
+                if honeypot or empty_hidden_fields:
+                    raise forms.ValidationError(ftl_lazy("contact-form-error-sending", ftl_files=self.ftl_files))
+                # Only flag an empty submission when no per-field error already exists
+                has_any_data = any(_self.cleaned_data.get(identifier) for identifier in visible_identifiers)
+                if not has_any_data and not _self.errors:
+                    raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
+                return _self.cleaned_data
 
+        # auto_id="%s" keeps the rendered ids equal to the author-defined internal identifiers
+        # instead of Django's "id_" prefixed defaults.
         if request.method == "POST":
-            return ContactForm(request.POST)
-        return ContactForm()
-
-    def _get_display_data(self, form):
-        """Build a display dict from raw form data for template persistence"""
-
-        if form is None:
-            return {}
-        data = form.data
-        result = {}
-        for field in self.form_fields:
-            if field.block_type == "hidden_field":
-                continue
-            identifier = field.value["internal_identifier"]
-            if field.value.is_multivalue:
-                result[identifier] = data.getlist(identifier)
-            else:
-                result[identifier] = data.get(identifier, "")
-        return result
+            return ContactForm(request.POST, auto_id="%s")
+        return ContactForm(auto_id="%s")
 
     def _collect_field_values(self, form):
         """Return submitted values keyed by internal_identifier, normalized to the
@@ -2387,6 +2393,22 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
         return context
 
 
+def referral_geo_check(serve_method):
+    """Redirect visitors outside the relevant area for the referral program to the homepage"""
+
+    @functools.wraps(serve_method)
+    def wrapper(self, request, *args, **kwargs):
+        country = get_country_from_request(request)
+        if country not in settings.FF_REFERRAL_COUNTRY_CODES:
+            if locale := getattr(request, "locale"):
+                return redirect(f"/{locale}/")
+            else:
+                return redirect("/")
+        return serve_method(self, request, *args, **kwargs)
+
+    return wrapper
+
+
 class ReferralHubPage(AbstractSpringfieldCMSPage):
     """Page where a user gets their invitation link and
     can monitor their invites' impact (an anonymous install count)
@@ -2395,35 +2417,131 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.HomePage"]
     template = "cms/referral_hub_page.html"
 
+    upper_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+        ],
+        max_num=1,
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+    lower_content = StreamField(
+        [
+            ("intro", IntroBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", max_buttons=5)),
+            ("kit_banner", KitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+    extra_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+        ],
+        max_num=1,
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+        FieldPanel("extra_content"),
+    ]
+
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
-
-    def _referral_id_to_invite_code(self, referral_id: str) -> str:
-        # placeholder/dummy invite-code-generation for now
-        return referral_id[::-1].replace("TSET", "FAKE")
 
     def get_context(self, request, *args, **kwargs):
         """
         Adds an invite_url to the context using the referral-hub ID
         ("ref_key") in the URL that opens this Referral Hub page.
-        If ref_key is missing, invite_url is empty.
+        If ref_key is missing or invalid, invite_url is empty.
 
         The invite_url is the one that can be copied and sent to friends
         and can be turned into a QR code as needed, etc.
+
+        install_count is the number of installs credited to this ref_key. It
+        drives the achieved/locked state of the impact dashboard's badges.
         """
 
         context = super().get_context(request, *args, **kwargs)
 
+        context["invite_url"] = ""
         if referral_id := request.GET.get("ref_key"):
-            invite_code = self._referral_id_to_invite_code(referral_id)
-            params = urlencode({"invitation": invite_code})
-            context["invite_url"] = request.build_absolute_uri(f"/get-firefox/?{params}")
-        else:
-            # No referral-id code == no invite URL. Template needs to handle
-            # this case
-            context["invite_url"] = ""
+            try:
+                invite_code = crypto.referral_id_to_invite_code(referral_id)
+                context["invite_url"] = crypto.invite_url_for_code(invite_code)
+            except ValueError:
+                # Treated like a missing `ref_key` rather than raising. Only a
+                # correctly sized one is reported, because this is a public page
+                # and anything can land in the query string. At the right length
+                # it plausibly came from the referral flow, so a spike is worth
+                # seeing. The value itself is masked out of the event by
+                # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
+                if len(referral_id) == REFERRAL_ID_LENGTH:
+                    with new_scope() as scope:
+                        scope.fingerprint = ["referral-hub-invalid-ref-key"]
+                        capture_message(
+                            "ReferralHubPage received a ref_key that is not a valid referral ID",
+                            level="warning",
+                        )
+
+        context["install_count"] = self._get_install_count(referral_id)
 
         return context
+
+    def _get_install_count(self, referral_id: str) -> int:
+        """Installs credited to this ref_key, or 0 if it cannot be determined.
+
+        Returns 0 rather than raising for every failure mode -- no ref_key, an
+        unknown ref_key, or the referral table being unavailable -- because the
+        impact dashboard is one optional part of this page and must not be able
+        to fail the whole hub render.
+
+        Note this collapses "we don't know" and "you genuinely have 0 installs"
+        into the same value. If the design ever needs to distinguish them (e.g.
+        "we couldn't load your progress"), this should return None instead.
+        """
+        if not referral_id:
+            return 0
+
+        try:
+            return FirefoxReferralData.objects.get(referral_id=referral_id).install_count
+        except FirefoxReferralData.DoesNotExist:
+            return 0
+        except DatabaseError as exc:
+            with new_scope() as scope:
+                scope.set_extra("exception", str(exc))
+                capture_message("Failed to read FirefoxReferralData install count", level="error")
+                return 0
+
+    @referral_geo_check
+    def serve(self, request, *args, **kwargs):
+        """Require a well-formed ref_key
+
+        The hub is meaningless without a referral ID -- there is no invite link to
+        copy and no progress to show -- so a URL missing that part is treated as
+        not found rather than served empty. Wagtail's serve_preview builds its own
+        TemplateResponse instead of calling serve(), so CMS preview is unaffected
+        by this and still renders with an empty invite URL.
+        """
+        try:
+            # The referral ID arrives already-canonical from Firefox, so this is
+            # deliberately strict: exactly REFERRAL_ID_LENGTH characters of
+            # uppercase Crockford base32, with no case- or glyph-folding.
+            validate_referral_id(request.GET.get("ref_key"))
+        except ValueError:
+            # Without this, CMSLocaleFallbackMiddleware would see the 404, find
+            # this very page live at the same path, and redirect to it forever.
+            mark_locale_fallback_exempt(request)
+            raise Http404("Referral Hub URL is missing a well-formed ref_key") from None
+
+        response = super().serve(request, *args, **kwargs)
+        return response
 
 
 class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
@@ -2431,6 +2549,9 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     Will use custom, privacy-respecting attribution so we can tally up
     how many people install via the invite code used to open this page.
+
+    A visitor arriving without a usable invitation, or from outside the
+    applicable geographic territory, is not served this page.
     """
 
     parent_page_types = ["cms.HomePage"]
@@ -2438,3 +2559,31 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
+
+    def get_context(self, request, *args, **kwargs):
+        """
+        Adds an `invitation_code` code (from the URL) to the context, which we'll
+        pass as `fxrefer:<invitation code>` to download attribution as a special
+        param
+        """
+        context = super().get_context(request, *args, **kwargs)
+
+        # self.serve() already validated that the invitation code is legit and valid
+        context["invitation_code"] = request.GET.get("invitation")
+        return context
+
+    @referral_geo_check
+    def serve(self, request, *args, **kwargs):
+        invite_code = request.GET.get("invitation")
+        if not invite_code:
+            mark_locale_fallback_exempt(request)
+            raise Http404("Referral invitee page is missing an invitation code") from None
+
+        try:
+            # verify syntax and decryptability of the invitation code
+            crypto.invite_code_to_referral_id(invite_code)
+        except ValueError:
+            mark_locale_fallback_exempt(request)
+            raise Http404("Referral invitee page did not get a well-formed invitation code") from None
+
+        return super().serve(request, *args, **kwargs)

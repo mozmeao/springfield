@@ -134,6 +134,23 @@ describe('plausible.es6.js', function () {
             expect(script.getAttribute('data-domain')).toBe('firefox.com');
             expect(script.src).toBe('https://plausible.example/js/script.js');
         });
+
+        it('should point data-api at the origin the script is served from', function () {
+            html.setAttribute('data-plausible-domain', 'firefox.com');
+            html.setAttribute(
+                'data-plausible-src',
+                'https://pa.firefox.com/js/script.js'
+            );
+
+            Plausible.loadScript();
+
+            expect(appendChildSpy).toHaveBeenCalled();
+            const script = appendChildSpy.calls.mostRecent().args[0];
+            expect(script.getAttribute('data-api')).toBe(
+                'https://pa.firefox.com/api/event'
+            );
+            expect(script.src).toBe('https://pa.firefox.com/js/script.js');
+        });
     });
 
     describe('trackEvent', function () {

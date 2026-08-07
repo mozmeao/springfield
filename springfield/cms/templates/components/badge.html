@@ -1,0 +1,23 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props number=0, label="", badge_name="", is_achieved=0 #}
+
+<li class="fl-badge {% if is_achieved %}is-achieved{% endif %}" data-achieved="{{ 'true' if is_achieved else 'false' }}">
+  {# The number and label carry the meaning, so the artwork is decorative. #}
+  {% if contents.media %}
+    <div class="fl-badge-media" aria-hidden="true">{{ contents.media }}</div>
+  {% endif %}
+  <div class="fl-badge-description">
+    <p class="fl-badge-value">
+      <span class="fl-badge-number">{{ number }}</span>
+      <span class="fl-badge-label">{{ label }}</span>
+    </p>
+    {% if badge_name %}
+      <p class="fl-badge-name">{{ badge_name }}</p>
+    {% endif %}
+  </div>
+</li>

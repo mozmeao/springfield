@@ -182,6 +182,12 @@
 --theme-roadmap-list-background: var(--token-color-soft-purple-40);
 --theme-roadmap-list-border-color: var(--token-color-soft-purple-2);
 
+/* Tabs */
+--theme-tabs-nav-background: var(--token-color-soft-purple);
+--theme-tabs-tab-color-hover: var(--fl-theme-color-link-hover);
+--theme-tabs-tab-selected-background: var(--token-color-white);
+--theme-tabs-tab-selected-color: var(--fl-theme-color-text);
+
 /* Form fields */
 --theme-form-field-background: var(--token-color-soft-purple);
 --theme-form-field-background-focus: var(--token-color-white);
@@ -192,3 +198,8 @@
 --theme-form-focus-outline-color: var(--token-color-soft-purple-3);
 --theme-checkbox-border-color: var(--token-color-light-purple);
 --theme-form-error-message-color: var(--token-color-error-red);
+
+/* Comparison table */
+--comparison-table-highlighted-bg: var(--token-color-soft-purple);
+--comparison-table-border-color: var(--token-color-soft-purple-2);
+--comparison-table-text-color: var(--token-color-grey-3);

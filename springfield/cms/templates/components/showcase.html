@@ -4,18 +4,21 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props layout="default" #}
+{# props layout="default", media_is_interactive=False #}
+
+{% set media_tag = "div" if media_is_interactive else "figure" %}
+{% set caption_tag = "div" if media_is_interactive else "figcaption" %}
 
 <section class="fl-showcase fl-showcase-{{ layout }}">
   <div class="fl-showcase-heading">
     {{ contents.heading }}
   </div>
-  <figure class="fl-showcase-image">
+  <{{ media_tag }} class="fl-showcase-media">
       {{ contents.image }}
-      <figcaption class="fl-showcase-caption">
+      <{{ caption_tag }} class="fl-showcase-caption">
         {{ contents.caption }}
-      </figcaption>
-  </figure>
+      </{{ caption_tag }}>
+  </{{ media_tag }}>
   {% if contents.cta %}
   <div class="fl-showcase-cta">
     {{ contents.cta }}

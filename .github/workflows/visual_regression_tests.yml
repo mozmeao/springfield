@@ -65,6 +65,7 @@ jobs:
             -e ENABLE_DJANGO_PATTERN_LIBRARY=true \
             -e ALLOWED_HOSTS='*' \
             -e WAGTAIL_ENABLE_ADMIN=True \
+            -e REFERRAL_INVITE_CODE_KEY_V1=abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd \
             -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
             mozmeao/springfield_test:latest \
             python manage.py runserver 0.0.0.0:8000

@@ -1,0 +1,32 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div id="fl-tab-panel-{{ section_id }}-{{ tab_index }}" role="tabpanel" aria-labelledby="fl-tab-{{ section_id }}-{{ tab_index }}" class="fl-tab">
+  {% if value.image %}
+    {{ srcset_image(
+        value.image,
+        "width-{200,400,600,800,1000,1200}",
+        sizes="(min-width: 1024px) 50vw, 100vw",
+        width=value.image.width,
+        height=value.image.height,
+        loading="lazy",
+        class="fl-tab-image",
+    ) }}
+  {% endif %}
+  {% if value.heading %}
+    <h2 class="fl-tab-heading fl-heading-sm">{{ value.heading|richtext|remove_p_tag }}</h2>
+  {% endif %}
+  {% if value.description %}
+    <p class="fl-tab-description">{{ value.description|richtext|remove_p_tag }}</p>
+  {% endif %}
+  {% include_block value.referral_controls %}
+  {% include_block value.impact_dash %}
+  {% if value.note %}
+  <div class="fl-tab-note-wrapper">
+    <small class="fl-tab-note">{{ value.note|richtext }}</small>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,75 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-dropdown {
+    position: relative;
+}
+
+.fl-dropdown-trigger {
+    background: var(--fl-theme-background);
+    border: 1px solid var(--fl-theme-form-field-border-color);
+    border-radius: var(--token-border-radius-2xs);
+    color: var(--fl-theme-color-text);
+    cursor: pointer;
+    display: block;
+    font-family: var(--token-font-family-mozilla-text);
+    font-size: var(--token-font-size-md);
+    font-weight: var(--token-font-weight-bold);
+    inline-size: 100%;
+    margin: 0;
+    padding-block: var(--token-spacing-sm);
+    padding-inline: var(--token-spacing-lg);
+    text-align: start;
+}
+
+/* No-JS: hide trigger, panel is always visible and static */
+.no-js .fl-dropdown-trigger {
+    display: none;
+}
+
+/* Panel base: border/radius apply in both js and no-js */
+.fl-dropdown-panel {
+    background: var(--fl-theme-background);
+    border: 1px solid var(--fl-theme-form-field-border-color);
+    border-radius: var(--token-border-radius-2xs);
+}
+
+/* JS: panel hidden by default (prevents flicker), shown as absolute shelf when open */
+.js .fl-dropdown-panel {
+    box-shadow: 0 4px 12px var(--token-color-black-16);
+    display: none;
+    inline-size: 100%;
+    inset-block-start: calc(100% + var(--token-spacing-xs));
+    inset-inline-start: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+.js .fl-dropdown.fl-is-open .fl-dropdown-panel {
+    display: block;
+}
+
+.fl-dropdown-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: var(--token-spacing-xs) 0;
+}
+
+.fl-dropdown-panel li {
+    margin: 0;
+}
+
+.fl-dropdown-panel a {
+    color: var(--fl-theme-color-text);
+    display: block;
+    padding-block: var(--token-spacing-sm);
+    padding-inline: var(--token-spacing-lg);
+    text-decoration: none;
+}
+
+.fl-dropdown-panel a:hover {
+    background: var(--fl-subtle-border-color);
+}

@@ -1,3 +1,15 @@
+@property --border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes fl-sliding-carousel-border-fill {
+    to {
+        --border-angle: 360deg;
+    }
+}
+
 .fl-smart-window-heading-logo {
     margin: 0;
     max-block-size: 30px;
@@ -28,6 +40,41 @@
     padding: 2px;
     pointer-events: none;
     position: absolute;
+}
+
+/* White shimmer rotating on top of the gradient border */
+.fl-smart-window-instructions::after {
+    animation: fl-sliding-carousel-border-fill 24s linear infinite;
+    background: conic-gradient(
+        from var(--border-angle),
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 5%,
+        rgba(255, 255, 255, 0.8) 12%,
+        rgba(255, 255, 255, 0.8) 22%,
+        rgba(255, 255, 255, 0.3) 29%,
+        transparent 35%
+    );
+    block-size: 100%;
+    border-radius: inherit;
+    content: '';
+    inset: 0;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    pointer-events: none;
+    position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-smart-window-instructions::after {
+        animation: none;
+    }
 }
 
 .fl-smart-window-instructions-heading {

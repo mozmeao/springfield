@@ -1,0 +1,31 @@
+name: Comparison Table
+context:
+  header_cells:
+    - content: ""
+    - content: PREMIUM
+    - content: STANDARD
+  content_rows:
+    - cells:
+        - content: Best for
+        - content: High-assurance operational support
+        - content: Direct support for managed Firefox
+    - cells:
+        - content: Availability
+        - content: 24 hrs/day, Mon–Fri
+        - content: 09:00–17:00, Mon–Fri
+    - cells:
+        - content: Response (business-halting)
+        - content: 30 minutes
+        - content: 2 hours
+    - cells:
+        - content: Channels
+        - content: Email, portal, and live chat
+        - content: Email, web portal
+    - cells:
+        - content: Named success contact
+        - content: Named Success Lead
+        - content: Shared POC
+    - cells:
+        - content: Business reviews
+        - content: Quarterly
+        - content: "—"

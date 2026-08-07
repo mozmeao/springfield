@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props label="", id="", testid="" #}
+
+<div class="fl-dropdown" id="{{ id }}"{% if testid %} data-testid="{{ testid }}"{% endif %}>
+  <button type="button" class="fl-dropdown-trigger" aria-controls="{{ id }}-panel">
+    {{ label }}
+  </button>
+  <div id="{{ id }}-panel" class="fl-dropdown-panel">
+    {{ contents }}
+  </div>
+</div>

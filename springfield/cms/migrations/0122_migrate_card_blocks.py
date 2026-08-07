@@ -7,11 +7,17 @@
 # testimonial_card → card.
 
 import json
+
+# import os
 import re
+
+# import sys
 from collections.abc import MutableSequence
 from uuid import uuid4
 
 from django.db import migrations
+
+# from springfield.base.config_manager import config
 
 _EMPTY_SHOW_TO = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -307,22 +313,29 @@ _PAGE_CONFIGS = [
 
 
 def update_pages(apps, schema_editor):
-    Revision = apps.get_model("wagtailcore", "Revision")
-    ContentType = apps.get_model("contenttypes", "ContentType")
+    # This migration was already run and is no longer needed. Skip it entirely.
+    return
 
-    for model_name, field_names in _PAGE_CONFIGS:
-        Model = apps.get_model("cms", model_name)
-        ct = ContentType.objects.get_for_model(Model)
+    # is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
+    # if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
+    #     return
 
-        print(f"Migrating {model_name} revisions...")
-        for revision in Revision.objects.filter(content_type=ct).iterator():
-            _migrate_revision(revision, field_names)
+    # Revision = apps.get_model("wagtailcore", "Revision")
+    # ContentType = apps.get_model("contenttypes", "ContentType")
 
-        print(f"Migrating current {model_name} pages...")
-        for page in Model.objects.all().iterator():
-            _migrate_page(page, field_names)
+    # for model_name, field_names in _PAGE_CONFIGS:
+    #     Model = apps.get_model("cms", model_name)
+    #     ct = ContentType.objects.get_for_model(Model)
 
-    print("Card block migration complete!")
+    #     print(f"Migrating {model_name} revisions...")
+    #     for revision in Revision.objects.filter(content_type=ct).iterator():
+    #         _migrate_revision(revision, field_names)
+
+    #     print(f"Migrating current {model_name} pages...")
+    #     for page in Model.objects.all().iterator():
+    #         _migrate_page(page, field_names)
+
+    # print("Card block migration complete!")
 
 
 class Migration(migrations.Migration):
