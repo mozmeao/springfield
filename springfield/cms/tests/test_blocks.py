@@ -71,6 +71,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     create_blog_article,
     get_blog_article_content,
     get_blog_index_page,
+    get_blog_tags,
     get_blog_topics,
 )
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
@@ -4368,6 +4369,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
     index_page = get_blog_index_page()
     image, dark_image, mobile_image, dark_mobile_image = get_placeholder_images()
     privacy = get_blog_topics()["privacy"]
+    privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image, image_caption=IMAGE_CAPTION)
     # A second block covers the image variants, which the fixture image doesn't use.
     content.append(
@@ -4392,7 +4394,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
         title=FEATURED_TITLES[0],
         slug="test-image-caption-article",
         topic=privacy,
-        tags=[privacy],
+        tags=[privacy_tag],
         image=image,
         description=FEATURED_DESCRIPTIONS[0],
         content=content,
