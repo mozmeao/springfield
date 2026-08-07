@@ -4,6 +4,7 @@
 
 from django.db import IntegrityError
 from django.db.models import ProtectedError
+from django.utils import translation
 
 import pytest
 from wagtail.models import Locale, Site
@@ -112,3 +113,56 @@ def test_deleting_an_uncredited_author_succeeds():
     ada.delete()
 
     assert not BlogAuthor.objects.filter(slug="ada-lovelace").exists()
+
+
+def test_get_authors_returns_the_translated_author(article):
+    """A live translation for the active locale is what the byline should show."""
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    ada = make_author("Ada Lovelace", "ada-lovelace")
+    fr_ada = ada.copy_for_translation(fr_locale)
+    fr_ada.name = "Ada Lovelace en français"
+    fr_ada.live = True
+    fr_ada.save()
+
+    article.article_authors.set([BlogArticleAuthor(author=ada)])
+    article.save()
+
+    with translation.override("fr"):
+        article_fresh = BlogArticlePage.objects.get(pk=article.pk)
+        assert [author.name for author in article_fresh.get_authors()] == ["Ada Lovelace en français"]
+
+
+def test_get_authors_falls_back_to_the_default_locale_author(article):
+    """With no translation, the byline keeps the default-locale name rather than
+    losing the author entirely."""
+    Locale.objects.get_or_create(language_code="fr")
+    article.article_authors.set([BlogArticleAuthor(author=make_author("Ada Lovelace", "ada-lovelace"))])
+    article.save()
+
+    with translation.override("fr"):
+        article_fresh = BlogArticlePage.objects.get(pk=article.pk)
+        assert [author.name for author in article_fresh.get_authors()] == ["Ada Lovelace"]
+
+
+def test_get_authors_falls_back_when_the_translation_is_not_live(article):
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    ada = make_author("Ada Lovelace", "ada-lovelace")
+    fr_ada = ada.copy_for_translation(fr_locale)
+    fr_ada.name = "Ada Lovelace en français"
+    fr_ada.live = False
+    fr_ada.save()
+
+    article.article_authors.set([BlogArticleAuthor(author=ada)])
+    article.save()
+
+    with translation.override("fr"):
+        article_fresh = BlogArticlePage.objects.get(pk=article.pk)
+        assert [author.name for author in article_fresh.get_authors()] == ["Ada Lovelace"]
+
+
+def test_get_authors_omits_an_unpublished_author(article):
+    """A draft author has never been reviewed, so it must not reach a published page."""
+    article.article_authors.set([BlogArticleAuthor(author=make_author("Ada Lovelace", "ada-lovelace", live=False))])
+    article.save()
+
+    assert article.get_authors() == []
