@@ -69,7 +69,43 @@
         {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
       {% elif page.platform == "ios" %}
         {% set ios_url = app_store_url('firefox', campaign) %}
-        {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+        {# iOS installs directly from here. Android/other visitors can't (the QR is desktop-only),
+           so fall back to the App Store button too — a dead end for them, but better than no button. #}
+        <include:conditional-display platform_conditions="{{ ['ios', 'android', 'other'] }}">
+          {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
+        </include:conditional-display>
+        {# Desktop visitors can't install to their phone from here, so offer a
+           scannable QR code instead of a dead-end button. #}
+        <include:conditional-display platform_conditions="{{ ['windows', 'osx', 'linux'] }}">
+          <include:button
+            extra_classes="fl-dialog-trigger fl-store-button"
+            label="{{ ftl('download-get-it-for-mobile') }}"
+            analytics_text="Get it for mobile"
+            analytics_position="download-intro"
+            analytics_id="ios-qr-modal"
+            data_target_id="ios-qr-modal"
+          />
+          <div class="fl-qr-code-modal-wrapper">
+            <dialog id="ios-qr-modal" class="fl-dialog fl-qr-code-dialog">
+              <div class="fl-qr-code-floating-header">
+                <div class="fl-qr-code-prompt">
+                  <span class="fl-icon fl-icon-device-mobile"></span>
+                  {{ ftl('download-scan-to-get') }}
+                </div>
+                <button class="fl-dialog-close-button fl-qr-code-floating-button" aria-label="{{ ftl('ui-close') }}">
+                  <span class="fl-icon fl-icon-close"></span>
+                </button>
+              </div>
+              <div class="fl-qr-code-floating-content">
+                {# Marketing-provided static QR: its destination and tracking token are baked into
+                   the image and maintained by the marketing team, not generated from ios_url. #}
+                <div class="fl-qr-code-image">
+                  <img src="{{ static('img/firefox/browsers/mobile/ios/qr-code-ios.png') }}" width="740" height="740" alt="" aria-hidden="true">
+                </div>
+              </div>
+            </dialog>
+          </div>
+        </include:conditional-display>
       {% elif page.platform == "chromebook" %}
         {% set android_url = play_store_url('firefox', campaign) %}
         {{ google_play_button(href=android_url, id='playStoreLink', class_name="fl-store-button") }}
