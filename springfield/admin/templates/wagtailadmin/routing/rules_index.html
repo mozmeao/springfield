@@ -1,0 +1,54 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. #}
+{% extends "wagtailadmin/generic/base.html" %}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+
+{% block main_content %}
+  <p class="help-block help-info">
+    Browse-only. Routing rules are authored inline on each page's “User Routing” tab —
+    open a page below to add or edit its rules.
+  </p>
+
+  <table class="listing">
+    <thead>
+      <tr>
+        <th>Rule</th>
+        <th>Page</th>
+        <th>Target</th>
+        <th>Conditions</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.rule.name|default:"—" }}</td>
+          <td>
+            <a href="{% url 'wagtailadmin_pages:edit' row.rule.page_id %}">{{ row.rule.page }}</a>
+          </td>
+          <td>{{ row.rule.target|default:"—" }}</td>
+          <td>{{ row.rule.conditions.count }}</td>
+          <td>
+            {% if row.problem %}
+              {# Two different situations, deliberately styled differently: a target that is
+                 simply not translated or published *yet* clears itself, while the rest need
+                 an author to change the rule. One badge for both would train authors to
+                 ignore the column during every normal staged translation. #}
+              {% if row.problem.pending %}
+                <span class="routing-badge routing-badge--pending">Waiting</span>
+              {% else %}
+                <span class="routing-badge routing-badge--wont-fire">Won’t fire</span>
+              {% endif %}
+              <span class="routing-status-reason">{{ row.problem.message }}</span>
+            {% else %}
+              <span class="routing-badge routing-badge--active">Will fire</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">No routing rules have been created yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

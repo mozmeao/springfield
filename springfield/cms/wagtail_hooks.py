@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
-from wagtail.admin.menu import MenuItem
+from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     ExternalLinkElementHandler,
     InlineEntityElementHandler,
@@ -49,6 +49,8 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+from springfield.cms.routing.admin import build_signal_payload
+from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 
 
 @hooks.register("register_admin_urls")
@@ -119,6 +121,47 @@ def mark_locale_roles_in_admin():
     return mark_safe(
         f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};</script>"
         f'<script src="{static("js/wagtailadmin-locale-badges.js")}"></script>'
+    )
+
+
+# The shared "User Routing" sidebar submenu. Items are contributed via the register
+# hook so later commits (the Signals reference page) can add to the same submenu.
+user_routing_menu = Menu(register_hook_name="register_user_routing_menu_item")
+
+
+@hooks.register("register_admin_urls")
+def register_routing_admin_urls():
+    return [
+        path("user-routing/rules/", RoutingRulesIndexView.as_view(), name="cms_routing_rules"),
+        path("user-routing/signals/", RoutingSignalsReferenceView.as_view(), name="cms_routing_signals"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_user_routing_menu():
+    return SubmenuMenuItem("User Routing", user_routing_menu, icon_name="list-ul", order=8000)
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_routing_rules_menu_item():
+    return MenuItem("Rules", reverse("cms_routing_rules"), icon_name="list-ul")
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_routing_signals_menu_item():
+    return MenuItem("Signals reference", reverse("cms_routing_signals"), icon_name="help")
+
+
+@hooks.register("insert_editor_js")
+def routing_condition_help_js():
+    """Deliver the registry payload + condition-help JS to the page editor.
+
+    Injects the localized signal payload as a global, then loads the static JS that
+    renders dynamic help beneath the expected-value field on signal selection.
+    """
+    payload = json.dumps(build_signal_payload())
+    return mark_safe(
+        f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
 
 
