@@ -1798,6 +1798,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return (
             BlogTopic.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
             .annotate(article_count=Count("blog_articles"))
+            .live()
             .order_by("-article_count")
         )
 
