@@ -75,7 +75,7 @@
           {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
         </include:conditional-display>
         {# Desktop visitors can't install to their phone from here, so offer a
-           scannable QR code (same App Store URL) instead of a dead-end button. #}
+           scannable QR code instead of a dead-end button. #}
         <include:conditional-display platform_conditions="{{ ['windows', 'osx', 'linux'] }}">
           <include:button
             extra_classes="fl-dialog-trigger fl-store-button"
@@ -97,14 +97,10 @@
                 </button>
               </div>
               <div class="fl-qr-code-floating-content">
-                {# TODO (WIP): placeholder QR. It currently encodes the same App Store URL as the
-                   on-page button, so scans can't be attributed separately. Before launch, finalize:
-                   (1) destination — device-aware /browsers/mobile/ page (routes iOS + Android) vs.
-                       App Store deep-link; and
-                   (2) a QR-specific tracking token (Apple `ct=` or a utm_campaign) so scans are
-                       independently trackable. #}
+                {# Marketing-provided static QR: its destination and tracking token are baked into
+                   the image and maintained by the marketing team, not generated from ios_url. #}
                 <div class="fl-qr-code-image">
-                  {{ qrcode_rounded(ios_url) }}
+                  <img src="{{ static('img/firefox/browsers/mobile/ios/qr-code-ios.png') }}" width="740" height="740" alt="" aria-hidden="true">
                 </div>
               </div>
             </dialog>
