@@ -1,0 +1,157 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+   Nav "Get Firefox for your phone" QR dropdown
+
+   Firefox desktop visitors already have Firefox, so the header promotes the
+   mobile app via a QR dropdown instead of a redundant download button. The
+   dropdown itself is the shared flare `dropdown` component; these rules restyle
+   its trigger as the primary pill CTA and hang the panel below-right.
+   ===================================================================== */
+
+/* The QR dropdown is a desktop-viewport enhancement. Below the hamburger
+   breakpoint the header top bar is too cramped for a wide dropdown, so we fall
+   back to the standard download button there (matching today's behavior). */
+@media (--viewport-below-md) {
+    .nav-get-mobile {
+        display: none;
+    }
+}
+
+/* At desktop widths, hide the download CTA under the exact same conditions the
+   conditional-display component uses to reveal the QR (Firefox + a supported
+   desktop OS), so a visitor never ends up with no CTA at all. */
+@media (--viewport-md-up) {
+    html.is-firefox.windows:not(.fx-unsupported) .hide-from-firefox-desktop,
+    html.is-firefox.osx:not(.fx-unsupported) .hide-from-firefox-desktop,
+    html.is-firefox.linux:not(.fx-unsupported) .hide-from-firefox-desktop {
+        display: none;
+    }
+}
+
+.nav-get-mobile .fl-dropdown {
+    display: inline-flex;
+}
+
+/* Match the primary pill button (.fl-button) rather than the default
+   form-field-style dropdown trigger. */
+.nav-get-mobile .fl-dropdown-trigger {
+    align-items: center;
+    background: var(--button-bg-color);
+    border: 2px solid var(--button-border-color);
+    border-radius: var(--token-border-radius-xl);
+    color: var(--button-text-color);
+    display: inline-flex;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--button-font-size);
+    font-weight: 600;
+    gap: var(--token-spacing-md);
+    inline-size: auto;
+    justify-content: center;
+    line-height: 1;
+    padding: var(--token-spacing-md) var(--token-spacing-xl);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.nav-get-mobile .fl-dropdown-trigger:hover {
+    background: var(--button-bg-color-hover);
+    color: var(--button-text-color-hover);
+}
+
+.nav-get-mobile .fl-dropdown-trigger:active {
+    background: var(--button-bg-color-active);
+}
+
+/* Phone icon (left) + chevron (right), masked and tinted with currentColor. */
+.nav-get-mobile .fl-dropdown-trigger::before,
+.nav-get-mobile .fl-dropdown-trigger::after {
+    background-color: currentColor;
+    block-size: var(--button-icon-size);
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    inline-size: var(--button-icon-size);
+    mask-size: contain;
+}
+
+.nav-get-mobile .fl-dropdown-trigger::before {
+    -webkit-mask: url('/media/img/firefox/flare/icons/desktop-16/devices/device-mobile-16.svg')
+        no-repeat center;
+    mask: url('/media/img/firefox/flare/icons/desktop-16/devices/device-mobile-16.svg')
+        no-repeat center;
+}
+
+.nav-get-mobile .fl-dropdown-trigger::after {
+    -webkit-mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
+        no-repeat center;
+    mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
+        no-repeat center;
+    transition: transform var(--token-transition-fast);
+}
+
+.nav-get-mobile .fl-dropdown.fl-is-open .fl-dropdown-trigger::after {
+    transform: rotate(180deg);
+}
+
+/* Panel spans the full trigger width (base .fl-dropdown-panel is inline-size:100%
+   of the dropdown, which shrink-wraps the trigger) with its contents centered.
+   It fades in and drops down slightly on open, reversed on close. */
+.nav-get-mobile .fl-dropdown-panel {
+    opacity: 0;
+    padding: var(--token-spacing-lg);
+    transform: translateY(-12px);
+    transition:
+        opacity 240ms ease-out,
+        transform 240ms ease-out,
+        display 240ms;
+
+    /* Standalone so the CSS minifier can't reorder it out of the shorthand;
+       keeps the panel in the DOM through the close transition (else it vanishes
+       instantly). */
+    transition-behavior: allow-discrete;
+}
+
+.nav-get-mobile .fl-dropdown.fl-is-open .fl-dropdown-panel {
+    opacity: 1;
+    transform: translateY(0);
+
+    @starting-style {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-get-mobile .fl-dropdown-panel,
+    .nav-get-mobile .fl-dropdown.fl-is-open .fl-dropdown-panel {
+        transform: none;
+        transition: none;
+    }
+}
+
+.nav-get-mobile-qr {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-sm);
+}
+
+.nav-get-mobile-qr-img {
+    block-size: auto;
+    display: block;
+    inline-size: 160px;
+    max-inline-size: 100%;
+}
+
+.nav-get-mobile-qr-caption {
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-sm);
+    margin: 0;
+    max-inline-size: 160px;
+    text-align: center;
+}

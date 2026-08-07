@@ -5,8 +5,14 @@
 #}
 
 {% if not custom_nav_cta %}
+{# Only promote Firefox for mobile once the active locale actually has both strings
+   translated (ftl_has_messages checks the locale bundle, not the English fallback).
+   Until then this locale keeps the normal download button, so we never show an
+   English-only CTA — and we only add the "hide the download button" hook when the
+   QR is really going to render, so there's never a locale with no CTA at all. #}
+{% set show_get_mobile_localized = show_get_mobile and ftl_has_messages('navigation-firefox-for-mobile', 'navigation-get-firefox-phone') %}
 <div
-    class="nav-cta-wrap {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
+    class="nav-cta-wrap {% if show_get_mobile_localized %}hide-from-firefox-desktop{% endif %} {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}"
 >
   <include:download-firefox-button
     analytics_id="nav-download-firefox"
@@ -18,6 +24,29 @@
     exclude_unsupported_content="True"
   />
 </div>
+
+{# Firefox desktop users already have Firefox, so promote Firefox for mobile instead of a redundant download.
+   Only rendered in the desktop CTA slot (show_get_mobile) so the dropdown id stays unique, and only
+   when the locale is translated (show_get_mobile_localized). #}
+{% if show_get_mobile_localized %}
+<include:conditional-display firefox_condition="is-firefox" platform_conditions="{{ ['windows', 'osx', 'linux'] }}">
+  <div class="nav-cta-wrap nav-get-mobile {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}">
+    <include:dropdown label="{{ ftl('navigation-firefox-for-mobile') }}" id="nav-get-mobile" testid="nav-get-mobile">
+      <div class="nav-get-mobile-qr">
+        {# QR is decorative (alt=""); the visible caption text describes it. #}
+        <img
+          src="/media/img/firefox/flare/get-mobile-qr.png"
+          alt=""
+          width="160"
+          height="160"
+          class="nav-get-mobile-qr-img"
+        >
+        <p class="nav-get-mobile-qr-caption">{{ ftl('navigation-get-firefox-phone') }}</p>
+      </div>
+    </include:dropdown>
+  </div>
+</include:conditional-display>
+{% endif %}
 {% else %}
   {{ custom_nav_cta }}
 {% endif %}
