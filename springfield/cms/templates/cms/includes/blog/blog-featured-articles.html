@@ -56,21 +56,17 @@
       {% if featured_articles|length > 1 %}
         <div class="fl-blog-article-list">
           {% for block in featured_articles[1:4] %}
-            {% set article_page = block.value.article %}
             {% set description = block.value.get_description() %}
             <include:blog-article-list-item>
               <content:heading>
                 <hgroup class="fl-heading-group">
                   <p class="fl-superheading">{{ block.value.get_topic() }}</p>
                   <h2 class="fl-heading">
-                    <a href="{{ article_page.url }}" class="fl-link">{{ block.value.get_title() }}</a>
+                    <a href="{{ block.value.get_url() }}" class="fl-link">{{ block.value.get_title() }}</a>
                   </h2>
                 </hgroup>
               </content:heading>
               <content:body>{{ description|richtext }}</content:body>
-              {% if article_page.first_published_at %}
-                <content:date>{{ article_page.first_published_at|date("DATE_FORMAT") }}</content:date>
-              {% endif %}
               {% if block.value.get_tags() %}
                 <content:tags>
                   {% for tag in block.value.get_tags() %}

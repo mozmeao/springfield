@@ -330,7 +330,6 @@ def test_blog_index_renders_three_featured_articles_as_articles_list(blog_setup,
         description = item.find("div", class_="fl-body")
         assert description and BeautifulSoup(article.description, "html.parser").get_text() in description.get_text()
 
-        assert item.find("p", class_="fl-blog-article-date")
         assert item.find("span", class_="fl-tag")
 
 
