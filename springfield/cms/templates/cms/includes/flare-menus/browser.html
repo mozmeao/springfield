@@ -31,28 +31,35 @@
         analytics_position="topnav - enterprise"
       />
     </ul>
+    <span class="fl-nav-separator"></span>
 
-    {% if LANG.startswith('en-') or LANG == 'fr' or LANG == 'de' %}
-      <span class="fl-nav-separator"></span>
+    {% set whats_new_url = get_whats_new_url() %}
+    {% set whats_next_url = get_whats_next_url() %}
+    {% if whats_new_url or whats_next_url %}
       <ul>
-        <include:nav-link
-          label="{{ ftl('navigation-whats-new') }}"
-          href="/{{ LANG }}/whatsnew/"
-          icon_name="bookmark-fill"
-          analytics_text="What's New"
-          analytics_position="topnav - whats-new"
-        />
-        <include:nav-link
-          label="{{ ftl('navigation-whats-next') }}"
-          href="/{{ LANG }}/whatsnext/"
-          icon_name="calendar"
-          analytics_text="What's Next"
-          analytics_position="topnav - whats-next"
-        />
+        {% if whats_new_url %}
+          {% set whats_new_url = whats_new_url ~ '?fromMainNav=true' %}
+          <include:nav-link
+            label="{{ ftl('navigation-whats-new') }}"
+            href="{{ whats_new_url }}"
+            icon_name="bookmark-fill"
+            analytics_text="What's New"
+            analytics_position="topnav - whats-new"
+          />
+        {% endif %}
+        {% if whats_next_url %}
+          <include:nav-link
+            label="{{ ftl('navigation-whats-next') }}"
+            href="{{ whats_next_url }}"
+            icon_name="calendar"
+            analytics_text="What's Next"
+            analytics_position="topnav - whats-next"
+          />
+        {% endif %}
       </ul>
+      <span class="fl-nav-separator"></span>
     {% endif %}
 
-    <span class="fl-nav-separator"></span>
     <ul>
       <include:nav-link
         label="{{ ftl('navigation-extensions-and-themes') }}"

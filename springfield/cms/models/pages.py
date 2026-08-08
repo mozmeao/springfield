@@ -1296,8 +1296,11 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .first()
         )
         if latest_whats_new:
-            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        return redirect("/")
+            url = request.build_absolute_uri(latest_whats_new.get_url())
+            if request.GET.get("fromMainNav"):
+                url += "?fromMainNav=true"
+            return redirect(url)
+        return redirect(f"/{request.LANGUAGE_CODE}/")
 
 
 class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
