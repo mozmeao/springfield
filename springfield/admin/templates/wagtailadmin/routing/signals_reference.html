@@ -1,0 +1,62 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. #}
+{% extends "wagtailadmin/generic/base.html" %}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% load i18n %}
+
+{% block main_content %}
+  <div class="routing-signals-reference">
+    <p class="help-block help-info">
+      {% trans "Auto-generated from the signal registry — this is exactly what the client evaluator reads." %}
+    </p>
+
+    <p class="routing-signals-reference__note">
+      {% blocktrans trimmed %}
+        Signals marked <span class="routing-badge routing-badge--uitour">UITour</span> are read from
+        Firefox only, via a per-key browser ping, and add roughly 500&nbsp;ms to the redirect for a
+        matched visitor. Prefer the faster URL and User-Agent signals where they suffice.
+      {% endblocktrans %}
+    </p>
+
+    <table class="listing routing-signals-reference__table">
+      <thead>
+        <tr>
+          <th>{% trans "Signal" %}</th>
+          <th>{% trans "Source" %}</th>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Description" %}</th>
+          <th>{% trans "Operators" %}</th>
+          <th>{% trans "Values" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for signal in signals %}
+          <tr>
+            <td><code class="routing-signal-name">{{ signal.name }}</code></td>
+            <td>
+              <span class="routing-badge routing-badge--{{ signal.source_key }}">{{ signal.source }}</span>
+            </td>
+            <td><span class="routing-badge routing-badge--type">{{ signal.value_type }}</span></td>
+            <td class="routing-signal-description">{{ signal.description }}</td>
+            <td class="routing-operators">
+              {% for operator in signal.operators %}{{ operator }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </td>
+            <td class="routing-values">
+              {% if signal.enum_values %}
+                {% for value in signal.enum_values %}<code>{{ value.value }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+              {% elif signal.values %}
+                <details class="routing-value-list">
+                  <summary>{% blocktrans count counter=signal.values|length %}{{ counter }} value{% plural %}{{ counter }} values{% endblocktrans %}</summary>
+                  <div class="routing-value-list__items">
+                    {% for value in signal.values %}<code>{{ value }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}
+                  </div>
+                </details>
+              {% else %}
+                <span class="routing-signal-freetext">{{ signal.value_example }}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
