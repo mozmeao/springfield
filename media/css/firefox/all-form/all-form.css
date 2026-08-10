@@ -3,8 +3,85 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+.c-form {
+    display: grid;
+    grid-template-columns: 32ch 1fr;
+    gap: 24px;
+    align-items: start;
+    max-inline-size: 800px;
+    margin-inline: auto;
+    margin-block-start: 60px;
+}
+
+.c-choices {
+    display: grid;
+    row-gap: 16px;
+}
+
+.c-results {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+    padding-block: 32px;
+}
+
+.c-download-options {
+    display: grid;
+    justify-items: center;
+    gap: 16px;
+}
+
+.c-download-option {
+    display: grid;
+    row-gap: 8px;
+}
+
+.c-support-links {
+    display: inline-flex;
+    column-gap: 16px;
+}
+
+.c-recommendation {
+    margin-block: 0;
+}
+
+.c-field-description p {
+    font-size: var(--fl-theme-label-sm);
+    margin-block: 0;
+}
+
+.c-or-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--token-spacing-xs);
+  margin-block: -8px;
+  font-size: var(--fl-theme-font-size-body-xs);
+  color: var(--token-color-grey-4);
+}
+
+.c-or-divider::before,
+.c-or-divider::after {
+    content: '';
+    width: 3rem;
+    border-top: 1px solid var(--fl-subtle-border-color);
+}
+
+.c-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .c-help-trigger {
+        margin-block-start: -3px;
+    }
+}
+
 :has([name="release"]:where(:user-invalid, :user-valid)) .fl-notification-wrapper {
     display: none;
+}
+
+form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
+    content-visibility: hidden;
 }
 
 firefox-download-form {
@@ -14,29 +91,7 @@ firefox-download-form {
         scroll-margin-block-start: 1rem;
     }
 
-    form {
-        display: grid;
-        grid-template-columns: 32ch 1fr;
-        gap: 24px;
-        align-items: start;
-        max-inline-size: 800px;
-        margin-inline: auto;
-        margin-block-start: 60px;
-    }
-
-    .fl-label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        .fl-tiny-icon-button { margin-block-start: -3px; }
-    }
-
-    .fl-field-wrap + .fl-field-wrap {
-        margin-block-start: 16px;
-    }
-
-    .fl-field-wrap:has(select:disabled) .fl-field {
+    select:disabled {
         display: none;
     }
 
@@ -44,99 +99,27 @@ firefox-download-form {
         font-style: italic;
     }
 
-
-
-    .ms-store,
-    .ms-store-beta,
-    .apt-link,
-    .esr-115 {
-        display: none;
-    }
-
     select {
         max-inline-size: 24ch;
     }
 
     img {
-        display: none;
         width: 100px;
         height: 100px;
-    }
 
-    &:not(:defined) .firefox-logo {
-        display: revert-layer;
+        &:where([hidden]) {
+            display: none;
+        }
     }
 
     &:defined {
-        :where(form:valid) .download { display: contents; }
-
-        &:where([data-release="esr"], :not([data-os="ios"], [data-os="android"])) {
-            .download { display: none; }
-            .esr { display: contents; }
-
-            &:where(
-                :not([data-os="linux"], [data-os$="aarch64"])
-            ) {
-                .esr-115 {
-                    display: grid;
-                    justify-items: center;
-                    text-align: center;
-                }
-            }
-
-            .recommendation { display: none; }
-
-            &:where([data-os^="osx"]) .macos.recommendation,
-            &:where([data-os^="win"]) .windows.recommendation,
-            &:where([data-os^="linux"]) .linux.recommendation {
-                display: revert-layer;
-            }
-        }
-
-        &:where([data-os="ios"], [data-os="android"]) .download {
-            display: none;
-        }
-
-        &:where([data-os="ios"][data-release="stable"]) .app-store,
-        &:where([data-os="ios"][data-release="beta"]) .test-flight,
-        &:where([data-os="android"]) .play-store {
-            display: contents;
-        }
-
         /* Which Firefox logo to show */
         &:where([data-release="stable"], [data-release="esr"]) .firefox-logo,
         &:where([data-release="beta"]) .firefox-beta-logo,
         &:where([data-release="dev"]) .firefox-developer-logo,
-        &:where([data-release="nightly"]) .firefox-nightly-logo,
-
-        /* Show the Linux APT Link */
-        &:where([data-os*="linux"]) .apt-link {
-            display: revert-layer;
-        }
-
-        /* Show Microsoft Store download links only for non-MSI OS options */
-        &:where([data-os^="win"]:not([data-os$="msi"])) {
-            &:where([data-release="stable"]) .ms-store,
-            &:where([data-release="beta"]) .ms-store-beta {
-                display: grid;
-                justify-items: center;
-            }
+        &:where([data-release="nightly"]) .firefox-nightly-logo {
+            display: block;
         }
     }
 }
 
-.c-or-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--token-spacing-xs);
-  margin: var(--token-spacing-xs) 0;
-  font-size: var(--fl-theme-font-size-body-xs);
-  color: var(--token-color-grey-4);
-
-  &::before,
-  &::after {
-      content: '';
-      width: 3rem;
-      border-top: 1px solid var(--fl-subtle-border-color);
-  }
-}

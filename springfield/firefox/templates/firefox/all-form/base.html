@@ -16,18 +16,19 @@
 
 <div class="fl-main">
   <div class="fl-section">
+    <h1 id="firefox-download-options" class="fl-heading fl-text-align-center">Firefox download options</h1>
 
-    <h1 id="firefox-download-options" style="text-align: center;">Firefox download options</h1>
     {% if has_errors %}
     <include:notification icon="error" color="red">
       <p role="alert" autofocus>There were issues with your selection. <a href="#release">Jump to issue</a></p>
     </include:notification>
     {% endif %}
+
     <firefox-download-form>
-      <form aria-labelledby="firefox-download-options" name="download" method="get" action="{{ url('firefox.all_form.result') }}">
-        <div>
+      <form class="c-form" aria-labelledby="firefox-download-options" name="download" method="get" action="{{ url('firefox.all_form.result') }}">
+        <div class="c-choices">
           <div class="fl-field-wrap">
-            <div class="fl-label">
+            <div class="fl-label c-label">
               <label for="os">Operating System</label>
               <button type="button" commandfor="os-help" command="show-modal" class="fl-tiny-icon-button fl-dialog-trigger">
                 <include:icon icon_name="help" hidden />
@@ -50,9 +51,6 @@
               </content:body>
             </include:dialog>
             <select id="os" name="os" required class="fl-field">
-              <button type="button">
-                <selectedcontent></selectedcontent>
-              </button>
               <option value="" hidden></option>
               {% for group, choices in os_groups %}
               <optgroup label="{{ group }}">
@@ -65,11 +63,11 @@
           </div>
 
           <div class="fl-field-wrap">
-            <div class="fl-label">
+            <div class="fl-label c-label">
               <label for="release">Release Type</label>
               <button type="button" commandfor="release-help" command="show-modal" class="fl-tiny-icon-button fl-dialog-trigger">
                 <include:icon icon_name="help" hidden />
-                <span class="visually-hidden">Help for Operating System</span>
+                <span class="visually-hidden">Help for Release Type</span>
               </button>
             </div>
             <include:dialog id="release-help">
@@ -83,23 +81,32 @@
               <content:body>
               </content:body>
             </include:dialog>
-            <select id="release" name="release" required class="fl-field"{{ ' aria-describedby=server-release-error' if release_error }}>
+            <div id="release-no-js-hint" class="c-field-description">
+              <style>
+                .no-js form {
+                  &:has(option[value="ios"]:checked) [data-hint-for="ios"],
+                  &:has(option[value="android"]:checked) [data-hint-for="android"],
+                  &:has(option[value="linux"]:checked) [data-hint-for="linux"] {
+                    display: revert;
+                  }
+                }
+              </style>
+              <p data-hint-for="ios" hidden>Only Firefox and Firefox Beta are available for iOS.</p>
+              <p data-hint-for="android" hidden>Only Firefox, Firefox Beta, and Firefox Nightly are available for Android.</p>
+              <p data-hint-for="linux" hidden>Only Firefox ESR is available for Linux 32-bit.</p>
+            </div>
+            <select id="release" name="release" required class="fl-field" aria-describedby="{{ 'server-release-error ' if release_error }}release-no-js-hint">
               {% for value, label in release_choices %}<option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_release }}>{{ label }}</option>{% endfor %}
             </select>
 
             {% if has_errors %}
               <div id="server-release-error">
-                <style>
-                  form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
-                    content-visibility: hidden;
-                  }
-                </style>
-                <div class="fl-field-error-message">{{ release_error }}</div>
+                <div class="fl-field-error-message"><include:icon icon_name="warning" hidden /> {{ release_error }}</div>
               </div>
             {% endif %}
           </div>
           <div class="fl-field-wrap">
-            <div class="fl-label">
+            <div class="fl-label c-label">
               <label for="language">Language</label>
             </div>
             <select id="language" name="language" required class="fl-field">
@@ -108,138 +115,23 @@
           </div>
         </div>
 
-        <div class="c-results" style="display: grid; justify-items: center; gap: 16px; padding-block: 32px;">
+        <div class="c-results">
 
           <div class="c-logo">
-            <img class="firefox-logo" src="{{ static('img/logos/firefox/firefox-logo.svg') }}" alt="Firefox">
-            <img class="firefox-beta-logo" src="{{ static('img/logos/firefox/firefox-logo-beta.svg') }}" alt="Firefox Beta">
-            <img class="firefox-developer-logo" src="{{ static('img/logos/firefox/firefox-logo-developer.svg') }}" alt="Firefox Developer">
-            <img class="firefox-nightly-logo" src="{{ static('img/logos/firefox/firefox-logo-nightly.svg') }}" alt="Firefox Nightly">
+            <img hidden class="firefox-logo" src="{{ static('img/logos/firefox/firefox-logo.svg') }}" alt="Firefox">
+            <img hidden class="firefox-beta-logo" src="{{ static('img/logos/firefox/firefox-logo-beta.svg') }}" alt="Firefox Beta">
+            <img hidden class="firefox-developer-logo" src="{{ static('img/logos/firefox/firefox-logo-developer.svg') }}" alt="Firefox Developer">
+            <img hidden class="firefox-nightly-logo" src="{{ static('img/logos/firefox/firefox-logo-nightly.svg') }}" alt="Firefox Nightly">
           </div>
 
-          <div class="c-download-buttons" style="display: grid; justify-items: center; gap: 16px;">
-            <include:button
-              id="aptLink"
-              theme_class="button-secondary apt-link"
-              link="https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions"
-              label="Set up the APT repository"
-              icon_name="external-link"
-              icon_position="right"
-            />
-            <button type="submit" class="fl-button" data-primary-action>See download options</button>
-            <div id="esr115Link" class="esr-115">
-              <div class="c-or-divider">or</div>
-              <include:button
-                theme_class="button-primary"
-                size_class="fl-button-small"
-                link="#"
-                label="Download ESR 115"
-                icon_name="external-link"
-                icon_position="right"
-              />
-              <p class="windows recommendation">Recommended for Windows 7/8/8.1</p>
-              <p class="macos recommendation">Recommended for macOS 10.12–10.14</p>
-              <p class="linux recommendation">Recommended for older operating systems</p>
-            </div>
-
-            <div class="ms-store">
-              <div class="c-or-divider">or</div>
-              <include:button
-                theme_class="button-secondary"
-                link="https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&cid=firefox-all&mz_cn=release"
-                label="Download from the Microsoft Store"
-                icon_name="external-link"
-                icon_position="right"
-              />
-            </div>
-            <div class="ms-store-beta">
-              <div class="c-or-divider">or</div>
-              <include:button
-                theme_class="button-secondary"
-                link="https://apps.microsoft.com/detail/9nzw26frndln?mode=mini&cid=firefox-all&mz_cn=beta"
-                label="Download from the Microsoft Store"
-                icon_name="external-link"
-                icon_position="right"
-              />
+          <div class="c-download-options">
+            <div class="c-download-option">
+              <button type="submit" class="fl-button" data-primary-action>See download options</button>
             </div>
           </div>
 
-          <div class="support-links" style="display: inline-flex; column-gap: 16px;">
-            <a id="systemRequirements" href="/firefox/system-requirements/">System requirements</a>
-            <a id="releaseNotes" href="/firefox/notes/">Release Notes</a>
-            <a href="https://www.mozilla.org/privacy/firefox/">Privacy policy</a>
-          </div>
         </div>
       </form>
-      <template id="download-button-template">
-        <a class="fl-button button-primary" href="https://download.mozilla.org/">
-          <span class="download">Download <include:icon icon_name="downloads" extra_class="fl-icon-right" hidden /></span>
-          <span class="esr" hidden>Download ESR 140.12.0 <include:icon icon_name="downloads" extra_class="fl-icon-right" hidden /></span>
-          <span class="app-store" hidden>Download from the App Store <include:icon icon_name="external-link" extra_class="fl-icon-right" hidden /></span>
-          <span class="play-store" hidden>Download from the Play Store <include:icon icon_name="external-link" extra_class="fl-icon-right" hidden /></span>
-          <span class="test-flight" hidden>Sign up for TestFlight <include:icon icon_name="external-link" extra_class="fl-icon-right" hidden /></span>
-        </a>
-      </template>
-
-      <template id="templateOrDivider"><div class="c-or-divider">or</div></template>
-
-      <template id="templateAptButton">
-        <include:button
-          id="aptLink"
-          theme_class="button-secondary apt-link"
-          link="https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions"
-          label="Set up the APT repository"
-          icon_name="external-link"
-          icon_position="right"
-        />
-      </template>
-
-      <template id="download-only-store">
-        <include:button
-            link="#store-link"
-            label="Download from"
-            theme_class="button-primary"
-            icon_name="external-link"
-            icon_position="right"
-        />
-      </template>
-      <template id="download-button-with-store">
-        <include:button
-            link="#primary"
-            label="Download"
-            theme_class="button-primary"
-            icon_name="downloads"
-            icon_position="right"
-        />
-        <div>or</div>
-        <include:button
-            link="#secondary"
-            label="Download"
-            theme_class="button-secondary"
-            size_class="fl-button-small"
-            icon_name="external-link"
-            icon_position="right"
-        />
-      </template>
-      <template id="download-button-esr-options">
-        <include:button
-            link="#primary"
-            label="Download"
-            theme_class="button-primary"
-            icon_name="downloads"
-            icon_position="right"
-        />
-        <div>or</div>
-        <include:button
-            link="#secondary"
-            label="Download"
-            theme_class="button-primary"
-            size_class="fl-button-small"
-            icon_name="downloads"
-            icon_position="right"
-        />
-        <p>Recommended for</p>
-      </template>
     </firefox-download-form>
   </div>
 </div>
