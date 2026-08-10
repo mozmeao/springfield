@@ -3660,7 +3660,7 @@ def test_uuid_block_is_not_translatable():
 COMPARISON_RESULT_RENDERING = {
     "yes": ("fl-icon-checkmark-circle-fill", "Yes"),
     "no": ("fl-icon-close-circle-fill", "No"),
-    "limited": ("fl-icon-subtract-circle-fill", "Limited"),
+    "limited": ("fl-icon-circle-semi-filled", "Limited"),
 }
 
 
@@ -3821,7 +3821,7 @@ def _render_comparison_result_row(cell_data):
     (
         ("yes", "fl-icon-checkmark-circle-fill", "Yes"),
         ("no", "fl-icon-close-circle-fill", "No"),
-        ("limited", "fl-icon-subtract-circle-fill", "Limited"),
+        ("limited", "fl-icon-circle-semi-filled", "Limited"),
     ),
 )
 def test_comparison_result_renders_icon_and_result_name(result, icon_class, label):
@@ -3840,7 +3840,7 @@ def test_comparison_result_label_can_be_overridden():
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
-    assert "fl-icon-subtract-circle-fill" in result_el.find("span", class_="fl-icon").get("class")
+    assert "fl-icon-circle-semi-filled" in result_el.find("span", class_="fl-icon").get("class")
     assert result_el.find("span", class_="fl-comparison-result-label").get_text(strip=True) == "Some features"
 
 
