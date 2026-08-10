@@ -1188,8 +1188,18 @@ class ImageCaptionBlock(blocks.StructBlock):
     image = ImageVariantsBlock()
     caption = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
+        required=False,
         label="Caption",
         help_text="Text displayed below the image.",
+    )
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
     )
 
     class Meta:
@@ -1197,6 +1207,10 @@ class ImageCaptionBlock(blocks.StructBlock):
         label = "Image + Caption"
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
+        form_layout = blocks.BlockGroup(
+            children=["image", "caption"],
+            settings=["layout"],
+        )
 
 
 class VideoBlock(blocks.StructBlock):
