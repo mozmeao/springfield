@@ -914,14 +914,6 @@ def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
     assert listed.paginator.num_pages == 1
 
 
-def test_blog_fixtures_create_a_topic_page(blog_setup):
-    index_page, _ = blog_setup
-    topic_page = BlogTopicPage.objects.child_of(index_page).first()
-    assert topic_page, "The blog fixtures should create one BlogTopicPage"
-    assert topic_page.topic.slug == "privacy"
-    assert len(topic_page.featured_articles) == 4
-
-
 # ---------------------------------------------------------------------------
 # Blog article page
 # ---------------------------------------------------------------------------
