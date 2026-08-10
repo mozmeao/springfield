@@ -1932,6 +1932,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             },
         )
 
+    def get_sitemap_urls(self, request=None):
+        """Add the URLs this page serves through its routes, which have no Page of their own
+        for the sitemap to find.
+        """
+        urls = super().get_sitemap_urls(request=request)
+        page_entry = urls[0]
+        if not page_entry["location"]:
+            return urls
+
+        route_paths = ["topics/", "all/", *(f"topics/{topic.slug}/" for topic in self.get_all_topics())]
+        urls.extend(page_entry | {"location": f"{page_entry['location']}{route_path}"} for route_path in route_paths)
+        return urls
+
 
 class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """An editor-curated header for one blog topic.
@@ -2745,6 +2758,44 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     parent_page_types = ["cms.HomePage"]
     template = "cms/referral_get_firefox_page.html"
+
+    upper_content = StreamField(
+        [
+            ("intro", KitIntroBlock()),
+            ("showcase", ShowcaseBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"

@@ -128,6 +128,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/arrow-counterclockwise-16.svg');
 }
 
+.fl-icon-arrow-down {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-16/arrow/arrow-down-16.svg');
+}
+
 .fl-icon-arrow-down-line {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/arrow-down-line-16.svg');
 }
@@ -248,6 +252,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/bookmarks/bookmarks-tray-16.svg');
 }
 
+.fl-icon-brave {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/brave-24.svg');
+}
+
 .fl-icon-briefcase {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/profile/briefcase-16.svg');
 }
@@ -306,6 +314,14 @@
 
 .fl-icon-chevron-up {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-up-16.svg');
+}
+
+.fl-icon-chrome {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/chrome-24.svg');
+}
+
+.fl-icon-circle-semi-filled {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-16/circle/circle-semi-filled-16.svg');
 }
 
 .fl-icon-clear-close-cancel {
@@ -456,6 +472,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/downloads/downloads-16.svg');
 }
 
+.fl-icon-edge {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/edge-24.svg');
+}
+
 .fl-icon-edit {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/pen-pencil/edit-16.svg');
 }
@@ -470,6 +490,10 @@
 
 .fl-icon-edit-squiggle {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/pen-pencil/edit-squiggle-16.svg');
+}
+
+.fl-icon-email {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-16/email/email-16.svg');
 }
 
 .fl-icon-email-mask {
@@ -550,6 +574,10 @@
 
 .fl-icon-fingerprinter-true {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/trackers/fingerprinter-true.svg');
+}
+
+.fl-icon-firefox {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/firefox-24.svg');
 }
 
 .fl-icon-firefox-bridge {
@@ -1160,6 +1188,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/tabs/open-tabs-16.svg');
 }
 
+.fl-icon-opera {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/opera-24.svg');
+}
+
 .fl-icon-organizational-unit {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/organizational-unit/organizational-unit-16.svg');
 }
@@ -1374,6 +1406,10 @@
 
 .fl-icon-remove-user {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/user/remove-user-16.svg');
+}
+
+.fl-icon-safari {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/safari-24.svg');
 }
 
 .fl-icon-save {
@@ -1797,4 +1833,17 @@
 .fl-icon-down {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/forward-16.svg');
     rotate: 90deg;
+}
+
+/* The browser logos in icons/mobile-24/browsers/ are full-color brand artwork
+   with gradients. */
+.fl-icon-brave,
+.fl-icon-chrome,
+.fl-icon-edge,
+.fl-icon-firefox,
+.fl-icon-opera,
+.fl-icon-safari {
+    background: var(--icon-src) no-repeat center / contain;
+    -webkit-mask: none;
+    mask: none;
 }
