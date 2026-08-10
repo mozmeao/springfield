@@ -11,6 +11,7 @@
     "@mozmeao/cookie-helper": "^1.1.0",
     "@mozmeao/dnt-helper": "^1.0.0",
     "@mozmeao/trafficcop": "^3.0.0",
+    "@preact/signals-core": "^1.14.4",
     "@sentry/browser": "^10.62.0",
     "babel-loader": "^10.1.1",
     "caniuse-lite": "^1.0.30001800",
