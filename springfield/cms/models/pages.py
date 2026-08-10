@@ -1921,6 +1921,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             },
         )
 
+    def get_sitemap_urls(self, request=None):
+        """Add the URLs this page serves through its routes, which have no Page of their own
+        for the sitemap to find.
+        """
+        urls = super().get_sitemap_urls(request=request)
+        page_entry = urls[0]
+        if not page_entry["location"]:
+            return urls
+
+        route_paths = ["topics/", "all/", *(f"topics/{topic.slug}/" for topic in self.get_all_topics())]
+        urls.extend(page_entry | {"location": f"{page_entry['location']}{route_path}"} for route_path in route_paths)
+        return urls
+
 
 class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """An editor-curated header for one blog topic.
