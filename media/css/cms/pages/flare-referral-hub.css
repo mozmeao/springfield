@@ -52,7 +52,7 @@
     }
 
     .fl-referral-hub-page .fl-tabs {
-        padding: var(--token-layout-2xs) var(--token-spacing-lg) 0;
+        --tabs-inline-padding: var(--token-spacing-lg);
     }
 
     .fl-referral-hub-page .fl-tabs .fl-tab-image {
@@ -65,7 +65,6 @@
     }
 
     .fl-referral-hub-page .fl-referral-controls,
-    .fl-referral-hub-page .fl-impact-dash,
     .fl-referral-hub-page .fl-impact-dash-summary {
         max-inline-size: var(--token-width-desktop-content);
     }

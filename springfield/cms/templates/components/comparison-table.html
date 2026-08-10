@@ -8,6 +8,7 @@
   class="
     fl-comparison-table-wrapper
     {% if mobile_behavior %}{{ mobile_behavior }}{% endif %}
+    {% if variant and variant != 'default' %}{{ variant }}{% endif %}
   "
 >
   <table class="fl-comparison-table">

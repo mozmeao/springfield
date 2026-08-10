@@ -1,0 +1,9 @@
+name: Comparison Image Header
+context:
+  items:
+    - url: /media/img/firefox/flare/placeholder.png
+      alt: ""
+      label: Firefox
+    - url: /media/img/firefox/flare/placeholder.png
+      alt: ""
+      label: Other browsers
