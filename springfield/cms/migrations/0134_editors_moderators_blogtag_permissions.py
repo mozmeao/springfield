@@ -41,7 +41,7 @@ def add_group_permissions(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0132_alter_blogarticlepage_tags"),
+        ("cms", "0133_alter_blogarticlepage_tags"),
         ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
