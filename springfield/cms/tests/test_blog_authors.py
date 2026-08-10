@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 from django.db import IntegrityError
 from django.db.models import ProtectedError
 from django.urls import reverse
@@ -11,6 +12,7 @@ import pytest
 from wagtail.models import Locale, Site
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
+from springfield.cms.management.commands.link_translations_after_export import TRANSLATABLE_SNIPPET_MODELS
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTopic
 from springfield.cms.wagtail_hooks import BlogAuthorChooseView
 
@@ -199,3 +201,16 @@ def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_clien
     assert "Ada Lovelace" in rendered
     assert "Ada en français" not in rendered
     assert "Draft Author" not in rendered
+
+
+def test_blog_authors_are_included_in_the_db_export():
+    """The export's dumpdata call is a manual allowlist with no other guard, so a new
+    model silently vanishes from exported databases unless it is listed there."""
+    export_script = (settings.ROOT_PATH / "bin" / "export-db-to-sqlite.sh").read_text()
+
+    assert "cms.BlogAuthor" in export_script
+    assert "cms.BlogArticleAuthor" in export_script
+
+
+def test_blog_authors_are_relinked_after_export():
+    assert BlogAuthor in TRANSLATABLE_SNIPPET_MODELS
