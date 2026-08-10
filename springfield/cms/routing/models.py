@@ -2,24 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""Framework-owned, Page-keyed routing schema.
+"""Page-keyed routing schema.
 
 Three models, all keyed to ``wagtailcore.Page`` so a single generic table set is
 shared by every consumer page type — there is no per-consumer model, and adopting
-the framework adds no migration:
+routing adds no migration:
 
 * ``RoutingRule`` — an ordered rule hosted by a canonical page, resolving to a
   target page that must be a descendant of that canonical.
 * ``RoutingCondition`` — one ``<signal> <operator> <expected-value>`` clause; a
   rule's conditions form an ordered conjunction (AND).
-* ``RoutingConfig`` — a per-page 0-or-1 record carrying the ``routing_paused`` kill
-  switch, with headroom for future per-page routing settings.
+* ``RoutingConfig`` — a per-page record carrying the ``routing_paused`` kill
+  switch.
 
-Save-time validation lives in ``clean()`` — server-side, not just admin
-JS: the operator must be legal for the signal's value type, an enum expected value
-must be a member of the enum set, and a rule's target must be a descendant of its
-canonical.
+Save-time validation lives in ``clean()`` — server-side, not just admin JS.
 """
+
+import re
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -37,6 +36,13 @@ from springfield.cms.routing.value_lists import CLOSED_SET_SIGNALS, known_value_
 
 # Operators that carry a comma-separated list of expected values (set membership).
 _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
+
+# What the client evaluator can parse, and deliberately no more: it coerces an unparseable
+# boolean to false rather than ignoring it, so "ture" would save and match the opposite audience.
+_BOOLEAN_LITERALS = frozenset({"true", "false", "1", "0"})
+_INTEGER_RE = re.compile(r"^[+-]?\d+$")
+# Bare (129), prefixed (rv:129) and dotted (129.0.1), mirroring normalizeVersion().
+_VERSION_RE = re.compile(r"^\D*\d+(?:\.\d+)*$")
 
 
 def signal_choices():
@@ -56,12 +62,10 @@ def signal_choices():
 
 
 class ExcludingSelect(forms.Select):
-    """A ``Select`` that always withholds one option value.
+    """A ``Select`` that always withholds one option value, enabling a form that narrows down options.
 
-    Filtering on *assignment* rather than once at construction is deliberate:
-    ``ChoiceField`` pushes its own choices onto its widget whenever they are set, so
-    choices passed to the constructor are overwritten before the field ever renders.
-    Optgroups left empty are dropped rather than rendered as bare headings.
+    Filters on *assignment*, not construction: ``ChoiceField`` pushes its own choices onto
+    its widget whenever they are set, overwriting anything passed to the constructor.
     """
 
     def __init__(self, *args, excluded=None, **kwargs):
@@ -138,15 +142,11 @@ def operator_choices():
 def localized_target(target, page):
     """The version of ``target`` that belongs in ``page``'s locale, or ``None``.
 
-    Translating a page copies its rules, but the copied ``target`` foreign key still
-    points at the *source* locale's page — so without this a German canonical's rule
-    would route German visitors to the English variant. Resolving against the hosting
-    page's locale fixes rules that have already been copied as well as future ones.
+    Translating a page copies its rules with the *source* locale's target still stored, so
+    without this a German canonical would route German visitors to the English variant.
 
-    Returns ``None`` when the target has no counterpart in this locale, which drops the
-    rule and leaves the visitor on the canonical — in their own language. Falling back to
-    the stored target instead would route them to content they may not read, and would
-    also produce a cross-tree target that the descendant guard rejects.
+    ``None`` — no counterpart in this locale — drops the rule and leaves the visitor on the
+    canonical in their own language, which is the fail-safe outcome.
     """
     if target is None or target.locale_id == page.locale_id:
         return target
@@ -166,17 +166,12 @@ class RoutingRule(ClusterableModel, Orderable):
     page = ParentalKey("wagtailcore.Page", on_delete=models.CASCADE, related_name="routing_rules")
     target = models.ForeignKey(
         "wagtailcore.Page",
-        # SET_NULL (not CASCADE, and not PROTECT): deleting the target clears it from this rule
-        # and leaves the rule itself alone, so only the rules pointing at that page stop firing
-        # and visitors stay on the canonical in their own language.
-        #
-        # PROTECT was tried first and is worse than it sounds. Django's collector checks
-        # protected references across the *whole subtree* being deleted, so deleting any
-        # ancestor of a rule-bearing page raised ProtectedError even though the protecting rule
-        # was about to be cascade-deleted in the same operation — and Wagtail does not catch it,
-        # so the admin 500s and the page cannot be deleted through the UI at all. It also never
-        # protected the case that actually hurts: unpublishing a target has the identical window
-        # of cached resolvers pointing at a URL that now 404s.
+        # SET_NULL, not CASCADE: a rule whose target was deleted stays listed (with a broken
+        # status) so an author can re-point it, where CASCADE would silently discard routing
+        # config as a side effect of deleting a page. Not PROTECT either — Django checks
+        # protected references across the whole subtree being deleted, so deleting any ancestor
+        # of a rule-bearing page raised a ProtectedError that Wagtail does not catch, 500ing
+        # the admin.
         on_delete=models.SET_NULL,
         # Nullable in the database only — the form still requires a target, so a rule cannot be
         # *authored* without one. Null means "the page this pointed at is gone".
@@ -210,9 +205,8 @@ class RoutingRule(ClusterableModel, Orderable):
         verbose_name = _("Routing rule")
         verbose_name_plural = _("Routing rules")
 
-    # Fields shown for each rule inside the "User Routing" tab. Conditions are
-    # authored as a nested inline conjunction. The framework rebuilds these
-    # per-consumer to scope the target chooser; this is the unrestricted default.
+    # Fields shown for each rule inside the "User Routing" tab. Rebuilt per-consumer to
+    # scope the target chooser; this is the unrestricted default.
     panels = rule_panels()
 
     def __str__(self):
@@ -222,7 +216,8 @@ class RoutingRule(ClusterableModel, Orderable):
             summary = _("all triggered visitors")
         else:
             summary = ", ".join(str(condition) for condition in self.conditions.all()) or _("no conditions")
-        return f"{summary} → target {self.target_id}"
+        # Interpolated as a whole so the label is not half-translated in a localized admin.
+        return _("%(summary)s → target %(target)s") % {"summary": summary, "target": self.target_id}
 
     def clean(self):
         super().clean()
@@ -323,6 +318,10 @@ class RoutingCondition(Orderable):
                 {"operator": _("Operator “%(operator)s” is not valid for the “%(name)s” signal.") % {"operator": self.operator, "name": self.signal}}
             )
 
+        # Scalar types validate by grammar rather than membership: their domain is open,
+        # but only some spellings survive the client's parsers.
+        self._validate_scalar_values(signal)
+
         # An enum condition's expected value(s) must be members of the enum set.
         if signal.value_type is ValueType.ENUM:
             members = {enum_value.value for enum_value in signal.enum_values}
@@ -352,6 +351,26 @@ class RoutingCondition(Orderable):
                         % {"value": ", ".join(invalid), "name": self.signal}
                     }
                 )
+
+    def _validate_scalar_values(self, signal):
+        """Reject expected values the client could not parse as this signal's type.
+
+        Boolean is the one that misroutes rather than failing closed — see ``_BOOLEAN_LITERALS``.
+        """
+        if signal.value_type is ValueType.BOOLEAN:
+            invalid = [value for value in self.expected_values() if value.strip().lower() not in _BOOLEAN_LITERALS]
+            message = _("“%(value)s” is not a true/false value. Use true, false, 1 or 0.")
+        elif signal.value_type is ValueType.INTEGER:
+            invalid = [value for value in self.expected_values() if not _INTEGER_RE.match(value.strip())]
+            message = _("“%(value)s” is not a whole number.")
+        elif signal.value_type is ValueType.VERSION:
+            invalid = [value for value in self.expected_values() if not _VERSION_RE.match(value.strip())]
+            message = _("“%(value)s” is not a version number. Use forms like 145 or 145.0.1.")
+        else:
+            return
+
+        if invalid:
+            raise ValidationError({"expected_value": message % {"value": ", ".join(invalid)}})
 
 
 class RoutingConfig(models.Model):

@@ -64,11 +64,11 @@ SOURCE_LABELS: dict[Source, object] = {
 
 @dataclass(frozen=True)
 class Operator:
-    """A match operator.
+    """A match operator. There is no rule-level NOT — every operator's opposite is another operator.
 
-    Negation is always the operator's *paired form* — it is never a separate rule
-    type. Each operator names its ``counterpart`` (the flipped form) so the client
-    evaluator can compute the positive result and flip it for negated operators.
+    ``is``/``in``/``equals`` pair with a negated form the client flips. Ordered comparisons
+    pair with the opposing comparison instead (``lt`` with ``gte``), since a negated form
+    would just duplicate one that already exists.
     """
 
     value: str
@@ -92,10 +92,15 @@ def _make_operator_pair(positive_value, positive_label, negated_value, negated_l
 _IS, _IS_NOT = _make_operator_pair("is", _("is"), "is_not", _("is not"))
 _IN, _NOT_IN = _make_operator_pair("in", _("in"), "not_in", _("not in"))
 _EQUALS, _NOT_EQUALS = _make_operator_pair("equals", _("equals"), "not_equals", _("does not equal"))
-_LT, _NOT_LT = _make_operator_pair("lt", _("is less than"), "not_lt", _("is not less than"))
-_LTE, _NOT_LTE = _make_operator_pair("lte", _("is at most"), "not_lte", _("is more than"))
-_GT, _NOT_GT = _make_operator_pair("gt", _("is greater than"), "not_gt", _("is not greater than"))
-_GTE, _NOT_GTE = _make_operator_pair("gte", _("is at least"), "not_gte", _("is less than"))
+
+# Ordered comparisons pair by *opposition* rather than negation: the opposite of "is
+# less than" is "is at least", which is already an operator in its own right. Carrying a
+# negated form as well would put two entries in the dropdown for every meaning — and did,
+# with `lt` and `not_gte` both labelled "is less than".
+_LT = Operator(value="lt", label=_("is less than"), negated=False, counterpart="gte")
+_GTE = Operator(value="gte", label=_("is at least"), negated=False, counterpart="lt")
+_LTE = Operator(value="lte", label=_("is at most"), negated=False, counterpart="gt")
+_GT = Operator(value="gt", label=_("is greater than"), negated=False, counterpart="lte")
 
 
 # Registry of every operator, keyed by its stable string value.
@@ -109,13 +114,9 @@ OPERATORS: dict[str, Operator] = {
         _EQUALS,
         _NOT_EQUALS,
         _LT,
-        _NOT_LT,
         _LTE,
-        _NOT_LTE,
         _GT,
-        _NOT_GT,
         _GTE,
-        _NOT_GTE,
     )
 }
 
@@ -127,8 +128,8 @@ VALUE_TYPE_OPERATORS: dict[ValueType, tuple[str, ...]] = {
     ValueType.ENUM: ("is", "is_not", "in", "not_in"),
     ValueType.STRING: ("is", "is_not", "in", "not_in"),
     ValueType.BOOLEAN: ("is", "is_not"),
-    ValueType.VERSION: ("equals", "not_equals", "lt", "not_lt", "lte", "not_lte", "gt", "not_gt", "gte", "not_gte"),
-    ValueType.INTEGER: ("equals", "not_equals", "lt", "not_lt", "lte", "not_lte", "gt", "not_gt", "gte", "not_gte"),
+    ValueType.VERSION: ("equals", "not_equals", "lt", "lte", "gt", "gte"),
+    ValueType.INTEGER: ("equals", "not_equals", "lt", "lte", "gt", "gte"),
 }
 
 

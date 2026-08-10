@@ -20,7 +20,7 @@ EXPECTED_SIGNALS = {
     "firefox_version": (Source.USER_AGENT, ValueType.VERSION),
     "is_firefox": (Source.USER_AGENT, ValueType.BOOLEAN),
     "is_default_browser": (Source.UITOUR, ValueType.BOOLEAN),
-    "profile_age": (Source.UITOUR, ValueType.INTEGER),
+    "profile_age_weeks": (Source.UITOUR, ValueType.INTEGER),
     "fxa_signed_in": (Source.UITOUR, ValueType.BOOLEAN),
     "ai_controls": (Source.UITOUR, ValueType.ENUM),
     "utm_source": (Source.URL, ValueType.STRING),
@@ -86,18 +86,7 @@ def test_enum_signal_labels_are_wrapped_for_l10n():
 
 def test_version_signal_advertises_version_operators_only():
     version = registry.get("firefox_version")
-    assert set(version.operator_values) == {
-        "equals",
-        "not_equals",
-        "lt",
-        "not_lt",
-        "lte",
-        "not_lte",
-        "gt",
-        "not_gt",
-        "gte",
-        "not_gte",
-    }
+    assert set(version.operator_values) == {"equals", "not_equals", "lt", "lte", "gt", "gte"}
     # Set-membership / equality-only operators are not offered for versions.
     assert not version.allows_operator("in")
     assert not version.allows_operator("is")

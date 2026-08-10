@@ -27,8 +27,10 @@ EXPECTED_OPERATORS = {
     ValueType.ENUM: {"is", "is_not", "in", "not_in"},
     ValueType.STRING: {"is", "is_not", "in", "not_in"},
     ValueType.BOOLEAN: {"is", "is_not"},
-    ValueType.VERSION: {"equals", "not_equals", "lt", "not_lt", "lte", "not_lte", "gt", "not_gt", "gte", "not_gte"},
-    ValueType.INTEGER: {"equals", "not_equals", "lt", "not_lt", "lte", "not_lte", "gt", "not_gt", "gte", "not_gte"},
+    # Ordered types carry no negated comparisons: the opposite of each one is already
+    # another operator in the set, so a negated form would only duplicate it.
+    ValueType.VERSION: {"equals", "not_equals", "lt", "lte", "gt", "gte"},
+    ValueType.INTEGER: {"equals", "not_equals", "lt", "lte", "gt", "gte"},
 }
 
 
@@ -63,19 +65,36 @@ def test_signal_operators_reflect_value_type():
 
 
 # ---------------------------------------------------------------------------
-# Operators: paired negations.
+# Operators: every one names its opposite, and the opposite names it back.
 # ---------------------------------------------------------------------------
 
 
-def test_operators_are_paired_negations():
+def test_operator_counterparts_point_back():
+    """Two families share the ``counterpart`` field, with different invariants.
+
+    Negation pairs (``is``/``is_not``) flip the negated flag. Ordered comparisons
+    (``lt``/``gte``) are both positive and simply oppose each other, because the negation
+    of a comparison is another comparison that already exists.
+    """
     for value, operator in OPERATORS.items():
         counterpart = OPERATORS[operator.counterpart]
-        # The counterpart flips the negated flag and points back to this operator.
-        assert counterpart.negated is not operator.negated
         assert counterpart.counterpart == value
-        # The positive form of both members of a pair is the same operator value.
-        assert operator.positive == counterpart.positive
         assert not OPERATORS[operator.positive].negated
+        if operator.negated or counterpart.negated:
+            assert counterpart.negated is not operator.negated
+            assert operator.positive == counterpart.positive
+        else:
+            assert operator.positive == value
+
+
+def test_no_two_operators_share_a_label():
+    """A duplicated label is indistinguishable in the dropdown.
+
+    This is what a negated form of an ordered comparison produced: ``not_gte`` and ``lt``
+    both read "is less than", so the author saw the same option twice.
+    """
+    labels = [str(operator.label) for operator in OPERATORS.values()]
+    assert len(labels) == len(set(labels)), sorted(labels)
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +169,8 @@ def test_registry_only_accepts_routing_signals():
 
 
 def test_naming_avoids_django_dispatch_signal_collision():
-    # The metadata class is named RoutingSignal, never bare Signal.
+    # Inline import: this test inspects the module object itself for an absent attribute,
+    # which needs the module bound to a name rather than its members imported.
     import springfield.cms.routing.signals as module
 
     assert not hasattr(module, "Signal")

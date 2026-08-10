@@ -4,27 +4,15 @@
 
 """Closed value sets for STRING signals whose domain is fully known.
 
-Some STRING signals carry a **complete** set of legal values — every value the reader can
-ever produce is in the set — so an off-list value is always a typo, never a legitimate
-case the author knows better about. That makes membership enforceable: the admin JS blocks
-it before submit and ``RoutingCondition.clean()`` rejects it on save.
+An off-list value for these can never match at runtime, so membership is enforced — in the
+admin before submit, and in ``RoutingCondition.clean()`` on save.
 
-They are STRING rather than ENUM for a purely mechanical reason: the sets are lazy and
-data-backed, so declaring them as registry enums at import time would reintroduce the
-app-init data access the framework avoids. They are enums in everything but declaration,
-which is why the sets are resolved here, per request.
+STRING rather than ENUM because the sets are lazy and data-backed: declaring them as
+registry enums would move that data access to app startup.
 
-Two different domains are at work, and conflating them is a trap:
-
-* ``locale`` / ``language`` describe **what we serve**, so the set is Springfield's own.
-* ``browser_language`` describes **what the visitor speaks**, which is the whole reason
-  the signal exists — it is the only way to see that, say, a Norwegian was served English
-  because no Norwegian translation existed. Restricting it to languages we serve would
-  leave it unable to say anything ``locale`` does not already say, so it is validated
-  against the full CLDR language list instead.
-
-Lives in its own module so both the admin payload and model validation can read it
-without one importing the other.
+The two domains must not be conflated. ``locale``/``language`` are what Springfield
+*serves*; ``browser_language`` is what the *visitor speaks*, validated against the full CLDR
+list so it can still report a Norwegian who was served English.
 """
 
 from functools import lru_cache
@@ -37,24 +25,18 @@ from product_details import product_details
 
 @lru_cache(maxsize=1)
 def cldr_language_codes():
-    """Every language code CLDR knows — 600-odd, two- and three-letter.
+    """Every language code CLDR knows — the vocabulary browsers draw their language lists from.
 
-    This is the vocabulary browsers and operating systems draw their language lists from,
-    so it is the right domain for a browser-reported language. Django's ``LANG_INFO`` and
-    the product-details language list are both far narrower sets of *supported* languages
-    and wrongly reject real values (Maltese, Dzongkha, Yoruba, the ``no`` macrolanguage).
-
-    Cached: CLDR data is static, and this is read on every editor load and rule save.
+    Django's ``LANG_INFO`` and the product-details list are narrower sets of *supported*
+    languages and wrongly reject real values (Maltese, Dzongkha, Yoruba, the ``no``
+    macrolanguage). Cached because the data is static and this is read on every editor load.
     """
     return frozenset(code for code in Locale("en").languages if code.isalpha())
 
 
-# The signals that are supposed to have a closed set, named explicitly so the difference
-# between "this signal has no value list by design" and "this signal's value list came back
-# empty" is knowable. Every set below is *derived* from settings or product data rather than
-# written out, so a rename or a data problem upstream can empty one — and an empty set read as
-# "unconstrained" would switch validation off without a word, accepting values that can never
-# match anything at runtime.
+# Named explicitly so "no value list by design" is distinguishable from "the value list came
+# back empty". Every set below is derived from settings or product data, so an upstream rename
+# can empty one — and an empty set read as "unconstrained" would switch validation off silently.
 CLOSED_SET_SIGNALS = frozenset({"locale", "language", "browser_language", "country"})
 
 
@@ -64,22 +46,18 @@ def known_value_lists():
     A signal absent from this mapping has no closed set and its values are unconstrained.
     Every name in ``CLOSED_SET_SIGNALS`` must be present with a non-empty set.
     """
-    # Every locale Springfield serves. Deliberately NOT WAGTAIL_CONTENT_LANGUAGES: that is
-    # the much smaller set of locales CMS *content* is translated into, while these signals
-    # read what the *visitor* has, which can be any served locale.
+    # NOT WAGTAIL_CONTENT_LANGUAGES: that is the smaller set of locales CMS *content* is
+    # translated into, while these signals read what the *visitor* has.
     locales = [code for code, _label in settings.LANGUAGES]
-    # The same set with the region dropped, so one condition covers every regional variant
-    # of a language (`en` covers en-US, en-GB, en-CA).
+    # Region dropped, so one condition covers every variant (`en` covers en-US, en-GB, en-CA).
     languages = sorted({code.split("-")[0] for code in locales})
     return {
         "locale": locales,
         "language": languages,
-        # CLDR *plus* our own: a couple of Springfield locales (azz, skr) predate or sit
-        # outside CLDR, and it would be absurd for `language is azz` to be authorable while
-        # `browser_language is azz` is not.
+        # CLDR plus our own: a couple of Springfield locales (azz, skr) sit outside CLDR, and
+        # `language is azz` being authorable while `browser_language is azz` is not would be odd.
         "browser_language": sorted(cldr_language_codes() | set(languages)),
-        # Every region product_details knows, matching the uppercase ISO codes the geo
-        # reader produces.
+        # Uppercase ISO codes, matching what the geo reader produces.
         "country": sorted({code.upper() for code in product_details.get_regions("en-US").keys()}),
     }
 
@@ -87,9 +65,8 @@ def known_value_lists():
 def suggested_value_lists():
     """Signal name -> a shorter set to *show* an author, where the legal set is unhelpful.
 
-    Only ``browser_language`` needs this: listing 600-odd CLDR codes as guidance is noise,
-    while the languages we actually publish in are the ones an author is realistically
-    targeting. Anything else in the legal set still validates.
+    Only ``browser_language`` needs it: 600-odd CLDR codes are noise as guidance. Anything
+    else in the legal set still validates.
     """
     languages = sorted({code.split("-")[0] for code, _label in settings.LANGUAGES})
     return {"browser_language": languages}

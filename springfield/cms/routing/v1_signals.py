@@ -4,14 +4,11 @@
 
 """The concrete v1 routing signals.
 
-Registering this module populates the framework-wide ``registry`` with
-the v1 signals across the four live sources. It is imported once at app
-startup (``CmsConfig.ready``) so the registry is populated before any admin surface
-or resolver reads it.
+Importing this module registers them, once, at app startup (``CmsConfig.ready``) — before
+any admin surface or resolver reads the registry.
 
-Descriptions are short and editor-facing; where a signal's coverage is non-obvious it
-says so plainly (e.g. ``is_firefox`` matches Firefox on desktop, iOS, and Android). All
-author-facing strings are wrapped in ``gettext_lazy``.
+Descriptions are editor-facing and localized; where a signal's coverage is non-obvious it
+says so (e.g. ``is_firefox`` matches desktop, iOS and Android).
 """
 
 from django.utils.text import format_lazy
@@ -29,11 +26,8 @@ from springfield.cms.routing.signals import (
 # CDN geo header
 # ---------------------------------------------------------------------------
 
-# Country is a large, locale-dependent set (~270 regions sourced from
-# product_details and localized per page), so it is modelled as a free-text string
-# of ISO 3166-1 alpha-2 codes rather than a static enum — the enumerated-set and
-# per-locale-label machinery does not fit a closed registry entry. Authors match it
-# with `is` / `in` against uppercase codes.
+# A string, not an enum: ~270 regions sourced from product_details and localized per page
+# do not fit a static registry enum. Validated against the full list in value_lists.
 registry.register(
     RoutingSignal(
         name="country",
@@ -100,8 +94,10 @@ registry.register(
 
 registry.register(
     RoutingSignal(
-        name="profile_age",
-        description=_("How old the visitor's Firefox profile is, in days."),
+        name="profile_age_weeks",
+        # Weeks, not days: UITour reports whole weeks since the profile was created, so
+        # day-level targeting is not available to express. A profile created this week reads 0.
+        description=_("How many whole weeks old the visitor's Firefox profile is. A profile created this week reads 0."),
         source=Source.UITOUR,
         value_type=ValueType.INTEGER,
         browser_state_key="appinfo",
@@ -121,13 +117,19 @@ registry.register(
 registry.register(
     RoutingSignal(
         name="ai_controls",
-        description=_("The state of the browser's AI controls."),
+        # Firefox reports a state per AI feature with no overall summary, and the set of
+        # features grows with each release. The client collapses them into the posture
+        # below so a rule never has to name individual features, and so a new Firefox
+        # feature does not need a new signal here.
+        description=_("What the visitor has chosen in Firefox's AI controls, summarised across all AI features."),
         source=Source.UITOUR,
         value_type=ValueType.ENUM,
         enum_values=(
-            EnumValue("enabled", _("Enabled")),
-            EnumValue("available", _("Available")),
-            EnumValue("blocked", _("Blocked")),
+            EnumValue("neutral", _("No choice made")),
+            EnumValue("enabled_some", _("Turned some AI features on")),
+            EnumValue("blocked_some", _("Blocked some AI features")),
+            EnumValue("blocked_all", _("Blocked all AI features")),
+            EnumValue("mixed", _("Turned some on and blocked others")),
         ),
         browser_state_key="aiControls",
     )
@@ -149,10 +151,8 @@ for _param in ("utm_source", "utm_medium", "utm_campaign"):
         )
     )
 
-# The version the visitor is updating *from*, sent by Firefox's just-updated flow as
-# `?oldversion=`. A version signal (not free text) so authors express "lapsed from an
-# old release" with version-aware operators, e.g. `oldversion lte 151` on a canonical
-# for 156 — replacing a dedicated `lapsed_user` signal.
+# Sent by Firefox's just-updated flow as `?oldversion=`. A version signal, not free text, so
+# "lapsed from an old release" is expressible: `oldversion lte 151` on a canonical for 156.
 registry.register(
     RoutingSignal(
         name="oldversion",
@@ -162,10 +162,8 @@ registry.register(
     )
 )
 
-# The page locale, read from the URL (an explicit `?locale=` override) and falling back
-# to the page's `<html lang>`. Free text (not a static enum): the locale set is lazy and
-# DB/product-details-backed, so surfacing it as a closed enum would reintroduce the
-# app-init DB access the framework avoids. Authors match with `is` / `in`.
+# Read from an explicit `?locale=` override, falling back to the page's `<html lang>`.
+# A string, not an enum, for the reason in value_lists: the set is lazy and data-backed.
 registry.register(
     RoutingSignal(
         name="locale",
@@ -175,9 +173,7 @@ registry.register(
     )
 )
 
-# The same locale with the region dropped, so one condition covers every regional variant
-# of a language. Only four languages have variants (en, es, pt, zh), but hand-listing them
-# goes stale the moment another is added.
+# The same locale with the region dropped, so one condition covers every regional variant.
 registry.register(
     RoutingSignal(
         name="language",

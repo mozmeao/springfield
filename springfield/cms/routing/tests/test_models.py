@@ -306,6 +306,64 @@ def test_non_member_in_enum_set_raises(rule):
     assert "expected_value" in exc.value.error_dict
 
 
+# ---------------------------------------------------------------------------
+# Scalar value grammar. The client coerces an unparseable boolean to false rather
+# than ignoring it, so a typo here changes which visitors a rule matches.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("value", ["true", "false", "1", "0", "TRUE", " true "])
+def test_boolean_accepts_the_values_the_client_can_parse(rule, value):
+    condition = RoutingCondition(rule=rule, signal="is_default_browser", operator="is", expected_value=value)
+    condition.full_clean()  # does not raise
+
+
+@pytest.mark.parametrize("value", ["ture", "yes", "no", "y", "", "maybe"])
+def test_boolean_rejects_anything_else(rule, value):
+    # Without this the client reads "ture" as false, so the rule matches the opposite
+    # audience to the one the author meant — silently, and only in production.
+    condition = RoutingCondition(rule=rule, signal="is_default_browser", operator="is", expected_value=value)
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+@pytest.mark.parametrize("value", ["0", "4", "52", "-1", " 8 "])
+def test_integer_accepts_whole_numbers(rule, value):
+    condition = RoutingCondition(rule=rule, signal="profile_age_weeks", operator="gte", expected_value=value)
+    condition.full_clean()  # does not raise
+
+
+@pytest.mark.parametrize("value", ["4.5", "four", "1e3", "", "4 weeks"])
+def test_integer_rejects_non_whole_numbers(rule, value):
+    condition = RoutingCondition(rule=rule, signal="profile_age_weeks", operator="gte", expected_value=value)
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+@pytest.mark.parametrize("value", ["145", "145.0", "145.0.1", "rv:145", " 145 "])
+def test_version_accepts_the_forms_the_client_normalizes(rule, value):
+    condition = RoutingCondition(rule=rule, signal="firefox_version", operator="gte", expected_value=value)
+    condition.full_clean()  # does not raise
+
+
+@pytest.mark.parametrize("value", ["unknown", "", "beta", "145.x"])
+def test_version_rejects_values_carrying_no_version(rule, value):
+    # These compare as "unknown" on the client, so the rule can never fire — dead config
+    # that looks fine in the editor.
+    condition = RoutingCondition(rule=rule, signal="firefox_version", operator="gte", expected_value=value)
+    with pytest.raises(ValidationError) as exc:
+        condition.full_clean()
+    assert "expected_value" in exc.value.error_dict
+
+
+def test_scalar_grammar_does_not_constrain_open_string_signals(rule):
+    # utm_* signals are free text by design; the grammar rules must not leak onto them.
+    condition = RoutingCondition(rule=rule, signal="utm_campaign", operator="is", expected_value="anything at all")
+    condition.full_clean()  # does not raise
+
+
 def test_off_list_country_raises(rule):
     # country is a STRING signal, but its value set is the complete ISO region list, so an
     # off-list value can never match and would leave the rule silently dead. Enforced like
