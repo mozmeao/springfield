@@ -11,3 +11,6 @@ blog-back = Back
 blog-related-articles = Related Articles
 blog-pagination-label = Pagination
 blog-clear-topic-filter = Clear topic filter
+blog-byline = By { $authors }
+blog-byline-author-separator = ,
+blog-byline-last-separator = and

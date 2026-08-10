@@ -23,12 +23,13 @@ from springfield.cms.fixtures.blog_fixtures import (
     create_blog_article,
     featured_topics_stream,
     get_blog_article_content,
+    get_blog_authors,
     get_blog_index_page,
     get_blog_pages,
     get_blog_tags,
     get_blog_topics,
 )
-from springfield.cms.models import BlogArticlePage, BlogTopicPage
+from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
 from springfield.cms.models.snippets import BlogTag, BlogTopic
 
@@ -937,6 +938,49 @@ def test_blog_article_renders_title_and_topic(single_article, rf):
 
     superheading = soup.find("p", class_="fl-superheading")
     assert superheading and article.topic.name in superheading.get_text()
+
+
+def test_blog_article_renders_a_single_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set([BlogArticleAuthor(author=authors["ada-lovelace"])])
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace"
+
+
+def test_blog_article_renders_a_multiple_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set(
+        [
+            BlogArticleAuthor(author=authors["ada-lovelace"]),
+            BlogArticleAuthor(author=authors["grace-hopper"]),
+            BlogArticleAuthor(author=authors["alan-turing"]),
+        ]
+    )
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace, Grace Hopper and Alan Turing"
+
+
+def test_blog_article_without_authors_renders_no_byline(single_article, rf):
+    _, article = single_article
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.select_one(".fl-blog-byline") is None
 
 
 def test_blog_article_renders_text_block(single_article, rf):

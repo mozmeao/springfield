@@ -1,0 +1,20 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# Takes `author_names`, a plain list of strings, from the calling template's
+   context. Declaring it as a prop would isolate this component from the page
+   context and cut off `ftl`, so it follows the convention of the other
+   localized components. #}
+
+{% if author_names | length == 1 %}
+  {% set joined = author_names[0] %}
+{% else %}
+  {% set separator = ftl('blog-byline-author-separator') ~ ' ' %}
+  {% set last_separator = ' ' ~ ftl('blog-byline-last-separator') ~ ' ' %}
+  {% set joined = author_names[:-1] | join(separator) ~ last_separator ~ author_names[-1] %}
+{% endif %}
+
+<p class="fl-blog-byline">{{ ftl('blog-byline', authors=joined) }}</p>
