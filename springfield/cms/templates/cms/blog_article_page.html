@@ -72,6 +72,10 @@
               superheading_text="{{ page.topic.name }}"
               alignment_class="text-center"
           />
+          {% set author_names = page.get_authors() | map(attribute='name') | list %}
+          {% if author_names %}
+            <include:blog-byline author_names="{{ author_names }}" />
+          {% endif %}
         </div>
       </header>
 

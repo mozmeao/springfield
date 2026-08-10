@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
+from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -16,6 +16,8 @@ IMAGE_CAPTION = (
 )
 
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
+
+BLOG_AUTHOR_NAMES = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
 
 LOREM_WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore".split()
 LOREM_SENTENCES = [
@@ -81,6 +83,21 @@ def get_blog_tags() -> dict[str, BlogTag]:
         )
         tags[slug] = tag
     return tags
+
+
+def get_blog_authors() -> dict[str, BlogAuthor]:
+    """Author snippets for article bylines, keyed by slug."""
+    locale = Locale.get_default()
+    authors = {}
+    for name in BLOG_AUTHOR_NAMES:
+        slug = slugify(name)
+        author, _created = BlogAuthor.objects.update_or_create(
+            slug=slug,
+            locale=locale,
+            defaults={"name": name},
+        )
+        authors[slug] = author
+    return authors
 
 
 def get_blog_article_content(image, image_caption: str = "") -> list:
@@ -183,6 +200,7 @@ def create_blog_article(
     image,
     description: str,
     content: list,
+    authors: list[BlogAuthor] | None = None,
 ) -> BlogArticlePage:
     article = get_or_create_page(
         BlogArticlePage,
@@ -201,6 +219,8 @@ def create_blog_article(
     article.description = description
     article.content = content
     article.tags.set(tags)
+    if authors:
+        article.article_authors.set([BlogArticleAuthor(author=author) for author in authors])
     article.save_revision().publish()
 
     return article
@@ -238,6 +258,15 @@ def get_blog_pages() -> list[BlogArticlePage]:
     privacy = topics["privacy"]
     tags = get_blog_tags()
     tag_list = list(tags.values())
+    author_list = list(get_blog_authors().values())
+    # Featured articles 1 and 2 are the multi-author cases and 3 has a single
+    # author, so the fixture site shows every byline state. The rest stay
+    # uncredited.
+    featured_authors = {
+        1: author_list[:2],
+        2: author_list,
+        3: author_list[:1],
+    }
     articles = []
 
     # 5 articles spread across all topics
@@ -252,6 +281,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             image=image,
             description=FEATURED_DESCRIPTIONS[i - 1],
             content=captioned_content,
+            authors=featured_authors.get(i),
         )
         articles.append(article)
 
