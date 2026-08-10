@@ -21,8 +21,6 @@ pytestmark = [pytest.mark.django_db]
 
 @pytest.fixture
 def article(minimal_site):
-    """One blog article carrying nothing beyond what the page tree and validation
-    require — these tests exercise the author relation, not article content."""
     root_page = Site.objects.get(is_default_site=True).root_page
     index_page = root_page.add_child(instance=BlogIndexPage(title="Blog", slug="blog"))
     topic = BlogTopic.objects.create(name="Privacy", slug="privacy", locale=Locale.get_default())
@@ -34,8 +32,6 @@ def make_author(name, slug, **kwargs):
 
 
 def test_same_author_slug_allowed_in_two_locales():
-    """Slug is the author's identity within a locale, so the same person can exist
-    once per language without the slugs colliding."""
     fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
 
     en_author = BlogAuthor.objects.create(name="Ada Lovelace", slug="ada-lovelace", locale=Locale.get_default())
@@ -52,7 +48,6 @@ def test_duplicate_author_slug_in_one_locale_is_rejected():
 
 
 def test_two_authors_in_one_locale_can_share_a_name():
-    """Two people can genuinely share a name; the slug is what distinguishes them."""
     first = BlogAuthor.objects.create(name="Ada Lovelace", slug="ada-lovelace", locale=Locale.get_default())
     second = BlogAuthor.objects.create(name="Ada Lovelace", slug="ada-lovelace-2", locale=Locale.get_default())
 
@@ -69,9 +64,6 @@ def test_only_name_is_required():
 
 
 def test_author_prose_is_translated_and_the_rest_synchronized():
-    """Name and prose get translated; slug, email and image are the same person's
-    details in every locale, so translators should never be handed a URL key or an
-    image reference."""
     translatable_names = {field.field_name for field in get_translatable_fields(BlogAuthor) if isinstance(field, TranslatableField)}
 
     assert translatable_names == {"name", "job_title", "bio"}
@@ -101,8 +93,6 @@ def test_get_authors_caches_its_result(article, django_assert_num_queries):
 
 
 def test_deleting_a_credited_author_is_blocked(article):
-    """PROTECT is what stops an editor deleting a person who is still credited on a
-    published article, which would otherwise silently drop the byline."""
     ada = make_author("Ada Lovelace", "ada-lovelace")
     article.article_authors.set([BlogArticleAuthor(author=ada)])
     article.save()
@@ -120,7 +110,6 @@ def test_deleting_an_uncredited_author_succeeds():
 
 
 def test_get_authors_returns_the_translated_author(article):
-    """A live translation for the active locale is what the byline should show."""
     fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
     ada = make_author("Ada Lovelace", "ada-lovelace")
     fr_ada = ada.copy_for_translation(fr_locale)
@@ -137,8 +126,6 @@ def test_get_authors_returns_the_translated_author(article):
 
 
 def test_get_authors_falls_back_to_the_default_locale_author(article):
-    """With no translation, the byline keeps the default-locale name rather than
-    losing the author entirely."""
     Locale.objects.get_or_create(language_code="fr")
     article.article_authors.set([BlogArticleAuthor(author=make_author("Ada Lovelace", "ada-lovelace"))])
     article.save()
@@ -165,7 +152,6 @@ def test_get_authors_falls_back_when_the_translation_is_not_live(article):
 
 
 def test_get_authors_omits_an_unpublished_author(article):
-    """A draft author has never been reviewed, so it must not reach a published page."""
     article.article_authors.set([BlogArticleAuthor(author=make_author("Ada Lovelace", "ada-lovelace", live=False))])
     article.save()
 
@@ -173,8 +159,6 @@ def test_get_authors_omits_an_unpublished_author(article):
 
 
 def test_author_chooser_offers_only_live_default_locale_authors():
-    """Articles store default-locale authors, so the chooser must not let an editor
-    working on a translated page store a translation row instead."""
     fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
     ada = make_author("Ada Lovelace", "ada-lovelace")
     BlogAuthor.objects.create(name="Ada en français", slug="ada-fr", locale=fr_locale)
@@ -187,8 +171,6 @@ def test_author_chooser_offers_only_live_default_locale_authors():
 
 
 def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_client):
-    """Goes through the registered chooser URL rather than the view class alone, so
-    this also proves the custom chooser viewset is wired to the snippet."""
     fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
     make_author("Ada Lovelace", "ada-lovelace")
     BlogAuthor.objects.create(name="Ada en français", slug="ada-fr", locale=fr_locale)
@@ -204,8 +186,6 @@ def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_clien
 
 
 def test_blog_authors_are_included_in_the_db_export():
-    """The export's dumpdata call is a manual allowlist with no other guard, so a new
-    model silently vanishes from exported databases unless it is listed there."""
     export_script = (settings.ROOT_PATH / "bin" / "export-db-to-sqlite.sh").read_text()
 
     assert "cms.BlogAuthor" in export_script
