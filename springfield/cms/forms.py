@@ -39,7 +39,7 @@ class LocaleScopedAdminTagWidget(AdminTagWidget):
 
     AdminTagWidget gets its autocomplete URL from the tag model, and Wagtail's view for
     it returns every tag with no filtering. `cms_blog_tag_autocomplete` view returns only
-    published tags in the default locale, so this.
+    published tags in the default locale.
     """
 
     def get_context(self, name, value, attrs):
