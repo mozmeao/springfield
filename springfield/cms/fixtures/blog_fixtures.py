@@ -70,13 +70,11 @@ def featured_topics_stream(topics: list[BlogTopic]) -> list[dict]:
 
 
 def get_blog_tags() -> dict[str, BlogTag]:
-    """Tag snippets for the `tags` relation, kept separate from topics so fixtures
-    don't rely on a topic and a tag being the same object."""
     locale = Locale.get_default()
     tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _created = BlogTag.objects.update_or_create(
+        tag, _ = BlogTag.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
