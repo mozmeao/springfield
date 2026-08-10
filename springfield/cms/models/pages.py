@@ -1712,7 +1712,7 @@ def prefetch_article_blocks(values):
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
-    subpage_types = ["cms.BlogArticlePage"]
+    subpage_types = ["cms.BlogArticlePage", "cms.BlogTopicPage"]
     ftl_files = ["cms/blog"]
 
     page_heading = StreamField(
