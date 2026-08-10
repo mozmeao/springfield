@@ -1652,7 +1652,8 @@ def cache_localized_tags(articles):
     localized tag names costs one query rather than one per tag."""
     from springfield.cms.models.snippets import BlogTag  # circular import
 
-    localized_tags_by_slug = {tag.slug: tag for tag in BlogTag.objects.filter(locale=SpringfieldLocale.get_active()).live()}
+    slugs = {tag.slug for article in articles for tag in article.tags.all()}
+    localized_tags_by_slug = {tag.slug: tag for tag in BlogTag.objects.filter(slug__in=slugs, locale=SpringfieldLocale.get_active()).live()}
     for article in articles:
         article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
 
