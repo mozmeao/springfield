@@ -261,6 +261,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
                 this.primaryAction = this.#createDownloadButton({
                     label: 'Download',
+                    icon: 'downloads',
                     additionalClasses: ['button-primary'],
                     href: ''
                 });
@@ -271,37 +272,52 @@ class FirefoxDownloadFormElement extends HTMLElement {
                     .replaceWith(this.primaryAction.element);
 
                 effect(() => {
-                    switch (os) {
+                    switch (this.os) {
                         case OS.IOS:
                             this.primaryAction.href.value =
-                                IOS_APP_STORE_LINKS[release];
-                            switch (release) {
+                                IOS_APP_STORE_LINKS[this.release];
+                            switch (this.release) {
                                 case RELEASES.STABLE:
                                     this.primaryAction.label.value =
                                         'Download from the App Store';
+                                    this.primaryAction.icon.value = 'downloads';
                                     break;
                                 case RELEASES.BETA:
                                     this.primaryAction.label.value =
                                         'Sign up for TestFlight';
+                                    this.primaryAction.icon.value = 'forward';
                                     break;
                             }
                             break;
                         case OS.ANDROID:
                             this.primaryAction.href.value =
-                                ANDROID_PLAY_STORE_LINKS[release];
+                                ANDROID_PLAY_STORE_LINKS[this.relase];
                             this.primaryAction.label.value =
                                 'Download from the Play Store';
+                            this.primaryAction.icon.value = 'downloads';
                             break;
                         default:
-                            this.primaryAction.label.value = 'Download';
+                            this.primaryAction.label.value =
+                                this.release === RELEASES.ESR
+                                    ? 'Download ESR 140'
+                                    : 'Download';
+
+                            this.primaryAction.icon.value = 'downloads';
+
                             this.primaryAction.href.value =
-                                new FirefoxDownloadURL(this.choices);
+                                new FirefoxDownloadURL({
+                                    os: this.os,
+                                    release: this.release,
+                                    language: this.language
+                                });
                             break;
                     }
                 });
 
                 this.storeAction = this.#createDownloadButton({
-                    additionalClasses: ['button-secondary']
+                    label: 'Download from the Microsoft store',
+                    icon: 'external-link',
+                    additionalClasses: ['button-secondary', 'fl-button-small']
                 });
                 effect(() => {
                     if (
@@ -333,6 +349,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
                 this.esrNextAction = this.#createDownloadButton({
                     label: 'Download ESR 153',
+                    icon: 'downloads',
                     additionalClasses: ['button-primary']
                 });
                 effect(() => {
@@ -365,7 +382,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
                 this.esr115Action = this.#createDownloadButton({
                     label: 'Download ESR 115',
-                    additionalClasses: ['button-primary'],
+                    icon: 'downloads',
+                    additionalClasses: ['button-primary', 'fl-button-small'],
                     withRecommendation: true
                 });
                 effect(() => {
@@ -410,6 +428,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 this.aptAction = this.#createDownloadButton({
                     label: 'Set up the APT repository',
                     href: 'https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions',
+                    icon: 'external-link',
                     additionalClasses: ['button-secondary']
                 });
                 effect(() => {
@@ -623,6 +642,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         label: initialLabel,
         additionalClasses,
         href: initialHref,
+        icon: initialIcon,
         withRecommendation,
         recommendation: initialRecommendation
     } = {}) {
@@ -632,6 +652,18 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const element = document.createElement('div');
         element.classList.add('c-download-option');
         const link = document.createElement('a');
+
+        let icon, iconElement;
+        if (initialIcon) {
+            icon = signal(initialIcon);
+
+            iconElement = document.createElement('span');
+            iconElement.setAttribute('aria-hidden', 'true');
+
+            effect(() => {
+                iconElement.className = `fl-icon fl-icon-${icon}`;
+            });
+        }
 
         let recommendation, recommendationElement;
         if (withRecommendation === true) {
@@ -650,13 +682,20 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
         // TODO: we need to handle icons
         effect(() => {
-            link.textContent = label.value;
+            const [text] = link.childNodes;
+            console.log({ text });
+            if (text) {
+                text.data = label.value;
+            } else {
+                link.textContent = label.value;
+            }
         });
 
         effect(() => {
             link.href = href.value;
         });
 
+        if (icon) link.append(iconElement);
         element.append(link);
         if (recommendationElement) element.append(recommendationElement);
 
@@ -664,7 +703,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
             element,
             label,
             href,
-            recommendation
+            recommendation,
+            icon
         };
     }
 
@@ -693,7 +733,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const element = document.createElement('div');
         element.classList.add('c-or-divider');
         element.textContent = 'or';
-        console.log({ orDivider: element });
         return { element };
     }
 
@@ -705,7 +744,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
                     after: 'nextElementSibling'
                 }[position]
             ];
-        console.log({ element, position, maybeDivider, ...this.choices });
         if (maybeDivider.matches('.c-or-divider')) {
             maybeDivider.remove();
         }
