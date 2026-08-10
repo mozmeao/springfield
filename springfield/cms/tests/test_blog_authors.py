@@ -4,6 +4,7 @@
 
 from django.db import IntegrityError
 from django.db.models import ProtectedError
+from django.urls import reverse
 from django.utils import translation
 
 import pytest
@@ -11,6 +12,7 @@ from wagtail.models import Locale, Site
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTopic
+from springfield.cms.wagtail_hooks import BlogAuthorChooseView
 
 pytestmark = [pytest.mark.django_db]
 
@@ -166,3 +168,34 @@ def test_get_authors_omits_an_unpublished_author(article):
     article.save()
 
     assert article.get_authors() == []
+
+
+def test_author_chooser_offers_only_live_default_locale_authors():
+    """Articles store default-locale authors, so the chooser must not let an editor
+    working on a translated page store a translation row instead."""
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    ada = make_author("Ada Lovelace", "ada-lovelace")
+    BlogAuthor.objects.create(name="Ada en français", slug="ada-fr", locale=fr_locale)
+    make_author("Draft Author", "draft-author", live=False)
+
+    view = BlogAuthorChooseView()
+    view.model_class = BlogAuthor
+
+    assert list(view.get_object_list()) == [ada]
+
+
+def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_client):
+    """Goes through the registered chooser URL rather than the view class alone, so
+    this also proves the custom chooser viewset is wired to the snippet."""
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    make_author("Ada Lovelace", "ada-lovelace")
+    BlogAuthor.objects.create(name="Ada en français", slug="ada-fr", locale=fr_locale)
+    make_author("Draft Author", "draft-author", live=False)
+
+    response = admin_client.get(reverse("wagtailsnippetchoosers_cms_blogauthor:choose"))
+
+    assert response.status_code == 200
+    rendered = response.json()["html"]
+    assert "Ada Lovelace" in rendered
+    assert "Ada en français" not in rendered
+    assert "Draft Author" not in rendered
