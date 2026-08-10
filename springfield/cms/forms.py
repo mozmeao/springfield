@@ -37,9 +37,9 @@ class SpringfieldCopyForm(CopyForm):
 class LocaleScopedAdminTagWidget(AdminTagWidget):
     """Wagtail's tag widget pointed at the locale-scoped autocomplete view.
 
-    AdminTagWidget derives its autocomplete URL from the tag model, and Wagtail's view for
-    it returns every locale's tags plus unpublished ones — names BlogTagField would then
-    reject. Suggesting only what can be saved keeps that rejection out of the editor's way.
+    AdminTagWidget gets its autocomplete URL from the tag model, and Wagtail's view for
+    it returns every tag with no filtering. `cms_blog_tag_autocomplete` view returns only
+    published tags in the default locale, so this.
     """
 
     def get_context(self, name, value, attrs):
@@ -49,15 +49,12 @@ class LocaleScopedAdminTagWidget(AdminTagWidget):
 
 
 class BlogTagField(TagField):
-    """A tag field that resolves typed names to default-locale BlogTag instances.
+    """A Tag field that resolves typed names to default-locale BlogTag instances.
 
     Wagtail's TagField hands taggit a list of tag *names*, and taggit resolves each name to
     a row. BlogTag names are unique per locale rather than globally, so that lookup can
     land on another locale's row. This field resolves the names itself, scoped to published
     default-locale tags, and hands taggit instances instead.
-
-    The tag model arrives in the `tag_model` kwarg that Wagtail's TaggableManager form-field
-    override injects, so this field never imports BlogTag.
     """
 
     widget = LocaleScopedAdminTagWidget
