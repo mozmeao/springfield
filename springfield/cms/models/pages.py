@@ -24,12 +24,13 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
+from django.utils.functional import SimpleLazyObject
 
 import requests
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface, TitleFieldPanel
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
@@ -1645,6 +1646,9 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
 
 
+MAX_HEADER_TOPICS = 8
+
+
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
@@ -1665,6 +1669,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         null=True,
         blank=True,
         help_text="Up to 8 featured articles shown at the top of the index page.",
+    )
+    featured_topics = StreamField(
+        [("topic", LocalizedLiveSnippetChooserBlock("cms.BlogTopic"))],
+        max_num=MAX_HEADER_TOPICS,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text=f"Up to {MAX_HEADER_TOPICS} topics shown at the top of the index page. If empty, the topics with the most articles are shown.",
     )
     more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
     view_all_label = models.CharField(default="View All Articles")
@@ -1691,6 +1703,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    blog_options_panels = [
+        FieldPanel("featured_topics"),
+    ]
+
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(blog_options_panels, heading="Blog Options"),
+            ObjectList(AbstractSpringfieldCMSPage.promote_panels, heading="Promote"),
+            ObjectList(settings_panels, heading="Settings"),
+        ]
+    )
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
@@ -1766,20 +1791,41 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 article._tags_cache = tags_cache
                 value._article_cache = article
 
-    def get_context(self, request, *args, **kwargs):
-        from springfield.cms.models.snippets import BlogTopic
-
-        context = super().get_context(request, *args, **kwargs)
-
-        self._prefetch_streamfield_articles()
+    def get_all_topics(self):
+        """Topics with at least one published article, most articles first."""
+        from springfield.cms.models.snippets import BlogTopic  # circular import
 
         base_qs = BlogArticlePage.objects.child_of(self).live().public()
-        all_topics = (
+        return (
             BlogTopic.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
             .annotate(article_count=Count("blog_articles"))
+            .live()
             .order_by("-article_count")
         )
-        context["all_topics"] = all_topics
+
+    def get_header_topics(self):
+        """Topics for the page header: the editor-selected featured topics, or the
+        topics with the most articles when none are selected.
+        """
+        from springfield.cms.models.snippets import BlogTopic  # circular import
+
+        selected_topics = [block.value for block in (self.featured_topics or []) if block.value]
+        if not selected_topics:
+            return list(self.get_all_topics()[:MAX_HEADER_TOPICS])
+
+        localized_topics = BlogTopic.objects.filter(
+            translation_key__in=[topic.translation_key for topic in selected_topics],
+            locale_id=self.locale_id,
+        ).live()
+        localized_topics_by_key = {topic.translation_key: topic for topic in localized_topics}
+
+        return [localized_topics_by_key[topic.translation_key] for topic in selected_topics if topic.translation_key in localized_topics_by_key]
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        self._prefetch_streamfield_articles()
+        context["all_topics"] = self.get_all_topics()
+        context["header_topics"] = SimpleLazyObject(self.get_header_topics)
         return context
 
     def _render_route(self, request, template, extra_context=None):
@@ -2570,6 +2616,44 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     parent_page_types = ["cms.HomePage"]
     template = "cms/referral_get_firefox_page.html"
+
+    upper_content = StreamField(
+        [
+            ("intro", KitIntroBlock()),
+            ("showcase", ShowcaseBlock()),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"

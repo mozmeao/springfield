@@ -6,7 +6,7 @@
 
 {# props number=0, label="", badge_name="", is_achieved=0 #}
 
-<li class="fl-badge {% if is_achieved %}is-achieved{% endif %}" data-achieved="{{ 'true' if is_achieved else 'false' }}">
+<li class="fl-badge {% if is_achieved %}is-achieved{% endif %} {% if contents.media %}has-media{% endif %}" data-achieved="{{ 'true' if is_achieved else 'false' }}">
   {# The number and label carry the meaning, so the artwork is decorative. #}
   {% if contents.media %}
     <div class="fl-badge-media" aria-hidden="true">{{ contents.media }}</div>

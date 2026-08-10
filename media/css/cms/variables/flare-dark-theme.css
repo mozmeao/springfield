@@ -81,6 +81,7 @@
 --notification-bg: var(--token-color-purple);
 --notification-link-hover-bg: var(--token-color-light-purple-60);
 --notification-color: var(--token-color-white);
+--notification-link-hover-color: var(--token-color-black-1);
 --notification-border-color: var(--token-color-link-purple);
 --notification-icon-bg: var(--token-color-soft-purple);
 --notification-icon-color: var(--token-color-black-4);
@@ -212,4 +213,10 @@
 /* Comparison table */
 --comparison-table-highlighted-bg: var(--token-color-light-purple);
 --comparison-table-text-color: var(--token-color-grey-1);
---comparison-table-border-color: var(--token-color-link-purple);
+--comparison-table-border-color: var(--token-color-soft-purple-2);
+
+/* Comparison table - browser comparison variant */
+--comparison-table-browser-highlighted-bg: var(--token-color-soft-purple);
+--comparison-table-browser-highlighted-text-color: var(--token-color-purple);
+--comparison-table-browser-border-color: var(--token-color-light-purple);
+--comparison-table-browser-text-color: var(--token-color-soft-purple-4);
