@@ -12,7 +12,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0129_blogindexpage_featured_topics"),
+        ("cms", "0130_merge_20260810_1130"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 

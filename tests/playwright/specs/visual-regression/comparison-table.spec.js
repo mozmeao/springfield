@@ -28,6 +28,13 @@ test.describe(
             );
         });
 
+        test('desktop cell contents', async ({ page }) => {
+            await expectComponentScreenshot(
+                page,
+                'comparison-table-cell-contents'
+            );
+        });
+
         test.describe('mobile scroll', () => {
             test.use({ viewport: { width: 375, height: 667 } });
 
@@ -50,6 +57,14 @@ test.describe(
                     'comparison-table-stacked-mobile'
                 );
             });
+
+            test('cell contents', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'comparison-table-cell-contents',
+                    'comparison-table-cell-contents-mobile'
+                );
+            });
         });
 
         test.describe('dark mode', () => {
@@ -60,6 +75,14 @@ test.describe(
                     page,
                     'comparison-table-highlighted',
                     'comparison-table-highlighted-dark'
+                );
+            });
+
+            test('desktop cell contents', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'comparison-table-cell-contents',
+                    'comparison-table-cell-contents-dark'
                 );
             });
         });

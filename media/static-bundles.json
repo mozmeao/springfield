@@ -441,6 +441,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-referral-get-firefox.css"
+      ],
+      "name": "flare-referral-get-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"

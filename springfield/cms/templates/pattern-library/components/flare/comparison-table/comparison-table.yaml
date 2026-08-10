@@ -29,3 +29,29 @@ context:
         - content: Business reviews
         - content: Quarterly
         - content: "—"
+  # Header cells as an image with a label, body cells as Yes/No/Limited results
+  image_header_cells:
+    - label: ""
+    - url: /media/img/firefox/flare/placeholder.png
+      label: Firefox
+    - url: /media/img/firefox/flare/placeholder.png
+      label: Other browsers
+  result_rows:
+    - label: Blocks trackers by default
+      results:
+        - icon_name: checkmark-circle-fill
+          label: "Yes"
+        - icon_name: close-circle-fill
+          label: "No"
+    - label: Works without an account
+      results:
+        - icon_name: checkmark-circle-fill
+          label: "Yes"
+        - icon_name: subtract-circle-fill
+          label: Limited
+    - label: Sells your browsing data
+      results:
+        - icon_name: close-circle-fill
+          label: "No"
+        - icon_name: subtract-circle-fill
+          label: Limited
