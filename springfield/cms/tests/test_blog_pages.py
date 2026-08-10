@@ -19,6 +19,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
+    blog_article_block,
     create_blog_article,
     featured_topics_stream,
     get_blog_article_content,
@@ -874,19 +875,7 @@ def curated_topic_page(topic_blog):
         }
     ]
     topic_page.featured_articles = [
-        {
-            "type": "article",
-            "value": {
-                "article": article.pk,
-                "image": {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}},
-                "topic": "",
-                "title": "",
-                "description": "",
-                "tags": [],
-            },
-            "id": f"tpf00000-0000-0000-0000-{number:012d}",
-        }
-        for number, article in enumerate(featured, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{number:012d}") for number, article in enumerate(featured, start=1)
     ]
     topic_page.save_revision().publish()
     return index_page, topic_page, featured
