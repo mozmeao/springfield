@@ -10,10 +10,7 @@ def add_group_permissions(apps, schema_editor):
     Permission = apps.get_model("auth", "Permission")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
-    try:
-        ct = ContentType.objects.get(app_label="cms", model="blogauthor")
-    except ContentType.DoesNotExist:
-        return
+    ct, _ = ContentType.objects.get_or_create(app_label="cms", model="blogauthor")
 
     codenames = [
         ("add_blogauthor", "Can add Blog Author"),
