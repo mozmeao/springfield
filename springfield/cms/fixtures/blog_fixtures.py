@@ -354,11 +354,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.save_revision().publish()
 
+    return articles
+
+
+def get_blog_topic_page() -> BlogTopicPage:
+    """A curated header for the Privacy topic, featuring its first four articles."""
+    articles = get_blog_pages()
+    privacy = get_blog_topics()["privacy"]
     privacy_articles = [article for article in articles if article.topic_id == privacy.pk][:4]
+
     topic_page = get_or_create_page(
         BlogTopicPage,
         slug="privacy",
-        parent=index_page,
+        parent=get_blog_index_page(),
         defaults={"title": "Privacy", "topic": privacy},
     )
     topic_page.topic = privacy
@@ -374,7 +382,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
         }
     ]
     topic_page.featured_articles = [
-        article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
     ]
     topic_page.save_revision().publish()
 
