@@ -8,6 +8,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import { batch, effect, signal } from '@preact/signals-core';
+
 const OS = {
     IOS: 'ios',
     MACOS: 'osx',
@@ -40,37 +42,84 @@ const UNSUPPORTED_PLATFORMS_BY_RELEASE = JSON.parse(
     unsupportedPlatformsByRelease.textContent
 );
 
-const RELEASE_NOTES_FOR_DESKTOP = {
-    [RELEASES.STABLE]: '/firefox/notes/',
-    [RELEASES.BETA]: '/firefox/beta/notes/',
-    [RELEASES.DEV]: '/firefox/developer/notes/',
-    [RELEASES.NIGHTLY]: '/firefox/nightly/notes/',
-    [RELEASES.ESR]: '/firefox/organizations/notes/',
-    [RELEASES.ESR_115]: '/firefox/organizations/notes/',
-    [RELEASES.ESR_NEXT]: '/firefox/organizations/notes/'
+const IOS_APP_STORE_LINKS = {
+    [RELEASES.STABLE]:
+        'https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8',
+    [RELEASES.BETA]: 'https://www.firefox.com/channel/ios/testflight/'
 };
 
-const SYSTEM_REQUIREMENTS_FOR_DESKTOP = {
-    [RELEASES.STABLE]: '/firefox/system-requirements/',
-    [RELEASES.BETA]: '/firefox/beta/system-requirements/',
-    [RELEASES.DEV]: '/firefox/developer/system-requirements/',
-    [RELEASES.NIGHTLY]: '/firefox/nightly/system-requirements/',
-    [RELEASES.ESR]: '/firefox/organizations/system-requirements/',
-    [RELEASES.ESR_115]: '/firefox/organizations/system-requirements/',
-    [RELEASES.ESR_NEXT]: '/firefox/organizations/system-requirements/'
+const MOBILE_SYSTEM_REQUIREMENTS =
+    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
+
+const ANDROID_PLAY_STORE_LINKS = {
+    [RELEASES.STABLE]:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
+    [RELEASES.BETA]:
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
+    [RELEASES.NIGHTLY]:
+        'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all'
 };
 
-const RELEASE_NOTES_FOR_MOBILE = {
-    [OS.IOS]: {
-        [RELEASES.STABLE]: '/firefox/ios/notes/',
-        [RELEASES.BETA]: '/firefox/ios/beta/notes/'
-    },
-    [OS.ANDROID]: {
-        [RELEASES.STABLE]: '/firefox/android/notes/',
-        [RELEASES.BETA]: '/firefox/android/beta/notes/',
-        [RELEASES.NIGHTLY]: '/firefox/android/nightly/notes/'
+const MICROSOFT_STORE_LINKS = {
+    [RELEASES.STABLE]:
+        'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&cid=firefox-all&mz_cn=release',
+    [RELEASES.BETA]:
+        'https://apps.microsoft.com/detail/9nzw26frndln?mode=mini&cid=firefox-all&mz_cn=beta'
+};
+
+function isMobileOS(os) {
+    return os === OS.IOS || os === OS.ANDROID;
+}
+
+class SystemRequirementsURL extends URL {
+    static #resolveURL(choices) {
+        const path = [
+            'firefox',
+            {
+                [RELEASES.STABLE]: '',
+                [RELEASES.ESR]: 'organizations',
+                [RELEASES.BETA]: 'beta',
+                [RELEASES.DEV]: 'developer',
+                [RELEASES.NIGHTLY]: 'nightly'
+            }[choices.release],
+            'system-requirements'
+        ];
+
+        return '/' + path.filter(Boolean).join('/') + '/';
     }
-};
+    constructor(choices) {
+        super(
+            ...(isMobileOS(choices.os)
+                ? [MOBILE_SYSTEM_REQUIREMENTS]
+                : [SystemRequirementsURL.#resolveURL(choices), window.location])
+        );
+    }
+}
+
+class ReleaseNotesURL extends URL {
+    static #resolveURL(choices) {
+        const path = [
+            'firefox',
+            {
+                [RELEASES.STABLE]: '',
+                [RELEASES.ESR]: 'organizations',
+                [RELEASES.BETA]: 'beta',
+                [RELEASES.DEV]: 'developer',
+                [RELEASES.NIGHTLY]: 'nightly'
+            }[choices.release],
+            'notes'
+        ];
+
+        if (choices.os === OS.IOS || choices.os === OS.ANDROID) {
+            path.splice(1, 0, choices.os);
+        }
+
+        return '/' + path.filter(Boolean).join('/') + '/';
+    }
+    constructor(choices) {
+        super(ReleaseNotesURL.#resolveURL(choices), window.location);
+    }
+}
 
 /**
  * Generate a Firefox download URL for desktop and Android APT based on the form choices.
@@ -132,8 +181,47 @@ class FirefoxDownloadURL extends URL {
 }
 
 class FirefoxDownloadFormElement extends HTMLElement {
+    #os = signal();
+    get os() {
+        return this.#os.value;
+    }
+    set os(value) {
+        this.#os.value = value;
+    }
+
+    #release = signal();
+    get release() {
+        return this.#release.value;
+    }
+    set release(value) {
+        this.#release.value = value;
+    }
+
+    #language = signal();
+    get language() {
+        return this.#language.value;
+    }
+    set language(value) {
+        this.#language.value = value;
+    }
+
+    get choices() {
+        return Object.fromEntries(new FormData(this.form));
+    }
+
+    get releaseNotesElement() {
+        return this.querySelector('#release-notes');
+    }
+    get systemRequirementsElement() {
+        return this.querySelector('#system-requirements');
+    }
+
     get form() {
         return this.querySelector(':scope > form:first-child');
+    }
+
+    get resultsPane() {
+        return this.querySelector('.c-results');
     }
 
     constructor() {
@@ -145,16 +233,243 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     handleEvent(event) {
         switch (event.type) {
-            case 'slotchange':
+            case 'slotchange': {
+                if (!this.form) break;
+
+                batch(() => {
+                    this.os = this.form.elements.os.value;
+                    this.release = this.form.elements.os.release;
+                    this.language = this.form.elements.os.language;
+                });
+
+                effect(() => {
+                    if (this.os && this.release) {
+                        const url = new URL(window.location);
+                        url.search = new URLSearchParams({
+                            os: this.os,
+                            release: this.release,
+                            language: this.language
+                        });
+                        history.replaceState(null, '', url);
+                    }
+                });
+
                 // Setup
                 this.form.addEventListener('submit', this);
                 this.form.addEventListener('input', this);
                 this.form.addEventListener('invalid', this, true);
 
+                this.primaryAction = this.#createDownloadButton({
+                    label: 'Download',
+                    additionalClasses: ['button-primary'],
+                    href: ''
+                });
+
+                document
+                    .querySelector('[data-primary-action]')
+                    .closest('.c-download-option')
+                    .replaceWith(this.primaryAction.element);
+
+                effect(() => {
+                    switch (os) {
+                        case OS.IOS:
+                            this.primaryAction.href.value =
+                                IOS_APP_STORE_LINKS[release];
+                            switch (release) {
+                                case RELEASES.STABLE:
+                                    this.primaryAction.label.value =
+                                        'Download from the App Store';
+                                    break;
+                                case RELEASES.BETA:
+                                    this.primaryAction.label.value =
+                                        'Sign up for TestFlight';
+                                    break;
+                            }
+                            break;
+                        case OS.ANDROID:
+                            this.primaryAction.href.value =
+                                ANDROID_PLAY_STORE_LINKS[release];
+                            this.primaryAction.label.value =
+                                'Download from the Play Store';
+                            break;
+                        default:
+                            this.primaryAction.label.value = 'Download';
+                            this.primaryAction.href.value =
+                                new FirefoxDownloadURL(this.choices);
+                            break;
+                    }
+                });
+
+                this.storeAction = this.#createDownloadButton({
+                    additionalClasses: ['button-secondary']
+                });
+                effect(() => {
+                    if (
+                        this.os.startsWith('win') &&
+                        [RELEASES.STABLE, RELEASES.BETA].includes(this.release)
+                    ) {
+                        this.storeAction.label.value =
+                            'Download from the Microsoft Store';
+                        this.storeAction.href.value =
+                            MICROSOFT_STORE_LINKS[this.release];
+                        if (!this.storeAction.element.isConnected) {
+                            this.primaryAction.element.after(
+                                this.#createOrDivider().element,
+                                this.storeAction.element
+                            );
+                        }
+                    } else {
+                        this.storeAction.label.value = '';
+                        this.storeAction.href.value = '';
+                        if (this.storeAction.element.isConnected) {
+                            this.#removeOrDivider(
+                                this.storeAction.element,
+                                'before'
+                            );
+                            this.storeAction.element.remove();
+                        }
+                    }
+                });
+
+                this.esrNextAction = this.#createDownloadButton({
+                    label: 'Download ESR 153',
+                    additionalClasses: ['button-primary']
+                });
+                effect(() => {
+                    if (
+                        this.#release.value === RELEASES.ESR &&
+                        this.#releaseSupportsPlatform(
+                            RELEASES.ESR_NEXT,
+                            this.#os.value
+                        )
+                    ) {
+                        this.esrNextAction.href.value = new FirefoxDownloadURL({
+                            os: this.os,
+                            release: RELEASES.ESR_NEXT,
+                            language: this.language
+                        });
+                        if (!this.esrNextAction.element.isConnected) {
+                            this.primaryAction.element.before(
+                                this.esrNextAction.element,
+                                this.#createOrDivider().element
+                            );
+                        }
+                    } else if (this.esrNextAction.element.isConnected) {
+                        this.#removeOrDivider(
+                            this.esrNextAction.element,
+                            'after'
+                        );
+                        this.esrNextAction.element.remove();
+                    }
+                });
+
+                this.esr115Action = this.#createDownloadButton({
+                    label: 'Download ESR 115',
+                    additionalClasses: ['button-primary'],
+                    withRecommendation: true
+                });
+                effect(() => {
+                    if (
+                        this.#release.value === RELEASES.ESR &&
+                        this.#releaseSupportsPlatform(
+                            RELEASES.ESR_115,
+                            this.#os.value
+                        )
+                    ) {
+                        this.esr115Action.href.value = new FirefoxDownloadURL({
+                            os: this.os,
+                            release: RELEASES.ESR_115,
+                            language: this.language
+                        });
+                        if (this.os.startsWith('win')) {
+                            this.esr115Action.recommendation.value =
+                                'Recommended for Windows 7/8/8.1';
+                        } else if (this.os.startsWith('osx')) {
+                            this.esr115Action.recommendation.value =
+                                'Recommended for macOS 10.12–10.14';
+                        } else if (this.os.startsWith('linux')) {
+                            this.esr115Action.recommendation.value =
+                                'Recommended for older operating systems';
+                        }
+
+                        if (!this.esr115Action.element.isConnected) {
+                            this.primaryAction.element.after(
+                                this.#createOrDivider().element,
+                                this.esr115Action.element
+                            );
+                        }
+                    } else if (this.esr115Action.element.isConnected) {
+                        this.#removeOrDivider(
+                            this.esr115Action.element,
+                            'before'
+                        );
+                        this.esr115Action.element.remove();
+                    }
+                });
+
+                this.aptAction = this.#createDownloadButton({
+                    label: 'Set up the APT repository',
+                    href: 'https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions',
+                    additionalClasses: ['button-secondary']
+                });
+                effect(() => {
+                    if (
+                        this.os.startsWith('linux') &&
+                        !this.aptAction.element.isConnected
+                    ) {
+                        this.querySelector('.c-download-options').prepend(
+                            this.aptAction.element
+                        );
+                    } else if (this.aptAction.element.isConnected) {
+                        this.aptAction.element.remove();
+                    }
+                });
+
+                this.releaseNotes = this.#createSupportLink({
+                    label: 'Release Notes',
+                    href: '/firefox/notes/'
+                });
+                effect(() => {
+                    this.releaseNotes.href.value = new ReleaseNotesURL({
+                        os: this.os,
+                        release: this.release,
+                        language: this.language
+                    });
+                });
+
+                this.systemRequirements = this.#createSupportLink({
+                    label: 'System Requirements',
+                    href: '/firefox/system-requirements/'
+                });
+                effect(() => {
+                    this.systemRequirements.href.value =
+                        new SystemRequirementsURL({
+                            os: this.os,
+                            release: this.release,
+                            language: this.language
+                        });
+                });
+
+                this.privacyPolicy = this.#createSupportLink({
+                    label: 'Privacy Policy',
+                    href: 'https://www.mozilla.org/privacy/firefox/'
+                });
+
+                const supportLinks = document.createElement('div');
+                supportLinks.classList.add('c-support-links');
+                supportLinks.append(
+                    this.releaseNotes.element,
+                    this.systemRequirements.element,
+                    this.privacyPolicy.element
+                );
+                this.resultsPane.append(supportLinks);
+
                 this.#setConditionalDisplay();
                 this.#validate();
-                this.#updateActions();
+
+                this.shadowRoot.removeEventListener('slotchange', this);
                 break;
+            }
             case 'input':
                 this.#handleInput(event);
                 break;
@@ -170,9 +485,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
     }
 
     #handleInput(event) {
+        // Sync the form state
+        batch(() => {
+            this.os = this.form.elements.os.value;
+            this.release = this.form.elements.release.value;
+            this.language = this.form.elements.language.value;
+        });
+
+        // TODO: switch to signals for conditional display
         this.#setConditionalDisplay();
         this.#validate();
-        this.#updateActions();
 
         const [selectedOption] = event.target.selectedOptions;
 
@@ -237,7 +559,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this.dataset.release = release.value;
         this.dataset.language = language.value;
 
-        const isMobile = os.value === 'ios' || os.value === 'android';
+        const isMobile = os.value === OS.IOS || os.value === OS.ANDROID;
 
         language.disabled = isMobile;
 
@@ -260,87 +582,132 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
 
         for (const releaseOption of Object.values(RELEASES)) {
-            const isNotSupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[
-                releaseOption
-            ].includes(os.value);
-
+            const isSupported = this.#releaseSupportsPlatform(
+                releaseOption,
+                os.value
+            );
             if (!release.options[releaseOption]) continue;
 
-            release.options[releaseOption].disabled = isNotSupported;
-            release.options[releaseOption].hidden = isNotSupported;
+            release.options[releaseOption].disabled = !isSupported;
+            release.options[releaseOption].hidden = !isSupported;
         }
+    }
+
+    #releaseSupportsPlatform(release, platform) {
+        if (!Object.values(RELEASES).includes(release))
+            throw new RangeError(`Unknown release: ${release}`);
+        if (!Object.values(OS).includes(platform))
+            throw new RangeError(`Unknown platform: ${platform}`);
+
+        const unsupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[release];
+        if (!unsupported) throw `unknown release type ${release}`;
+        return !unsupported.includes(platform);
     }
 
     #validate() {
         const { os, release } = this.form.elements;
 
-        const chosenReleaseIsNotSupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[
-            release.value
-        ].includes(os.value);
-
-        if (chosenReleaseIsNotSupported) {
-            release.setCustomValidity(
-                'Chosen release type is not available for this platform.'
-            );
-            release.reportValidity();
-        } else {
-            release.setCustomValidity('');
-        }
-    }
-
-    #updateActions() {
-        if (!this.form.checkValidity()) return;
-
-        const { os, release, language } = Object.fromEntries(
-            new FormData(this.form)
+        release.setCustomValidity(
+            this.#releaseSupportsPlatform(release.value, os.value)
+                ? ''
+                : 'Chosen release type is not available for this platform.'
         );
 
-        let primaryAction = this.form.querySelector('[data-primary-action]');
+        if (!release.validity.valid) release.reportValidity();
+    }
 
-        if (primaryAction.matches('button')) {
-            const link = document
-                .importNode(
-                    document.getElementById('download-button-template').content,
-                    true
-                )
-                .querySelector('a');
-            link.dataset.primaryAction = '';
-            primaryAction.after(link);
-            primaryAction.remove();
-            primaryAction = link;
+    // TODO: if no search params, prefill based on detected OS.
+    #detectOS() {}
+
+    #createDownloadButton({
+        label: initialLabel,
+        additionalClasses,
+        href: initialHref,
+        withRecommendation,
+        recommendation: initialRecommendation
+    } = {}) {
+        const label = signal(initialLabel ?? '');
+        const href = signal(initialHref ?? '');
+
+        const element = document.createElement('div');
+        element.classList.add('c-download-option');
+        const link = document.createElement('a');
+
+        let recommendation, recommendationElement;
+        if (withRecommendation === true) {
+            recommendation = signal(initialRecommendation ?? '');
+
+            recommendationElement = document.createElement('p');
+            recommendationElement.classList.add('c-recommendation');
+
+            effect(() => {
+                recommendationElement.textContent = recommendation.value;
+            });
         }
 
-        switch (os) {
-            case 'ios':
-                primaryAction.href = {
-                    stable: 'https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8',
-                    beta: 'https://www.firefox.com/channel/ios/testflight/'
-                }[release];
-                releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
-                systemRequirements.href =
-                    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
-                break;
-            case 'android':
-                primaryAction.href = {
-                    stable: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
-                    beta: 'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
-                    nightly:
-                        'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all'
-                }[release];
-                releaseNotes.href = RELEASE_NOTES_FOR_MOBILE[os][release];
-                systemRequirements.href =
-                    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
-                break;
-            default:
-                primaryAction.href = new FirefoxDownloadURL({
-                    os,
-                    release,
-                    language
-                });
-                releaseNotes.href = RELEASE_NOTES_FOR_DESKTOP[release];
-                systemRequirements.href =
-                    SYSTEM_REQUIREMENTS_FOR_DESKTOP[release];
-                break;
+        link.classList.add('fl-button');
+        if (additionalClasses) link.classList.add(...additionalClasses);
+
+        // TODO: we need to handle icons
+        effect(() => {
+            link.textContent = label.value;
+        });
+
+        effect(() => {
+            link.href = href.value;
+        });
+
+        element.append(link);
+        if (recommendationElement) element.append(recommendationElement);
+
+        return {
+            element,
+            label,
+            href,
+            recommendation
+        };
+    }
+
+    #createSupportLink({ label: initialLabel, href: initialHref } = {}) {
+        const label = signal(initialLabel);
+        const href = signal(initialHref);
+
+        const element = document.createElement('a');
+
+        effect(() => {
+            element.textContent = label.value;
+        });
+
+        effect(() => {
+            element.href = href.value;
+        });
+
+        return {
+            element,
+            label,
+            href
+        };
+    }
+
+    #createOrDivider() {
+        const element = document.createElement('div');
+        element.classList.add('c-or-divider');
+        element.textContent = 'or';
+        console.log({ orDivider: element });
+        return { element };
+    }
+
+    #removeOrDivider(element, position) {
+        const maybeDivider =
+            element[
+                {
+                    before: 'previousElementSibling',
+                    after: 'nextElementSibling'
+                }[position]
+            ];
+        console.log({ element, position, maybeDivider, ...this.choices });
+        if (maybeDivider.matches('.c-or-divider')) {
+            maybeDivider.remove();
         }
     }
 }
