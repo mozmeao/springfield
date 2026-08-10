@@ -1,0 +1,132 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+@layer page {
+    /* Upper band - showcase */
+    .fl-referral-get-firefox-page .fl-split-page-upper .fl-showcase {
+        background: var(--token-color-purple);
+        border-radius: var(--token-border-radius-md);
+        gap: 0;
+        max-inline-size: calc(100% - var(--token-spacing-lg) * 2);
+        padding: var(--token-layout-sm) var(--token-spacing-lg);
+    }
+
+    .fl-referral-get-firefox-page
+        .fl-split-page-upper
+        .fl-showcase
+        .fl-showcase-heading {
+        font-size: var(--fl-theme-font-size-heading-md);
+    }
+
+    .fl-referral-get-firefox-page
+        .fl-split-page-upper
+        .fl-showcase-description {
+        margin: auto;
+    }
+
+    /* tabs */
+    .fl-referral-get-firefox-page .fl-tabs {
+        border: none;
+        padding: 0;
+    }
+
+    .fl-referral-get-firefox-page .fl-tabs-nav[role='tablist'] {
+        border: none;
+    }
+
+    .fl-referral-get-firefox-page .fl-tabs button[role='tab'] {
+        border: 2px solid var(--token-color-light-purple);
+        border-radius: 50%;
+        padding: var(--token-spacing-sm);
+    }
+
+    .fl-referral-get-firefox-page .fl-tabs [role='tab'][aria-selected='true'] {
+        background: var(--token-color-link-purple);
+        border-color: transparent;
+    }
+
+    /* comparison table layout */
+    .fl-referral-get-firefox-page .fl-comparison-table-wrapper {
+        padding-block-end: 0;
+    }
+
+    /* Lower band */
+    .fl-referral-get-firefox-page
+        .fl-split-page-lower
+        .fl-section:first-of-type {
+        padding-block-start: 0;
+    }
+
+    .fl-referral-get-firefox-page .fl-split-page-lower > :last-child {
+        padding-block-end: 0;
+    }
+
+    @media (--viewport-sm-up) {
+        .fl-referral-get-firefox-page .fl-tabs .fl-tabs-nav[role='tablist'] {
+            gap: var(--token-spacing-lg);
+        }
+    }
+
+    @media (--viewport-below-md) {
+        /* tabs */
+        .fl-referral-get-firefox-page
+            .fl-tabs-tab:has(.fl-tabs-tab-icon)
+            .fl-tabs-tab-label {
+            /* button text visually hidden on small screen sizes */
+            block-size: 1px;
+            border: 0;
+            clip-path: inset(100%);
+            inline-size: 1px;
+            margin: -1px;
+            padding: 0;
+            position: absolute;
+            white-space: nowrap;
+            clip: rect(0 0 0 0);
+            overflow: hidden;
+        }
+    }
+
+    @media (--viewport-md-up) {
+        .fl-referral-get-firefox-page {
+            --section-border-radius: var(--token-border-radius-xl);
+        }
+
+        .fl-referral-get-firefox-page .fl-split-page-upper .fl-showcase {
+            max-inline-size: calc(100% - var(--token-border-radius-md) * 2);
+        }
+
+        .fl-referral-get-firefox-page
+            .fl-split-page-upper
+            .fl-showcase
+            .fl-showcase-media {
+            max-inline-size: 100%;
+        }
+
+        /* tabs */
+        .fl-referral-get-firefox-page .fl-tabs .fl-tabs-nav[role='tablist'] {
+            gap: var(--token-spacing-2xs);
+        }
+
+        .fl-referral-get-firefox-page .fl-tabs button[role='tab'] {
+            border-radius: var(--token-border-radius-md);
+            padding: var(--token-spacing-sm) var(--token-spacing-xl);
+        }
+    }
+
+    @media (--viewport-lg-up) {
+        .fl-referral-get-firefox-page .fl-split-page-upper .fl-showcase {
+            max-inline-size: 1106px;
+        }
+
+        /* tabs */
+        .fl-referral-get-firefox-page .fl-tabs .fl-tabs-nav[role='tablist'] {
+            gap: var(--token-spacing-lg);
+        }
+    }
+}

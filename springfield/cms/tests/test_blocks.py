@@ -32,6 +32,7 @@ from springfield.cms.blocks import (
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
+    ComparisonTableBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
@@ -88,7 +89,14 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
-from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page, get_comparison_table_variants
+from springfield.cms.fixtures.comparison_table_fixtures import (
+    cell as comparison_cell,
+    get_comparison_table_test_page,
+    get_comparison_table_variants,
+    image_header_cell,
+    result_cell,
+    row as comparison_row,
+)
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
@@ -3649,21 +3657,85 @@ def test_uuid_block_is_not_translatable():
     assert UUIDBlock().get_translatable_segments("cfdf0d2c-7eee-49c2-8747-80450e22dbdd") == []
 
 
+COMPARISON_RESULT_RENDERING = {
+    "yes": ("fl-icon-checkmark-circle-fill", "Yes"),
+    "no": ("fl-icon-close-circle-fill", "No"),
+    "limited": ("fl-icon-subtract-circle-fill", "Limited"),
+}
+
+
+def assert_comparison_result(cell_el: BeautifulSoup, result_data: dict):
+    result_el = cell_el.find("div", class_="fl-comparison-result")
+    assert result_el is not None
+
+    icon_class, choice_label = COMPARISON_RESULT_RENDERING[result_data["result"]]
+    icon_el = result_el.find("span", class_="fl-comparison-result-icon").find("span", class_="fl-icon")
+    assert icon_class in icon_el.get("class")
+    # The visible label is the accessible name, so the icon stays decorative.
+    assert icon_el.get("aria-hidden") == "true"
+
+    expected_label = result_data["label"] or choice_label
+    assert result_el.find("span", class_="fl-comparison-result-label").get_text(strip=True) == expected_label
+
+
+def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: dict):
+    wrapper_el = cell_el.find("div", class_="fl-comparison-image-header")
+    assert wrapper_el is not None
+    assert wrapper_el.find("span", class_="fl-comparison-image-header-text").get_text(strip=True) == image_header_data["label"]
+
+    img_els = wrapper_el.find("span", class_="fl-comparison-image-header-media").find_all("img")
+    has_dark_mode = bool(image_header_data.get("dark_mode_image"))
+    assert len(img_els) == (2 if has_dark_mode else 1)
+    for img_el in img_els:
+        assert img_el.get("alt") == image_header_data["alt"]
+        assert img_el.get("loading") == "lazy"
+        assert img_el.get("srcset")
+    if has_dark_mode:
+        assert "display-light" in img_els[0].get("class", [])
+        assert "display-dark" in img_els[1].get("class", [])
+
+
+def assert_comparison_cell_contents(cell_el: BeautifulSoup, cell_data: dict):
+    """A cell renders its optional content when added, else its plain text."""
+    optional_content = cell_data.get("optional_content") or []
+    if not optional_content:
+        assert cell_el.get_text(strip=True) == cell_data["content"]
+        return
+
+    child = optional_content[0]
+    if child["type"] == "comparison_result":
+        assert_comparison_result(cell_el, child["value"])
+    else:
+        assert_comparison_image_header(cell_el, child["value"])
+
+
+def comparison_cell_is_filled(cell_data: dict) -> bool:
+    return bool(cell_data["content"] or cell_data.get("optional_content"))
+
+
 def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
     value = block_data["value"]
     mobile_behavior = value["mobile_behavior"]
     highlighted_column = value.get("highlighted_column") or None
+    # Tables saved before the variant setting existed have no such key.
+    variant = value.get("variant", "default")
 
-    assert mobile_behavior in wrapper_el.get("class", [])
+    wrapper_classes = wrapper_el.get("class", [])
+    assert mobile_behavior in wrapper_classes
+    # The default variant adds no modifier class, so it keeps the base palette.
+    if variant == "default":
+        assert "browser-comparison" not in wrapper_classes
+    else:
+        assert variant in wrapper_classes
 
     header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
     header_cell_els = wrapper_el.find("thead").find_all(["th", "td"])
     assert len(header_cell_els) == len(header_cells_data)
     for i, (cell_el, cell_data) in enumerate(zip(header_cell_els, header_cells_data)):
-        assert cell_el.get_text(strip=True) == cell_data["content"]
+        assert_comparison_cell_contents(cell_el, cell_data)
         # A column header carries an accessible name; an empty cell is a plain
         # <td>, so it never trips the empty-table-header accessibility check.
-        if cell_data["content"]:
+        if comparison_cell_is_filled(cell_data):
             assert cell_el.name == "th"
             assert cell_el.get("scope") == "col"
         else:
@@ -3684,10 +3756,10 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
         cell_els = tr.find_all(["th", "td"])
         assert len(cell_els) == len(cells_data)
         for i, (cell_el, cell_data) in enumerate(zip(cell_els, cells_data)):
-            assert cell_el.get_text(strip=True) == cell_data["content"]
+            assert_comparison_cell_contents(cell_el, cell_data)
             # The row's label cell is its row header, so screen readers can
             # announce which row a value belongs to.
-            if i == 0 and cell_data["content"]:
+            if i == 0 and comparison_cell_is_filled(cell_data):
                 assert cell_el.name == "th"
                 assert cell_el.get("scope") == "row"
             else:
@@ -3720,6 +3792,153 @@ def test_comparison_table_variants(index_page, rf):
         for index, variant in enumerate(variants):
             table = tables[index]
             assert_comparison_table(table, variant)
+
+
+def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None, variant="default"):
+    block = ComparisonTableBlock()
+    value = block.to_python(
+        {
+            "variant": variant,
+            "highlighted_column": highlighted_column,
+            "mobile_behavior": mobile_behavior,
+            "header_row": [comparison_row(cells=header_cells, row_id="hr")],
+            "content_rows": content_rows,
+        }
+    )
+    return BeautifulSoup(block.render(value), "html.parser")
+
+
+def _render_comparison_result_row(cell_data):
+    """One-row table whose only value cell holds ``cell_data``."""
+    return _render_comparison_table(
+        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
+        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+    )
+
+
+@pytest.mark.parametrize(
+    ("result", "icon_class", "label"),
+    (
+        ("yes", "fl-icon-checkmark-circle-fill", "Yes"),
+        ("no", "fl-icon-close-circle-fill", "No"),
+        ("limited", "fl-icon-subtract-circle-fill", "Limited"),
+    ),
+)
+def test_comparison_result_renders_icon_and_result_name(result, icon_class, label):
+    """Each result choice picks its own icon, labelled with the result's name."""
+    cell_data = result_cell(result, cell_id="c1")
+    soup = _render_comparison_result_row(cell_data)
+
+    result_el = soup.find("div", class_="fl-comparison-result")
+    assert icon_class in result_el.find("span", class_="fl-icon").get("class")
+    assert result_el.find("span", class_="fl-comparison-result-label").get_text(strip=True) == label
+
+
+def test_comparison_result_label_can_be_overridden():
+    """An author-supplied label replaces the result's name, keeping its icon."""
+    cell_data = result_cell("limited", "Some features", cell_id="c1")
+    soup = _render_comparison_result_row(cell_data)
+
+    result_el = soup.find("div", class_="fl-comparison-result")
+    assert "fl-icon-subtract-circle-fill" in result_el.find("span", class_="fl-icon").get("class")
+    assert result_el.find("span", class_="fl-comparison-result-label").get_text(strip=True) == "Some features"
+
+
+def test_comparison_cell_optional_content_replaces_plain_text():
+    cell_data = result_cell("yes", cell_id="c1")
+    cell_data["value"]["content"] = "Ignored text"
+    soup = _render_comparison_result_row(cell_data)
+
+    value_cell = soup.find("tbody").find_all(["th", "td"])[1]
+    assert "Ignored text" not in value_cell.get_text()
+    assert_comparison_result(value_cell, cell_data["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
+    header_cell = image_header_cell("Firefox", cell_id="h1")
+    soup = _render_comparison_table(
+        header_cells=[comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    )
+
+    header_cell_els = soup.find("thead").find_all(["th", "td"])
+    # The empty corner cell stays a plain <td>; the image header cell is a real
+    # column header, named by the label under the image.
+    assert header_cell_els[0].name == "td"
+    assert header_cell_els[1].name == "th"
+    assert header_cell_els[1].get("scope") == "col"
+    assert_comparison_image_header(header_cell_els[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_image_header_renders_author_alt_text(placeholder_images):
+    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
+    soup = _render_comparison_table(
+        header_cells=[comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    )
+
+    assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def _comparison_variant_wrapper_classes(variant):
+    soup = _render_comparison_table(
+        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
+        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), comparison_cell("Yes")], row_id="r0")],
+        variant=variant,
+    )
+    return soup.find("div", class_="fl-comparison-table-wrapper").get("class", [])
+
+
+def test_comparison_table_browser_variant_adds_modifier_class():
+    """The variant class is what swaps the highlight and border colors in CSS."""
+    assert "browser-comparison" in _comparison_variant_wrapper_classes("browser-comparison")
+
+
+def test_comparison_table_default_variant_adds_no_modifier_class():
+    classes = _comparison_variant_wrapper_classes("default")
+
+    assert "browser-comparison" not in classes
+    assert "default" not in classes
+
+
+def test_comparison_table_renders_when_variant_key_absent_from_stored_json():
+    """Tables saved before the variant setting existed have no such key at all."""
+    block = ComparisonTableBlock()
+    value = block.to_python(
+        {
+            "mobile_behavior": "scroll",
+            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM")], row_id="hr")],
+            "content_rows": [comparison_row(cells=[comparison_cell("24 hrs/day")], row_id="r0")],
+        }
+    )
+
+    assert value["variant"] == "default"
+
+    wrapper = BeautifulSoup(block.render(value), "html.parser").find("div", class_="fl-comparison-table-wrapper")
+
+    assert "browser-comparison" not in wrapper.get("class", [])
+
+
+def test_comparison_table_renders_cells_saved_before_optional_content_existed():
+    """Cells saved before optional_content existed have no such key at all."""
+    block = ComparisonTableBlock()
+    legacy_cell = {"type": "item", "value": {"content": "24 hrs/day", "column_span": 1}, "id": "c0"}
+    value = block.to_python(
+        {
+            "mobile_behavior": "scroll",
+            "header_row": [comparison_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
+            "content_rows": [comparison_row(cells=[legacy_cell], row_id="r0")],
+        }
+    )
+
+    assert len(value["content_rows"][0]["cells"][0]["optional_content"]) == 0
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("div", class_="fl-comparison-result") is None
+    assert soup.find("thead").find("th").get_text(strip=True) == "PREMIUM"
+    assert soup.find("tbody").find("th").get_text(strip=True) == "24 hrs/day"
 
 
 class TestIconDisplayLabel:
@@ -4582,6 +4801,41 @@ def test_tabs_block_renders_a_distinct_qr_dialog_id_per_tab():
     assert all(target == dialog_id for target, dialog_id in targets_to_dialogs.items())
 
 
+def _render_tablist(tabs):
+    """Render TabsBlock and return its tablist, given raw tab dicts."""
+    block = TabsBlock()
+    value = block.to_python({"section_id": "hub", "tabs": tabs})
+    soup = BeautifulSoup(block.render(value, context={"invite_url": INVITE_URL}), "html.parser")
+    return soup.find("div", attrs={"role": "tablist"})
+
+
+def test_tabs_block_tab_button_renders_its_icon_alongside_the_name():
+    tablist = _render_tablist([{"tab_name": "First tab", "icon": "gift"}])
+
+    button = tablist.find("button", attrs={"role": "tab"})
+    icon_span = button.find("span", class_="fl-icon")
+    assert icon_span and "fl-icon-gift" in icon_span["class"]
+    # Decorative only: the tab name is the accessible name, so the icon must not
+    # be announced as a second, duplicate label.
+    assert icon_span["aria-hidden"] == "true"
+    assert button.find("span", class_="fl-tabs-tab-label").get_text(strip=True) == "First tab"
+
+
+def test_tabs_block_tab_button_omits_the_icon_when_none_is_chosen():
+    """The icon is optional, including for tabs saved before the field existed.
+
+    An unchosen IconChoiceBlock stores "", which would otherwise render a bare
+    `fl-icon` span: an empty mask box taking up space beside the name.
+    """
+    tablist = _render_tablist([{"tab_name": "First tab", "icon": ""}, {"tab_name": "Legacy tab"}])
+
+    buttons = tablist.find_all("button", attrs={"role": "tab"})
+    assert len(buttons) == 2
+    for button in buttons:
+        assert button.find("span", class_="fl-icon") is None
+    assert [b.get_text(strip=True) for b in buttons] == ["First tab", "Legacy tab"]
+
+
 def _email_href(html):
     return BeautifulSoup(html, "html.parser").find("a", class_="fl-referral-controls-share-email")["href"]
 
@@ -5197,3 +5451,38 @@ def test_impact_dash_badge_context_strips_the_message():
     resolved = ImpactDashBlock._badge_context(_badge(5, message="  five friends  "), install_count=5)
 
     assert resolved["message"] == "five friends"
+
+
+# Comparison table (inside TabBlock)
+
+
+def _tab_comparison_table():
+    """A raw comparison_table stream value holding one table."""
+    return [get_comparison_table_variants()[0]]
+
+
+def test_tab_block_renders_comparison_table():
+    html = _render_tab(referral_controls=False, comparison_table=_tab_comparison_table())
+    wrapper = BeautifulSoup(html, "html.parser").find("div", class_="fl-comparison-table-wrapper")
+
+    assert wrapper is not None
+    assert_comparison_table(wrapper, _tab_comparison_table()[0])
+
+
+def test_tab_block_omits_comparison_table_when_not_added():
+    soup = BeautifulSoup(_render_tab(referral_controls=False, comparison_table=[]), "html.parser")
+
+    assert soup.find("div", class_="fl-comparison-table-wrapper") is None
+
+
+def test_tab_block_renders_when_comparison_table_key_absent_from_stored_json():
+    """Tabs saved before comparison_table existed have no such key at all."""
+    block = TabBlock()
+    value = block.to_python({"tab_name": "Legacy tab", "description": "<p>Legacy description</p>"})
+
+    assert len(value["comparison_table"]) == 0
+
+    soup = BeautifulSoup(block.render(value, context={"section_id": "hub", "tab_index": 1}), "html.parser")
+
+    assert soup.find("div", class_="fl-comparison-table-wrapper") is None
+    assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
