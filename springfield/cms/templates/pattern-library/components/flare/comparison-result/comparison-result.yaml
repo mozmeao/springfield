@@ -1,0 +1,9 @@
+name: Comparison Result
+context:
+  results:
+    - icon_name: checkmark-circle-fill
+      label: "Yes"
+    - icon_name: close-circle-fill
+      label: "No"
+    - icon_name: subtract-circle-fill
+      label: Limited

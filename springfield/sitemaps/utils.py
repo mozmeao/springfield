@@ -5,6 +5,7 @@ import json
 import re
 from collections import defaultdict
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -121,7 +122,7 @@ def get_wagtail_urls():
     urls = defaultdict(list)
 
     # Get all live, non-private Wagtail pages
-    for cms_page in Page.objects.live().public().order_by("path"):
+    for cms_page in Page.objects.live().public().specific().order_by("path"):
         # We don't want the Wagtail core Root page, nor the site root page,
         # because that isn't surfaced from the CMS (yet) and we don't want our
         # StructuralPage type either, which has a handy annotation to identify
@@ -131,16 +132,25 @@ def get_wagtail_urls():
             cms_page.is_root()
             or cms_page.is_site_root()
             # not all pages have the is_structural_page attribute, so default those to False
-            or getattr(cms_page.specific, "is_structural_page", False) is True
+            or getattr(cms_page, "is_structural_page", False) is True
         ):
             # Don't include these pages in the sitemap
             continue
 
-        _url = cms_page.get_url()
-        if _url:
-            lang_code = cms_page.locale.language_code
-            _path = _path_for_cms_url(page_url=_url, lang_code=lang_code)
-            urls[_path].append(lang_code)
+        lang_code = cms_page.locale.language_code
+
+        # get_sitemap_urls() is Wagtail's hook for what a page contributes to a sitemap, so
+        # a routable page can add the URLs it serves that have no Page of their own. Its
+        # locations are absolute URLs, hence the urlparse() to get back to a path.
+        for sitemap_url in cms_page.get_sitemap_urls():
+            if not sitemap_url["location"]:
+                continue
+
+            _path = _path_for_cms_url(page_url=urlparse(sitemap_url["location"]).path, lang_code=lang_code)
+            # A route can lead to a page that reports that same route as its own URL, so one
+            # path can be offered twice for a locale.
+            if lang_code not in urls[_path]:
+                urls[_path].append(lang_code)
 
     return urls
 

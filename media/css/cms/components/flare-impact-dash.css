@@ -12,8 +12,10 @@
 }
 
 .fl-impact-dash {
+    --dash-stack-gap: var(--token-spacing-2xl);
+    --dash-edge-bleed: var(--tabs-inline-padding, 0px);
     display: grid;
-    gap: var(--token-spacing-lg);
+    gap: var(--dash-stack-gap);
     grid-template-columns: 1fr;
     list-style: none;
     margin: var(--token-layout-xs) auto 0;
@@ -32,7 +34,7 @@
 
 @media (--viewport-md-up) {
     .fl-impact-dash {
-        gap: 0;
+        --dash-stack-gap: 0;
         grid-auto-columns: 1fr;
         grid-auto-flow: column;
         grid-template-columns: none;
@@ -47,36 +49,76 @@
 
 /* badge styles */
 .fl-badge {
+    --badge-border-size: 1px;
+    --badge-connector-fill: var(--token-color-light-purple);
+    --badge-connector-size: 1px;
+    --badge-gradient-end: #5327ff;
+    --badge-gradient-start: #e752ff;
     --badge-image-filter: grayscale(0.2);
     --badge-image-opacity: 0.6;
+    --badge-media-size: 40px;
+    --badge-row-inline-size: 130px;
     display: flex;
     gap: var(--token-spacing-lg);
     justify-content: flex-start;
-    padding-inline-start: calc((100% - 130px) / 2);
+    margin-block-end: 0;
+    padding-inline-start: calc((100% - var(--badge-row-inline-size)) / 2);
+    position: relative;
     text-align: center;
 }
 
 .fl-badge.is-achieved {
+    --badge-border-size: 2px;
+    --badge-connector-size: var(--badge-border-size);
     --badge-image-filter: none;
     --badge-image-opacity: 1;
+    --badge-connector-fill: linear-gradient(
+        to bottom,
+        var(--badge-gradient-end),
+        var(--badge-gradient-start)
+    );
 }
 
 .fl-badge.is-achieved .fl-badge-media {
     background-clip: padding-box, border-box;
     background-image:
         linear-gradient(#47177b, var(--token-color-dark-purple)),
-        linear-gradient(to bottom, #e752ff, #5327ff);
+        linear-gradient(
+            to bottom,
+            var(--badge-gradient-start),
+            var(--badge-gradient-end)
+        );
     background-origin: border-box;
-    border: 2px solid transparent;
+    border-color: transparent;
+}
+
+.fl-badge.has-media:has(+ .fl-badge.has-media)::after {
+    background: var(--badge-connector-fill);
+    content: '';
+    inline-size: var(--badge-connector-size);
+    inset-block: var(--badge-media-size) calc(var(--dash-stack-gap) * -1);
+    inset-inline-start: calc(
+        (100% - var(--badge-row-inline-size)) / 2 + var(--badge-media-size) /
+            2 - var(--badge-connector-size) / 2
+    );
+    position: absolute;
+}
+
+.fl-badge.is-achieved:has(+ .fl-badge:not(.is-achieved))::after {
+    background: linear-gradient(
+        to bottom,
+        var(--badge-gradient-end),
+        var(--token-color-light-purple) 50%
+    );
 }
 
 .fl-badge-media {
     align-items: center;
-    block-size: 40px;
-    border: 1px solid var(--token-color-light-purple);
+    block-size: var(--badge-media-size);
+    border: var(--badge-border-size) solid var(--token-color-light-purple);
     border-radius: 50%;
     display: flex;
-    inline-size: 40px;
+    inline-size: var(--badge-media-size);
     justify-content: center;
     margin-inline: 0;
     position: relative;
@@ -119,16 +161,12 @@
 
 @media (--viewport-sm-up) {
     .fl-badge {
-        padding-inline-start: calc((100% - 160px) / 2);
+        --badge-media-size: 80px;
+        --badge-row-inline-size: 160px;
     }
 
-    .fl-badge.is-achieved .fl-badge-media {
-        border: 5px solid transparent;
-    }
-
-    .fl-badge-media {
-        block-size: 80px;
-        inline-size: 80px;
+    .fl-badge.is-achieved {
+        --badge-border-size: 5px;
     }
 
     .fl-badge-image {
@@ -140,8 +178,57 @@
     .fl-badge {
         align-items: center;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         margin-inline-start: 0;
+        padding-inline-start: 0;
+    }
+
+    .fl-badge.is-achieved {
+        --badge-connector-fill: linear-gradient(
+            to right,
+            var(--badge-gradient-start),
+            var(--badge-gradient-end)
+        );
+    }
+
+    .fl-badge.is-achieved:has(+ .fl-badge:not(.is-achieved))::after {
+        background: linear-gradient(
+            to right,
+            var(--badge-gradient-start),
+            var(--token-color-light-purple) 50%
+        );
+    }
+
+    .fl-badge.has-media:has(+ .fl-badge.has-media)::after {
+        block-size: var(--badge-connector-size);
+        inline-size: calc(100% - var(--badge-media-size));
+        inset-block: calc(
+                var(--badge-media-size) / 2 - var(--badge-connector-size) / 2
+            )
+            auto;
+        inset-inline-start: calc(50% + var(--badge-media-size) / 2);
+    }
+
+    .fl-badge.has-media:first-child::before,
+    .fl-badge.has-media:last-child::after {
+        background: var(--badge-connector-fill);
+        block-size: var(--badge-connector-size);
+        content: '';
+        inline-size: calc(
+            50% - var(--badge-media-size) / 2 + var(--dash-edge-bleed)
+        );
+        inset-block-start: calc(
+            var(--badge-media-size) / 2 - var(--badge-connector-size) / 2
+        );
+        position: absolute;
+    }
+
+    .fl-badge.has-media:first-child::before {
+        inset-inline-start: calc(var(--dash-edge-bleed) * -1);
+    }
+
+    .fl-badge.has-media:last-child::after {
+        inset-inline-start: calc(50% + var(--badge-media-size) / 2);
     }
 
     .fl-badge-description {
