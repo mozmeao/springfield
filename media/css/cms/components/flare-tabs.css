@@ -5,10 +5,12 @@
  */
 
 .fl-tabs {
+    --tabs-inline-padding: var(--token-layout-xs);
     background: var(--token-color-purple);
     border: 1px solid var(--token-color-link-purple);
     border-radius: var(--token-border-radius-md);
-    padding: var(--token-layout-2xs) var(--token-layout-xs) 0;
+    overflow-x: clip;
+    padding: var(--token-layout-2xs) var(--tabs-inline-padding) 0;
 
     .fl-tabs-nav[role='tablist'] {
         background: var(--theme-tabs-nav-background);
