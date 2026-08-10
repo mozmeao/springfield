@@ -17,9 +17,6 @@ pytestmark = [pytest.mark.django_db]
 
 
 def test_same_tag_name_allowed_in_two_locales():
-    """taggit's TagBase makes name and slug globally unique. BlogTag scopes both to the
-    locale so one concept can exist once per language — the whole point of keeping tags
-    translatable."""
     fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
 
     en_tag = BlogTag.objects.create(name="Privacy", slug="privacy", locale=Locale.get_default())
@@ -29,8 +26,6 @@ def test_same_tag_name_allowed_in_two_locales():
 
 
 def test_duplicate_tag_name_in_one_locale_is_rejected():
-    """Name uniqueness within a locale is what makes name-based tag resolution
-    deterministic, so it must be enforced by the database, not only by the form."""
     BlogTag.objects.create(name="Privacy", slug="privacy", locale=Locale.get_default())
 
     with pytest.raises(IntegrityError):

@@ -1649,10 +1649,7 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 def cache_localized_tags(articles):
     """Populate _tags_cache on each article from a single BlogTag lookup, so rendering
     localized tag names costs one query rather than one per tag."""
-    # Inline import: snippets.py imports cms_tags, which imports this module at load time,
-    # so a module-level snippet import here would be circular. Every other snippet
-    # reference in this file is deferred the same way.
-    from springfield.cms.models.snippets import BlogTag
+    from springfield.cms.models.snippets import BlogTag  # circular import
 
     localized_tags_by_slug = {tag.slug: tag for tag in BlogTag.objects.filter(locale=SpringfieldLocale.get_active()).live()}
     for article in articles:
