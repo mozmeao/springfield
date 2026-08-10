@@ -6,6 +6,31 @@
 
 @import 'components/flare-icon.css';
 
+/* IconChoiceBlock sets thumbnail_is_one_color, so ThumbnailChoiceBlock tints
+   every picker thumbnail by masking the wrapper and painting it a single color.
+   The browser logos in icons/mobile-24/browsers/ are full-color brand artwork,
+   so undo that for images from that directory and un-hide the <img> underneath.
+ */
+.one-color-icons
+    .thumbnail-wrapper:has(img[src*='/flare/icons/mobile-24/browsers/']),
+.one-color-icons
+    .thumbnail-selected-preview:has(
+        img[src*='/flare/icons/mobile-24/browsers/']
+    ) {
+    background-color: transparent;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+.one-color-icons
+    .thumbnail-wrapper:has(img[src*='/flare/icons/mobile-24/browsers/'])
+    .thumbnail-image,
+.one-color-icons
+    .thumbnail-selected-preview
+    img[src*='/flare/icons/mobile-24/browsers/'] {
+    opacity: 1;
+}
+
 /* stylelint-disable selector-class-pattern */
 .compact-form,
 .compact-form .w-panel__content {
