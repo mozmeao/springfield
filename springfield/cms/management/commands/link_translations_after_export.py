@@ -38,6 +38,7 @@ from wagtail_localize.segments.types import StringSegmentValue
 
 from springfield.cms.models.snippets import (
     BannerSnippet,
+    BlogAuthor,
     BlogTag,
     BlogTopic,
     PreFooterCTAFormSnippet,
@@ -57,6 +58,7 @@ TRANSLATABLE_SNIPPET_MODELS = [
     Tag,
     BlogTopic,
     BlogTag,
+    BlogAuthor,
 ]
 
 

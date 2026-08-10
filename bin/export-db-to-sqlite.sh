@@ -192,6 +192,8 @@ python manage.py dumpdata \
     cms.BlogTopic \
     cms.BlogTag \
     cms.TaggedBlogArticle \
+    cms.BlogAuthor \
+    cms.BlogArticleAuthor \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
     cms.PencilBannerPlacement \
