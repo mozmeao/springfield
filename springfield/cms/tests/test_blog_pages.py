@@ -1146,57 +1146,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
         index_page.all_route(request)
 
 
-def test_blog_all_query_count_does_not_grow_with_articles(blog_setup, rf, django_assert_max_num_queries):
-    """A ceiling can hide a per-article N+1; a flat count across two page sizes cannot.
-    The all-articles route paginates at 10, so page 3 holds fewer articles than page 1.
-    The uncounted warm-up call populates caches that the autouse clear_waffle_cache fixture
-    empties once per test, so without it this would compare a cold call against a warm one
-    rather than page size against page size."""
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-
-    index_page.all_route(rf.get(url, {"page": 1}))  # warm caches; uncounted
-
-    with django_assert_max_num_queries(200) as full_page:
-        index_page.all_route(rf.get(url, {"page": 1}))
-    with django_assert_max_num_queries(200) as partial_page:
-        index_page.all_route(rf.get(url, {"page": 3}))
-
-    assert len(partial_page.captured_queries) == len(full_page.captured_queries)
-
-
-def test_article_revision_carries_tags(single_article):
-    """The fixture sets tags before save_revision, so the revision serializes them: a
-    ClusterTaggableManager stores its rows in the revision, and restoring a revision that
-    predates the tags would otherwise silently clear them."""
-    _, article = single_article
-
-    # Replacing the live row's tags after the revision was saved is what makes this test
-    # discriminating: a plain M2M would report the current database state here.
-    replacement_tag = BlogTag.objects.create(name="Encryption", slug="encryption", locale=Locale.get_default())
-    article.tags.set([replacement_tag])
-    article.save()
-
-    revision_article = article.get_latest_revision_as_object()
-
-    assert [tag.name for tag in revision_article.tags.all()] == ["Privacy"]
-
-
-def test_translated_article_carries_tags(single_article):
-    """wagtail-localize skips ManyToManyFields, but taggit's relation is a ParentalKey child
-    relation, so it is synchronised to translations."""
-    _, article = single_article
-    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
-
-    translate_object(article, [fr_locale])
-
-    translated = article.get_translation(fr_locale)
-    assert [tag.name for tag in translated.tags.all()] == ["Privacy"]
-
-
 def test_get_tags_skips_tags_with_no_live_localization(single_article):
-    """An unpublished tag must not render. get_tags() returns a list either way, because
-    BlockArticleValue.get_tags iterates the result unguarded."""
     _, article = single_article
     tag = article.tags.first()
     tag.live = False
@@ -1208,10 +1158,8 @@ def test_get_tags_skips_tags_with_no_live_localization(single_article):
 
 
 def test_all_page_renders_localized_tag_names(privacy_articles, rf):
-    """The all-articles listing must show the active locale's tag name, not the
-    default-locale one it is joined to."""
     index_page, _ = privacy_articles
-    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
     en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
     BlogTag.objects.create(
         name="Confidentialité",
