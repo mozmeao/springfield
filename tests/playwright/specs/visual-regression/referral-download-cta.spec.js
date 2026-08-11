@@ -11,6 +11,21 @@ const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
 const url = `${patternLibraryURL}/referral-download-cta/referral-download-cta.html`;
 
+/**
+ * Simulate what referral-attribution.es6.js does on init: remove .hidden from
+ * the consent label and set the checkbox to checked. Scoped to the given
+ * data-testid so the two fixtures on the page don't interfere.
+ */
+async function initConsentUI(page, testId) {
+    await page.evaluate((id) => {
+        const root = document.querySelector(`[data-testid="${id}"]`);
+        root.querySelector('.referral-consent-label').classList.remove(
+            'hidden'
+        );
+        root.querySelector('.referral-consent-checkbox').checked = true;
+    }, testId);
+}
+
 test.describe(
     `Referral Download CTA`,
     {
@@ -21,18 +36,35 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('light mode', async ({ page }) => {
+        test('default state (before JS init)', async ({ page }) => {
             await expectComponentScreenshot(page, 'referral-download-cta');
+        });
+
+        test('initialized state (consent UI visible)', async ({ page }) => {
+            await initConsentUI(page, 'referral-download-cta-initialized');
+            await expectComponentScreenshot(
+                page,
+                'referral-download-cta-initialized'
+            );
         });
 
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
-            test('dark mode', async ({ page }) => {
+            test('default state dark mode', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
                     'referral-download-cta',
                     'referral-download-cta-dark'
+                );
+            });
+
+            test('initialized state dark mode', async ({ page }) => {
+                await initConsentUI(page, 'referral-download-cta-initialized');
+                await expectComponentScreenshot(
+                    page,
+                    'referral-download-cta-initialized',
+                    'referral-download-cta-initialized-dark'
                 );
             });
         });

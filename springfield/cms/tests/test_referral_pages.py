@@ -6,6 +6,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import DatabaseError
 from django.http import Http404, HttpResponseNotFound
 
@@ -620,3 +621,64 @@ def test_get_firefox_page_renders_download_button(client, settings):
     referral_root = soup.find(attrs={"data-referral-code": True})
     assert referral_root is not None
     assert referral_root["data-referral-code"] == code
+
+
+# Duplicate-block validation
+
+
+def _intro_block_with_referral_download(block_id, btn_id):
+    """Minimal intro block StreamField dict carrying one referral_download button."""
+    return {
+        "type": "intro",
+        "id": block_id,
+        "value": {
+            "settings": {"slim": False},
+            "heading": {
+                "superheading_text": '<p data-block-key="a"></p>',
+                "heading_text": '<p data-block-key="b">Download Firefox</p>',
+                "subheading_text": '<p data-block-key="c"></p>',
+            },
+            "buttons": [
+                {"type": "referral_download", "id": btn_id, "value": {}},
+            ],
+        },
+    }
+
+
+def test_get_firefox_page_clean_rejects_duplicate_referral_download_blocks():
+    """Two referral download CTAs on the same page produce duplicate HTML IDs.
+
+    Wagtail permits the block more than once, so the page model enforces the
+    single-instance constraint in clean() before the content can be published.
+    """
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page)
+    page.upper_content = [
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000001",
+            "bb000000-0000-0000-0000-000000000001",
+        ),
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000002",
+            "bb000000-0000-0000-0000-000000000002",
+        ),
+    ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+
+    assert "upper_content" in exc_info.value.message_dict
+
+
+def test_get_firefox_page_clean_accepts_a_single_referral_download_block():
+    """A single referral download CTA passes clean() without error."""
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page)
+    page.upper_content = [
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000001",
+            "bb000000-0000-0000-0000-000000000001",
+        ),
+    ]
+
+    page.clean()  # must not raise

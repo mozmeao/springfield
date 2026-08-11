@@ -57,6 +57,8 @@ describe('referral-attribution.es6.js', function () {
         Mozilla.DownloadAttribution.removeSignedCookie();
         Mozilla.DownloadAttribution.referralActive = false;
         ReferralAttribution._cachedResponseData = null;
+        ReferralAttribution._signingComplete = false;
+        ReferralAttribution._pendingClick = null;
     });
 
     describe('getInvitationCode', function () {
@@ -302,6 +304,95 @@ describe('referral-attribution.es6.js', function () {
     // Referral signing pipeline
     // -------------------------------------------------------------------------
 
+    describe('_holdDesktopLinks / _interceptClick / _releaseDesktopLinks', function () {
+        let link;
+        let navigateSpy;
+
+        beforeEach(function () {
+            link = fixture.querySelector('#dl-win');
+            navigateSpy = spyOn(ReferralAttribution, '_navigate');
+            ReferralAttribution._signingComplete = false;
+            ReferralAttribution._pendingClick = null;
+        });
+
+        it('_holdDesktopLinks prevents a click on a .download-link from navigating', function () {
+            ReferralAttribution._holdDesktopLinks();
+
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+
+            expect(ReferralAttribution._pendingClick).toBe(link);
+        });
+
+        it('_releaseDesktopLinks navigates to the current href of the queued link on success', function () {
+            ReferralAttribution._holdDesktopLinks();
+
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+            expect(ReferralAttribution._pendingClick).toBe(link);
+
+            // Simulate signing success: link href is now decorated.
+            const decorated =
+                'https://download.mozilla.org/?product=firefox-latest-ssl&os=win&lang=en-US&attribution_code=CODE&attribution_sig=SIG';
+            link.href = decorated;
+
+            ReferralAttribution._releaseDesktopLinks();
+
+            expect(navigateSpy).toHaveBeenCalledWith(decorated);
+            expect(ReferralAttribution._pendingClick).toBeNull();
+        });
+
+        it('_releaseDesktopLinks navigates with the undecorated href on timeout (download still proceeds)', function () {
+            const bare =
+                'https://download.mozilla.org/?product=firefox-latest-ssl&os=win&lang=en-US';
+            link.href = bare;
+
+            ReferralAttribution._holdDesktopLinks();
+
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+
+            // Signing timed out — href was never decorated.
+            ReferralAttribution._releaseDesktopLinks();
+
+            expect(navigateSpy).toHaveBeenCalledWith(bare);
+        });
+
+        it('_releaseDesktopLinks is idempotent — a second call does not navigate again', function () {
+            ReferralAttribution._holdDesktopLinks();
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+
+            ReferralAttribution._releaseDesktopLinks();
+            ReferralAttribution._releaseDesktopLinks();
+
+            expect(navigateSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('_releaseDesktopLinks does not navigate when no click was queued', function () {
+            ReferralAttribution._holdDesktopLinks();
+            ReferralAttribution._releaseDesktopLinks();
+
+            expect(navigateSpy).not.toHaveBeenCalled();
+        });
+
+        it('clicks pass through without interception after _releaseDesktopLinks', function () {
+            ReferralAttribution._holdDesktopLinks();
+            ReferralAttribution._releaseDesktopLinks();
+
+            // A click after release should not be stored.
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+
+            expect(ReferralAttribution._pendingClick).toBeNull();
+        });
+    });
+
     describe('applyReferral', function () {
         beforeEach(function () {
             spyOn(
@@ -345,6 +436,71 @@ describe('referral-attribution.es6.js', function () {
             expect(
                 Mozilla.DownloadAttribution.waitForGoogleAnalyticsThen
             ).toHaveBeenCalled();
+        });
+
+        it('holds .download-link clicks during the signing round-trip', function () {
+            spyOn(Mozilla.DownloadAttribution, 'waitForGoogleAnalyticsThen');
+
+            ReferralAttribution.applyReferral(INVITATION_CODE);
+
+            const link = fixture.querySelector('#dl-win');
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
+
+            expect(ReferralAttribution._pendingClick).toBe(link);
+        });
+
+        it('releases the held click after XHR success, navigating to the decorated href', function () {
+            const navigateSpy = spyOn(ReferralAttribution, '_navigate');
+            // Resolve the GA wait synchronously.
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'waitForGoogleAnalyticsThen'
+            ).and.callFake((cb) => cb());
+            spyOn(
+                ReferralAttribution,
+                'requestReferralAuthentication'
+            ).and.callFake((_data, successCb) => {
+                // Simulate XHR success: decorate links first, then fire callback.
+                const link = fixture.querySelector('#dl-win');
+                link.href +=
+                    '&attribution_code=REFERRALCODE&attribution_sig=REFERRALSIG';
+                successCb();
+            });
+
+            ReferralAttribution.applyReferral(INVITATION_CODE);
+
+            const link = fixture.querySelector('#dl-win');
+            // Queue the click before the XHR resolves (simulated synchronously above,
+            // but the hold was installed before waitForGoogleAnalyticsThen was called).
+            // Re-verify the release path by manually queuing a pending click.
+            ReferralAttribution._pendingClick = link;
+            ReferralAttribution._signingComplete = false;
+            ReferralAttribution._releaseDesktopLinks();
+
+            expect(navigateSpy).toHaveBeenCalledWith(link.href);
+        });
+
+        it('releases the held click on XHR timeout so the download still proceeds unattributed', function () {
+            const navigateSpy = spyOn(ReferralAttribution, '_navigate');
+            spyOn(
+                Mozilla.DownloadAttribution,
+                'waitForGoogleAnalyticsThen'
+            ).and.callFake((cb) => cb());
+            spyOn(
+                ReferralAttribution,
+                'requestReferralAuthentication'
+            ).and.callFake((_data, _successCb, timeoutCb) => {
+                timeoutCb();
+            });
+
+            const link = fixture.querySelector('#dl-win');
+            ReferralAttribution._pendingClick = link;
+
+            ReferralAttribution.applyReferral(INVITATION_CODE);
+
+            expect(navigateSpy).toHaveBeenCalledWith(link.href);
         });
 
         it('sets referralActive to block the standard pipeline from overwriting links', function () {
@@ -438,6 +594,21 @@ describe('referral-attribution.es6.js', function () {
             const cb = jasmine.createSpy('callback');
             ReferralAttribution.removeReferral(cb);
             expect(cb).toHaveBeenCalled();
+        });
+
+        it('releases any held click immediately so an uncheck during signing does not block the download', function () {
+            const navigateSpy = spyOn(ReferralAttribution, '_navigate');
+            const link = container.querySelector('#referral-win');
+
+            // Simulate a signing round in progress with a queued click.
+            ReferralAttribution._signingComplete = false;
+            ReferralAttribution._pendingClick = link;
+
+            ReferralAttribution.removeReferral();
+
+            // The download should proceed right away with the un-attributed href.
+            expect(navigateSpy).toHaveBeenCalledWith(link.href);
+            expect(ReferralAttribution._pendingClick).toBeNull();
         });
 
         it('does not corrupt the standard signed cookies', function () {

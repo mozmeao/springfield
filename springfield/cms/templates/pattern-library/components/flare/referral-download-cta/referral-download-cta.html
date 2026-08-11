@@ -5,7 +5,12 @@
 #}
 
 <div class="pl-frame">
-  <div data-testid="referral-download-cta">
+  {# Default state: label hidden (as rendered before JS runs). #}
+  <div class="fl-referral-get-firefox-page" data-testid="referral-download-cta">
+    {% include 'cms/blocks/referral-download-cta.html' %}
+  </div>
+  {# Initialized state: label visible and checked (as JS leaves it). #}
+  <div class="fl-referral-get-firefox-page" data-testid="referral-download-cta-initialized">
     {% include 'cms/blocks/referral-download-cta.html' %}
   </div>
 </div>

@@ -132,10 +132,19 @@ if (typeof window.Mozilla === 'undefined') {
             // referral attribution). Fall back to the captured storeUrl — which
             // may be a market:// URL set by initMobileDownloadLinks — otherwise.
             var currentHref = button.getAttribute('href') || '';
-            var url =
-                currentHref.indexOf('https://play.google.com') === 0
-                    ? currentHref
-                    : storeUrl;
+            var url;
+            if (currentHref.indexOf('https://play.google.com') === 0) {
+                url = currentHref;
+            } else if (currentHref.indexOf('market://') === 0) {
+                // mozilla-utils.js replaces https://play.google.com/store/apps/
+                // with market:// — reverse that to recover the current href
+                // (including any utm_content added by referral attribution).
+                url =
+                    'https://play.google.com/store/apps/' +
+                    currentHref.slice('market://'.length);
+            } else {
+                url = storeUrl;
+            }
             window.Mozilla.TrackProductDownload.sendEventFromURL(url);
             MobileAttribution._navigate(url);
         });

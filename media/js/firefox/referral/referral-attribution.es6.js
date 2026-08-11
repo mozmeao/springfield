@@ -29,6 +29,9 @@ const ReferralAttribution = {};
 ReferralAttribution.REFERRAL_CAMPAIGN = REFERRAL_CAMPAIGN;
 // Save signed response
 ReferralAttribution._cachedResponseData = null;
+// Desktop click-hold state (reset to false each time applyReferral starts).
+ReferralAttribution._pendingClick = null;
+ReferralAttribution._signingComplete = false;
 
 /**
  * Reads the invitation code from the data attribute rendered by the template.
@@ -283,6 +286,72 @@ ReferralAttribution.requestReferralAuthentication = (
     xhr.send();
 };
 
+/** Navigation seam — separated so tests can spy without navigating. */
+ReferralAttribution._navigate = (href) => {
+    window.location.href = href;
+};
+
+/**
+ * Attaches a capturing click interceptor to all .download-link elements.
+ * Called at the start of every signing round so clicks during the GA wait
+ * and XHR are queued rather than dispatched against an un-attributed link.
+ */
+ReferralAttribution._holdDesktopLinks = () => {
+    ReferralAttribution._signingComplete = false;
+    const links = document.querySelectorAll('.download-link');
+    for (const link of links) {
+        link.addEventListener(
+            'click',
+            ReferralAttribution._interceptClick,
+            true
+        );
+    }
+};
+
+/**
+ * Capturing click handler attached by _holdDesktopLinks.
+ * Prevents default and saves the element; _releaseDesktopLinks navigates
+ * using its then-current href once the signed URL is ready.
+ * @param {Event} e
+ */
+ReferralAttribution._interceptClick = (e) => {
+    if (ReferralAttribution._signingComplete) {
+        return;
+    }
+    e.preventDefault();
+    ReferralAttribution._pendingClick = e.currentTarget;
+};
+
+/**
+ * Releases held download links after signing completes (success or failure).
+ * Idempotent — safe to call from both applyReferral and removeReferral.
+ * If a click was queued, navigates to the link's current href: decorated on
+ * success, undecorated on failure — the download still proceeds either way.
+ */
+ReferralAttribution._releaseDesktopLinks = () => {
+    if (ReferralAttribution._signingComplete) {
+        return;
+    }
+    ReferralAttribution._signingComplete = true;
+    const links = document.querySelectorAll('.download-link');
+    for (const link of links) {
+        link.removeEventListener(
+            'click',
+            ReferralAttribution._interceptClick,
+            true
+        );
+    }
+    if (ReferralAttribution._pendingClick) {
+        const href =
+            ReferralAttribution._pendingClick.href ||
+            ReferralAttribution._pendingClick.getAttribute('href');
+        ReferralAttribution._pendingClick = null;
+        if (href) {
+            ReferralAttribution._navigate(href);
+        }
+    }
+};
+
 /**
  * Builds a full referral attribution payload
  * (utm_source/medium/campaign/content + GA client_id/session_id), signs it
@@ -308,15 +377,31 @@ ReferralAttribution.applyReferral = (
     // the standard analytics pipeline from overwriting them.
     Mozilla.DownloadAttribution.referralActive = true;
 
+    // Hold desktop download links until the signed URL is ready. Any click
+    // that arrives during the GA wait or XHR is queued and replayed against
+    // the decorated href once signing completes.
+    ReferralAttribution._holdDesktopLinks();
+
+    const onSuccess = () => {
+        ReferralAttribution._releaseDesktopLinks();
+        if (typeof successCallback === 'function') {
+            successCallback();
+        }
+    };
+    const onTimeout = () => {
+        ReferralAttribution._releaseDesktopLinks();
+        if (typeof timeoutCallback === 'function') {
+            timeoutCallback();
+        }
+    };
+
     // Same-session re-check — reuse the in-memory signed response.
     if (ReferralAttribution._cachedResponseData) {
         Mozilla.DownloadAttribution.cleanBouncerLinks();
         Mozilla.DownloadAttribution.updateBouncerLinks(
             ReferralAttribution._cachedResponseData
         );
-        if (typeof successCallback === 'function') {
-            successCallback();
-        }
+        onSuccess();
         return;
     }
 
@@ -354,8 +439,8 @@ ReferralAttribution.applyReferral = (
 
         ReferralAttribution.requestReferralAuthentication(
             payload,
-            successCallback,
-            timeoutCallback
+            onSuccess,
+            onTimeout
         );
     });
 };
@@ -370,6 +455,10 @@ ReferralAttribution.removeReferral = (successCallback) => {
     // Release ownership so applyAttributionDataToLinks() below can restore
     // standard first-touch attribution from the cookie if one exists.
     Mozilla.DownloadAttribution.referralActive = false;
+
+    // Unblock any click held during a concurrent signing round — the user
+    // opted out, so navigate immediately with the un-attributed href.
+    ReferralAttribution._releaseDesktopLinks();
 
     // Strip referral attribution_code/sig from download links on this page.
     Mozilla.DownloadAttribution.cleanBouncerLinks();
