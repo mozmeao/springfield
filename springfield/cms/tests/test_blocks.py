@@ -2726,9 +2726,9 @@ def test_showcase_block(index_page, placeholder_images, rf):
                 assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
 
 
-def _render_showcase(media):
+def _render_showcase(media, allow_tabs=False):
     """Render a ShowcaseBlock around the given raw media stream."""
-    block = ShowcaseBlock()
+    block = ShowcaseBlock(allow_tabs=allow_tabs)
     value = block.to_python(
         {
             "settings": {"layout": "default"},
@@ -2753,7 +2753,8 @@ def test_showcase_block_wraps_tabs_media_in_a_div_not_a_figure():
                 "value": {"section_id": "hub", "tabs": [{"tab_name": "First tab", "description": "<p>Tab description</p>"}]},
                 "id": "2026shx0-0000-0000-0000-000000000001",
             }
-        ]
+        ],
+        allow_tabs=True,
     )
 
     assert soup.find("figure") is None

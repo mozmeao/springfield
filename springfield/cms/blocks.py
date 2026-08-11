@@ -1746,16 +1746,22 @@ class TabsBlock(blocks.StructBlock):
         template = "cms/blocks/tabs.html"
 
 
-class MediaBlock(blocks.StreamBlock):
-    image = ImageVariantsBlock(required=False)
-    video = VideoBlock(required=False)
-    animation = AnimationBlock(required=False)
-    qr_code = QRCodeBlock(required=False)
-    tabs = TabsBlock(required=False)
+def MediaBlock(allow_tabs=False, *args, **kwargs):
+    local_blocks = []
+    if allow_tabs:
+        local_blocks.append(("tabs", TabsBlock(required=False)))
 
-    class Meta:
-        label = "Media"
-        template = "cms/blocks/media.html"
+    class _MediaBlock(blocks.StreamBlock):
+        image = ImageVariantsBlock(required=False)
+        video = VideoBlock(required=False)
+        animation = AnimationBlock(required=False)
+        qr_code = QRCodeBlock(required=False)
+
+        class Meta:
+            label = "Media"
+            template = "cms/blocks/media.html"
+
+    return _MediaBlock(local_blocks or None, *args, **kwargs)
 
 
 # Content
@@ -3144,25 +3150,28 @@ class ShowcaseSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ShowcaseBlock(blocks.StructBlock):
-    settings = ShowcaseSettings()
-    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    media = MediaBlock(max_num=1)
-    caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    cta = MixedButtonsBlock(
-        button_types=get_button_types(),
-        min_num=0,
-        max_num=2,
-        required=False,
-        label="Call to Action",
-    )
+def ShowcaseBlock(allow_tabs=False, *args, **kwargs):
+    class _ShowcaseBlock(blocks.StructBlock):
+        settings = ShowcaseSettings()
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        media = MediaBlock(allow_tabs=allow_tabs, max_num=1)
+        caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        cta = MixedButtonsBlock(
+            button_types=get_button_types(),
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Call to Action",
+        )
 
-    class Meta:
-        template = "cms/blocks/sections/showcase.html"
-        label = "Showcase"
-        label_format = "{headline}"
+        class Meta:
+            template = "cms/blocks/sections/showcase.html"
+            label = "Showcase"
+            label_format = "{headline}"
+
+    return _ShowcaseBlock(*args, **kwargs)
 
 
 class CardGalleryCard(blocks.StructBlock):
