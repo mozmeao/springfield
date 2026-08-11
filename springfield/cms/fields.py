@@ -375,10 +375,10 @@ class LocalizedClusterTaggableManager(ClusterTaggableManager):
     """A ClusterTaggableManager whose form field resolves tags within one locale.
 
     Wagtail's default form field for a TaggableManager is name-based and locale-blind; see
-    springfield.cms.forms.BlogTagField for what replaces it.
+    springfield.cms.forms.LocaleTagField for what replaces it.
     """
 
     def formfield(self, form_class=None, **kwargs):
-        from springfield.cms.forms import BlogTagField  # circular import
+        from springfield.cms.forms import LocaleTagField  # circular import
 
-        return super().formfield(form_class=BlogTagField, **kwargs)
+        return super().formfield(form_class=LocaleTagField, **kwargs)
