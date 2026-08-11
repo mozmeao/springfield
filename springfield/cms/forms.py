@@ -48,13 +48,13 @@ class LocaleScopedAdminTagWidget(AdminTagWidget):
         return context
 
 
-class BlogTagField(TagField):
-    """A Tag field that resolves typed names to default-locale BlogTag instances.
+class LocaleTagField(TagField):
+    """A <TagModel> field that resolves typed names to default-locale <TagModel> instances.
 
     Wagtail's TagField hands taggit a list of tag *names*, and taggit resolves each name to
-    a row. BlogTag names are unique per locale rather than globally, so that lookup can
-    land on another locale's row. This field resolves the names itself, scoped to published
-    default-locale tags, and hands taggit instances instead.
+    a row. In order to have Tag names be unique per locale rather than globally, this field
+    resolves the names itself, scoped to published default-locale tags, and hands taggit
+    instances instead.
     """
 
     widget = LocaleScopedAdminTagWidget
@@ -70,6 +70,7 @@ class BlogTagField(TagField):
         unknown = sorted(set(names) - {tag.name for tag in tags})
         if unknown:
             raise ValidationError(
-                _("No published tag in the default locale matches: %(names)s. Create it as a Blog Tag snippet first.") % {"names": ", ".join(unknown)}
+                _("No published tag in the default locale matches: %(names)s. Create it as a %(tag_model)s snippet first.")
+                % {"names": ", ".join(unknown), "tag_model": self.tag_model._meta.verbose_name}
             )
         return tags
