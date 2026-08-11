@@ -348,13 +348,20 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     gap: var(--token-spacing-sm);
 }
 
+.fl-buttons.is-stacked.is-center {
+    align-items: center;
+}
+
+.fl-buttons.is-stacked.is-end {
+    align-items: end;
+}
+
 .fl-buttons.is-stacked .fl-button {
     inline-size: 100%;
 }
 
 .fl-buttons.is-stacked.auto-width-buttons .fl-button {
     inline-size: auto;
-    margin-inline-end: auto;
 }
 
 .fl-buttons > *:not(.fl-set-as-default-dialog, .fl-qr-code-modal-wrapper) {

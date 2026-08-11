@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:image-caption>
+<include:image-caption layout="{{ value.layout }}">
   <content:image>{% include_block value.image %}</content:image>
-  <content:caption>{{ value.caption|richtext|remove_p_tag }}</content:caption>
+  {% if value.caption %}
+    <content:caption>{{ value.caption|richtext|remove_p_tag }}</content:caption>
+  {% endif %}
 </include:image-caption>
