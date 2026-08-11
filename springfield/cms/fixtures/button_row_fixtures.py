@@ -44,6 +44,7 @@ def get_button_row_blocks() -> list[dict]:
                     "alignment": "",
                     "buttons": [dict(buttons["primary"], id="btnrow01-0000-0000-0000-000000000002")],
                     "help_text": "",
+                    "auto_width_buttons": False,
                 },
             },
         ),
@@ -62,6 +63,7 @@ def get_button_row_blocks() -> list[dict]:
                         dict(buttons["secondary"], id="btnrow02-0000-0000-0000-000000000003"),
                     ],
                     "help_text": "",
+                    "auto_width_buttons": False,
                 },
             },
         ),
@@ -81,6 +83,7 @@ def get_button_row_blocks() -> list[dict]:
                         dict(buttons["link"], id="btnrow03-0000-0000-0000-000000000004"),
                     ],
                     "help_text": "",
+                    "auto_width_buttons": False,
                 },
             },
         ),
@@ -96,6 +99,27 @@ def get_button_row_blocks() -> list[dict]:
                     "alignment": "",
                     "buttons": [dict(buttons["primary"], id="btnrow04-0000-0000-0000-000000000002")],
                     "help_text": '<p data-block-key="btnrow04">Optional help text can appear below the buttons.</p>',
+                    "auto_width_buttons": False,
+                },
+            },
+        ),
+        _section(
+            heading_text="Stacked, Auto-width Buttons",
+            subheading_text="When stacked, auto-width buttons shrink to fit their content instead of stretching full width.",
+            section_id="btnrow05-0000-0000-0000-000000000000",
+            button_row={
+                "type": "button_row",
+                "id": "btnrow05-0000-0000-0000-000000000001",
+                "value": {
+                    "orientation": "stacked",
+                    "spacing": "",
+                    "alignment": "",
+                    "buttons": [
+                        dict(buttons["primary"], id="btnrow05-0000-0000-0000-000000000002"),
+                        dict(buttons["secondary"], id="btnrow05-0000-0000-0000-000000000003"),
+                    ],
+                    "help_text": "",
+                    "auto_width_buttons": True,
                 },
             },
         ),
@@ -122,7 +146,9 @@ def get_button_row_test_page() -> FreeFormPage2026:
         "<p>The Button Row block groups 1–3 buttons in a horizontal row. "
         "Use <b>spacing</b> to add vertical margin above the row (small or large). "
         "Use <b>alignment</b> to left-align (start), right-align (end), or center (default) the buttons. "
-        "An optional <b>help text</b> field renders as a short note below the buttons.</p>"
+        "An optional <b>help text</b> field renders as a short note below the buttons. "
+        "When <b>orientation</b> is stacked, enable <b>auto-width buttons</b> to shrink buttons to fit "
+        "their content instead of stretching full width.</p>"
     )
     page.save_revision().publish()
     return page

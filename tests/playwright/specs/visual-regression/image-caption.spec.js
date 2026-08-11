@@ -22,7 +22,22 @@ test.describe(
         });
 
         test('default', async ({ page }) => {
-            await expectComponentScreenshot(page, 'image-caption');
+            await expectComponentScreenshot(page, 'image-caption-default');
+        });
+
+        test('expanded', async ({ page }) => {
+            await expectComponentScreenshot(page, 'image-caption-expanded');
+        });
+
+        test('full', async ({ page }) => {
+            await expectComponentScreenshot(page, 'image-caption-full');
+        });
+
+        test('default without caption', async ({ page }) => {
+            await expectComponentScreenshot(
+                page,
+                'image-caption-default-without-caption'
+            );
         });
 
         test.describe('dark mode', () => {
@@ -31,8 +46,8 @@ test.describe(
             test('default', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'image-caption',
-                    'image-caption-dark'
+                    'image-caption-default',
+                    'image-caption-default-dark'
                 );
             });
         });

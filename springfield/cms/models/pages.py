@@ -1055,7 +1055,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
-        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
@@ -1073,6 +1073,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 group="Banners",
             ),
         ),
+        ("image_caption", ImageCaptionBlock(group="Media")),
         (
             "rich_text",
             RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
