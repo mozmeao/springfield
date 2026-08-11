@@ -4,13 +4,18 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div data-testid="image-caption">
-  <include:image-caption>
-    <content:image>
-      <div class="image-variants-display">
-        <img src="{{ image.url }}" alt="{{ image.alt }}" />
-      </div>
-    </content:image>
-    <content:caption>{{ caption }}</content:caption>
-  </include:image-caption>
-</div>
+{% for variant in variants %}
+  <div data-testid="image-caption-{{ variant.testid }}" style="margin-bottom: 2em;">
+    <h2>{{ variant.title }}</h2>
+    <include:image-caption layout="{{ variant.layout }}">
+      <content:image>
+        <div class="image-variants-display">
+          <img src="{{ variant.image.url }}" alt="{{ variant.image.alt }}" />
+        </div>
+      </content:image>
+      {% if variant.caption %}
+        <content:caption>{{ variant.caption }}</content:caption>
+      {% endif %}
+    </include:image-caption>
+  </div>
+{% endfor %}

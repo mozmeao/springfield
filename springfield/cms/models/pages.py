@@ -1056,7 +1056,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
-        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
@@ -1074,6 +1074,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 group="Banners",
             ),
         ),
+        ("image_caption", ImageCaptionBlock(group="Media")),
         (
             "rich_text",
             RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
@@ -2702,25 +2703,27 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         context = super().get_context(request, *args, **kwargs)
 
+        # The defaults stand for every case where there is no usable `ref_key`:
+        # no invite link to offer and no progress to report.
         context["invite_url"] = ""
-        if referral_id := request.GET.get("ref_key"):
-            try:
-                invite_code = crypto.referral_id_to_invite_code(referral_id)
-                context["invite_url"] = crypto.invite_url_for_code(invite_code)
-            except ValueError:
-                # Treated like a missing `ref_key` rather than raising. Only a
-                # correctly sized one is reported, because this is a public page
-                # and anything can land in the query string. At the right length
-                # it plausibly came from the referral flow, so a spike is worth
-                # seeing. The value itself is masked out of the event by
-                # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
-                if len(referral_id) == REFERRAL_ID_LENGTH:
-                    with new_scope() as scope:
-                        scope.fingerprint = ["referral-hub-invalid-ref-key"]
-                        capture_message(
-                            "ReferralHubPage received a ref_key that is not a valid referral ID",
-                            level="warning",
-                        )
+        context["install_count"] = 0
+
+        referral_id = request.GET.get("ref_key", "")
+        try:
+            # Validates as well as encrypts -- `referral_id_to_invite_code`
+            # runs the same `validate_referral_id` that `serve()` does, so a
+            # missing or malformed value lands in the `except` below.
+            invite_code = crypto.referral_id_to_invite_code(referral_id)
+            context["invite_url"] = crypto.invite_url_for_code(invite_code)
+        except ValueError:
+            # Left at the defaults rather than raising, and deliberately not
+            # reported. `serve()` is what rejects and reports a public request
+            # without a usable `ref_key`, so nothing from the referral flow can
+            # reach this point. What can reach it are the callers that skip
+            # `serve()` -- CMS preview, and Wagtail's
+            # `serve_password_required_response`, which calls `get_context`
+            # directly -- and a bad value from those is not a signal.
+            return context
 
         context["install_count"] = self._get_install_count(referral_id)
 
@@ -2729,10 +2732,10 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     def _get_install_count(self, referral_id: str) -> int:
         """Installs credited to this ref_key, or 0 if it cannot be determined.
 
-        Returns 0 rather than raising for every failure mode -- no ref_key, an
-        unknown ref_key, or the referral table being unavailable -- because the
-        impact dashboard is one optional part of this page and must not be able
-        to fail the whole hub render.
+        Returns 0 rather than raising for every failure mode -- an unknown
+        ref_key, or the referral table being unavailable -- because the impact
+        dashboard is one optional part of this page and must not be able to fail
+        the whole hub render.
 
         Note this collapses "we don't know" and "you genuinely have 0 installs"
         into the same value. If the design ever needs to distinguish them (e.g.
@@ -2757,16 +2760,31 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         The hub is meaningless without a referral ID -- there is no invite link to
         copy and no progress to show -- so a URL missing that part is treated as
-        not found rather than served empty. Wagtail's serve_preview builds its own
-        TemplateResponse instead of calling serve(), so CMS preview is unaffected
-        by this and still renders with an empty invite URL.
+        not found rather than served empty. This is the only place that rejects,
+        and the only place a bad `ref_key` is reported, because it is the only
+        one every public request passes through. `serve_preview()` renders the
+        page without coming through here, so CMS preview is unaffected and still
+        shows an empty invite URL.
         """
+        ref_key = request.GET.get("ref_key", "")
         try:
             # The referral ID arrives already-canonical from Firefox, so this is
             # deliberately strict: exactly REFERRAL_ID_LENGTH characters of
             # uppercase Crockford base32, with no case- or glyph-folding.
-            validate_referral_id(request.GET.get("ref_key"))
+            validate_referral_id(ref_key)
         except ValueError:
+            # Only a correctly sized `ref_key` is reported, because this is a
+            # public page and anything can land in the query string. At the right
+            # length it plausibly came from the referral flow, so a spike is worth
+            # seeing. The value itself is masked out of the event by
+            # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
+            if len(ref_key) == REFERRAL_ID_LENGTH:
+                with new_scope() as scope:
+                    scope.fingerprint = ["referral-hub-invalid-ref-key"]
+                    capture_message(
+                        "ReferralHubPage received a ref_key that is not a valid referral ID",
+                        level="warning",
+                    )
             # Without this, CMSLocaleFallbackMiddleware would see the 404, find
             # this very page live at the same path, and redirect to it forever.
             mark_locale_fallback_exempt(request)
