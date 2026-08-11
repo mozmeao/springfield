@@ -25,6 +25,12 @@
     text-align: start;
 }
 
+.fl-dropdown-trigger-inner {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
 /* No-JS: hide trigger, panel is always visible and static */
 .no-js .fl-dropdown-trigger {
     display: none;
@@ -70,6 +76,7 @@
     text-decoration: none;
 }
 
-.fl-dropdown-panel a:hover {
+.fl-dropdown-panel a:hover,
+.fl-dropdown-trigger:hover {
     background: var(--fl-subtle-border-color);
 }
