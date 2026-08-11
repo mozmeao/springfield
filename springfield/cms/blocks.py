@@ -97,6 +97,17 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+# Browsers a tab can be auto-selected for. There is no Firefox option: the
+# comparison tables all pit Firefox against something else, so Firefox users are
+# sent to the Chrome tab instead - see flare-browser-tabs.es6.js.
+DETECTED_BROWSER_CHOICES = [
+    ("", "No auto-selection"),
+    ("chrome", "Chrome"),
+    ("edge", "Edge"),
+    ("safari", "Safari"),
+    ("opera", "Opera"),
+    ("brave", "Brave"),
+]
 GEO_CHOICES = [
     ("US", "United States"),
     ("GB", "United Kingdom"),
@@ -1679,6 +1690,14 @@ class TabComparisonTableBlock(blocks.StreamBlock):
 class TabBlock(blocks.StructBlock):
     tab_name = blocks.CharBlock(label="Tab name")
     icon = IconChoiceBlock(required=False, label="Tab icon", help_text="Optional icon shown before the tab name in the tab list.")
+    detected_browser = blocks.ChoiceBlock(
+        choices=DETECTED_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Detected browser",
+        help_text="Auto-select this tab for visitors using this browser. Leave empty to never auto-select it. "
+        "Visitors on Firefox, or on a browser no tab claims, get the Chrome tab.",
+    )
     heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     image = ImageChooserBlock(required=False)
     description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
