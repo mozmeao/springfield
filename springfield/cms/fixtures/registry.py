@@ -24,7 +24,6 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
-from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
@@ -98,7 +97,6 @@ PAGE_FIXTURES = [
     get_conditional_display_test_page,
     get_buttons_test_page,
     get_button_row_test_page,
-    get_comparison_table_test_page,
     get_carousel_test_page,
     get_sliding_carousel_test_page,
     get_featured_image_section_test_page,

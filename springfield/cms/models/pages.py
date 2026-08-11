@@ -56,7 +56,6 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     CodeBlock,
-    ComparisonTableBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -84,6 +83,7 @@ from springfield.cms.blocks import (
     SelectFieldBlock,
     ShowcaseBlock,
     SlidingCarouselBlock,
+    TabsBlock,
     TextAreaFieldBlock,
     TextFieldBlock,
     TopicListBlock,
@@ -1061,7 +1061,6 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
-        ("comparison_table", ComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -2478,9 +2477,11 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
+            ("intro", IntroBlock()),
             ("showcase", ShowcaseBlock()),
+            ("tabs", TabsBlock()),
         ],
-        max_num=1,
+        max_num=2,
         null=True,
         blank=True,
         use_json_field=True,
@@ -2620,6 +2621,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
         [
             ("intro", KitIntroBlock()),
             ("showcase", ShowcaseBlock()),
+            ("tabs", TabsBlock()),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
         ],
         null=True,

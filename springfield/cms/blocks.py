@@ -1248,15 +1248,6 @@ class ComparisonTableRowBlock(blocks.StructBlock):
 class ComparisonTableBlock(blocks.StructBlock):
     """Comparison table block, with a highlightable column."""
 
-    variant = blocks.ChoiceBlock(
-        (
-            ("default", "Default"),
-            ("browser-comparison", "Browser comparison"),
-        ),
-        default="default",
-        help_text="Visual variations of the table. Browser comparison uses its own styles.",
-        inline_form=True,
-    )
     highlighted_column = blocks.ChoiceBlock(
         (
             (1, "Column 1"),
@@ -1285,7 +1276,7 @@ class ComparisonTableBlock(blocks.StructBlock):
         label = "Comparison Table"
         form_layout = blocks.BlockGroup(
             children=["header_row", "content_rows"],
-            settings=["variant", "highlighted_column", "mobile_behavior"],
+            settings=["highlighted_column", "mobile_behavior"],
         )
 
 
@@ -1703,7 +1694,7 @@ class TabsBlock(blocks.StructBlock):
 
     class Meta:
         label = "Tabs"
-        label_format = "Tabs"
+        label_format = "Tabs: {section_id}"
         template = "cms/blocks/tabs.html"
 
 
@@ -1712,7 +1703,6 @@ class MediaBlock(blocks.StreamBlock):
     video = VideoBlock(required=False)
     animation = AnimationBlock(required=False)
     qr_code = QRCodeBlock(required=False)
-    tabs = TabsBlock(required=False)
 
     class Meta:
         label = "Media"
@@ -2783,7 +2773,6 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
-                ("comparison_table", ComparisonTableBlock()),
             ],
             required=False,
         )

@@ -91,7 +91,6 @@ from springfield.cms.fixtures.cards_fixtures import (
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
 from springfield.cms.fixtures.comparison_table_fixtures import (
     cell as comparison_cell,
-    get_comparison_table_test_page,
     get_comparison_table_variants,
     image_header_cell,
     result_cell,
@@ -2739,30 +2738,6 @@ def _render_showcase(media):
     return BeautifulSoup(block.render(value, context={}), "html.parser")
 
 
-def test_showcase_block_wraps_tabs_media_in_a_div_not_a_figure():
-    """Tabs are controls the visitor operates, so <figure> is the wrong element.
-
-    The classes have to stay the same either way -- the layout CSS hangs off
-    .fl-showcase-media, not off the tag name.
-    """
-    soup = _render_showcase(
-        [
-            {
-                "type": "tabs",
-                "value": {"section_id": "hub", "tabs": [{"tab_name": "First tab", "description": "<p>Tab description</p>"}]},
-                "id": "2026shx0-0000-0000-0000-000000000001",
-            }
-        ]
-    )
-
-    assert soup.find("figure") is None
-    assert soup.find("figcaption") is None
-
-    media = soup.find("div", class_="fl-showcase-media")
-    assert media and media.find("div", class_="fl-media-tabs")
-    assert media.find("div", class_="fl-showcase-caption")
-
-
 def test_showcase_block_keeps_figure_for_non_interactive_media(placeholder_images):
     soup = _render_showcase(get_showcase_variants()[0]["value"]["media"])
 
@@ -3717,16 +3692,10 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
     value = block_data["value"]
     mobile_behavior = value["mobile_behavior"]
     highlighted_column = value.get("highlighted_column") or None
-    # Tables saved before the variant setting existed have no such key.
-    variant = value.get("variant", "default")
 
     wrapper_classes = wrapper_el.get("class", [])
     assert mobile_behavior in wrapper_classes
-    # The default variant adds no modifier class, so it keeps the base palette.
-    if variant == "default":
-        assert "browser-comparison" not in wrapper_classes
-    else:
-        assert variant in wrapper_classes
+    assert "browser-comparison" in wrapper_classes
 
     header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
     header_cell_els = wrapper_el.find("thead").find_all(["th", "td"])
@@ -3773,32 +3742,20 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
                 assert cell_el.get("colspan") == str(cell_data["column_span"])
 
 
-def test_comparison_table_variants(index_page, rf):
-    page = get_comparison_table_test_page()
+def test_comparison_table_variants(placeholder_images):
     variants = get_comparison_table_variants()
 
-    request = rf.get(page.get_full_url())
-    response = page.serve(request)
-    assert response.status_code == 200
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    upper = soup.find("div", class_="fl-split-page-upper")
-    lower = soup.find("div", class_="fl-split-page-lower")
-    assert upper and lower
-
-    for region in (upper, lower):
-        tables = region.find_all("div", class_="fl-comparison-table-wrapper")
-        assert len(tables) == len(variants)
-        for index, variant in enumerate(variants):
-            table = tables[index]
-            assert_comparison_table(table, variant)
+    for variant in variants:
+        block = ComparisonTableBlock()
+        soup = BeautifulSoup(block.render(block.to_python(variant["value"])), "html.parser")
+        table = soup.find("div", class_="fl-comparison-table-wrapper")
+        assert_comparison_table(table, variant)
 
 
-def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None, variant="default"):
+def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None):
     block = ComparisonTableBlock()
     value = block.to_python(
         {
-            "variant": variant,
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
             "header_row": [comparison_row(cells=header_cells, row_id="hr")],
@@ -3881,43 +3838,14 @@ def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
 
 
-def _comparison_variant_wrapper_classes(variant):
+def test_comparison_table_always_applies_browser_comparison_styles():
+    """browser-comparison is hard-coded in the template, not a CMS setting."""
     soup = _render_comparison_table(
         header_cells=[comparison_cell(""), comparison_cell("Firefox")],
         content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), comparison_cell("Yes")], row_id="r0")],
-        variant=variant,
     )
-    return soup.find("div", class_="fl-comparison-table-wrapper").get("class", [])
-
-
-def test_comparison_table_browser_variant_adds_modifier_class():
-    """The variant class is what swaps the highlight and border colors in CSS."""
-    assert "browser-comparison" in _comparison_variant_wrapper_classes("browser-comparison")
-
-
-def test_comparison_table_default_variant_adds_no_modifier_class():
-    classes = _comparison_variant_wrapper_classes("default")
-
-    assert "browser-comparison" not in classes
-    assert "default" not in classes
-
-
-def test_comparison_table_renders_when_variant_key_absent_from_stored_json():
-    """Tables saved before the variant setting existed have no such key at all."""
-    block = ComparisonTableBlock()
-    value = block.to_python(
-        {
-            "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[comparison_cell("24 hrs/day")], row_id="r0")],
-        }
-    )
-
-    assert value["variant"] == "default"
-
-    wrapper = BeautifulSoup(block.render(value), "html.parser").find("div", class_="fl-comparison-table-wrapper")
-
-    assert "browser-comparison" not in wrapper.get("class", [])
+    wrapper_classes = soup.find("div", class_="fl-comparison-table-wrapper").get("class", [])
+    assert "browser-comparison" in wrapper_classes
 
 
 def test_comparison_table_renders_cells_saved_before_optional_content_existed():
