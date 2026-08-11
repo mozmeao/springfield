@@ -48,7 +48,7 @@ from bs4 import BeautifulSoup, Comment, NavigableString, Tag as HtmlTag
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
-from springfield.cms.models import Author, BlogArticlePage, BlogArticlePageAuthor, BlogIndexPage, SpringfieldImage, Tag
+from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, SpringfieldImage
 
 # Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
 # shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.
@@ -671,7 +671,7 @@ def parse_content(raw_html):
 class Command(BaseCommand):
     help = (
         "Imports blog posts from the flat WordPress export XML (mozilla-blog-posts.xml) into a "
-        "BlogIndexPage, creating BlogArticlePage children plus any Tag/Author snippets and images "
+        "BlogIndexPage, creating BlogArticlePage children plus any BlogTopic/BlogTag/BlogAuthor snippets and images "
         "they reference. Writes a CSV mapping each post's old blog.mozilla.org URL to its new URL "
         "on this site, to hand to the blog.mozilla.org team so they can set up redirects on their end, "
         "and a second CSV listing every content warning against the post it came from."
@@ -821,12 +821,12 @@ class Command(BaseCommand):
         if self.dry_run:
             return None
 
-        # topic is a single required Tag; the first (most specific) category becomes the topic
-        # and the rest join the post's tags.
-        topic = self.get_or_create_snippet(Tag, categories[0], locale)
+        # topic is a single required BlogTopic; the first (most specific) category becomes the
+        # topic and the rest join the post's tags, which are BlogTags.
+        topic = self.get_or_create_snippet(BlogTopic, categories[0], locale)
         exported_tags = [name for name in element_text(post, "Tags").split("|") if name.strip() and name.strip().lower() not in IGNORED_TAG_NAMES]
-        tags = [self.get_or_create_snippet(Tag, name, locale) for name in exported_tags + categories[1:]]
-        authors = self.get_or_create_authors(post)
+        tags = [self.get_or_create_snippet(BlogTag, name, locale) for name in exported_tags + categories[1:]]
+        authors = self.get_or_create_authors(post, locale)
         # ImageURL lists every image attached to the post, pipe-separated, with ImageTitle and the
         # other Image* fields as parallel lists. The hero image is the single URL in ImageFeatured,
         # which is the first of those, so its title is the first ImageTitle. A post whose
@@ -858,7 +858,7 @@ class Command(BaseCommand):
             first_published_at=self.parse_wp_date(element_text(post, "Date")),
         )
         # sort_order is set here rather than left to modelcluster: export order is byline order.
-        page.article_authors = [BlogArticlePageAuthor(author=author, sort_order=order) for order, author in enumerate(authors)]
+        page.article_authors = [BlogArticleAuthor(author=author, sort_order=order) for order, author in enumerate(authors)]
         index_page.add_child(instance=page)
         if tags:
             page.tags.set(tags)
@@ -971,21 +971,23 @@ class Command(BaseCommand):
             known[slugify(name)] = (name, email)
         return known
 
-    def get_or_create_author(self, name, email=""):
-        """Fetch or create the Author for `name`, keyed on the slug of that name.
+    def get_or_create_author(self, name, email="", *, locale):
+        """Fetch or create the BlogAuthor for `name`, keyed on the slug of that name.
 
         Keying on the slug is what lets a byline like `kim-bryant` and an owner record naming
-        "Kim Bryant" land on one snippet, whichever the import meets first.
+        "Kim Bryant" land on one snippet, whichever the import meets first. BlogAuthor is
+        translatable and unique per (slug, locale), so `locale` is required rather than
+        defaulted - an author is only ever created in the locale being imported into.
         """
         name = name.strip()
         if not name:
             return None
 
-        author, _ = Author.objects.get_or_create(slug=slugify(name), defaults={"name": name, "email": email})
+        author, _ = BlogAuthor.objects.get_or_create(slug=slugify(name), locale=locale, defaults={"name": name, "email": email})
         return author
 
-    def get_or_create_authors(self, post):
-        """Resolve the post's byline into Authors, in the order the export lists them.
+    def get_or_create_authors(self, post, locale):
+        """Resolve the post's byline into BlogAuthors, in the order the export lists them.
 
         A byline no owner record names is someone the export describes nowhere: all it carries is
         a slug or an address, so that raw string becomes the snippet's name and a warning asks for
@@ -995,7 +997,7 @@ class Command(BaseCommand):
         if not bylines:
             email = element_text(post, "AuthorUsername").strip()
             name = f"{element_text(post, 'AuthorFirstName')} {element_text(post, 'AuthorLastName')}".strip() or email
-            owner = self.get_or_create_author(name, email)
+            owner = self.get_or_create_author(name, email, locale=locale)
             return [owner] if owner else []
 
         authors = []
@@ -1005,7 +1007,7 @@ class Command(BaseCommand):
             if entry is None:
                 unnamed.append(byline)
                 entry = (byline, "")
-            author = self.get_or_create_author(*entry)
+            author = self.get_or_create_author(*entry, locale=locale)
             if author:
                 authors.append(author)
 

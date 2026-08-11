@@ -31,7 +31,7 @@ from springfield.cms.management.commands.import_wordpress_blog_posts import (
     parse_content,
 )
 from springfield.cms.models import BlogArticlePage, SpringfieldImage
-from springfield.cms.models.snippets import Author, Tag
+from springfield.cms.models.snippets import BlogAuthor, BlogTag, BlogTopic
 from springfield.cms.tests.factories import LocaleFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -1066,15 +1066,23 @@ def test_get_or_create_image_unprocessable_file_warns_instead_of_raising(command
 
 
 def test_get_or_create_snippet_blank_name_returns_none(command):
-    assert command.get_or_create_snippet(Tag, "   ", Locale.get_default()) is None
+    assert command.get_or_create_snippet(BlogTopic, "   ", Locale.get_default()) is None
 
 
 def test_get_or_create_snippet_reuses_existing_by_slug(command):
     locale = Locale.get_default()
-    first = command.get_or_create_snippet(Tag, "Privacy", locale)
-    second = command.get_or_create_snippet(Tag, "Privacy", locale)
+    first = command.get_or_create_snippet(BlogTopic, "Privacy", locale)
+    second = command.get_or_create_snippet(BlogTopic, "Privacy", locale)
     assert first.pk == second.pk
-    assert Tag.objects.count() == 1
+    assert BlogTopic.objects.count() == 1
+
+
+def test_get_or_create_snippet_reuses_existing_blog_tag_by_slug(command):
+    locale = Locale.get_default()
+    first = command.get_or_create_snippet(BlogTag, "Privacy", locale)
+    second = command.get_or_create_snippet(BlogTag, "Privacy", locale)
+    assert first.pk == second.pk
+    assert BlogTag.objects.count() == 1
 
 
 def test_known_authors_keys_owners_by_email_and_name_slug(command):
@@ -1097,25 +1105,25 @@ def test_known_authors_skips_owners_with_no_name(command):
 
 def test_get_or_create_authors_falls_back_to_the_owner_when_there_is_no_byline(command):
     post = parse_post(post_xml(authors="", author_first="Nick", author_last="Nguyen", author_username="nnguyen@mozilla.com"))
-    authors = command.get_or_create_authors(post)
+    authors = command.get_or_create_authors(post, Locale.get_default())
 
     assert [(author.name, author.email) for author in authors] == [("Nick Nguyen", "nnguyen@mozilla.com")]
 
 
 def test_get_or_create_authors_falls_back_to_the_username_when_the_owner_has_no_name(command):
     post = parse_post(post_xml(authors="", author_first="", author_last="", author_username="someone@example.com"))
-    assert [author.name for author in command.get_or_create_authors(post)] == ["someone@example.com"]
+    assert [author.name for author in command.get_or_create_authors(post, Locale.get_default())] == ["someone@example.com"]
 
 
 def test_get_or_create_authors_returns_nothing_when_the_post_names_no_one(command):
     post = parse_post(post_xml(authors="", author_first="", author_last="", author_username=""))
-    assert command.get_or_create_authors(post) == []
+    assert command.get_or_create_authors(post, Locale.get_default()) == []
 
 
 def test_get_or_create_authors_resolves_a_byline_through_the_known_authors(command):
     command.known_authors = {"cnovak@mozilla.com": ("Chris Novak", "cnovak@mozilla.com")}
     post = parse_post(post_xml(authors="cnovak@mozilla.com", author_first="Sarah", author_last="Devaney"))
-    authors = command.get_or_create_authors(post)
+    authors = command.get_or_create_authors(post, Locale.get_default())
 
     assert [(author.name, author.email, author.slug) for author in authors] == [("Chris Novak", "cnovak@mozilla.com", "chris-novak")]
 
@@ -1126,16 +1134,17 @@ def test_get_or_create_authors_keeps_export_order(command):
         "paul-adenot": ("Paul Adenot", "padenot@mozilla.com"),
     }
     post = parse_post(post_xml(authors="tziade@mozilla.com|paul-adenot"))
-    assert [author.name for author in command.get_or_create_authors(post)] == ["Tarek Ziade", "Paul Adenot"]
+    assert [author.name for author in command.get_or_create_authors(post, Locale.get_default())] == ["Tarek Ziade", "Paul Adenot"]
 
 
 def test_get_or_create_authors_reuses_one_snippet_per_person(command):
     command.known_authors = {"kim-bryant": ("Kim Bryant", "kbryant@mozilla.com")}
-    first = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant")))
-    second = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant", slug="another-post")))
+    locale = Locale.get_default()
+    first = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant")), locale)
+    second = command.get_or_create_authors(parse_post(post_xml(authors="kim-bryant", slug="another-post")), locale)
 
     assert first[0].pk == second[0].pk
-    assert Author.objects.count() == 1
+    assert BlogAuthor.objects.count() == 1
 
 
 # -------------------------------------------------------------------------
@@ -1230,7 +1239,7 @@ def test_skip_already_imported_slug(tmp_path, index_page):
 @responses.activate
 def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path, index_page):
     """A post whose image download raises an unexpected error rolls back cleanly
-    (no orphaned Tag/Author/page) without preventing later posts from importing."""
+    (no orphaned BlogTopic/BlogTag/BlogAuthor/page) without preventing later posts from importing."""
 
     # A ValueError is not a RequestException, so it is not retried and not swallowed.
     mock_failed_downloads("https://example.com/broken.jpg", error=ValueError("boom"))
@@ -1245,8 +1254,8 @@ def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path
     assert not BlogArticlePage.objects.filter(slug="post-one").exists()
     assert BlogArticlePage.objects.filter(slug="post-two").exists()
     # The failed post's topic snippet must not have been left behind by the rolled-back transaction.
-    assert not Tag.objects.filter(slug="broken-topic").exists()
-    assert Tag.objects.filter(slug="firefox").exists()
+    assert not BlogTopic.objects.filter(slug="broken-topic").exists()
+    assert BlogTopic.objects.filter(slug="firefox").exists()
     assert "failed to import 'post-one'" in run.stderr
     assert "Done. 1 imported, 0 skipped, 1 failed." in run.stdout
 
@@ -1256,8 +1265,9 @@ def test_dry_run_creates_nothing(tmp_path, index_page):
     run = run_import(tmp_path, post_xml(), dry_run=True)
 
     assert BlogArticlePage.objects.count() == 0
-    assert Tag.objects.count() == 0
-    assert Author.objects.count() == 0
+    assert BlogTopic.objects.count() == 0
+    assert BlogTag.objects.count() == 0
+    assert BlogAuthor.objects.count() == 0
     assert not run.url_map.exists()
     # No responses are registered, so any request would raise rather than be recorded.
     assert len(responses.calls) == 0, "dry-run must not hit the network"
@@ -1348,7 +1358,7 @@ def test_wordpress_bookkeeping_tags_are_not_imported(tmp_path, index_page):
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert [tag.name for tag in page.tags.all()] == ["Privacy"]
-    assert not Tag.objects.filter(slug="export").exists(), "the marker must not even reach the Tag snippets"
+    assert not BlogTag.objects.filter(slug="export").exists(), "the marker must not even reach the BlogTag snippets"
 
 
 @responses.activate
