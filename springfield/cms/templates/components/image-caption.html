@@ -4,8 +4,12 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<figure class="fl-image-caption">
-  {{ contents.image }}
+{# props layout="default" #}
+
+<figure class="fl-image-caption fl-image-caption-{{ layout }}">
+  <div class="fl-image-caption-image">
+    {{ contents.image }}
+  </div>
   <figcaption class="fl-image-caption-text fl-body fl-body-sm">
     {{ contents.caption }}
   </figcaption>

@@ -8,7 +8,11 @@
 
 <div class="fl-dropdown" id="{{ id }}"{% if testid %} data-testid="{{ testid }}"{% endif %}>
   <button type="button" class="fl-dropdown-trigger" aria-controls="{{ id }}-panel">
+    <span class="fl-dropdown-trigger-inner">
     {{ label }}
+
+    <include:icon icon_name="chevron-down" />
+    </span>
   </button>
   <div id="{{ id }}-panel" class="fl-dropdown-panel">
     {{ contents }}
