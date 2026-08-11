@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-media-tabs">
+  {% if value.tabs %}
+    {% set section_id = value.section_id %}
+    <div class="fl-tabs">
+      <div class="fl-tabs-nav" id="fl-tablist-{{ section_id }}" aria-label="tabs-{{ section_id }}" role="tablist">
+        {% for tab in value.tabs %}
+          <button type="button" class="fl-tabs-tab" role="tab" id="fl-tab-{{ section_id }}-{{ loop.index }}" aria-controls="fl-tab-panel-{{ section_id }}-{{ loop.index }}">
+            <span class="fl-tabs-tab-label">{{ tab.tab_name }}</span>
+            {% if tab.icon_name %}
+              <include:icon
+                icon_name="{{ tab.icon_name }}"
+                hidden=true
+                extra_class="fl-tabs-tab-icon"
+              />
+            {% endif %}
+          </button>
+        {% endfor %}
+      </div>
+      <div class="fl-tabs-panels">
+        {% for tab in value.tabs %}
+          {% set tab_index = loop.index %}
+          {% include_block tab with context %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>

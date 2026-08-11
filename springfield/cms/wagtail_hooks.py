@@ -28,16 +28,19 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.chooser import ChooseResultsView, ChooseView, SnippetChooserViewSet
 from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.admin_views import ContentSearchView
+from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
-    Author,
     BannerSnippet,
+    BlogAuthor,
+    BlogTag,
+    BlogTopic,
     NavigationSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
@@ -52,10 +55,11 @@ from springfield.cms.models import (
 
 
 @hooks.register("register_admin_urls")
-def register_content_search_url():
+def register_cms_admin_urls():
     return [
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
+        path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
     ]
 
 
@@ -552,15 +556,48 @@ class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading_plain", "locale", "live"]
 
 
-class TagViewSet(LocaleDefaultingSnippetViewSet):
-    model = Tag
+class BlogTagViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogTag
     list_display = ["name", "locale", "live"]
 
 
-class AuthorViewSet(SnippetViewSet):
-    model = Author
-    list_display = ["name", "email", "slug"]
-    search_fields = ["name", "email"]
+class BlogTopicViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogTopic
+    list_display = ["name", "locale", "live"]
+
+
+class DefaultLocaleBlogAuthorMixin:
+    """Restricts an author chooser to the rows an article is allowed to store."""
+
+    def get_object_list(self):
+        return BlogAuthor.objects.filter(locale=WagtailLocale.get_default(), live=True)
+
+
+class BlogAuthorChooseView(DefaultLocaleBlogAuthorMixin, ChooseView):
+    pass
+
+
+class BlogAuthorChooseResultsView(DefaultLocaleBlogAuthorMixin, ChooseResultsView):
+    pass
+
+
+class BlogAuthorChooserViewSet(SnippetChooserViewSet):
+    # Both views need the restriction: ChooseView renders the initial modal and
+    # ChooseResultsView serves search and pagination within it.
+    choose_view_class = BlogAuthorChooseView
+    choose_results_view_class = BlogAuthorChooseResultsView
+
+
+class BlogAuthorViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogAuthor
+    list_display = ["name", "job_title", "locale", "live"]
+    search_fields = ["name"]
+    chooser_viewset_class = BlogAuthorChooserViewSet
+
+
+class TagViewSet(LocaleDefaultingSnippetViewSet):
+    model = Tag
+    list_display = ["name", "locale", "live"]
 
 
 class QRCodeSnippetViewSet(LocaleDefaultingSnippetViewSet):
@@ -605,8 +642,10 @@ for _viewset in (
     PreFooterCTASnippetViewSet,
     PreFooterCTAFormSnippetViewSet,
     BannerSnippetViewSet,
+    BlogTagViewSet,
+    BlogTopicViewSet,
+    BlogAuthorViewSet,
     TagViewSet,
-    AuthorViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,
     QRCodeFloatingSnippetViewSet,

@@ -76,12 +76,6 @@
     },
     {
       "files": [
-        "css/firefox/ios-summarizer.scss"
-      ],
-      "name": "firefox-ios-summarizer"
-    },
-    {
-      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
@@ -441,6 +435,18 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-referral-hub.css"
+      ],
+      "name": "flare-referral-hub"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-referral-get-firefox.css"
+      ],
+      "name": "flare-referral-get-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
@@ -717,12 +723,6 @@
         "js/base/video-play-state.es6.js"
       ],
       "name": "video_play_state"
-    },
-    {
-      "files": [
-        "js/firefox/browsers/ios-summarizer.js"
-      ],
-      "name": "ios_summarizer"
     },
     {
       "files": [

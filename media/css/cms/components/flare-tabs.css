@@ -1,0 +1,92 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.fl-tabs {
+    --tabs-inline-padding: var(--token-layout-xs);
+    background: var(--token-color-purple);
+    border: 1px solid var(--token-color-link-purple);
+    border-radius: var(--token-border-radius-md);
+    overflow-x: clip;
+    padding: var(--token-layout-2xs) var(--tabs-inline-padding) 0;
+
+    .fl-tabs-nav[role='tablist'] {
+        background: var(--theme-tabs-nav-background);
+        border: 1px solid var(--token-color-light-purple);
+        border-radius: var(--token-border-radius-lg);
+        display: flex;
+        font-family: var(--token-font-family-mozilla-headline);
+        gap: var(--token-spacing-xs);
+        inline-size: fit-content;
+        justify-content: center;
+        margin: 0 auto;
+        padding: var(--token-spacing-xs);
+    }
+
+    .fl-tabs-panels {
+        padding: var(--token-layout-xs) 0 0;
+    }
+
+    button[role='tab'] {
+        align-items: center;
+        background: var(--theme-tabs-nav-background);
+        border: none;
+        border-radius: var(--token-border-radius-md);
+        display: inline-flex;
+        font-weight: var(--token-font-weight-bold);
+        gap: var(--token-spacing-sm);
+        justify-content: center;
+        padding: var(--token-spacing-md);
+    }
+
+    [role='tab'],
+    [role='tab']:focus,
+    [role='tab']:hover {
+        cursor: pointer;
+    }
+
+    [role='tab'][aria-selected='true'] {
+        background: var(--theme-tabs-tab-selected-background);
+        color: var(--theme-tabs-tab-selected-color);
+    }
+
+    /* The icon is optional, so it must not shrink the label when present. */
+    .fl-tabs-tab-icon {
+        flex-shrink: 0;
+    }
+
+    [role='tab']:hover,
+    [role='tab']:focus,
+    [role='tab']:active {
+        color: var(--theme-tabs-tab-color-hover);
+    }
+
+    .fl-tab-image {
+        block-size: auto;
+        display: block;
+        margin: 0 auto var(--token-layout-xs);
+        max-inline-size: 100%;
+    }
+
+    [role='tabpanel'].is-hidden {
+        display: none;
+    }
+}
+
+.no-js .fl-tabs {
+    [role='tablist'] {
+        display: none;
+    }
+
+    [role='tabpanel'].is-hidden {
+        display: block;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-tabs button[role='tab'] {
+        min-inline-size: 122px;
+    }
+}

@@ -175,6 +175,7 @@ python manage.py dumpdata \
     cms.ThanksPage \
     cms.BlogIndexPage \
     cms.BlogArticlePage \
+    cms.BlogTopicPage \
     cms.RoadmapPage \
     cms.ContactPage \
     cms.ReferralHubPage \
@@ -188,6 +189,11 @@ python manage.py dumpdata \
     cms.PretranslatedPhrase \
     cms.PencilBannerSnippet \
     cms.QRCodeSnippet \
+    cms.BlogTopic \
+    cms.BlogTag \
+    cms.TaggedBlogArticle \
+    cms.BlogAuthor \
+    cms.BlogArticleAuthor \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
     cms.PencilBannerPlacement \

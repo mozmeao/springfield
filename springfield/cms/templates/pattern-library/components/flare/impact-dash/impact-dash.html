@@ -1,0 +1,53 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ The badges context mirrors the dict shape produced by
+ ImpactDashBlock._badge_context, which resolves each badge against the
+ referrer's install count before the template ever sees it.
+#}
+
+<div class="pl-frame">
+  <div class="pl-row">
+    <p>
+      Install count is <strong>{{ install_count }}</strong>, so every badge whose
+      number is at or below it is achieved. The optional line above the badges is
+      the message of the furthest badge unlocked, already resolved: which one it
+      is, and where its {install count} token goes, is settled before the
+      component sees it.
+    </p>
+    <div data-testid="impact-dash">
+      <include:impact-dash summary="{{ summary }}">
+        <content:badges>
+          {% for badge in badges %}
+            <include:badge
+              number="{{ badge.number }}"
+              label="{{ badge.label }}"
+              badge_name="{{ badge.badge_name }}"
+              is_achieved="{{ badge.is_achieved }}"
+            >
+              {% if badge.image %}
+                <content:media>
+                  <img class="fl-badge-image" src="{{ badge.image }}" alt="" width="80" height="80" />
+                </content:media>
+              {% endif %}
+            </include:badge>
+          {% endfor %}
+        </content:badges>
+      </include:impact-dash>
+    </div>
+  </div>
+
+  <div class="pl-row">
+    <p>
+      With no badges the component renders nothing at all, which is also what a
+      tab without an impact dashboard produces.
+    </p>
+    <include:impact-dash>
+      <content:badges></content:badges>
+    </include:impact-dash>
+  </div>
+</div>

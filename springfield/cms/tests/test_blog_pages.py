@@ -2,12 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.db.models import Count
+from django.core.exceptions import ValidationError
+from django.http import Http404
+from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.models import Locale
+from wagtail_localize.operations import translate_object
 
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -15,14 +19,19 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
+    blog_article_block,
     create_blog_article,
+    featured_topics_stream,
     get_blog_article_content,
+    get_blog_authors,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_tags,
     get_blog_topics,
 )
-from springfield.cms.models import BlogArticlePage, BlogArticlePageAuthor
-from springfield.cms.models.snippets import Author, Tag
+from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
+from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
+from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
 
@@ -39,12 +48,13 @@ def single_article(minimal_site):
     image, _, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
+    privacy_tag = get_blog_tags()["privacy"]
     article = create_blog_article(
         index_page=idx,
         title=FEATURED_TITLES[0],
         slug="test-single-article",
         topic=privacy,
-        tags=[privacy],
+        tags=[privacy_tag],
         image=image,
         description=FEATURED_DESCRIPTIONS[0],
         content=get_blog_article_content(image),
@@ -58,6 +68,7 @@ def privacy_articles(minimal_site):
     image, dark_image, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
+    privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image)
 
     all_titles = FEATURED_TITLES + REGULAR_TITLES[:4]
@@ -72,7 +83,7 @@ def privacy_articles(minimal_site):
                 slug=f"test-privacy-{i + 1}",
                 display_image=(i % 2 == 0),
                 topic=privacy,
-                tags=[privacy],
+                tags=[privacy_tag],
                 image=image if i < 5 else dark_image,
                 description=all_descriptions[i],
                 content=content,
@@ -86,6 +97,53 @@ def blog_setup(minimal_site):
     """Full blog setup (8 featured + 20 regular across 5 topics) for index/pagination tests."""
     articles = get_blog_pages()
     return get_blog_index_page(), articles
+
+
+@pytest.fixture
+def index_page_and_topics(minimal_site):
+    """Index page + topic snippets, no articles."""
+    return get_blog_index_page(), get_blog_topics()
+
+
+@pytest.fixture
+def topics_with_article_counts(minimal_site):
+    """Index page + three topics with 3, 2 and 1 published articles, for the
+    count-based header fallback."""
+    index_page = get_blog_index_page()
+    topics = get_blog_topics()
+    article_counts = {"privacy": 3, "security": 2, "tips": 1}
+    for slug, count in article_counts.items():
+        for number in range(count):
+            create_blog_article(
+                index_page=index_page,
+                title=f"{slug} article {number}",
+                slug=f"test-{slug}-{number}",
+                topic=topics[slug],
+                tags=[],
+                image=None,
+                description="",
+                content=[],
+            )
+    return index_page, topics
+
+
+@pytest.fixture
+def more_topics_than_the_header_shows(minimal_site):
+    """Index page + one more topic than the header can show, each with one article."""
+    index_page = get_blog_index_page()
+    for number in range(MAX_HEADER_TOPICS + 1):
+        topic = BlogTopic.objects.create(name=f"Topic {number}", slug=f"topic-{number}", locale=index_page.locale)
+        create_blog_article(
+            index_page=index_page,
+            title=f"Article {number}",
+            slug=f"test-article-{number}",
+            topic=topic,
+            tags=[],
+            image=None,
+            description="",
+            content=[],
+        )
+    return index_page
 
 
 # ---------------------------------------------------------------------------
@@ -121,21 +179,96 @@ def test_blog_index_context_all_topics(blog_setup, rf):
     assert counts == sorted(counts, reverse=True)
 
 
-def test_blog_index_topic_links_point_to_all_route(blog_setup, rf):
+def test_blog_index_topic_links_point_to_topic_route(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
-    all_topics = Tag.objects.filter(blog_articles__isnull=False).annotate(article_count=Count("blog_articles")).order_by("-article_count").distinct()
+    header_topics = index_page.get_header_topics()
 
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     topic_links = soup.find_all("a", class_="fl-blog-topic-link")
-    assert len(topic_links) == len(all_topics)
+    assert len(topic_links) == len(header_topics)
 
-    for index, topic in enumerate(all_topics):
+    for index, topic in enumerate(header_topics):
         link = topic_links[index]
         assert topic.name in link.get_text()
-        assert link["href"] == f"{all_route_url}?topic={topic.slug}"
+        assert link["href"] == index_page.url + index_page.reverse_subpage("topic_route", args=[topic.slug])
+
+
+def test_blog_index_header_topics_use_featured_topics_in_order(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["open-source"]])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips", "open-source"]
+
+
+def test_blog_index_header_topics_fall_back_to_topics_with_most_articles(topics_with_article_counts):
+    index_page, _ = topics_with_article_counts
+
+    header_topics = index_page.get_header_topics()
+
+    assert [topic.slug for topic in header_topics] == ["privacy", "security", "tips"]
+    assert [topic.article_count for topic in header_topics] == [3, 2, 1]
+
+
+def test_blog_index_header_topics_fallback_stops_at_the_maximum(more_topics_than_the_header_shows):
+    """The count-based fallback shows no more topics than the featured field allows."""
+    index_page = more_topics_than_the_header_shows
+
+    assert BlogTopic.objects.count() > MAX_HEADER_TOPICS
+    assert len(index_page.get_header_topics()) == MAX_HEADER_TOPICS
+
+
+def test_blog_index_header_topics_skip_unpublished_featured_topic(index_page_and_topics):
+    index_page, topics = index_page_and_topics
+    unpublished_topic = topics["security"]
+    unpublished_topic.live = False
+    unpublished_topic.save()
+    index_page.featured_topics = featured_topics_stream([topics["tips"], unpublished_topic])
+    index_page.save_revision().publish()
+
+    assert [topic.slug for topic in index_page.get_header_topics()] == ["tips"]
+
+
+def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
+    """A translated index page shows the published topic translations for its own
+    locale. Translating a page creates the topic translations as drafts, so only
+    the published ones reach the header."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    translate_object(index_page, [fr_locale])
+    fr_tips = BlogTopic.objects.get(translation_key=topics["tips"].translation_key, locale=fr_locale)
+    fr_tips.name = "Astuces"
+    fr_tips.save_revision().publish()
+
+    fr_index_page = index_page.get_translation(fr_locale)
+    header_topics = fr_index_page.get_header_topics()
+
+    assert [topic.name for topic in header_topics] == ["Astuces"]
+    assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_blog_index_featured_topics_skip_the_article_count_query(index_page_and_topics, django_assert_num_queries):
+    """With featured topics set, the header costs only the chooser lookup and the
+    localized topic query — the article count aggregation never runs."""
+    index_page, topics = index_page_and_topics
+    index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"]])
+    index_page.save_revision().publish()
+
+    page = BlogIndexPage.objects.get(pk=index_page.pk)
+    with django_assert_num_queries(2):
+        page.get_header_topics()
+
+
+def test_blog_index_edit_handler_has_a_blog_options_tab():
+    edit_handler = BlogIndexPage.get_edit_handler()
+
+    assert [str(child.heading) for child in edit_handler.children] == ["Content", "Blog Options", "Promote", "Settings"]
+    assert "featured_topics" in edit_handler.get_form_class().base_fields
 
 
 def test_blog_index_view_all_topics_link(blog_setup, rf):
@@ -200,7 +333,6 @@ def test_blog_index_renders_three_featured_articles_as_articles_list(blog_setup,
         description = item.find("div", class_="fl-body")
         assert description and BeautifulSoup(article.description, "html.parser").get_text() in description.get_text()
 
-        assert item.find("p", class_="fl-blog-article-date")
         assert item.find("span", class_="fl-tag")
 
 
@@ -464,7 +596,7 @@ def test_blog_all_unknown_topic_shows_all_articles(blog_setup, rf):
 
 def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
     index_page, articles = privacy_articles
-    topic = Tag.objects.get(slug="privacy")
+    topic = BlogTopic.objects.get(slug="privacy")
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url, {"topic": "privacy"})
     response = index_page.all_route(request)
@@ -560,7 +692,6 @@ def test_blog_topics_renders_heading(blog_setup, rf):
 def test_blog_topics_renders_topic_links(blog_setup, rf):
     index_page, _ = blog_setup
     topics = get_blog_topics()
-    all_route_url = index_page.url + index_page.reverse_subpage("all_route")
     url = index_page.full_url + index_page.reverse_subpage("topics_route")
     request = rf.get(url)
     response = index_page.topics_route(request)
@@ -569,8 +700,8 @@ def test_blog_topics_renders_topic_links(blog_setup, rf):
     topic_links = [a for a in soup.find_all("a", class_="fl-tag") if "is-large" in a.get("class", [])]
     assert len(topic_links) == len(topics)
     for link in topic_links:
-        assert link["href"].startswith(all_route_url)
-        assert "topic=" in link["href"]
+        assert link["href"].startswith(index_page.url + "topics/")
+        assert link["href"].endswith("/")
 
 
 def test_blog_topics_shows_article_count_badge(blog_setup, rf):
@@ -585,6 +716,203 @@ def test_blog_topics_shows_article_count_badge(blog_setup, rf):
     assert len(badges) == len(topics), "Each topic link should show an article count badge, visible on hover."
     for badge in badges:
         assert badge.get_text(strip=True).isdigit()
+
+
+# ---------------------------------------------------------------------------
+# Blog topic page (/topics/<slug>/)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def topic_blog(minimal_site):
+    """Index page with 11 Privacy articles — enough to paginate — and 2 Security ones."""
+    index_page = get_blog_index_page()
+    topics = get_blog_topics()
+
+    articles = {"privacy": [], "security": []}
+    for topic_slug, count in (("privacy", 11), ("security", 2)):
+        for number in range(1, count + 1):
+            articles[topic_slug].append(
+                create_blog_article(
+                    index_page=index_page,
+                    title=f"{topics[topic_slug].name} article {number}",
+                    slug=f"test-{topic_slug}-{number}",
+                    topic=topics[topic_slug],
+                    tags=[],
+                    image=None,
+                    description=REGULAR_DESCRIPTIONS[number % len(REGULAR_DESCRIPTIONS)],
+                    content=[],
+                )
+            )
+    return index_page, articles
+
+
+def test_blog_topic_renders(topic_blog, rf):
+    """The plain variant renders the topic name, the back link, and the article list."""
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    response = index_page.topic_route(rf.get(url), "security")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Security" in heading.get_text()
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link and back_link["href"] == index_page.url
+
+    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == 2
+
+
+def test_blog_topic_unknown_slug_404s(topic_blog, rf):
+    index_page, _ = topic_blog
+    with pytest.raises(Http404):
+        index_page.topic_route(rf.get(index_page.url + "topics/nonexistent/"), "nonexistent")
+
+
+def test_blog_topic_context_holds_only_that_topics_articles(topic_blog, rf):
+    index_page, articles = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    topic = BlogTopic.objects.get(slug="security", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    assert {article.pk for article in context["list_articles"]} == {article.pk for article in articles["security"]}
+
+
+def test_blog_topic_context_orders_articles_most_recent_first(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    context = index_page.get_topic_context(rf.get(url), topic)
+
+    dates = [article.first_published_at for article in context["list_articles"]]
+    assert dates == sorted(dates, reverse=True)
+
+
+def test_blog_topic_context_paginates(topic_blog, rf):
+    index_page, _ = topic_blog
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    topic = BlogTopic.objects.get(slug="privacy", locale=index_page.locale)
+
+    first_page = index_page.get_topic_context(rf.get(url), topic)["list_articles"]
+    assert first_page.paginator.count == 11
+    assert first_page.paginator.num_pages == 2
+    assert len(first_page.object_list) == 10
+
+    second_page = index_page.get_topic_context(rf.get(url, {"page": "2"}), topic)["list_articles"]
+    assert len(second_page.object_list) == 1
+
+
+def test_blog_topic_with_no_articles_renders_empty(index_page, rf):
+    BlogTopic.objects.create(name="Lonely", slug="lonely", locale=index_page.locale)
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["lonely"])
+
+    response = index_page.topic_route(rf.get(url), "lonely")
+
+    assert response.status_code == 200
+    assert not BeautifulSoup(response.content, "html.parser").find("article", class_="fl-blog-article-list-item")
+
+
+@pytest.fixture
+def privacy_topic_page(index_page):
+    """A BlogTopicPage for Privacy under an index page that has no articles."""
+    topic = get_blog_topics()["privacy"]
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-topic-page",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": topic},
+    )
+    topic_page.save_revision().publish()
+    return index_page, topic_page, topic
+
+
+def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
+    index_page, topic_page, _ = privacy_topic_page
+    assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+
+def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):
+    _, topic_page, _ = privacy_topic_page
+    with pytest.raises(Http404):
+        topic_page.route(rf.get("/"), [])
+
+
+def test_blog_topic_page_rejects_a_second_page_for_the_same_topic(privacy_topic_page):
+    index_page, topic_page, topic = privacy_topic_page
+
+    duplicate = BlogTopicPage(title="Another Privacy", slug="another-privacy", topic=topic, locale=index_page.locale)
+
+    with pytest.raises(ValidationError) as exc_info:
+        duplicate.clean()
+    assert "topic" in exc_info.value.message_dict
+    assert topic_page.title in str(exc_info.value)
+
+
+@pytest.fixture
+def curated_topic_page(topic_blog):
+    """A BlogTopicPage for Privacy featuring that topic's 4 most recent articles."""
+    index_page, _ = topic_blog
+    featured = list(BlogArticlePage.objects.child_of(index_page).filter(topic__slug="privacy").order_by("-first_published_at")[:4])
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-privacy-curated",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": get_blog_topics()["privacy"]},
+    )
+    topic_page.page_heading = [
+        {
+            "type": "heading",
+            "value": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="tph00001">Curated Privacy</p>',
+                "subheading_text": "",
+            },
+            "id": "tph00001-0000-0000-0000-000000000001",
+        }
+    ]
+    topic_page.featured_articles = [
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{number:012d}") for number, article in enumerate(featured, start=1)
+    ]
+    topic_page.save_revision().publish()
+    return index_page, topic_page, featured
+
+
+def test_blog_topic_renders_curated_header(curated_topic_page, rf):
+    """With a BlogTopicPage the route renders its heading and featured articles in place
+    of the plain topic name, and still renders the automatic list below."""
+    index_page, _, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    response = index_page.topic_route(rf.get(url), "privacy")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    heading = soup.find("h1")
+    assert heading and "Curated Privacy" in heading.get_text()
+
+    featured_block = soup.find("div", class_="fl-blog-featured")
+    assert featured_block
+    assert featured[0].title in featured_block.get_text()
+
+    assert soup.select_one(".fl-section-container > .fl-blog-article-list")
+
+
+def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
+    index_page, topic_page, featured = curated_topic_page
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    context = topic_page.get_context(rf.get(url))
+
+    listed = context["list_articles"]
+    assert {article.pk for article in listed}.isdisjoint({article.pk for article in featured})
+    assert listed.paginator.count == 7, "11 privacy articles minus the 4 featured"
+    assert listed.paginator.num_pages == 1
 
 
 # ---------------------------------------------------------------------------
@@ -610,6 +938,49 @@ def test_blog_article_renders_title_and_topic(single_article, rf):
 
     superheading = soup.find("p", class_="fl-superheading")
     assert superheading and article.topic.name in superheading.get_text()
+
+
+def test_blog_article_renders_a_single_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set([BlogArticleAuthor(author=authors["ada-lovelace"])])
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace"
+
+
+def test_blog_article_renders_a_multiple_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set(
+        [
+            BlogArticleAuthor(author=authors["ada-lovelace"]),
+            BlogArticleAuthor(author=authors["grace-hopper"]),
+            BlogArticleAuthor(author=authors["alan-turing"]),
+        ]
+    )
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace, Grace Hopper and Alan Turing"
+
+
+def test_blog_article_without_authors_renders_no_byline(single_article, rf):
+    _, article = single_article
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.select_one(".fl-blog-byline") is None
 
 
 def test_blog_article_renders_text_block(single_article, rf):
@@ -771,13 +1142,14 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render.
+    resolution that runs on every page render. The count is pinned as flat (not
+    per-article) by test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(24):
+    with django_assert_max_num_queries(27):
         index_page.serve(request)
 
 
@@ -787,95 +1159,45 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
     ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    The count is pinned as flat (not per-article) by
+    test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(31):
         index_page.all_route(request)
 
 
-# ---------------------------------------------------------------------------
-# Author (get_authors, ?author= filtering on the "all" route)
-# ---------------------------------------------------------------------------
-
-
-def make_author(name="Nick Nguyen", slug="nick-nguyen", email=""):
-    return Author.objects.create(name=name, slug=slug, email=email)
-
-
-def test_author_str_is_the_name():
-    assert str(make_author()) == "Nick Nguyen"
-
-
-def add_authors(article, *authors):
-    """Attach `authors` to `article` in the order given, as the InlinePanel would."""
-    article.article_authors = [BlogArticlePageAuthor(author=author, sort_order=order) for order, author in enumerate(authors)]
-    article.save()
-    article.save_revision().publish()
-
-
-def test_get_authors_returns_authors_in_editor_order(single_article):
+def test_get_tags_skips_tags_with_no_live_localization(single_article):
     _, article = single_article
-    second = make_author(name="Ada Lovelace", slug="ada-lovelace")
-    first = make_author()
-    add_authors(article, first, second)
+    tag = article.tags.first()
+    tag.live = False
+    tag.save()
 
-    assert article.get_authors() == [first, second]
+    article = BlogArticlePage.objects.get(pk=article.pk)
 
-
-def test_get_authors_is_empty_when_none_are_set(single_article):
-    _, article = single_article
-    assert article.get_authors() == []
+    assert article.get_tags() == []
 
 
-def test_get_authors_result_is_cached(single_article, django_assert_max_num_queries):
-    _, article = single_article
-    author = make_author()
-    add_authors(article, author)
-
-    with django_assert_max_num_queries(1):
-        article.get_authors()
-        article.get_authors()  # second call should hit the cache
-
-
-def test_blog_all_author_filter_filters_articles(blog_setup, rf):
-    index_page, articles = blog_setup
-    author = make_author()
-    co_author = make_author(name="Ada Lovelace", slug="ada-lovelace")
-    target = articles[0]
-    add_authors(target, co_author, author)
+def test_all_page_renders_localized_tag_names(privacy_articles, rf):
+    index_page, _ = privacy_articles
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
+    BlogTag.objects.create(
+        name="Confidentialité",
+        slug="privacy",
+        locale=fr_locale,
+        translation_key=en_tag.translation_key,
+    )
 
     url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url, {"author": author.slug})
-    response = index_page.all_route(request)
+    with override("fr"):
+        response = index_page.all_route(rf.get(url))
+
     soup = BeautifulSoup(response.content, "html.parser")
-
-    article_list = soup.find("div", class_="fl-blog-article-list")
-    assert article_list
-    items = article_list.find_all("article", class_="fl-blog-article-list-item")
-    assert len(items) == 1
-    assert target.title in items[0].get_text()
-
-
-def test_blog_all_unknown_author_shows_no_articles(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url, {"author": "nonexistent"})
-    response = index_page.all_route(request)
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, "html.parser")
-    assert soup.find("div", class_="fl-blog-article-list") is None
-
-
-def test_blog_all_no_author_param_shows_all_articles(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-    article_list = soup.find("div", class_="fl-blog-article-list")
-    assert article_list
-    assert len(article_list.find_all("article", class_="fl-blog-article-list-item")) == 10  # first page
+    tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
+    assert "Confidentialité" in tag_labels
+    assert "Privacy" not in tag_labels

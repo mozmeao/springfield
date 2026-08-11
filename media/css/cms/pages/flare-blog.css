@@ -64,11 +64,7 @@
     }
 }
 
-.fl-blog-topic-link:hover .fl-blog-topic-name {
-    text-decoration: underline;
-}
-
-.fl-blog-topic-link .fl-tag {
+.fl-blog-topics-list.is-header .fl-blog-topic-link {
     margin: 0;
 }
 
