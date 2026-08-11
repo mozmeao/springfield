@@ -76,35 +76,12 @@ def test_hub_page_get_context_invite_url_empty_when_ref_key_invalid(rf):
     site = Site.objects.get(is_default_site=True)
     hub_page = ReferralHubPageFactory(parent=site.root_page)
 
-    # A ref_key that is not a valid referral ID (here it has separators and is
-    # the wrong length) is treated like a missing one instead of raising.
-    context = hub_page.get_context(rf.get("/invite/?ref_key=not-a-valid-ref-key"))
-
-    assert context["invite_url"] == ""
-
-
-def test_hub_page_reports_correctly_sized_invalid_ref_key(rf):
-    site = Site.objects.get(is_default_site=True)
-    hub_page = ReferralHubPageFactory(parent=site.root_page)
-
-    # Right length but `I` is not a Crockford symbol, so this plausibly came
-    # from the referral flow and is worth a Sentry warning.
+    # Right length, but `I` is not a Crockford symbol, so this is the shape that
+    # serve() reports. Reaching get_context with it means serve() was skipped
+    # (CMS preview, serve_password_required_response), which is not the referral
+    # flow, so it is treated like a missing ref_key and reported nowhere.
     with patch(CAPTURE_MESSAGE) as capture:
         context = hub_page.get_context(rf.get("/invite/?ref_key=A7B9K2M4PXQRSTVI"))
-
-    assert context["invite_url"] == ""
-    assert capture.call_count == 1
-    assert capture.call_args.kwargs["level"] == "warning"
-
-
-def test_hub_page_stays_quiet_for_wrong_length_ref_key(rf):
-    site = Site.objects.get(is_default_site=True)
-    hub_page = ReferralHubPageFactory(parent=site.root_page)
-
-    # Anything can land in a public query string, so a ref_key that is not even
-    # the right length is ignored rather than filling Sentry with scanner noise.
-    with patch(CAPTURE_MESSAGE) as capture:
-        context = hub_page.get_context(rf.get("/invite/?ref_key=junk"))
 
     assert context["invite_url"] == ""
     assert capture.call_count == 0
@@ -319,6 +296,33 @@ def test_hub_page_serve_raises_404_for_unusable_ref_key(rf, query, why):
 
     with pytest.raises(Http404):
         hub_page.serve(rf.get(f"/invite/{query}"))
+
+
+@pytest.mark.parametrize(
+    ("ref_key", "reports"),
+    [
+        # Right length but `I` is not a Crockford symbol, so this plausibly came
+        # from the referral flow and is worth a Sentry warning.
+        ("A7B9K2M4PXQRSTVI", True),
+        # Anything can land in a public query string, so a ref_key that is not
+        # even the right length is ignored rather than filling Sentry with
+        # scanner noise. Length is the only axis the prefilter looks at, so one
+        # case pins it.
+        ("junk", False),
+    ],
+)
+def test_hub_page_serve_reports_only_a_correctly_sized_invalid_ref_key(rf, ref_key, reports):
+    """serve() is the only gate every public request passes, so it reports."""
+    site = Site.objects.get(is_default_site=True)
+    hub_page = ReferralHubPageFactory(parent=site.root_page)
+
+    with patch(CAPTURE_MESSAGE) as capture:
+        with pytest.raises(Http404):
+            hub_page.serve(rf.get(f"/invite/?ref_key={ref_key}"))
+
+    assert capture.call_count == (1 if reports else 0)
+    if reports:
+        assert capture.call_args.kwargs["level"] == "warning"
 
 
 def test_hub_page_serve_succeeds_for_a_well_formed_ref_key(rf):
