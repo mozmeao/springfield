@@ -14,7 +14,7 @@ import springfield.cms.rich_text
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0134_editors_moderators_blogtag_permissions"),
+        ("cms", "0135_editors_moderators_blogtag_permissions"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 

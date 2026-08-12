@@ -12,7 +12,7 @@ import modelcluster.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0135_blogauthor"),
+        ("cms", "0136_blogauthor"),
     ]
 
     operations = [
