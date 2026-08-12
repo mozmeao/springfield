@@ -1989,8 +1989,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("image"):
             return image
-        if article_page and article_page.image:
-            return article_page.image
+        if article_page:
+            return article_page.get_listing_image()
         return None
 
     def get_dark_image(self):
@@ -1998,8 +1998,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_image"):
             return image
-        if article_page and article_page.image_dark_mode:
-            return article_page.image_dark_mode
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode
         return None
 
     def get_mobile_image(self):
@@ -2007,8 +2007,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("mobile_image"):
             return image
-        if article_page and article_page.image_mobile:
-            return article_page.image_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().mobile
         return None
 
     def get_mobile_dark_image(self):
@@ -2016,8 +2016,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_mobile_image"):
             return image
-        if article_page and article_page.image_dark_mode_mobile:
-            return article_page.image_dark_mode_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
 
