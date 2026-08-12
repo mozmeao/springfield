@@ -74,6 +74,8 @@
   </content:body>
 
   {% if value.fine_print %}
-    {{ value.fine_print|richtext }}
+    <content:fine_print>
+      {{ value.fine_print|richtext }}
+    </content:fine_print>
   {% endif %}
 </include:comparison-table>
