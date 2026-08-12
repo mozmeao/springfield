@@ -121,6 +121,8 @@ THEME_CHOICES = (
     (ENTERPRISE_THEME, "Enterprise"),
 )
 
+ARTICLES_PER_PAGE = 10
+
 
 class StructuralPage(AbstractSpringfieldCMSPage):
     """A page used to create a folder-like structure within a page tree,
@@ -1649,6 +1651,57 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 MAX_HEADER_TOPICS = 8
 
 
+def article_list_queryset(queryset):
+    """Add everything the article list and card templates render to a BlogArticlePage
+    queryset, so rendering does not fan out into a query per article."""
+    return (
+        queryset.select_related(
+            "topic",
+            "image",
+            "image_dark_mode",
+            "image_mobile",
+            "image_dark_mode_mobile",
+        )
+        .prefetch_related(
+            "tags",
+            "image__renditions",
+            "image_dark_mode__renditions",
+            "image_mobile__renditions",
+            "image_dark_mode_mobile__renditions",
+        )
+        .defer("content")
+    )
+
+
+def prefetch_article_blocks(values):
+    """Bulk-fetch the BlogArticlePages referenced by a list of BlockArticleValues and
+    populate _article_cache on each, so rendering does not issue a query per block.
+
+    Topics and tags are swapped for their active-locale equivalents at the same time,
+    because the referenced article is always the source-locale page."""
+    # Inline import: snippets and pages import from each other at module scope.
+    from springfield.cms.models.snippets import BlogTopic, Tag
+
+    pks = [value["article"].pk for value in values if value.get("article")]
+    if not pks:
+        return
+
+    articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=pks))}
+
+    active_locale = SpringfieldLocale.get_active()
+    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=active_locale).live()}
+    localized_tags_by_slug = {tag.slug: tag for tag in Tag.objects.filter(locale=active_locale).live()}
+
+    for value in values:
+        page = value.get("article")
+        if page and page.pk in articles_by_pk:
+            article = articles_by_pk[page.pk]
+            if article.topic and article.topic.slug in localized_topics_by_slug:
+                article._topic_cache = localized_topics_by_slug[article.topic.slug]
+            article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
+            value._article_cache = article
+
+
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
@@ -1734,74 +1787,54 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def __str__(self):
         return f"BlogIndexPage: {self.title} - {self.locale}"
 
-    def _prefetch_streamfield_articles(self):
-        """Bulk-fetch all BlogArticlePages referenced in featured_articles and cards_lists,
-        and populate _article_cache on each block value to avoid per-block DB queries."""
-        from springfield.cms.models.snippets import BlogTopic, Tag  # circular import
-
+    def prefetch_streamfield_articles(self):
+        """Prefetch every article referenced by this page's featured_articles and cards_lists."""
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
         # ListBlock iteration yields StructValues (BlockArticleValue) directly.
-        featured_articles_values = [b.value for b in (self.featured_articles or [])]
-        cards_lists_values = []
+        values = [block.value for block in (self.featured_articles or [])]
         for cards_list_block in self.cards_lists or []:
-            cards_lists_values.extend(list(cards_list_block.value["articles"]))
+            values.extend(list(cards_list_block.value["articles"]))
+        prefetch_article_blocks(values)
 
-        all_values = featured_articles_values + cards_lists_values
-        pks = [value["article"].pk for value in all_values if value.get("article")]
-
-        if not pks:
-            return
-
-        articles_by_pk = {
-            a.pk: a
-            for a in BlogArticlePage.objects.filter(pk__in=pks)
-            .select_related(
-                "topic",
-                "image",
-                "image_dark_mode",
-                "image_mobile",
-                "image_dark_mode_mobile",
-            )
-            .prefetch_related(
-                "tags",
-                "image__renditions",
-                "image_dark_mode__renditions",
-                "image_mobile__renditions",
-                "image_dark_mode_mobile__renditions",
-            )
-            .defer("content")
-        }
-
-        active_locale = SpringfieldLocale.get_active()
-        localized_topics = BlogTopic.objects.filter(locale=active_locale).live()
-        localized_topics_by_slug = {topic.slug: topic for topic in localized_topics}
-        localized_tags = Tag.objects.filter(locale=active_locale).live()
-        localized_tags_by_slug = {tag.slug: tag for tag in localized_tags}
-
-        for value in all_values:
-            page = value.get("article")
-            if page and page.pk in articles_by_pk:
-                article = articles_by_pk[page.pk]
-                if article.topic and article.topic.slug in localized_topics_by_slug:
-                    article._topic_cache = localized_topics_by_slug[article.topic.slug]
-                tags_cache = []
-                for tag in article.tags.all():
-                    if tag.slug in localized_tags_by_slug:
-                        tags_cache.append(localized_tags_by_slug[tag.slug])
-                article._tags_cache = tags_cache
-                value._article_cache = article
+    def live_articles(self):
+        """Published, publicly visible articles under this index."""
+        return BlogArticlePage.objects.child_of(self).live().public()
 
     def get_all_topics(self):
-        """Topics with at least one published article, most articles first."""
-        from springfield.cms.models.snippets import BlogTopic  # circular import
+        """Topics that have at least one live article here, most-populated first."""
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTopic
 
-        base_qs = BlogArticlePage.objects.child_of(self).live().public()
         return (
-            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=base_qs.values("pk"))
+            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=self.live_articles().values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .live()
             .order_by("-article_count")
         )
+
+    def get_topic_context(self, request, topic, topic_page=None):
+        """Context for the topics/<slug>/ route, shared by the plain listing and by
+        BlogTopicPage. Articles already shown in a curated header are dropped from the
+        list before pagination, so the count matches what is rendered."""
+        articles = article_list_queryset(self.live_articles()).filter(topic=topic)
+
+        if topic_page:
+            featured_values = [block.value for block in (topic_page.featured_articles or [])]
+            prefetch_article_blocks(featured_values)
+            featured_pks = [value["article"].pk for value in featured_values if value.get("article")]
+            if featured_pks:
+                articles = articles.exclude(pk__in=featured_pks)
+
+        paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
+        topic.article_count = paginator.count
+
+        return {
+            "blog_index": self,
+            "topic": topic,
+            "all_topics": self.get_all_topics(),
+            "topic_page": topic_page,
+            "list_articles": paginator.get_page(request.GET.get("page", 1)),
+        }
 
     def get_header_topics(self):
         """Topics for the page header: the editor-selected featured topics, or the
@@ -1823,7 +1856,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        self._prefetch_streamfield_articles()
+        self.prefetch_streamfield_articles()
         context["all_topics"] = self.get_all_topics()
         context["header_topics"] = SimpleLazyObject(self.get_header_topics)
         return context
@@ -1844,30 +1877,27 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def topics_route(self, request):
         return self._render_route(request, "cms/blog_topics_page.html")
 
-    @path("all/")
-    def all_route(self, request):
+    @path("topics/<slug:topic_slug>/")
+    def topic_route(self, request, topic_slug):
+        # Inline import: snippets and pages import from each other at module scope.
         from springfield.cms.models.snippets import BlogTopic
 
-        base_qs = (
-            BlogArticlePage.objects.child_of(self)
-            .live()
-            .public()
-            .select_related(
-                "topic",
-                "image",
-                "image_dark_mode",
-                "image_mobile",
-                "image_dark_mode_mobile",
-            )
-            .prefetch_related(
-                "tags",
-                "image__renditions",
-                "image_dark_mode__renditions",
-                "image_mobile__renditions",
-                "image_dark_mode_mobile__renditions",
-            )
-            .defer("content")
-        )
+        topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).live().first()
+        if topic is None:
+            raise Http404
+
+        topic_page = BlogTopicPage.objects.child_of(self).live().public().filter(topic=topic).first()
+        if topic_page:
+            return topic_page.serve(request)
+
+        return self._render_route(request, "cms/blog_topic_page.html", self.get_topic_context(request, topic))
+
+    @path("all/")
+    def all_route(self, request):
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTopic
+
+        base_qs = article_list_queryset(self.live_articles())
 
         topic = None
         topic_slug = request.GET.get("topic")
@@ -1877,7 +1907,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 base_qs = base_qs.filter(topic=topic)
 
         list_articles_qs = base_qs.order_by("-first_published_at")
-        paginator = Paginator(list_articles_qs, 10)
+        paginator = Paginator(list_articles_qs, ARTICLES_PER_PAGE)
 
         if topic:
             topic.article_count = paginator.count
@@ -1891,6 +1921,113 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
                 "topic": topic,
             },
         )
+
+    def get_sitemap_urls(self, request=None):
+        """Add the URLs this page serves through its routes, which have no Page of their own
+        for the sitemap to find.
+        """
+        urls = super().get_sitemap_urls(request=request)
+        page_entry = urls[0]
+        if not page_entry["location"]:
+            return urls
+
+        route_paths = ["topics/", "all/", *(f"topics/{topic.slug}/" for topic in self.get_all_topics())]
+        urls.extend(page_entry | {"location": f"{page_entry['location']}{route_path}"} for route_path in route_paths)
+        return urls
+
+
+class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    """An editor-curated header for one blog topic.
+
+    Served by BlogIndexPage.topic_route at topics/<slug>/ in place of the plain topic
+    heading. The automatic article list still renders below it."""
+
+    parent_page_types = ["cms.BlogIndexPage"]
+    subpage_types = []
+    ftl_files = ["cms/blog"]
+
+    topic = models.ForeignKey(
+        "cms.BlogTopic",
+        on_delete=models.PROTECT,
+        related_name="topic_pages",
+    )
+    page_heading = StreamField(
+        [("heading", HeadingBlock())],
+        max_num=1,
+        use_json_field=True,
+        blank=True,
+    )
+    featured_articles = StreamField(
+        [("article", BlogArticleBlock())],
+        max_num=4,
+        use_json_field=True,
+        blank=True,
+        help_text="Up to 4 featured articles shown at the top. These are left out of the list below.",
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("topic"),
+        FieldPanel("page_heading"),
+        FieldPanel("featured_articles"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("page_heading"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
+    class Meta:
+        verbose_name = "Blog Topic Page"
+        verbose_name_plural = "Blog Topic Pages"
+
+    def __str__(self):
+        return f"BlogTopicPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        """Reject a second page for a topic another page already covers.
+
+        A clean() check rather than a database constraint: Wagtail's copy and translate
+        flows create rows that a hard constraint would reject with an opaque
+        IntegrityError."""
+        super().clean()
+        if self.topic_id is None:
+            return
+        duplicate = BlogTopicPage.objects.filter(topic_id=self.topic_id, locale_id=self.locale_id).exclude(pk=self.pk).first()
+        if duplicate:
+            raise ValidationError({"topic": f'"{duplicate.title}" already covers this topic.'})
+
+    def get_url_parts(self, request=None):
+        """Report the topics/<slug>/ route URL rather than this page's own tree path, so
+        page.url, the canonical tag, the admin's view-live link and the sitemap all agree
+        with where the page is actually served."""
+        parent = self.get_parent()
+        if parent is None or self.topic_id is None:
+            return super().get_url_parts(request)
+        parent_parts = parent.get_url_parts(request)
+        if parent_parts is None:
+            return super().get_url_parts(request)
+        site_id, root_url, parent_path = parent_parts
+        return (site_id, root_url, f"{parent_path}topics/{self.topic.slug}/")
+
+    def route(self, request, path_components):
+        """Refuse to serve at this page's own tree path, so topics/<slug>/ is the only URL
+        for this content. BlogIndexPage.topic_route reaches it through serve(), and the
+        admin previews it through serve_preview(); neither goes through route()."""
+        raise Http404
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        blog_index = self.get_parent().specific
+        context.update(blog_index.get_topic_context(request, self.topic, topic_page=self))
+        return context
+
+    def get_template(self, request, *args, **kwargs):
+        return "cms/blog_topic_page.html"
 
 
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -2636,7 +2773,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
-            ("intro", KitIntroBlock()),
+            ("intro", KitIntroBlock(allow_referral_download=True)),
             ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
         ],
@@ -2675,16 +2812,41 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
 
+    def clean(self):
+        super().clean()
+        count = sum(
+            1
+            for block in (self.upper_content or [])
+            if block.block_type == "intro"
+            for btn in block.value.get("buttons", [])
+            if btn.block_type == "referral_download"
+        )
+        if count > 1:
+            raise ValidationError({"upper_content": "Only one Referral Download CTA block is allowed per page. Remove the duplicate before saving."})
+
     def get_context(self, request, *args, **kwargs):
         """
-        Adds an `invitation_code` code (from the URL) to the context, which we'll
-        pass as `fxrefer:<invitation code>` to download attribution as a special
-        param
+        Adds an `invitation_code` code (from the URL) to the context, which is
+        carried as `fxrefer<invitation code>` in utm_content by the referral
+        attribution JS.
+
+        Also adds `utm_parameters` with the referral campaign so that the
+        download-firefox-button component builds an attributed Android Play Store
+        URL for the server-rendered badge (the JS checkbox module further modifies
+        this href when toggled).
         """
         context = super().get_context(request, *args, **kwargs)
 
         # self.serve() already validated that the invitation code is legit and valid
         context["invitation_code"] = request.GET.get("invitation")
+        # Provide the referral utm_campaign so play_store_url() includes a referrer
+        # on the server-rendered Android badge. Must match REFERRAL_CAMPAIGN in
+        # media/js/firefox/referral/referral-attribution.es6.js.
+        context["utm_parameters"] = {
+            "utm_source": "www.firefox.com",
+            "utm_medium": "referral",
+            "utm_campaign": "firefox-referral",
+        }
         return context
 
     @referral_geo_check
