@@ -11,6 +11,7 @@ from django.db.models import Max
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
 
+from springfield.base.waffle import switch
 from springfield.firefox.referral.crypto import invite_code_to_referral_id
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.utils.management.decorators import alert_sentry_on_exception
@@ -73,6 +74,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.quiet = options["quiet"]
         force = options["force"]
+
+        if not switch("ENABLE_REFERRAL_IMPORT"):
+            self._log("ENABLE_REFERRAL_IMPORT switch is off; skipping referral data import")
+            return
 
         bucket_name = settings.REFERRAL_DATA_GCS_BUCKET
         prefix = settings.REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX
