@@ -194,18 +194,12 @@ describe('cms/routing/evaluator.es6.js', function () {
                     available('129.0')
                 )
             ).toEqual(NOT_MATCHED);
-            expect(
-                evaluateCondition(
-                    cond('firefox_version', 'not_gte', '128', 'version'),
-                    available('129.0')
-                )
-            ).toEqual(NOT_MATCHED);
         });
 
         it('supports integer and boolean comparisons', function () {
             expect(
                 evaluateCondition(
-                    cond('profile_age', 'gt', '30', 'integer'),
+                    cond('profile_age_weeks', 'gt', '30', 'integer'),
                     available(45)
                 )
             ).toEqual(MATCHED);
@@ -227,10 +221,9 @@ describe('cms/routing/evaluator.es6.js', function () {
         // `?oldversion=unknown` when it has no prior version to report, so this is live
         // traffic. The evaluator must treat it like a signal it never got.
         const ORDERED = ['lt', 'lte', 'gt', 'gte'];
-        const NEGATED_ORDERED = ['not_lt', 'not_lte', 'not_gt', 'not_gte'];
 
         it('never matches an ordered version comparison against an unparseable value', function () {
-            ORDERED.concat(NEGATED_ORDERED).forEach(function (operator) {
+            ORDERED.forEach(function (operator) {
                 expect(
                     evaluateCondition(
                         cond('oldversion', operator, '128', 'version'),
@@ -241,10 +234,10 @@ describe('cms/routing/evaluator.es6.js', function () {
         });
 
         it('never matches an ordered integer comparison against an unparseable value', function () {
-            ORDERED.concat(NEGATED_ORDERED).forEach(function (operator) {
+            ORDERED.forEach(function (operator) {
                 expect(
                     evaluateCondition(
-                        cond('profile_age', operator, '30', 'integer'),
+                        cond('profile_age_weeks', operator, '30', 'integer'),
                         available('unknown')
                     )
                 ).toEqual(NOT_MATCHED);
@@ -255,12 +248,6 @@ describe('cms/routing/evaluator.es6.js', function () {
             // The whole point: a negated unknown must stay not-matched. Equality and
             // membership go through the same rule, so `is_not` and `not_in` cannot
             // claim a garbage value differs from what the author asked for.
-            expect(
-                evaluateCondition(
-                    cond('oldversion', 'not_gte', '128', 'version'),
-                    available('unknown')
-                )
-            ).toEqual(NOT_MATCHED);
             expect(
                 evaluateCondition(
                     cond('oldversion', 'not_equals', '128', 'version'),
@@ -275,7 +262,7 @@ describe('cms/routing/evaluator.es6.js', function () {
             ).toEqual(NOT_MATCHED);
             expect(
                 evaluateCondition(
-                    cond('profile_age', 'not_equals', '30', 'integer'),
+                    cond('profile_age_weeks', 'not_equals', '30', 'integer'),
                     available('unknown')
                 )
             ).toEqual(NOT_MATCHED);
@@ -285,24 +272,34 @@ describe('cms/routing/evaluator.es6.js', function () {
             // Guard for the sentinel: 0 is a real value, not "no value".
             expect(
                 evaluateCondition(
-                    cond('profile_age', 'lte', '30', 'integer'),
+                    cond('profile_age_weeks', 'lte', '30', 'integer'),
                     available(0)
                 )
             ).toEqual(MATCHED);
             expect(
                 evaluateCondition(
-                    cond('profile_age', 'equals', '0', 'integer'),
+                    cond('profile_age_weeks', 'equals', '0', 'integer'),
                     available('0')
                 )
             ).toEqual(MATCHED);
         });
 
-        it('every operator is present and paired with its negation', function () {
+        it('every operator declares a comparison and a negation flag', function () {
             Object.keys(OPERATORS).forEach(function (key) {
                 const op = OPERATORS[key];
                 expect(typeof op.compare).toEqual('string');
                 expect(typeof op.negated).toEqual('boolean');
             });
+        });
+
+        it('carries no negated form of an ordered comparison', function () {
+            // Each would duplicate an operator that already exists — `not_gte` is `lt`.
+            // Dropped from the Python registry, so the client must not accept them either.
+            ['not_lt', 'not_lte', 'not_gt', 'not_gte'].forEach(
+                function (operator) {
+                    expect(OPERATORS[operator]).toBeUndefined();
+                }
+            );
         });
     });
 

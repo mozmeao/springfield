@@ -140,24 +140,63 @@ export function createUserAgentReader(options) {
     };
 }
 
+/**
+ * Collapse UITour's per-feature AI control states into one posture.
+ *
+ * `aiControls` reports a state per AI feature (`translations`, `sidebarChatbot`, …) plus a
+ * `default` master, with no overall summary. Iterating whatever keys arrive — rather than
+ * naming features — means a new Firefox AI feature folds in without a change here.
+ *
+ * `available` counts as no choice: per Firefox's own wording it means "you'll see the
+ * feature and can use it", where `enabled` means "you've opted in". Blocking globally also
+ * writes `blocked` to every feature, so the master and per-feature views agree.
+ *
+ * Order matters — the cases overlap, and the global switch outranks per-feature noise.
+ */
+export function aiControlsPosture(config) {
+    if (!config || typeof config !== 'object') {
+        return undefined;
+    }
+    const features = Object.keys(config).filter((key) => key !== 'default');
+    if (config.default === 'blocked') {
+        return 'blocked_all';
+    }
+    const enabled = features.filter((key) => config[key] === 'enabled').length;
+    const blocked = features.filter((key) => config[key] === 'blocked').length;
+    if (enabled && blocked) {
+        return 'mixed';
+    }
+    if (blocked) {
+        return features.length && blocked === features.length
+            ? 'blocked_all'
+            : 'blocked_some';
+    }
+    if (enabled) {
+        return 'enabled_some';
+    }
+    return 'neutral';
+}
+
 // Per-signal extraction from a UITour getConfiguration() payload. Firefox-specific and
-// therefore quarantined here. NOTE: the exact fields for `profile_age` and
-// `ai_controls` are provisional and need validating against a real Firefox UITour.
+// therefore quarantined here. Field names verified against UITour.sys.mjs in
+// mozilla-central.
 const UITOUR_EXTRACTORS = {
     is_default_browser: function (config) {
         return config.defaultBrowser;
     },
+    // `sync.setup` is prefHasUserValue("services.sync.username") — it reports that sync is
+    // configured, which is close to but not the same as being signed in to a Firefox Account.
     fxa_signed_in: function (config) {
         return config.setup;
     },
-    profile_age: function (config) {
-        return typeof config.profileCreatedWeeks === 'number'
-            ? config.profileCreatedWeeks * 7
+    // Whole weeks, reported directly. Not converted to days: UITour only exposes weeks, so
+    // multiplying would imply a precision that is not there.
+    profile_age_weeks: function (config) {
+        return typeof config.profileCreatedWeeksAgo === 'number'
+            ? config.profileCreatedWeeksAgo
             : undefined;
     },
-    ai_controls: function (config) {
-        return config.state;
-    }
+    ai_controls: aiControlsPosture
 };
 
 /**

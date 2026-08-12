@@ -36,7 +36,8 @@ export const PER_UITOUR_KEY_TIMEOUT_MS = 800;
 export const GLOBAL_TIMEOUT_MS = 1500;
 
 // Operator semantics, mirroring the Python registry operators. `compare` is the
-// positive comparison kind; `negated` flips the positive result.
+// positive comparison kind; `negated` flips the positive result. Ordered comparisons have
+// no negated forms — the opposite of `lt` is `gte`, which is already here.
 export const OPERATORS = {
     is: { compare: 'eq', negated: false },
     is_not: { compare: 'eq', negated: true },
@@ -45,13 +46,9 @@ export const OPERATORS = {
     equals: { compare: 'eq', negated: false },
     not_equals: { compare: 'eq', negated: true },
     lt: { compare: 'lt', negated: false },
-    not_lt: { compare: 'lt', negated: true },
     lte: { compare: 'lte', negated: false },
-    not_lte: { compare: 'lte', negated: true },
     gt: { compare: 'gt', negated: false },
-    not_gt: { compare: 'gt', negated: true },
-    gte: { compare: 'gte', negated: false },
-    not_gte: { compare: 'gte', negated: true }
+    gte: { compare: 'gte', negated: false }
 };
 
 function splitList(expected) {

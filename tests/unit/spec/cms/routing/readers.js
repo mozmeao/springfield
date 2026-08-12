@@ -7,6 +7,7 @@
 import {
     SOURCE_CDN_GEO,
     SOURCE_UITOUR,
+    aiControlsPosture,
     createGeoReader,
     createUserAgentReader,
     createUITourReader,
@@ -26,6 +27,92 @@ function settle(promise) {
 }
 
 describe('cms/routing/readers.es6.js', function () {
+    describe('aiControlsPosture', function () {
+        // Firefox reports a state per AI feature with no overall summary. These are the
+        // shapes getConfiguration('aiControls') actually returns, per UITour.sys.mjs.
+        const untouched = {
+            default: 'available',
+            translations: 'default',
+            pdfjsAltText: 'default',
+            smartTabGroups: 'default',
+            linkPreviewKeyPoints: 'default',
+            sidebarChatbot: 'default',
+            smartWindow: 'default'
+        };
+
+        it('reads an untouched profile as neutral', function () {
+            expect(aiControlsPosture(untouched)).toEqual('neutral');
+        });
+
+        it('treats explicit "available" as no choice, like "default"', function () {
+            // Firefox's own wording: available = "you'll see it and can use it";
+            // enabled = "you've opted in". Only the latter is a choice.
+            const allAvailable = Object.assign({}, untouched, {
+                translations: 'available',
+                sidebarChatbot: 'available'
+            });
+            expect(aiControlsPosture(allAvailable)).toEqual('neutral');
+        });
+
+        it('reads the global block as blocked_all, whatever the features say', function () {
+            expect(
+                aiControlsPosture(
+                    Object.assign({}, untouched, {
+                        default: 'blocked',
+                        sidebarChatbot: 'enabled'
+                    })
+                )
+            ).toEqual('blocked_all');
+        });
+
+        it('reads every feature blocked as blocked_all even without the master', function () {
+            const all = { default: 'available' };
+            Object.keys(untouched)
+                .filter((k) => k !== 'default')
+                .forEach((k) => {
+                    all[k] = 'blocked';
+                });
+            expect(aiControlsPosture(all)).toEqual('blocked_all');
+        });
+
+        it('distinguishes opting in, blocking, and doing both', function () {
+            expect(
+                aiControlsPosture(
+                    Object.assign({}, untouched, { sidebarChatbot: 'enabled' })
+                )
+            ).toEqual('enabled_some');
+            expect(
+                aiControlsPosture(
+                    Object.assign({}, untouched, { translations: 'blocked' })
+                )
+            ).toEqual('blocked_some');
+            expect(
+                aiControlsPosture(
+                    Object.assign({}, untouched, {
+                        sidebarChatbot: 'enabled',
+                        translations: 'blocked'
+                    })
+                )
+            ).toEqual('mixed');
+        });
+
+        it('folds in AI features Firefox has not shipped yet', function () {
+            // Keys are iterated, never named, so a new feature needs no change here.
+            expect(
+                aiControlsPosture({
+                    default: 'available',
+                    somethingBrandNew: 'enabled'
+                })
+            ).toEqual('enabled_some');
+        });
+
+        it('returns undefined for a payload it cannot read', function () {
+            expect(aiControlsPosture(undefined)).toBeUndefined();
+            expect(aiControlsPosture(null)).toBeUndefined();
+            expect(aiControlsPosture('nope')).toBeUndefined();
+        });
+    });
+
     describe('geo reader (CDN geo header)', function () {
         it('reads the server-rendered data-country-code attribute', async function () {
             const reader = createGeoReader({
