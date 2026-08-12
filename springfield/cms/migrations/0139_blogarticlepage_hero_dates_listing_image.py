@@ -12,7 +12,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0137_editors_moderators_blogauthor_permissions"),
+        ("cms", "0138_editors_moderators_blogauthor_permissions"),
     ]
 
     operations = [
