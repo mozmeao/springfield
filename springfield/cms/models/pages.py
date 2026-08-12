@@ -2623,7 +2623,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
-            ("showcase", ShowcaseBlock()),
+            ("showcase", ShowcaseBlock(allow_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2642,7 +2642,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     )
     extra_content = StreamField(
         [
-            ("showcase", ShowcaseBlock()),
+            ("showcase", ShowcaseBlock(allow_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2781,7 +2781,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
-            ("showcase", ShowcaseBlock()),
+            ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
         ],
         null=True,

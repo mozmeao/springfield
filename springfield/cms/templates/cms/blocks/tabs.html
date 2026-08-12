@@ -10,7 +10,7 @@
     <div class="fl-tabs">
       <div class="fl-tabs-nav" id="fl-tablist-{{ section_id }}" aria-label="tabs-{{ section_id }}" role="tablist">
         {% for tab in value.tabs %}
-          <button type="button" class="fl-tabs-tab" role="tab" id="fl-tab-{{ section_id }}-{{ loop.index }}" aria-controls="fl-tab-panel-{{ section_id }}-{{ loop.index }}">
+          <button type="button" class="fl-tabs-tab" role="tab" id="fl-tab-{{ section_id }}-{{ loop.index }}" aria-controls="fl-tab-panel-{{ section_id }}-{{ loop.index }}"{% if tab.detected_browser %} data-browser="{{ tab.detected_browser }}"{% endif %}>
             <span class="fl-tabs-tab-label">{{ tab.tab_name }}</span>
             {% if tab.icon_name %}
               <include:icon
