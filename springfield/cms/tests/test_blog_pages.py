@@ -1019,7 +1019,7 @@ def test_blog_article_renders_a_multiple_author_byline(single_article, rf):
 
     byline = soup.select_one(".fl-blog-byline")
     assert byline
-    assert byline.get_text(strip=True) == "By Ada Lovelace, Grace Hopper and Alan Turing"
+    assert byline.get_text(strip=True) == "By Ada Lovelace, Grace Hopper, and Alan Turing"
 
 
 def test_blog_article_without_authors_renders_no_byline(single_article, rf):

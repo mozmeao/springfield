@@ -75,6 +75,11 @@ class TestUpdateReferralDataCommand(TestCase):
         )
         patcher.start()
         self.addCleanup(patcher.stop)
+        # Enable the ENABLE_REFERRAL_IMPORT switch for all tests by default.
+        # test_waffle_switch_off_skips_import overrides this to False.
+        switch_patcher = mock.patch("springfield.base.waffle.switch_is_active", return_value=True)
+        switch_patcher.start()
+        self.addCleanup(switch_patcher.stop)
 
     def test_happy_path_loads_rows_into_empty_db(self):
         blob = _make_blob(updated=timezone.now())
@@ -145,6 +150,17 @@ class TestUpdateReferralDataCommand(TestCase):
             call_command(COMMAND, quiet=True)
 
         self.assertEqual(FirefoxReferralData.objects.count(), 2)
+
+    @override_settings(DEV=False)
+    def test_waffle_switch_off_skips_import(self):
+        # When ENABLE_REFERRAL_IMPORT is inactive the command must exit before
+        # touching GCS or the DB.
+        blob = _make_blob(updated=timezone.now())
+        with _patch_storage_client(blob), mock.patch("springfield.base.waffle.switch_is_active", return_value=False):
+            call_command(COMMAND, quiet=True)
+
+        blob.open.assert_not_called()
+        self.assertEqual(FirefoxReferralData.objects.count(), 0)
 
     @override_settings(REFERRAL_DATA_GCS_BUCKET="")
     def test_empty_bucket_setting_no_ops(self):

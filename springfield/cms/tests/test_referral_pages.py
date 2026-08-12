@@ -6,6 +6,7 @@ from unittest.mock import patch
 from urllib.parse import parse_qs
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import DatabaseError
 from django.http import Http404, HttpResponseNotFound
 
@@ -549,3 +550,135 @@ def test_get_firefox_page_geo_lockout_fires_before_invitation_validation(rf, set
 
     assert response.status_code == 302
     assert response["Location"] == f"/{locale}/"
+
+
+# Attribution context
+
+
+def test_get_firefox_page_get_context_includes_utm_parameters(rf):
+    """The referral page context must include utm_parameters with the referral
+    campaign so the download-firefox-button component builds an attributed
+    Android Play Store URL for the server-rendered badge."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["utm_parameters"]["utm_campaign"] == "firefox-referral"
+    assert context["utm_parameters"]["utm_source"] == "www.firefox.com"
+    assert context["utm_parameters"]["utm_medium"] == "referral"
+
+
+def test_get_firefox_page_renders_download_button(client, settings):
+    """The referral page template must render an actual download button (not the
+    context-dump skeleton) so the referral-attribution JS has a link to decorate."""
+    settings.STUB_ATTRIBUTION_RATE = 1
+    settings.STUB_ATTRIBUTION_HMAC_KEY = "test-hmac-key"
+
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page, slug="get-firefox")
+    # Populate the StreamField so the referral download CTA block is rendered.
+    # An empty content field produces only the context-dump skeleton with no
+    # download links, which means the referral-attribution JS has nothing to decorate.
+    page.upper_content = [
+        {
+            "type": "intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"slim": False},
+                "heading": {
+                    "superheading_text": '<p data-block-key="a"></p>',
+                    "heading_text": '<p data-block-key="b">Download Firefox</p>',
+                    "subheading_text": '<p data-block-key="c"></p>',
+                },
+                "buttons": [
+                    {
+                        "type": "referral_download",
+                        "id": "bb000000-0000-0000-0000-000000000001",
+                        "value": {},
+                    }
+                ],
+            },
+        }
+    ]
+    page.save()
+
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+    with patch(GEO_MOCK, return_value="US"):
+        response = client.get(f"/en-US/get-firefox/?invitation={code}")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # A .download-link element (required by stub attribution JS) must be present.
+    assert soup.find(class_="download-link") is not None
+
+    # The referral consent checkbox must exist (hidden by default; JS reveals it).
+    checkbox = soup.find("input", {"class": "referral-consent-checkbox"})
+    assert checkbox is not None
+
+    # The data-referral-code attribute must carry the invitation code.
+    referral_root = soup.find(attrs={"data-referral-code": True})
+    assert referral_root is not None
+    assert referral_root["data-referral-code"] == code
+
+
+# Duplicate-block validation
+
+
+def _intro_block_with_referral_download(block_id, btn_id):
+    """Minimal intro block StreamField dict carrying one referral_download button."""
+    return {
+        "type": "intro",
+        "id": block_id,
+        "value": {
+            "settings": {"slim": False},
+            "heading": {
+                "superheading_text": '<p data-block-key="a"></p>',
+                "heading_text": '<p data-block-key="b">Download Firefox</p>',
+                "subheading_text": '<p data-block-key="c"></p>',
+            },
+            "buttons": [
+                {"type": "referral_download", "id": btn_id, "value": {}},
+            ],
+        },
+    }
+
+
+def test_get_firefox_page_clean_rejects_duplicate_referral_download_blocks():
+    """Two referral download CTAs on the same page produce duplicate HTML IDs.
+
+    Wagtail permits the block more than once, so the page model enforces the
+    single-instance constraint in clean() before the content can be published.
+    """
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page)
+    page.upper_content = [
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000001",
+            "bb000000-0000-0000-0000-000000000001",
+        ),
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000002",
+            "bb000000-0000-0000-0000-000000000002",
+        ),
+    ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+
+    assert "upper_content" in exc_info.value.message_dict
+
+
+def test_get_firefox_page_clean_accepts_a_single_referral_download_block():
+    """A single referral download CTA passes clean() without error."""
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page)
+    page.upper_content = [
+        _intro_block_with_referral_download(
+            "aa000000-0000-0000-0000-000000000001",
+            "bb000000-0000-0000-0000-000000000001",
+        ),
+    ]
+
+    page.clean()  # must not raise

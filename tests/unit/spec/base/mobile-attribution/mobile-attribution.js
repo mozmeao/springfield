@@ -126,6 +126,59 @@ describe('mobile-attribution.js', function () {
             );
             expect(url).toContain('utm_campaign%3Dhello%20world');
         });
+
+        // Referral attribution extension
+
+        it('appends utm_content to the Android referrer when referralContent is provided', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                'fxrefer1HR4FZ672Z8Y0E4HW'
+            );
+            expect(url.indexOf(ANDROID_STORE_PREFIX)).toBe(0);
+            expect(url).toContain('utm_campaign%3Dfirefox-referral');
+            expect(url).toContain('%26utm_content%3Dfxrefer1HR4FZ672Z8Y0E4HW');
+        });
+
+        it('omits utm_content from the Android referrer when referralContent is null', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                null
+            );
+            expect(url).not.toContain('utm_content');
+        });
+
+        it('omits utm_content from the Android referrer when referralContent is undefined (backward compat)', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true
+            );
+            expect(url).not.toContain('utm_content');
+        });
+
+        it('does not append utm_content to the iOS URL even when referralContent is provided', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                false,
+                'fxrefer1HR4FZ672Z8Y0E4HW'
+            );
+            expect(url.indexOf(IOS_STORE_PREFIX)).toBe(0);
+            // iOS uses ct= for campaign; referral content is not a parameter here
+            expect(url).not.toContain('utm_content');
+            expect(url).not.toContain('fxrefer');
+        });
+
+        it('URL-encodes referralContent correctly (colon in code)', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'firefox-referral',
+                true,
+                'fxreferABCDEFGHJKMNPQR'
+            );
+            // Colon in the content must be percent-encoded within the
+            // already-encoded referrer param string
+            expect(url).toContain('fxreferABCDEFGHJKMNPQR');
+        });
     });
 
     describe('rewriteLinks', function () {
@@ -216,15 +269,13 @@ describe('mobile-attribution.js', function () {
             );
         });
 
-        it('clicking a rewritten button fires sendEventFromURL and navigates to the original https store URL', function () {
+        it('clicking a rewritten button fires sendEventFromURL and navigates to the https store URL', function () {
             // Simulate the post-rewrite + post-mozilla-utils.js state: the
             // button HREF has been mutated to a market:// URL after our
             // rewrite ran (as would happen on real Android UAs). The click
-            // handler must still pass the original https:// URL — not the
-            // market:// URL — so TrackProductDownload's regex recognizes it,
-            // and the navigation should target the original URL so desktop
-            // browsers (with mobile UA spoofing) reach a real destination
-            // instead of an unregistered market:// scheme.
+            // handler normalizes market:// back to https://play.google.com/store/apps/
+            // (preserving the query) so TrackProductDownload's regex recognizes it
+            // and desktop browsers reach a real destination.
             const ORIGINAL_STORE_URL =
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dtest-19';
             const MUTATED_HREF =
@@ -328,11 +379,13 @@ describe('mobile-attribution.js', function () {
             expect(navigateSpy).toHaveBeenCalledWith(ORIGINAL_ANDROID_URL);
         });
 
-        it('captures the original https URL even if href is later mutated to market://', function () {
-            // Simulate the real-world race: our handler is attached at
-            // script load (sync). mozilla-utils.js mutates the href on
-            // DOMContentLoaded. By click time, the href is market://...
-            // but our captured URL is still the original https://.
+        it('normalizes market:// back to https when href is mutated by mozilla-utils.js', function () {
+            // Simulate the real-world sequence: our handler is attached at
+            // script load (sync). mozilla-utils.js mutates the href to
+            // market:// on DOMContentLoaded. The click handler normalizes
+            // market:// → https://play.google.com/store/apps/ so the full
+            // query (including any utm_content from referral attribution) is
+            // preserved.
             const ORIGINAL_ANDROID_URL =
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dpage-slug';
             const MUTATED_HREF =
@@ -362,8 +415,64 @@ describe('mobile-attribution.js', function () {
                     new MouseEvent('click', { bubbles: true, cancelable: true })
                 );
 
-            // Captured URL wins — not the mutated market:// URL.
+            // Normalized market:// → https, preserving the query.
             expect(sendEventSpy).toHaveBeenCalledWith(ORIGINAL_ANDROID_URL);
+        });
+
+        it('preserves utm_content in market:// URL rewritten by referral attribution', function () {
+            // Sequence: attachAndroidStoreButtonTracking binds at script load,
+            // capturing the original URL (no utm_content). Referral attribution
+            // then rewrites the href to include utm_content. mozilla-utils.js
+            // converts that rewritten HTTPS URL to market://. The click handler
+            // must use the normalized market:// (which has utm_content), not the
+            // originally-captured URL (which does not).
+            const ORIGINAL_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
+                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
+                '%26utm_campaign%3Dget-firefox';
+            const REFERRAL_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
+                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
+                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
+            const MUTATED_REFERRAL_HREF =
+                'market://details?id=org.mozilla.firefox' +
+                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
+                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
+
+            container.innerHTML =
+                '<a class="ga-product-download fl-store-button fl-store-button-android" href="' +
+                ORIGINAL_URL +
+                '">Play Store</a>';
+
+            const sendEventSpy = spyOn(
+                Mozilla.TrackProductDownload,
+                'sendEventFromURL'
+            );
+            const navigateSpy = spyOn(Mozilla.MobileAttribution, '_navigate');
+
+            // Step 1: bind at script load (captures ORIGINAL_URL).
+            Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
+                container
+            );
+
+            // Step 2: referral attribution rewrites href (HTTPS, with utm_content).
+            container.querySelector('a').setAttribute('href', REFERRAL_URL);
+
+            // Step 3: mozilla-utils.js converts the referral HTTPS href to market://.
+            container
+                .querySelector('a')
+                .setAttribute('href', MUTATED_REFERRAL_HREF);
+
+            container
+                .querySelector('a')
+                .dispatchEvent(
+                    new MouseEvent('click', { bubbles: true, cancelable: true })
+                );
+
+            // Must use the referral URL (with utm_content), not the originally-
+            // captured URL (without utm_content).
+            expect(sendEventSpy).toHaveBeenCalledWith(REFERRAL_URL);
+            expect(navigateSpy).toHaveBeenCalledWith(REFERRAL_URL);
         });
 
         it('does NOT attach to .fl-store-button-ios elements (iOS already fires via existing handler)', function () {
