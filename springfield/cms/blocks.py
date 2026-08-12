@@ -97,6 +97,17 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+# Browsers a tab can be auto-selected for. There is no Firefox option: the
+# comparison tables all pit Firefox against something else, so Firefox users are
+# sent to the Chrome tab instead - see flare-browser-tabs.es6.js.
+DETECTED_BROWSER_CHOICES = [
+    ("", "No auto-selection"),
+    ("chrome", "Chrome"),
+    ("edge", "Edge"),
+    ("safari", "Safari"),
+    ("opera", "Opera"),
+    ("brave", "Brave"),
+]
 GEO_CHOICES = [
     ("US", "United States"),
     ("GB", "United Kingdom"),
@@ -1699,6 +1710,14 @@ class TabComparisonTableBlock(blocks.StreamBlock):
 class TabBlock(blocks.StructBlock):
     tab_name = blocks.CharBlock(label="Tab name")
     icon = IconChoiceBlock(required=False, label="Tab icon", help_text="Optional icon shown before the tab name in the tab list.")
+    detected_browser = blocks.ChoiceBlock(
+        choices=DETECTED_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Detected browser",
+        help_text="Auto-select this tab for visitors using this browser. Leave empty to never auto-select it. "
+        "Visitors on Firefox, or on a browser no tab claims, get the Chrome tab.",
+    )
     heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     image = ImageChooserBlock(required=False)
     description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
@@ -1727,16 +1746,22 @@ class TabsBlock(blocks.StructBlock):
         template = "cms/blocks/tabs.html"
 
 
-class MediaBlock(blocks.StreamBlock):
-    image = ImageVariantsBlock(required=False)
-    video = VideoBlock(required=False)
-    animation = AnimationBlock(required=False)
-    qr_code = QRCodeBlock(required=False)
-    tabs = TabsBlock(required=False)
+def MediaBlock(allow_tabs=False, *args, **kwargs):
+    local_blocks = []
+    if allow_tabs:
+        local_blocks.append(("tabs", TabsBlock(required=False)))
 
-    class Meta:
-        label = "Media"
-        template = "cms/blocks/media.html"
+    class _MediaBlock(blocks.StreamBlock):
+        image = ImageVariantsBlock(required=False)
+        video = VideoBlock(required=False)
+        animation = AnimationBlock(required=False)
+        qr_code = QRCodeBlock(required=False)
+
+        class Meta:
+            label = "Media"
+            template = "cms/blocks/media.html"
+
+    return _MediaBlock(local_blocks or None, *args, **kwargs)
 
 
 # Content
@@ -3125,25 +3150,28 @@ class ShowcaseSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ShowcaseBlock(blocks.StructBlock):
-    settings = ShowcaseSettings()
-    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    media = MediaBlock(max_num=1)
-    caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    cta = MixedButtonsBlock(
-        button_types=get_button_types(),
-        min_num=0,
-        max_num=2,
-        required=False,
-        label="Call to Action",
-    )
+def ShowcaseBlock(allow_tabs=False, *args, **kwargs):
+    class _ShowcaseBlock(blocks.StructBlock):
+        settings = ShowcaseSettings()
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        media = MediaBlock(allow_tabs=allow_tabs, max_num=1)
+        caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        cta = MixedButtonsBlock(
+            button_types=get_button_types(),
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Call to Action",
+        )
 
-    class Meta:
-        template = "cms/blocks/sections/showcase.html"
-        label = "Showcase"
-        label_format = "{headline}"
+        class Meta:
+            template = "cms/blocks/sections/showcase.html"
+            label = "Showcase"
+            label_format = "{headline}"
+
+    return _ShowcaseBlock(*args, **kwargs)
 
 
 class CardGalleryCard(blocks.StructBlock):
