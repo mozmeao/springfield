@@ -22,6 +22,7 @@ from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.cms.blocks import (
+    DETECTED_BROWSER_CHOICES,
     ROADMAP_STATUS_LABELS,
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
@@ -2725,9 +2726,9 @@ def test_showcase_block(index_page, placeholder_images, rf):
                 assert not cta, "Expected .fl-showcase-cta to be absent when no CTA buttons are set"
 
 
-def _render_showcase(media):
+def _render_showcase(media, allow_tabs=False):
     """Render a ShowcaseBlock around the given raw media stream."""
-    block = ShowcaseBlock()
+    block = ShowcaseBlock(allow_tabs=allow_tabs)
     value = block.to_python(
         {
             "settings": {"layout": "default"},
@@ -2752,7 +2753,8 @@ def test_showcase_block_wraps_tabs_media_in_a_div_not_a_figure():
                 "value": {"section_id": "hub", "tabs": [{"tab_name": "First tab", "description": "<p>Tab description</p>"}]},
                 "id": "2026shx0-0000-0000-0000-000000000001",
             }
-        ]
+        ],
+        allow_tabs=True,
     )
 
     assert soup.find("figure") is None
@@ -4850,6 +4852,47 @@ def test_tabs_block_tab_button_omits_the_icon_when_none_is_chosen():
     for button in buttons:
         assert button.find("span", class_="fl-icon") is None
     assert [b.get_text(strip=True) for b in buttons] == ["First tab", "Legacy tab"]
+
+
+def test_tabs_block_tab_button_renders_its_detected_browser():
+    """flare-browser-tabs.es6.js selects a tab by matching data-browser to the
+    visitor's browser, so the chosen value has to reach the markup. The tab name
+    cannot carry this: it is translated, and matching on it would fail
+    everywhere but English."""
+    tablist = _render_tablist([{"tab_name": "Chrome vs Firefox", "detected_browser": "chrome"}])
+
+    button = tablist.find("button", attrs={"role": "tab"})
+    assert button["data-browser"] == "chrome"
+
+
+def test_tabs_block_tab_button_omits_detected_browser_when_unset():
+    """Auto-selection is opt-in per tab, including for tabs saved before the
+    field existed. An empty choice stores "", which as data-browser="" would
+    make the tab a match candidate for a browser that never gets detected."""
+    tablist = _render_tablist([{"tab_name": "First tab", "detected_browser": ""}, {"tab_name": "Legacy tab"}])
+
+    buttons = tablist.find_all("button", attrs={"role": "tab"})
+    assert len(buttons) == 2
+    for button in buttons:
+        assert "data-browser" not in button.attrs
+
+
+def test_tabs_block_renders_a_distinct_detected_browser_per_tab():
+    """The five browser tabs must each carry their own value: a single shared or
+    last-wins attribute would auto-select the same tab for everyone."""
+    browsers = ["chrome", "edge", "safari", "opera", "brave"]
+    tablist = _render_tablist([{"tab_name": browser.title(), "detected_browser": browser} for browser in browsers])
+
+    buttons = tablist.find_all("button", attrs={"role": "tab"})
+    assert [button["data-browser"] for button in buttons] == browsers
+
+
+def test_tab_block_rejects_firefox_as_a_detected_browser():
+    """There is no Firefox tab to auto-select - the tables all compare Firefox
+    against something else - so Firefox visitors are sent to the Chrome tab
+    instead. Offering the choice would let an author build a tab that can never
+    be selected."""
+    assert "firefox" not in dict(DETECTED_BROWSER_CHOICES)
 
 
 def _email_href(html):
