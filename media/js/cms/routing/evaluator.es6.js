@@ -85,18 +85,19 @@ function toNumber(value) {
     return Number.isNaN(number) ? null : number;
 }
 
+// Bare (129), rv-prefixed (rv:129) and dotted (129.0.1) — and nothing else. Matching the
+// whole string matters: stripping leading non-digits alone accepted `garbage129`, and
+// allowing a trailing remainder accepted `129beta`, both of which then compared as 129.
+// Anything unparseable must carry no version instead, so the comparison fails closed.
+// `oldversion=unknown`, which Firefox sends when it has no prior version, is the common case.
+const VERSION_RE = /^(?:rv:)?(\d+(?:\.\d+)*)$/;
+
 export function normalizeVersion(value) {
-    // Accept bare (129), prefixed (rv:129) and fully-qualified (129.0.1) forms by
-    // stripping any leading non-digits, then comparing dot-separated numbers. A value
-    // with no digits at all carries no version — `oldversion=unknown`, which Firefox
-    // sends when it has no prior version to report, is the common one.
     if (value === null || value === undefined) {
         return null;
     }
-    const stripped = String(value)
-        .trim()
-        .replace(/^[^\d]*/, '');
-    return stripped === '' ? null : stripped;
+    const match = VERSION_RE.exec(String(value).trim());
+    return match ? match[1] : null;
 }
 
 /**

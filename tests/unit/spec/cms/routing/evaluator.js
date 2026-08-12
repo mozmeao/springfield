@@ -80,6 +80,15 @@ describe('cms/routing/evaluator.es6.js', function () {
             expect(compareVersions('129.1', '129.0.5')).toEqual(1);
         });
 
+        it('reports no comparison for a value that only contains a version', function () {
+            // Previously these were coerced to 129 by stripping the leading junk or
+            // ignoring the trailing remainder, which let a garbage value match a rule.
+            expect(compareVersions('garbage129', '129')).toBeNull();
+            expect(compareVersions('129beta', '129')).toBeNull();
+            expect(compareVersions('129.0.1-beta', '129')).toBeNull();
+            expect(compareVersions('v129', '129')).toBeNull();
+        });
+
         it('reports no comparison at all when either side has no version in it', function () {
             // Not 0 — "no answer" and "equal" must not be the same value, or every
             // ordered operator reads a garbage value as equal and matches on it.
