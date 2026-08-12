@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-class TabsAutomatic {
+export class TabsAutomatic {
     constructor(groupNode) {
         this.tablistNode = groupNode;
 
@@ -45,9 +45,6 @@ class TabsAutomatic {
             const isCurrent = currentTab === tab;
 
             tab.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
-            // Tabindex: only the current tab is in the keyboard focus
-            // order, the rest are reachable via arrow/Home/End keys.
-            tab.setAttribute('tabindex', isCurrent ? '0' : '-1');
             if (tabpanel) {
                 tabpanel.classList.toggle('is-hidden', !isCurrent);
             }
@@ -101,7 +98,6 @@ class TabsAutomatic {
                 this.setSelectedTab(this.lastTab);
                 flag = true;
                 break;
-
             default:
                 break;
         }
@@ -117,9 +113,16 @@ class TabsAutomatic {
     }
 }
 
+/**
+ * Initialise every tablist on the page.
+ *
+ * @returns {Array<TabsAutomatic>} The instances, so callers that need to drive
+ *          selection - see flare-browser-tabs.es6.js - can do so through the
+ *          same object, keeping tab state, panels and focus order consistent.
+ */
 export default function setupTabs() {
     const tablists = document.querySelectorAll('.fl-tabs-nav[role="tablist"]');
-    tablists.forEach(function (tablist) {
-        new TabsAutomatic(tablist);
+    return Array.from(tablists).map(function (tablist) {
+        return new TabsAutomatic(tablist);
     });
 }
