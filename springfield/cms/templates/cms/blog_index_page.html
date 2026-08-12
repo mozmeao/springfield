@@ -12,35 +12,7 @@
 
 {% block content %}
 
-{% set full_width_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-
-{% macro illustration_card_media(article, list_size, filterspec=full_width_filterspec) %}
-  {% set sizes_by_count = {
-    2: "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw",
-    3: "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw",
-    4: "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"
-  } %}
-  {% set default_sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw" %}
-  {% set sizes = sizes_by_count[list_size] if list_size in sizes_by_count else default_sizes %}
-  {% set image = article.get_image() %}
-  {% if image %}
-    {% if image.focal_point_x %}
-      {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
-    {% else %}
-      {% set focal_point = "center" %}
-    {% endif %}
-    {% set dark_image = article.get_dark_image() %}
-    {% set mobile_image = article.get_mobile_image() %}
-    {% set dark_mobile_image = article.get_mobile_dark_image() %}
-    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
-    <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
-      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", class=classes.primary) }}
-      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
-      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
-    </div>
-  {% endif %}
-{% endmacro %}
+{% from "cms/includes/blog/blog-card-media.html" import illustration_card_media with context %}
 
 {% set all_url = page.url ~ page.reverse_subpage('all_route') %}
 
@@ -75,7 +47,7 @@
           {% if header_topics %}
             <div class="fl-blog-topics-list is-header">
               {% for topic in header_topics %}
-                <a href="{{ all_url }}?topic={{ topic.slug }}" class="fl-blog-topic-link fl-tag">{{ topic.name }}</a>
+                <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic.slug]) }}" class="fl-blog-topic-link fl-tag">{{ topic.name }}</a>
               {% endfor %}
               <div class="fl-blog-topics-all">
                 <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
@@ -85,113 +57,8 @@
         </div>
 
 
-        {% if page.featured_articles %}
-          <div class="fl-blog-featured">
-
-            <div class="fl-blog-featured-row">
-              {% set first_block = page.featured_articles[0] %}
-
-              <div class="fl-blog-featured-main">
-                <div class="fl-blog-featured-main-media">
-                  {% set image = first_block.value.get_image() %}
-                  {% if image %}
-                    {% set dark_image = first_block.value.get_dark_image() %}
-                    {% set mobile_image = first_block.value.get_mobile_image() %}
-                    {% set dark_mobile_image = first_block.value.get_mobile_dark_image() %}
-                    {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
-                    {% if image.focal_point_x %}
-                      {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
-                    {% else %}
-                      {% set focal_point = "center" %}
-                    {% endif %}
-                    <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
-                      {{ srcset_image(image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
-                      {% if mobile_image %}{{ srcset_image(mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
-                      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-                      {% if dark_image %}{{ srcset_image(dark_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
-                    </div>
-                  {% endif %}
-                </div>
-                <include:heading
-                  level="h2"
-                  heading_text="{{ first_block.value.get_title() }}"
-                  superheading_text="{{ first_block.value.get_topic() }}"
-                  heading_size="fl-heading-lg fl-heading-condensed"
-                />
-                <p class="fl-body">{{ first_block.value.get_description() }}</p>
-                <div>
-                  <include:button
-                    label="{{ ftl('blog-read-more') }}"
-                    link="{{ first_block.value.get_url() }}"
-                  />
-                </div>
-              </div>
-
-              {% if page.featured_articles|length > 1 %}
-                <div class="fl-blog-article-list">
-                  {% for block in page.featured_articles[1:4] %}
-                    {% set article_page = block.value.article %}
-                    {% set description = block.value.get_description() %}
-                    <include:blog-article-list-item>
-                      <content:heading>
-                        <hgroup class="fl-heading-group">
-                          <p class="fl-superheading">{{ block.value.get_topic() }}</p>
-                          <h2 class="fl-heading">
-                            <a href="{{ article_page.url }}" class="fl-link">{{ block.value.get_title() }}</a>
-                          </h2>
-                        </hgroup>
-                      </content:heading>
-                      <content:body>{{ description|richtext }}</content:body>
-                      {% if article_page.first_published_at %}
-                        <content:date>{{ article_page.first_published_at|date("DATE_FORMAT") }}</content:date>
-                      {% endif %}
-                      {% if block.value.get_tags() %}
-                        <content:tags>
-                          {% for tag in block.value.get_tags() %}
-                            <include:tag text="{{ tag }}" color="purple" corners="round" />
-                          {% endfor %}
-                        </content:tags>
-                      {% endif %}
-                    </include:blog-article-list-item>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-
-            {% if page.featured_articles|length > 4 %}
-              {% set list_size = page.featured_articles[4:]|length %}
-              <include:cards-list container_width="fill">
-                {% for block in page.featured_articles[4:] %}
-                  <include:card expand_link="true">
-                    <content:media>{{ illustration_card_media(block.value, list_size) }}</content:media>
-                    <content:body>
-                      <hgroup class="fl-heading-group">
-                        <p class="fl-superheading">{{ block.value.get_topic() }}</p>
-                        <h2 class="fl-heading fl-heading-size-3">
-                          <a href="{{ block.value.get_url() }}" class="fl-card-heading-link fl-link-expand">
-                            {{ block.value.get_title() }}
-                          </a>
-                        </h2>
-                      </hgroup>
-                      <div class="fl-body">
-                        <p>{{ block.value.get_description() }}</p>
-                        {% set tags = block.value.get_tags() %}
-                        {% if tags %}
-                          <div class="fl-card-tags">
-                            {% for tag in tags %}
-                              <include:tag text="{{ tag }}" color="purple" corners="round" />
-                            {% endfor %}
-                          </div>
-                        {% endif %}
-                      </div>
-                    </content:body>
-                  </include:card>
-                {% endfor %}
-              </include:cards-list>
-            {% endif %}
-
-          </div>
-        {% endif %}
+        {% set featured_articles = page.featured_articles %}
+        {% include "cms/includes/blog/blog-featured-articles.html" %}
 
         {% if page.cards_lists %}
           <include:heading

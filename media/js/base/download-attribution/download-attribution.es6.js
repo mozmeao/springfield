@@ -64,6 +64,9 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     requestComplete: false,
     inFlightXHR: null,
     gettingAnalyticsData: false,
+    // Set by the referral pipeline (referral-attribution.es6.js) so a
+    // late-completing analytics XHR cannot clobber referral attribution.
+    referralActive: false,
 
     /**
      * Determines if session falls within the predefined download attribution sample rate.
@@ -380,11 +383,10 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             return;
         }
 
-        // Always apply the latest signed payload to links and cookie.
-        // Essential and analytics triggers fire independently; if both
-        // sign requests succeed, the later one carries the more complete
-        // combined data and must win.
-        DownloadAttribution.updateBouncerLinks(data);
+        // Only update links when referral-attribution is not active
+        if (!DownloadAttribution.referralActive) {
+            DownloadAttribution.updateBouncerLinks(data);
+        }
         DownloadAttribution.setSignedCookie(data);
 
         // The success callback fires once per page lifetime. Auto-download

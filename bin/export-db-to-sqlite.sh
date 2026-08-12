@@ -175,6 +175,7 @@ python manage.py dumpdata \
     cms.ThanksPage \
     cms.BlogIndexPage \
     cms.BlogArticlePage \
+    cms.BlogTopicPage \
     cms.RoadmapPage \
     cms.ContactPage \
     cms.ReferralHubPage \

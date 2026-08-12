@@ -1559,6 +1559,7 @@ _allowed_page_models = [
     "cms.ThanksPage",
     "cms.BlogIndexPage",
     "cms.BlogArticlePage",
+    "cms.BlogTopicPage",
     "cms.RoadmapPage",
     "cms.ContactPage",
     "cms.ReferralHubPage",
