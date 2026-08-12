@@ -29,6 +29,16 @@
     animation: routing-resolver-escape-in 300ms ease-in 1600ms both;
 }
 
+// A keyboard user can reach the link on their first Tab, long before the delay is up, and
+// `both` holds it at opacity 0 until then — focus with nothing to see. Anyone who has
+// focused it is by definition not waiting for a redirect, so drop the animation entirely
+// and show it. Pointer users keep the delayed reveal.
+.routing-resolver-escape:focus,
+.routing-resolver-escape:focus-visible {
+    animation: none;
+    opacity: 1;
+}
+
 @keyframes routing-resolver-escape-in {
     from {
         opacity: 0;
