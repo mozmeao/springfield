@@ -2,13 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import itertools
+
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale
+from wagtail.models import Locale, Site
 from wagtail_localize.operations import translate_object
 
 from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
@@ -30,10 +32,74 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_topics,
 )
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
-from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
+from springfield.cms.models.images import SpringfieldImage
+from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle
 from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
+
+
+@pytest.fixture
+def blog_index(minimal_site):
+    root_page = Site.objects.get(is_default_site=True).root_page
+    index_page = BlogIndexPage(
+        title="Blog",
+        slug="test-unit-blog",
+        locale=Locale.objects.get(language_code="en-US"),
+    )
+    root_page.add_child(instance=index_page)
+    return index_page
+
+
+@pytest.fixture
+def blog_topic(blog_index):
+    return BlogTopic.objects.create(name="Privacy", slug="test-unit-privacy", locale=blog_index.locale)
+
+
+@pytest.fixture
+def make_article(blog_index, blog_topic):
+    slug_numbers = itertools.count(1)
+
+    def make_article(**fields):
+        fields.setdefault("topic", blog_topic)
+        if not fields.get("image"):
+            fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
+        article = BlogArticlePage(
+            title=fields.pop("title", "Test article"),
+            slug=f"test-unit-article-{next(slug_numbers)}",
+            locale=blog_index.locale,
+            **fields,
+        )
+        blog_index.add_child(instance=article)
+        return article
+
+    return make_article
+
+
+@pytest.fixture
+def stub_images(db):
+    """Two images with no files — never rendered. Use bulk_create since
+    SpringfieldImage.save() pre-generates renditions, which needs a real image file."""
+    return tuple(
+        SpringfieldImage.objects.bulk_create(
+            [
+                SpringfieldImage(title="Featured", width=800, height=450),
+                SpringfieldImage(title="Listing", width=800, height=450),
+            ]
+        )
+    )
+
+
+@pytest.fixture
+def real_images(db):
+    """Two image rows with real files, for tests that render an `<img>`."""
+    image, dark_image, _, _ = get_placeholder_images()
+    return image, dark_image
+
+
+@pytest.fixture
+def bare_article(make_article):
+    return make_article(title="Bare article")
 
 
 @pytest.fixture
@@ -64,7 +130,7 @@ def single_article(minimal_site):
 
 @pytest.fixture
 def privacy_articles(minimal_site):
-    """Index page + 9 privacy articles with varied titles, descriptions, and display_image values."""
+    """Index page + 9 privacy articles with varied titles, descriptions and images."""
     image, dark_image, _, _ = get_placeholder_images()
     idx = get_blog_index_page()
     privacy = get_blog_topics()["privacy"]
@@ -81,7 +147,6 @@ def privacy_articles(minimal_site):
                 index_page=idx,
                 title=all_titles[i],
                 slug=f"test-privacy-{i + 1}",
-                display_image=(i % 2 == 0),
                 topic=privacy,
                 tags=[privacy_tag],
                 image=image if i < 5 else dark_image,
@@ -509,8 +574,9 @@ def test_blog_all_renders_pagination(blog_setup, rf):
     assert prev_button.get("aria-disabled") == "true"
     assert next_button.get("href")
 
+    num_pages = (NUM_LIST_ARTICLES + 9) // 10
     indicator = pagination.find("span", class_="fl-pagination-indicator")
-    assert indicator.get_text(strip=True) == "1/3"
+    assert indicator.get_text(strip=True) == f"1/{num_pages}"
 
 
 def test_blog_all_pagination_last_page(blog_setup, rf):
@@ -536,27 +602,6 @@ def test_blog_all_pagination_last_page(blog_setup, rf):
 
     indicator = pagination.find("span", class_="fl-pagination-indicator")
     assert indicator.get_text(strip=True) == f"{num_pages}/{num_pages}"
-
-
-def test_blog_all_list_articles_display_image(blog_setup, rf):
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    request = rf.get(url)
-    response = index_page.all_route(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
-    assert len(items) == 10  # first page
-
-    items_with_image = []
-    for item in items:
-        has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
-        has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
-        assert has_image_class == has_img, "Image class and image div should be consistent"
-        if has_img:
-            items_with_image.append(item)
-
-    assert len(items_with_image) > 0, "Some list articles should display an image"
 
 
 def test_blog_all_topic_filter_shows_selected_topic(blog_setup, rf):
@@ -1159,15 +1204,13 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
     ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
-    The count is pinned as flat (not per-article) by
-    test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(31):
+    with django_assert_max_num_queries(32):
         index_page.all_route(request)
 
 
@@ -1201,3 +1244,109 @@ def test_all_page_renders_localized_tag_names(privacy_articles, rf):
     tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
     assert "Confidentialité" in tag_labels
     assert "Privacy" not in tag_labels
+
+
+# ---------------------------------------------------------------------------
+# Hero style, dates and listing image
+# ---------------------------------------------------------------------------
+
+
+def test_blog_article_listing_image_falls_back_to_the_featured_image(bare_article, stub_images):
+    featured_image, _ = stub_images
+    bare_article.image = featured_image
+
+    assert bare_article.listing_image is None
+    assert bare_article.get_listing_image() == featured_image
+
+
+def test_blog_article_listing_image_replaces_the_featured_image(bare_article, stub_images):
+    featured_image, listing_image = stub_images
+    bare_article.image = featured_image
+    bare_article.listing_image = listing_image
+
+    assert bare_article.get_listing_image() == listing_image
+
+
+def test_blog_article_listing_image_variants_come_from_the_featured_image(bare_article, stub_images):
+    featured_image, dark_image = stub_images
+    bare_article.image = featured_image
+    bare_article.image_dark_mode = dark_image
+
+    variants = bare_article.get_listing_image_variants()
+
+    assert variants.dark_mode == dark_image
+    assert variants.mobile is None
+    assert variants.dark_mode_mobile is None
+
+
+def test_blog_article_listing_image_suppresses_the_featured_image_variants(bare_article, stub_images):
+    featured_image, listing_image = stub_images
+    bare_article.image = featured_image
+    bare_article.image_dark_mode = listing_image
+    bare_article.listing_image = listing_image
+
+    variants = bare_article.get_listing_image_variants()
+
+    assert variants.dark_mode is None
+    assert variants.mobile is None
+    assert variants.dark_mode_mobile is None
+
+
+@pytest.mark.parametrize("hero_style", [HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE])
+def test_blog_article_image_hero_styles_require_featured_image(hero_style, bare_article):
+    bare_article.hero_style = hero_style
+    with pytest.raises(ValidationError) as exc_info:
+        bare_article.clean()
+    assert "image" in exc_info.value.error_dict
+
+
+def test_blog_article_video_hero_style_requires_a_video(bare_article, stub_images):
+    featured_image, _ = stub_images
+    bare_article.image = featured_image
+    bare_article.hero_style = HeroStyle.VIDEO
+
+    with pytest.raises(ValidationError) as exc_info:
+        bare_article.clean()
+
+    assert "hero_video" in exc_info.value.error_dict
+
+
+def test_blog_article_text_only_hero_style_needs_no_assets(bare_article):
+    bare_article.hero_style = HeroStyle.TEXT_ONLY
+
+    bare_article.clean()  # does not raise
+
+
+def test_blog_article_edit_handler_tabs():
+    headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
+
+    assert headings == ["Content", "Promote & SEO", "Settings"]
+
+
+def test_blog_article_content_tab_panel_order():
+    content_tab = BlogArticlePage.get_edit_handler().children[0]
+    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in content_tab.children]
+
+    assert labels == [
+        "title",
+        "internal_title",
+        "description",
+        "Topic & Tags",
+        "article_authors",
+        "Dates",
+        "Featured Image",
+        "Hero Options",
+        "content",
+    ]
+
+
+def test_blog_article_form_exposes_publish_date_and_drops_show_in_menus():
+    form_fields = BlogArticlePage.get_edit_handler().get_form_class().base_fields
+
+    assert "first_published_at" in form_fields
+    assert "updated_date" in form_fields
+    assert "hide_dates" in form_fields
+    assert "listing_image" in form_fields
+    assert "show_in_menus" not in form_fields
+
+

@@ -14,6 +14,7 @@ from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
 from springfield.cms.management.commands.link_translations_after_export import TRANSLATABLE_SNIPPET_MODELS
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTopic
+from springfield.cms.models.pages import HeroStyle
 from springfield.cms.wagtail_hooks import BlogAuthorChooseView
 
 pytestmark = [pytest.mark.django_db]
@@ -24,7 +25,7 @@ def article(minimal_site):
     root_page = Site.objects.get(is_default_site=True).root_page
     index_page = root_page.add_child(instance=BlogIndexPage(title="Blog", slug="blog"))
     topic = BlogTopic.objects.create(name="Privacy", slug="privacy", locale=Locale.get_default())
-    return index_page.add_child(instance=BlogArticlePage(title="Article", slug="article", topic=topic))
+    return index_page.add_child(instance=BlogArticlePage(title="Article", slug="article", topic=topic, hero_style=HeroStyle.TEXT_ONLY))
 
 
 def make_author(name, slug, **kwargs):
