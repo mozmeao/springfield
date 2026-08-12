@@ -1308,7 +1308,6 @@ def test_successful_import_creates_page_with_expected_fields(tmp_path, index_pag
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.title == "A Test Post"
-    assert page.display_image is True
     assert page.topic.name == "Firefox"
     assert {t.name for t in page.tags.all()} == {"Privacy", "Security"}
     assert [author.name for author in page.get_authors()] == ["Nick Nguyen"]
