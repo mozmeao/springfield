@@ -8,7 +8,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import { batch, effect, signal } from '@preact/signals-core';
+import { batch, effect, signal, computed } from '@preact/signals-core';
 
 const OS = {
     IOS: 'ios',
@@ -180,6 +180,22 @@ class FirefoxDownloadURL extends URL {
     }
 }
 
+// Condition for showing results: are the options compatible
+// Otherwise, fallback.
+//
+// Goal: initially try to get the form to a compatible state.
+// - Compatible prefill options
+// - Platform detection
+//
+// Failure:
+// - Incompatible prefill options (show errors)
+// - Platform detection fails (don’t show errors)
+//
+// Condition for showing errors:
+// - Was it the result of a user action:
+//   - Incompatible prefill
+//   - Incompatible option selection
+
 class FirefoxDownloadFormElement extends HTMLElement {
     #os = signal();
     get os() {
@@ -205,8 +221,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this.#language.value = value;
     }
 
+    #choices = computed(() => ({
+        os: this.#os.value,
+        release: this.#release.value,
+        language: this.#language.value
+    }));
     get choices() {
-        return Object.fromEntries(new FormData(this.form));
+        return this.#choices.value;
     }
 
     get releaseNotesElement() {
@@ -233,262 +254,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     handleEvent(event) {
         switch (event.type) {
-            case 'slotchange': {
-                if (!this.form) break;
-
-                batch(() => {
-                    this.os = this.form.elements.os.value;
-                    this.release = this.form.elements.os.release;
-                    this.language = this.form.elements.os.language;
-                });
-
-                effect(() => {
-                    if (this.os && this.release) {
-                        const url = new URL(window.location);
-                        url.search = new URLSearchParams({
-                            os: this.os,
-                            release: this.release,
-                            language: this.language
-                        });
-                        history.replaceState(null, '', url);
-                    }
-                });
-
-                // Setup
-                this.form.addEventListener('submit', this);
-                this.form.addEventListener('input', this);
-                this.form.addEventListener('invalid', this, true);
-
-                this.primaryAction = this.#createDownloadButton({
-                    label: 'Download',
-                    icon: 'downloads',
-                    additionalClasses: ['button-primary'],
-                    href: ''
-                });
-
-                document
-                    .querySelector('[data-primary-action]')
-                    .closest('.c-download-option')
-                    .replaceWith(this.primaryAction.element);
-
-                effect(() => {
-                    switch (this.os) {
-                        case OS.IOS:
-                            this.primaryAction.href.value =
-                                IOS_APP_STORE_LINKS[this.release];
-                            switch (this.release) {
-                                case RELEASES.STABLE:
-                                    this.primaryAction.label.value =
-                                        'Download from the App Store';
-                                    this.primaryAction.icon.value = 'downloads';
-                                    break;
-                                case RELEASES.BETA:
-                                    this.primaryAction.label.value =
-                                        'Sign up for TestFlight';
-                                    this.primaryAction.icon.value = 'forward';
-                                    break;
-                            }
-                            break;
-                        case OS.ANDROID:
-                            this.primaryAction.href.value =
-                                ANDROID_PLAY_STORE_LINKS[this.relase];
-                            this.primaryAction.label.value =
-                                'Download from the Play Store';
-                            this.primaryAction.icon.value = 'downloads';
-                            break;
-                        default:
-                            this.primaryAction.label.value =
-                                this.release === RELEASES.ESR
-                                    ? 'Download ESR 140'
-                                    : 'Download';
-
-                            this.primaryAction.icon.value = 'downloads';
-
-                            this.primaryAction.href.value =
-                                new FirefoxDownloadURL({
-                                    os: this.os,
-                                    release: this.release,
-                                    language: this.language
-                                });
-                            break;
-                    }
-                });
-
-                this.storeAction = this.#createDownloadButton({
-                    label: 'Download from the Microsoft store',
-                    icon: 'external-link',
-                    additionalClasses: ['button-secondary', 'fl-button-small']
-                });
-                effect(() => {
-                    if (
-                        this.os.startsWith('win') &&
-                        [RELEASES.STABLE, RELEASES.BETA].includes(this.release)
-                    ) {
-                        this.storeAction.label.value =
-                            'Download from the Microsoft Store';
-                        this.storeAction.href.value =
-                            MICROSOFT_STORE_LINKS[this.release];
-                        if (!this.storeAction.element.isConnected) {
-                            this.primaryAction.element.after(
-                                this.#createOrDivider().element,
-                                this.storeAction.element
-                            );
-                        }
-                    } else {
-                        this.storeAction.label.value = '';
-                        this.storeAction.href.value = '';
-                        if (this.storeAction.element.isConnected) {
-                            this.#removeOrDivider(
-                                this.storeAction.element,
-                                'before'
-                            );
-                            this.storeAction.element.remove();
-                        }
-                    }
-                });
-
-                this.esrNextAction = this.#createDownloadButton({
-                    label: 'Download ESR 153',
-                    icon: 'downloads',
-                    additionalClasses: ['button-primary']
-                });
-                effect(() => {
-                    if (
-                        this.#release.value === RELEASES.ESR &&
-                        this.#releaseSupportsPlatform(
-                            RELEASES.ESR_NEXT,
-                            this.#os.value
-                        )
-                    ) {
-                        this.esrNextAction.href.value = new FirefoxDownloadURL({
-                            os: this.os,
-                            release: RELEASES.ESR_NEXT,
-                            language: this.language
-                        });
-                        if (!this.esrNextAction.element.isConnected) {
-                            this.primaryAction.element.before(
-                                this.esrNextAction.element,
-                                this.#createOrDivider().element
-                            );
-                        }
-                    } else if (this.esrNextAction.element.isConnected) {
-                        this.#removeOrDivider(
-                            this.esrNextAction.element,
-                            'after'
-                        );
-                        this.esrNextAction.element.remove();
-                    }
-                });
-
-                this.esr115Action = this.#createDownloadButton({
-                    label: 'Download ESR 115',
-                    icon: 'downloads',
-                    additionalClasses: ['button-primary', 'fl-button-small'],
-                    withRecommendation: true
-                });
-                effect(() => {
-                    if (
-                        this.#release.value === RELEASES.ESR &&
-                        this.#releaseSupportsPlatform(
-                            RELEASES.ESR_115,
-                            this.#os.value
-                        )
-                    ) {
-                        this.esr115Action.href.value = new FirefoxDownloadURL({
-                            os: this.os,
-                            release: RELEASES.ESR_115,
-                            language: this.language
-                        });
-                        if (this.os.startsWith('win')) {
-                            this.esr115Action.recommendation.value =
-                                'Recommended for Windows 7/8/8.1';
-                        } else if (this.os.startsWith('osx')) {
-                            this.esr115Action.recommendation.value =
-                                'Recommended for macOS 10.12–10.14';
-                        } else if (this.os.startsWith('linux')) {
-                            this.esr115Action.recommendation.value =
-                                'Recommended for older operating systems';
-                        }
-
-                        if (!this.esr115Action.element.isConnected) {
-                            this.primaryAction.element.after(
-                                this.#createOrDivider().element,
-                                this.esr115Action.element
-                            );
-                        }
-                    } else if (this.esr115Action.element.isConnected) {
-                        this.#removeOrDivider(
-                            this.esr115Action.element,
-                            'before'
-                        );
-                        this.esr115Action.element.remove();
-                    }
-                });
-
-                this.aptAction = this.#createDownloadButton({
-                    label: 'Set up the APT repository',
-                    href: 'https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions',
-                    icon: 'external-link',
-                    additionalClasses: ['button-secondary']
-                });
-                effect(() => {
-                    if (
-                        this.os.startsWith('linux') &&
-                        !this.aptAction.element.isConnected
-                    ) {
-                        this.querySelector('.c-download-options').prepend(
-                            this.aptAction.element
-                        );
-                    } else if (this.aptAction.element.isConnected) {
-                        this.aptAction.element.remove();
-                    }
-                });
-
-                this.releaseNotes = this.#createSupportLink({
-                    label: 'Release Notes',
-                    href: '/firefox/notes/'
-                });
-                effect(() => {
-                    this.releaseNotes.href.value = new ReleaseNotesURL({
-                        os: this.os,
-                        release: this.release,
-                        language: this.language
-                    });
-                });
-
-                this.systemRequirements = this.#createSupportLink({
-                    label: 'System Requirements',
-                    href: '/firefox/system-requirements/'
-                });
-                effect(() => {
-                    this.systemRequirements.href.value =
-                        new SystemRequirementsURL({
-                            os: this.os,
-                            release: this.release,
-                            language: this.language
-                        });
-                });
-
-                this.privacyPolicy = this.#createSupportLink({
-                    label: 'Privacy Policy',
-                    href: 'https://www.mozilla.org/privacy/firefox/'
-                });
-
-                const supportLinks = document.createElement('div');
-                supportLinks.classList.add('c-support-links');
-                supportLinks.append(
-                    this.releaseNotes.element,
-                    this.systemRequirements.element,
-                    this.privacyPolicy.element
-                );
-                this.resultsPane.append(supportLinks);
-
-                this.#setConditionalDisplay();
-                this.#validate();
-
-                this.shadowRoot.removeEventListener('slotchange', this);
+            case 'slotchange':
+                this.#handleSlotChange(event);
                 break;
-            }
             case 'input':
                 this.#handleInput(event);
                 break;
@@ -503,6 +271,257 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
     }
 
+    /**
+     * Handle the initial form setup
+     */
+    #handleSlotChange() {
+        if (!this.form) return;
+
+        // Initialize the signals with the form values
+        batch(() => {
+            this.os = this.form.elements.os.value;
+            this.release = this.form.elements.os.release;
+            this.language = this.form.elements.os.language;
+        });
+
+        // Setup URL param syncing
+        // Note: does not run during OS detection
+        // TODO: determine if this should update when the form values are incompatible
+        effect(() => {
+            if (this.os && this.release) {
+                const url = new URL(window.location);
+                url.search = new URLSearchParams({
+                    os: this.os,
+                    release: this.release,
+                    language: this.language
+                });
+                history.replaceState(null, '', url);
+            }
+        });
+
+        // Setup
+        this.form.addEventListener('submit', this);
+        this.form.addEventListener('input', this);
+        this.form.addEventListener('invalid', this, true);
+
+        this.primaryAction = this.#createDownloadButton({
+            label: 'Download',
+            icon: 'downloads',
+            additionalClasses: ['button-primary'],
+            href: ''
+        });
+
+        document
+            .querySelector('[data-primary-action]')
+            .closest('.c-download-option')
+            .replaceWith(this.primaryAction.element);
+
+        effect(() => {
+            switch (this.os) {
+                case OS.IOS:
+                    this.primaryAction.href.value =
+                        IOS_APP_STORE_LINKS[this.release];
+                    switch (this.release) {
+                        case RELEASES.STABLE:
+                            this.primaryAction.label.value =
+                                'Download from the App Store';
+                            this.primaryAction.icon.value = 'downloads';
+                            break;
+                        case RELEASES.BETA:
+                            this.primaryAction.label.value =
+                                'Sign up for TestFlight';
+                            this.primaryAction.icon.value = 'forward';
+                            break;
+                    }
+                    break;
+                case OS.ANDROID:
+                    this.primaryAction.href.value =
+                        ANDROID_PLAY_STORE_LINKS[this.relase];
+                    this.primaryAction.label.value =
+                        'Download from the Play Store';
+                    this.primaryAction.icon.value = 'downloads';
+                    break;
+                default:
+                    this.primaryAction.label.value =
+                        this.release === RELEASES.ESR
+                            ? 'Download ESR 140'
+                            : 'Download';
+
+                    this.primaryAction.icon.value = 'downloads';
+
+                    this.primaryAction.href.value = new FirefoxDownloadURL(
+                        this.choices
+                    );
+                    break;
+            }
+        });
+
+        this.storeAction = this.#createDownloadButton({
+            label: 'Download from the Microsoft store',
+            icon: 'external-link',
+            additionalClasses: ['button-secondary', 'fl-button-small']
+        });
+        effect(() => {
+            if (
+                this.os.startsWith('win') &&
+                [RELEASES.STABLE, RELEASES.BETA].includes(this.release)
+            ) {
+                this.storeAction.label.value =
+                    'Download from the Microsoft Store';
+                this.storeAction.href.value =
+                    MICROSOFT_STORE_LINKS[this.release];
+                if (!this.storeAction.element.isConnected) {
+                    this.primaryAction.element.after(
+                        this.#createOrDivider().element,
+                        this.storeAction.element
+                    );
+                }
+            } else {
+                this.storeAction.label.value = '';
+                this.storeAction.href.value = '';
+                if (this.storeAction.element.isConnected) {
+                    this.#removeOrDivider(this.storeAction.element, 'before');
+                    this.storeAction.element.remove();
+                }
+            }
+        });
+
+        this.esrNextAction = this.#createDownloadButton({
+            label: 'Download ESR 153',
+            icon: 'downloads',
+            additionalClasses: ['button-primary']
+        });
+        effect(() => {
+            if (
+                this.release === RELEASES.ESR &&
+                this.#releaseSupportsPlatform(RELEASES.ESR_NEXT, this.os)
+            ) {
+                this.esrNextAction.href.value = new FirefoxDownloadURL({
+                    os: this.os,
+                    release: RELEASES.ESR_NEXT,
+                    language: this.language
+                });
+                if (!this.esrNextAction.element.isConnected) {
+                    this.primaryAction.element.before(
+                        this.esrNextAction.element,
+                        this.#createOrDivider().element
+                    );
+                }
+            } else if (this.esrNextAction.element.isConnected) {
+                this.#removeOrDivider(this.esrNextAction.element, 'after');
+                this.esrNextAction.element.remove();
+            }
+        });
+
+        this.esr115Action = this.#createDownloadButton({
+            label: 'Download ESR 115',
+            icon: 'downloads',
+            additionalClasses: ['button-primary', 'fl-button-small'],
+            withRecommendation: true
+        });
+        effect(() => {
+            if (
+                this.release === RELEASES.ESR &&
+                this.#releaseSupportsPlatform(RELEASES.ESR_115, this.os)
+            ) {
+                this.esr115Action.href.value = new FirefoxDownloadURL({
+                    os: this.os,
+                    release: RELEASES.ESR_115,
+                    language: this.language
+                });
+                if (this.os.startsWith('win')) {
+                    this.esr115Action.recommendation.value =
+                        'Recommended for Windows 7/8/8.1';
+                } else if (this.os.startsWith('osx')) {
+                    this.esr115Action.recommendation.value =
+                        'Recommended for macOS 10.12–10.14';
+                } else if (this.os.startsWith('linux')) {
+                    this.esr115Action.recommendation.value =
+                        'Recommended for older operating systems';
+                }
+
+                if (!this.esr115Action.element.isConnected) {
+                    this.primaryAction.element.after(
+                        this.#createOrDivider().element,
+                        this.esr115Action.element
+                    );
+                }
+            } else if (this.esr115Action.element.isConnected) {
+                this.#removeOrDivider(this.esr115Action.element, 'before');
+                this.esr115Action.element.remove();
+            }
+        });
+
+        this.aptAction = this.#createDownloadButton({
+            label: 'Set up the APT repository',
+            href: 'https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions',
+            icon: 'external-link',
+            additionalClasses: ['button-secondary']
+        });
+        effect(() => {
+            if (
+                this.os.startsWith('linux') &&
+                !this.aptAction.element.isConnected
+            ) {
+                this.querySelector('.c-download-options').prepend(
+                    this.aptAction.element
+                );
+            } else if (this.aptAction.element.isConnected) {
+                this.aptAction.element.remove();
+            }
+        });
+
+        this.releaseNotes = this.#createSupportLink({
+            label: 'Release Notes',
+            href: '/firefox/notes/'
+        });
+        effect(() => {
+            this.releaseNotes.href.value = new ReleaseNotesURL(this.choices);
+        });
+
+        this.systemRequirements = this.#createSupportLink({
+            label: 'System Requirements',
+            href: '/firefox/system-requirements/'
+        });
+        effect(() => {
+            this.systemRequirements.href.value = new SystemRequirementsURL(
+                this.choices
+            );
+        });
+
+        this.privacyPolicy = this.#createSupportLink({
+            label: 'Privacy Policy',
+            href: 'https://www.mozilla.org/privacy/firefox/'
+        });
+
+        const supportLinks = document.createElement('div');
+        supportLinks.classList.add('c-support-links');
+        supportLinks.append(
+            this.releaseNotes.element,
+            this.systemRequirements.element,
+            this.privacyPolicy.element
+        );
+        this.resultsPane.append(supportLinks);
+
+        this.compatible = signal();
+        effect(() => {
+            this.resultsPane.querySelector('.c-download-options').hidden =
+                !this.compatible.value;
+            this.resultsPane.querySelector('.c-support-links').hidden =
+                !this.compatible.value;
+            this.resultsPane.querySelector('.c-incompatible-choices').hidden =
+                this.compatible.value;
+        });
+
+        this.#setConditionalDisplay();
+        this.#validate();
+
+        this.shadowRoot.removeEventListener('slotchange', this);
+    }
+
+    /**
+     * Handle syncing the choices as signals, clearing irrelevant validation.
+     */
     #handleInput(event) {
         // Sync the form state
         batch(() => {
@@ -520,6 +539,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         if (!selectedOption.disabled) event.target.setCustomValidity('');
         else event.target.setCustomValidity('Chosen option not available');
 
+        // Clear the server rendered error messages
         for (const control of this.form.elements) {
             if (control.disabled || control.type !== 'select-one') continue;
 
@@ -536,6 +556,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
     }
 
+    /**
+     * Progressive enhancement for validation messages.
+     */
     #handleInvalid(event) {
         event.preventDefault();
 
@@ -545,9 +568,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
         if (fieldWrap.querySelector('.fl-field-error-message')) return;
 
-        const errorMessage = document.createElement('deferred-alert');
-        errorMessage.textContent = event.target.validationMessage;
-        errorMessage.classList.add('fl-field-error-message');
+        const { element: errorMessage } = this.#createErrorMessage({
+            message: event.target.validationMessage
+        });
 
         // Since the validation is happening as the select element closes, the announcement-space is very busy and we risk our message being clobbered.
         // This is especially bad on iOS.
@@ -601,14 +624,61 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
 
         for (const releaseOption of Object.values(RELEASES)) {
+            // TODO: find a better way to handle this (e.g. filter it earlier)
+            if ([RELEASES.ESR_115, RELEASES.ESR_NEXT].includes(releaseOption))
+                continue;
             const isSupported = this.#releaseSupportsPlatform(
                 releaseOption,
                 os.value
             );
-            if (!release.options[releaseOption]) continue;
+            let optionElement = release.options[releaseOption];
 
-            release.options[releaseOption].disabled = !isSupported;
-            release.options[releaseOption].hidden = !isSupported;
+            // Setting `hidden` on an option element has a number of issues:
+            //
+            // - Safari doesn’t respect it (unless using customizable select).
+            // - Screen readers still seem to count them when presenting the
+            //   item number of the current option.
+            // - In NVDA + Firefox, the arrow key select navigation (form mode)
+            //   becomes completely broken.
+            //
+            // So instead what we do here is store incompatible options as a
+            // comment with the option value and label delimited with a `:`
+            // (e.g. <!--esr:Firefox ESR-->).
+            //
+            // In the case where an incompatible option was selected, we keep it
+            // in the DOM, but disable it until the user changes their
+            // selection, so to avoid changing the user’s choice and to promote
+            // an understanding of which option is incorrect.
+
+            if (isSupported && !optionElement) {
+                const comment = Array.from(release.childNodes).find(
+                    (node) =>
+                        node.nodeType === Node.COMMENT_NODE &&
+                        node.data.split(':')[0] === releaseOption
+                );
+                if (!comment)
+                    throw `Missing placeholder comment for option: ${releaseOption}`;
+
+                optionElement = document.createElement('option');
+                optionElement.value = releaseOption;
+                optionElement.setAttribute('name', releaseOption);
+                optionElement.textContent = comment.data.split(':')[1];
+                comment.replaceWith(optionElement);
+            } else if (!isSupported && optionElement) {
+                if (optionElement.selected) {
+                    optionElement.disabled = true;
+                } else {
+                    // Make sure the node is hidden
+                    const comment = new Comment(
+                        `${releaseOption}:${optionElement.textContent}`
+                    );
+                    optionElement.replaceWith(comment);
+                }
+            } else if (isSupported && optionElement) {
+                if (optionElement.selected) {
+                    optionElement.disabled = false;
+                }
+            }
         }
     }
 
@@ -633,10 +703,21 @@ class FirefoxDownloadFormElement extends HTMLElement {
         );
 
         if (!release.validity.valid) release.reportValidity();
+
+        this.compatible.value = this.form.matches(':valid');
     }
 
     // TODO: if no search params, prefill based on detected OS.
-    #detectOS() {}
+    #detectOS() {
+        const ua = navigator.userAgent;
+        if (/Android|iPhone|iPad/.test(ua)) return null;
+        if (/Windows/.test(ua))
+            return /ARM|aarch64/i.test(ua) ? 'win64-aarch64' : 'win64';
+        if (/Mac OS X/.test(ua)) return 'osx';
+        if (/Linux/.test(ua))
+            return /aarch64|arm64/i.test(ua) ? 'linux64-aarch64' : 'linux64';
+        return null;
+    }
 
     #createDownloadButton({
         label: initialLabel,
@@ -680,10 +761,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
         link.classList.add('fl-button');
         if (additionalClasses) link.classList.add(...additionalClasses);
 
-        // TODO: we need to handle icons
         effect(() => {
             const [text] = link.childNodes;
-            console.log({ text });
             if (text) {
                 text.data = label.value;
             } else {
@@ -729,6 +808,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
         };
     }
 
+    #createErrorMessage({ message: initialMessage }) {
+        const message = signal(initialMessage);
+        const element = document.createElement('deferred-alert');
+        element.classList.add('fl-field-error-message');
+        effect(() => {
+            element.textContent = message.value;
+        });
+        return { element, message };
+    }
+
     #createOrDivider() {
         const element = document.createElement('div');
         element.classList.add('c-or-divider');
@@ -748,6 +837,20 @@ class FirefoxDownloadFormElement extends HTMLElement {
             maybeDivider.remove();
         }
     }
+}
+
+function detectLang() {
+    const localeKeys = Object.keys(DATA.languageNames);
+    for (const lang of navigator.languages || [navigator.language]) {
+        if (localeKeys.includes(lang)) return lang;
+        // Try the base language tag (e.g. "fr-CA" → "fr")
+        const base = lang.split('-')[0];
+        const match = localeKeys.find(
+            (l) => l === base || l.startsWith(base + '-')
+        );
+        if (match) return match;
+    }
+    return 'en-US';
 }
 
 customElements.define('firefox-download-form', FirefoxDownloadFormElement);
