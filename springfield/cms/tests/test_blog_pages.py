@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import itertools
+from datetime import UTC, date, datetime
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
@@ -11,8 +12,10 @@ from django.utils.translation import override
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale, Site
+from wagtail.rich_text import RichText
 from wagtail_localize.operations import translate_object
 
+from springfield.cms.blocks import BlogArticleBlock
 from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
@@ -1127,26 +1130,18 @@ def test_blog_article_excludes_self_from_related(privacy_articles, rf):
     assert article not in context["related_articles"]
 
 
-def test_blog_article_related_articles_display_image(privacy_articles, rf):
-    index_page, articles = privacy_articles
+def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
+    _, articles = privacy_articles
     article = articles[0]
-    request = rf.get(article.get_full_url())
-    response = article.serve(request)
+    response = article.serve(rf.get(article.get_full_url()))
     soup = BeautifulSoup(response.content, "html.parser")
 
-    section = soup.find("section", class_="fl-blog-related-articles")
-    assert section
+    items = soup.find("section", class_="fl-blog-related-articles").find_all("article", class_="fl-blog-article-list-item")
+    assert items
 
-    items = section.find_all("article", class_="fl-blog-article-list-item")
-    items_with_image = []
     for item in items:
-        has_image_class = "fl-blog-article-list-item-with-image" in item.get("class", [])
-        has_img = bool(item.find("div", class_="fl-blog-article-list-item-image"))
-        assert has_image_class == has_img, "Image class and image div should be consistent"
-        if has_img:
-            items_with_image.append(item)
-
-    assert len(items_with_image) > 0, "At least one related article should display an image"
+        assert "fl-blog-article-list-item-with-image" in item.get("class", [])
+        assert item.find("div", class_="fl-blog-article-list-item-image").find("img")
 
 
 # ---------------------------------------------------------------------------
@@ -1344,6 +1339,109 @@ def test_blog_article_text_only_hero_style_needs_no_assets(bare_article):
     bare_article.clean()  # does not raise
 
 
+def test_blog_article_hero_renders_in_the_split_page_upper(make_article, real_images, rf):
+    featured_image, _ = real_images
+    article = make_article(
+        image=featured_image,
+        content=[("text", RichText("<p>Article body copy.</p>"))],
+    )
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    assert upper
+    assert upper.find("a", class_="fl-blog-back-link")
+    header = upper.find("header", class_="fl-article-header")
+    assert header and article.title in header.get_text()
+
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert lower
+    assert "Article body copy." in lower.find("section", class_="fl-rich-text").get_text()
+
+
+def test_blog_article_standard_hero_renders_image_before_title(make_article, real_images, rf):
+    featured_image, _ = real_images
+    article = make_article(image=featured_image, hero_style=HeroStyle.STANDARD_IMAGE)
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    assert "fl-article-header-standard-image" in header.get("class", [])
+    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+
+    assert len(children) >= 2, "Header should have at least two children: image and title"
+    assert "image-variants-display" in children[0], "First child should be the image"
+    assert "fl-article-title" in children[1], "Second child should be the title"
+    assert article.title in children[1].get_text()
+
+
+def test_blog_article_large_hero_renders_image_after_title(make_article, real_images, rf):
+    featured_image, _ = real_images
+    article = make_article(image=featured_image, hero_style=HeroStyle.LARGE_IMAGE)
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    assert "fl-article-header-large-image" in header.get("class", [])
+    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+
+    assert len(children) >= 2, "Header should have at least two children: image and title"
+    assert "fl-article-title" in children[0], "First child should be the title"
+    assert article.title in children[0].get_text()
+    assert "image-variants-display" in children[-1], "Second child should be the image"
+
+
+def test_blog_article_text_only_hero_renders_no_media(make_article, real_images, rf):
+    featured_image, _ = real_images
+    article = make_article(image=featured_image, hero_style=HeroStyle.TEXT_ONLY)
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    assert "fl-article-header-text-only" in header.get("class", [])
+    assert header.find("img") is None
+    assert header.find("div", class_="fl-video") is None
+    assert header.find("h1", class_="fl-heading")
+    assert article.title in header.get_text()
+
+
+def test_blog_article_video_hero_renders_video_before_title(make_article, real_images, rf):
+    poster_image, _ = real_images
+    article = make_article(
+        hero_style=HeroStyle.VIDEO,
+        hero_video=[
+            {
+                "type": "video",
+                "value": {
+                    "video_url": "https://www.youtube.com/watch?v=firefox123",
+                    "alt": "A Firefox demo",
+                    "poster": poster_image.pk,
+                },
+            }
+        ],
+    )
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    assert "fl-article-header-video" in header.get("class", [])
+    assert header.find("div", class_="image-variants-display") is None
+
+    video = header.find("div", class_="fl-video")
+    assert video
+    assert video.find("button")["data-video-id"] == "firefox123"
+
+    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+    assert len(children) >= 2, "Header should have at least two children: video and title"
+    assert "fl-video" in children[0]
+    assert "fl-article-title" in children[1]
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1377,3 +1475,198 @@ def test_blog_article_form_exposes_publish_date_and_drops_show_in_menus():
     assert "show_in_menus" not in form_fields
 
 
+def test_blog_article_hero_renders_description(make_article, rf):
+    article = make_article(description=RichText("<p>What this article is about.</p>"))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    header = soup.find("header", class_="fl-article-header")
+    description = header.find("div", class_="fl-article-description")
+
+    assert description
+    assert "What this article is about." in description.get_text()
+
+
+def test_blog_article_hero_renders_published_date(make_article, rf):
+    article = make_article(first_published_at=datetime(2026, 6, 12, 9, 0, tzinfo=UTC))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    meta = soup.find("header", class_="fl-article-header").find("div", class_="fl-article-meta")
+
+    assert meta
+    assert meta.find("time")["datetime"].startswith("2026-06-12")
+    assert "Last updated on" not in meta.get_text()
+
+
+def test_blog_article_hero_renders_updated_date(make_article, rf):
+    article = make_article(updated_date=date(2026, 6, 12))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    meta = soup.find("header", class_="fl-article-header").find("div", class_="fl-article-meta")
+
+    assert "Last updated on" in meta.get_text()
+    assert "June 12, 2026" in meta.get_text()
+
+
+def test_blog_article_hide_dates_removes_hero_dates(make_article, rf):
+    article = make_article(
+        first_published_at=datetime(2026, 6, 12, 9, 0, tzinfo=UTC),
+        updated_date=date(2026, 6, 12),
+        hide_dates=True,
+    )
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("header", class_="fl-article-header").find("div", class_="fl-article-dates") is None
+
+
+def test_blog_article_hero_puts_dates_under_byline(make_article, rf):
+    authors = get_blog_authors()
+    article = make_article(updated_date=date(2026, 6, 12))
+    article.article_authors.set([BlogArticleAuthor(author=authors["ada-lovelace"])])
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    meta = soup.find("header", class_="fl-article-header").find("div", class_="fl-article-meta")
+    children = meta.find_all(recursive=False)
+
+    assert "fl-blog-byline" in children[0].get("class", [])
+    assert "fl-article-dates" in children[1].get("class", [])
+
+
+def test_blog_article_hide_dates_keeps_byline(make_article, rf):
+    authors = get_blog_authors()
+    article = make_article(hide_dates=True)
+    article.article_authors.set([BlogArticleAuthor(author=authors["ada-lovelace"])])
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    meta = soup.find("header", class_="fl-article-header").find("div", class_="fl-article-meta")
+
+    assert meta.find("p", class_="fl-blog-byline")
+    assert meta.find("div", class_="fl-article-dates") is None
+
+
+def test_blog_article_block_prefers_listing_image(make_article, stub_images):
+    featured_image, listing_image = stub_images
+    article = make_article(
+        image=featured_image,
+        image_dark_mode=featured_image,
+        listing_image=listing_image,
+        hero_style=HeroStyle.STANDARD_IMAGE,
+    )
+
+    value = BlogArticleBlock().to_python({"article": article.pk})
+
+    assert value.get_image() == listing_image
+    assert value.get_dark_image() is None
+    assert value.get_mobile_image() is None
+    assert value.get_mobile_dark_image() is None
+
+
+def test_blog_article_block_falls_back_to_featured_image(make_article, stub_images):
+    featured_image, dark_image = stub_images
+    article = make_article(
+        image=featured_image,
+        image_dark_mode=dark_image,
+        hero_style=HeroStyle.STANDARD_IMAGE,
+    )
+
+    value = BlogArticleBlock().to_python({"article": article.pk})
+
+    assert value.get_image() == featured_image
+    assert value.get_dark_image() == dark_image
+
+
+def test_blog_article_block_override_beats_listing_image(make_article, stub_images):
+    featured_image, listing_image = stub_images
+    article = make_article(
+        image=featured_image,
+        listing_image=listing_image,
+        hero_style=HeroStyle.STANDARD_IMAGE,
+    )
+
+    value = BlogArticleBlock().to_python(
+        {
+            "article": article.pk,
+            "overrides": {"image": {"image": featured_image.pk}},
+        }
+    )
+
+    assert value.get_image() == featured_image
+
+
+def test_blog_list_item_renders_article_image(blog_index, make_article, real_images, rf):
+    featured_image, _ = real_images
+    article = make_article(title="Article with an image", image=featured_image)
+    article.save_revision().publish()
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    assert "fl-blog-article-list-item-with-image" in item.get("class", [])
+    assert item.find("div", class_="fl-blog-article-list-item-image").find("img")
+
+
+def test_blog_list_item_renders_no_image_when_article_has_none(blog_index, make_article, rf):
+    article = make_article(title="Article with no image", hero_style=HeroStyle.TEXT_ONLY)
+    article.save_revision().publish()
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    assert "fl-blog-article-list-item-with-image" not in item.get("class", [])
+    assert item.find("div", class_="fl-blog-article-list-item-image") is None
+
+
+def test_blog_list_item_uses_listing_image_without_variants(blog_index, make_article, real_images, rf):
+    featured_image, listing_image = real_images
+    article = make_article(
+        title="Article with a listing image",
+        image=featured_image,
+        image_dark_mode=featured_image,
+        listing_image=listing_image,
+    )
+    article.save_revision().publish()
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    images = item.find("div", class_="fl-blog-article-list-item-image").find_all("img")
+
+    assert len(images) == 1, "A dedicated listing image renders alone, with no variant siblings"
+
+
+def test_blog_list_item_falls_back_to_featured_image_with_variants(blog_index, make_article, real_images, rf):
+    featured_image, dark_image = real_images
+    article = make_article(
+        title="Article with a dark variant",
+        image=featured_image,
+        image_dark_mode=dark_image,
+    )
+    article.save_revision().publish()
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    images = item.find("div", class_="fl-blog-article-list-item-image").find_all("img")
+
+    assert len(images) == 2, "The featured image renders alongside its dark-mode variant"
