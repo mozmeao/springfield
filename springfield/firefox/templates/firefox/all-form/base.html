@@ -83,7 +83,7 @@
             </include:dialog>
             <div id="release-no-js-hint" class="c-field-description">
               <style>
-                .no-js form {
+                .no-js form {;
                   &:has(option[value="ios"]:checked) [data-hint-for="ios"],
                   &:has(option[value="android"]:checked) [data-hint-for="android"],
                   &:has(option[value="linux"]:checked) [data-hint-for="linux"] {
@@ -110,7 +110,7 @@
               <label for="language">Language</label>
             </div>
             <select id="language" name="language" required class="fl-field">
-              {% for value, label in language_choices %}<option value="{{ value }}"{{ ' selected' if value == selected_language }}>{{ label }}</option>{% endfor %}
+              {% for value, label in language_choices %}<option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_language }}>{{ label }}</option>{% endfor %}
             </select>
           </div>
         </div>
@@ -129,6 +129,9 @@
               <button type="submit" class="fl-button" data-primary-action>See download options</button>
             </div>
           </div>
+          <div class="c-incompatible-choices" hidden>
+            <p>Your choices were incompatible and there are no download options available. Make better chocies.</p>
+          </div>
 
         </div>
       </form>
@@ -143,6 +146,67 @@ and we need to validate and update the conditional display logic immediately
 (also relevant if form values were prefilled). Making it a blocking script
 avoids layout shift + any flash of not-yet-initialized content. #}
 {% block experiments %}
+<script>
+  {
+    // Auto-detect the OS to prefill the form.
+    const detectedOS = detectOS();
+
+    if (detectedOS) {
+      let detectedOSApplied, detectedLanguageApplied;
+      const initialSelectionObserver = new MutationObserver((entries, observer) => {
+        for (const entry of entries) {
+          for (const node of entry.addedNodes) {
+            if (detectedOSApplied && detectedLanguageApplied) {
+              observer.disconnect();
+              return;
+            }
+
+            if (node.nodeType !== Node.ELEMENT_NODE || !node.matches('option, select[name="language"]')) continue;
+
+            // Auto-select the detected OS
+            // It would be good to use `Sec-CH-UA-Platform` for this, but it doesn’t seem to be making any progress in standards.
+            if (node.matches('option') && node.value === detectedOS) {
+              node.selected = true;
+              node.form.dataset.autoDetectedOs = true;
+              detectedOSApplied = true;
+              break;
+            }
+
+            // Auto-select the detected language
+            if (node.matches('select')) {
+              // TODO: is this list ordered by preference?
+              // TODO: We already have this information on the server via `Accept-Language`, we could vary the request and use it during rendering
+              for (const language of navigator.languages) {
+                let matchedOption = node.options.namedItem(language) ||
+                  node.options.namedItem(language.split("-")[0]);
+                if (matchedOption) {
+                  matchedOption.selected = true;
+                  detectedLanguageApplied = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      });
+      initialSelectionObserver.observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    function detectOS() {
+      const ua = navigator.userAgent;
+      if (/Android|iPhone|iPad/.test(ua)) return null;
+      if (/Windows/.test(ua))
+        return /ARM|aarch64/i.test(ua) ? 'win64-aarch64' : 'win64';
+      if (/Mac OS X/.test(ua)) return 'osx';
+      if (/Linux/.test(ua))
+        return /aarch64|arm64/i.test(ua) ? 'linux64-aarch64' : 'linux64';
+      return null;
+    }
+  }
+</script>
+{% endblock %}
+
+{% block js %}
   <script type="application/json" id="unsupportedPlatformsByRelease">{{ unsupported_platforms_json | safe }}</script>
   {{ js_bundle('firefox_all_form') }}
 {% endblock %}
