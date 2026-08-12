@@ -48,7 +48,16 @@ from bs4 import BeautifulSoup, Comment, NavigableString, Tag as HtmlTag
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
-from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, SpringfieldImage
+from springfield.cms.models import (
+    BlogArticleAuthor,
+    BlogArticlePage,
+    BlogAuthor,
+    BlogIndexPage,
+    BlogTag,
+    BlogTopic,
+    HeroStyle,
+    SpringfieldImage,
+)
 
 # Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
 # shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.
@@ -853,7 +862,8 @@ class Command(BaseCommand):
             locale=locale,
             topic=topic,
             image=image,
-            display_image=True,
+            # An image hero style would fail validation for a post the export gave no featured image.
+            hero_style=HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY,
             content=content,
             first_published_at=self.parse_wp_date(element_text(post, "Date")),
         )

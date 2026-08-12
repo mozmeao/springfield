@@ -126,6 +126,11 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     padding: var(--token-spacing-md);
 }
 
+.fl-header-main-download-button a,
+.fl-header-main-download-button a:hover {
+    text-decoration: none;
+}
+
 @media (--viewport-below-md) {
     .fl-header .fl-header-main-download-button .download-link {
         border-radius: var(--token-spacing-sm);

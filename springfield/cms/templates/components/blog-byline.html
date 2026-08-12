@@ -12,8 +12,8 @@
 {% if author_names | length == 1 %}
   {% set joined = author_names[0] %}
 {% else %}
-  {% set separator = ftl('blog-byline-author-separator') ~ ' ' %}
-  {% set last_separator = ' ' ~ ftl('blog-byline-last-separator') ~ ' ' %}
+  {% set separator = ftl('blog-byline-author-separator') %}
+  {% set last_separator = ftl('blog-byline-last-separator') %}
   {% set joined = author_names[:-1] | join(separator) ~ last_separator ~ author_names[-1] %}
 {% endif %}
 

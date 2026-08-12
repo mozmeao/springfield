@@ -2,12 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from datetime import date
+
 from django.utils.text import slugify
 
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
+from springfield.cms.models.pages import HeroStyle
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -47,8 +50,15 @@ REGULAR_DESCRIPTIONS = [get_description(f"rt{i:04d}", n) for i, n in enumerate((
 PRIVACY_EXTRA_FEATURED_DESCRIPTIONS = [get_description(f"pf{i:04d}", n) for i, n in enumerate((2, 3, 1), start=1)]
 PRIVACY_EXTRA_REGULAR_DESCRIPTIONS = [get_description(f"pr{i:04d}", n) for i, n in enumerate((1, 3, 2, 1, 3, 2, 1, 3), start=1)]
 
-# 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28 total articles
-NUM_LIST_ARTICLES = 28
+# Slugs of the articles that demonstrate one hero style or the listing image each.
+LARGE_IMAGE_ARTICLE_SLUG = "test-hero-large-image-article"
+TEXT_ONLY_ARTICLE_SLUG = "test-hero-text-only-article"
+VIDEO_ARTICLE_SLUG = "test-hero-video-article"
+LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
+
+# 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28,
+# plus the 4 hero style / listing image demonstrations = 32 total articles
+NUM_LIST_ARTICLES = 32
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
@@ -194,14 +204,21 @@ def create_blog_article(
     index_page: BlogIndexPage,
     title: str,
     slug: str,
-    display_image: bool = False,
     topic: BlogTopic,
     tags: list[BlogTag],
     image,
     description: str,
     content: list,
     authors: list[BlogAuthor] | None = None,
+    hero_style: str | None = None,
+    hero_video: list | None = None,
+    listing_image=None,
+    updated_date=None,
+    hide_dates: bool = False,
 ) -> BlogArticlePage:
+    if hero_style is None:
+        hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
+
     article = get_or_create_page(
         BlogArticlePage,
         slug=slug,
@@ -209,19 +226,28 @@ def create_blog_article(
         defaults={
             "title": title,
             "topic": topic,
+            "hero_style": hero_style,
+            "image": image,
+            "hero_video": hero_video or [],
         },
     )
 
     article.title = title
-    article.display_image = display_image
     article.topic = topic
+    article.hero_style = hero_style
     article.image = image
+    article.listing_image = listing_image
+    article.updated_date = updated_date
+    article.hide_dates = hide_dates
     article.description = description
     article.content = content
     article.tags.set(tags)
+    if hero_video is not None:
+        article.hero_video = hero_video
     if authors:
         article.article_authors.set([BlogArticleAuthor(author=author) for author in authors])
     article.save_revision().publish()
+    article.refresh_from_db()
 
     return article
 
@@ -240,10 +266,12 @@ def get_blog_index_page(slug="test-blog-index") -> BlogIndexPage:
 
 def get_blog_pages() -> list[BlogArticlePage]:
     """
-    Create a blog index page with 28 articles:
+    Create a blog index page with 32 articles:
     - 5 spread across topics + 3 extra for Privacy (Privacy gets 4 total)
     - 12 spread across topics + 8 extra for Privacy
       (Privacy gets 11 total: triggers pagination on its topic page)
+    - 4 demonstrating the large image, text only and video hero styles, and a
+      listing image that differs from the featured image
 
     All articles use all available content block types: text, media or image + caption, code, quote.
     Featured articles carry a captioned image, regular ones a plain image.
@@ -306,7 +334,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=REGULAR_TITLES[i - 1],
             slug=f"test-regular-blog-article-{i}",
-            display_image=(i % 2 == 0),
             topic=topic,
             tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
@@ -321,7 +348,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=title,
             slug=f"test-privacy-extra-regular-{i}",
-            display_image=(i % 2 == 0),
             topic=privacy,
             tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
@@ -329,6 +355,73 @@ def get_blog_pages() -> list[BlogArticlePage]:
             content=plain_content,
         )
         articles.append(article)
+
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: large featured image",
+            slug=LARGE_IMAGE_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[0],
+            content=captioned_content,
+            hero_style=HeroStyle.LARGE_IMAGE,
+            authors=author_list[:1],
+            updated_date=date(2026, 6, 12),
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: no image, text only",
+            slug=TEXT_ONLY_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=None,
+            description=FEATURED_DESCRIPTIONS[1],
+            content=plain_content,
+            hero_style=HeroStyle.TEXT_ONLY,
+            hide_dates=True,
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: featured video",
+            slug=VIDEO_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[2],
+            content=plain_content,
+            hero_style=HeroStyle.VIDEO,
+            hero_video=[
+                {
+                    "type": "video",
+                    "value": {
+                        "video_url": "https://www.youtube.com/watch?v=firefoxdemo",
+                        "alt": "A Firefox demo",
+                        "poster": image.pk,
+                    },
+                    "id": "herovid0-0000-0000-0000-000000000001",
+                }
+            ],
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Listing image override",
+            slug=LISTING_IMAGE_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[3],
+            content=plain_content,
+            listing_image=dark_image,
+        )
+    )
 
     index_page.page_heading = [
         {

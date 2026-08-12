@@ -12,7 +12,8 @@
     fl-buttons
     is-{{ orientation }}
     {% if value.alignment %}is-{{ value.alignment }}{% else %}is-center{% endif %}
-    {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}">
+    {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}
+    {% if value.auto_width_buttons %}auto-width-buttons{% endif %}">
     {% for button in value.buttons %}
       {% set block_position = block_position + "." + "button-" ~ loop.index %}
       {% include_block button %}

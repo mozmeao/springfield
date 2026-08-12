@@ -7,6 +7,7 @@ from __future__ import annotations
 import functools
 import re
 import uuid
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -1056,7 +1057,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
-        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
@@ -1074,6 +1075,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
                 group="Banners",
             ),
         ),
+        ("image_caption", ImageCaptionBlock(group="Media")),
         (
             "rich_text",
             RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
@@ -1686,6 +1688,7 @@ def article_list_queryset(queryset):
             "image_dark_mode",
             "image_mobile",
             "image_dark_mode_mobile",
+            "listing_image",
         )
         .prefetch_related(
             "tags",
@@ -1693,6 +1696,7 @@ def article_list_queryset(queryset):
             "image_dark_mode__renditions",
             "image_mobile__renditions",
             "image_dark_mode_mobile__renditions",
+            "listing_image__renditions",
         )
         .defer("content")
     )
@@ -2057,6 +2061,13 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return "cms/blog_topic_page.html"
 
 
+class HeroStyle(models.TextChoices):
+    STANDARD_IMAGE = "standard_image", "Standard image"
+    LARGE_IMAGE = "large_image", "Large featured image"
+    TEXT_ONLY = "text_only", "No image, text only"
+    VIDEO = "video", "Featured video"
+
+
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
@@ -2068,9 +2079,28 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         features=HEADING_TEXT_FEATURES,
         help_text="A short description used on the index page.",
     )
-    display_image = models.BooleanField(
+    updated_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Shown as “Last updated on …”. Leave empty to show only the published date.",
+    )
+    hide_dates = models.BooleanField(
         default=False,
-        help_text="Display image on the article's list",
+        help_text="Hide the published and updated dates on this article.",
+    )
+    hero_style = models.CharField(
+        max_length=32,
+        choices=HeroStyle,
+        default=HeroStyle.STANDARD_IMAGE,
+        help_text="Layout for the article header.",
+    )
+    hero_video = StreamField(
+        [("video", VideoBlock())],
+        max_num=1,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text="Video shown in the header when the hero style is “Featured video”.",
     )
 
     # Null so rows without a topic remain valid; blank stays False (the
@@ -2113,6 +2143,14 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         related_name="+",
         help_text="Optional dark mode mobile variant of the article image.",
     )
+    listing_image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Optional image for article cards and lists. Falls back to the featured image.",
+    )
     content = StreamField(
         [
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
@@ -2125,21 +2163,23 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        MultiFieldPanel(
-            [
-                FieldPanel("description"),
-                FieldPanel("display_image"),
-            ],
-            heading="Index Page Settings",
-        ),
+        FieldPanel("description"),
         MultiFieldPanel(
             [
                 FieldPanel("topic"),
                 FieldPanel("tags"),
             ],
-            heading="Tags",
+            heading="Topic & Tags",
         ),
         InlinePanel("article_authors", label="Authors"),
+        MultiFieldPanel(
+            [
+                FieldPanel("first_published_at"),
+                FieldPanel("updated_date"),
+                FieldPanel("hide_dates"),
+            ],
+            heading="Dates",
+        ),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
@@ -2150,13 +2190,43 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                         FieldPanel("image_dark_mode_mobile"),
                     ]
                 ),
+                FieldPanel("listing_image"),
             ],
-            heading="Article Image Variants",
+            heading="Featured Image",
+        ),
+        MultiFieldPanel(
+            [
+                FieldPanel("hero_style"),
+                FieldPanel("hero_video"),
+            ],
+            heading="Hero Options",
+            classname="collapsed",
         ),
         FieldPanel("content"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    # Drops show_in_menus, unused by the CMS
+    promote_panels = [
+        MultiFieldPanel(
+            [
+                FieldPanel("slug"),
+                FieldPanel("seo_title"),
+                FieldPanel("search_description"),
+            ],
+            heading="For search engines",
+        ),
+        FieldPanel("og_image"),
+    ]
+
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading="Content"),
+            ObjectList(promote_panels, heading="Promote & SEO"),
+            ObjectList(settings_panels, heading="Settings"),
+        ]
+    )
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
@@ -2173,6 +2243,15 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"BlogArticlePage: {self.title} - {self.locale}"
+
+    def clean(self):
+        """Reject a hero style whose asset is missing, keyed to the field the editor
+        has to fill in."""
+        super().clean()
+        if self.hero_style in (HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE) and not self.image_id:
+            raise ValidationError({"image": "This hero style needs a featured image."})
+        if self.hero_style == HeroStyle.VIDEO and not self.hero_video:
+            raise ValidationError({"hero_video": "This hero style needs a video."})
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -2216,6 +2295,20 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 if (resolved := placement.author.get_localized() or (placement.author if placement.author.live else None))
             ]
         return self._authors_cache
+
+    def get_listing_image(self):
+        """The image for cards and list items. Fall back to the featured image."""
+        return self.listing_image or self.image
+
+    def get_listing_image_variants(self):
+        """Dark and mobile variants for the listing image. Only available for the featured image."""
+        if self.listing_image_id:
+            return SimpleNamespace(dark_mode=None, mobile=None, dark_mode_mobile=None)
+        return SimpleNamespace(
+            dark_mode=self.image_dark_mode,
+            mobile=self.image_mobile,
+            dark_mode_mobile=self.image_dark_mode_mobile,
+        )
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -2702,25 +2795,27 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         context = super().get_context(request, *args, **kwargs)
 
+        # The defaults stand for every case where there is no usable `ref_key`:
+        # no invite link to offer and no progress to report.
         context["invite_url"] = ""
-        if referral_id := request.GET.get("ref_key"):
-            try:
-                invite_code = crypto.referral_id_to_invite_code(referral_id)
-                context["invite_url"] = crypto.invite_url_for_code(invite_code)
-            except ValueError:
-                # Treated like a missing `ref_key` rather than raising. Only a
-                # correctly sized one is reported, because this is a public page
-                # and anything can land in the query string. At the right length
-                # it plausibly came from the referral flow, so a spike is worth
-                # seeing. The value itself is masked out of the event by
-                # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
-                if len(referral_id) == REFERRAL_ID_LENGTH:
-                    with new_scope() as scope:
-                        scope.fingerprint = ["referral-hub-invalid-ref-key"]
-                        capture_message(
-                            "ReferralHubPage received a ref_key that is not a valid referral ID",
-                            level="warning",
-                        )
+        context["install_count"] = 0
+
+        referral_id = request.GET.get("ref_key", "")
+        try:
+            # Validates as well as encrypts -- `referral_id_to_invite_code`
+            # runs the same `validate_referral_id` that `serve()` does, so a
+            # missing or malformed value lands in the `except` below.
+            invite_code = crypto.referral_id_to_invite_code(referral_id)
+            context["invite_url"] = crypto.invite_url_for_code(invite_code)
+        except ValueError:
+            # Left at the defaults rather than raising, and deliberately not
+            # reported. `serve()` is what rejects and reports a public request
+            # without a usable `ref_key`, so nothing from the referral flow can
+            # reach this point. What can reach it are the callers that skip
+            # `serve()` -- CMS preview, and Wagtail's
+            # `serve_password_required_response`, which calls `get_context`
+            # directly -- and a bad value from those is not a signal.
+            return context
 
         context["install_count"] = self._get_install_count(referral_id)
 
@@ -2729,10 +2824,10 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     def _get_install_count(self, referral_id: str) -> int:
         """Installs credited to this ref_key, or 0 if it cannot be determined.
 
-        Returns 0 rather than raising for every failure mode -- no ref_key, an
-        unknown ref_key, or the referral table being unavailable -- because the
-        impact dashboard is one optional part of this page and must not be able
-        to fail the whole hub render.
+        Returns 0 rather than raising for every failure mode -- an unknown
+        ref_key, or the referral table being unavailable -- because the impact
+        dashboard is one optional part of this page and must not be able to fail
+        the whole hub render.
 
         Note this collapses "we don't know" and "you genuinely have 0 installs"
         into the same value. If the design ever needs to distinguish them (e.g.
@@ -2757,16 +2852,31 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
         The hub is meaningless without a referral ID -- there is no invite link to
         copy and no progress to show -- so a URL missing that part is treated as
-        not found rather than served empty. Wagtail's serve_preview builds its own
-        TemplateResponse instead of calling serve(), so CMS preview is unaffected
-        by this and still renders with an empty invite URL.
+        not found rather than served empty. This is the only place that rejects,
+        and the only place a bad `ref_key` is reported, because it is the only
+        one every public request passes through. `serve_preview()` renders the
+        page without coming through here, so CMS preview is unaffected and still
+        shows an empty invite URL.
         """
+        ref_key = request.GET.get("ref_key", "")
         try:
             # The referral ID arrives already-canonical from Firefox, so this is
             # deliberately strict: exactly REFERRAL_ID_LENGTH characters of
             # uppercase Crockford base32, with no case- or glyph-folding.
-            validate_referral_id(request.GET.get("ref_key"))
+            validate_referral_id(ref_key)
         except ValueError:
+            # Only a correctly sized `ref_key` is reported, because this is a
+            # public page and anything can land in the query string. At the right
+            # length it plausibly came from the referral flow, so a spike is worth
+            # seeing. The value itself is masked out of the event by
+            # `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`.
+            if len(ref_key) == REFERRAL_ID_LENGTH:
+                with new_scope() as scope:
+                    scope.fingerprint = ["referral-hub-invalid-ref-key"]
+                    capture_message(
+                        "ReferralHubPage received a ref_key that is not a valid referral ID",
+                        level="warning",
+                    )
             # Without this, CMSLocaleFallbackMiddleware would see the 404, find
             # this very page live at the same path, and redirect to it forever.
             mark_locale_fallback_exempt(request)

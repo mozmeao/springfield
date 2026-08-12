@@ -1049,6 +1049,12 @@ def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
             default="",
             required=False,
         )
+        auto_width_buttons = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            label="Auto-width Buttons",
+            help_text="When stacked, shrink buttons to fit their content instead of stretching full width.",
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=1,
@@ -1062,7 +1068,7 @@ def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["orientation", "spacing", "alignment"],
+                settings=["orientation", "spacing", "alignment", "auto_width_buttons"],
             )
 
     return _ButtonRowBlock(**kwargs)
@@ -1334,8 +1340,18 @@ class ImageCaptionBlock(blocks.StructBlock):
     image = ImageVariantsBlock()
     caption = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
+        required=False,
         label="Caption",
         help_text="Text displayed below the image.",
+    )
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
     )
 
     class Meta:
@@ -1343,6 +1359,10 @@ class ImageCaptionBlock(blocks.StructBlock):
         label = "Image + Caption"
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
+        form_layout = blocks.BlockGroup(
+            children=["image", "caption"],
+            settings=["layout"],
+        )
 
 
 class VideoBlock(blocks.StructBlock):
@@ -1969,8 +1989,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("image"):
             return image
-        if article_page and article_page.image:
-            return article_page.image
+        if article_page:
+            return article_page.get_listing_image()
         return None
 
     def get_dark_image(self):
@@ -1978,8 +1998,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_image"):
             return image
-        if article_page and article_page.image_dark_mode:
-            return article_page.image_dark_mode
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode
         return None
 
     def get_mobile_image(self):
@@ -1987,8 +2007,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("mobile_image"):
             return image
-        if article_page and article_page.image_mobile:
-            return article_page.image_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().mobile
         return None
 
     def get_mobile_dark_image(self):
@@ -1996,8 +2016,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_mobile_image"):
             return image
-        if article_page and article_page.image_dark_mode_mobile:
-            return article_page.image_dark_mode_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
 

@@ -10,6 +10,7 @@ import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
+from springfield.cms.models.pages import HeroStyle
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory, StructuralPageFactory
 from springfield.sitemaps.utils import (
     _path_for_cms_url,
@@ -175,7 +176,7 @@ def blog_pages():
     for name in ("Privacy", "Security"):
         slug = name.lower()
         topics[slug] = BlogTopic.objects.create(name=name, slug=slug, locale=locale)
-        article = BlogArticlePage(title=f"{name} article", slug=f"{slug}-article", topic=topics[slug], locale=locale)
+        article = BlogArticlePage(title=f"{name} article", slug=f"{slug}-article", topic=topics[slug], locale=locale, hero_style=HeroStyle.TEXT_ONLY)
         index_page.add_child(instance=article)
         article.save_revision().publish()
 
