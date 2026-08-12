@@ -1314,12 +1314,18 @@ class ComparisonTableBlock(blocks.StructBlock):
     )
     header_row = blocks.ListBlock(ComparisonTableRowBlock, min_num=1, max_num=1)
     content_rows = blocks.ListBlock(ComparisonTableRowBlock, min_num=1)
+    fine_print = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        label="Fine print",
+        help_text="Optional text displayed below the table.",
+    )
 
     class Meta:
         template = "cms/blocks/comparison-table.html"
         label = "Comparison Table"
         form_layout = blocks.BlockGroup(
-            children=["header_row", "content_rows"],
+            children=["header_row", "content_rows", "fine_print"],
             settings=["variant", "highlighted_column", "mobile_behavior"],
         )
 
