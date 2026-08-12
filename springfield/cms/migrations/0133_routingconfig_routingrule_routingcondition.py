@@ -14,7 +14,7 @@ import springfield.cms.routing.models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0128_editors_moderators_blogtopic_permissions"),
+        ("cms", "0132_blogtopicpage"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 
