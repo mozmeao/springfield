@@ -82,19 +82,28 @@ class RoutingMixin(models.Model):
         global ``user_routing`` waffle switch is the outermost gate — off ⇒ canonical
         exactly as today (the framework ships dark).
         """
+        # Raw switch_is_active, deliberately not springfield.base.waffle.switch, which
+        # treats a missing switch as settings.DEV — that would put every local dev on the
+        # routing path. Checked here as well as in decide_routing so a dark page returns
+        # before importing the resolver chain or touching the database.
+        if not waffle.switch_is_active(USER_ROUTING_SWITCH):
+            return super().serve(request, *args, **kwargs)
+
         # Imported here (request time) to keep the resolver/preview + l10n import chain
         # out of model loading; dispatch only matters when a page is actually served.
         from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
         from springfield.cms.routing.resolver import render_resolver
 
+        # The two database-backed flags are passed unevaluated; decide_routing calls them
+        # only if its precedence reaches them.
         decision = decide_routing(
-            routing_enabled=waffle.switch_is_active(USER_ROUTING_SWITCH),
+            routing_enabled=True,
             has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
             is_preview_admin=is_preview_request(request) and is_preview_admin(request),
-            is_paused=RoutingConfig.is_paused_for(self),
+            is_paused=lambda: RoutingConfig.is_paused_for(self),
             trigger_satisfied=self._routing_trigger_satisfied(request),
             is_canonical=self.is_routing_canonical(),
-            has_live_rules=self._has_live_routing_rules(),
+            has_live_rules=self._has_live_routing_rules,
         )
 
         if decision == SERVE_RESOLVER:

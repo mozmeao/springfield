@@ -50,6 +50,18 @@ def expected_decision(flags):
     return SERVE_CANONICAL
 
 
+# The two database-backed flags are callables in the real signature. The truth table below
+# reasons in plain booleans, so wrap them at the call site.
+LAZY_FLAGS = ("is_paused", "has_live_rules")
+
+
+def decide(**flags):
+    kwargs = dict(flags)
+    for name in LAZY_FLAGS:
+        kwargs[name] = lambda value=kwargs[name]: value
+    return decide_routing(**kwargs)
+
+
 ALL_FLAG_COMBINATIONS = [dict(zip(FLAG_NAMES, values)) for values in itertools.product([False, True], repeat=len(FLAG_NAMES))]
 
 
@@ -64,7 +76,7 @@ def test_covers_every_flag_combination():
 
 @pytest.mark.parametrize("flags", ALL_FLAG_COMBINATIONS)
 def test_decision_matches_spec_order_for_every_combination(flags):
-    assert decide_routing(**flags) == expected_decision(flags)
+    assert decide(**flags) == expected_decision(flags)
 
 
 # ---------------------------------------------------------------------------
@@ -80,7 +92,7 @@ def _flags(**overrides):
 
 def test_switch_off_short_circuits_everything():
     # Every downstream flag set to "would route/preview", but the switch is off.
-    result = decide_routing(
+    result = decide(
         **_flags(
             routing_enabled=False,
             is_preview_admin=True,
@@ -95,7 +107,7 @@ def test_switch_off_short_circuits_everything():
 def test_loop_breaker_is_checked_before_everything_else():
     # A fallen-through user (loop-breaker present) who is also triggered on a live
     # canonical with rules — and even an admin preview — still gets canonical.
-    result = decide_routing(
+    result = decide(
         **_flags(
             routing_enabled=True,
             has_loop_breaker=True,
@@ -110,26 +122,82 @@ def test_loop_breaker_is_checked_before_everything_else():
 
 def test_preview_wins_over_pause_and_resolver_but_needs_the_flag():
     routed = _flags(routing_enabled=True, is_paused=True, trigger_satisfied=True, is_canonical=True, has_live_rules=True)
-    assert decide_routing(**{**routed, "is_preview_admin": True}) == SERVE_PREVIEW
+    assert decide(**{**routed, "is_preview_admin": True}) == SERVE_PREVIEW
     # Without the preview-admin flag, the pause takes over -> canonical.
-    assert decide_routing(**{**routed, "is_preview_admin": False}) == SERVE_CANONICAL
+    assert decide(**{**routed, "is_preview_admin": False}) == SERVE_CANONICAL
 
 
 def test_pause_short_circuits_the_resolver():
-    result = decide_routing(**_flags(routing_enabled=True, is_paused=True, trigger_satisfied=True, is_canonical=True, has_live_rules=True))
+    result = decide(**_flags(routing_enabled=True, is_paused=True, trigger_satisfied=True, is_canonical=True, has_live_rules=True))
     assert result == SERVE_CANONICAL
 
 
 def test_resolver_requires_trigger_canonical_and_live_rules():
     routes = _flags(routing_enabled=True, trigger_satisfied=True, is_canonical=True, has_live_rules=True)
-    assert decide_routing(**routes) == SERVE_RESOLVER
+    assert decide(**routes) == SERVE_RESOLVER
     # Dropping any one of the three falls back to canonical.
-    assert decide_routing(**{**routes, "trigger_satisfied": False}) == SERVE_CANONICAL
-    assert decide_routing(**{**routes, "is_canonical": False}) == SERVE_CANONICAL
-    assert decide_routing(**{**routes, "has_live_rules": False}) == SERVE_CANONICAL
+    assert decide(**{**routes, "trigger_satisfied": False}) == SERVE_CANONICAL
+    assert decide(**{**routes, "is_canonical": False}) == SERVE_CANONICAL
+    assert decide(**{**routes, "has_live_rules": False}) == SERVE_CANONICAL
 
 
 def test_untriggered_traffic_is_canonical():
     # The organic case: enabled, canonical, has rules, but no trigger -> canonical.
-    result = decide_routing(**_flags(routing_enabled=True, is_canonical=True, has_live_rules=True, trigger_satisfied=False))
+    result = decide(**_flags(routing_enabled=True, is_canonical=True, has_live_rules=True, trigger_satisfied=False))
     assert result == SERVE_CANONICAL
+
+
+# ---------------------------------------------------------------------------
+# The database-backed flags are only consulted if precedence reaches them. Passing
+# them as values instead would put a pause read and a rule scan on every request to
+# an adopted page — including while the switch is off, which must cost nothing.
+# ---------------------------------------------------------------------------
+
+
+class _Counter:
+    """A flag callable that records whether anything asked for its value."""
+
+    def __init__(self, value):
+        self.value = value
+        self.calls = 0
+
+    def __call__(self):
+        self.calls += 1
+        return self.value
+
+
+def _decide_counting(**overrides):
+    flags = _flags(**overrides)
+    paused = _Counter(flags["is_paused"])
+    live = _Counter(flags["has_live_rules"])
+    flags["is_paused"] = paused
+    flags["has_live_rules"] = live
+    return decide_routing(**flags), paused, live
+
+
+@pytest.mark.parametrize(
+    ("label", "overrides"),
+    (
+        ("switch off", {"routing_enabled": False}),
+        ("loop breaker", {"routing_enabled": True, "has_loop_breaker": True}),
+        ("admin preview", {"routing_enabled": True, "is_preview_admin": True}),
+    ),
+)
+def test_neither_database_flag_is_read_before_its_gate(label, overrides):
+    # All three exit above the pause check, so neither flag may be touched.
+    _, paused, live = _decide_counting(**overrides, trigger_satisfied=True, is_canonical=True, has_live_rules=True)
+    assert paused.calls == 0, label
+    assert live.calls == 0, label
+
+
+def test_the_rule_scan_is_skipped_for_untriggered_traffic():
+    # The common case by volume: organic visitors to an adopted page. The pause is read,
+    # the rule scan is not.
+    _, paused, live = _decide_counting(routing_enabled=True, is_canonical=True, has_live_rules=True, trigger_satisfied=False)
+    assert paused.calls == 1
+    assert live.calls == 0
+
+
+def test_the_rule_scan_is_skipped_on_a_non_canonical_page():
+    _, _, live = _decide_counting(routing_enabled=True, trigger_satisfied=True, is_canonical=False, has_live_rules=True)
+    assert live.calls == 0

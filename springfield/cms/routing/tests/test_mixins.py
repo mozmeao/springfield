@@ -16,6 +16,7 @@ from django.test import RequestFactory
 import pytest
 from wagtail.models import Site
 
+from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.routing.arming import QueryParamArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingRule
@@ -72,6 +73,10 @@ def test_has_live_routing_rules_counts_only_live_targets():
     # match_all so the rule can route someone; a rule that cannot route is a separate
     # question, covered below.
     RoutingRule.objects.create(page=canonical, target=live_target, match_all=True)
+    # Re-fetched rather than reusing the instance above: usable_rules memoizes per page
+    # instance for the life of a request, and adding a rule mid-instance is not something
+    # a request does.
+    canonical = SimpleRichTextPage.objects.get(pk=canonical.pk)
     assert RoutingMixin._has_live_routing_rules(canonical) is True
 
     # A rule pointing only at an unpublished target does not count.

@@ -107,8 +107,19 @@ def usable_rules(page):
     the page has nothing to route with. Evaluating each rule's conditions here caches
     them on the rule instance, so the serializer's formatting pass is free.
     """
+    # Memoized for the life of this page *instance* — one request, where the gate asks and
+    # then the serializer asks again. It makes the two share a single answer rather than two
+    # that merely ought to agree. A caller that mutates rules and re-asks the same instance
+    # would see the stale list, so re-fetch the page instead (which is what a request does).
+    cached = getattr(page, "_usable_rules_cache", None)
+    if cached is not None:
+        return cached
+
     usable = []
-    for rule in page.routing_rules.all():
+    # Pull targets in the same query and conditions in one more, so the loop below adds no
+    # query per rule. The locale lookup inside localized_target is the residual.
+    rules = page.routing_rules.select_related("target").prefetch_related("conditions")
+    for rule in rules:
         target = localized_target(rule.target, page)
         if not target or not target.live:
             continue
@@ -119,6 +130,8 @@ def usable_rules(page):
         if not rule.conditions.all() and not rule.match_all:
             continue
         usable.append(UsableRule(rule, target))
+
+    page._usable_rules_cache = usable
     return usable
 
 

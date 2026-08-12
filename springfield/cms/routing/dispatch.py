@@ -9,6 +9,11 @@ no page, no Wagtail. This is what makes the highest-risk logic exhaustively test
 without a mixin-bearing page and keeps routing *policy* separate from
 Wagtail plumbing (the thin ``serve()`` adapter lives on ``RoutingMixin``).
 
+The two database-backed flags arrive as zero-argument callables, consulted only if the
+order below actually reaches them. Passing them as values would run both on every request
+to an adopted page — including when the switch is off, which is the one case that must
+cost nothing at all.
+
 The order is fixed and must not be reordered:
 
 0. Global ``user_routing`` switch off  → canonical  (outermost operational gate)
@@ -44,6 +49,7 @@ def decide_routing(
     """Return the serve-path branch for the given flags.
 
     Keyword-only args so the flag mapping is always explicit at the call site.
+    ``is_paused`` and ``has_live_rules`` are callables — see the module docstring.
     """
     if not routing_enabled:
         return SERVE_CANONICAL
@@ -51,8 +57,10 @@ def decide_routing(
         return SERVE_CANONICAL
     if is_preview_admin:
         return SERVE_PREVIEW
-    if is_paused:
+    if is_paused():
         return SERVE_CANONICAL
-    if trigger_satisfied and is_canonical and has_live_rules:
+    # `and` short-circuits, so an untriggered or non-canonical page never reaches the
+    # rule scan — which is every organic request to an adopted page.
+    if trigger_satisfied and is_canonical and has_live_rules():
         return SERVE_RESOLVER
     return SERVE_CANONICAL
