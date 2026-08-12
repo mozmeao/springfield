@@ -2690,7 +2690,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         """
         Adds an `invitation_code` code (from the URL) to the context, which is
-        carried as `fxrefer:<invitation code>` in utm_content by the referral
+        carried as `fxrefer<invitation code>` in utm_content by the referral
         attribution JS.
 
         Also adds `utm_parameters` with the referral campaign so that the

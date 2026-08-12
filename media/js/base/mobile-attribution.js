@@ -58,7 +58,7 @@ if (typeof window.Mozilla === 'undefined') {
      * @param {String} campaign - utm_campaign value.
      * @param {Boolean} isAndroid - True for Android/Play Store, false for iOS/App Store.
      * @param {String} [referralContent] - Optional utm_content for referral attribution
-     *   (e.g. "fxrefer:1HR4FZ672Z8Y0E4HW"). When provided, appended to the Android
+     *   (e.g. "fxrefer1HR4FZ672Z8Y0E4HW"). When provided, appended to the Android
      *   Play Store referrer string. Has no effect on iOS.
      */
     MobileAttribution.getStoreUrl = function (

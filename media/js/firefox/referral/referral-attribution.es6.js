@@ -8,7 +8,7 @@
  * Referral attribution checkbox module for the /get-firefox/?invitation=<code> page.
  *
  * The checkbox ("Let Mozilla count your install as a referral") is default-checked
- * (opt-out). When checked, the invitation code is carried as utm_content=fxrefer:<code>
+ * (opt-out). When checked, the invitation code is carried as utm_content=fxrefer<code>
  * in download attribution:
  *  - Desktop (Windows/macOS): via the referral pipeline defined below, which decorates
  *    Bouncer download links without touching the shared first-touch analytics cookies.
@@ -45,7 +45,7 @@ ReferralAttribution.getInvitationCode = () => {
 /**
  * Rewrites Android store badges to include (or exclude) the referral utm_content.
  * Delegates URL construction to MobileAttribution.getStoreUrl.
- * @param {String|null} referralContent - e.g. "fxrefer:1HR4FZ672Z8Y0E4HW", or null to strip.
+ * @param {String|null} referralContent - e.g. "fxrefer1HR4FZ672Z8Y0E4HW", or null to strip.
  */
 ReferralAttribution.rewriteAndroidLinks = (referralContent) => {
     const campaign = referralContent ? REFERRAL_CAMPAIGN : UNCHECKED_CAMPAIGN;
@@ -74,7 +74,7 @@ ReferralAttribution.processAttributionRequest = (checked) => {
 
     if (checked) {
         if (isAndroid) {
-            ReferralAttribution.rewriteAndroidLinks('fxrefer:' + code);
+            ReferralAttribution.rewriteAndroidLinks('fxrefer' + code);
         } else {
             ReferralAttribution.applyReferral(code);
         }
@@ -205,7 +205,7 @@ ReferralAttribution.getReferralData = (code) => {
         utm_source: 'www.firefox.com',
         utm_medium: 'referral',
         utm_campaign: REFERRAL_CAMPAIGN,
-        utm_content: 'fxrefer:' + code
+        utm_content: 'fxrefer' + code
     };
 };
 

@@ -133,13 +133,11 @@ describe('mobile-attribution.js', function () {
             const url = Mozilla.MobileAttribution.getStoreUrl(
                 'firefox-referral',
                 true,
-                'fxrefer:1HR4FZ672Z8Y0E4HW'
+                'fxrefer1HR4FZ672Z8Y0E4HW'
             );
             expect(url.indexOf(ANDROID_STORE_PREFIX)).toBe(0);
             expect(url).toContain('utm_campaign%3Dfirefox-referral');
-            expect(url).toContain(
-                '%26utm_content%3Dfxrefer%3A1HR4FZ672Z8Y0E4HW'
-            );
+            expect(url).toContain('%26utm_content%3Dfxrefer1HR4FZ672Z8Y0E4HW');
         });
 
         it('omits utm_content from the Android referrer when referralContent is null', function () {
@@ -163,7 +161,7 @@ describe('mobile-attribution.js', function () {
             const url = Mozilla.MobileAttribution.getStoreUrl(
                 'firefox-referral',
                 false,
-                'fxrefer:1HR4FZ672Z8Y0E4HW'
+                'fxrefer1HR4FZ672Z8Y0E4HW'
             );
             expect(url.indexOf(IOS_STORE_PREFIX)).toBe(0);
             // iOS uses ct= for campaign; referral content is not a parameter here
@@ -175,11 +173,11 @@ describe('mobile-attribution.js', function () {
             const url = Mozilla.MobileAttribution.getStoreUrl(
                 'firefox-referral',
                 true,
-                'fxrefer:ABCDEFGHJKMNPQR'
+                'fxreferABCDEFGHJKMNPQR'
             );
             // Colon in the content must be percent-encoded within the
             // already-encoded referrer param string
-            expect(url).toContain('fxrefer%3AABCDEFGHJKMNPQR');
+            expect(url).toContain('fxreferABCDEFGHJKMNPQR');
         });
     });
 
@@ -435,11 +433,11 @@ describe('mobile-attribution.js', function () {
             const REFERRAL_URL =
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
                 '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
-                '%26utm_campaign%3Dfirefox-referral%26utm_content%3Dfxrefer%3ATESTCODE';
+                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
             const MUTATED_REFERRAL_HREF =
                 'market://details?id=org.mozilla.firefox' +
                 '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
-                '%26utm_campaign%3Dfirefox-referral%26utm_content%3Dfxrefer%3ATESTCODE';
+                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
 
             container.innerHTML =
                 '<a class="ga-product-download fl-store-button fl-store-button-android" href="' +

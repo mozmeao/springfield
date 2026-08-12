@@ -192,7 +192,7 @@ describe('referral-attribution.es6.js', function () {
 
             const badge = fixture.querySelector('.fl-store-button-android');
             expect(badge.getAttribute('href')).toContain(
-                'utm_content%3Dfxrefer%3A' + INVITATION_CODE
+                'utm_content%3Dfxrefer' + INVITATION_CODE
             );
         });
 
@@ -522,13 +522,13 @@ describe('referral-attribution.es6.js', function () {
             expect(data.utm_campaign).toEqual(
                 ReferralAttribution.REFERRAL_CAMPAIGN
             );
-            expect(data.utm_content).toEqual('fxrefer:1HR4FZ672Z8Y0E4HW');
+            expect(data.utm_content).toEqual('fxrefer1HR4FZ672Z8Y0E4HW');
         });
 
         it('always includes utm_content with the code', function () {
             expect(
                 ReferralAttribution.getReferralData('TESTCODE').utm_content
-            ).toEqual('fxrefer:TESTCODE');
+            ).toEqual('fxreferTESTCODE');
         });
     });
 
@@ -658,7 +658,7 @@ describe('referral-attribution.es6.js', function () {
 
         it('does not share state with the standard DownloadAttribution inFlightXHR', function () {
             ReferralAttribution.requestReferralAuthentication({
-                utm_content: 'fxrefer:1HR4FZ672Z8Y0E4HW'
+                utm_content: 'fxrefer1HR4FZ672Z8Y0E4HW'
             });
             expect(xhrRequests.length).toBe(1);
             expect(Mozilla.DownloadAttribution.inFlightXHR).toBeNull();
@@ -674,7 +674,7 @@ describe('referral-attribution.es6.js', function () {
             document.body.appendChild(container);
 
             ReferralAttribution.requestReferralAuthentication({
-                utm_content: 'fxrefer:1HR4FZ672Z8Y0E4HW'
+                utm_content: 'fxrefer1HR4FZ672Z8Y0E4HW'
             });
 
             const req = xhrRequests[0];
@@ -714,7 +714,7 @@ describe('referral-attribution.es6.js', function () {
             spyOn(Mozilla.DownloadAttribution, 'updateBouncerLinks');
 
             ReferralAttribution.requestReferralAuthentication({
-                utm_content: 'fxrefer:1HR4FZ672Z8Y0E4HW'
+                utm_content: 'fxrefer1HR4FZ672Z8Y0E4HW'
             });
 
             const req = xhrRequests[0];
