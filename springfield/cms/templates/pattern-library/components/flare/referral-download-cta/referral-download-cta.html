@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  {# Default state: label hidden (as rendered before JS runs). #}
+  <div class="fl-referral-get-firefox-page" data-testid="referral-download-cta">
+    {% include 'cms/blocks/referral-download-cta.html' %}
+  </div>
+  {# Initialized state: label visible and checked (as JS leaves it). #}
+  <div class="fl-referral-get-firefox-page" data-testid="referral-download-cta-initialized">
+    {% include 'cms/blocks/referral-download-cta.html' %}
+  </div>
+</div>

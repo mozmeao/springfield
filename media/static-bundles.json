@@ -565,6 +565,13 @@
     },
     {
       "files": [
+        "js/firefox/referral/referral-attribution.es6.js",
+        "js/firefox/referral/referral-attribution-init.es6.js"
+      ],
+      "name": "referral-attribution"
+    },
+    {
+      "files": [
         "js/base/protocol/modal-global.es6.js"
       ],
       "name": "protocol-modal"

@@ -16,6 +16,20 @@ class CmsConfig(AppConfig):
         # Replace Wagtail's formfield_for_dbfield with our SVG-sanitizing version
         self._patch_image_form_field()
 
+        # Populate the User Routing signal registry with the v1 signals.
+        self._register_routing_signals()
+
+    @staticmethod
+    def _register_routing_signals():
+        """Populate the routing signal registry.
+
+        Importing the module runs its ``registry.register(...)`` calls exactly once,
+        so the registry is ready before any admin surface or resolver reads it.
+        """
+        # Imported here (not at module top) so registration is tied to app startup
+        # rather than to importing this AppConfig.
+        from springfield.cms.routing import v1_signals  # noqa: F401
+
     @staticmethod
     def _patch_locale_get_active():
         """
