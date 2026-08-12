@@ -1342,12 +1342,13 @@ def test_blog_article_standard_hero_renders_image_before_title(make_article, rea
 
     header = soup.find("header", class_="fl-article-header")
     assert "fl-article-header-standard-image" in header.get("class", [])
-    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+    children = header.find_all(recursive=False)
+    children_classes = [child.get("class", []) for child in header.find_all(recursive=False)]
 
     assert len(children) >= 2, "Header should have at least two children: image and title"
-    assert "image-variants-display" in children[0], "First child should be the image"
-    assert "fl-article-title" in children[1], "Second child should be the title"
-    assert article.title in children[1].get_text()
+    assert "image-variants-display" in children_classes[0], "First child should be the image"
+    assert "fl-article-title" in children_classes[1], "Second child should be the title"
+    assert article.title in children[1].get_text(), "Title should be rendered"
 
 
 def test_blog_article_large_hero_renders_image_after_title(make_article, real_images, rf):
@@ -1359,12 +1360,13 @@ def test_blog_article_large_hero_renders_image_after_title(make_article, real_im
 
     header = soup.find("header", class_="fl-article-header")
     assert "fl-article-header-large-image" in header.get("class", [])
-    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+    children = header.find_all(recursive=False)
+    children_classes = [child.get("class", []) for child in children]
 
     assert len(children) >= 2, "Header should have at least two children: image and title"
-    assert "fl-article-title" in children[0], "First child should be the title"
-    assert article.title in children[0].get_text()
-    assert "image-variants-display" in children[-1], "Second child should be the image"
+    assert "fl-article-title" in children_classes[0], "First child should be the title"
+    assert article.title in children[0].get_text(), "Title should be rendered"
+    assert "image-variants-display" in children_classes[-1], "Second child should be the image"
 
 
 def test_blog_article_text_only_hero_renders_no_media(make_article, real_images, rf):
