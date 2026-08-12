@@ -72,4 +72,8 @@
       </tr>
     {% endfor %}
   </content:body>
+
+  {% if value.fine_print %}
+    {{ value.fine_print|richtext }}
+  {% endif %}
 </include:comparison-table>
