@@ -4,27 +4,22 @@
 
 """The serve-path routing decision.
 
-The decision order is expressed as a **pure function** of boolean flags — no request,
-no page, no Wagtail. This is what makes the highest-risk logic exhaustively testable
-without a mixin-bearing page and keeps routing *policy* separate from
-Wagtail plumbing (the thin ``serve()`` adapter lives on ``RoutingMixin``).
+A pure function of flags — no request, no page, no Wagtail — so the highest-risk logic
+is exhaustively testable and policy stays out of the ``serve()`` adapter.
 
-The two database-backed flags arrive as zero-argument callables, consulted only if the
-order below actually reaches them. Passing them as values would run both on every request
-to an adopted page — including when the switch is off, which is the one case that must
-cost nothing at all.
+``is_paused`` and ``has_live_rules`` arrive as callables, consulted only if the order
+below reaches them. As values they would cost a query each on every request to an
+adopted page, including while the switch is off.
 
 The order is fixed and must not be reordered:
 
-0. Global ``user_routing`` switch off  → canonical  (outermost operational gate)
-1. Loop-breaker marker present         → canonical  (checked FIRST after the switch, so
-                                                      a fallen-through user can never
-                                                      re-enter routing)
-2. Preview param + admin               → preview flow
-3. Kill switch engaged                 → canonical
-4. Trigger satisfied AND live canonical
-   with >= 1 live rule                 → resolver page
-5. Otherwise                           → canonical
+0. Switch off              → canonical
+1. Loop-breaker present    → canonical  (before everything else, so a visitor who has
+                                         fallen through cannot re-enter)
+2. Preview param + admin   → preview
+3. Kill switch engaged     → canonical
+4. Triggered, canonical, ≥1 live rule → resolver
+5. Otherwise               → canonical
 """
 
 # The waffle switch name that gates the whole framework (ships off — dark).

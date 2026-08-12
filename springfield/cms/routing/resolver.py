@@ -4,17 +4,14 @@
 
 """Server-side rendering of the client resolver page.
 
-When a triggered request reaches a live canonical with rules, the page
-serves this lightweight resolver instead of final content. The resolver ships the data
-the client needs — the page's rules and the metadata for the signals they test — as
-``data-*`` attributes (CSP-clean, no inline script), plus the server-rendered country
-attribute and localized status strings via Fluent. All rule evaluation happens on the
-client; the server does no matching.
+A triggered request to a live canonical with rules gets this lightweight page instead of
+final content. It ships the rules and their signals' metadata as ``data-*`` attributes
+(CSP-clean, no inline script), plus the server-rendered country and localized strings.
+**All matching happens on the client** — the server never evaluates a rule.
 
-Resolver responses are CDN-cacheable, and state their own lifetime — see
-``ROUTING_RESOLVER_CACHE_SECONDS``, which is how long the frozen target URLs, pause state and
-country may be stale, since nothing purges this page. The preview flows add ``no-store``
-themselves.
+Responses are CDN-cacheable and state their own lifetime via
+``ROUTING_RESOLVER_CACHE_SECONDS``: how long frozen target URLs, pause state and country
+may be stale, since nothing purges this page. Preview flows send ``no-store`` instead.
 """
 
 from collections import namedtuple
@@ -86,26 +83,21 @@ def usable_rules(page):
     """The page's rules that could actually route a visitor, in priority order.
 
     The single definition of "this page has routing", shared by the serve-path gate and
-    the serializer so the two can never disagree. When they did, a page either served a
-    resolver with no rules in it — a holding page and an immediate bounce back to where
-    the visitor already was — or refused to route on rules that would have worked.
+    the serializer so the two cannot disagree — when they did, a page either served an
+    empty resolver (a holding page, then a bounce straight back) or refused to route on
+    rules that would have worked.
 
-    Every floor lives here rather than at either caller:
+    Every floor lives here rather than at either caller. A rule is dropped when:
 
-    * the target resolved into the page's own locale (see ``localized_target``), which
-      drops a rule whose target has no version in this locale
-    * that resolved target must be published — never route to an unpublished page
-    * the target must be a strict descendant of the hosting page. Copying a page copies
-      its rules, whose targets still point into the *source* page's subtree; and a target
-      that is the page itself would send the visitor to the URL they are already on,
-      re-rendering the resolver with no loop-breaker to stop the cycle.
-    * a rule with neither conditions nor ``match_all`` is dropped: it would match every
-      triggered visitor. Authoring one is blocked, but the ORM/API path has no such
-      floor, so this is the backstop.
+    * its target has no version in this page's locale (see ``localized_target``)
+    * that resolved target is unpublished
+    * the target is not a strict descendant of the hosting page — copying a page copies
+      its rules, whose targets still point into the source subtree, and a self-target
+      would re-render the resolver with no loop-breaker to stop the cycle
+    * it has neither conditions nor ``match_all``, which would match every triggered
+      visitor. Authoring one is blocked; this is the backstop for the ORM/API path.
 
-    Returns ``(rule, target)`` pairs in the model's position-then-id order; empty means
-    the page has nothing to route with. Evaluating each rule's conditions here caches
-    them on the rule instance, so the serializer's formatting pass is free.
+    Returns ``(rule, target)`` pairs in position-then-id order.
     """
     # Memoized for the life of this page *instance* — one request, where the gate asks and
     # then the serializer asks again. It makes the two share a single answer rather than two

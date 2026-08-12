@@ -4,14 +4,11 @@
 
 """The routing adoption mixin.
 
-``RoutingMixin`` is the whole adoption surface a consumer page type touches. It
-declares exactly two overridable hooks — a **trigger** and an **eligibility predicate**
-— and adapts the serve path onto them. It adds **no database fields** (all state lives in
-the routing tables keyed to ``wagtailcore.Page``), so adopting it produces **no
-migration**.
+The whole surface a consumer page type touches: two overridable hooks — a **trigger** and
+an **eligibility predicate** — and the serve path adapted onto them. It adds no database
+fields, so adopting it produces no migration.
 
-The admin authoring surface — the "User Routing" edit tab and its page form — reopens
-this class in a later change; this one owns the declaration surface and dispatch.
+The "User Routing" edit tab and its page form reopen this class in a later change.
 """
 
 from django.db import models
@@ -75,12 +72,10 @@ class RoutingMixin(models.Model):
         return bool(usable_rules(self))
 
     def serve(self, request, *args, **kwargs):
-        """Thin adapter: map request/page state onto flags, then act on the decision.
+        """Thin adapter: read the flags, hand them to ``decide_routing``, act on the answer.
 
-        Routing *policy* lives in the pure ``decide_routing`` function; this method only
-        reads the flags off the request and page and performs the chosen branch. The
-        global ``user_routing`` waffle switch is the outermost gate — off ⇒ canonical
-        exactly as today (the framework ships dark).
+        Policy lives in that pure function, not here. The ``user_routing`` switch is the
+        outermost gate — off means canonical, exactly as today.
         """
         # Raw switch_is_active, deliberately not springfield.base.waffle.switch, which
         # treats a missing switch as settings.DEV — that would put every local dev on the

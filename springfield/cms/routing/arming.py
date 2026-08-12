@@ -2,34 +2,26 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""The consumer trigger, framed as an arming condition.
+"""The consumer trigger — the condition under which routing fires for a surface.
 
-A consumer's trigger is *the condition under which routing fires for its surface*.
-Framing it as an abstraction — rather than hardcoding "a query param" — keeps a future
-non-param trigger (referrer, cookie, path, always-on) a new realization of the same
-interface, not a framework change (deferred). v1 ships exactly one
-realization: query-param presence.
+An abstraction rather than a hardcoded query param, so a future referrer, cookie or
+path trigger is a new subclass rather than a change to the serve path.
 """
 
 from springfield.cms.routing.params import TRIGGER_PARAM
 
 
 class ArmingCondition:
-    """Abstract arming condition: does this request arm routing for the surface?
-
-    Callers (the dispatcher) depend only on ``is_satisfied(request)``; the concrete
-    realization is swappable without touching them.
-    """
+    """Abstract arming condition. Callers depend only on ``is_satisfied(request)``."""
 
     def is_satisfied(self, request) -> bool:
         raise NotImplementedError
 
 
 class QueryParamArmingCondition(ArmingCondition):
-    """v1 realization: armed iff a query param is present on the request.
+    """Armed iff a query param is present, whatever its value.
 
-    Presence-based: any value — including an empty one — counts, so
-    ``?routing`` and ``?routing=1`` both arm routing.
+    ``?routing`` and ``?routing=1`` both arm; an empty value still counts.
     """
 
     def __init__(self, param_name: str = TRIGGER_PARAM):
@@ -40,13 +32,10 @@ class QueryParamArmingCondition(ArmingCondition):
 
 
 class QueryParamValueArmingCondition(ArmingCondition):
-    """Armed iff a query param is present *and* its value is one of ``values``.
+    """Armed iff a query param holds one of ``values``.
 
-    Value-matching, not presence-based: when a surface arms on a shared query param
-    (e.g. one ``utm_source`` value among many), it must fire only for that value and
-    stay dark for every other value of the same param (an empty value counts as a
-    mismatch). Single-purpose alongside the presence-only condition — each arming
-    strategy stays its own class.
+    For a surface arming on a shared param — one ``utm_source`` value among many — which
+    must stay dark for every other value of it. An empty value is a mismatch.
     """
 
     def __init__(self, param_name: str, values):
