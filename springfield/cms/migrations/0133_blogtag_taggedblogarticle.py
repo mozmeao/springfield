@@ -14,7 +14,7 @@ import modelcluster.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0131_blogtopicpage"),
+        ("cms", "0133_routingconfig_routingrule_routingcondition"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 

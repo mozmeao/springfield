@@ -424,10 +424,12 @@ describe('download-attribution.js', function () {
     describe('onRequestSuccess', function () {
         beforeEach(function () {
             Mozilla.DownloadAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.referralActive = false;
         });
 
         afterEach(function () {
             Mozilla.DownloadAttribution.requestComplete = false;
+            Mozilla.DownloadAttribution.referralActive = false;
         });
 
         it('should handle the data as expected', function () {
@@ -446,6 +448,24 @@ describe('download-attribution.js', function () {
                 Mozilla.DownloadAttribution.setSignedCookie
             ).toHaveBeenCalledWith(data);
             expect(Mozilla.DownloadAttribution.requestComplete).toBeTruthy();
+        });
+
+        it('should not update links but still set cookie when referralActive is true', function () {
+            const data = {
+                attribution_code: 'foo',
+                attribution_sig: 'bar'
+            };
+
+            Mozilla.DownloadAttribution.referralActive = true;
+            spyOn(Mozilla.DownloadAttribution, 'updateBouncerLinks');
+            spyOn(Mozilla.DownloadAttribution, 'setSignedCookie');
+            Mozilla.DownloadAttribution.onRequestSuccess(data);
+            expect(
+                Mozilla.DownloadAttribution.updateBouncerLinks
+            ).not.toHaveBeenCalled();
+            expect(
+                Mozilla.DownloadAttribution.setSignedCookie
+            ).toHaveBeenCalledWith(data);
         });
 
         it('should only handle the request once', function () {
