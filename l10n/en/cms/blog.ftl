@@ -13,5 +13,3 @@ blog-pagination-label = Pagination
 blog-clear-topic-filter = Clear topic filter
 blog-last-updated = Last updated on { $date }
 blog-byline = By { $authors }
-blog-byline-author-separator = ,{ " " }
-blog-byline-last-separator = { " " }and{ " " }

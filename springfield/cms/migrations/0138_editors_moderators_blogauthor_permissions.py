@@ -10,13 +10,13 @@ def add_group_permissions(apps, schema_editor):
     Permission = apps.get_model("auth", "Permission")
     ContentType = apps.get_model("contenttypes", "ContentType")
 
-    ct, _ = ContentType.objects.get_or_create(app_label="cms", model="blogtag")
+    ct, _ = ContentType.objects.get_or_create(app_label="cms", model="blogauthor")
 
     codenames = [
-        ("add_blogtag", "Can add Blog Tag"),
-        ("change_blogtag", "Can change Blog Tag"),
-        ("delete_blogtag", "Can delete Blog Tag"),
-        ("publish_blogtag", "Can publish Blog Tag"),
+        ("add_blogauthor", "Can add Blog Author"),
+        ("change_blogauthor", "Can change Blog Author"),
+        ("delete_blogauthor", "Can delete Blog Author"),
+        ("publish_blogauthor", "Can publish Blog Author"),
     ]
 
     permissions = []
@@ -38,7 +38,7 @@ def add_group_permissions(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0133_alter_blogarticlepage_tags"),
+        ("cms", "0137_blogarticleauthor"),
         ("auth", "0012_alter_user_first_name_max_length"),
     ]
 

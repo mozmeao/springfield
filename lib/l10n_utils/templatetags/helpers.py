@@ -7,6 +7,7 @@ from django.conf import settings
 import jinja2
 from babel.core import Locale, UnknownLocaleError
 from babel.dates import format_date
+from babel.lists import format_list
 from babel.numbers import format_number
 from django_jinja import library
 
@@ -15,6 +16,7 @@ from lib.l10n_utils.translation import get_language
 babel_format_locale_map = {
     "hsb": "de",
     "dsb": "de",
+    "ja-JP-mac": "ja",
 }
 
 
@@ -55,3 +57,13 @@ def l10n_format_number(ctx, number):
     """
     lang = get_locale(ctx["LANG"])
     return format_number(number, locale=lang)
+
+
+@library.filter
+@jinja2.pass_context
+def l10n_format_list(ctx, items):
+    """
+    Joins a list of strings according to the current locale.
+    """
+    locale = get_locale(ctx["LANG"])
+    return format_list(list(items), locale=locale)
