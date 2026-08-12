@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, Tag
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage, Tag
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -347,5 +347,29 @@ def get_blog_pages() -> list[BlogArticlePage]:
         },
     ]
     index_page.save_revision().publish()
+
+    privacy_articles = [article for article in articles if article.topic_id == privacy.pk][:4]
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="privacy",
+        parent=index_page,
+        defaults={"title": "Privacy", "topic": privacy},
+    )
+    topic_page.topic = privacy
+    topic_page.page_heading = [
+        {
+            "type": "heading",
+            "value": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="tph00001">All things Privacy</p>',
+                "subheading_text": "",
+            },
+            "id": "tph00001-0000-0000-0000-000000000001",
+        }
+    ]
+    topic_page.featured_articles = [
+        article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
+    ]
+    topic_page.save_revision().publish()
 
     return articles
