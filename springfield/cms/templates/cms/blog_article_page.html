@@ -41,6 +41,10 @@
       </section>
     </div>
 
+    {% if page.bottom_banner %}
+      {{ page.bottom_banner }}
+    {% endif %}
+
   {% if related_articles %}
     <section class="fl-section fl-blog-related-articles">
       <div class="fl-section-container">

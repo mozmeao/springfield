@@ -2161,6 +2161,15 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ],
         use_json_field=True,
     )
+    bottom_banner = StreamField(
+        [
+            ("banner", BannerBlock()),
+        ],
+        use_json_field=True,
+        blank=True,
+        max_num=1,
+        help_text="Optional banner to be displayed at the bottom of the article content.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("description"),
@@ -2203,6 +2212,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             classname="collapsed",
         ),
         FieldPanel("content"),
+        FieldPanel("bottom_banner"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels

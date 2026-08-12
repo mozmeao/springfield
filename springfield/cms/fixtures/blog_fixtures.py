@@ -18,6 +18,8 @@ IMAGE_CAPTION = (
     '<p data-block-key="ccc33333">A caption below the image, using <b>bold</b>, <i>italic</i> and a <a href="https://www.mozilla.org/">link</a>.</p>'
 )
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
 
 BLOG_AUTHOR_NAMES = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
@@ -55,10 +57,11 @@ LARGE_IMAGE_ARTICLE_SLUG = "test-hero-large-image-article"
 TEXT_ONLY_ARTICLE_SLUG = "test-hero-text-only-article"
 VIDEO_ARTICLE_SLUG = "test-hero-video-article"
 LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
+BOTTOM_BANNER_ARTICLE_SLUG = "test-bottom-banner-article"
 
 # 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28,
-# plus the 4 hero style / listing image demonstrations = 32 total articles
-NUM_LIST_ARTICLES = 32
+# plus the 5 hero style / listing image / bottom banner demonstrations = 33 total articles
+NUM_LIST_ARTICLES = 33
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
@@ -199,6 +202,40 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
     }
 
 
+def get_bottom_banner_stream() -> list[dict]:
+    """StreamField data for BlogArticlePage.bottom_banner: a single default banner."""
+    return [
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "",
+                    "slim": False,
+                    "remove_border_radius": False,
+                    "centralize_content": False,
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="bban0001">Enjoying this article?</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "bban0001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bban0002">Subscribe to get more like this in your inbox.</p>',
+                    },
+                ],
+            },
+            "id": "bban0000-0000-0000-0000-000000000001",
+        }
+    ]
+
+
 def create_blog_article(
     *,
     index_page: BlogIndexPage,
@@ -215,6 +252,7 @@ def create_blog_article(
     listing_image=None,
     updated_date=None,
     hide_dates: bool = False,
+    bottom_banner: list | None = None,
 ) -> BlogArticlePage:
     if hero_style is None:
         hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
@@ -241,6 +279,7 @@ def create_blog_article(
     article.hide_dates = hide_dates
     article.description = description
     article.content = content
+    article.bottom_banner = bottom_banner or []
     article.tags.set(tags)
     if hero_video is not None:
         article.hero_video = hero_video
@@ -270,8 +309,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
     - 5 spread across topics + 3 extra for Privacy (Privacy gets 4 total)
     - 12 spread across topics + 8 extra for Privacy
       (Privacy gets 11 total: triggers pagination on its topic page)
-    - 4 demonstrating the large image, text only and video hero styles, and a
-      listing image that differs from the featured image
+    - 5 demonstrating the large image, text only and video hero styles, a
+      listing image that differs from the featured image, and a bottom banner
 
     All articles use all available content block types: text, media or image + caption, code, quote.
     Featured articles carry a captioned image, regular ones a plain image.
@@ -420,6 +459,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
             description=FEATURED_DESCRIPTIONS[3],
             content=plain_content,
             listing_image=dark_image,
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Bottom banner",
+            slug=BOTTOM_BANNER_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[4],
+            content=plain_content,
+            bottom_banner=get_bottom_banner_stream(),
         )
     )
 

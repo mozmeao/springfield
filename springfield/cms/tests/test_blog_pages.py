@@ -33,6 +33,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_pages,
     get_blog_tags,
     get_blog_topics,
+    get_bottom_banner_stream,
 )
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.images import SpringfieldImage
@@ -1417,6 +1418,25 @@ def test_blog_article_video_hero_renders_video_before_title(make_article, real_i
     assert "fl-article-title" in children[1]
 
 
+def test_blog_article_renders_bottom_banner(make_article, rf):
+    article = make_article(bottom_banner=get_bottom_banner_stream())
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    banner = soup.find("div", class_="fl-banner")
+    assert banner
+    assert "Enjoying this article?" in banner.get_text()
+    assert "Subscribe to get more like this in your inbox." in banner.get_text()
+
+
+def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
+    response = bare_article.serve(rf.get(bare_article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("div", class_="fl-banner") is None
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1437,6 +1457,7 @@ def test_blog_article_content_tab_panel_order():
         "Featured Image",
         "Hero Options",
         "content",
+        "bottom_banner",
     ]
 
 
