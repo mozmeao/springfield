@@ -56,6 +56,26 @@
         padding-block-end: 0;
     }
 
+    /* Referral download CTA block */
+    .fl-referral-get-firefox-page .fl-referral-download-cta {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+        inline-size: 100%;
+    }
+
+    .fl-referral-get-firefox-page .referral-consent-label:not(.hidden) {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        gap: var(--token-spacing-sm);
+    }
+
+    .fl-referral-get-firefox-page .referral-consent-text {
+        font-size: var(--fl-theme-font-size-body-xs);
+    }
+
     /* Lower band */
     .fl-referral-get-firefox-page
         .fl-split-page-lower
