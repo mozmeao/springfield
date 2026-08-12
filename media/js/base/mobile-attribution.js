@@ -55,16 +55,29 @@ if (typeof window.Mozilla === 'undefined') {
      * Build an attributed store URL byte-identical to what
      * springfield/firefox/templatetags/misc.py app_store_url / play_store_url
      * emits server-side.
+     * @param {String} campaign - utm_campaign value.
+     * @param {Boolean} isAndroid - True for Android/Play Store, false for iOS/App Store.
+     * @param {String} [referralContent] - Optional utm_content for referral attribution
+     *   (e.g. "fxrefer1HR4FZ672Z8Y0E4HW"). When provided, appended to the Android
+     *   Play Store referrer string. Has no effect on iOS.
      */
-    MobileAttribution.getStoreUrl = function (campaign, isAndroid) {
+    MobileAttribution.getStoreUrl = function (
+        campaign,
+        isAndroid,
+        referralContent
+    ) {
         var encoded = encodeURIComponent(campaign);
         if (isAndroid) {
-            return (
+            var url =
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
                 '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
                 '%26utm_campaign%3D' +
-                encoded
-            );
+                encoded;
+            if (referralContent) {
+                url +=
+                    '%26utm_content%3D' + encodeURIComponent(referralContent);
+            }
+            return url;
         }
         return (
             'https://apps.apple.com/app/apple-store/id989804926' +
@@ -114,8 +127,26 @@ if (typeof window.Mozilla === 'undefined') {
     MobileAttribution._attachTrackingClick = function (button, storeUrl) {
         button.addEventListener('click', function (event) {
             event.preventDefault();
-            window.Mozilla.TrackProductDownload.sendEventFromURL(storeUrl);
-            MobileAttribution._navigate(storeUrl);
+            // Prefer the element's current href if it has been rewritten to an
+            // https://play.google.com URL after this listener was bound (e.g. by
+            // referral attribution). Fall back to the captured storeUrl — which
+            // may be a market:// URL set by initMobileDownloadLinks — otherwise.
+            var currentHref = button.getAttribute('href') || '';
+            var url;
+            if (currentHref.indexOf('https://play.google.com') === 0) {
+                url = currentHref;
+            } else if (currentHref.indexOf('market://') === 0) {
+                // mozilla-utils.js replaces https://play.google.com/store/apps/
+                // with market:// — reverse that to recover the current href
+                // (including any utm_content added by referral attribution).
+                url =
+                    'https://play.google.com/store/apps/' +
+                    currentHref.slice('market://'.length);
+            } else {
+                url = storeUrl;
+            }
+            window.Mozilla.TrackProductDownload.sendEventFromURL(url);
+            MobileAttribution._navigate(url);
         });
     };
 
