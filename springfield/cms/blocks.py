@@ -2187,7 +2187,11 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 class CardTestimonialBlock(blocks.StructBlock):
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional. Leave blank to show the quote with no attribution.",
+    )
     attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     attribution_image = ImageVariantsBlock(required=False)
 
