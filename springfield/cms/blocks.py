@@ -1766,7 +1766,7 @@ class TabsBlock(blocks.StructBlock):
 
     class Meta:
         label = "Tabs"
-        label_format = "Tabs"
+        label_format = "{section_id}"
         template = "cms/blocks/tabs.html"
 
 
