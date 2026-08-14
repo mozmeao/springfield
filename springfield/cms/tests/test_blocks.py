@@ -7,6 +7,7 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -30,6 +31,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
+    BlogCardsListBlock,
     BlogCardsListSourceBlock,
     BlogLatestArticlesBlock,
     ButtonBlock,
@@ -5587,3 +5589,30 @@ def test_latest_section_exempts_nothing():
     block = BlogLatestArticlesBlock()
 
     assert block.get_exempt_exclusions(None) == (set(), set())
+
+
+def test_cards_list_count_rejects_five():
+    """article_card_media only has tuned image sizes for grids of 2-4."""
+    block = BlogCardsListBlock()
+
+    with pytest.raises(ValidationError):
+        block.child_blocks["count"].clean(5)
+
+
+@pytest.mark.django_db
+def test_topic_section_exempts_its_own_topic():
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-exempt", locale=Locale.get_default())
+    block = BlogCardsListBlock()
+    value = block.to_python(
+        {
+            "heading_text": '<p data-block-key="h">Privacy</p>',
+            "source": [{"type": "topic", "value": topic.pk, "id": "src00004-0000-0000-0000-000000000004"}],
+            "count": 4,
+            "link_label": "View all",
+        }
+    )
+
+    topic_keys, tag_keys = block.get_exempt_exclusions(value)
+
+    assert topic_keys == {topic.translation_key}
+    assert tag_keys == set()

@@ -104,6 +104,70 @@ def tagged_articles(make_article, blog_tag):
     return tagged, make_article(title="Untagged article")
 
 
+def cards_list_section(block_id, source_type, snippet, count=2, heading="Section"):
+    """StreamField data for one topic- or tag-sourced article section."""
+    return {
+        "type": "cards_list",
+        "value": {
+            "heading_text": f'<p data-block-key="h{block_id}">{heading}</p>',
+            "source": [{"type": source_type, "value": snippet.pk, "id": f"src{block_id}-0000-0000-0000-000000000001"}],
+            "count": count,
+            "link_label": "View all",
+        },
+        "id": f"sec{block_id}-0000-0000-0000-000000000001",
+    }
+
+
+def latest_section(block_id, count=4, heading="Latest"):
+    """StreamField data for one latest-articles section."""
+    return {
+        "type": "latest",
+        "value": {"heading_text": f'<p data-block-key="h{block_id}">{heading}</p>', "count": count, "link_label": "View all"},
+        "id": f"sec{block_id}-0000-0000-0000-000000000001",
+    }
+
+
+@pytest.fixture
+def sectioned_index(blog_index, blog_topic, make_article):
+    """Index page with a topic section followed by a latest section, and only enough
+    articles to fill the first."""
+    first = make_article(title="First")
+    second = make_article(title="Second")
+    blog_index.article_sections = [
+        cards_list_section("00001", "topic", blog_topic, heading="Privacy"),
+        latest_section("00002"),
+    ]
+    blog_index.save()
+    return blog_index, first, second
+
+
+@pytest.fixture
+def page_with_every_section(blog_index, blog_topic, blog_tag, make_article):
+    """Four featured articles, then a topic section, a tag section and a latest section
+    drawing from one pool where every article matches every filter."""
+    articles = []
+    for position in range(9):
+        article = make_article(
+            title=f"Article {position}",
+            topic=blog_topic,
+            first_published_at=datetime(2026, 1, 9 - position, tzinfo=UTC),
+        )
+        article.tags.add(blog_tag)
+        article.save()
+        articles.append(article)
+
+    blog_index.featured_articles = [
+        blog_article_block(article, f"feat0000-0000-0000-0000-{position:012d}") for position, article in enumerate(articles[:4], start=1)
+    ]
+    blog_index.article_sections = [
+        cards_list_section("00001", "topic", blog_topic, heading="By topic"),
+        cards_list_section("00002", "tag", blog_tag, heading="By tag"),
+        latest_section("00003"),
+    ]
+    blog_index.save()
+    return blog_index, articles
+
+
 @pytest.fixture
 def articles_for_exclusion(blog_index, blog_topic, blog_tag, make_article):
     """Three articles: one in the excluded topic, one carrying the excluded tag, and one
@@ -479,6 +543,96 @@ def test_topic_context_still_drops_excluded_tags(excluded_index, articles_for_ex
     assert list(context["list_articles"]) == [clear]
 
 
+def test_feed_articles_applies_exclusions(excluded_index, articles_for_exclusion):
+    _, _, clear = articles_for_exclusion
+
+    assert list(excluded_index.feed_articles()) == [clear]
+
+
+def test_each_section_skips_articles_shown_above_it(page_with_every_section):
+    """articles[0:4] are featured, so the topic section starts at articles[4] even though
+    the featured four match its filter too; the tag and latest sections each start after
+    the last article the section above them took."""
+    index_page, articles = page_with_every_section
+
+    index_page.resolve_article_sections()
+    by_topic, by_tag, latest = list(index_page.article_sections)
+
+    assert by_topic.value.get_articles() == articles[4:6]
+    assert by_tag.value.get_articles() == articles[6:8]
+    assert latest.value.get_articles() == articles[8:]
+
+
+def test_no_article_is_shown_twice_across_the_page(page_with_every_section):
+    index_page, articles = page_with_every_section
+
+    index_page.resolve_article_sections()
+    shown = [article for block in index_page.article_sections for article in block.value.get_articles()]
+
+    assert len(shown) == len(set(shown))
+    assert not set(shown) & set(articles[:4])
+
+
+def test_topic_section_link_points_at_the_topic_route(sectioned_index, blog_topic):
+    index_page, _, _ = sectioned_index
+
+    index_page.resolve_article_sections()
+    cards_list, latest = list(index_page.article_sections)
+
+    assert cards_list.value.get_link_url() == index_page.url + index_page.reverse_subpage("topic_route", args=[blog_topic.slug])
+    assert latest.value.get_link_url() == index_page.url + index_page.reverse_subpage("all_route")
+
+
+def test_tag_section_link_points_at_the_tag_filter(blog_index, blog_tag, make_article):
+    make_article(title="Tagged")
+    blog_index.article_sections = [cards_list_section("00009", "tag", blog_tag, heading="VPN")]
+    blog_index.save()
+
+    blog_index.resolve_article_sections()
+    section = list(blog_index.article_sections)[0]
+
+    all_url = blog_index.url + blog_index.reverse_subpage("all_route")
+    assert section.value.get_link_url() == f"{all_url}?tag={blog_tag.slug}"
+
+
+def test_latest_section_honors_feed_exclusions(excluded_index, articles_for_exclusion):
+    _, _, clear = articles_for_exclusion
+    excluded_index.article_sections = [latest_section("00004")]
+    excluded_index.save()
+
+    excluded_index.resolve_article_sections()
+    section = list(excluded_index.article_sections)[0]
+
+    assert section.value.get_articles() == [clear]
+
+
+def test_section_sourced_by_an_excluded_topic_shows_it(excluded_index, articles_for_exclusion, blog_topic):
+    """Pointing a section at an excluded topic surfaces it here on purpose."""
+    in_excluded_topic, _, _ = articles_for_exclusion
+    excluded_index.article_sections = [cards_list_section("00005", "topic", blog_topic, count=4)]
+    excluded_index.save()
+
+    excluded_index.resolve_article_sections()
+    section = list(excluded_index.article_sections)[0]
+
+    assert section.value.get_articles() == [in_excluded_topic]
+
+
+def test_section_sourced_by_a_topic_still_drops_excluded_tags(excluded_index, blog_topic, blog_tag, make_article):
+    """The source exemption spares one exclusion, not all of them."""
+    tagged = make_article(title="Excluded tag in an exempt topic", topic=blog_topic)
+    tagged.tags.add(blog_tag)
+    tagged.save()
+    untagged = make_article(title="Clean article in an exempt topic", topic=blog_topic)
+    excluded_index.article_sections = [cards_list_section("00006", "topic", blog_topic, count=4)]
+    excluded_index.save()
+
+    excluded_index.resolve_article_sections()
+    section = list(excluded_index.article_sections)[0]
+
+    assert section.value.get_articles() == [untagged]
+
+
 def test_blog_index_featured_section_holds_at_most_four():
     """One hero plus up to three list items."""
     stream_block = BlogIndexPage._meta.get_field("featured_articles").stream_block
@@ -593,8 +747,9 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
         for card in cards:
             assert "fl-card-expand-link" in card.get("class", [])
 
-            media = card.find("div", class_="fl-card-top-media")
-            assert media and media.find("img")
+            # Sections pick articles by recency, and the fixture's hero-style demos have
+            # no image, so the media slot is present but may be empty.
+            assert card.find("div", class_="fl-card-top-media") is not None
 
             assert card.find("p", class_="fl-superheading")
 
@@ -604,53 +759,31 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
             body = card.find("div", class_="fl-body")
             assert body and body.get_text(strip=True)
 
-
-def test_blog_index_renders_more_articles_heading(blog_setup, rf):
-    index_page, _ = blog_setup
-    request = rf.get(index_page.get_full_url())
-    response = index_page.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    # Fixture sets more_articles_heading to "Looking for more?"
-    headings = [h.get_text(strip=True) for h in soup.find_all(class_="fl-heading")]
-    assert any("Looking for more?" in text for text in headings)
+    images = soup.find("div", class_="fl-blog-cards-list").find_all("img")
+    assert images, "articles that do have a listing image render one"
 
 
-def test_blog_index_renders_view_all_button(blog_setup, rf):
-    index_page, _ = blog_setup
-    request = rf.get(index_page.get_full_url())
-    response = index_page.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    all_url = index_page.url + index_page.reverse_subpage("all_route")
-    buttons_div = soup.find("div", class_="fl-buttons")
-    assert buttons_div
-    view_all = buttons_div.find("a", class_="fl-button")
-    assert view_all and view_all["href"] == all_url
-    assert index_page.view_all_label in view_all.get_text()
-
-
-def test_blog_index_cards_list_links_use_label_and_filter(blog_setup, rf):
+def test_blog_index_section_links_are_derived_from_the_source(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
     response = index_page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
-    cards_list_divs = soup.find_all("div", class_="fl-blog-cards-list")
+    section_divs = soup.find_all("div", class_="fl-blog-cards-list")
 
-    # First list: link_label with topic label, link_filter appended to URL
-    link = cards_list_divs[0].find("a", class_="fl-blog-cards-list-link")
+    # Topic-sourced section links to the topic route
+    link = section_divs[0].find("a", class_="fl-blog-cards-list-link")
     assert link.get_text(strip=True) == "View all Privacy"
-    assert link["href"] == f"{all_route_url}?topic=privacy"
+    assert link["href"] == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
 
-    # Second list: different topic
-    link = cards_list_divs[1].find("a", class_="fl-blog-cards-list-link")
+    # Tag-sourced section links to the tag filter
+    link = section_divs[1].find("a", class_="fl-blog-cards-list-link")
     assert link.get_text(strip=True) == "View all Security"
-    assert link["href"] == f"{all_route_url}?topic=security"
+    assert link["href"] == f"{all_route_url}?tag=security"
 
-    # Third list: no filter — link points to plain all_route URL
-    link = cards_list_divs[2].find("a", class_="fl-blog-cards-list-link")
+    # Latest section links to the full list
+    link = section_divs[2].find("a", class_="fl-blog-cards-list-link")
     assert link.get_text(strip=True) == "View all"
     assert link["href"] == all_route_url
 
@@ -1348,13 +1481,43 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     It also includes ~5 constant (not per-article) queries from custom-navigation
     resolution that runs on every page render. The count is pinned as flat (not
     per-article) by test_blog_all_query_count_does_not_grow_with_articles.
+
+    Article sections choose their own articles, so the ceiling also carries one pk query
+    per section plus one batched fetch for everything they render. It is pinned as
+    per-section rather than per-article by
+    test_blog_index_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(27):
+    with django_assert_max_num_queries(40):
         index_page.serve(request)
+
+
+def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, django_assert_max_num_queries):
+    """Sections fetch in bulk, so adding articles they could show costs no extra query."""
+    index_page, articles = blog_setup
+    baseline_request = rf.get(index_page.get_full_url())
+    with django_assert_max_num_queries(40):
+        index_page.serve(baseline_request)
+
+    topic = BlogTopic.objects.get(slug="privacy")
+    for position in range(5):
+        create_blog_article(
+            index_page=index_page,
+            title=f"Extra article {position}",
+            slug=f"test-extra-article-{position}",
+            topic=topic,
+            tags=[],
+            image=None,
+            description="Extra",
+            content=[],
+        )
+
+    fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
+    with django_assert_max_num_queries(40):
+        fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
 def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):

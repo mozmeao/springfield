@@ -433,44 +433,32 @@ def get_blog_pages() -> list[BlogArticlePage]:
             "id": "ph000001-0000-0000-0000-000000000001",
         }
     ]
-    index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
     index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:4], start=1)]
-    index_page.cards_lists = [
+    index_page.article_sections = [
         {
             "type": "cards_list",
             "value": {
-                "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
+                "heading_text": '<p data-block-key="clh00001">Privacy</p>',
+                "source": [{"type": "topic", "value": topics["privacy"].pk, "id": "src00001-0000-0000-0000-000000000001"}],
+                "count": 3,
                 "link_label": "View all Privacy",
-                "link_filter": "?topic=privacy",
-                "articles": [
-                    blog_article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
-                ],
             },
             "id": "cl000001-0000-0000-0000-000000000001",
         },
         {
             "type": "cards_list",
             "value": {
-                "heading_text": '<p data-block-key="clh00002">More Articles 2</p>',
+                "heading_text": '<p data-block-key="clh00002">Security</p>',
+                "source": [{"type": "tag", "value": tags["security"].pk, "id": "src00002-0000-0000-0000-000000000002"}],
+                "count": 2,
                 "link_label": "View all Security",
-                "link_filter": "?topic=security",
-                "articles": [
-                    blog_article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
-                ],
             },
             "id": "cl000002-0000-0000-0000-000000000002",
         },
         {
-            "type": "cards_list",
-            "value": {
-                "heading_text": '<p data-block-key="clh00003">More Articles 3</p>',
-                "link_label": "View all",
-                "link_filter": "",
-                "articles": [
-                    blog_article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
-                ],
-            },
+            "type": "latest",
+            "value": {"heading_text": '<p data-block-key="clh00003">Latest</p>', "count": 4, "link_label": "View all"},
             "id": "cl000003-0000-0000-0000-000000000003",
         },
     ]

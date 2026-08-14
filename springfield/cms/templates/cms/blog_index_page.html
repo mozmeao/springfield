@@ -12,10 +12,6 @@
 
 {% block content %}
 
-{% from "cms/includes/blog/blog-card-media.html" import illustration_card_media with context %}
-
-{% set all_url = page.url ~ page.reverse_subpage('all_route') %}
-
 <div class="fl-page fl-page-blog-index">
   <main class="fl-main">
     <section class="fl-section">
@@ -60,57 +56,9 @@
         {% set featured_articles = page.featured_articles %}
         {% include "cms/includes/blog/blog-featured-articles.html" %}
 
-        {% if page.cards_lists %}
-          <include:heading
-            level="h2"
-            heading_text="{{ page.more_articles_heading|richtext|remove_p_tag }}"
-            heading_size="fl-heading-md"
-          />
-
-          {% for block in page.cards_lists %}
-            <div class="fl-blog-cards-list">
-              <div class="fl-blog-cards-list-header">
-                <include:heading
-                  level="h3"
-                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
-                  heading_size="fl-heading-xs"
-                />
-                <a class="fl-blog-cards-list-link" href="{{ all_url }}{{ block.value.link_filter }}">{{ block.value.link_label }}</a>
-              </div>
-              {% set list_size = block.value.articles|length %}
-              <include:cards-list container_width="fill">
-                {% for article_block in block.value.articles %}
-                  <include:card expand_link="true">
-                    <content:media>{{ illustration_card_media(article_block, list_size) }}</content:media>
-                    <content:body>
-                      <hgroup class="fl-heading-group">
-                        <p class="fl-superheading">{{ article_block.get_topic() }}</p>
-                        <h4 class="fl-heading fl-heading-size-3">
-                          <a href="{{ article_block.get_url() }}" class="fl-card-heading-link fl-link-expand">
-                            {{ article_block.get_title() }}
-                          </a>
-                        </h4>
-                      </hgroup>
-                      <div class="fl-body">
-                        <p>{{ article_block.get_description() }}</p>
-                      </div>
-                    </content:body>
-                  </include:card>
-                {% endfor %}
-              </include:cards-list>
-            </div>
-          {% endfor %}
-        {% endif %}
-
-        <div class="fl-buttons is-horizontal is-center">
-          <include:button
-            link="{{ all_url }}"
-            label="{{ page.view_all_label }}"
-            analytics_position="more-articles"
-            analytics_text="{{ page.view_all_label }}"
-            analytics_id="blog-more-articles"
-          />
-        </div>
+        {% for block in page.get_resolved_sections() %}
+          {% include_block block %}
+        {% endfor %}
 
       </div>
     </section>

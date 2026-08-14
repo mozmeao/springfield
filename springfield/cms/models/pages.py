@@ -49,6 +49,7 @@ from springfield.cms.blocks import (
     BannerBlock,
     BlogArticleBlock,
     BlogCardsListBlock,
+    BlogLatestArticlesBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -1675,6 +1676,17 @@ def cache_localized_tags(articles):
         article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
 
 
+def cache_localized_topics(articles):
+    """Populate _topic_cache on each article from a single BlogTopic lookup, so rendering
+    a list costs one query rather than resolving each article's topic separately."""
+    from springfield.cms.models.snippets import BlogTopic  # circular import
+
+    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=SpringfieldLocale.get_active()).live()}
+    for article in articles:
+        if article.topic and article.topic.slug in localized_topics_by_slug:
+            article._topic_cache = localized_topics_by_slug[article.topic.slug]
+
+
 MAX_HEADER_TOPICS = 8
 
 
@@ -1717,26 +1729,18 @@ def prefetch_article_blocks(values):
 
     Topics and tags are swapped for their active-locale equivalents at the same time,
     because the referenced article is always the source-locale page."""
-    # Inline import: snippets and pages import from each other at module scope.
-    from springfield.cms.models.snippets import BlogTopic
-
     pks = [value["article"].pk for value in values if value.get("article")]
     if not pks:
         return
 
     articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=pks))}
     cache_localized_tags(articles_by_pk.values())
-
-    active_locale = SpringfieldLocale.get_active()
-    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=active_locale).live()}
+    cache_localized_topics(articles_by_pk.values())
 
     for value in values:
         page = value.get("article")
         if page and page.pk in articles_by_pk:
-            article = articles_by_pk[page.pk]
-            if article.topic and article.topic.slug in localized_topics_by_slug:
-                article._topic_cache = localized_topics_by_slug[article.topic.slug]
-            value._article_cache = article
+            value._article_cache = articles_by_pk[page.pk]
 
 
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -1782,11 +1786,10 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             "and ?tag= links are unaffected."
         ),
     )
-    more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
-    view_all_label = models.CharField(default="View All Articles")
-    cards_lists = StreamField(
+    article_sections = StreamField(
         [
             ("cards_list", BlogCardsListBlock()),
+            ("latest", BlogLatestArticlesBlock()),
         ],
         use_json_field=True,
         null=True,
@@ -1798,11 +1801,9 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         FieldPanel("featured_articles"),
         MultiFieldPanel(
             [
-                FieldPanel("more_articles_heading"),
-                FieldPanel("view_all_label"),
-                FieldPanel("cards_lists"),
+                FieldPanel("article_sections"),
             ],
-            heading="More Articles",
+            heading="Article Sections",
         ),
     ]
 
@@ -1824,8 +1825,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
-        index.SearchField("more_articles_heading"),
-        index.SearchField("cards_lists"),
+        index.SearchField("article_sections"),
     ]
 
     override_translatable_fields = [
@@ -1840,17 +1840,70 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return f"BlogIndexPage: {self.title} - {self.locale}"
 
     def prefetch_streamfield_articles(self):
-        """Prefetch every article referenced by this page's featured_articles and cards_lists."""
+        """Prefetch every article referenced by this page's featured_articles."""
         # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
-        # ListBlock iteration yields StructValues (BlockArticleValue) directly.
-        values = [block.value for block in (self.featured_articles or [])]
-        for cards_list_block in self.cards_lists or []:
-            values.extend(list(cards_list_block.value["articles"]))
-        prefetch_article_blocks(values)
+        prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
+
+    def get_resolved_sections(self):
+        """The article sections with their articles filled in.
+
+        Resolved on first use rather than in get_context, so the routes that never render
+        sections do not pay for them."""
+        if not hasattr(self, "_sections_resolved"):
+            self.resolve_article_sections()
+            self._sections_resolved = True
+        return self.article_sections
+
+    def resolve_article_sections(self):
+        """Fill each article section, in document order, from the articles no earlier
+        section has already used.
+
+        A block cannot see what earlier blocks rendered, so the lookup lives here and the
+        blocks only render what they are handed. Sections choose their articles by pk
+        first and everything the cards need is fetched in one batch afterwards, so the
+        prefetches in article_list_queryset run once rather than once per section."""
+        seen_pks = {block.value["article"].pk for block in (self.featured_articles or []) if block.value.get("article")}
+        sections = list(self.article_sections or [])
+        pks_by_section = []
+
+        for block in sections:
+            exempt_topic_keys, exempt_tag_keys = block.block.get_exempt_exclusions(block.value)
+            candidates = block.block.filter_articles(self.feed_articles(exempt_topic_keys, exempt_tag_keys), block.value)
+            section_pks = list(
+                candidates.exclude(pk__in=seen_pks).order_by("-first_published_at").values_list("pk", flat=True)[: block.value["count"]]
+            )
+            seen_pks.update(section_pks)
+            pks_by_section.append(section_pks)
+
+        wanted_pks = [pk for section_pks in pks_by_section for pk in section_pks]
+        articles_by_pk = {}
+        if wanted_pks:
+            articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=wanted_pks))}
+            cache_localized_topics(articles_by_pk.values())
+
+        all_url = self.url + self.reverse_subpage("all_route")
+        for block, section_pks in zip(sections, pks_by_section):
+            block.value._articles = [articles_by_pk[pk] for pk in section_pks if pk in articles_by_pk]
+            block.value._link_url = self.get_section_link_url(block, all_url)
+
+    def get_section_link_url(self, block, all_url):
+        """The "View all" destination for a section: its topic page, its tag filter, or
+        the full list."""
+        if block.block_type == "latest":
+            return all_url
+        source = block.value["source"][0]
+        if source.block_type == "topic":
+            return self.url + self.reverse_subpage("topic_route", args=[source.value.slug])
+        return f"{all_url}?tag={source.value.slug}"
 
     def live_articles(self):
         """Published, publicly visible articles under this index."""
         return BlogArticlePage.objects.child_of(self).live().public()
+
+    def feed_articles(self, exempt_topic_keys=(), exempt_tag_keys=()):
+        """Articles eligible for automatic feeds, sparing the topic or tag the caller
+        selected. Every article section reads this."""
+        return self.exclude_from_feed(self.live_articles(), exempt_topic_keys, exempt_tag_keys)
 
     def get_all_topics(self):
         """Topics that have at least one live article here, most-populated first."""

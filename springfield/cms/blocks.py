@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django import forms
@@ -2125,37 +2125,35 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
 
 
 class BlogCardsListBlock(blocks.StructBlock):
-    """A titled list of blog article cards."""
+    """A titled grid of articles drawn from one topic or tag."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    source = BlogCardsListSourceBlock()
+    # Capped at 4: article_card_media only has tuned image sizes for grids of 2-4.
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
     link_label = blocks.CharBlock(default="View all")
-    link_filter = blocks.CharBlock(
-        required=False,
-        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
-    )
-    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
 
     class Meta:
         label = "Blog Cards List"
-        label_format = "{heading}"
         icon = "list-ul"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
 
-    def clean_list_filter(self, value: str) -> str:
-        if not value:
-            return value
-        value = value.strip()
-        if not value.startswith("?"):
-            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
-        query_part = value[1:]
-        if not query_part:
-            raise ValidationError(_("Query string must contain at least one parameter."))
-        try:
-            pairs = parse_qsl(query_part, strict_parsing=True)
-        except ValueError as exc:
-            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
-        if not pairs:
-            raise ValidationError(_("Query string must contain at least one key=value parameter."))
-        return value
+    def filter_articles(self, queryset, value):
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return queryset.filter(topic__translation_key=source.value.translation_key)
+        return queryset.filter(tags__slug=source.value.slug)
+
+    def get_exempt_exclusions(self, value):
+        """The exclusion this section may override: the source it renders.
+
+        Pointing a section at an excluded topic or tag surfaces it here on purpose.
+        Articles excluded for any other reason still drop out."""
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return {source.value.translation_key}, set()
+        return set(), {source.value.translation_key}
 
 
 # Cards
