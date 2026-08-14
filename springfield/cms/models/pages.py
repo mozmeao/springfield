@@ -1868,6 +1868,49 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             self._feed_exclusions_cache = FeedExclusions(topic_keys, tag_keys)
         return self._feed_exclusions_cache
 
+    def get_filter_tag(self, request):
+        """The BlogTag named by ?tag=, or None.
+
+        An unrecognised slug is ignored rather than raising, so a stale tag link
+        degrades to the unfiltered list."""
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTag
+
+        tag_slug = request.GET.get("tag")
+        if not tag_slug:
+            return None
+        return BlogTag.objects.filter(slug=tag_slug, locale=self.locale).first()
+
+    def get_all_context(self, request):
+        """Context for the all/ route: every live article, narrowed by ?topic= and ?tag=."""
+        # Inline import: snippets and pages import from each other at module scope.
+        from springfield.cms.models.snippets import BlogTopic
+
+        articles = article_list_queryset(self.live_articles())
+
+        topic = None
+        topic_slug = request.GET.get("topic")
+        if topic_slug:
+            topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).first()
+            if topic:
+                articles = articles.filter(topic=topic)
+
+        tag = self.get_filter_tag(request)
+        if tag:
+            articles = articles.filter(tags=tag)
+
+        paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
+        if topic:
+            topic.article_count = paginator.count
+        list_articles = paginator.get_page(request.GET.get("page", 1))
+        cache_localized_tags(list_articles.object_list)
+
+        return {
+            "list_articles": list_articles,
+            "topic": topic,
+            "tag": tag,
+        }
+
     def get_topic_context(self, request, topic, topic_page=None):
         """Context for the topics/<slug>/ route, shared by the plain listing and by
         BlogTopicPage. Articles already shown in a curated header are dropped from the
@@ -1881,6 +1924,10 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             if featured_pks:
                 articles = articles.exclude(pk__in=featured_pks)
 
+        tag = self.get_filter_tag(request)
+        if tag:
+            articles = articles.filter(tags=tag)
+
         paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
         topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
@@ -1892,6 +1939,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             "all_topics": self.get_all_topics(),
             "topic_page": topic_page,
             "list_articles": list_articles,
+            "tag": tag,
         }
 
     def get_header_topics(self):
@@ -1952,34 +2000,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("all/")
     def all_route(self, request):
-        # Inline import: snippets and pages import from each other at module scope.
-        from springfield.cms.models.snippets import BlogTopic
-
-        base_qs = article_list_queryset(self.live_articles())
-
-        topic = None
-        topic_slug = request.GET.get("topic")
-        if topic_slug:
-            topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).first()
-            if topic:
-                base_qs = base_qs.filter(topic=topic)
-
-        list_articles_qs = base_qs.order_by("-first_published_at")
-        paginator = Paginator(list_articles_qs, ARTICLES_PER_PAGE)
-
-        if topic:
-            topic.article_count = paginator.count
-        list_articles = paginator.get_page(request.GET.get("page", 1))
-        cache_localized_tags(list_articles.object_list)
-
-        return self._render_route(
-            request,
-            "cms/blog_all_page.html",
-            {
-                "list_articles": list_articles,
-                "topic": topic,
-            },
-        )
+        return self._render_route(request, "cms/blog_all_page.html", self.get_all_context(request))
 
     def get_sitemap_urls(self, request=None):
         """Add the URLs this page serves through its routes, which have no Page of their own

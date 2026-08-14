@@ -64,8 +64,9 @@
           {% include "cms/includes/blog/blog-featured-articles.html" %}
         {% endif %}
 
-        {% set pagination_prev_url = topic_url ~ '?page=' ~ list_articles.previous_page_number() if list_articles.has_previous() else '' %}
-        {% set pagination_next_url = topic_url ~ '?page=' ~ list_articles.next_page_number() if list_articles.has_next() else '' %}
+        {% set tag_param = '&tag=' ~ tag.slug if tag else '' %}
+        {% set pagination_prev_url = topic_url ~ '?page=' ~ list_articles.previous_page_number() ~ tag_param if list_articles.has_previous() else '' %}
+        {% set pagination_next_url = topic_url ~ '?page=' ~ list_articles.next_page_number() ~ tag_param if list_articles.has_next() else '' %}
         {% include "cms/includes/blog/blog-article-list.html" %}
 
       </div>
