@@ -12,6 +12,17 @@
     }
 }
 
+.fl-blog-index-body,
+.fl-blog-article-body {
+    --fl-theme-background: var(--fl-theme-blog-body-background);
+    --fl-theme-body-background: var(--fl-theme-blog-body-background);
+}
+
+.fl-blog-index-body .fl26-content,
+.fl-blog-article-body .fl26-content {
+    margin-block-end: var(--token-spacing-2xl);
+}
+
 /*  Heading and topics */
 
 .fl-blog-index-header .fl-heading-group,
