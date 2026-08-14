@@ -30,6 +30,8 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
+    BlogCardsListSourceBlock,
+    BlogLatestArticlesBlock,
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
@@ -163,6 +165,7 @@ from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_ca
 from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.models.snippets import BlogTag, BlogTopic
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
@@ -5545,3 +5548,42 @@ def test_tab_block_renders_when_comparison_table_key_absent_from_stored_json():
 
     assert soup.find("div", class_="fl-comparison-table-wrapper") is None
     assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
+
+
+def test_cards_list_source_requires_exactly_one_choice():
+    """A section draws from one topic or one tag, never from nothing."""
+    block = BlogCardsListSourceBlock()
+
+    with pytest.raises(StreamBlockValidationError):
+        block.clean(block.to_python([]))
+
+
+@pytest.mark.django_db
+def test_cards_list_source_rejects_two_choices():
+    locale = Locale.get_default()
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-privacy", locale=locale)
+    tag = BlogTag.objects.create(name="VPN", slug="test-block-vpn", locale=locale)
+    block = BlogCardsListSourceBlock()
+    value = block.to_python(
+        [
+            {"type": "topic", "value": topic.pk, "id": "src00001-0000-0000-0000-000000000001"},
+            {"type": "tag", "value": tag.pk, "id": "src00002-0000-0000-0000-000000000002"},
+        ]
+    )
+
+    with pytest.raises(StreamBlockValidationError):
+        block.clean(value)
+
+
+def test_latest_articles_count_allows_eight():
+    """The latest section is expected to run to a second row."""
+    block = BlogLatestArticlesBlock()
+
+    assert block.child_blocks["count"].clean(8) == 8
+
+
+def test_latest_section_exempts_nothing():
+    """The latest section has no source of its own, so no exclusion is spared."""
+    block = BlogLatestArticlesBlock()
+
+    assert block.get_exempt_exclusions(None) == (set(), set())

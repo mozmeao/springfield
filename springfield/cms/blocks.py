@@ -2078,6 +2078,52 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
+class BlogArticleSectionValue(blocks.StructValue):
+    """A section whose articles the index page resolves before rendering."""
+
+    def get_articles(self):
+        return getattr(self, "_articles", [])
+
+    def get_link_url(self):
+        return getattr(self, "_link_url", "")
+
+
+class BlogCardsListSourceBlock(blocks.StreamBlock):
+    """Exactly one of topic or tag.
+
+    A single-child StreamBlock enforces that structurally, so the parent needs no
+    clean()."""
+
+    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+
+    class Meta:
+        min_num = 1
+        max_num = 1
+
+
+class BlogLatestArticlesBlock(blocks.StructBlock):
+    """A titled grid of the newest articles."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    # Up to 8: the latest section is expected to run to a second row.
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
+    link_label = blocks.CharBlock(default="View all")
+
+    class Meta:
+        label = "Latest Articles"
+        icon = "time"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
+
+    def filter_articles(self, queryset, value):
+        return queryset
+
+    def get_exempt_exclusions(self, value):
+        """Nothing is exempt: the latest section has no source of its own."""
+        return set(), set()
+
+
 class BlogCardsListBlock(blocks.StructBlock):
     """A titled list of blog article cards."""
 
