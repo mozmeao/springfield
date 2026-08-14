@@ -344,16 +344,16 @@ def test_blog_index_renders_headline(index_page, rf):
     assert h1 and index_page.title in h1.get_text()
 
 
-def test_blog_index_context_all_topics(blog_setup, rf):
+def test_blog_index_all_topics_are_counted_and_ordered(blog_setup):
+    """Every topic with an article, most-populated first."""
     index_page, _ = blog_setup
     topics = get_blog_topics()
-    request = rf.get(index_page.get_full_url())
-    context = index_page.get_context(request)
 
-    all_topics = context["all_topics"]
+    all_topics = index_page.get_all_topics()
+
     assert len(all_topics) == len(topics)
-    assert all(hasattr(t, "article_count") for t in all_topics)
-    counts = [t.article_count for t in all_topics]
+    assert all(hasattr(topic, "article_count") for topic in all_topics)
+    counts = [topic.article_count for topic in all_topics]
     assert counts == sorted(counts, reverse=True)
 
 
