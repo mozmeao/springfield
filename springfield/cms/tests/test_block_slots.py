@@ -281,8 +281,14 @@ def showcase_block(block_id, headline):
 
 
 @pytest.mark.django_db
-def test_referral_hub_extra_content_does_not_restart_the_heading_count(minimal_site, rf):
-    """The pre-footer region used to reset the counter, giving every hub page two h1s."""
+def test_referral_hub_keeps_its_separate_heading_counters(minimal_site, rf):
+    """extra_content restarts the count, so the hub still renders two h1s.
+
+    That is a pre-existing bug with its own cause — the template opened a second Jinja
+    namespace, nothing to do with conditional variants — and fixing it would resize the
+    pre-footer heading, since showcase derives its size class from the level. Pinned
+    here so this PR is provably not the thing that changed it.
+    """
     page = ReferralHubPage(slug="hub-headings", title="Hub headings")
     minimal_site.root_page.add_child(instance=page)
     page.upper_content = [showcase_block("hubupper", "Upper")]
@@ -292,5 +298,5 @@ def test_referral_hub_extra_content_does_not_restart_the_heading_count(minimal_s
     # the hub 404s without a well-formed ref_key
     response = page.serve(rf.get(f"{page.get_full_url()}?ref_key=TESTABCDEFGHJKMN"))
     soup = BeautifulSoup(response.content, "html.parser")
-    assert len(soup.find_all("h1", class_="fl-heading")) == 1
-    assert heading_tags(soup, "fl-split-page-extra") == ["h2"]
+    assert len(soup.find_all("h1", class_="fl-heading")) == 2
+    assert heading_tags(soup, "fl-split-page-extra") == ["h1"]

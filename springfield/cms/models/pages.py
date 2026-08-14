@@ -2689,8 +2689,9 @@ def referral_geo_check(serve_method):
 
 
 class ReferralHubPage(BlockSlotsMixin, AbstractSpringfieldCMSPage):
-    # all three regions share one counter, so the page gets a single h1
-    slot_region_groups = (("upper_content", "lower_content", "extra_content"),)
+    # extra_content deliberately restarts the counter, matching what this page rendered
+    # before block slots existed. It emits a second h1, tracked separately.
+    slot_region_groups = (("upper_content", "lower_content"), ("extra_content",))
 
     """Page where a user gets their invitation link and
     can monitor their invites' impact (an anonymous install count)
