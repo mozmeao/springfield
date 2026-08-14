@@ -18,6 +18,17 @@
     --fl-theme-body-background: var(--fl-theme-blog-body-background);
 }
 
+.fl-blog-article-body .has-gradient-bottom::before {
+    background-color: var(--token-color-light-purple-40);
+    background-image: none;
+    block-size: 300px;
+    border-radius: 50%;
+    filter: blur(250px);
+    inline-size: 1800px;
+    inset: auto auto -150px 50%;
+    margin-inline-start: -900px;
+}
+
 .fl-blog-index-body .fl26-content,
 .fl-blog-article-body .fl26-content {
     margin-block-end: var(--token-spacing-2xl);
