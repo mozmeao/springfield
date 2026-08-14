@@ -59,6 +59,22 @@ def blog_topic(blog_index):
 
 
 @pytest.fixture
+def blog_tag(blog_index):
+    return BlogTag.objects.create(name="VPN", slug="test-unit-vpn", locale=blog_index.locale)
+
+
+@pytest.fixture
+def excluded_index(blog_index, blog_topic, blog_tag):
+    """Index page excluding one topic and one tag."""
+    blog_index.feed_exclusions = [
+        {"type": "topic", "value": blog_topic.pk, "id": "fx000001-0000-0000-0000-000000000001"},
+        {"type": "tag", "value": blog_tag.pk, "id": "fx000002-0000-0000-0000-000000000002"},
+    ]
+    blog_index.save()
+    return blog_index
+
+
+@pytest.fixture
 def make_article(blog_index, blog_topic):
     slug_numbers = itertools.count(1)
 
@@ -317,6 +333,20 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_feed_exclusions_are_empty_by_default(blog_index):
+    exclusions = blog_index.get_feed_exclusions()
+
+    assert exclusions.topic_keys == set()
+    assert exclusions.tag_keys == set()
+
+
+def test_feed_exclusions_report_chosen_topics_and_tags(excluded_index, blog_topic, blog_tag):
+    exclusions = excluded_index.get_feed_exclusions()
+
+    assert exclusions.topic_keys == {blog_topic.translation_key}
+    assert exclusions.tag_keys == {blog_tag.translation_key}
 
 
 def test_topic_slug_is_synchronized_rather_than_translated():

@@ -8,7 +8,7 @@ import functools
 import re
 import uuid
 from types import SimpleNamespace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urlparse
 
 from django import forms
@@ -1664,6 +1664,15 @@ def cache_localized_tags(articles):
 MAX_HEADER_TOPICS = 8
 
 
+class FeedExclusions(NamedTuple):
+    """Translation keys of the topics and tags kept out of automatic feeds.
+
+    Two sets because an exemption spares one half at a time."""
+
+    topic_keys: set
+    tag_keys: set
+
+
 def article_list_queryset(queryset):
     """Add everything the article list and card templates render to a BlogArticlePage
     queryset, so rendering does not fan out into a query per article."""
@@ -1745,6 +1754,20 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         blank=True,
         help_text=f"Up to {MAX_HEADER_TOPICS} topics shown at the top of the index page. If empty, the topics with the most articles are shown.",
     )
+    feed_exclusions = StreamField(
+        [
+            ("topic", LocalizedLiveSnippetChooserBlock("cms.BlogTopic")),
+            ("tag", LocalizedLiveSnippetChooserBlock("cms.BlogTag")),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text=(
+            "Articles with these topics or tags are left out of the full article list and the "
+            "latest-articles section, and these tags are hidden on article cards. Topic pages "
+            "and ?tag= links are unaffected."
+        ),
+    )
     more_articles_heading = RichTextField(features=HEADING_TEXT_FEATURES, default='<p data-block-key="53ojj213">Read more</p>')
     view_all_label = models.CharField(default="View All Articles")
     cards_lists = StreamField(
@@ -1773,6 +1796,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     blog_options_panels = [
         FieldPanel("featured_topics"),
+        FieldPanel("feed_exclusions"),
     ]
 
     edit_handler = TabbedInterface(
@@ -1825,6 +1849,24 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             .live()
             .order_by("-article_count")
         )
+
+    def get_feed_exclusions(self) -> FeedExclusions:
+        """Topics and tags this page keeps out of automatic feeds, as translation keys.
+
+        Matching by translation_key rather than pk keeps exclusions working in a locale
+        whose feed_exclusions have not been translated yet."""
+        if not hasattr(self, "_feed_exclusions_cache"):
+            topic_keys = set()
+            tag_keys = set()
+            for block in self.feed_exclusions or []:
+                if not block.value:
+                    continue
+                if block.block_type == "topic":
+                    topic_keys.add(block.value.translation_key)
+                else:
+                    tag_keys.add(block.value.translation_key)
+            self._feed_exclusions_cache = FeedExclusions(topic_keys, tag_keys)
+        return self._feed_exclusions_cache
 
     def get_topic_context(self, request, topic, topic_page=None):
         """Context for the topics/<slug>/ route, shared by the plain listing and by
