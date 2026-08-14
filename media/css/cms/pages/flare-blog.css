@@ -427,6 +427,10 @@
     flex-direction: column;
 }
 
+.fl-blog-article-body .fl-image-caption {
+    padding: 0;
+}
+
 .fl-blog-article-body .fl-article-main .fl-rich-text h2:first-child,
 .fl-blog-article-body .fl-article-main .fl-rich-text h3:first-child,
 .fl-blog-article-body .fl-article-main .fl-rich-text h4:first-child,
@@ -436,7 +440,7 @@
 }
 
 .fl-blog-article-body .fl-article-section {
-    padding-block: var(--token-spacing-3xl);
+    padding-block: var(--token-spacing-xl);
 }
 
 .fl-blog-article-body .fl-article-section > *:first-child {
