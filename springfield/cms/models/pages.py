@@ -2848,8 +2848,8 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             "utm_medium": "referral",
             "utm_campaign": "firefox-referral",
         }
-        # QA-only override: forces the desktop download CTA to Nightly instead
-        # of Release. See WT-1281.
+
+        # QA-only override: forces the download CTA to Nightly instead of Release. See WT-1281.
         context["channel"] = "nightly" if switch("REFERRAL_FORCE_NIGHTLY_QA") else "release"
         return context
 
