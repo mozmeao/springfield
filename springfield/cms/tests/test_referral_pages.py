@@ -569,6 +569,30 @@ def test_get_firefox_page_get_context_includes_utm_parameters(rf):
     assert context["utm_parameters"]["utm_medium"] == "referral"
 
 
+def test_get_firefox_page_get_context_channel_defaults_to_release(rf):
+    """Without the REFERRAL_FORCE_NIGHTLY_QA switch active, the download CTA
+    must build a Release Bouncer link, as it always has."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    with patch("springfield.base.waffle.switch_is_active", return_value=False):
+        context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["channel"] == "release"
+
+
+def test_get_firefox_page_get_context_channel_forced_to_nightly_by_switch(rf):
+    """QA-only override (WT-1281): the REFERRAL_FORCE_NIGHTLY_QA switch forces
+    the download CTA to build a Nightly Bouncer link instead of Release."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    with patch("springfield.base.waffle.switch_is_active", return_value=True):
+        context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["channel"] == "nightly"
+
+
 def test_get_firefox_page_renders_download_button(client, settings):
     """The referral page template must render an actual download button (not the
     context-dump skeleton) so the referral-attribution JS has a link to decorate."""
@@ -621,6 +645,50 @@ def test_get_firefox_page_renders_download_button(client, settings):
     referral_root = soup.find(attrs={"data-referral-code": True})
     assert referral_root is not None
     assert referral_root["data-referral-code"] == code
+
+
+def test_get_firefox_page_renders_nightly_download_link_when_switch_active(client, settings):
+    """QA-only override (WT-1281): with REFERRAL_FORCE_NIGHTLY_QA active, the
+    rendered download button(s) must point at a Nightly Bouncer product,
+    not Release."""
+    settings.STUB_ATTRIBUTION_RATE = 1
+    settings.STUB_ATTRIBUTION_HMAC_KEY = "test-hmac-key"
+
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page, slug="get-firefox")
+    page.upper_content = [
+        {
+            "type": "intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"slim": False},
+                "heading": {
+                    "superheading_text": '<p data-block-key="a"></p>',
+                    "heading_text": '<p data-block-key="b">Download Firefox</p>',
+                    "subheading_text": '<p data-block-key="c"></p>',
+                },
+                "buttons": [
+                    {
+                        "type": "referral_download",
+                        "id": "bb000000-0000-0000-0000-000000000001",
+                        "value": {},
+                    }
+                ],
+            },
+        }
+    ]
+    page.save()
+
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+    with patch(GEO_MOCK, return_value="US"), patch("springfield.base.waffle.switch_is_active", return_value=True):
+        response = client.get(f"/en-US/get-firefox/?invitation={code}")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    download_link = soup.find(class_="download-link")
+    assert download_link is not None
+    assert "firefox-nightly" in download_link["data-direct-link"]
 
 
 # Duplicate-block validation

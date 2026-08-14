@@ -42,6 +42,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     UI_TOUR_CLASSES,
@@ -2847,6 +2848,9 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             "utm_medium": "referral",
             "utm_campaign": "firefox-referral",
         }
+        # QA-only override: forces the desktop download CTA to Nightly instead
+        # of Release. See WT-1281.
+        context["channel"] = "nightly" if switch("REFERRAL_FORCE_NIGHTLY_QA") else "release"
         return context
 
     @referral_geo_check

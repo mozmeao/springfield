@@ -8,7 +8,8 @@
 
 {% set is_forced = specific_version and specific_version != "default" %}
 {% set resolved_os = specific_version if is_forced else "win" %}
-{% set download_firefox_thanks_link = download_firefox_thanks_link(os=resolved_os) %}
+{% set channel = channel|default("release", true) %}
+{% set download_firefox_thanks_link = download_firefox_thanks_link(os=resolved_os, channel=channel) %}
 {% set link_href = download_firefox_thanks_link['download_link_direct'] if is_forced else download_firefox_thanks_link['transition_url'] %}
 
 {#
