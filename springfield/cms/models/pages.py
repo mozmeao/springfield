@@ -1843,34 +1843,24 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def __str__(self):
         return f"BlogIndexPage: {self.title} - {self.locale}"
 
-    def get_resolved_sections(self):
-        """The article sections with their articles filled in.
-
-        Resolved on first use rather than in get_context, so the routes that never render
-        sections do not pay for them."""
-        if not hasattr(self, "_sections_resolved"):
-            self.resolve_article_sections()
-            self._sections_resolved = True
-        return self.article_sections
+    # Index route
 
     def resolve_article_sections(self):
-        """Fill each article section, in document order, from the articles no earlier
-        section has already used.
+        """Fill each article section, in order, based on its source and count,
+        excluding articles already used in earlier sections.
+        """
 
-        A block cannot see what earlier blocks rendered, so the lookup lives here and the
-        blocks only render what they are handed. Sections choose their articles by pk
-        first and everything the cards need is fetched in one batch afterwards, so the
-        prefetches in article_list_queryset run once rather than once per section."""
         seen_pks = {block.value["article"].pk for block in (self.featured_articles or []) if block.value.get("article")}
         sections = list(self.article_sections or [])
         pks_by_section = []
 
         for block in sections:
             exempt_topic_keys, exempt_tag_keys = block.block.get_exempt_exclusions(block.value)
-            candidates = block.block.filter_articles(self.feed_articles(exempt_topic_keys, exempt_tag_keys), block.value)
-            section_pks = list(
-                candidates.exclude(pk__in=seen_pks).order_by("-first_published_at").values_list("pk", flat=True)[: block.value["count"]]
-            )
+            block_queryset = block.block.filter_articles(
+                self.exclude_from_feed(self.live_articles(), exempt_topic_keys, exempt_tag_keys),
+                block.value,
+            ).exclude(pk__in=seen_pks)
+            section_pks = list(block_queryset.values_list("pk", flat=True)[: block.value["count"]])
             seen_pks.update(section_pks)
             pks_by_section.append(section_pks)
 
@@ -1885,6 +1875,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             block.value._articles = [articles_by_pk[pk] for pk in section_pks if pk in articles_by_pk]
             block.value._link_url = self.get_section_link_url(block, all_url)
 
+        return sections
+
     def get_section_link_url(self, block, all_url):
         """The "View all" destination for a section: its topic page, its tag filter, or
         the full list."""
@@ -1895,14 +1887,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             return self.url + self.reverse_subpage("topic_route", args=[source.value.slug])
         return f"{all_url}?tag={source.value.slug}"
 
+    # Queries and filtering
+
     def live_articles(self):
         """Published, publicly visible articles under this index."""
         return BlogArticlePage.objects.child_of(self).live().public()
-
-    def feed_articles(self, exempt_topic_keys=(), exempt_tag_keys=()):
-        """Articles eligible for automatic feeds, sparing the topic or tag the caller
-        selected. Every article section reads this."""
-        return self.exclude_from_feed(self.live_articles(), exempt_topic_keys, exempt_tag_keys)
 
     def get_all_topics(self):
         """Topics that have at least one live article here, most-populated first."""
@@ -1935,15 +1924,15 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return self._feed_exclusions_cache
 
     def get_hidden_tag_keys(self, exempt_tag=None):
-        """Excluded tags that should not render as chips, sparing the one the reader
-        selected."""
+        """Excluded tags that should not render as chips, except if the tag is explicitly exempted."""
         tag_keys = self.get_feed_exclusions().tag_keys
         return tag_keys - {exempt_tag.translation_key} if exempt_tag else tag_keys
 
     def exclude_from_feed(self, queryset, exempt_topic_keys=(), exempt_tag_keys=()):
-        """Drop excluded articles, sparing the topic or tag the caller selected.
-
-        Callers pass what was selected, not which exclusions to skip."""
+        """
+        Exclude articles with topics or tags that are in the feed_exclusions, except for
+        the ones explicitly exempted by the caller.
+        """
         exclusions = self.get_feed_exclusions()
         topic_keys = exclusions.topic_keys - set(exempt_topic_keys)
         tag_keys = exclusions.tag_keys - set(exempt_tag_keys)
@@ -1953,11 +1942,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             queryset = queryset.exclude(tags__translation_key__in=tag_keys)
         return queryset
 
-    def get_filter_tag(self, request):
-        """The BlogTag named by ?tag=, or None.
-
-        An unrecognised slug is ignored rather than raising, so a stale tag link
-        degrades to the unfiltered list."""
+    def get_tag_filter(self, request):
         # Inline import: snippets and pages import from each other at module scope.
         from springfield.cms.models.snippets import BlogTag
 
@@ -1965,6 +1950,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if not tag_slug:
             return None
         return BlogTag.objects.filter(slug=tag_slug, locale=self.locale).first()
+
+    # Context for routes
 
     def get_all_context(self, request):
         """Context for the all/ route: every live article, narrowed by ?topic= and ?tag=."""
@@ -1980,7 +1967,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             if topic:
                 articles = articles.filter(topic=topic)
 
-        tag = self.get_filter_tag(request)
+        tag = self.get_tag_filter(request)
         if tag:
             articles = articles.filter(tags=tag)
 
@@ -2016,7 +2003,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             if featured_pks:
                 articles = articles.exclude(pk__in=featured_pks)
 
-        tag = self.get_filter_tag(request)
+        tag = self.get_tag_filter(request)
         if tag:
             articles = articles.filter(tags=tag)
 
@@ -2060,12 +2047,18 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         return [localized_topics_by_key[topic.translation_key] for topic in selected_topics if topic.translation_key in localized_topics_by_key]
 
+    # Serving and routing
+
     def serve(self, request, view=None, args=None, kwargs=None):
         # Make sure to always go through the routes, so that each route is responsible for its own context.
         # No shared get_context method is used, so that each route only fetches what it needs.
         if view is None:
             view = self.index_route
         return super().serve(request, view=view, args=args, kwargs=kwargs)
+
+    def serve_preview(self, request, *args, **kwargs):
+        request.is_preview = True
+        return super().serve_preview(request, *args, **kwargs)
 
     def _render_route(self, request, template, extra_context=None):
         request.is_preview = False
@@ -2078,7 +2071,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     @path("")
     def index_route(self, request):
         prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
-        extra_context = {"header_topics": self.get_header_topics()}
+        extra_context = {
+            "header_topics": self.get_header_topics(),
+            "article_sections": self.resolve_article_sections(),
+            "is_preview": getattr(request, "is_preview", False),
+        }
         return self._render_route(request, self.get_template(request), extra_context=extra_context)
 
     @path("topics/")

@@ -543,12 +543,6 @@ def test_topic_context_still_drops_excluded_tags(excluded_index, articles_for_ex
     assert list(context["list_articles"]) == [clear]
 
 
-def test_feed_articles_applies_exclusions(excluded_index, articles_for_exclusion):
-    _, _, clear = articles_for_exclusion
-
-    assert list(excluded_index.feed_articles()) == [clear]
-
-
 def test_each_section_skips_articles_shown_above_it(page_with_every_section):
     """articles[0:4] are featured, so the topic section starts at articles[4] even though
     the featured four match its filter too; the tag and latest sections each start after
@@ -1529,19 +1523,13 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render. The count is pinned as flat (not
-    per-article) by test_blog_all_query_count_does_not_grow_with_articles.
-
-    Article sections choose their own articles, so the ceiling also carries one pk query
-    per section plus one batched fetch for everything they render. It is pinned as
-    per-section rather than per-article by
-    test_blog_index_query_count_does_not_grow_with_articles.
+    resolution that runs on every page render.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(40):
+    with django_assert_max_num_queries(37):
         index_page.serve(request)
 
 
@@ -1549,7 +1537,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(40):
+    with django_assert_max_num_queries(37):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1566,7 +1554,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(40):
+    with django_assert_max_num_queries(37):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
