@@ -89,8 +89,9 @@
     }
 }
 
-.fl-article-back {
+.fl-blog-article-body .fl-article-back {
     margin-block-end: var(--token-spacing-xl);
+    padding-inline-start: var(--token-spacing-lg);
 }
 
 .fl-blog-back-link {
