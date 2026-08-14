@@ -21,13 +21,13 @@
 {% from "cms/includes/blog/blog-card-media.html" import list_item_media with context %}
 <div class="fl-main">
   <div class="fl-split-page-upper has-gradient-bottom">
+    <div class="fl-article-back">
+      <a href="{{ page.get_parent().url }}" class="fl-blog-back-link">
+        <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+        {{ ftl('blog-all-articles') }}
+      </a>
+    </div>
     <div class="fl-article-main">
-      <div class="fl-article-back">
-        <a href="{{ page.get_parent().url }}" class="fl-blog-back-link">
-          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-back') }}
-        </a>
-      </div>
       {% include "cms/includes/blog/blog-article-hero.html" %}
     </div>
   </div>
