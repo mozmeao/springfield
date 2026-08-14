@@ -36,7 +36,7 @@ from springfield.cms.fixtures.blog_fixtures import (
 )
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.images import SpringfieldImage
-from springfield.cms.models.pages import ARTICLES_PER_PAGE, MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle
+from springfield.cms.models.pages import ARTICLES_PER_PAGE, MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle, cache_localized_tags
 from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
@@ -631,6 +631,56 @@ def test_section_sourced_by_a_topic_still_drops_excluded_tags(excluded_index, bl
     section = list(excluded_index.article_sections)[0]
 
     assert section.value.get_articles() == [untagged]
+
+
+def test_cache_localized_tags_drops_hidden_tags(bare_article, blog_tag):
+    keeper = BlogTag.objects.create(name="Keeper", slug="test-unit-keeper", locale=bare_article.locale)
+    bare_article.tags.add(blog_tag, keeper)
+    bare_article.save()
+
+    cache_localized_tags([bare_article], hidden_translation_keys={blog_tag.translation_key})
+
+    assert [tag.slug for tag in bare_article.get_tags()] == [keeper.slug]
+
+
+def test_excluded_tags_do_not_render_on_related_article_cards(excluded_index, blog_tag, make_article, rf):
+    """Related cards are not feed-filtered, so an excluded tag reaches them."""
+    keeper = BlogTag.objects.create(name="Keeper", slug="test-unit-keeper", locale=excluded_index.locale)
+    sibling = make_article(title="Two tags")
+    sibling.tags.add(blog_tag, keeper)
+    sibling.save()
+    article = make_article(title="The article")
+
+    related = article.get_context(rf.get("/"))["related_articles"]
+
+    assert related == [sibling]
+    assert [tag.slug for tag in related[0].get_tags()] == [keeper.slug]
+
+
+def test_tag_filter_renders_every_chip(excluded_index, blog_tag, make_article, rf):
+    """Under ?tag= the tag the reader followed is spared, so its chip shows.
+
+    The article sits in an unexcluded topic: ?tag= spares the tag only, so an article in
+    the excluded topic would still be dropped."""
+    other_topic = BlogTopic.objects.create(name="Security", slug="test-unit-security", locale=excluded_index.locale)
+    article = make_article(title="Excluded tag", topic=other_topic)
+    article.tags.add(blog_tag)
+    article.save()
+
+    listed = list(excluded_index.get_all_context(rf.get("/", {"tag": blog_tag.slug}))["list_articles"])
+
+    assert listed == [article]
+    assert [tag.slug for tag in listed[0].get_tags()] == [blog_tag.slug]
+
+
+def test_exhausted_section_renders_nothing(sectioned_index, rf):
+    """A section with no articles left contributes no heading and no link."""
+    index_page, _, _ = sectioned_index
+    response = index_page.serve(rf.get(index_page.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # The topic section takes both articles, leaving the latest section empty.
+    assert len(soup.find_all("div", class_="fl-blog-cards-list")) == 1
 
 
 def test_blog_index_featured_section_holds_at_most_four():

@@ -1665,13 +1665,20 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"SmartWindowExplainerPage: {self.title} - {self.locale}"
 
 
-def cache_localized_tags(articles):
+def cache_localized_tags(articles, hidden_translation_keys=()):
     """Populate _tags_cache on each article from a single BlogTag lookup, so rendering
-    localized tag names costs one query rather than one per tag."""
+    localized tag names costs one query rather than one per tag.
+
+    Tags in hidden_translation_keys are left out, so a tag kept out of the feed does not
+    show on the cards either."""
     from springfield.cms.models.snippets import BlogTag  # circular import
 
     slugs = {tag.slug for article in articles for tag in article.tags.all()}
-    localized_tags_by_slug = {tag.slug: tag for tag in BlogTag.objects.filter(slug__in=slugs, locale=SpringfieldLocale.get_active()).live()}
+    localized_tags_by_slug = {
+        tag.slug: tag
+        for tag in BlogTag.objects.filter(slug__in=slugs, locale=SpringfieldLocale.get_active()).live()
+        if tag.translation_key not in hidden_translation_keys
+    }
     for article in articles:
         article._tags_cache = [localized_tags_by_slug[tag.slug] for tag in article.tags.all() if tag.slug in localized_tags_by_slug]
 
@@ -1935,6 +1942,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             self._feed_exclusions_cache = FeedExclusions(topic_keys, tag_keys)
         return self._feed_exclusions_cache
 
+    def get_hidden_tag_keys(self, exempt_tag=None):
+        """Excluded tags that should not render as chips, sparing the one the reader
+        selected."""
+        tag_keys = self.get_feed_exclusions().tag_keys
+        return tag_keys - {exempt_tag.translation_key} if exempt_tag else tag_keys
+
     def exclude_from_feed(self, queryset, exempt_topic_keys=(), exempt_tag_keys=()):
         """Drop excluded articles, sparing the topic or tag the caller selected.
 
@@ -1989,7 +2002,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if topic:
             topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
-        cache_localized_tags(list_articles.object_list)
+        cache_localized_tags(list_articles.object_list, self.get_hidden_tag_keys(tag))
 
         return {
             "list_articles": list_articles,
@@ -2025,7 +2038,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
         topic.article_count = paginator.count
         list_articles = paginator.get_page(request.GET.get("page", 1))
-        cache_localized_tags(list_articles.object_list)
+        cache_localized_tags(list_articles.object_list, self.get_hidden_tag_keys(tag))
 
         return {
             "blog_index": self,
@@ -2409,7 +2422,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 .order_by("-first_published_at")[:4]
             )
             context["related_articles"] = list(related)
-            cache_localized_tags(context["related_articles"])
+            # Related cards are not feed-filtered, so an excluded tag reaches them.
+            blog_index = self.get_parent().specific
+            cache_localized_tags(context["related_articles"], blog_index.get_hidden_tag_keys())
         else:
             context["related_articles"] = []
         return context
