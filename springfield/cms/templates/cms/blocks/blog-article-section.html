@@ -1,0 +1,49 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  One blog article section: heading, card grid and a "View all" link.
+  Shared by the cards_list and latest block types, which differ only in where
+  their articles come from. Renders nothing when the index page resolved no
+  articles for it.
+#}
+
+{% from "cms/includes/blog/blog-card-media.html" import article_card_media with context %}
+
+{% set articles = value.get_articles() %}
+{% if articles %}
+  <div class="fl-blog-cards-list">
+    <div class="fl-blog-cards-list-header">
+      <include:heading
+        level="h3"
+        heading_text="{{ value.heading_text|richtext|remove_p_tag }}"
+        heading_size="fl-heading-xs"
+      />
+      <a class="fl-blog-cards-list-link" href="{{ value.get_link_url() }}">{{ value.link_label }}</a>
+    </div>
+    {% set list_size = articles|length %}
+    <include:cards-list container_width="fill">
+      {% for article in articles %}
+        <include:card expand_link="true">
+          <content:media>{{ article_card_media(article, list_size) }}</content:media>
+          <content:body>
+            <hgroup class="fl-heading-group">
+              <p class="fl-superheading">{{ article.get_topic().name if article.get_topic() else "" }}</p>
+              <h4 class="fl-heading fl-heading-size-3">
+                <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
+                  {{ article.title }}
+                </a>
+              </h4>
+            </hgroup>
+            <div class="fl-body">
+              <p>{{ article.description|richtext|remove_p_tag }}</p>
+            </div>
+          </content:body>
+        </include:card>
+      {% endfor %}
+    </include:cards-list>
+  </div>
+{% endif %}
