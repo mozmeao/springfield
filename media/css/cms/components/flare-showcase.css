@@ -30,6 +30,7 @@
 
 .fl-showcase-description {
     color: var(--fl-theme-color-text);
+    margin-block-start: var(--token-spacing-2xl);
 }
 
 .fl-showcase-media {
