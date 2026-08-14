@@ -2158,6 +2158,12 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("image_caption", ImageCaptionBlock()),
             ("code", CodeBlock()),
             ("quote", QuoteBlock()),
+            (
+                "cards_list",
+                CardsListBlock(
+                    template="cms/blocks/sections/blog-article-cards-list.html", help_text="Some settings may be ignored in favor of the page layout."
+                ),
+            ),
         ],
         use_json_field=True,
     )
