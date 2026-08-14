@@ -106,6 +106,19 @@ def tagged_articles(make_article, blog_tag):
 
 
 @pytest.fixture
+def articles_for_exclusion(blog_index, blog_topic, blog_tag, make_article):
+    """Three articles: one in the excluded topic, one carrying the excluded tag, and one
+    clear of both."""
+    other_topic = BlogTopic.objects.create(name="Security", slug="test-unit-security", locale=blog_index.locale)
+    in_excluded_topic = make_article(title="Excluded topic")
+    with_excluded_tag = make_article(title="Excluded tag", topic=other_topic)
+    with_excluded_tag.tags.add(blog_tag)
+    with_excluded_tag.save()
+    clear = make_article(title="Not excluded", topic=other_topic)
+    return in_excluded_topic, with_excluded_tag, clear
+
+
+@pytest.fixture
 def paginated_tagged_topic(blog_index, blog_topic, blog_tag, make_article):
     """One topic and tag carrying enough articles to fill two pages."""
     for position in range(ARTICLES_PER_PAGE + 1):
@@ -409,6 +422,62 @@ def test_feed_exclusions_report_chosen_topics_and_tags(excluded_index, blog_topi
 
     assert exclusions.topic_keys == {blog_topic.translation_key}
     assert exclusions.tag_keys == {blog_tag.translation_key}
+
+
+def test_all_context_drops_excluded_topics_and_tags(excluded_index, articles_for_exclusion, rf):
+    _, _, clear = articles_for_exclusion
+
+    context = excluded_index.get_all_context(rf.get("/"))
+
+    assert list(context["list_articles"]) == [clear]
+
+
+def test_all_context_topic_filter_exempts_that_topic(excluded_index, articles_for_exclusion, blog_topic, rf):
+    """?topic=X means the reader asked for X, so X's exclusion is spared."""
+    in_excluded_topic, _, _ = articles_for_exclusion
+
+    context = excluded_index.get_all_context(rf.get("/", {"topic": blog_topic.slug}))
+
+    assert list(context["list_articles"]) == [in_excluded_topic]
+
+
+def test_all_context_tag_filter_exempts_that_tag(excluded_index, articles_for_exclusion, blog_tag, rf):
+    _, with_excluded_tag, _ = articles_for_exclusion
+
+    context = excluded_index.get_all_context(rf.get("/", {"tag": blog_tag.slug}))
+
+    assert list(context["list_articles"]) == [with_excluded_tag]
+
+
+def test_all_context_exempts_only_what_was_named(excluded_index, articles_for_exclusion, blog_topic, blog_tag, make_article, rf):
+    """?tag=Y spares tag Y and nothing else — an article in an excluded topic stays
+    hidden even when it also carries Y."""
+    both = make_article(title="Excluded topic and tag", topic=blog_topic)
+    both.tags.add(blog_tag)
+    both.save()
+    _, with_excluded_tag, _ = articles_for_exclusion
+
+    context = excluded_index.get_all_context(rf.get("/", {"tag": blog_tag.slug}))
+
+    assert list(context["list_articles"]) == [with_excluded_tag]
+
+
+def test_topic_context_shows_its_own_excluded_topic(excluded_index, articles_for_exclusion, blog_topic, rf):
+    """Applying the topic exclusion here would leave the page empty."""
+    in_excluded_topic, _, _ = articles_for_exclusion
+
+    context = excluded_index.get_topic_context(rf.get("/"), blog_topic)
+
+    assert list(context["list_articles"]) == [in_excluded_topic]
+
+
+def test_topic_context_still_drops_excluded_tags(excluded_index, articles_for_exclusion, rf):
+    """The topic exemption spares one exclusion, not all of them."""
+    _, with_excluded_tag, clear = articles_for_exclusion
+
+    context = excluded_index.get_topic_context(rf.get("/"), with_excluded_tag.topic)
+
+    assert list(context["list_articles"]) == [clear]
 
 
 def test_topic_slug_is_synchronized_rather_than_translated():
