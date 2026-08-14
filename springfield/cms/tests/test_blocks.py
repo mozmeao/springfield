@@ -4534,9 +4534,12 @@ def assert_card_block(card_el, card_data, context, region_name, heading_tag, blo
             assert blockquote
             quote_text = BeautifulSoup(t["content"], "html.parser").get_text()
             assert quote_text in blockquote.get_text()
-            attribution_text = BeautifulSoup(t["attribution"], "html.parser").get_text()
             cite_el = blockquote.find("cite", class_="fl-card-testimonial-attribution")
-            assert cite_el and attribution_text in cite_el.get_text()
+            if t.get("attribution"):
+                attribution_text = BeautifulSoup(t["attribution"], "html.parser").get_text()
+                assert cite_el and attribution_text in cite_el.get_text()
+            else:
+                assert cite_el is None
             if t.get("attribution_role"):
                 role_text = BeautifulSoup(t["attribution_role"], "html.parser").get_text()
                 role_el = blockquote.find("span", class_="fl-card-testimonial-role")
