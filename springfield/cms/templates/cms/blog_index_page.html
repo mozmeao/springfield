@@ -93,13 +93,6 @@
                       </hgroup>
                       <div class="fl-body">
                         <p>{{ article_block.get_description() }}</p>
-                        {% if article_block.get_tags() %}
-                          <div class="fl-card-tags">
-                            {% for tag in article_block.get_tags() %}
-                              <include:tag text="{{ tag }}" color="purple" corners="round" />
-                            {% endfor %}
-                          </div>
-                        {% endif %}
                       </div>
                     </content:body>
                   </include:card>

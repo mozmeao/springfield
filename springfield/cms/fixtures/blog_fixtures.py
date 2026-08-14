@@ -59,7 +59,7 @@ LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
 # 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28,
 # plus the 4 hero style / listing image demonstrations = 32 total articles
 NUM_LIST_ARTICLES = 32
-NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
+NUM_FEATURED_INDEX_SHOWN = 4  # articles in index page featured_articles StreamField
 
 
 def get_blog_topics() -> dict[str, BlogTopic]:
@@ -192,7 +192,6 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
                 "topic": "",
                 "title": "",
                 "description": "",
-                "tags": [],
             },
         },
         "id": block_id,
@@ -436,7 +435,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
-    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
+    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:4], start=1)]
     index_page.cards_lists = [
         {
             "type": "cards_list",
