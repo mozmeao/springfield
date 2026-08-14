@@ -46,4 +46,13 @@
       {% endfor %}
     </include:cards-list>
   </div>
+{% elif is_preview %}
+  <div class="conditional-display is-preview">
+    <include:notification color="red">
+      <content:heading>This section is empty</content:heading>
+      <p>No articles meet this block's filter criteria. Articles that match the filters might already be listed above.</p>
+      <p>Heading: {{ value.heading_text|richtext|remove_p_tag }}</p>
+      <p>Filter: {{ value.source }}</p>
+    </include:notification>
+  </div>
 {% endif %}

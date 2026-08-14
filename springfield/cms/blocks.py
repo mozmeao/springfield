@@ -2106,7 +2106,6 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
     """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    # Up to 8: the latest section is expected to run to a second row.
     count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
     link_label = blocks.CharBlock(default="View all")
 
@@ -2117,7 +2116,7 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
         value_class = BlogArticleSectionValue
 
     def filter_articles(self, queryset, value):
-        return queryset
+        return queryset.order_by("-first_published_at")
 
     def get_exempt_exclusions(self, value):
         """Nothing is exempt: the latest section has no source of its own."""
@@ -2129,7 +2128,6 @@ class BlogCardsListBlock(blocks.StructBlock):
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     source = BlogCardsListSourceBlock()
-    # Capped at 4: article_card_media only has tuned image sizes for grids of 2-4.
     count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
     link_label = blocks.CharBlock(default="View all")
 
@@ -2142,8 +2140,8 @@ class BlogCardsListBlock(blocks.StructBlock):
     def filter_articles(self, queryset, value):
         source = value["source"][0]
         if source.block_type == "topic":
-            return queryset.filter(topic__translation_key=source.value.translation_key)
-        return queryset.filter(tags__slug=source.value.slug)
+            return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
+        return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
 
     def get_exempt_exclusions(self, value):
         """The exclusion this section may override: the source it renders.
