@@ -52,6 +52,7 @@ from springfield.cms.models import (
 )
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
+from springfield.cms.utils import get_cms_environment
 
 
 @hooks.register("register_admin_urls")
@@ -96,6 +97,14 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
+
+
+@hooks.register("insert_global_admin_css")
+def environment_admin_css():
+    env = get_cms_environment()
+    if env not in {"dev", "stage", "local"}:
+        return ""
+    return format_html('<link rel="stylesheet" href="{}">', static(f"css/cms/wagtail_admin_{env}.css"))
 
 
 @hooks.register("insert_global_admin_js")
