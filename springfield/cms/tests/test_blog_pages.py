@@ -37,7 +37,7 @@ from springfield.cms.fixtures.blog_fixtures import (
 )
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.images import SpringfieldImage
-from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle
+from springfield.cms.models.pages import ARTICLES_PER_PAGE, MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle
 from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
@@ -94,6 +94,25 @@ def make_article(blog_index, blog_topic):
         return article
 
     return make_article
+
+
+@pytest.fixture
+def tagged_articles(make_article, blog_tag):
+    """One article carrying blog_tag, one without it."""
+    tagged = make_article(title="Tagged article")
+    tagged.tags.add(blog_tag)
+    tagged.save()
+    return tagged, make_article(title="Untagged article")
+
+
+@pytest.fixture
+def paginated_tagged_topic(blog_index, blog_topic, blog_tag, make_article):
+    """One topic and tag carrying enough articles to fill two pages."""
+    for position in range(ARTICLES_PER_PAGE + 1):
+        article = make_article(title=f"Tagged article {position}")
+        article.tags.add(blog_tag)
+        article.save()
+    return blog_index, blog_topic, blog_tag
 
 
 @pytest.fixture
@@ -335,6 +354,47 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_all_context_tag_filter_keeps_only_articles_with_the_tag(blog_index, blog_tag, tagged_articles, rf):
+    tagged, _ = tagged_articles
+
+    context = blog_index.get_all_context(rf.get("/", {"tag": blog_tag.slug}))
+
+    assert list(context["list_articles"]) == [tagged]
+    assert context["tag"] == blog_tag
+
+
+def test_all_context_unknown_tag_is_ignored(blog_index, tagged_articles, rf):
+    tagged, untagged = tagged_articles
+
+    context = blog_index.get_all_context(rf.get("/", {"tag": "nonexistent"}))
+
+    assert set(context["list_articles"]) == {tagged, untagged}
+    assert context["tag"] is None
+
+
+def test_all_context_topic_and_tag_filters_combine(blog_index, blog_topic, blog_tag, make_article, rf):
+    other_topic = BlogTopic.objects.create(name="Security", slug="test-unit-security", locale=blog_index.locale)
+    both = make_article(title="Right topic and tag")
+    both.tags.add(blog_tag)
+    both.save()
+    wrong_topic = make_article(title="Wrong topic", topic=other_topic)
+    wrong_topic.tags.add(blog_tag)
+    wrong_topic.save()
+    make_article(title="Right topic, no tag")
+
+    context = blog_index.get_all_context(rf.get("/", {"topic": blog_topic.slug, "tag": blog_tag.slug}))
+
+    assert list(context["list_articles"]) == [both]
+
+
+def test_topic_context_tag_filter_narrows_within_the_topic(blog_index, blog_topic, blog_tag, tagged_articles, rf):
+    tagged, _ = tagged_articles
+
+    context = blog_index.get_topic_context(rf.get("/", {"tag": blog_tag.slug}), blog_topic)
+
+    assert list(context["list_articles"]) == [tagged]
 
 
 def test_feed_exclusions_are_empty_by_default(blog_index):
@@ -710,6 +770,30 @@ def test_blog_all_topic_filter_pagination_urls_include_topic_param(blog_setup, r
         next_button = pagination.find("div", class_="fl-pagination-next").find("a")
         if next_button and next_button.get("href"):
             assert "topic=privacy" in next_button["href"]
+
+
+def test_blog_all_tag_filter_pagination_urls_include_tag_param(blog_setup, rf):
+    index_page, _ = blog_setup
+    tag = get_blog_tags()["privacy"]
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    request = rf.get(url, {"tag": tag.slug})
+    response = index_page.all_route(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    pagination = soup.find("nav", class_="fl-pagination")
+    assert pagination, "The privacy tag has enough articles to paginate"
+    next_button = pagination.find("div", class_="fl-pagination-next").find("a")
+    assert f"tag={tag.slug}" in next_button["href"]
+
+
+def test_blog_topic_tag_filter_pagination_urls_include_tag_param(paginated_tagged_topic, rf):
+    index_page, topic, tag = paginated_tagged_topic
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=[topic.slug])
+    response = index_page.topic_route(rf.get(url, {"tag": tag.slug}), topic.slug)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    next_button = soup.find("nav", class_="fl-pagination").find("div", class_="fl-pagination-next").find("a")
+    assert f"tag={tag.slug}" in next_button["href"]
 
 
 def test_blog_all_renders_view_all_topics_link(blog_setup, rf):
