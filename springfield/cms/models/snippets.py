@@ -235,6 +235,10 @@ class BlogTopic(BaseDraftTranslatableSnippetMixin, models.Model):
         FieldPanel("slug"),
     ]
 
+    override_translatable_fields = [
+        SynchronizedField("slug"),
+    ]
+
     class Meta(TranslatableMixin.Meta):
         verbose_name = "Blog Topic"
         verbose_name_plural = "Blog Topics"

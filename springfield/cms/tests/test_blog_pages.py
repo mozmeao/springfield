@@ -13,6 +13,7 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale, Site
 from wagtail.rich_text import RichText
+from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
 
 from springfield.cms.blocks import BlogArticleBlock
@@ -318,6 +319,14 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_topic_slug_is_synchronized_rather_than_translated():
+    """Topic slugs stay locale-independent, so topics/<slug>/ resolves to the same topic
+    in every language."""
+    translatable_names = {field.field_name for field in get_translatable_fields(BlogTopic) if isinstance(field, TranslatableField)}
+
+    assert translatable_names == {"name"}
 
 
 def test_blog_index_featured_topics_skip_the_article_count_query(index_page_and_topics, django_assert_num_queries):
