@@ -646,6 +646,11 @@ def test_get_firefox_page_renders_download_button(client, settings):
     assert referral_root is not None
     assert referral_root["data-referral-code"] == code
 
+    # The Android Play Store badge must default to the Release app.
+    android_badge = soup.find(class_="fl-store-button-android")
+    assert android_badge is not None
+    assert "id=org.mozilla.firefox" in android_badge["href"]
+
 
 def test_get_firefox_page_renders_nightly_download_link_when_switch_active(client, settings):
     """QA-only override (WT-1281): with REFERRAL_FORCE_NIGHTLY_QA active, the
@@ -689,6 +694,11 @@ def test_get_firefox_page_renders_nightly_download_link_when_switch_active(clien
     download_link = soup.find(class_="download-link")
     assert download_link is not None
     assert "firefox-nightly" in download_link["data-direct-link"]
+
+    # The Android Play Store badge must point at the separate Nightly listing.
+    android_badge = soup.find(class_="fl-store-button-android")
+    assert android_badge is not None
+    assert "id=org.mozilla.fenix" in android_badge["href"]
 
 
 # Duplicate-block validation
