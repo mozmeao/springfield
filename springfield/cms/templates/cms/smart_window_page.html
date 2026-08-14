@@ -271,12 +271,10 @@
       </div>
 
       <div class="fl-split-page-lower no-gap">
-        {% for block in page.content %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
-          {% set block_level = 2 %}
-          {% include_block block %}
+        {% for slot in page.block_slots("content") %}
+          {% set block_level = slot.heading_level %}
+          {% set block_position = "block-" ~ slot.index ~ "-" ~ slot.block_type %}
+          {% include_block slot.block %}
         {% endfor %}
       </div>
     </div>

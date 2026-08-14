@@ -17,34 +17,27 @@
 {% block content %}
 <div class="fl-page fl-roadmap-page">
   <div class="fl-main has-gradient-bottom">
-    {% set ns = namespace(headings=0, roadmap_sections=0) %}
+    {% set ns = namespace(roadmap_sections=0) %}
 
     {% if page.intro %}
       <div class="fl-split-page-upper has-gradient-bottom has-sitting-kit">
-        {% set block_level = 1 %}
         {% set block_position = "intro" %}
-        {% set ns.headings = 1 %}
-        {% for block in page.intro %}
-          {% include_block block %}
+        {% for slot in page.block_slots("intro") %}
+          {% set block_level = slot.heading_level %}
+          {% include_block slot.block %}
         {% endfor %}
       </div>
     {% endif %}
 
     <div class="fl-split-page-lower no-gap">
       {% if page.content %}
-        {% for block in page.content %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
-          {% set ns.roadmap_sections = ns.roadmap_sections + 1 if block_type == "roadmap_list_section" else ns.roadmap_sections %}
-
-          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-            {% set block_level = 1 if ns.headings == 0 else 2 %}
-            {% set ns.headings = ns.headings + 1 %}
-          {% endif %}
+        {% for slot in page.block_slots("content") %}
+          {% set block_level = slot.heading_level %}
+          {% set block_position = "block-" ~ slot.index ~ "-" ~ slot.block_type %}
+          {% set ns.roadmap_sections = ns.roadmap_sections + 1 if slot.block_type == "roadmap_list_section" else ns.roadmap_sections %}
 
           {% with roadmap_sections=ns.roadmap_sections %}
-            {% include_block block %}
+            {% include_block slot.block %}
           {% endwith %}
         {% endfor %}
       {% endif %}

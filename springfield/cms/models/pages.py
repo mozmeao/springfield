@@ -7,6 +7,8 @@ from __future__ import annotations
 import functools
 import re
 import uuid
+from collections.abc import Mapping
+from types import MappingProxyType
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -43,6 +45,7 @@ from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
 from springfield.base.waffle import switch
+from springfield.cms.block_slots import build_slots
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     UI_TOUR_CLASSES,
@@ -282,6 +285,50 @@ class PageThemeMixin(models.Model):
         abstract = True
 
 
+class BlockSlotsMixin(models.Model):
+    """Gives templates the heading level for each top-level block.
+
+    Every page template used to count headings inline with a Jinja namespace, fourteen
+    copies in all, and none of them could see that conditional blocks are alternatives
+    sharing a position rather than a sequence. Deriving it here means one implementation
+    and one place to fix.
+
+    The configuration exists so each page keeps the levels it rendered before: the
+    download page's blocks sit under a page title that owns the h1, and the roadmap's
+    intro is the h1 for everything that follows it.
+    """
+
+    # Region field names in render order. Regions in the same tuple share a heading
+    # counter; a separate tuple restarts it.
+    slot_region_groups: tuple[tuple[str, ...], ...] = ()
+    # Regions whose blocks all take the same heading level whatever their order.
+    slot_flat_levels: Mapping[str, int] = MappingProxyType({})
+    slot_start_level: int = 1
+
+    class Meta:
+        abstract = True
+
+    def block_slots(self, region):
+        """The slots for one region.
+
+        Every region is computed on each call so the heading counter can carry across
+        the ones that share it, and so a region reassigned between renders is not served
+        from a stale cache. The work is a couple of passes over a short list.
+        """
+        computed = {}
+        for group in self.slot_region_groups:
+            seen_headings = 0
+            for name in group:
+                slots, seen_headings = build_slots(
+                    getattr(self, name, None) or [],
+                    start_level=self.slot_start_level,
+                    seen_headings=seen_headings,
+                    flat_level=self.slot_flat_levels.get(name),
+                )
+                computed[name] = slots
+        return computed.get(region, [])
+
+
 PRE_FOOTER_IMAGE_KIT = "kit"
 PRE_FOOTER_IMAGE_GLOBE = "globe"
 PRE_FOOTER_IMAGE_NONE = "none"
@@ -392,7 +439,9 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("upper_content", "lower_content"),)
+
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -454,7 +503,11 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    # the page title above the blocks is the h1, so blocks start a level down
+    slot_region_groups = (("content",),)
+    slot_start_level = 2
+
     parent_page_types = ["cms.DownloadIndexPage"]
 
     ftl_files = [
@@ -587,7 +640,9 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class ThanksPage(BlockSlotsMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("content",),)
+
     """A thank you page displayed after the user downloads Firefox."""
 
     ftl_files = ["firefox/download/desktop"]
@@ -988,7 +1043,9 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return [snippet for snippet in snippets if snippet]
 
 
-class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleThemePage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("upper_content", "content"),)
+
     """A page that displays articles related to a specific theme."""
 
     upper_content = StreamField(
@@ -1158,8 +1215,16 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
 
 
 class FreeFormPage2026(
-    PageThemeMixin, PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
+    BlockSlotsMixin,
+    PageThemeMixin,
+    PreFooterImageMixin,
+    PromotedPageMixin,
+    UTMParamsMixin,
+    QRCodeFloatingSnippetMixin,
+    AbstractSpringfieldCMSPage,
 ):
+    slot_region_groups = (("upper_content", "content"),)
+
     """A flexible 2026 page type with optional upper/lower split layout."""
 
     upper_content = StreamField(
@@ -1305,8 +1370,11 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect("/")
 
 
-class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(BlockSlotsMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
+
+    # renders through free_form_page2026.html, so it needs the same regions
+    slot_region_groups = (("upper_content", "content"),)
 
     parent_page_types = ["cms.WhatsNewIndexPage"]
     subpage_types = []
@@ -1386,7 +1454,11 @@ class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCo
         return True
 
 
-class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    # the hero above the blocks is the h1, so every block sits at h2
+    slot_region_groups = (("content",),)
+    slot_flat_levels = {"content": 2}
+
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
@@ -1619,7 +1691,9 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowExplainerPage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("upper_content", "content"),)
+
     """A Smart Window themed page"""
 
     upper_content = StreamField(
@@ -2184,7 +2258,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return self._tags_cache
 
 
-class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class RoadmapPage(BlockSlotsMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    # the intro is the h1; content that follows starts a level down
+    slot_region_groups = (("intro", "content"),)
+    slot_flat_levels = {"intro": 1}
+
     """A page that displays the Firefox roadmap."""
 
     ftl_files = ["cms/roadmap"]
@@ -2254,7 +2332,10 @@ class ContactPageForm(WagtailAdminPageForm):
         return cleaned_data
 
 
-class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
+class ContactPage(BlockSlotsMixin, PageThemeMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("intro",),)
+    slot_flat_levels = {"intro": 1}
+
     """A CMS-editable contact form page with a configurable StreamField form builder."""
 
     base_form_class = ContactPageForm
@@ -2607,7 +2688,10 @@ def referral_geo_check(serve_method):
     return wrapper
 
 
-class ReferralHubPage(AbstractSpringfieldCMSPage):
+class ReferralHubPage(BlockSlotsMixin, AbstractSpringfieldCMSPage):
+    # all three regions share one counter, so the page gets a single h1
+    slot_region_groups = (("upper_content", "lower_content", "extra_content"),)
+
     """Page where a user gets their invitation link and
     can monitor their invites' impact (an anonymous install count)
     """
@@ -2652,6 +2736,9 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
+
+    def __str__(self):
+        return f"ReferralHubPage: {self.title} - {self.locale}"
 
     def get_context(self, request, *args, **kwargs):
         """
@@ -2759,7 +2846,9 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
         return response
 
 
-class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
+class ReferralGetFirefoxPage(BlockSlotsMixin, AbstractSpringfieldCMSPage):
+    slot_region_groups = (("upper_content", "lower_content"),)
+
     """Landing page for an invitee, from which they can download Firefox.
 
     Will use custom, privacy-respecting attribution so we can tally up
@@ -2812,6 +2901,9 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
+
+    def __str__(self):
+        return f"ReferralGetFirefoxPage: {self.title} - {self.locale}"
 
     def clean(self):
         super().clean()

@@ -23,9 +23,9 @@
   </noscript>
 
   {% if page.intro %}
-    {% for block in page.intro %}
-      {% set block_level = 1 %}
-      {% include_block block %}
+    {% for slot in page.block_slots("intro") %}
+      {% set block_level = slot.heading_level %}
+      {% include_block slot.block %}
     {% endfor %}
   {% else %}
     <section class="fl-section">
