@@ -2021,12 +2021,6 @@ class BlockArticleValue(blocks.StructValue):
                 return topic.name
         return ""
 
-    def get_tags(self) -> list[str]:
-        if tags := self.get("overrides").get("tags"):
-            return tags
-        article_page = self.get_article()
-        return [tag.name for tag in article_page.get_tags()]
-
     def get_image(self):
         article_page = self.get_article()
         image_override = self.get("overrides").get("image")
@@ -2069,7 +2063,6 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     topic = blocks.CharBlock(required=False)
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
 
 
 class BlogArticleBlock(blocks.StructBlock):

@@ -1740,11 +1740,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     )
     featured_articles = StreamField(
         [("article", BlogArticleBlock())],
-        max_num=8,
+        max_num=4,
         use_json_field=True,
         null=True,
         blank=True,
-        help_text="Up to 8 featured articles shown at the top of the index page.",
+        help_text="Up to 4 featured articles shown at the top of the index page.",
     )
     featured_topics = StreamField(
         [("topic", LocalizedLiveSnippetChooserBlock("cms.BlogTopic"))],

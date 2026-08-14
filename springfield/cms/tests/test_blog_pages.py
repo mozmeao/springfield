@@ -21,7 +21,6 @@ from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_place
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
-    NUM_FEATURED_INDEX_SHOWN,
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
@@ -478,6 +477,13 @@ def test_topic_context_still_drops_excluded_tags(excluded_index, articles_for_ex
     assert list(context["list_articles"]) == [clear]
 
 
+def test_blog_index_featured_section_holds_at_most_four():
+    """One hero plus up to three list items."""
+    stream_block = BlogIndexPage._meta.get_field("featured_articles").stream_block
+
+    assert stream_block.meta.max_num == 4
+
+
 def test_topic_slug_is_synchronized_rather_than_translated():
     """Topic slugs stay locale-independent, so topics/<slug>/ resolves to the same topic
     in every language."""
@@ -567,38 +573,6 @@ def test_blog_index_renders_three_featured_articles_as_articles_list(blog_setup,
         description = item.find("div", class_="fl-body")
         assert description and BeautifulSoup(article.description, "html.parser").get_text() in description.get_text()
 
-        assert item.find("span", class_="fl-tag")
-
-
-def test_blog_index_renders_remaining_featured_as_illustration_cards(blog_setup, rf):
-    # articles[0] is the hero; articles[1:4] are list items; articles[4:8] are illustration cards
-    index_page, all_articles = blog_setup
-    request = rf.get(index_page.get_full_url())
-    response = index_page.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    cards = soup.find("div", class_="fl-blog-featured").find_all("article", class_="fl-card")
-    assert len(cards) == NUM_FEATURED_INDEX_SHOWN - 4  # 8 total - 1 hero - 3 list items = 4 cards
-
-    for fixture_article, card in zip(all_articles[4:8], cards):
-        assert "fl-card-expand-link" in card.get("class", [])
-
-        media = card.find("div", class_="fl-card-top-media")
-        assert media and media.find("img")
-
-        topic = card.find("p", class_="fl-superheading")
-        assert topic and fixture_article.topic.name in topic.get_text()
-
-        heading = card.find(class_="fl-heading")
-        assert heading and fixture_article.title in heading.get_text()
-        expand_link = heading.find("a", class_="fl-link-expand")
-        assert expand_link and expand_link["href"] == fixture_article.url
-
-        body = card.find("div", class_="fl-body")
-        assert body and body.get_text(strip=True)
-
-        assert card.find("span", class_="fl-tag")
-
 
 def test_blog_index_renders_cards_lists(blog_setup, rf):
     index_page, _ = blog_setup
@@ -627,8 +601,6 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
 
             body = card.find("div", class_="fl-body")
             assert body and body.get_text(strip=True)
-
-            assert card.find("span", class_="fl-tag")
 
 
 def test_blog_index_renders_more_articles_heading(blog_setup, rf):
