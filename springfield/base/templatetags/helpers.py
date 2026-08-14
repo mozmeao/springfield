@@ -14,6 +14,7 @@ from django.utils.encoding import smart_str
 import jinja2
 from django_jinja import library
 from markupsafe import Markup
+from sentry_sdk import capture_exception, new_scope
 
 from lib.l10n_utils import get_translations_native_names
 from springfield.base import waffle
@@ -128,14 +129,37 @@ def static(path):
         return path
 
 
+def _bundle_url(path):
+    """Resolve a bundle's static URL, or None if the bundle doesn't exist.
+
+    Bundle names can come from CMS fields (body_class, extra_js), so a name with no
+    matching entry in static-bundles.json is an editor mistake, not a code error. It
+    would otherwise raise from ManifestStaticFilesStorage and 500 the whole page.
+
+    Reported to Sentry because the page still renders, so nothing else would surface it.
+    Fingerprinted by path so one bad name can't flood, and each distinct one is its own
+    issue.
+    """
+    try:
+        return staticfiles_storage.url(path)
+    except ValueError as e:
+        log.warning(str(e))
+        with new_scope() as scope:
+            scope.set_tag("missing_static_bundle", path)
+            scope.fingerprint = ["missing-static-bundle", path]
+            capture_exception(e)
+        return None
+
+
 @library.global_function
 def js_bundle(name):
     """Include a JS bundle in the template.
 
     Bundles are defined in the "media/static-bundles.json" file.
     """
-    path = f"js/{name}.js"
-    path = staticfiles_storage.url(path)
+    path = _bundle_url(f"js/{name}.js")
+    if path is None:
+        return Markup("")
     return Markup(JS_TEMPLATE % path)
 
 
@@ -150,8 +174,9 @@ def css_bundle(name, target_old_ie=False):
         target_old_ie: If True, adds media="all and (-ms-high-contrast: none)" for conditional display to IE10/11
                   and wraps in conditional comments for IE9 and lower
     """
-    path = f"css/{name}.css"
-    path = staticfiles_storage.url(path)
+    path = _bundle_url(f"css/{name}.css")
+    if path is None:
+        return Markup("")
 
     if target_old_ie:
         # For IE10/11 with media query
