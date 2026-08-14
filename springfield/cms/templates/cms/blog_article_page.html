@@ -36,7 +36,9 @@
     <div class="fl-article-main">
       <section class="fl-rich-text">
         {% for block in page.content %}
-          {% include_block block %}
+          <div class="fl-article-section">
+            {% include_block block %}
+          </div>
         {% endfor %}
       </section>
     </div>

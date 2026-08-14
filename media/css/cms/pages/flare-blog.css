@@ -320,8 +320,41 @@
 
 /* Blog article */
 
-.fl-article-main .fl-rich-text .image-variants-display img {
+.fl-blog-article-body .fl-article-header {
+    margin-block-end: 0;
+}
+
+.fl-blog-article-body
+    .fl-article-main
+    .fl-rich-text
+    .image-variants-display
+    img {
     inline-size: 100%;
+}
+
+.fl-blog-article-body .fl-article-main .fl-rich-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.fl-blog-article-body .fl-article-main .fl-rich-text h2:first-child,
+.fl-blog-article-body .fl-article-main .fl-rich-text h3:first-child,
+.fl-blog-article-body .fl-article-main .fl-rich-text h4:first-child,
+.fl-blog-article-body .fl-article-main .fl-rich-text h5:first-child,
+.fl-blog-article-body .fl-article-main .fl-rich-text h6:first-child {
+    margin-block-start: 0;
+}
+
+.fl-blog-article-body .fl-article-section {
+    padding-block: var(--token-spacing-3xl);
+}
+
+.fl-blog-article-body .fl-article-section > *:first-child {
+    margin-block-start: 0;
+}
+
+.fl-blog-article-body .fl-article-section > *:last-child {
+    margin-block-end: 0;
 }
 
 .fl-blog-article-body .fl-quote {
