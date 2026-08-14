@@ -24,7 +24,6 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.cache import add_never_cache_headers
-from django.utils.functional import SimpleLazyObject
 
 import requests
 from modelcluster.fields import ParentalKey
@@ -1698,9 +1697,7 @@ MAX_HEADER_TOPICS = 8
 
 
 class FeedExclusions(NamedTuple):
-    """Translation keys of the topics and tags kept out of automatic feeds.
-
-    Two sets because an exemption spares one half at a time."""
+    """Translation keys of the topics and tags kept out of automatic feeds."""
 
     topic_keys: set
     tag_keys: set
@@ -1845,11 +1842,6 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     def __str__(self):
         return f"BlogIndexPage: {self.title} - {self.locale}"
-
-    def prefetch_streamfield_articles(self):
-        """Prefetch every article referenced by this page's featured_articles."""
-        # StreamField iteration yields BoundBlocks; their .value is BlockArticleValue.
-        prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
 
     def get_resolved_sections(self):
         """The article sections with their articles filled in.
@@ -2008,6 +2000,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             "list_articles": list_articles,
             "topic": topic,
             "tag": tag,
+            "all_topics": self.get_all_topics(),
         }
 
     def get_topic_context(self, request, topic, topic_page=None):
@@ -2067,12 +2060,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         return [localized_topics_by_key[topic.translation_key] for topic in selected_topics if topic.translation_key in localized_topics_by_key]
 
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request, *args, **kwargs)
-        self.prefetch_streamfield_articles()
-        context["all_topics"] = self.get_all_topics()
-        context["header_topics"] = SimpleLazyObject(self.get_header_topics)
-        return context
+    def serve(self, request, view=None, args=None, kwargs=None):
+        # Make sure to always go through the routes, so that each route is responsible for its own context.
+        # No shared get_context method is used, so that each route only fetches what it needs.
+        if view is None:
+            view = self.index_route
+        return super().serve(request, view=view, args=args, kwargs=kwargs)
 
     def _render_route(self, request, template, extra_context=None):
         request.is_preview = False
@@ -2084,11 +2077,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     @path("")
     def index_route(self, request):
-        return self._render_route(request, self.get_template(request))
+        prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
+        extra_context = {"header_topics": self.get_header_topics()}
+        return self._render_route(request, self.get_template(request), extra_context=extra_context)
 
     @path("topics/")
     def topics_route(self, request):
-        return self._render_route(request, "cms/blog_topics_page.html")
+        extra_context = {"all_topics": self.get_all_topics()}
+        return self._render_route(request, "cms/blog_topics_page.html", extra_context=extra_context)
 
     @path("topics/<slug:topic_slug>/")
     def topic_route(self, request, topic_slug):
