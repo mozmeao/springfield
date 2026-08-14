@@ -1868,6 +1868,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             self._feed_exclusions_cache = FeedExclusions(topic_keys, tag_keys)
         return self._feed_exclusions_cache
 
+    def exclude_from_feed(self, queryset, exempt_topic_keys=(), exempt_tag_keys=()):
+        """Drop excluded articles, sparing the topic or tag the caller selected.
+
+        Callers pass what was selected, not which exclusions to skip."""
+        exclusions = self.get_feed_exclusions()
+        topic_keys = exclusions.topic_keys - set(exempt_topic_keys)
+        tag_keys = exclusions.tag_keys - set(exempt_tag_keys)
+        if topic_keys:
+            queryset = queryset.exclude(topic__translation_key__in=topic_keys)
+        if tag_keys:
+            queryset = queryset.exclude(tags__translation_key__in=tag_keys)
+        return queryset
+
     def get_filter_tag(self, request):
         """The BlogTag named by ?tag=, or None.
 
@@ -1899,6 +1912,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if tag:
             articles = articles.filter(tags=tag)
 
+        articles = self.exclude_from_feed(
+            articles,
+            exempt_topic_keys={topic.translation_key} if topic else (),
+            exempt_tag_keys={tag.translation_key} if tag else (),
+        )
+
         paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
         if topic:
             topic.article_count = paginator.count
@@ -1927,6 +1946,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         tag = self.get_filter_tag(request)
         if tag:
             articles = articles.filter(tags=tag)
+
+        # This page's own topic is always exempt: applying its exclusion would leave
+        # the page rendering nothing.
+        articles = self.exclude_from_feed(
+            articles,
+            exempt_topic_keys={topic.translation_key},
+            exempt_tag_keys={tag.translation_key} if tag else (),
+        )
 
         paginator = Paginator(articles.order_by("-first_published_at"), ARTICLES_PER_PAGE)
         topic.article_count = paginator.count
