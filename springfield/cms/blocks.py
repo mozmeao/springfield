@@ -1931,6 +1931,11 @@ class QuoteBlock(blocks.StructBlock):
         label="Author",
         help_text="Optional attribution for the quote.",
     )
+    authors_title = blocks.CharBlock(
+        required=False,
+        label="Author's title",
+        help_text="Optional title for the author of the quote.",
+    )
 
     class Meta:
         label = "Quote"
