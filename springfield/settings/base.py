@@ -871,7 +871,9 @@ TEMPLATES = [
                 "django_jinja_markdown.extensions.MarkdownExtension",
                 "wagtail.jinja2tags.core",
                 "wagtail.images.jinja2tags.images",
-                "includecontents.jinja2.IncludeContentsExtension",
+                # FUTURE: revert to `includecontents.jinja2.IncludeContentsExtension` when django-includecontents
+                #         releases a new version which fixes django-includecontents#11.
+                "springfield.jinja2.ThreadSafeIncludeContentsExtension",
             ],
             "environment": "springfield.jinja2.custom_environment",
         },
