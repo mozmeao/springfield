@@ -19,12 +19,15 @@
    is what tells us whether the intro is first, not the intro's own. Conditional variants of the
    same intro occupy one position and only one is ever visible, so a wrapper preceded by another
    intro wrapper counts as first too. The :has() keeps that narrow: a conditional notification
-   ahead of the intro still reduces the padding, as it does when neither is conditional. */
-:not(.conditional-display) > .fl-intro:first-child,
-.conditional-display:first-child > .fl-intro,
-.conditional-display:first-child:has(.fl-intro)
-    + .conditional-display
-    > .fl-intro {
+   ahead of the intro still reduces the padding, as it does when neither is conditional.
+
+   The wrapper context sits in :where() so it contributes no specificity: every selector
+   here scores the same as the plain `.fl-intro:first-child` this replaced, which keeps
+   `.is-slim` and `.fl-home-intro` winning the ties they already won. */
+:where(:not(.conditional-display)) > .fl-intro:first-child,
+:where(.conditional-display:first-child) > .fl-intro:first-child,
+:where(.conditional-display:first-child:has(.fl-intro) + .conditional-display)
+    > .fl-intro:first-child {
     padding-block: var(--token-layout-md);
 }
 
@@ -281,11 +284,13 @@
 }
 
 @media (--viewport-sm-up) {
-    :not(.conditional-display) > .fl-intro:first-child,
-    .conditional-display:first-child > .fl-intro,
-    .conditional-display:first-child:has(.fl-intro)
-        + .conditional-display
-        > .fl-intro {
+    :where(:not(.conditional-display)) > .fl-intro:first-child,
+    :where(.conditional-display:first-child) > .fl-intro:first-child,
+    :where(
+            .conditional-display:first-child:has(.fl-intro)
+                + .conditional-display
+        )
+        > .fl-intro:first-child {
         padding-block: var(--token-layout-lg);
     }
 
