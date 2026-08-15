@@ -144,6 +144,15 @@ AI_CONTROLS_CHOICES = [
     ("available", "AI Controls available"),
     ("unavailable", "AI Controls unavailable"),
 ]
+ANIMATION_ASPECT_RATIO_CHOICES = [
+    ("", "Default (16:9, or 17:20 in Narrow Layout)"),
+    ("16/9", "Widescreen (16:9) - forces widescreen even in Narrow Layout"),
+    ("3/2", "Landscape (3:2)"),
+    ("1/1", "Square (1:1)"),
+    ("4/3", "Standard (4:3)"),
+    ("4/5", "Portrait (4:5)"),
+    ("9/16", "Vertical (9:16)"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -1443,6 +1452,13 @@ def AnimationBlock(required=True, *args, **kwargs):
             inline_form=True,
         )
         show_pause_button = blocks.BooleanBlock(default=False, required=False)
+        aspect_ratio = blocks.ChoiceBlock(
+            choices=ANIMATION_ASPECT_RATIO_CHOICES,
+            default="",
+            required=False,
+            label="Aspect Ratio",
+            help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+        )
 
         class Meta:
             label = "Animation"
