@@ -37,8 +37,10 @@
     display: inline-flex;
 }
 
-/* Match the primary pill button (.fl-button) rather than the default
-   form-field-style dropdown trigger. */
+/* Restyle the trigger into the primary pill using the shared --button-* tokens.
+   We can't just add the .fl-button class: the dropdown JS keys off
+   .fl-dropdown-trigger, and its base styling (loaded after flare-button.css)
+   out-cascades .fl-button — so a scoped override is required regardless. */
 .nav-get-mobile .fl-dropdown-trigger {
     align-items: center;
     background: var(--button-bg-color);
@@ -67,7 +69,8 @@
     background: var(--button-bg-color-active);
 }
 
-/* Phone icon (left) + chevron (right), masked and tinted with currentColor. */
+/* Phone icon (left) + chevron (right), masked and tinted with currentColor.
+   Each SVG URL is declared once via --nav-qr-icon (shared by mask + -webkit-mask). */
 .nav-get-mobile .fl-dropdown-trigger::before,
 .nav-get-mobile .fl-dropdown-trigger::after {
     background-color: currentColor;
@@ -76,21 +79,17 @@
     display: inline-block;
     flex-shrink: 0;
     inline-size: var(--button-icon-size);
+    -webkit-mask: var(--nav-qr-icon) no-repeat center;
+    mask: var(--nav-qr-icon) no-repeat center;
     mask-size: contain;
 }
 
 .nav-get-mobile .fl-dropdown-trigger::before {
-    -webkit-mask: url('/media/img/firefox/flare/icons/desktop-16/devices/device-mobile-16.svg')
-        no-repeat center;
-    mask: url('/media/img/firefox/flare/icons/desktop-16/devices/device-mobile-16.svg')
-        no-repeat center;
+    --nav-qr-icon: url('/media/img/firefox/flare/icons/desktop-16/devices/device-mobile-16.svg');
 }
 
 .nav-get-mobile .fl-dropdown-trigger::after {
-    -webkit-mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
-        no-repeat center;
-    mask: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg')
-        no-repeat center;
+    --nav-qr-icon: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg');
     transition: transform var(--token-transition-fast);
 }
 
@@ -132,6 +131,11 @@
         transform: none;
         transition: none;
     }
+
+    /* Keep the chevron's rotated open/closed state, but don't animate it. */
+    .nav-get-mobile .fl-dropdown-trigger::after {
+        transition: none;
+    }
 }
 
 .nav-get-mobile-qr {
@@ -148,10 +152,20 @@
     max-inline-size: 100%;
 }
 
-.nav-get-mobile-qr-caption {
+/* Scoped under .nav-get-mobile to out-specify the base `.fl-dropdown-panel a`
+   menu-item styling (which strips the underline and adds block padding + a hover
+   background) so this reads as a caption link, not a menu row. */
+.nav-get-mobile .nav-get-mobile-qr-caption {
     color: var(--fl-theme-color-text);
+    display: inline-block;
     font-size: var(--fl-theme-font-size-body-sm);
-    margin: 0;
     max-inline-size: 160px;
+    padding: 0;
     text-align: center;
+    text-decoration: underline;
+}
+
+.nav-get-mobile .nav-get-mobile-qr-caption:hover {
+    background: transparent;
+    text-decoration: none;
 }

@@ -68,9 +68,11 @@ def test_flare_header_renders_get_mobile_qr_gated_to_firefox_desktop(client):
     assert trigger is not None
     assert "for mobile" in trigger.get_text()
 
-    # Descriptive caption; the QR image itself is decorative (alt="").
+    # Caption is an accessible link to /mobile/ (the QR image is decorative, alt="").
     caption = dropdown.find(class_="nav-get-mobile-qr-caption")
     assert caption is not None
+    assert caption.name == "a"
+    assert "/mobile/" in caption["href"]
     assert "on your phone" in caption.get_text()
     assert img.get("alt") == ""
 
