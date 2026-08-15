@@ -30,7 +30,7 @@
    when the locale is translated (show_get_mobile_localized). #}
 {% if show_get_mobile_localized %}
 <include:conditional-display firefox_condition="is-firefox" platform_conditions="{{ ['windows', 'osx', 'linux'] }}">
-  <div class="nav-cta-wrap nav-get-mobile">
+  <div class="nav-cta-wrap nav-get-mobile {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}">
     <include:dropdown label="{{ ftl('navigation-firefox-for-mobile') }}" id="nav-get-mobile" testid="nav-get-mobile">
       <div class="nav-get-mobile-qr">
         {# QR is decorative (alt=""); the caption is a link so keyboard / screen-reader
