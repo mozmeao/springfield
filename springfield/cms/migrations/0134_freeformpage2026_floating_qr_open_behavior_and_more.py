@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0125_referralhubpage_extra_content_and_more"),
+        ("cms", "0133_routingconfig_routingrule_routingcondition"),
     ]
 
     operations = [
