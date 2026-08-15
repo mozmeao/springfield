@@ -10,3 +10,5 @@
 download-get-it-for-mobile = Get it for mobile
 # Heading inside the QR code modal shown to desktop visitors
 download-scan-to-get = Scan to download { -brand-name-firefox } on your mobile device
+# Accessible text-link alternative to the QR code, for keyboard/screen-reader users
+download-get-firefox-on-your-phone = Get { -brand-name-firefox } on your phone
