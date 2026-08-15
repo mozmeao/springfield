@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
 from bs4 import BeautifulSoup
@@ -295,8 +296,12 @@ def test_referral_hub_keeps_its_separate_heading_counters(minimal_site, rf):
     page.extra_content = [showcase_block("hubextra", "Extra")]
     page.save_revision().publish()
 
-    # the hub 404s without a well-formed ref_key
-    response = page.serve(rf.get(f"{page.get_full_url()}?ref_key=TESTABCDEFGHJKMN"))
+    # The hub 404s without a well-formed ref_key, and referral_geo_check redirects
+    # visitors outside FF_REFERRAL_COUNTRY_CODES. Pin the country rather than relying on
+    # the DEV-only fallback in get_country_from_header, which is absent on CI.
+    request = rf.get(f"{page.get_full_url()}?ref_key=TESTABCDEFGHJKMN")
+    with patch("springfield.cms.models.pages.get_country_from_request", return_value="US"):
+        response = page.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
     assert len(soup.find_all("h1", class_="fl-heading")) == 2
     assert heading_tags(soup, "fl-split-page-extra") == ["h1"]
