@@ -43,16 +43,22 @@ def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
     assert aside.has_attr("data-open-delay"), "Aside should carry the resolved open delay for the JS"
     button = aside.find("button", class_="fl-qr-code-floating-button")
     assert button, "Toggle button should be present"
-    assert button.has_attr("data-label-show"), "Toggle button should carry the localized show label"
-    assert button.has_attr("data-label-hide"), "Toggle button should carry the localized hide label"
+    # Disclosure semantics: stable accessible name via aria-labelledby, state via aria-expanded.
+    assert button.get("aria-controls"), "Toggle button should reference the content region via aria-controls"
+    assert button.get("aria-labelledby"), "Toggle button should have a stable accessible name via aria-labelledby"
     if open:
         assert "is-open" in aside.get("class", []), "Aside should have is-open class when open=True"
-        assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when snippet is open"
+        assert button.get("aria-expanded") == "true", "aria-expanded should be true when open"
+        icon = button.find("span", class_="fl-icon-subtract")
+        assert icon, "Subtract icon should show when snippet is open"
         assert not button.find("span", class_="fl-icon-add"), "Add icon should not show when snippet is open"
     else:
         assert "is-open" not in aside.get("class", []), "Aside should not have is-open class when open=False"
-        assert button.find("span", class_="fl-icon-add"), "Add icon should show when snippet is closed"
+        assert button.get("aria-expanded") == "false", "aria-expanded should be false when closed"
+        icon = button.find("span", class_="fl-icon-add")
+        assert icon, "Add icon should show when snippet is closed"
         assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
+    assert icon.get("aria-hidden") == "true", "Decorative toggle icon should be aria-hidden"
     if svg:
         assert aside.find("svg"), "SVG should render when source is a URL"
         assert not aside.find("img"), "img tag should not render when source is a URL"

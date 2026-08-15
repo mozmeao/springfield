@@ -7,20 +7,20 @@
 {% if value and value.qr %}
 <aside class="js-qr-code-floating-snippet fl-qr-code-floating-snippet fl-qr-code-snippet-closable {% if value.qr.open %}is-open{% endif %}" data-open-behavior="{{ value.qr.behavior }}" data-open-delay="{{ value.qr.delay_ms }}">
   <div class="fl-qr-code-floating-header">
-    <div class="fl-qr-code-prompt">
-      <span class="fl-icon fl-icon-device-mobile"></span>
+    <div class="fl-qr-code-prompt" id="fl-qr-code-heading">
+      <span class="fl-icon fl-icon-device-mobile" aria-hidden="true"></span>
       {{ value.heading|richtext }}
     </div>
-    <button class="fl-qr-code-snippet-close fl-qr-code-floating-button" data-label-show="{{ ftl('ui-show-more') }} {{ value.heading|richtext|remove_p_tag }}" data-label-hide="{{ ftl('ui-show-less') }} {{ value.heading|richtext|remove_p_tag }}">
+    <button class="fl-qr-code-snippet-close fl-qr-code-floating-button" aria-labelledby="fl-qr-code-heading" aria-controls="fl-qr-code-content" aria-expanded="{% if value.qr.open %}true{% else %}false{% endif %}">
       {% if value.qr.open %}
-        <span class="fl-icon fl-icon-subtract" aria-label="{{ ftl('ui-show-less') }} {{ value.heading|richtext|remove_p_tag }}"></span>
+        <span class="fl-icon fl-icon-subtract" aria-hidden="true"></span>
       {% else %}
-        <span class="fl-icon fl-icon-add" aria-label="{{ ftl('ui-show-more') }} {{ value.heading|richtext|remove_p_tag }}"></span>
+        <span class="fl-icon fl-icon-add" aria-hidden="true"></span>
       {% endif %}
     </button>
   </div>
 
-  <div class="fl-qr-code-floating-content">
+  <div class="fl-qr-code-floating-content" id="fl-qr-code-content">
     <div class="fl-qr-code-image">
       {% if value.qr.type == "image" %}
         <img src="{{ value.qr.value }}" class="fl-qr-code-image" alt="QR code">

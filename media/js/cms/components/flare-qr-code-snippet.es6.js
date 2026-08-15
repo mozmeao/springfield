@@ -10,9 +10,10 @@ const COOKIE_ID = 'moz-qr-snippet-dismissed';
 const DEFAULT_OPEN_DELAY_MS = 3000;
 
 /**
- * Toggle the snippet's icon and keep the button's accessible label in sync.
- * The label text is rendered server-side onto the button as data attributes
- * so it stays localized.
+ * Reflect the open/closed state: swap the (decorative, aria-hidden) +/- icon
+ * and set `aria-expanded` on the toggle button. The button keeps a stable
+ * accessible name via `aria-labelledby`, so state is conveyed by
+ * `aria-expanded` alone.
  */
 function setToggleState(snippetEl, isOpen) {
     const icon = snippetEl.querySelector(
@@ -22,15 +23,12 @@ function setToggleState(snippetEl, isOpen) {
     if (icon) {
         icon.classList.remove(isOpen ? 'fl-icon-add' : 'fl-icon-subtract');
         icon.classList.add(isOpen ? 'fl-icon-subtract' : 'fl-icon-add');
+    }
 
-        const button = snippetEl.querySelector('.fl-qr-code-snippet-close');
-        const label =
-            button &&
-            button.getAttribute(isOpen ? 'data-label-hide' : 'data-label-show');
+    const button = snippetEl.querySelector('.fl-qr-code-snippet-close');
 
-        if (label) {
-            icon.setAttribute('aria-label', label);
-        }
+    if (button) {
+        button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
 }
 
@@ -112,8 +110,6 @@ function initQRCodeSnippet() {
     const showHideButton = qrCodeSnippetEl.querySelector(
         '.fl-qr-code-snippet-close'
     );
-
-    qrCodeSnippetEl.setAttribute('aria-live', 'polite');
 
     // Legacy snippet: always auto-opens after a fixed delay.
     let autoOpenTimer;
