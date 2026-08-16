@@ -630,9 +630,6 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
     )
 
-    LOGO_MAX_WIDTH = 480
-    LOGO_MAX_HEIGHT = 160
-
     panels = [
         FieldPanel("name"),
         FieldPanel("is_default"),
