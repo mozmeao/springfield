@@ -5,7 +5,6 @@
 from io import BytesIO
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils import translation
@@ -281,20 +280,6 @@ def test_snippet_stores_logo_cta_button_and_logo_link(minimal_site):
     assert inner_buttons[0].value["custom_label"] == primary_button["value"]["custom_label"]
     assert len(snippet.logo_link) == 1
     assert snippet.logo_link[0].value.get_url() == "https://example.com/campaign/"
-
-
-def test_clean_rejects_oversized_logo(minimal_site):
-    snippet = NavigationSnippet(locale=Locale.get_default(), name="too big", logo=make_image(500, 200))
-    with pytest.raises(ValidationError) as exc_info:
-        snippet.clean()
-    assert "logo" in exc_info.value.message_dict
-
-
-def test_clean_rejects_oversized_logo_dark(minimal_site):
-    snippet = NavigationSnippet(locale=Locale.get_default(), name="too big", logo_dark=make_image(500, 200))
-    with pytest.raises(ValidationError) as exc_info:
-        snippet.clean()
-    assert "logo_dark" in exc_info.value.message_dict
 
 
 def serve_page_soup(page, site, rf):

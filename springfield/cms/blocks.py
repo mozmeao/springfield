@@ -1933,6 +1933,7 @@ class QuoteBlock(blocks.StructBlock):
     )
     authors_title = blocks.CharBlock(
         required=False,
+        default="",
         label="Author's title",
         help_text="Optional title for the author of the quote.",
     )
