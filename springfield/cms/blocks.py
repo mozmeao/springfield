@@ -144,6 +144,15 @@ AI_CONTROLS_CHOICES = [
     ("available", "AI Controls available"),
     ("unavailable", "AI Controls unavailable"),
 ]
+ANIMATION_ASPECT_RATIO_CHOICES = [
+    ("", "Default (16:9, or 17:20 in Narrow Layout)"),
+    ("16/9", "Widescreen (16:9) - forces widescreen even in Narrow Layout"),
+    ("3/2", "Landscape (3:2)"),
+    ("1/1", "Square (1:1)"),
+    ("4/3", "Standard (4:3)"),
+    ("4/5", "Portrait (4:5)"),
+    ("9/16", "Vertical (9:16)"),
+]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
@@ -1314,12 +1323,18 @@ class ComparisonTableBlock(blocks.StructBlock):
     )
     header_row = blocks.ListBlock(ComparisonTableRowBlock, min_num=1, max_num=1)
     content_rows = blocks.ListBlock(ComparisonTableRowBlock, min_num=1)
+    fine_print = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        label="Fine print",
+        help_text="Optional text displayed below the table.",
+    )
 
     class Meta:
         template = "cms/blocks/comparison-table.html"
         label = "Comparison Table"
         form_layout = blocks.BlockGroup(
-            children=["header_row", "content_rows"],
+            children=["header_row", "content_rows", "fine_print"],
             settings=["variant", "highlighted_column", "mobile_behavior"],
         )
 
@@ -1437,6 +1452,13 @@ def AnimationBlock(required=True, *args, **kwargs):
             inline_form=True,
         )
         show_pause_button = blocks.BooleanBlock(default=False, required=False)
+        aspect_ratio = blocks.ChoiceBlock(
+            choices=ANIMATION_ASPECT_RATIO_CHOICES,
+            default="",
+            required=False,
+            label="Aspect Ratio",
+            help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+        )
 
         class Meta:
             label = "Animation"
@@ -1760,7 +1782,7 @@ class TabsBlock(blocks.StructBlock):
 
     class Meta:
         label = "Tabs"
-        label_format = "Tabs"
+        label_format = "{section_id}"
         template = "cms/blocks/tabs.html"
 
 
@@ -2187,7 +2209,11 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 class CardTestimonialBlock(blocks.StructBlock):
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional. Leave blank to show the quote with no attribution.",
+    )
     attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     attribution_image = ImageVariantsBlock(required=False)
 
@@ -2772,6 +2798,10 @@ class IntroBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing.",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
@@ -2782,7 +2812,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
