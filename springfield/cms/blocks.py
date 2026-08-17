@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django import forms
@@ -1960,6 +1960,12 @@ class QuoteBlock(blocks.StructBlock):
         label="Author",
         help_text="Optional attribution for the quote.",
     )
+    authors_title = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Author's title",
+        help_text="Optional title for the author of the quote.",
+    )
 
     class Meta:
         label = "Quote"
@@ -2050,19 +2056,13 @@ class BlockArticleValue(blocks.StructValue):
                 return topic.name
         return ""
 
-    def get_tags(self) -> list[str]:
-        if tags := self.get("overrides").get("tags"):
-            return tags
-        article_page = self.get_article()
-        return [tag.name for tag in article_page.get_tags()]
-
     def get_image(self):
         article_page = self.get_article()
         image_override = self.get("overrides").get("image")
         if image := image_override.get("image"):
             return image
-        if article_page and article_page.image:
-            return article_page.image
+        if article_page:
+            return article_page.get_listing_image()
         return None
 
     def get_dark_image(self):
@@ -2070,8 +2070,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_image"):
             return image
-        if article_page and article_page.image_dark_mode:
-            return article_page.image_dark_mode
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode
         return None
 
     def get_mobile_image(self):
@@ -2079,8 +2079,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("mobile_image"):
             return image
-        if article_page and article_page.image_mobile:
-            return article_page.image_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().mobile
         return None
 
     def get_mobile_dark_image(self):
@@ -2088,8 +2088,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_mobile_image"):
             return image
-        if article_page and article_page.image_dark_mode_mobile:
-            return article_page.image_dark_mode_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
 
@@ -2098,7 +2098,6 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     topic = blocks.CharBlock(required=False)
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
 
 
 class BlogArticleBlock(blocks.StructBlock):
@@ -2114,38 +2113,80 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
-class BlogCardsListBlock(blocks.StructBlock):
-    """A titled list of blog article cards."""
+class BlogArticleSectionValue(blocks.StructValue):
+    """A section whose articles the index page resolves before rendering."""
+
+    def get_articles(self):
+        return getattr(self, "_articles", [])
+
+    def get_link_url(self):
+        return getattr(self, "_link_url", "")
+
+
+class BlogCardsListSourceBlock(blocks.StreamBlock):
+    """Exactly one of topic or tag.
+
+    A single-child StreamBlock enforces that structurally, so the parent needs no
+    clean()."""
+
+    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+
+    class Meta:
+        min_num = 1
+        max_num = 1
+
+
+class BlogLatestArticlesBlock(blocks.StructBlock):
+    """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
     link_label = blocks.CharBlock(default="View all")
-    link_filter = blocks.CharBlock(
-        required=False,
-        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
-    )
-    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Latest Articles"
+        icon = "time"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
+
+    def filter_articles(self, queryset, value):
+        return queryset.order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """Nothing is exempt: the latest section has no source of its own."""
+        return set(), set()
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled grid of articles drawn from one topic or tag."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    source = BlogCardsListSourceBlock()
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
+    link_label = blocks.CharBlock(default="View all")
 
     class Meta:
         label = "Blog Cards List"
-        label_format = "{heading}"
         icon = "list-ul"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
 
-    def clean_list_filter(self, value: str) -> str:
-        if not value:
-            return value
-        value = value.strip()
-        if not value.startswith("?"):
-            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
-        query_part = value[1:]
-        if not query_part:
-            raise ValidationError(_("Query string must contain at least one parameter."))
-        try:
-            pairs = parse_qsl(query_part, strict_parsing=True)
-        except ValueError as exc:
-            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
-        if not pairs:
-            raise ValidationError(_("Query string must contain at least one key=value parameter."))
-        return value
+    def filter_articles(self, queryset, value):
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
+        return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """The exclusion this section may override: the source it renders.
+
+        Pointing a section at an excluded topic or tag surfaces it here on purpose.
+        Articles excluded for any other reason still drop out."""
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return {source.value.translation_key}, set()
+        return set(), {source.value.translation_key}
 
 
 # Cards
