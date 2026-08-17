@@ -79,6 +79,29 @@ describe('referral-attribution.es6.js', function () {
         });
     });
 
+    describe('getPackageIdFromHref', function () {
+        it('reads the id query param from a Play Store href', function () {
+            expect(
+                ReferralAttribution.getPackageIdFromHref(
+                    'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=x'
+                )
+            ).toEqual('org.mozilla.fenix');
+        });
+
+        it('returns null for a null/empty href', function () {
+            expect(ReferralAttribution.getPackageIdFromHref(null)).toBeNull();
+            expect(ReferralAttribution.getPackageIdFromHref('')).toBeNull();
+        });
+
+        it('returns null when there is no id param', function () {
+            expect(
+                ReferralAttribution.getPackageIdFromHref(
+                    'https://play.google.com/store/apps/details?referrer=x'
+                )
+            ).toBeNull();
+        });
+    });
+
     describe('meetsRequirements', function () {
         it('returns false on iOS (iOS cannot participate)', function () {
             window.site.platform = 'ios';
@@ -214,6 +237,23 @@ describe('referral-attribution.es6.js', function () {
             ReferralAttribution.processAttributionRequest(true);
 
             expect(ReferralAttribution.applyReferral).not.toHaveBeenCalled();
+        });
+
+        it('preserves a server-rendered Nightly package id (WT-1281) instead of reverting to Release', function () {
+            const badge = fixture.querySelector('.fl-store-button-android');
+            badge.setAttribute(
+                'href',
+                'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dget-firefox'
+            );
+
+            ReferralAttribution.processAttributionRequest(true);
+
+            expect(badge.getAttribute('href')).toContain(
+                'id=org.mozilla.fenix'
+            );
+            expect(badge.getAttribute('href')).not.toContain(
+                'id=org.mozilla.firefox'
+            );
         });
     });
 

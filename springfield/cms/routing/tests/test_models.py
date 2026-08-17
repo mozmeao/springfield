@@ -348,7 +348,7 @@ def test_version_accepts_the_forms_the_client_normalizes(rule, value):
     condition.full_clean()  # does not raise
 
 
-@pytest.mark.parametrize("value", ["unknown", "", "beta", "145.x"])
+@pytest.mark.parametrize("value", ["unknown", "", "beta", "145.x", "garbage145", "145beta", "145.0.1-beta"])
 def test_version_rejects_values_carrying_no_version(rule, value):
     # These compare as "unknown" on the client, so the rule can never fire — dead config
     # that looks fine in the editor.

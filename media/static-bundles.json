@@ -460,9 +460,22 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-geforce-now.css"
+      ],
+      "name": "flare26-geforce-now",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-geforce-now' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
         "css/cms/themes/enterprise.css"
       ],
       "name": "flare-theme-enterprise"
+    },
+    {
+      "files": [
+        "css/cms/routing/resolver.scss"
+      ],
+      "name": "cms_routing_resolver"
     }
   ],
   "js": [
@@ -853,6 +866,12 @@
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"
+    },
+    {
+      "files": [
+        "js/cms/routing/resolver.es6.js"
+      ],
+      "name": "cms_routing_resolver"
     }
   ]
 }
