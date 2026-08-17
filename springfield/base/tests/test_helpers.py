@@ -46,6 +46,26 @@ class HelpersTests(TestCase):
         assert render(template, context) == '<a href="?var=%C3%A4">'
 
 
+@pytest.mark.parametrize(
+    ("bundle_helper", "expected_path"),
+    (
+        (helpers.css_bundle, "css/no-such-bundle.css"),
+        (helpers.js_bundle, "js/no-such-bundle.js"),
+    ),
+)
+@patch("springfield.base.templatetags.helpers.capture_exception")
+def test_bundle_renders_nothing_when_bundle_is_missing(mock_capture_exception, bundle_helper, expected_path):
+    # body_class/extra_js come from the CMS, so an unknown name must not 500 the page,
+    # but it does need to reach Sentry since the page still renders
+    error = ValueError("Missing staticfiles manifest entry")
+    with patch.object(helpers, "staticfiles_storage") as storage:
+        storage.url.side_effect = error
+        assert bundle_helper("no-such-bundle") == ""
+
+    storage.url.assert_called_once_with(expected_path)
+    mock_capture_exception.assert_called_once_with(error)
+
+
 @override_settings(LANG_GROUPS={"en": ["en-US", "en-GB"]})
 def test_switch():
     with patch.object(helpers, "waffle") as waffle:
