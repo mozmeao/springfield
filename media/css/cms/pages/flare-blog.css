@@ -47,8 +47,8 @@
     margin-inline-start: -900px;
 }
 
-.fl-blog-index-body .fl26-content,
-.fl-blog-article-body .fl26-content {
+.fl-blog-index-body .fl-content,
+.fl-blog-article-body .fl-content {
     margin-block-end: var(--token-spacing-2xl);
 }
 
