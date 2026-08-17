@@ -1,0 +1,63 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ Lightweight client resolver page. Deliberately standalone and minimal — a
+ sub-1.5s bounce that evaluates rules on the client and redirects. Zero inline
+ <script>/<style> (CSP); all data reaches the JS via data-* attributes and all strings
+ via Fluent -> data-* -> Mozilla.Utils.trans.
+#}
+<!doctype html>
+<html lang="{{ LANG }}" dir="{{ DIR }}" data-country-code="{{ country_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# Not a canonical content page — keep it out of search indexes. #}
+    <meta name="robots" content="noindex,nofollow">
+    <title>{{ ftl('routing-resolver-preparing') }}</title>
+
+    {# No-JS fallback: straight to canonical content, keeping the visitor's attribution and
+       carrying the loop-breaker so the destination doesn't serve this page again. #}
+    <noscript><meta http-equiv="refresh" content="0; url={{ fallback_url }}"></noscript>
+
+    {{ css_bundle('cms_routing_resolver') }}
+
+    {# site bundle sets window.site.platform, which mozilla-client (in `lib`) reads. #}
+    {{ js_bundle('site') }}
+  </head>
+
+  <body>
+    {# Localized strings for the bundled JS, read via Mozilla.Utils.trans('preparing'). #}
+    <div id="strings" data-preparing="{{ ftl('routing-resolver-preparing') }}"></div>
+
+    <main
+      class="routing-resolver"
+      data-routing-rules='{{ routing_rules|tojson }}'
+      data-routing-manifest='{{ routing_manifest|tojson }}'
+      data-canonical-url="{{ canonical_url }}"
+      data-loop-breaker-param="{{ loop_breaker_param }}"
+      {% if routing_fake_signals %}data-routing-fake-signals='{{ routing_fake_signals|tojson }}'{% endif %}
+    >
+      <p class="routing-resolver-status">{{ ftl('routing-resolver-preparing') }}</p>
+      {#
+       The escape hatch. <noscript> does not render when JS is enabled but the bundle fails to
+       load or throws — and `static/` is build output, so a missing bundle is a real deploy
+       failure. Without this, such a visitor is stranded on a page with no link and no control.
+       Always present in the markup (so it works with no CSS and no JS, and screen readers and
+       keyboard users reach it immediately); CSS fades it in after the evaluator's own budget has
+       elapsed, so a visitor whose redirect is working never sees it.
+      #}
+      <p class="routing-resolver-escape"><a href="{{ fallback_url }}">{{ ftl('routing-resolver-continue') }}</a></p>
+      <noscript>
+        <p><a href="{{ fallback_url }}">{{ ftl('routing-resolver-continue') }}</a></p>
+      </noscript>
+    </main>
+
+    {# mozilla-client / mozilla-utils / uitour, then the resolver entrypoint. #}
+    {{ js_bundle('lib') }}
+    {{ js_bundle('cms_routing_resolver') }}
+  </body>
+</html>

@@ -2777,6 +2777,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             ("intro", KitIntroBlock(allow_referral_download=True)),
             ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", CarouselBlock()),
         ],
         null=True,
         blank=True,
