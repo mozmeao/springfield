@@ -634,9 +634,6 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
     )
 
-    LOGO_MAX_WIDTH = 480
-    LOGO_MAX_HEIGHT = 160
-
     panels = [
         FieldPanel("name"),
         FieldPanel("is_default"),
@@ -664,17 +661,6 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         """Return the site default navigation, localized to the active locale, or None."""
         snippet = cls.objects.filter(is_default=True, locale=SpringfieldLocale.get_default()).live().order_by("-last_published_at").first()
         return snippet.get_localized() if snippet else None
-
-    def validate_logo_size(self, field_name):
-        """Reject a logo image larger than the header logo cap."""
-        image = getattr(self, field_name)
-        if image and (image.width > self.LOGO_MAX_WIDTH or image.height > self.LOGO_MAX_HEIGHT):
-            raise ValidationError({field_name: f"Logo must be at most {self.LOGO_MAX_WIDTH}×{self.LOGO_MAX_HEIGHT} pixels."})
-
-    def clean(self):
-        super().clean()
-        self.validate_logo_size("logo")
-        self.validate_logo_size("logo_dark")
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/navigation-snippet-preview.html"

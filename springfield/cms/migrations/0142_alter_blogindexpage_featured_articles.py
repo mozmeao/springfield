@@ -11,7 +11,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0140_blogindexpage_feed_exclusions"),
+        ("cms", "0141_blogindexpage_feed_exclusions"),
     ]
 
     operations = [
