@@ -31,7 +31,8 @@
           <content:media>{{ article_card_media(article, list_size) }}</content:media>
           <content:body>
             <hgroup class="fl-heading-group">
-              <p class="fl-superheading">{{ article.get_topic().name if article.get_topic() else "" }}</p>
+              {% set topic = article.get_topic() %}
+              <p class="fl-superheading">{{ topic.name if topic else "" }}</p>
               <h4 class="fl-heading fl-heading-size-3">
                 <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
                   {{ article.title }}
