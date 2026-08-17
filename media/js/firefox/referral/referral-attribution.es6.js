@@ -43,19 +43,40 @@ ReferralAttribution.getInvitationCode = () => {
 };
 
 /**
+ * Reads the Play Store package id (e.g. "org.mozilla.firefox" or
+ * "org.mozilla.fenix") off a badge's current href, so rewrites preserve
+ * whichever channel the server originally rendered (e.g. via the
+ * REFERRAL_FORCE_NIGHTLY_QA switch) instead of assuming Release.
+ * @param {String|null} href
+ * @return {String|null}
+ */
+ReferralAttribution.getPackageIdFromHref = (href) => {
+    if (!href) {
+        return null;
+    }
+    const match = href.match(/[?&]id=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+};
+
+/**
  * Rewrites Android store badges to include (or exclude) the referral utm_content.
- * Delegates URL construction to MobileAttribution.getStoreUrl.
+ * Delegates URL construction to MobileAttribution.getStoreUrl. Preserves each
+ * badge's existing Play Store package id rather than assuming Release.
  * @param {String|null} referralContent - e.g. "fxrefer1HR4FZ672Z8Y0E4HW", or null to strip.
  */
 ReferralAttribution.rewriteAndroidLinks = (referralContent) => {
     const campaign = referralContent ? REFERRAL_CAMPAIGN : UNCHECKED_CAMPAIGN;
-    const storeUrl = window.Mozilla.MobileAttribution.getStoreUrl(
-        campaign,
-        true,
-        referralContent
-    );
     const badges = document.querySelectorAll('.fl-store-button-android');
     for (const badge of badges) {
+        const packageId = ReferralAttribution.getPackageIdFromHref(
+            badge.getAttribute('href')
+        );
+        const storeUrl = window.Mozilla.MobileAttribution.getStoreUrl(
+            campaign,
+            true,
+            referralContent,
+            packageId
+        );
         badge.setAttribute('href', storeUrl);
     }
 };
