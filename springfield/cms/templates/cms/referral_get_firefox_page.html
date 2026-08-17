@@ -10,6 +10,12 @@
 
 {% block body_class %}fl-referral-get-firefox-page{% endblock %}
 
+{% block flare_header %}
+  {% with hide_nav_download_button=True, theme="dark" %}
+    {% include 'cms/includes/site-header.html' %}
+  {% endwith %}
+{% endblock %}
+
 {% block content %}
 <div class="fl-page">
   <div class="fl-main">
@@ -47,6 +53,8 @@
   </div>
 </div>
 {% endblock %}
+
+{% block pre_footer %}{% endblock %}
 
 {% block js %}
   {#

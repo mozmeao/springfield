@@ -100,6 +100,15 @@ body.fl-modal-open {
     z-index: 0;
 }
 
+/* The ::before glow below is wider than its container so the blur's soft edges
+   stay off screen. Clip that horizontal bleed, or it becomes scrollable overflow
+   and the page gets a horizontal scrollbar in dark mode. */
+.has-gradient-top {
+    overflow-x: clip;
+    position: relative;
+    z-index: 0;
+}
+
 .has-gradient-top::before {
     --gradient-height: 70vh;
     background-image: var(--token-gradient-blurred-bg);

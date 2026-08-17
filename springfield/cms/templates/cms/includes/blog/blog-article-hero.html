@@ -12,7 +12,7 @@
   {% if show_image %}
     {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
     {% set hero_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-    {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw" %}
+    {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw" %}
     <div class="image-variants-display">
       {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, loading="lazy", class=classes.primary) }}
       {% if page.image_mobile %}
