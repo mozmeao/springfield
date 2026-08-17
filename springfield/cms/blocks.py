@@ -144,7 +144,7 @@ AI_CONTROLS_CHOICES = [
     ("available", "AI Controls available"),
     ("unavailable", "AI Controls unavailable"),
 ]
-ANIMATION_ASPECT_RATIO_CHOICES = [
+VIDEO_ASPECT_RATIO_CHOICES = [
     ("", "Default (16:9, or 17:20 in Narrow Layout)"),
     ("16/9", "Widescreen (16:9) - forces widescreen even in Narrow Layout"),
     ("3/2", "Landscape (3:2)"),
@@ -1417,6 +1417,13 @@ class VideoBlock(blocks.StructBlock):
     )
     alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
+    aspect_ratio = blocks.ChoiceBlock(
+        choices=VIDEO_ASPECT_RATIO_CHOICES,
+        default="",
+        required=False,
+        label="Aspect Ratio",
+        help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+    )
 
     class Meta:
         label = "Video"
@@ -1453,7 +1460,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         )
         show_pause_button = blocks.BooleanBlock(default=False, required=False)
         aspect_ratio = blocks.ChoiceBlock(
-            choices=ANIMATION_ASPECT_RATIO_CHOICES,
+            choices=VIDEO_ASPECT_RATIO_CHOICES,
             default="",
             required=False,
             label="Aspect Ratio",

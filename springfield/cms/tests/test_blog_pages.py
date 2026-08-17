@@ -1524,7 +1524,8 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render.
+    resolution that runs on every page render. The count is pinned as flat (not
+    per-article) by test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
@@ -1565,6 +1566,8 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
     ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    The count is pinned as flat (not per-article) by
+    test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
