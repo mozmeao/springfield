@@ -124,6 +124,11 @@
     position: absolute;
 }
 
+.fl-video video {
+    object-fit: cover;
+    object-position: center;
+}
+
 /* Animation component with playback modes */
 .fl-animation video {
     margin: 0;

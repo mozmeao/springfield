@@ -44,11 +44,6 @@
     aspect-ratio: 17/20;
 }
 
-.fl-mediacontent.is-narrow .fl-video video {
-    object-fit: cover;
-    object-position: center;
-}
-
 .fl-mediacontent-content .fl-buttons {
     margin-block: var(--token-spacing-lg) var(--token-spacing-md);
 }
@@ -146,6 +141,10 @@
     display: block;
     inline-size: 100%;
     margin: 0;
+}
+
+.fl-mediacontent-media video {
+    border-radius: var(--token-spacing-lg);
 }
 
 .fl-mediacontent-media iframe {
