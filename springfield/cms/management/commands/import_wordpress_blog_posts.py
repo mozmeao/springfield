@@ -838,15 +838,18 @@ class Command(BaseCommand):
         authors = self.get_or_create_authors(post, locale)
         # ImageURL lists every image attached to the post, pipe-separated, with ImageTitle and the
         # other Image* fields as parallel lists. The hero image is the single URL in ImageFeatured,
-        # which is the first of those, so its title is the first ImageTitle. A post whose
-        # ImageFeatured is blank is imported without a hero image.
+        # which is the first of those, so its title is the first ImageTitle. Some posts leave
+        # ImageFeatured blank while still attaching their header image, so the first ImageURL entry
+        # stands in - it is the same entry the parallel lists describe. A post with neither is
+        # imported without a hero image.
+        hero_url = element_text(post, "ImageFeatured") or element_text(post, "ImageURL").split("|")[0].strip()
         image_title = element_text(post, "ImageTitle").split("|")[0].strip() or title
         # ImageAltText is the export's own alt text and is often blank. ImageDescription describes
         # the image by definition, so it comes next; the title only occasionally describes it
         # rather than naming the file, so it comes last.
         hero_fields = [element_text(post, field).split("|")[0].strip() for field in ("ImageAltText", "ImageDescription")]
         image = self.get_or_create_image(
-            element_text(post, "ImageFeatured"),
+            hero_url,
             image_title,
             description=next((image_description(value) for value in [*hero_fields, image_title] if image_description(value)), ""),
         )
