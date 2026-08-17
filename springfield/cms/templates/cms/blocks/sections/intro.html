@@ -10,27 +10,32 @@
 {% if value.settings.layout != "vertical" %}
 {% set heading_size = 'fl-heading-lg fl-heading-condensed' %}
 {% endif %}
-<include:intro
-  {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
-  anchor_id="{{ value.settings.anchor_id }}"
-  vertical="{{ value.settings.layout == 'vertical' }}"
-  slim="{{ value.settings.slim }}"
-  remove_border_radius="{{ value.settings.remove_border_radius }}"
-  full_width="{{ value.settings.full_width }}"
->
-  <content:heading>
-    {% include_block value.heading %}
-  </content:heading>
-  {% if value.content %}
-    <content:content>
-      {% include_block value.content %}
-    </content:content>
-  {% endif %}
-  {% if value.media %}
-    <content:media>
-      {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
-      {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-      {% include_block value.media %}
-    </content:media>
-  {% endif %}
-</include:intro>
+<include:conditional-display
+  condition_settings="{{ value.settings.show_to }}">
+
+  <include:intro
+    {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
+    anchor_id="{{ value.settings.anchor_id }}"
+    vertical="{{ value.settings.layout == 'vertical' }}"
+    slim="{{ value.settings.slim }}"
+    remove_border_radius="{{ value.settings.remove_border_radius }}"
+    full_width="{{ value.settings.full_width }}"
+  >
+    <content:heading>
+      {% include_block value.heading %}
+    </content:heading>
+    {% if value.content %}
+      <content:content>
+        {% include_block value.content %}
+      </content:content>
+    {% endif %}
+    {% if value.media %}
+      <content:media>
+        {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
+        {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+        {% include_block value.media %}
+      </content:media>
+    {% endif %}
+  </include:intro>
+
+</include:conditional-display>

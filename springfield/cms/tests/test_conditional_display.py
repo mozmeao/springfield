@@ -9,7 +9,52 @@ from springfield.cms.fixtures.conditional_display_fixtures import (
     get_bind_to_uitour_section,
     get_conditional_display_test_page,
     get_conditional_display_variants,
+    make_show_to,
 )
+from springfield.cms.models import FreeFormPage2026
+
+
+def make_intro(block_id, heading, show_to):
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {
+                "layout": "vertical",
+                "slim": False,
+                "anchor_id": "",
+                "show_to": show_to,
+            },
+            "media": [],
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="{block_id}">{heading}</p>',
+                "subheading_text": "",
+            },
+            "content": [],
+        },
+        "id": f"{block_id}-0000-0000-0000-000000000001",
+    }
+
+
+def get_conditional_wrappers(element):
+    return [el for el in element.parents if "conditional-display" in (el.get("class") or [])]
+
+
+@pytest.fixture
+def intro_conditional_page(minimal_site) -> FreeFormPage2026:
+    """A page whose intros mix conditional and unconditional, in both regions."""
+    page = FreeFormPage2026(slug="test-intro-conditional", title="Test Intro Conditional")
+    minimal_site.root_page.add_child(instance=page)
+    page.upper_content = [
+        make_intro("introfx1", "Firefox only", make_show_to(firefox="is-firefox")),
+        make_intro("introal1", "Everyone", make_show_to()),
+    ]
+    page.content = [
+        make_intro("introal2", "Lower, everyone", make_show_to()),
+        make_intro("introfx2", "Lower, non-Firefox only", make_show_to(firefox="not-firefox")),
+    ]
+    page.save_revision().publish()
+    return page
 
 
 @pytest.mark.django_db
@@ -96,6 +141,22 @@ def test_conditional_display_blocks(index_page, rf):
                 assert version_wrapper.get("data-min-version") == str(min_version), f"Block {index}: expected data-min-version='{min_version}'"
             if max_version:
                 assert version_wrapper.get("data-max-version") == str(max_version), f"Block {index}: expected data-max-version='{max_version}'"
+
+
+@pytest.mark.django_db
+def test_intro_block_conditional_display(intro_conditional_page, rf):
+    response = intro_conditional_page.serve(rf.get(intro_conditional_page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    conditional_intro, unconditional_intro = upper.find_all("div", class_="fl-intro")
+
+    conditional_wrappers = get_conditional_wrappers(conditional_intro)
+    assert len(conditional_wrappers) == 1
+    assert "condition-is-firefox" in conditional_wrappers[0]["class"]
+
+    assert get_conditional_wrappers(unconditional_intro) == []
 
 
 @pytest.mark.django_db

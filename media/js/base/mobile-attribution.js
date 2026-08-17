@@ -60,16 +60,21 @@ if (typeof window.Mozilla === 'undefined') {
      * @param {String} [referralContent] - Optional utm_content for referral attribution
      *   (e.g. "fxrefer1HR4FZ672Z8Y0E4HW"). When provided, appended to the Android
      *   Play Store referrer string. Has no effect on iOS.
+     * @param {String} [packageId] - Android Play Store package id, e.g.
+     *   "org.mozilla.firefox" (default) or "org.mozilla.fenix" (Nightly).
+     *   Has no effect on iOS.
      */
     MobileAttribution.getStoreUrl = function (
         campaign,
         isAndroid,
-        referralContent
+        referralContent,
+        packageId
     ) {
         var encoded = encodeURIComponent(campaign);
         if (isAndroid) {
             var url =
-                'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
+                'https://play.google.com/store/apps/details?id=' +
+                (packageId || 'org.mozilla.firefox') +
                 '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
                 '%26utm_campaign%3D' +
                 encoded;
