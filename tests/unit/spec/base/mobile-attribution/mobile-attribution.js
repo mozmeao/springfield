@@ -179,6 +179,35 @@ describe('mobile-attribution.js', function () {
             // already-encoded referrer param string
             expect(url).toContain('fxreferABCDEFGHJKMNPQR');
         });
+
+        it('uses the given packageId for the Android URL (e.g. Nightly)', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'test-19',
+                true,
+                null,
+                'org.mozilla.fenix'
+            );
+            expect(
+                url.indexOf(
+                    'https://play.google.com/store/apps/details?id=org.mozilla.fenix'
+                )
+            ).toBe(0);
+        });
+
+        it('defaults to the Release packageId when none is given', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl('test-19', true);
+            expect(url.indexOf(ANDROID_STORE_PREFIX)).toBe(0);
+        });
+
+        it('ignores packageId for the iOS URL', function () {
+            const url = Mozilla.MobileAttribution.getStoreUrl(
+                'test-19',
+                false,
+                null,
+                'org.mozilla.fenix'
+            );
+            expect(url.indexOf(IOS_STORE_PREFIX)).toBe(0);
+        });
     });
 
     describe('rewriteLinks', function () {

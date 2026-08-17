@@ -316,3 +316,10 @@
         padding-block-start: var(--comparison-table-browser-label-offset);
     }
 }
+
+.fl-comparison-table-fine-print {
+    color: var(--comparison-table-text-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin-block-start: var(--token-spacing-md);
+    text-align: center;
+}
