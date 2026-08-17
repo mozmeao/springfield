@@ -18,6 +18,8 @@ IMAGE_CAPTION = (
     '<p data-block-key="ccc33333">A caption below the image, using <b>bold</b>, <i>italic</i> and a <a href="https://www.mozilla.org/">link</a>.</p>'
 )
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
 
 BLOG_AUTHOR_NAMES = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
@@ -55,11 +57,12 @@ LARGE_IMAGE_ARTICLE_SLUG = "test-hero-large-image-article"
 TEXT_ONLY_ARTICLE_SLUG = "test-hero-text-only-article"
 VIDEO_ARTICLE_SLUG = "test-hero-video-article"
 LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
+BOTTOM_BANNER_ARTICLE_SLUG = "test-bottom-banner-article"
 
 # 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28,
-# plus the 4 hero style / listing image demonstrations = 32 total articles
-NUM_LIST_ARTICLES = 32
-NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
+# plus the 5 hero style / listing image / bottom banner demonstrations = 33 total articles
+NUM_LIST_ARTICLES = 33
+NUM_FEATURED_INDEX_SHOWN = 4  # articles in index page featured_articles StreamField
 
 
 def get_blog_topics() -> dict[str, BlogTopic]:
@@ -192,11 +195,44 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
                 "topic": "",
                 "title": "",
                 "description": "",
-                "tags": [],
             },
         },
         "id": block_id,
     }
+
+
+def get_bottom_banner_stream() -> list[dict]:
+    """StreamField data for BlogArticlePage.bottom_banner: a single default banner."""
+    return [
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "",
+                    "slim": False,
+                    "remove_border_radius": False,
+                    "centralize_content": False,
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="bban0001">Enjoying this article?</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "bban0001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bban0002">Subscribe to get more like this in your inbox.</p>',
+                    },
+                ],
+            },
+            "id": "bban0000-0000-0000-0000-000000000001",
+        }
+    ]
 
 
 def create_blog_article(
@@ -215,6 +251,7 @@ def create_blog_article(
     listing_image=None,
     updated_date=None,
     hide_dates: bool = False,
+    bottom_banner: list | None = None,
 ) -> BlogArticlePage:
     if hero_style is None:
         hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
@@ -241,6 +278,7 @@ def create_blog_article(
     article.hide_dates = hide_dates
     article.description = description
     article.content = content
+    article.bottom_banner = bottom_banner or []
     article.tags.set(tags)
     if hero_video is not None:
         article.hero_video = hero_video
@@ -270,8 +308,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
     - 5 spread across topics + 3 extra for Privacy (Privacy gets 4 total)
     - 12 spread across topics + 8 extra for Privacy
       (Privacy gets 11 total: triggers pagination on its topic page)
-    - 4 demonstrating the large image, text only and video hero styles, and a
-      listing image that differs from the featured image
+    - 5 demonstrating the large image, text only and video hero styles, a
+      listing image that differs from the featured image, and a bottom banner
 
     All articles use all available content block types: text, media or image + caption, code, quote.
     Featured articles carry a captioned image, regular ones a plain image.
@@ -422,6 +460,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
             listing_image=dark_image,
         )
     )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Bottom banner",
+            slug=BOTTOM_BANNER_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[4],
+            content=plain_content,
+            bottom_banner=get_bottom_banner_stream(),
+        )
+    )
 
     index_page.page_heading = [
         {
@@ -434,44 +485,32 @@ def get_blog_pages() -> list[BlogArticlePage]:
             "id": "ph000001-0000-0000-0000-000000000001",
         }
     ]
-    index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
-    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
-    index_page.cards_lists = [
+    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:4], start=1)]
+    index_page.article_sections = [
         {
             "type": "cards_list",
             "value": {
-                "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
+                "heading_text": '<p data-block-key="clh00001">Privacy</p>',
+                "source": [{"type": "topic", "value": topics["privacy"].pk, "id": "src00001-0000-0000-0000-000000000001"}],
+                "count": 3,
                 "link_label": "View all Privacy",
-                "link_filter": "?topic=privacy",
-                "articles": [
-                    blog_article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
-                ],
             },
             "id": "cl000001-0000-0000-0000-000000000001",
         },
         {
             "type": "cards_list",
             "value": {
-                "heading_text": '<p data-block-key="clh00002">More Articles 2</p>',
+                "heading_text": '<p data-block-key="clh00002">Security</p>',
+                "source": [{"type": "tag", "value": tags["security"].pk, "id": "src00002-0000-0000-0000-000000000002"}],
+                "count": 2,
                 "link_label": "View all Security",
-                "link_filter": "?topic=security",
-                "articles": [
-                    blog_article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
-                ],
             },
             "id": "cl000002-0000-0000-0000-000000000002",
         },
         {
-            "type": "cards_list",
-            "value": {
-                "heading_text": '<p data-block-key="clh00003">More Articles 3</p>',
-                "link_label": "View all",
-                "link_filter": "",
-                "articles": [
-                    blog_article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
-                ],
-            },
+            "type": "latest",
+            "value": {"heading_text": '<p data-block-key="clh00003">Latest</p>', "count": 4, "link_label": "View all"},
             "id": "cl000003-0000-0000-0000-000000000003",
         },
     ]

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django import forms
@@ -143,6 +143,15 @@ AI_CONTROLS_CHOICES = [
     ("", "No restriction"),
     ("available", "AI Controls available"),
     ("unavailable", "AI Controls unavailable"),
+]
+ANIMATION_ASPECT_RATIO_CHOICES = [
+    ("", "Default (16:9, or 17:20 in Narrow Layout)"),
+    ("16/9", "Widescreen (16:9) - forces widescreen even in Narrow Layout"),
+    ("3/2", "Landscape (3:2)"),
+    ("1/1", "Square (1:1)"),
+    ("4/3", "Standard (4:3)"),
+    ("4/5", "Portrait (4:5)"),
+    ("9/16", "Vertical (9:16)"),
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
@@ -1314,12 +1323,18 @@ class ComparisonTableBlock(blocks.StructBlock):
     )
     header_row = blocks.ListBlock(ComparisonTableRowBlock, min_num=1, max_num=1)
     content_rows = blocks.ListBlock(ComparisonTableRowBlock, min_num=1)
+    fine_print = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        label="Fine print",
+        help_text="Optional text displayed below the table.",
+    )
 
     class Meta:
         template = "cms/blocks/comparison-table.html"
         label = "Comparison Table"
         form_layout = blocks.BlockGroup(
-            children=["header_row", "content_rows"],
+            children=["header_row", "content_rows", "fine_print"],
             settings=["variant", "highlighted_column", "mobile_behavior"],
         )
 
@@ -1437,6 +1452,13 @@ def AnimationBlock(required=True, *args, **kwargs):
             inline_form=True,
         )
         show_pause_button = blocks.BooleanBlock(default=False, required=False)
+        aspect_ratio = blocks.ChoiceBlock(
+            choices=ANIMATION_ASPECT_RATIO_CHOICES,
+            default="",
+            required=False,
+            label="Aspect Ratio",
+            help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+        )
 
         class Meta:
             label = "Animation"
@@ -1760,7 +1782,7 @@ class TabsBlock(blocks.StructBlock):
 
     class Meta:
         label = "Tabs"
-        label_format = "Tabs"
+        label_format = "{section_id}"
         template = "cms/blocks/tabs.html"
 
 
@@ -1931,6 +1953,12 @@ class QuoteBlock(blocks.StructBlock):
         label="Author",
         help_text="Optional attribution for the quote.",
     )
+    authors_title = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Author's title",
+        help_text="Optional title for the author of the quote.",
+    )
 
     class Meta:
         label = "Quote"
@@ -2021,12 +2049,6 @@ class BlockArticleValue(blocks.StructValue):
                 return topic.name
         return ""
 
-    def get_tags(self) -> list[str]:
-        if tags := self.get("overrides").get("tags"):
-            return tags
-        article_page = self.get_article()
-        return [tag.name for tag in article_page.get_tags()]
-
     def get_image(self):
         article_page = self.get_article()
         image_override = self.get("overrides").get("image")
@@ -2069,7 +2091,6 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     topic = blocks.CharBlock(required=False)
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
 
 
 class BlogArticleBlock(blocks.StructBlock):
@@ -2085,38 +2106,80 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
-class BlogCardsListBlock(blocks.StructBlock):
-    """A titled list of blog article cards."""
+class BlogArticleSectionValue(blocks.StructValue):
+    """A section whose articles the index page resolves before rendering."""
+
+    def get_articles(self):
+        return getattr(self, "_articles", [])
+
+    def get_link_url(self):
+        return getattr(self, "_link_url", "")
+
+
+class BlogCardsListSourceBlock(blocks.StreamBlock):
+    """Exactly one of topic or tag.
+
+    A single-child StreamBlock enforces that structurally, so the parent needs no
+    clean()."""
+
+    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+
+    class Meta:
+        min_num = 1
+        max_num = 1
+
+
+class BlogLatestArticlesBlock(blocks.StructBlock):
+    """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
     link_label = blocks.CharBlock(default="View all")
-    link_filter = blocks.CharBlock(
-        required=False,
-        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
-    )
-    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Latest Articles"
+        icon = "time"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
+
+    def filter_articles(self, queryset, value):
+        return queryset.order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """Nothing is exempt: the latest section has no source of its own."""
+        return set(), set()
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled grid of articles drawn from one topic or tag."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    source = BlogCardsListSourceBlock()
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
+    link_label = blocks.CharBlock(default="View all")
 
     class Meta:
         label = "Blog Cards List"
-        label_format = "{heading}"
         icon = "list-ul"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
 
-    def clean_list_filter(self, value: str) -> str:
-        if not value:
-            return value
-        value = value.strip()
-        if not value.startswith("?"):
-            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
-        query_part = value[1:]
-        if not query_part:
-            raise ValidationError(_("Query string must contain at least one parameter."))
-        try:
-            pairs = parse_qsl(query_part, strict_parsing=True)
-        except ValueError as exc:
-            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
-        if not pairs:
-            raise ValidationError(_("Query string must contain at least one key=value parameter."))
-        return value
+    def filter_articles(self, queryset, value):
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
+        return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """The exclusion this section may override: the source it renders.
+
+        Pointing a section at an excluded topic or tag surfaces it here on purpose.
+        Articles excluded for any other reason still drop out."""
+        source = value["source"][0]
+        if source.block_type == "topic":
+            return {source.value.translation_key}, set()
+        return set(), {source.value.translation_key}
 
 
 # Cards
@@ -2181,7 +2244,11 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 class CardTestimonialBlock(blocks.StructBlock):
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional. Leave blank to show the quote with no attribution.",
+    )
     attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     attribution_image = ImageVariantsBlock(required=False)
 
@@ -2766,6 +2833,10 @@ class IntroBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing.",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
@@ -2776,7 +2847,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 

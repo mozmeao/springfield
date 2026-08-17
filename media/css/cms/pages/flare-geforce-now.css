@@ -1,0 +1,64 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+  WARNING! This file is referenced in the CMS directly.
+  Before altering, ensure you have an up-to-date database and check for pages that have
+  body_class="flare26-geforce-now" to avoid breaking the page layout.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+@layer page {
+    /*
+      Replaces the eyebrow text with the Firefox + GeForce NOW lockup. Covers Intro and
+      Banner so the hero can use either, and applies regardless of heading level so
+      conditional variants of the same hero all match.
+
+      The text is collapsed rather than removed so assistive tech still announces it — set
+      the block's superheading to describe the lockup. The lockup itself is drawn on an
+      inline-block ::before, which means it inherits whatever text-align the component sets
+      (centred on small screens, inline-start at md-up) and this file never has to repeat
+      either component's breakpoints.
+    */
+    .flare26-geforce-now .fl-intro .fl-superheading,
+    .flare26-geforce-now .fl-banner .fl-superheading {
+        font-size: 0;
+        line-height: 0;
+
+        /* the lockup is taller than the text it replaces, so it needs more breathing room */
+        margin-block-end: var(--token-spacing-2xl);
+    }
+
+    /*
+      aspect-ratio is the asset's own 401x50, so the box can never drift out of sync with
+      the image — to resize, change block-size only.
+    */
+    .flare26-geforce-now .fl-intro .fl-superheading::before,
+    .flare26-geforce-now .fl-banner .fl-superheading::before {
+        aspect-ratio: 401 / 50;
+        background: url('/media/img/firefox/geforce-now/firefox-geforce-now-lockup.png')
+            no-repeat center / contain;
+        block-size: 32px;
+        content: '';
+        display: inline-block;
+    }
+
+    /* Forced colors drops background images, so fall back to the original text. */
+    @media (forced-colors: active) {
+        .flare26-geforce-now .fl-intro .fl-superheading,
+        .flare26-geforce-now .fl-banner .fl-superheading {
+            font-size: var(--fl-theme-font-size-subheading-xs);
+            line-height: normal;
+        }
+
+        .flare26-geforce-now .fl-intro .fl-superheading::before,
+        .flare26-geforce-now .fl-banner .fl-superheading::before {
+            content: none;
+        }
+    }
+}

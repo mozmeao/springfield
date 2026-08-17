@@ -229,11 +229,10 @@ def download_firefox_thanks(
 
 @library.global_function
 @jinja2.pass_context
-def download_firefox_thanks_link(ctx, locale=None, locale_in_transition=False, os="win"):
+def download_firefox_thanks_link(ctx, locale=None, locale_in_transition=False, os="win", channel="release"):
     """Transition URL and direct download link to build a Firefox download button
     similar to  download_firefox_thanks()."""
 
-    channel = "release"
     locale = locale or get_locale(ctx["request"])
     transition_url = "/thanks/"
     version = firefox_desktop.latest_version(channel)

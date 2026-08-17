@@ -7,6 +7,7 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -30,6 +31,9 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
+    BlogCardsListBlock,
+    BlogCardsListSourceBlock,
+    BlogLatestArticlesBlock,
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
@@ -163,6 +167,7 @@ from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_ca
 from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.models.snippets import BlogTag, BlogTopic
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
@@ -4534,9 +4539,12 @@ def assert_card_block(card_el, card_data, context, region_name, heading_tag, blo
             assert blockquote
             quote_text = BeautifulSoup(t["content"], "html.parser").get_text()
             assert quote_text in blockquote.get_text()
-            attribution_text = BeautifulSoup(t["attribution"], "html.parser").get_text()
             cite_el = blockquote.find("cite", class_="fl-card-testimonial-attribution")
-            assert cite_el and attribution_text in cite_el.get_text()
+            if t.get("attribution"):
+                attribution_text = BeautifulSoup(t["attribution"], "html.parser").get_text()
+                assert cite_el and attribution_text in cite_el.get_text()
+            else:
+                assert cite_el is None
             if t.get("attribution_role"):
                 role_text = BeautifulSoup(t["attribution_role"], "html.parser").get_text()
                 role_el = blockquote.find("span", class_="fl-card-testimonial-role")
@@ -5545,3 +5553,69 @@ def test_tab_block_renders_when_comparison_table_key_absent_from_stored_json():
 
     assert soup.find("div", class_="fl-comparison-table-wrapper") is None
     assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
+
+
+def test_cards_list_source_requires_exactly_one_choice():
+    """A section draws from one topic or one tag, never from nothing."""
+    block = BlogCardsListSourceBlock()
+
+    with pytest.raises(StreamBlockValidationError):
+        block.clean(block.to_python([]))
+
+
+@pytest.mark.django_db
+def test_cards_list_source_rejects_two_choices():
+    locale = Locale.get_default()
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-privacy", locale=locale)
+    tag = BlogTag.objects.create(name="VPN", slug="test-block-vpn", locale=locale)
+    block = BlogCardsListSourceBlock()
+    value = block.to_python(
+        [
+            {"type": "topic", "value": topic.pk, "id": "src00001-0000-0000-0000-000000000001"},
+            {"type": "tag", "value": tag.pk, "id": "src00002-0000-0000-0000-000000000002"},
+        ]
+    )
+
+    with pytest.raises(StreamBlockValidationError):
+        block.clean(value)
+
+
+def test_latest_articles_count_allows_eight():
+    """The latest section is expected to run to a second row."""
+    block = BlogLatestArticlesBlock()
+
+    assert block.child_blocks["count"].clean(8) == 8
+
+
+def test_latest_section_exempts_nothing():
+    """The latest section has no source of its own, so no exclusion is spared."""
+    block = BlogLatestArticlesBlock()
+
+    assert block.get_exempt_exclusions(None) == (set(), set())
+
+
+def test_cards_list_count_rejects_five():
+    """article_card_media only has tuned image sizes for grids of 2-4."""
+    block = BlogCardsListBlock()
+
+    with pytest.raises(ValidationError):
+        block.child_blocks["count"].clean(5)
+
+
+@pytest.mark.django_db
+def test_topic_section_exempts_its_own_topic():
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-exempt", locale=Locale.get_default())
+    block = BlogCardsListBlock()
+    value = block.to_python(
+        {
+            "heading_text": '<p data-block-key="h">Privacy</p>',
+            "source": [{"type": "topic", "value": topic.pk, "id": "src00004-0000-0000-0000-000000000004"}],
+            "count": 4,
+            "link_label": "View all",
+        }
+    )
+
+    topic_keys, tag_keys = block.get_exempt_exclusions(value)
+
+    assert topic_keys == {topic.translation_key}
+    assert tag_keys == set()

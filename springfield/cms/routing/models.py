@@ -41,8 +41,10 @@ _SET_MEMBERSHIP_OPERATORS = ("in", "not_in")
 # boolean to false rather than ignoring it, so "ture" would save and match the opposite audience.
 _BOOLEAN_LITERALS = frozenset({"true", "false", "1", "0"})
 _INTEGER_RE = re.compile(r"^[+-]?\d+$")
-# Bare (129), prefixed (rv:129) and dotted (129.0.1), mirroring normalizeVersion().
-_VERSION_RE = re.compile(r"^\D*\d+(?:\.\d+)*$")
+# Bare (129), rv-prefixed (rv:129) and dotted (129.0.1), and nothing else — the same
+# grammar as normalizeVersion() in evaluator.es6.js. Keep the two in step: a value this
+# accepts but the client cannot parse becomes a rule that never fires.
+_VERSION_RE = re.compile(r"^(?:rv:)?\d+(?:\.\d+)*$")
 
 
 def signal_choices():
