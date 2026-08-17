@@ -12,18 +12,8 @@
     text-align: center;
 }
 
-/* give the intro more vertical padding when it's used as the first component on a page.
-   This is primary use case, but sometimes a notification at the top should reduce the padding.
-
-   A conditionally-displayed intro is the only child of its wrapper, so the wrapper's position
-   is what tells us whether the intro is first, not the intro's own. Conditional variants of the
-   same intro occupy one position and only one is ever visible, so a wrapper preceded by another
-   intro wrapper counts as first too. The :has() keeps that narrow: a conditional notification
-   ahead of the intro still reduces the padding, as it does when neither is conditional.
-
-   The wrapper context sits in :where() so it contributes no specificity: every selector
-   here scores the same as the plain `.fl-intro:first-child` this replaced, which keeps
-   `.is-slim` and `.fl-home-intro` winning the ties they already won. */
+/* Intro is the first block, either on its own or inside a conditional,
+   OR two consecutive Intros inside conditionals  */
 :where(:not(.conditional-display)) > .fl-intro:first-child,
 :where(.conditional-display:first-child) > .fl-intro:first-child,
 :where(.conditional-display:first-child:has(.fl-intro) + .conditional-display)

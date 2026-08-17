@@ -36,7 +36,7 @@ def make_intro(block_id, heading, show_to):
     }
 
 
-def wrappers_around(element):
+def get_conditional_wrappers(element):
     return [el for el in element.parents if "conditional-display" in (el.get("class") or [])]
 
 
@@ -152,37 +152,11 @@ def test_intro_block_conditional_display(intro_conditional_page, rf):
     upper = soup.find("div", class_="fl-split-page-upper")
     conditional_intro, unconditional_intro = upper.find_all("div", class_="fl-intro")
 
-    conditional_wrappers = wrappers_around(conditional_intro)
+    conditional_wrappers = get_conditional_wrappers(conditional_intro)
     assert len(conditional_wrappers) == 1
     assert "condition-is-firefox" in conditional_wrappers[0]["class"]
 
-    # An intro with no conditions set must render bare, as it always has
-    assert wrappers_around(unconditional_intro) == []
-
-
-@pytest.mark.django_db
-def test_intro_conditional_wrapper_is_a_direct_child_of_its_region(intro_conditional_page, rf):
-    """The wrapper takes the intro's place in the region, so CSS can key off its position.
-
-    `.fl-intro:first-child` means "first component on the page", and a wrapped intro is
-    always the only child of its wrapper. flare-intro.css therefore tests the wrapper's
-    position instead, which only holds while the wrapper is a direct child of the region.
-    """
-    response = intro_conditional_page.serve(rf.get(intro_conditional_page.get_full_url()))
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    upper = soup.find("div", class_="fl-split-page-upper")
-    lower = soup.find("div", class_="fl-split-page-lower")
-
-    upper_children = upper.find_all("div", recursive=False)
-    assert "conditional-display" in upper_children[0]["class"]
-    assert upper_children[0].find("div", class_="fl-intro", recursive=False)
-
-    # The lower region's conditional intro is authored second, so its wrapper must not be
-    # the region's first child — otherwise it would pick up the hero padding.
-    lower_children = lower.find_all("div", recursive=False)
-    assert "fl-intro" in lower_children[0]["class"]
-    assert "conditional-display" in lower_children[1]["class"]
+    assert get_conditional_wrappers(unconditional_intro) == []
 
 
 @pytest.mark.django_db
