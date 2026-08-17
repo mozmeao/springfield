@@ -42,32 +42,9 @@ ROUTING_TAB_HELP = _(
 
 
 class RoutingPageForm(WagtailAdminPageForm):
-    """Page form owning the admin-side routing validation.
-
-    Two things live here rather than on the models, both because of *when* Wagtail runs
-    things during a save:
-
-    * **Condition-floor.** A rule with no conditions matches every triggered
-      visitor, so it must opt in via ``match_all``. ``RoutingRule.clean()`` can't enforce
-      this — modelcluster attaches a rule's nested conditions to the instance only at
-      *save* time, after validation, so a model-level count check sees zero conditions
-      and rejects valid rules. The floor is checked here, where the nested ``conditions``
-      formset is inspectable, and the error lands on the rule's ``match_all`` field.
-
-    * **Hidden-tab formsets.** The routing tab is hidden on non-canonical
-      instances (``RoutingObjectList.is_shown``), so its ``routing_rules`` /
-      ``routing_config`` formsets aren't rendered there — nor on the *add* form, where a
-      new page isn't yet canonical. Their management forms are therefore absent from the
-      POST, and validating/saving them would block the page entirely with ManagementForm
-      errors. So they are excluded from validation/save on non-canonical instances.
-      ``self.formsets`` is left intact outside that window so panel binding (which reads
-      ``self.form.formsets[name]``) still works when the form re-renders.
-
-    * **Kill-switch record.** ``__init__`` auto-creates the ``RoutingConfig`` for
-      canonical instances so the pause checkbox always renders (no "Add" step) — see
-      ``__init__``; this replaces a panel ``min_num``, which can't be satisfied by an
-      unchanged empty form.
-    """
+    """Page form owning admin-side routing validation: the condition floor, target/signal
+    scope guards, hidden-formset scoping on non-canonical instances, and kill-switch
+    auto-create — see each method for why it can't live on the model or a panel."""
 
     # Formsets owned by the routing tab (hidden on non-canonical instances).
     ROUTING_FORMSETS = ("routing_rules", "routing_config")

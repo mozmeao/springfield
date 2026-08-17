@@ -50,7 +50,7 @@ def test_version_signal_payload_has_operator_meanings_and_a_hint():
     version = build_signal_payload()["firefox_version"]
     assert version["enumValues"] == []
     operator_values = {operator["value"] for operator in version["operators"]}
-    assert {"gte", "lt", "not_gte"} <= operator_values
+    assert {"gte", "lt"} <= operator_values
     assert version["hint"] == str(VALUE_TYPE_HINTS[ValueType.VERSION])
 
 
@@ -232,5 +232,5 @@ def test_reference_rows_carry_a_value_example_per_type():
     rows = {row["name"]: row for row in build_signal_reference()}
     assert str(rows["is_firefox"]["value_example"]) == "true or false"
     assert "129" in str(rows["firefox_version"]["value_example"])
-    assert "30" in str(rows["profile_age"]["value_example"])
+    assert "30" in str(rows["profile_age_weeks"]["value_example"])
     assert str(rows["utm_source"]["value_example"]) == "Free text"

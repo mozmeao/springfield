@@ -352,7 +352,18 @@ export function renderConditionHelp(select, payload, root) {
     if (!help) {
         help = document.createElement('p');
         help.className = HELP_CLASSNAME;
+        help.id =
+            (expected.id || expected.getAttribute('name')) + '-routing-help';
         expected.parentNode.appendChild(help);
+        // Screen readers announce this alongside the field's own description, not only
+        // its aria-invalid state — merge rather than overwrite any existing value.
+        const described = (expected.getAttribute('aria-describedby') || '')
+            .split(/\s+/)
+            .filter(Boolean);
+        if (described.indexOf(help.id) === -1) {
+            described.push(help.id);
+            expected.setAttribute('aria-describedby', described.join(' '));
+        }
     }
     help.textContent = buildHelpText(payload[select.value], operator);
     return help;
@@ -365,15 +376,19 @@ function wireSelect(select, payload, scope) {
     }
     select.dataset[BOUND_FLAG] = '1';
     select.addEventListener('change', function () {
-        renderConditionHelp(select, payload, scope);
+        // filterOperators first: it can replace the selected operator (e.g. resetting to
+        // the new signal's default), and the help text below reads that operator — render
+        // after, or the comma hint reflects the operator that's about to be replaced.
         filterOperators(select, payload, scope);
+        renderConditionHelp(select, payload, scope);
     });
-    // Refresh the help when the operator changes too, so the comma-separated hint
-    // appears/disappears with in / not in.
+    // Revalidate when the operator changes too — the comma-separated hint appears/disappears
+    // with in / not in, and a value that was invalid for the old operator (or vice versa)
+    // needs its error state recomputed, not just the help text.
     const operatorSelect = operatorFieldFor(select, scope);
     if (operatorSelect) {
         operatorSelect.addEventListener('change', function () {
-            renderConditionHelp(select, payload, scope);
+            validateConditionRow(select, payload, scope);
         });
     }
     // Validate this row when the value field is committed (blur/change), so a bad value
@@ -385,9 +400,10 @@ function wireSelect(select, payload, scope) {
         });
     }
     // Initial pass filters from the pre-selected signal, so an existing rule opens with
-    // its operator dropdown already scoped (and its saved operator preserved).
-    renderConditionHelp(select, payload, scope);
+    // its operator dropdown already scoped (and its saved operator preserved) — filtered
+    // before the help text reads it, same reasoning as the change handler above.
     filterOperators(select, payload, scope);
+    renderConditionHelp(select, payload, scope);
 }
 
 function revalidateRuleConditions(checkbox, payload, scope) {

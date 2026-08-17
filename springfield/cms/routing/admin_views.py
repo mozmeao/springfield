@@ -4,9 +4,12 @@
 
 """Admin views for the "User Routing" submenu."""
 
+from django.db.models import Prefetch
 from django.views.generic import TemplateView
 
 from wagtail.admin.views.generic.base import WagtailAdminTemplateMixin
+from wagtail.models import Page
+from wagtail.permissions import page_permission_policy
 
 from springfield.cms.routing.admin import build_signal_reference
 from springfield.cms.routing.models import RoutingRule
@@ -26,7 +29,13 @@ class RoutingRulesIndexView(WagtailAdminTemplateMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        rules = RoutingRule.objects.select_related("page", "target").prefetch_related("conditions").order_by("page_id", "sort_order", "pk")
+        editable_pages = page_permission_policy.instances_user_has_permission_for(self.request.user, "change")
+        rules = (
+            RoutingRule.objects.filter(page__in=editable_pages)
+            .select_related("page", "target")
+            .prefetch_related("conditions")
+            .order_by("page_id", "sort_order", "pk")
+        )
         context["rows"] = _rows_with_status(rules)
         return context
 
@@ -40,15 +49,22 @@ def _rows_with_status(rules):
     target belongs to a different page's subtree, or has no version in this page's language.
 
     Rules arrive ordered by page, so the per-page lookup runs once per page rather than once
-    per rule.
+    per rule. Pages are re-fetched with their own rules/targets/conditions prefetched, since
+    ``rule.page`` (from the rules' own ``select_related``) doesn't carry that — reusing it
+    would make ``rule_problems`` re-query per page.
     """
+    rules = list(rules)
+    page_ids = {rule.page_id for rule in rules}
+    prefetched_rules = RoutingRule.objects.select_related("target").prefetch_related("conditions")
+    pages = Page.objects.filter(pk__in=page_ids).prefetch_related(Prefetch("routing_rules", queryset=prefetched_rules))
+    prefetched_pages = {page.pk: page for page in pages}
     rows = []
     problems = {}
     current_page_id = None
     for rule in rules:
         if rule.page_id != current_page_id:
             current_page_id = rule.page_id
-            problems = rule_problems(rule.page)
+            problems = rule_problems(prefetched_pages[rule.page_id])
         rows.append({"rule": rule, "problem": problems.get(rule.pk)})
     return rows
 

@@ -321,6 +321,36 @@ describe('cms/routing/condition-help.es6.js', function () {
             expect(help.textContent).toContain('Firefox version');
             expect(help.textContent).not.toContain('operating system');
         });
+
+        it('links the help text to the expected-value field via aria-describedby', function () {
+            const dom = makeConditionDOM('platform');
+            const input = dom.fieldWrap.querySelector('input');
+            renderConditionHelp(dom.select, PAYLOAD, dom.container);
+            const help = dom.fieldWrap.querySelector('.routing-condition-help');
+            expect(help.id).toBeTruthy();
+            expect(input.getAttribute('aria-describedby')).toContain(help.id);
+        });
+
+        it('does not duplicate the describedby id on repeated renders', function () {
+            const dom = makeConditionDOM('platform');
+            const input = dom.fieldWrap.querySelector('input');
+            renderConditionHelp(dom.select, PAYLOAD, dom.container);
+            renderConditionHelp(dom.select, PAYLOAD, dom.container);
+            const help = dom.fieldWrap.querySelector('.routing-condition-help');
+            const ids = input.getAttribute('aria-describedby').split(/\s+/);
+            expect(ids.filter((id) => id === help.id).length).toEqual(1);
+        });
+
+        it('preserves an existing aria-describedby value', function () {
+            const dom = makeConditionDOM('platform');
+            const input = dom.fieldWrap.querySelector('input');
+            input.setAttribute('aria-describedby', 'some-other-hint');
+            renderConditionHelp(dom.select, PAYLOAD, dom.container);
+            const help = dom.fieldWrap.querySelector('.routing-condition-help');
+            const ids = input.getAttribute('aria-describedby').split(/\s+/);
+            expect(ids).toContain('some-other-hint');
+            expect(ids).toContain(help.id);
+        });
     });
 
     describe('filterOperators', function () {
@@ -380,6 +410,39 @@ describe('cms/routing/condition-help.es6.js', function () {
             ]);
             // 'is' was selected and is now illegal -> reset to the first version operator.
             expect(dom.operatorSelect.value).toEqual('gte');
+        });
+
+        it('renders help for the post-filter operator, not the one about to be replaced', function () {
+            const dom = makeConditionDOM('platform');
+            dom.operatorSelect.value = 'in'; // membership operator -> comma hint shown
+            initConditionHelp({ payload: PAYLOAD, root: dom.container });
+            dom.select.value = 'firefox_version'; // 'in' is illegal here -> resets to 'gte'
+            dom.select.dispatchEvent(new Event('change'));
+            expect(dom.operatorSelect.value).toEqual('gte');
+            const help = dom.fieldWrap.querySelector('.routing-condition-help');
+            expect(help.textContent).toContain('Firefox version');
+            expect(help.textContent).not.toContain(COMMA_HINT);
+        });
+    });
+
+    describe('initConditionHelp — operator change revalidates the value', function () {
+        it('recomputes aria-invalid when the operator changes, not just the help text', function () {
+            const dom = makeConditionDOM('platform');
+            document.body.appendChild(dom.container);
+            try {
+                initConditionHelp({ payload: PAYLOAD, root: dom.container });
+                const input = dom.fieldWrap.querySelector('input');
+                // Valid set-membership under 'in', but not a single enum member under 'is'.
+                input.value = 'windows, osx';
+                input.dispatchEvent(new Event('change'));
+                expect(input.getAttribute('aria-invalid')).toEqual('true');
+
+                dom.operatorSelect.value = 'in';
+                dom.operatorSelect.dispatchEvent(new Event('change'));
+                expect(input.getAttribute('aria-invalid')).toBeNull();
+            } finally {
+                document.body.removeChild(dom.container);
+            }
         });
     });
 

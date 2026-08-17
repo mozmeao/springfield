@@ -4,15 +4,17 @@
 
 """Tests for the browse-only User Routing rules listing."""
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import NoReverseMatch, reverse
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Site
+from wagtail.models import GroupPagePermission, Site
 
 from springfield.cms import wagtail_hooks
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
-from springfield.cms.routing.signals import registry
+from springfield.cms.routing.signals import RoutingSignal, Source, ValueType, registry
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -40,6 +42,35 @@ def test_listing_handles_no_rules(admin_client):
     response = admin_client.get(reverse("cms_routing_rules"))
     assert response.status_code == 200
     assert "No routing rules" in response.content.decode("utf-8")
+
+
+def test_listing_hides_pages_the_user_cannot_edit(restricted_client):
+    visible = _rule_on("visible-canonical", "Visible page")
+    _rule_on("hidden-canonical", "Hidden page")
+    GroupPagePermission.objects.create(group=restricted_client.group, page=visible.page, permission_type="change")
+
+    content = restricted_client.client.get(reverse("cms_routing_rules")).content.decode("utf-8")
+    assert "Visible page" in content
+    assert "Hidden page" not in content
+
+
+def test_listing_query_count_does_not_scale_with_page_count(admin_client):
+    # Compares query counts at two page counts rather than asserting a fixed number, since
+    # Wagtail's own admin chrome (menus, permissions, session) adds queries unrelated to
+    # this view. What matters is that the *listing's own* query count is flat — the N+1
+    # this guards against would add one query per additional page.
+    def query_count():
+        with CaptureQueriesContext(connection) as context:
+            admin_client.get(reverse("cms_routing_rules"))
+        return len(context)
+
+    _matchable(_rule_on("scaling-canonical-a", "Scaling A"))
+    _matchable(_rule_on("scaling-canonical-b", "Scaling B"))
+    baseline = query_count()
+
+    for i in range(8):
+        _matchable(_rule_on(f"scaling-canonical-extra-{i}", f"Scaling extra {i}"))
+    assert query_count() == baseline
 
 
 # ---------------------------------------------------------------------------
@@ -231,3 +262,28 @@ def test_adding_a_signal_makes_it_appear_with_no_page_edit(admin_client, temp_si
 def test_signals_reference_item_is_in_the_submenu():
     labels = [str(item.label) for item in wagtail_hooks.user_routing_menu.registered_menu_items]
     assert "Signals reference" in labels
+
+
+# ---------------------------------------------------------------------------
+# The condition-help payload injected into the page editor: must not let a signal
+# description break out of its <script> tag.
+# ---------------------------------------------------------------------------
+
+
+def test_condition_help_payload_escapes_a_closing_script_tag():
+    # A translated description is the realistic vector — this proves the escaping
+    # rather than trusting that translators (or a future signal) never write "</script>".
+    signal = RoutingSignal(
+        name="temp_script_break_signal",
+        description="</script><script>alert(1)</script>",
+        source=Source.URL,
+        value_type=ValueType.STRING,
+    )
+    registry.register(signal)
+    try:
+        html = str(wagtail_hooks.routing_condition_help_js())
+    finally:
+        registry._signals.pop(signal.name, None)
+
+    assert "</script><script>alert" not in html
+    assert "\\u003c/script>\\u003cscript>alert(1)\\u003c/script>" in html

@@ -159,7 +159,9 @@ def routing_condition_help_js():
     Injects the localized signal payload as a global, then loads the static JS that
     renders dynamic help beneath the expected-value field on signal selection.
     """
-    payload = json.dumps(build_signal_payload())
+    # `<` is escaped so a translated signal description containing "</script>" can't break
+    # out of the tag — json.dumps() does not do this itself.
+    payload = json.dumps(build_signal_payload()).replace("<", "\\u003c")
     return mark_safe(
         f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
