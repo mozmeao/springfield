@@ -31,6 +31,7 @@ from springfield.cms.management.commands.import_wordpress_blog_posts import (
     parse_content,
 )
 from springfield.cms.models import BlogArticlePage, SpringfieldImage
+from springfield.cms.models.pages import HeroStyle
 from springfield.cms.models.snippets import BlogAuthor, BlogTag, BlogTopic
 from springfield.cms.tests.factories import LocaleFactory
 
@@ -1504,17 +1505,40 @@ def test_hero_image_comes_from_image_featured_not_image_url(tmp_path, index_page
 
 
 @responses.activate
-def test_blank_image_featured_imports_the_post_without_a_hero_image(tmp_path, index_page):
+def test_blank_image_featured_falls_back_to_the_first_image_url(tmp_path, index_page):
+    """Some posts leave ImageFeatured blank but still attach their header image, so the first
+    ImageURL entry becomes the hero rather than the post losing its image."""
     mock_image_downloads()
 
-    run = run_import(tmp_path, post_xml(image_url="https://example.com/body-image.png", image_featured=""))
+    run_import(
+        tmp_path,
+        post_xml(
+            image_url="https://example.com/header.png|https://example.com/second.gif",
+            image_featured="",
+            image_title="Header Image|Second Image",
+        ),
+    )
+
+    page = BlogArticlePage.objects.get(slug="a-test-post")
+    assert "header" in page.image.file.name
+    assert page.image.title == "Header Image"
+    assert page.hero_style == HeroStyle.STANDARD_IMAGE
+    assert [call.request.url for call in responses.calls] == ["https://example.com/header.png"]
+
+
+@responses.activate
+def test_post_with_no_images_at_all_is_imported_without_a_hero_image(tmp_path, index_page):
+    mock_image_downloads()
+
+    run = run_import(tmp_path, post_xml(image_url="", image_featured=""))
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.image is None
+    assert page.hero_style == HeroStyle.TEXT_ONLY
     assert "Done. 1 imported, 0 skipped, 0 failed." in run.stdout
-    # A post with no featured image is expected, not a problem worth warning about.
+    # A post with no images is expected, not a problem worth warning about.
     assert run.stderr == ""
-    assert len(responses.calls) == 0, "the images listed in ImageURL are not the hero image"
+    assert len(responses.calls) == 0
 
 
 @responses.activate
