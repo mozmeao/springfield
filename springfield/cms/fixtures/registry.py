@@ -12,7 +12,7 @@ pages) it creates. Used by the translate-all regression test and the
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
-from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
+from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_topic_page
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.button_row_fixtures import get_button_row_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_test_page
@@ -115,6 +115,7 @@ PAGE_FIXTURES = [
     get_article_theme_hub_page,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_topic_page,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,
     get_banner_snippet_test_page,

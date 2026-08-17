@@ -347,6 +347,32 @@ class TestDownloadThanksButton(TestCase):
         assert "test-css-class" in link.attr("class")
 
 
+class TestDownloadFirefoxThanksLink(TestCase):
+    def _render(self, os="win", channel=None):
+        rf = RequestFactory()
+        get_request = rf.get("/fake")
+        get_request.locale = "en-US"
+        channel_kwarg = f", channel='{channel}'" if channel else ""
+        return render(
+            f"{{{{ download_firefox_thanks_link(os='{os}'{channel_kwarg})['download_link_direct'] }}}}",
+            {"request": get_request},
+        )
+
+    def test_defaults_to_release(self):
+        href = self._render(os="osx")
+        assert "product=firefox-latest-ssl" in href
+
+    def test_channel_can_be_forced_to_nightly(self):
+        href = self._render(os="osx", channel="nightly")
+        assert "product=firefox-nightly-latest-ssl" in href
+
+    def test_channel_can_be_forced_to_nightly_on_windows(self):
+        # win is a stub-installer platform, so nightly resolves to a
+        # channel-specific stub rather than the l10n/latest-ssl suffix.
+        href = self._render(os="win", channel="nightly")
+        assert "product=firefox-nightly-stub" in href
+
+
 class TestFirefoxURL(TestCase):
     rf = RequestFactory()
 

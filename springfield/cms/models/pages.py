@@ -9,7 +9,6 @@ import re
 import uuid
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, NamedTuple
-from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -41,6 +40,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     UI_TOUR_CLASSES,
@@ -1154,6 +1154,22 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
 
     def __str__(self):
         return self.page.title + " -> " + self.snippet.title
+
+
+class BlogArticleAuthor(Orderable):
+    page = ParentalKey("cms.BlogArticlePage", on_delete=models.CASCADE, related_name="article_authors")
+    author = models.ForeignKey("cms.BlogAuthor", on_delete=models.PROTECT, related_name="+")
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Blog Article Author"
+        verbose_name_plural = "Blog Article Authors"
+
+    panels = [
+        FieldPanel("author"),
+    ]
+
+    def __str__(self):
+        return f"{self.page.title} -> {self.author.name}"
 
 
 class FreeFormPage2026(
@@ -2291,8 +2307,23 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("image_caption", ImageCaptionBlock()),
             ("code", CodeBlock()),
             ("quote", QuoteBlock()),
+            (
+                "cards_list",
+                CardsListBlock(
+                    template="cms/blocks/sections/blog-article-cards-list.html", help_text="Some settings may be ignored in favor of the page layout."
+                ),
+            ),
         ],
         use_json_field=True,
+    )
+    bottom_banner = StreamField(
+        [
+            ("banner", BannerBlock()),
+        ],
+        use_json_field=True,
+        blank=True,
+        max_num=1,
+        help_text="Optional banner to be displayed at the bottom of the article content.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -2304,6 +2335,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ],
             heading="Topic & Tags",
         ),
+        InlinePanel("article_authors", label="Authors"),
         MultiFieldPanel(
             [
                 FieldPanel("first_published_at"),
@@ -2335,6 +2367,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             classname="collapsed",
         ),
         FieldPanel("content"),
+        FieldPanel("bottom_banner"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -2490,6 +2523,39 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
+BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+
+# The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
+# Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
+# outside form_fields, so those fields are never part of the submitted payload.
+BASKET_ENDPOINT_FIELDS = {
+    BASKET_CONTACT_ENTERPRISE_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "firefox_use_stage",
+            "deployment_size",
+            "support_needs",
+            "timeline",
+        },
+        "optional": {
+            "business_phone",
+            "company_size",
+            "opt_in",
+            "lead_source",
+            "cta",
+            "message",
+        },
+    },
+}
+
+BASKET_API_PATH_CHOICES = [(path, path) for path in BASKET_ENDPOINT_FIELDS]
+
+
 class ContactPageForm(WagtailAdminPageForm):
     """Admin form for ContactPage that validates the allowed slug only when publishing.
 
@@ -2557,9 +2623,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     basket_api_path = models.CharField(
         max_length=255,
         blank=True,
-        help_text=(
-            "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
-        ),
+        choices=BASKET_API_PATH_CHOICES,
+        help_text="Basket endpoint the form posts to. Required if Email Address is unset. Form fields must match what it accepts.",
     )
 
     redirect_to = models.ForeignKey(
@@ -2633,11 +2698,26 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["basket_api_path"] = msg
 
         if has_basket and not has_email:
-            parsed = urlparse(self.basket_api_path)
-            if parsed.scheme or parsed.netloc:
-                errors["basket_api_path"] = "Enter a path (e.g. /api/v1/contact/), not a full URL."
-            elif not parsed.path.startswith("/"):
-                errors["basket_api_path"] = "Path must start with /."
+            allowed_fields = BASKET_ENDPOINT_FIELDS.get(self.basket_api_path)
+            if allowed_fields is None:
+                errors["basket_api_path"] = f"{self.basket_api_path} is not a basket endpoint."
+            else:
+                identifiers = {field.value["internal_identifier"] for field in self.form_fields}
+                optional_identifiers = {field.value["internal_identifier"] for field in self.form_fields if not field.value["required"]}
+                unaccepted = identifiers - allowed_fields["required"] - allowed_fields["optional"]
+                missing = allowed_fields["required"] - identifiers
+                not_marked_required = allowed_fields["required"] & optional_identifiers
+                field_errors = []
+                if unaccepted:
+                    field_errors.append(f"{self.basket_api_path} does not accept these fields: {', '.join(sorted(unaccepted))}.")
+                if missing:
+                    field_errors.append(f"{self.basket_api_path} requires these fields: {', '.join(sorted(missing))}.")
+                if not_marked_required:
+                    field_errors.append(
+                        f"{self.basket_api_path} requires these fields to be marked as required: {', '.join(sorted(not_marked_required))}."
+                    )
+                if field_errors:
+                    errors["form_fields"] = field_errors
 
         if not self.redirect_to and not self.thank_you_message:
             msg = "Set either a redirect page or a thank you message."
@@ -3038,6 +3118,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             ("intro", KitIntroBlock(allow_referral_download=True)),
             ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", CarouselBlock()),
         ],
         null=True,
         blank=True,
@@ -3109,6 +3190,9 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             "utm_medium": "referral",
             "utm_campaign": "firefox-referral",
         }
+
+        # QA-only override: forces the download CTA to Nightly instead of Release. See WT-1281.
+        context["channel"] = "nightly" if switch("REFERRAL_FORCE_NIGHTLY_QA") else "release"
         return context
 
     @referral_geo_check

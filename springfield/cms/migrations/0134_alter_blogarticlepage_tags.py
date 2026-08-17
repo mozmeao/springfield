@@ -15,9 +15,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # The old tags M2M and the new taggit relation live in different tables, so the
-        # column-less AddField is safe: RemoveField drops cms_blogarticlepage_tags and with
-        # it every existing tag assignment, which is intended — see the design doc.
+        # Drop the existing tags field and add a new one with the updated LocalizedClusterTaggableManager.
+        # The operation is safe since there are no blog articles in the database yet.
         migrations.RemoveField(
             model_name="blogarticlepage",
             name="tags",

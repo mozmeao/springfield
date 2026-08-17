@@ -55,3 +55,4 @@ context:
           label: "No"
         - icon_name: subtract-circle-fill
           label: Limited
+  fine_print: "* Response times are estimates and may vary based on issue complexity."

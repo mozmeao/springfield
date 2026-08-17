@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
 from django.test import override_settings
 
 import pytest
@@ -153,3 +154,23 @@ def admin_client(client, db):
         admin = User.objects.create_superuser(username="routing-admin", email="routing-admin@example.com", password="adminpass")
         client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
         yield client
+
+
+@pytest.fixture
+def restricted_client(client, db):
+    """A logged-in staff client with admin access but no page permissions yet.
+
+    A test grants ``GroupPagePermission`` on ``.group`` for whichever pages it wants
+    visible, then everything else stays invisible — proving the listing is actually
+    scoped rather than open to any staff user.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        user = User.objects.create_user(username="restricted-editor", email="restricted@example.com", password="pass", is_staff=True)
+        group = Group.objects.create(name="Restricted editors")
+        group.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+        user.groups.add(group)
+        client.force_login(user, backend="django.contrib.auth.backends.ModelBackend")
+        yield SimpleNamespace(client=client, group=group)

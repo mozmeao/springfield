@@ -106,7 +106,11 @@
     }
 
     /* Lower band */
-    .fl-referral-hub-page .fl-split-page-lower > .fl-intro {
+    .fl-referral-hub-page .fl-split-page-lower > .fl-intro,
+    .fl-referral-hub-page
+        .fl-split-page-lower
+        > .conditional-display
+        > .fl-intro {
         padding-block-end: 0;
     }
 
