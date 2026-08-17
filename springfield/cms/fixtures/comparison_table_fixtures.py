@@ -197,6 +197,18 @@ def get_comparison_table_variants() -> list[dict]:
             },
             "id": "ctbl0004-0000-0000-0000-000000000004",
         },
+        # With fine print below the table
+        {
+            "type": "comparison_table",
+            "value": {
+                "highlighted_column": 2,
+                "mobile_behavior": "scroll",
+                "header_row": [make_header_row("ctbl05")],
+                "content_rows": make_content_rows("ctbl05"),
+                "fine_print": '<p data-block-key="ctbl05fp">* Response times are estimates and may vary based on issue complexity.</p>',
+            },
+            "id": "ctbl0005-0000-0000-0000-000000000005",
+        },
     ]
 
 
@@ -218,6 +230,7 @@ def get_comparison_table_test_page() -> FreeFormPage2026:
         section("Stacked — highlighted column 2 (disabled on mobile)", variants[1], "ctblsec02-0000-0000-0000-000000000002"),
         section("Optional cell content — image headers, Yes/No/Limited results", variants[2], "ctblsec03-0000-0000-0000-000000000003"),
         section("Browser comparison variant", variants[3], "ctblsec04-0000-0000-0000-000000000004"),
+        section("With fine print", variants[4], "ctblsec05-0000-0000-0000-000000000005"),
     ]
     page.upper_content = sections
     page.content = sections

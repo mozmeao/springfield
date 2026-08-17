@@ -16,7 +16,7 @@ from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.pages import ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
 
 pytestmark = [
     pytest.mark.django_db,
@@ -85,7 +85,7 @@ def test_contact_page_clean_rejects_both_email_and_basket(
         title="Clean Both Test",
         slug="clean-both-test",
         to_email_address="test@example.com",
-        basket_api_path="/news/subscribe/",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         thank_you_message="<p>Thank you!</p>",
     )
     with pytest.raises(ValidationError) as exc_info:
@@ -115,34 +115,96 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
     }
 
 
-def test_contact_page_clean_validates_basket_path_format(
+def test_contact_page_clean_rejects_unknown_basket_path(
     minimal_site: Site,
 ) -> None:
-    """ContactPage.clean() raises if basket_api_path doesn't start with /."""
+    """ContactPage.clean() raises if basket_api_path is not a basket endpoint."""
     page = ContactPage(
         title="Basket Path Test",
         slug="basket-path-test",
-        basket_api_path="news/subscribe/",
+        basket_api_path="/news/subscribe/",
+        form_fields=get_form_field_variants(),
         thank_you_message="<p>Thank you!</p>",
     )
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
-    assert exc_info.value.message_dict == {"basket_api_path": ["Path must start with /."]}
+    assert exc_info.value.message_dict == {"basket_api_path": ["/news/subscribe/ is not a basket endpoint."]}
 
 
-def test_contact_page_clean_rejects_full_url_as_basket_path(
+def test_contact_page_clean_accepts_form_fields_matching_the_endpoint(
     minimal_site: Site,
 ) -> None:
-    """ContactPage.clean() raises if basket_api_path looks like a full URL."""
+    """ContactPage.clean() passes when every form field is accepted by the endpoint."""
     page = ContactPage(
-        title="Basket URL Test",
-        slug="basket-url-test",
-        basket_api_path="https://basket.mozilla.org/news/subscribe/",
+        title="Basket Fields Test",
+        slug="basket-fields-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        form_fields=get_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_rejects_form_fields_the_endpoint_does_not_accept(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a form field is not in the endpoint's allowed fields."""
+    form_fields = get_form_field_variants() + [
+        {
+            "type": "text_field",
+            "value": {"internal_identifier": "favourite_colour", "label": "Favourite colour", "required": False},
+            "id": "unexpected-text-field",
+        },
+    ]
+    page = ContactPage(
+        title="Basket Extra Field Test",
+        slug="basket-extra-field-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        form_fields=form_fields,
         thank_you_message="<p>Thank you!</p>",
     )
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
-    assert exc_info.value.message_dict == {"basket_api_path": ["Enter a path (e.g. /api/v1/contact/), not a full URL."]}
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} does not accept these fields: favourite_colour."]}
+
+
+def test_contact_page_clean_requires_endpoint_required_fields_to_be_marked_required(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a field the endpoint requires is not marked required on the form."""
+    form_fields = get_form_field_variants()
+    for field in form_fields:
+        if field["value"]["internal_identifier"] in ("company", "timeline"):
+            field["value"]["required"] = False
+    page = ContactPage(
+        title="Basket Optional Field Test",
+        slug="basket-optional-field-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {
+        "form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} requires these fields to be marked as required: company, timeline."]
+    }
+
+
+def test_contact_page_clean_requires_the_fields_the_endpoint_requires(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a field the endpoint requires is missing from form_fields."""
+    form_fields = [field for field in get_form_field_variants() if field["value"]["internal_identifier"] not in ("timeline", "company")]
+    page = ContactPage(
+        title="Basket Missing Field Test",
+        slug="basket-missing-field-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} requires these fields: company, timeline."]}
 
 
 def test_contact_page_slug_validated_when_publishing(
@@ -1247,7 +1309,7 @@ def test_contact_page_hidden_field_post_value_overrides_default(
     rf: RequestFactory,
 ) -> None:
     """When a hidden field is submitted with a non-empty value, that POST value is forwarded to the basket API instead of default_value."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
@@ -1256,32 +1318,36 @@ def test_contact_page_hidden_field_post_value_overrides_default(
     page = ContactPage(
         title="Hidden Field Override Test",
         slug="hidden-field-override-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": True},
-                "id": "f1",
-            },
-            {
-                "type": "hidden_field",
-                "value": {
-                    "internal_identifier": "source",
-                    "default_value": "default-source",
-                },
-                "id": "hidden-field",
-            },
-        ],
-        basket_api_path="/news/subscribe/",
+        form_fields=get_form_field_variants(),
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    request = rf.post(page.relative_url(minimal_site), {"name": "Jane", "source": "overridden-source"})
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config"],
+            "timeline": "1_3_months",
+            "lead_source": "overridden-source",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+    )
     page.serve(request)
 
     body = json.loads(responses.calls[0].request.body)
-    assert body["source"] == "overridden-source"
+    assert body["lead_source"] == "overridden-source"
 
 
 @responses.activate
@@ -1290,7 +1356,7 @@ def test_contact_page_hidden_field_missing_from_post_rejects_submission(
     rf: RequestFactory,
 ) -> None:
     """A hidden field stripped from POST signals tampering: reject, never call basket."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
@@ -1298,26 +1364,32 @@ def test_contact_page_hidden_field_missing_from_post_rejects_submission(
     page = ContactPage(
         title="Hidden Field Tamper Test",
         slug="hidden-field-tamper-test",
-        form_fields=[
-            {
-                "type": "text_field",
-                "value": {"internal_identifier": "name", "label": "Name", "required": True},
-                "id": "f1",
-            },
-            {
-                "type": "hidden_field",
-                "value": {"internal_identifier": "source", "label": "Source", "default_value": "fallback-source"},
-                "id": "hidden-field",
-            },
-        ],
-        basket_api_path="/news/subscribe/",
+        form_fields=get_form_field_variants(),
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    # POST the visible field but omit the hidden field — simulates tampering
-    request = rf.post(page.relative_url(minimal_site), {"name": "Jane"})
+    # POST every visible field but omit the hidden lead_source field — simulates tampering
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config"],
+            "timeline": "1_3_months",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+    )
     response = page.serve(request)
 
     assert response.status_code == 200  # re-rendered with error, not redirected
@@ -1791,7 +1863,7 @@ def test_contact_page_calls_basket_api_on_valid_post(
     rf: RequestFactory,
 ) -> None:
     """Valid POST with basket_api_path calls the basket URL with the correct JSON body."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
@@ -1802,7 +1874,7 @@ def test_contact_page_calls_basket_api_on_valid_post(
         title="Basket API Test",
         slug="basket-api-test",
         form_fields=form_field_variants,
-        basket_api_path="/news/subscribe/",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
@@ -1845,7 +1917,7 @@ def test_contact_page_shows_error_message_on_basket_api_5xx(
     rf: RequestFactory,
 ) -> None:
     """5xx basket API response re-renders the form with an error (no Sentry report)."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=500)
 
     index_page = minimal_site.root_page
@@ -1856,7 +1928,7 @@ def test_contact_page_shows_error_message_on_basket_api_5xx(
         title="Basket 5xx Test",
         slug="basket-5xx-test",
         form_fields=form_field_variants,
-        basket_api_path="/news/subscribe/",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
@@ -1894,7 +1966,7 @@ def test_contact_page_shows_error_message_and_reports_to_sentry_on_basket_api_4x
     rf: RequestFactory,
 ) -> None:
     """4xx basket API response re-renders with an error AND sends a Sentry event."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=400)
 
     index_page = minimal_site.root_page
@@ -1905,7 +1977,7 @@ def test_contact_page_shows_error_message_and_reports_to_sentry_on_basket_api_4x
         title="Basket 4xx Test",
         slug="basket-4xx-test",
         form_fields=form_field_variants,
-        basket_api_path="/news/subscribe/",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
@@ -1947,7 +2019,7 @@ def test_contact_page_does_not_report_to_sentry_on_expected_api_errors(
     status_code: int,
 ) -> None:
     """4xx basket API response re-renders with an error BUT does not send a Sentry event on 422 and 429 responses."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=status_code)
 
     index_page = minimal_site.root_page
@@ -1958,7 +2030,7 @@ def test_contact_page_does_not_report_to_sentry_on_expected_api_errors(
         title="Basket 4xx Test",
         slug="basket-4xx-test",
         form_fields=form_field_variants,
-        basket_api_path="/news/subscribe/",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
@@ -2086,7 +2158,7 @@ def test_contact_page_basket_payload_uses_string_format(
     rf: RequestFactory,
 ) -> None:
     """Basket receives checkbox groups joined into a string and checkboxes as 'on'."""
-    basket_url = f"{django_settings.BASKET_URL}/news/subscribe/"
+    basket_url = f"{django_settings.BASKET_URL}{BASKET_CONTACT_ENTERPRISE_PATH}"
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
@@ -2094,34 +2166,37 @@ def test_contact_page_basket_payload_uses_string_format(
     page = ContactPage(
         title="Basket String Format",
         slug="basket-string-format",
-        form_fields=[
-            {
-                "type": "checkbox_group_field",
-                "value": {
-                    "internal_identifier": "services",
-                    "label": "Services",
-                    "options": [{"value": "a", "label": "A"}, {"value": "b", "label": "B"}],
-                },
-                "id": "f1",
-            },
-            {
-                "type": "checkbox_field",
-                "value": {"internal_identifier": "agree", "label": "Agree", "required": False},
-                "id": "f2",
-            },
-        ],
-        basket_api_path="/news/subscribe/",
+        form_fields=get_form_field_variants(),
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
         redirect_to=thank_you_page,
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    request = rf.post(page.relative_url(minimal_site), {"services": ["a", "b"], "agree": "on"})
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": "on",
+        },
+    )
     page.serve(request)
 
     body = json.loads(responses.calls[0].request.body)
-    assert body["services"] == "a, b"
-    assert body["agree"] == "on"
+    assert body["support_needs"] == "deployment_config, troubleshooting"
+    assert body["opt_in"] == "on"
 
 
 @patch("springfield.cms.models.pages.EmailMessage")

@@ -37,9 +37,9 @@ class SpringfieldCopyForm(CopyForm):
 class LocaleScopedAdminTagWidget(AdminTagWidget):
     """Wagtail's tag widget pointed at the locale-scoped autocomplete view.
 
-    AdminTagWidget derives its autocomplete URL from the tag model, and Wagtail's view for
-    it returns every locale's tags plus unpublished ones — names BlogTagField would then
-    reject. Suggesting only what can be saved keeps that rejection out of the editor's way.
+    AdminTagWidget gets its autocomplete URL from the tag model, and Wagtail's view for
+    it returns every tag with no filtering. `cms_blog_tag_autocomplete` view returns only
+    published tags in the default locale.
     """
 
     def get_context(self, name, value, attrs):
@@ -48,16 +48,13 @@ class LocaleScopedAdminTagWidget(AdminTagWidget):
         return context
 
 
-class BlogTagField(TagField):
-    """A tag field that resolves typed names to default-locale BlogTag instances.
+class LocaleTagField(TagField):
+    """A <TagModel> field that resolves typed names to default-locale <TagModel> instances.
 
     Wagtail's TagField hands taggit a list of tag *names*, and taggit resolves each name to
-    a row. BlogTag names are unique per locale rather than globally, so that lookup can
-    land on another locale's row. This field resolves the names itself, scoped to published
-    default-locale tags, and hands taggit instances instead.
-
-    The tag model arrives in the `tag_model` kwarg that Wagtail's TaggableManager form-field
-    override injects, so this field never imports BlogTag.
+    a row. In order to have Tag names be unique per locale rather than globally, this field
+    resolves the names itself, scoped to published default-locale tags, and hands taggit
+    instances instead.
     """
 
     widget = LocaleScopedAdminTagWidget
@@ -73,6 +70,7 @@ class BlogTagField(TagField):
         unknown = sorted(set(names) - {tag.name for tag in tags})
         if unknown:
             raise ValidationError(
-                _("No published tag in the default locale matches: %(names)s. Create it as a Blog Tag snippet first.") % {"names": ", ".join(unknown)}
+                _("No published tag in the default locale matches: %(names)s. Create it as a %(tag_model)s snippet first.")
+                % {"names": ", ".join(unknown), "tag_model": self.tag_model._meta.verbose_name}
             )
         return tags

@@ -19,4 +19,10 @@
       {{ contents.body }}
     </tbody>
   </table>
+
+  {% if contents.fine_print %}
+    <div class="fl-comparison-table-fine-print">
+      {{ contents.fine_print }}
+    </div>
+  {% endif %}
 </div>

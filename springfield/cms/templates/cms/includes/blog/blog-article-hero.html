@@ -4,12 +4,6 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#
-  The blog article header, in one of four layouts chosen by `page.hero_style`.
-  Every style renders the same text block; they differ only in whether the media
-  sits above it, below it, or not at all. Reads `page` from context.
-#}
-
 {% set hero_style = page.hero_style %}
 {% set show_image = hero_style in ("standard_image", "large_image") and page.image %}
 {% set show_video = hero_style == "video" and page.hero_video %}
@@ -18,7 +12,7 @@
   {% if show_image %}
     {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
     {% set hero_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
-    {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw" %}
+    {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw" %}
     <div class="image-variants-display">
       {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, loading="lazy", class=classes.primary) }}
       {% if page.image_mobile %}
@@ -42,10 +36,10 @@
   <div class="fl-article-title">
     <include:heading
         level="h1"
-        heading_size="fl-heading-xl"
+        heading_size="fl-heading-md"
         heading_text="{{ page.title }}"
         superheading_text="{{ page.topic.name }}"
-        alignment_class="text-center"
+        alignment_class="{{ 'text-center' if hero_style == 'large_image' else 'text-left' }}"
     />
   </div>
 
