@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage, Tag
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -69,12 +69,12 @@ def featured_topics_stream(topics: list[BlogTopic]) -> list[dict]:
     return [{"type": "topic", "value": topic.pk, "id": f"ftopic00-0000-0000-0000-{i:012d}"} for i, topic in enumerate(topics, start=1)]
 
 
-def get_blog_tags() -> dict[str, Tag]:
+def get_blog_tags() -> dict[str, BlogTag]:
     locale = Locale.get_default()
     tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _ = Tag.objects.update_or_create(
+        tag, _ = BlogTag.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
@@ -147,6 +147,31 @@ def get_blog_article_content(image, image_caption: str = "") -> list:
     ]
 
 
+def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str = "article") -> dict:
+    """StreamField data for one BlogArticleBlock, with every override left empty."""
+    return {
+        "type": block_type,
+        "value": {
+            "article": article.pk,
+            "overrides": {
+                "image": {
+                    "image": None,
+                    "settings": {
+                        "dark_mode_image": None,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
+                "topic": "",
+                "title": "",
+                "description": "",
+                "tags": [],
+            },
+        },
+        "id": block_id,
+    }
+
+
 def create_blog_article(
     *,
     index_page: BlogIndexPage,
@@ -154,7 +179,7 @@ def create_blog_article(
     slug: str,
     display_image: bool = False,
     topic: BlogTopic,
-    tags: list[Tag],
+    tags: list[BlogTag],
     image,
     description: str,
     content: list,
@@ -175,8 +200,8 @@ def create_blog_article(
     article.image = image
     article.description = description
     article.content = content
-    article.save_revision().publish()
     article.tags.set(tags)
+    article.save_revision().publish()
 
     return article
 
@@ -275,27 +300,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
         )
         articles.append(article)
 
-    def article_block(article, block_id, block_type="article"):
-        return {
-            "type": block_type,
-            "value": {
-                "article": article.pk,
-                "image": {
-                    "image": None,
-                    "settings": {
-                        "dark_mode_image": None,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
-                    },
-                },
-                "topic": "",
-                "title": "",
-                "description": "",
-                "tags": [],
-            },
-            "id": block_id,
-        }
-
     index_page.page_heading = [
         {
             "type": "heading",
@@ -309,7 +313,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
-    index_page.featured_articles = [article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
+    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
     index_page.cards_lists = [
         {
             "type": "cards_list",
@@ -317,7 +321,9 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
                 "link_label": "View all Privacy",
                 "link_filter": "?topic=privacy",
-                "articles": [article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)],
+                "articles": [
+                    blog_article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
+                ],
             },
             "id": "cl000001-0000-0000-0000-000000000001",
         },
@@ -328,7 +334,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "link_label": "View all Security",
                 "link_filter": "?topic=security",
                 "articles": [
-                    article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
+                    blog_article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
                 ],
             },
             "id": "cl000002-0000-0000-0000-000000000002",
@@ -340,7 +346,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "link_label": "View all",
                 "link_filter": "",
                 "articles": [
-                    article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
+                    blog_article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
                 ],
             },
             "id": "cl000003-0000-0000-0000-000000000003",
@@ -348,11 +354,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.save_revision().publish()
 
+    return articles
+
+
+def get_blog_topic_page() -> BlogTopicPage:
+    """A curated header for the Privacy topic, featuring its first four articles."""
+    articles = get_blog_pages()
+    privacy = get_blog_topics()["privacy"]
     privacy_articles = [article for article in articles if article.topic_id == privacy.pk][:4]
+
     topic_page = get_or_create_page(
         BlogTopicPage,
         slug="privacy",
-        parent=index_page,
+        parent=get_blog_index_page(),
         defaults={"title": "Privacy", "topic": privacy},
     )
     topic_page.topic = privacy
@@ -368,8 +382,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
         }
     ]
     topic_page.featured_articles = [
-        article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
     ]
     topic_page.save_revision().publish()
 
-    return articles
+    return topic_page

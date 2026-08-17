@@ -106,7 +106,7 @@
                 {% if article.first_published_at %}
                   <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
                 {% endif %}
-                {% set article_tags = article.tags.all() %}
+                {% set article_tags = article.get_tags() %}
                 {% if article_tags %}
                   <content:tags>
                     {% for tag in article_tags %}

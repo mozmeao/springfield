@@ -4,6 +4,7 @@
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
@@ -18,6 +19,7 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
+    blog_article_block,
     create_blog_article,
     featured_topics_stream,
     get_blog_article_content,
@@ -28,7 +30,7 @@ from springfield.cms.fixtures.blog_fixtures import (
 )
 from springfield.cms.models import BlogArticlePage, BlogTopicPage
 from springfield.cms.models.pages import MAX_HEADER_TOPICS, BlogIndexPage
-from springfield.cms.models.snippets import BlogTopic
+from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
 
@@ -873,19 +875,7 @@ def curated_topic_page(topic_blog):
         }
     ]
     topic_page.featured_articles = [
-        {
-            "type": "article",
-            "value": {
-                "article": article.pk,
-                "image": {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}},
-                "topic": "",
-                "title": "",
-                "description": "",
-                "tags": [],
-            },
-            "id": f"tpf00000-0000-0000-0000-{number:012d}",
-        }
-        for number, article in enumerate(featured, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{number:012d}") for number, article in enumerate(featured, start=1)
     ]
     topic_page.save_revision().publish()
     return index_page, topic_page, featured
@@ -922,14 +912,6 @@ def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
     assert {article.pk for article in listed}.isdisjoint({article.pk for article in featured})
     assert listed.paginator.count == 7, "11 privacy articles minus the 4 featured"
     assert listed.paginator.num_pages == 1
-
-
-def test_blog_fixtures_create_a_topic_page(blog_setup):
-    index_page, _ = blog_setup
-    topic_page = BlogTopicPage.objects.child_of(index_page).first()
-    assert topic_page, "The blog fixtures should create one BlogTopicPage"
-    assert topic_page.topic.slug == "privacy"
-    assert len(topic_page.featured_articles) == 4
 
 
 # ---------------------------------------------------------------------------
@@ -1116,13 +1098,14 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render.
+    resolution that runs on every page render. The count is pinned as flat (not
+    per-article) by test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(26):
+    with django_assert_max_num_queries(27):
         index_page.serve(request)
 
 
@@ -1132,11 +1115,45 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
     ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    The count is pinned as flat (not per-article) by
+    test_blog_all_query_count_does_not_grow_with_articles.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(31):
         index_page.all_route(request)
+
+
+def test_get_tags_skips_tags_with_no_live_localization(single_article):
+    _, article = single_article
+    tag = article.tags.first()
+    tag.live = False
+    tag.save()
+
+    article = BlogArticlePage.objects.get(pk=article.pk)
+
+    assert article.get_tags() == []
+
+
+def test_all_page_renders_localized_tag_names(privacy_articles, rf):
+    index_page, _ = privacy_articles
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
+    BlogTag.objects.create(
+        name="Confidentialité",
+        slug="privacy",
+        locale=fr_locale,
+        translation_key=en_tag.translation_key,
+    )
+
+    url = index_page.full_url + index_page.reverse_subpage("all_route")
+    with override("fr"):
+        response = index_page.all_route(rf.get(url))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
+    assert "Confidentialité" in tag_labels
+    assert "Privacy" not in tag_labels

@@ -11,6 +11,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext_lazy as _
 
 import defusedxml.ElementTree as ET
+from modelcluster.contrib.taggit import ClusterTaggableManager
 from py_svg_hush import filter_svg
 from wagtail.blocks import StreamValue, StructValue
 from wagtail.blocks.list_block import ListValue
@@ -368,3 +369,16 @@ class SanitizingWagtailImageField(WagtailImageField):
                 raise validation_error
 
         return f
+
+
+class LocalizedClusterTaggableManager(ClusterTaggableManager):
+    """A ClusterTaggableManager whose form field resolves tags within one locale.
+
+    Wagtail's default form field for a TaggableManager is name-based and locale-blind; see
+    springfield.cms.forms.LocaleTagField for what replaces it.
+    """
+
+    def formfield(self, form_class=None, **kwargs):
+        from springfield.cms.forms import LocaleTagField  # circular import
+
+        return super().formfield(form_class=LocaleTagField, **kwargs)

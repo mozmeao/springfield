@@ -190,6 +190,8 @@ python manage.py dumpdata \
     cms.PencilBannerSnippet \
     cms.QRCodeSnippet \
     cms.BlogTopic \
+    cms.BlogTag \
+    cms.TaggedBlogArticle \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
     cms.PencilBannerPlacement \
