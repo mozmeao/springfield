@@ -227,6 +227,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         """
         url = super().get_url(request)
 
+        if not url:
+            return url
+
         active_language = normalize_language(translation.get_language())
         fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
 

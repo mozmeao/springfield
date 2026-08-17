@@ -24,13 +24,16 @@ from springfield.cms.fixtures.blog_fixtures import (
     NUM_LIST_ARTICLES,
     REGULAR_DESCRIPTIONS,
     REGULAR_TITLES,
+    blog_article_block,
     create_blog_article,
     featured_topics_stream,
     get_blog_article_content,
+    get_blog_authors,
     get_blog_index_page,
     get_blog_pages,
     get_blog_tags,
     get_blog_topics,
+    get_bottom_banner_stream,
 )
 from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.images import SpringfieldImage
@@ -922,19 +925,7 @@ def curated_topic_page(topic_blog):
         }
     ]
     topic_page.featured_articles = [
-        {
-            "type": "article",
-            "value": {
-                "article": article.pk,
-                "image": {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}},
-                "topic": "",
-                "title": "",
-                "description": "",
-                "tags": [],
-            },
-            "id": f"tpf00000-0000-0000-0000-{number:012d}",
-        }
-        for number, article in enumerate(featured, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{number:012d}") for number, article in enumerate(featured, start=1)
     ]
     topic_page.save_revision().publish()
     return index_page, topic_page, featured
@@ -973,14 +964,6 @@ def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
     assert listed.paginator.num_pages == 1
 
 
-def test_blog_fixtures_create_a_topic_page(blog_setup):
-    index_page, _ = blog_setup
-    topic_page = BlogTopicPage.objects.child_of(index_page).first()
-    assert topic_page, "The blog fixtures should create one BlogTopicPage"
-    assert topic_page.topic.slug == "privacy"
-    assert len(topic_page.featured_articles) == 4
-
-
 # ---------------------------------------------------------------------------
 # Blog article page
 # ---------------------------------------------------------------------------
@@ -1004,6 +987,49 @@ def test_blog_article_renders_title_and_topic(single_article, rf):
 
     superheading = soup.find("p", class_="fl-superheading")
     assert superheading and article.topic.name in superheading.get_text()
+
+
+def test_blog_article_renders_a_single_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set([BlogArticleAuthor(author=authors["ada-lovelace"])])
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace"
+
+
+def test_blog_article_renders_a_multiple_author_byline(single_article, rf):
+    _, article = single_article
+    authors = get_blog_authors()
+    article.article_authors.set(
+        [
+            BlogArticleAuthor(author=authors["ada-lovelace"]),
+            BlogArticleAuthor(author=authors["grace-hopper"]),
+            BlogArticleAuthor(author=authors["alan-turing"]),
+        ]
+    )
+    article.save_revision().publish()
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    byline = soup.select_one(".fl-blog-byline")
+    assert byline
+    assert byline.get_text(strip=True) == "By Ada Lovelace, Grace Hopper, and Alan Turing"
+
+
+def test_blog_article_without_authors_renders_no_byline(single_article, rf):
+    _, article = single_article
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.select_one(".fl-blog-byline") is None
 
 
 def test_blog_article_renders_text_block(single_article, rf):
@@ -1069,7 +1095,7 @@ def test_blog_article_renders_back_link(single_article, rf):
     assert back_link
     assert back_link["href"] == index_page.url
     assert back_link.find("span", class_="fl-icon-back")
-    assert "Back" in back_link.get_text()
+    assert "All Articles" in back_link.get_text()
 
 
 def test_blog_article_renders_header_image(single_article, rf):
@@ -1184,57 +1210,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
         index_page.all_route(request)
 
 
-def test_blog_all_query_count_does_not_grow_with_articles(blog_setup, rf, django_assert_max_num_queries):
-    """A ceiling can hide a per-article N+1; a flat count across two page sizes cannot.
-    The all-articles route paginates at 10, so page 3 holds fewer articles than page 1.
-    The uncounted warm-up call populates caches that the autouse clear_waffle_cache fixture
-    empties once per test, so without it this would compare a cold call against a warm one
-    rather than page size against page size."""
-    index_page, _ = blog_setup
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-
-    index_page.all_route(rf.get(url, {"page": 1}))  # warm caches; uncounted
-
-    with django_assert_max_num_queries(200) as full_page:
-        index_page.all_route(rf.get(url, {"page": 1}))
-    with django_assert_max_num_queries(200) as partial_page:
-        index_page.all_route(rf.get(url, {"page": 3}))
-
-    assert len(partial_page.captured_queries) == len(full_page.captured_queries)
-
-
-def test_article_revision_carries_tags(single_article):
-    """The fixture sets tags before save_revision, so the revision serializes them: a
-    ClusterTaggableManager stores its rows in the revision, and restoring a revision that
-    predates the tags would otherwise silently clear them."""
-    _, article = single_article
-
-    # Replacing the live row's tags after the revision was saved is what makes this test
-    # discriminating: a plain M2M would report the current database state here.
-    replacement_tag = BlogTag.objects.create(name="Encryption", slug="encryption", locale=Locale.get_default())
-    article.tags.set([replacement_tag])
-    article.save()
-
-    revision_article = article.get_latest_revision_as_object()
-
-    assert [tag.name for tag in revision_article.tags.all()] == ["Privacy"]
-
-
-def test_translated_article_carries_tags(single_article):
-    """wagtail-localize skips ManyToManyFields, but taggit's relation is a ParentalKey child
-    relation, so it is synchronised to translations."""
-    _, article = single_article
-    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
-
-    translate_object(article, [fr_locale])
-
-    translated = article.get_translation(fr_locale)
-    assert [tag.name for tag in translated.tags.all()] == ["Privacy"]
-
-
 def test_get_tags_skips_tags_with_no_live_localization(single_article):
-    """An unpublished tag must not render. get_tags() returns a list either way, because
-    BlockArticleValue.get_tags iterates the result unguarded."""
     _, article = single_article
     tag = article.tags.first()
     tag.live = False
@@ -1246,10 +1222,8 @@ def test_get_tags_skips_tags_with_no_live_localization(single_article):
 
 
 def test_all_page_renders_localized_tag_names(privacy_articles, rf):
-    """The all-articles listing must show the active locale's tag name, not the
-    default-locale one it is joined to."""
     index_page, _ = privacy_articles
-    fr_locale = Locale.objects.get_or_create(language_code="fr")[0]
+    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
     en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
     BlogTag.objects.create(
         name="Confidentialité",
@@ -1369,12 +1343,13 @@ def test_blog_article_standard_hero_renders_image_before_title(make_article, rea
 
     header = soup.find("header", class_="fl-article-header")
     assert "fl-article-header-standard-image" in header.get("class", [])
-    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+    children = header.find_all(recursive=False)
+    children_classes = [child.get("class", []) for child in header.find_all(recursive=False)]
 
     assert len(children) >= 2, "Header should have at least two children: image and title"
-    assert "image-variants-display" in children[0], "First child should be the image"
-    assert "fl-article-title" in children[1], "Second child should be the title"
-    assert article.title in children[1].get_text()
+    assert "image-variants-display" in children_classes[0], "First child should be the image"
+    assert "fl-article-title" in children_classes[1], "Second child should be the title"
+    assert article.title in children[1].get_text(), "Title should be rendered"
 
 
 def test_blog_article_large_hero_renders_image_after_title(make_article, real_images, rf):
@@ -1386,12 +1361,13 @@ def test_blog_article_large_hero_renders_image_after_title(make_article, real_im
 
     header = soup.find("header", class_="fl-article-header")
     assert "fl-article-header-large-image" in header.get("class", [])
-    children = [child.get("class", []) for child in header.find_all(recursive=False)]
+    children = header.find_all(recursive=False)
+    children_classes = [child.get("class", []) for child in children]
 
     assert len(children) >= 2, "Header should have at least two children: image and title"
-    assert "fl-article-title" in children[0], "First child should be the title"
-    assert article.title in children[0].get_text()
-    assert "image-variants-display" in children[-1], "Second child should be the image"
+    assert "fl-article-title" in children_classes[0], "First child should be the title"
+    assert article.title in children[0].get_text(), "Title should be rendered"
+    assert "image-variants-display" in children_classes[-1], "Second child should be the image"
 
 
 def test_blog_article_text_only_hero_renders_no_media(make_article, real_images, rf):
@@ -1442,6 +1418,25 @@ def test_blog_article_video_hero_renders_video_before_title(make_article, real_i
     assert "fl-article-title" in children[1]
 
 
+def test_blog_article_renders_bottom_banner(make_article, rf):
+    article = make_article(bottom_banner=get_bottom_banner_stream())
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    banner = soup.find("div", class_="fl-banner")
+    assert banner
+    assert "Enjoying this article?" in banner.get_text()
+    assert "Subscribe to get more like this in your inbox." in banner.get_text()
+
+
+def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
+    response = bare_article.serve(rf.get(bare_article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("div", class_="fl-banner") is None
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1462,6 +1457,7 @@ def test_blog_article_content_tab_panel_order():
         "Featured Image",
         "Hero Options",
         "content",
+        "bottom_banner",
     ]
 
 

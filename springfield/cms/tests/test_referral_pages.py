@@ -367,6 +367,40 @@ def test_hub_page_get_context_stays_tolerant_of_a_missing_ref_key(rf):
     assert context["install_count"] == 0
 
 
+def _showcase_block(block_id, headline):
+    """Minimal showcase StreamField dict, enough for the template to emit a heading."""
+    return {
+        "type": "showcase",
+        "id": block_id,
+        "value": {
+            "settings": {"layout": "default"},
+            "headline": f'<p data-block-key="a">{headline}</p>',
+            "media": [],
+        },
+    }
+
+
+def test_hub_page_renders_exactly_one_h1(rf):
+    """The pre-footer showcase must not restart the heading levels.
+
+    Its heading counter lives in a separate Jinja block from the main content's,
+    so a level reset there would give the page a second h1.
+    """
+    site = Site.objects.get(is_default_site=True)
+    hub_page = ReferralHubPageFactory(parent=site.root_page)
+    hub_page.upper_content = [_showcase_block("aa000000-0000-0000-0000-000000000001", "Invite your friends")]
+    hub_page.extra_content = [_showcase_block("aa000000-0000-0000-0000-000000000002", "Get Firefox everywhere")]
+    hub_page.save()
+
+    response = hub_page.serve(rf.get(f"/en-US/invite/?ref_key={REFERRAL_ID}"))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert [h.get_text(strip=True) for h in soup.find_all("h1")] == ["Invite your friends"]
+
+    pre_footer = soup.select_one(".fl-split-page-extra")
+    assert pre_footer.find("h2").get_text(strip=True) == "Get Firefox everywhere"
+
+
 # Invitee page: an unusable invite code is not found
 
 
@@ -569,6 +603,30 @@ def test_get_firefox_page_get_context_includes_utm_parameters(rf):
     assert context["utm_parameters"]["utm_medium"] == "referral"
 
 
+def test_get_firefox_page_get_context_channel_defaults_to_release(rf):
+    """Without the REFERRAL_FORCE_NIGHTLY_QA switch active, the download CTA
+    must build a Release Bouncer link, as it always has."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    with patch("springfield.base.waffle.switch_is_active", return_value=False):
+        context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["channel"] == "release"
+
+
+def test_get_firefox_page_get_context_channel_forced_to_nightly_by_switch(rf):
+    """QA-only override (WT-1281): the REFERRAL_FORCE_NIGHTLY_QA switch forces
+    the download CTA to build a Nightly Bouncer link instead of Release."""
+    page = _get_firefox_page()
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+
+    with patch("springfield.base.waffle.switch_is_active", return_value=True):
+        context = page.get_context(rf.get(f"/en-US/get-firefox/?invitation={code}"))
+
+    assert context["channel"] == "nightly"
+
+
 def test_get_firefox_page_renders_download_button(client, settings):
     """The referral page template must render an actual download button (not the
     context-dump skeleton) so the referral-attribution JS has a link to decorate."""
@@ -604,7 +662,7 @@ def test_get_firefox_page_renders_download_button(client, settings):
     page.save()
 
     code = crypto.referral_id_to_invite_code(REFERRAL_ID)
-    with patch(GEO_MOCK, return_value="US"):
+    with patch(GEO_MOCK, return_value="US"), patch("springfield.base.waffle.switch_is_active", return_value=False):
         response = client.get(f"/en-US/get-firefox/?invitation={code}")
 
     assert response.status_code == 200
@@ -621,6 +679,60 @@ def test_get_firefox_page_renders_download_button(client, settings):
     referral_root = soup.find(attrs={"data-referral-code": True})
     assert referral_root is not None
     assert referral_root["data-referral-code"] == code
+
+    # The Android Play Store badge must default to the Release app.
+    android_badge = soup.find(class_="fl-store-button-android")
+    assert android_badge is not None
+    assert "id=org.mozilla.firefox" in android_badge["href"]
+
+
+def test_get_firefox_page_renders_nightly_download_link_when_switch_active(client, settings):
+    """QA-only override (WT-1281): with REFERRAL_FORCE_NIGHTLY_QA active, the
+    rendered download button(s) must point at a Nightly Bouncer product,
+    not Release."""
+    settings.STUB_ATTRIBUTION_RATE = 1
+    settings.STUB_ATTRIBUTION_HMAC_KEY = "test-hmac-key"
+
+    site = Site.objects.get(is_default_site=True)
+    page = ReferralGetFirefoxPageFactory(parent=site.root_page, slug="get-firefox")
+    page.upper_content = [
+        {
+            "type": "intro",
+            "id": "aa000000-0000-0000-0000-000000000001",
+            "value": {
+                "settings": {"slim": False},
+                "heading": {
+                    "superheading_text": '<p data-block-key="a"></p>',
+                    "heading_text": '<p data-block-key="b">Download Firefox</p>',
+                    "subheading_text": '<p data-block-key="c"></p>',
+                },
+                "buttons": [
+                    {
+                        "type": "referral_download",
+                        "id": "bb000000-0000-0000-0000-000000000001",
+                        "value": {},
+                    }
+                ],
+            },
+        }
+    ]
+    page.save()
+
+    code = crypto.referral_id_to_invite_code(REFERRAL_ID)
+    with patch(GEO_MOCK, return_value="US"), patch("springfield.base.waffle.switch_is_active", return_value=True):
+        response = client.get(f"/en-US/get-firefox/?invitation={code}")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    download_link = soup.find(class_="download-link")
+    assert download_link is not None
+    assert "firefox-nightly" in download_link["data-direct-link"]
+
+    # The Android Play Store badge must point at the separate Nightly listing.
+    android_badge = soup.find(class_="fl-store-button-android")
+    assert android_badge is not None
+    assert "id=org.mozilla.fenix" in android_badge["href"]
 
 
 # Duplicate-block validation

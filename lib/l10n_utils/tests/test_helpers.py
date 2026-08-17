@@ -22,6 +22,31 @@ def test_get_locale_hsb():
     assert helpers.get_locale("hsb").language == "de"
 
 
+def test_get_locale_ja_jp_mac():
+    """Should treat ja-JP-mac as ja, which Babel can't parse on its own."""
+    assert helpers.get_locale("ja-JP-mac").language == "ja"
+
+
+def test_l10n_format_list_localizes_separators_and_conjunction():
+    """Each locale supplies its own separators and conjunction via CLDR."""
+    names = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
+    assert helpers.l10n_format_list({"LANG": "en-US"}, names) == "Ada Lovelace, Grace Hopper, and Alan Turing"
+    assert helpers.l10n_format_list({"LANG": "es-ES"}, names) == "Ada Lovelace, Grace Hopper y Alan Turing"
+    assert helpers.l10n_format_list({"LANG": "de"}, names) == "Ada Lovelace, Grace Hopper und Alan Turing"
+    # CJK locales use an ideographic comma and drop the spaces entirely.
+    assert helpers.l10n_format_list({"LANG": "zh-CN"}, names) == "Ada Lovelace、Grace Hopper和Alan Turing"
+
+
+def test_l10n_format_list_handles_short_lists():
+    assert helpers.l10n_format_list({"LANG": "en-US"}, ["Ada Lovelace", "Grace Hopper"]) == "Ada Lovelace and Grace Hopper"
+    assert helpers.l10n_format_list({"LANG": "en-US"}, ["Ada Lovelace"]) == "Ada Lovelace"
+    assert helpers.l10n_format_list({"LANG": "en-US"}, []) == ""
+
+
+def test_l10n_format_list_unknown_locale_falls_back_to_default():
+    assert helpers.l10n_format_list({"LANG": "not-a-lang"}, ["Ada Lovelace", "Alan Turing"]) == "Ada Lovelace and Alan Turing"
+
+
 class TestCurrentLocale(TestCase):
     @patch("lib.l10n_utils.templatetags.helpers.Locale")
     def test_unknown_locale(self, Locale):
