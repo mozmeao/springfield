@@ -1687,7 +1687,8 @@ def cache_localized_topics(articles):
     a list costs one query rather than resolving each article's topic separately."""
     from springfield.cms.models.snippets import BlogTopic  # circular import
 
-    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=SpringfieldLocale.get_active()).live()}
+    slugs = [article.topic.slug for article in articles]
+    localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=SpringfieldLocale.get_active(), slug__in=slugs).live()}
     for article in articles:
         if article.topic and article.topic.slug in localized_topics_by_slug:
             article._topic_cache = localized_topics_by_slug[article.topic.slug]
@@ -1949,7 +1950,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         tag_slug = request.GET.get("tag")
         if not tag_slug:
             return None
-        return BlogTag.objects.filter(slug=tag_slug, locale=self.locale).first()
+        return BlogTag.objects.filter(slug=tag_slug, locale=self.locale).live().first()
 
     # Context for routes
 
@@ -1963,7 +1964,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         topic = None
         topic_slug = request.GET.get("topic")
         if topic_slug:
-            topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).first()
+            topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).live().first()
             if topic:
                 articles = articles.filter(topic=topic)
 
@@ -2431,8 +2432,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 .order_by("-first_published_at")[:4]
             )
             context["related_articles"] = list(related)
-            # Related cards are not feed-filtered, so an excluded tag reaches them.
             blog_index = self.get_parent().specific
+            # Hidden tags are not displayed on the related articles listing
             cache_localized_tags(context["related_articles"], blog_index.get_hidden_tag_keys())
         else:
             context["related_articles"] = []
