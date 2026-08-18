@@ -17,7 +17,7 @@ from springfield.base.tests import TestCase
 
 jinja_env = Jinja2.get_default()
 
-TEST_BASKET_URL = "https://basket.mozilla.org"
+TEST_BASKET_SUBSCRIBE_URL = "https://basket.mozilla.org/news/subscribe/"
 
 
 def render(s, context=None):
@@ -459,7 +459,7 @@ class TestFirefoxURL(TestCase):
         ),
     ],
 )
-@override_settings(BASKET_URL=TEST_BASKET_URL)
+@override_settings(BASKET_SUBSCRIBE_URL=TEST_BASKET_SUBSCRIBE_URL)
 def test_send_to_device_form(test_input, expected):
     locale = "en-US"
     request = RequestFactory().get("/firefox/browsers/mobile/")
@@ -471,7 +471,7 @@ def test_send_to_device_form(test_input, expected):
     doc = pq(markup)
 
     action = doc(".send-to-device-form").attr("action")
-    assert action == "https://basket.mozilla.org/news/subscribe/"
+    assert action == TEST_BASKET_SUBSCRIBE_URL
 
     source_url = doc("input[name='source-url']").val()
     assert source_url.endswith("/firefox/browsers/mobile/")
