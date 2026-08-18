@@ -20,6 +20,7 @@ from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, ge
 from springfield.cms.fixtures.comparison_table_fixtures import make_content_rows, make_header_row
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
 from springfield.cms.models import ContactPage, FreeFormPage2026, NavigationSnippet, SpringfieldImage
+from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
@@ -1118,7 +1119,8 @@ def get_enterprise_contact_page(parent) -> ContactPage:
         parent=parent,
         defaults={
             "title": "Contact",
-            "basket_api_path": "/api/v1/contact/enterprise/",
+            "basket_api_path": BASKET_CONTACT_ENTERPRISE_PATH,
+            "form_fields": get_form_field_variants(),
             "thank_you_message": '<p data-block-key="entctty">Thanks for reaching out! We\'ll be in touch about early access.</p>',
         },
     )
@@ -1134,7 +1136,7 @@ def get_enterprise_contact_page(parent) -> ContactPage:
         )
     ]
     page.form_fields = get_form_field_variants()
-    page.basket_api_path = "/api/v1/contact/enterprise/"
+    page.basket_api_path = BASKET_CONTACT_ENTERPRISE_PATH
     page.thank_you_message = '<p data-block-key="entctty">Thanks for reaching out! We\'ll be in touch about early access.</p>'
     page.save_revision().publish()
     return page
