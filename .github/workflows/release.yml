@@ -314,7 +314,7 @@ jobs:
           env_name: stage
           label: "Springfield release"
           status: info
-          channel_id: ${{ env.SLACK_CHANNEL_WWW }}
+          channel_id: ${{ env.SLACK_CHANNEL_WWW_NOTIFY }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           ref: ${{ needs.preflight-checks.outputs.release_sha }}
           message: "Pushing to Springfield stage"
@@ -424,7 +424,7 @@ jobs:
           env_name: stage
           label: "Springfield release"
           status: info
-          channel_id: ${{ env.SLACK_CHANNEL_WWW }}
+          channel_id: ${{ env.SLACK_CHANNEL_WWW_NOTIFY }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           ref: ${{ needs.preflight-checks.outputs.release_sha }}
           message: "Stage verified. Awaiting approval to push to prod — click Details to review and approve."
@@ -507,7 +507,7 @@ jobs:
           env_name: prod
           label: "Springfield release"
           status: info
-          channel_id: ${{ env.SLACK_CHANNEL_WWW }}
+          channel_id: ${{ env.SLACK_CHANNEL_WWW_NOTIFY }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           ref: ${{ steps.tag-release.outputs.tag }}
           message: "Pushing Springfield Prod, tagged ${{ steps.tag-release.outputs.tag }}"
@@ -596,7 +596,7 @@ jobs:
           env_name: prod
           label: "Springfield release"
           status: success
-          channel_id: ${{ env.SLACK_CHANNEL_WWW }}
+          channel_id: ${{ env.SLACK_CHANNEL_WWW_NOTIFY }}
           slack_bot_token: ${{ env.SLACK_BOT_TOKEN }}
           ref: ${{ steps.tag-release.outputs.tag }}
           message: "Springfield Prod deploy complete, tagged ${{ steps.tag-release.outputs.tag }}"
