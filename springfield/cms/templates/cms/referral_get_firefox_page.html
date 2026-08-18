@@ -20,34 +20,18 @@
 <div class="fl-page">
   <div class="fl-main">
     <div class="fl-split-page-upper">
-      {% set ns = namespace(headings=0) %}
-      {% set block_level = 1 %}
-      {% for block in page.upper_content %}
-        {% set block_index = loop.index %}
-        {% set block_type = block.block_type %}
-        {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
-
-        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
-          {% set ns.headings = ns.headings + 1 %}
-        {% endif %}
-
-        {% include_block block %}
+      {% for slot in page.block_slots("upper_content") %}
+        {% set block_level = slot.heading_level %}
+        {% set block_position = "upper-block-" ~ slot.index ~ "-" ~ slot.block_type %}
+        {% include_block slot.block %}
       {% endfor %}
     </div>
 
     <div class="fl-split-page-lower has-gradient-top">
-      {% for block in page.lower_content %}
-        {% set block_index = loop.index %}
-        {% set block_type = block.block_type %}
-        {% set block_position = "lower-block-" ~ block_index + "-" + block_type %}
-
-        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-          {% set block_level = 1 if ns.headings == 0 else 2 %}
-          {% set ns.headings = ns.headings + 1 %}
-        {% endif %}
-
-        {% include_block block %}
+      {% for slot in page.block_slots("lower_content") %}
+        {% set block_level = slot.heading_level %}
+        {% set block_position = "lower-block-" ~ slot.index ~ "-" ~ slot.block_type %}
+        {% include_block slot.block %}
       {% endfor %}
     </div>
   </div>
