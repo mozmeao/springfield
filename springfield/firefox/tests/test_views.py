@@ -13,9 +13,11 @@ from django.test.client import RequestFactory
 import pytest
 from pyquery import PyQuery as pq
 from waffle.testutils import override_switch
+from wagtail.models import Site
 
 from lib import querystringsafe_base64
 from springfield.base.tests import TestCase
+from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 from springfield.firefox import views
 from springfield.firefox.views import detect_download_platform, download_redirect
 
@@ -827,6 +829,45 @@ class TestWhatsNewReleaseNotesLink(TestCase):
         doc = pq(response.content)
         link = doc(".c-utilities a")
         assert link.attr("href") == "/en-US/firefox/153.0beta/releasenotes/"
+
+
+@patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
+class TestWhatsNewEvergreenCMSRedirect(TestCase):
+    """The CMS-backed evergreen redirect must not fire for a same-slug routing variant.
+
+    ``WhatsNewPage2026`` permits nested self-targeting variants for the routing
+    framework, so a slug is no longer a reliable stand-in for "is the real evergreen
+    page" — slugs are only unique among siblings, not site-wide.
+    """
+
+    def setUp(self):
+        self.view = views.WhatsnewView.as_view()
+        self.rf = RequestFactory(HTTP_USER_AGENT="Firefox")
+        self.site_root = Site.objects.get(is_default_site=True).root_page
+        self.index = WhatsNewIndexPageFactory(parent=self.site_root, slug="whatsnew")
+
+    def test_redirects_to_a_real_direct_child_of_the_index(self, render_mock):
+        WhatsNewPage2026Factory(parent=self.index, slug="general", version="general", live=True)
+
+        req = self.rf.get("/en-US/whatsnew/")
+        response = self.view(req, version="135.0")
+
+        assert response.status_code == 302
+        assert response["Location"].startswith("/en-US/whatsnew/general/")
+        render_mock.assert_not_called()
+
+    def test_ignores_a_nested_variant_sharing_the_evergreen_slug(self, render_mock):
+        # No direct child of the index is named "general" — only a nested routing
+        # variant under an unrelated canonical page shares that slug.
+        canonical = WhatsNewPage2026Factory(parent=self.index, slug="145", version="145", live=True)
+        WhatsNewPage2026Factory(parent=canonical, slug="general", version="145", live=True)
+
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="135.0")
+
+        # No real evergreen page exists, so the view falls through to the ordinary
+        # Django-rendered evergreen template rather than a redirect to a dead URL.
+        render_mock.assert_called_once()
 
 
 class TestDetectChannel(TestCase):

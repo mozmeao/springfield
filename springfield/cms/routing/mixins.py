@@ -349,15 +349,15 @@ class RoutingMixin(models.Model):
         from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
         from springfield.cms.routing.resolver import render_resolver
 
-        # The two database-backed flags are passed unevaluated; decide_routing calls them
-        # only if its precedence reaches them.
+        # The three database-backed flags are passed unevaluated; decide_routing calls
+        # them only if its precedence reaches them.
         decision = decide_routing(
             routing_enabled=True,
             has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
             is_preview_admin=is_preview_request(request) and is_preview_admin(request),
             is_paused=lambda: RoutingConfig.is_paused_for(self),
             trigger_satisfied=self._routing_trigger_satisfied(request),
-            is_canonical=self.is_routing_canonical(),
+            is_canonical=self.is_routing_canonical,
             has_live_rules=self._has_live_routing_rules,
         )
 
