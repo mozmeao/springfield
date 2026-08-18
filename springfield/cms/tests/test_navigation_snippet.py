@@ -17,10 +17,24 @@ from wagtail.models import Locale, Site
 
 from lib.l10n_utils import fluent_l10n
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.navigation_fixtures import build_top_level_link, get_navigation_snippet, get_navigation_variants
+from springfield.cms.fixtures.navigation_fixtures import (
+    build_column,
+    build_folder,
+    build_nav_link,
+    build_separator,
+    build_top_level_link,
+    get_navigation_snippet,
+    get_navigation_variants,
+)
 from springfield.cms.models import NavigationSnippet, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
-from springfield.cms.tests.factories import FreeFormPage2026Factory, StructuralPageFactory
+from springfield.cms.tests.factories import (
+    FreeFormPage2026Factory,
+    RoadmapPageFactory,
+    StructuralPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
+)
 from springfield.firefox.templatetags.misc import slugify
 
 pytestmark = [pytest.mark.django_db]
@@ -34,9 +48,9 @@ UTM_PARAMETERS = {
 }
 
 
-def render_navigation(snippet, request):
-    """Render the navigation snippet template to a BeautifulSoup document."""
-    with translation.override("en-US"):
+def render_navigation(snippet, request, language="en-US"):
+    """Render the navigation snippet template in the given locale, as a BeautifulSoup document."""
+    with translation.override(language):
         html = render_to_string(
             "cms/snippets/navigation-snippet.html",
             {
@@ -249,6 +263,165 @@ def test_external_top_level_link(minimal_site, rf):
 
     category = soup.find("li", class_="fl-menu-category")
     assert_top_level_link(category, item["value"], cta_position="topnav.item-1")
+
+
+def build_hardcoded_page_link_block(block_type, label, icon="", has_button_style=False, analytics_id="lookup-uid"):
+    """Build a What's New / What's Next nav link, which looks its own URL up at render time."""
+    return {
+        "type": block_type,
+        "value": {
+            "pretranslated_label": None,
+            "custom_label": label,
+            "icon": icon,
+            "icon_position": "left",
+            "has_button_style": has_button_style,
+            "analytics_id": analytics_id,
+        },
+        "id": "2026nav0-0000-0000-0000-000000000301",
+    }
+
+
+def make_one_folder_snippet(child):
+    """Publish a navigation snippet holding one folder whose single column holds the given block."""
+    column = build_column([child], block_id="2026nav0-0000-0000-0000-000000000300")
+    folder = build_folder("Browser", columns=[column], block_id="2026nav0-0000-0000-0000-000000000003")
+    return make_snippet([folder])
+
+
+def test_whats_new_link_renders_the_whats_new_index_url(minimal_site, rf):
+    index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    snippet = make_one_folder_snippet(build_hardcoded_page_link_block("whats_new_link", "What's New", icon="bookmark-fill"))
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    link = soup.find("a", class_="fl-nav-link")
+    assert link is not None
+    assert link["href"].endswith("/whatsnew/?from_main_nav=true")
+    assert link.get_text(strip=True) == "What's New"
+    assert link.parent.name == "li"
+    assert link.find("span", class_="fl-icon-bookmark-fill") is not None
+    assert_analytics(link, cta_text="Browser - What's New", cta_position="topnav.item-1.column-1.link-1", analytics_id="lookup-uid")
+
+
+def test_whats_new_link_renders_nothing_when_the_index_page_is_missing(minimal_site, rf):
+    snippet = make_one_folder_snippet(build_hardcoded_page_link_block("whats_new_link", "What's New"))
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    # The folder itself still renders; only the link it holds is left out.
+    assert soup.find("div", class_="fl-menu-panel") is not None
+    assert soup.find("a", class_="fl-nav-link") is None
+
+
+def test_whats_new_link_renders_as_a_button_when_button_style_is_set(minimal_site, rf):
+    index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    snippet = make_one_folder_snippet(build_hardcoded_page_link_block("whats_new_link", "What's New", has_button_style=True))
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    button = soup.find("a", class_="fl-button")
+    assert button is not None
+    assert {"button-ghost", "fl-button-small"} <= set(button["class"])
+    assert button.parent.name != "li"
+    assert button["href"].endswith("/whatsnew/?from_main_nav=true")
+    assert button.get_text(strip=True) == "What's New"
+
+
+def test_whats_next_link_renders_the_roadmap_url(minimal_site, rf):
+    RoadmapPageFactory(parent=minimal_site.root_page, slug="whatsnext", live=True)
+    snippet = make_one_folder_snippet(build_hardcoded_page_link_block("whats_next_link", "What's Next", icon="calendar"))
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    link = soup.find("a", class_="fl-nav-link")
+    assert link is not None
+    assert link["href"].endswith("/whatsnext/")
+    assert link.get_text(strip=True) == "What's Next"
+    assert link.parent.name == "li"
+    assert link.find("span", class_="fl-icon-calendar") is not None
+    assert_analytics(link, cta_text="Browser - What's Next", cta_position="topnav.item-1.column-1.link-1", analytics_id="lookup-uid")
+
+
+def test_whats_next_link_renders_nothing_when_the_roadmap_page_is_missing(minimal_site, rf):
+    snippet = make_one_folder_snippet(build_hardcoded_page_link_block("whats_next_link", "What's Next"))
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    assert soup.find("div", class_="fl-menu-panel") is not None
+    assert soup.find("a", class_="fl-nav-link") is None
+
+
+def build_browser_column_children():
+    """The Browser menu's stream of links, rules and lookup links, as the static nav lays it out."""
+    return [
+        build_nav_link("Mobile", custom_url="/browsers/mobile/", icon="device-mobile", block_id="2026nav0-0000-0000-0000-000000000401"),
+        build_nav_link("Enterprise", custom_url="/enterprise/", icon="globe", block_id="2026nav0-0000-0000-0000-000000000402"),
+        build_separator(block_id="2026nav0-0000-0000-0000-000000000403"),
+        build_hardcoded_page_link_block("whats_new_link", "What's New", icon="bookmark-fill"),
+        build_hardcoded_page_link_block("whats_next_link", "What's Next", icon="calendar"),
+        build_separator(block_id="2026nav0-0000-0000-0000-000000000404"),
+        build_nav_link(
+            "Extensions & Themes",
+            custom_url="https://addons.mozilla.org/firefox/",
+            icon="extension-fill",
+            block_id="2026nav0-0000-0000-0000-000000000405",
+        ),
+        build_nav_link(
+            "Support", custom_url="https://support.mozilla.org/", icon="avatar-info-circle-fill", block_id="2026nav0-0000-0000-0000-000000000406"
+        ),
+        build_separator(block_id="2026nav0-0000-0000-0000-000000000407"),
+        build_nav_link("Download Firefox", custom_url="/download/", has_button_style=True, block_id="2026nav0-0000-0000-0000-000000000408"),
+    ]
+
+
+def get_list_labels(column):
+    """The link labels of each <ul> in a rendered column, in document order."""
+    return [[link.get_text(strip=True) for link in list_element.find_all("a")] for list_element in column.find_all("ul")]
+
+
+def test_column_groups_each_group_of_links_into_its_own_list(minimal_site, rf):
+    index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    RoadmapPageFactory(parent=minimal_site.root_page, slug="whatsnext", live=True)
+    snippet = make_snippet([build_folder("Browser", columns=[build_column(build_browser_column_children(), block_id="c1")], block_id="f1")])
+
+    soup = render_navigation(snippet, rf.get("/en-US/"))
+
+    column = soup.find("div", class_="fl-menu-panel-content-column")
+    assert get_list_labels(column) == [
+        ["Mobile", "Enterprise"],
+        ["What's New", "What's Next"],
+        ["Extensions & Themes", "Support"],
+    ]
+    # Each rule separates two lists, and the button-style link closes the last one.
+    assert len(column.find_all("span", class_="fl-nav-separator")) == 3
+    button = column.find("a", class_="fl-button")
+    assert button.parent.name != "li"
+
+
+def test_column_keeps_its_lists_intact_when_hardcoded_pages_are_missing(minimal_site, rf):
+    # The pages exist in en-US only, so in fr both links resolve to nothing.
+    index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
+    WhatsNewPage2026Factory(parent=index, slug="145", live=True)
+    RoadmapPageFactory(parent=minimal_site.root_page, slug="whatsnext", live=True)
+    snippet = make_snippet([build_folder("Browser", columns=[build_column(build_browser_column_children(), block_id="c1")], block_id="f1")])
+
+    soup = render_navigation(snippet, rf.get("/fr/"), language="fr")
+
+    column = soup.find("div", class_="fl-menu-panel-content-column")
+    assert get_list_labels(column) == [
+        ["Mobile", "Enterprise"],
+        ["Extensions & Themes", "Support"],
+    ]
+    # The separators around the dropped links collapse into the one that still divides the two visible lists.
+    separators = column.find_all("span", class_="fl-nav-separator")
+    assert len(separators) == 2
+    for separator in separators:
+        assert separator.find_next_sibling().name != "span"
+    button = column.find("a", class_="fl-button")
+    assert button.parent.name != "li"
 
 
 def test_str_includes_name_and_locale(minimal_site):
