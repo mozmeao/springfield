@@ -1302,8 +1302,8 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         )
         if latest_whats_new:
             url = request.build_absolute_uri(latest_whats_new.get_url())
-            if request.GET.get("fromMainNav"):
-                url += "?fromMainNav=true"
+            if request.GET.get("from_main_nav"):
+                url += "?from_main_nav=true"
             return redirect(url)
         active_language = normalize_language(translation.get_language()) or settings.LANGUAGE_CODE
         return redirect(f"/{active_language}/")

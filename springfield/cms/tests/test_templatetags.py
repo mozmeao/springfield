@@ -362,8 +362,8 @@ def test_browser_nav_renders_both_links_from_cms(minimal_site, rf):
 
     assert whats_new_link is not None
     assert "/whatsnew/" in whats_new_link["href"]
-    # The What's New nav link carries ?fromMainNav=true.
-    assert whats_new_link["href"].endswith("/whatsnew/?fromMainNav=true")
+    # The What's New nav link carries ?from_main_nav=true.
+    assert whats_new_link["href"].endswith("/whatsnew/?from_main_nav=true")
     assert whats_next_link is not None
     assert whats_next_link["href"].endswith("/whatsnext/")
 

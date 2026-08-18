@@ -38,7 +38,7 @@
     {% if whats_new_url or whats_next_url %}
       <ul>
         {% if whats_new_url %}
-          {% set whats_new_url = whats_new_url ~ '?fromMainNav=true' %}
+          {% set whats_new_url = whats_new_url ~ '?from_main_nav=true' %}
           <include:nav-link
             label="{{ ftl('navigation-whats-new') }}"
             href="{{ whats_new_url }}"
