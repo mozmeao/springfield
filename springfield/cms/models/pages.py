@@ -8,7 +8,6 @@ import functools
 import re
 import uuid
 from typing import TYPE_CHECKING
-from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -2236,6 +2235,39 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"RoadmapPage: {self.title} - {self.locale}"
 
 
+BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+
+# The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
+# Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
+# outside form_fields, so those fields are never part of the submitted payload.
+BASKET_ENDPOINT_FIELDS = {
+    BASKET_CONTACT_ENTERPRISE_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "firefox_use_stage",
+            "deployment_size",
+            "support_needs",
+            "timeline",
+        },
+        "optional": {
+            "business_phone",
+            "company_size",
+            "opt_in",
+            "lead_source",
+            "cta",
+            "message",
+        },
+    },
+}
+
+BASKET_API_PATH_CHOICES = [(path, path) for path in BASKET_ENDPOINT_FIELDS]
+
+
 class ContactPageForm(WagtailAdminPageForm):
     """Admin form for ContactPage that validates the allowed slug only when publishing.
 
@@ -2303,9 +2335,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     basket_api_path = models.CharField(
         max_length=255,
         blank=True,
-        help_text=(
-            "Basket API path (e.g. /api/v1/contact/). Concatenated with settings.BASKET_URL on submission. Required if Email Address is not set."
-        ),
+        choices=BASKET_API_PATH_CHOICES,
+        help_text="Basket endpoint the form posts to. Required if Email Address is unset. Form fields must match what it accepts.",
     )
 
     redirect_to = models.ForeignKey(
@@ -2379,11 +2410,26 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["basket_api_path"] = msg
 
         if has_basket and not has_email:
-            parsed = urlparse(self.basket_api_path)
-            if parsed.scheme or parsed.netloc:
-                errors["basket_api_path"] = "Enter a path (e.g. /api/v1/contact/), not a full URL."
-            elif not parsed.path.startswith("/"):
-                errors["basket_api_path"] = "Path must start with /."
+            allowed_fields = BASKET_ENDPOINT_FIELDS.get(self.basket_api_path)
+            if allowed_fields is None:
+                errors["basket_api_path"] = f"{self.basket_api_path} is not a basket endpoint."
+            else:
+                identifiers = {field.value["internal_identifier"] for field in self.form_fields}
+                optional_identifiers = {field.value["internal_identifier"] for field in self.form_fields if not field.value["required"]}
+                unaccepted = identifiers - allowed_fields["required"] - allowed_fields["optional"]
+                missing = allowed_fields["required"] - identifiers
+                not_marked_required = allowed_fields["required"] & optional_identifiers
+                field_errors = []
+                if unaccepted:
+                    field_errors.append(f"{self.basket_api_path} does not accept these fields: {', '.join(sorted(unaccepted))}.")
+                if missing:
+                    field_errors.append(f"{self.basket_api_path} requires these fields: {', '.join(sorted(missing))}.")
+                if not_marked_required:
+                    field_errors.append(
+                        f"{self.basket_api_path} requires these fields to be marked as required: {', '.join(sorted(not_marked_required))}."
+                    )
+                if field_errors:
+                    errors["form_fields"] = field_errors
 
         if not self.redirect_to and not self.thank_you_message:
             msg = "Set either a redirect page or a thank you message."
