@@ -357,8 +357,8 @@ def test_browser_nav_renders_both_links_from_cms(minimal_site, rf):
         response = roadmap_page.serve(request)
 
     soup = BeautifulSoup(response.content, "html.parser")
-    whats_new_link = soup.find("a", attrs={"data-link-position": "topnav - whats-new"})
-    whats_next_link = soup.find("a", attrs={"data-link-position": "topnav - whats-next"})
+    whats_new_link = soup.find("a", attrs={"data-cta-position": "topnav - whats-new"})
+    whats_next_link = soup.find("a", attrs={"data-cta-position": "topnav - whats-next"})
 
     assert whats_new_link is not None
     assert "/whatsnew/" in whats_new_link["href"]
@@ -379,5 +379,5 @@ def test_browser_nav_hides_whats_new_link_when_page_missing(minimal_site, rf):
         response = roadmap_page.serve(request)
 
     soup = BeautifulSoup(response.content, "html.parser")
-    assert soup.find("a", attrs={"data-link-position": "topnav - whats-new"}) is None
-    assert soup.find("a", attrs={"data-link-position": "topnav - whats-next"}) is not None
+    assert soup.find("a", attrs={"data-cta-position": "topnav - whats-new"}) is None
+    assert soup.find("a", attrs={"data-cta-position": "topnav - whats-next"}) is not None

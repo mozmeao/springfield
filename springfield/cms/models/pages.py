@@ -21,6 +21,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.functional import SimpleLazyObject
 
@@ -40,6 +41,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.i18n import normalize_language
 from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -1303,7 +1305,8 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             if request.GET.get("fromMainNav"):
                 url += "?fromMainNav=true"
             return redirect(url)
-        return redirect(f"/{request.LANGUAGE_CODE}/")
+        active_language = normalize_language(translation.get_language()) or settings.LANGUAGE_CODE
+        return redirect(f"/{active_language}/")
 
 
 class WhatsNewPage2026(PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
