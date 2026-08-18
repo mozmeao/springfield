@@ -13,13 +13,18 @@ global switch must each behave correctly.
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 import pytest
 from bs4 import BeautifulSoup
 from waffle.testutils import override_switch
+from wagtail.admin.panels import InlinePanel
+from wagtail.admin.widgets import AdminPageChooser
 from wagtail.models import Site
 
 from springfield.cms.models import WhatsNewPage2026
+from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
 from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 
@@ -46,8 +51,6 @@ def wnp():
 
 
 def test_wnp_declares_only_the_two_adoption_hooks(wnp):
-    from springfield.cms.routing.arming import QueryParamValueArmingCondition
-
     trigger = wnp.canonical.get_routing_trigger()
     assert isinstance(trigger, QueryParamValueArmingCondition)
     # Armed on Firefox's just-updated flow specifically.
@@ -85,11 +88,6 @@ def test_a_child_wnp_is_a_valid_descendant_target(wnp):
 
 def test_wnp_target_chooser_is_scoped_to_whatsnew_pages():
     # The rule's target chooser only offers WhatsNewPage2026 pages.
-    from wagtail.admin.panels import InlinePanel
-    from wagtail.admin.widgets import AdminPageChooser
-
-    from springfield.cms.models import WhatsNewPage2026
-
     tab = WhatsNewPage2026.get_routing_tab()
     rules_panel = next(p for p in tab.children if isinstance(p, InlinePanel) and p.relation_name == "routing_rules")
     target_panel = next(p for p in rules_panel.panels if getattr(p, "field_name", "") == "target")
@@ -111,6 +109,32 @@ def test_organic_untriggered_traffic_is_byte_identical_to_today(client, wnp):
     assert untriggered.status_code == baseline.status_code == 200
     assert untriggered.content == baseline.content
     assert RESOLVER_MARKER not in baseline.content.decode("utf-8")
+
+
+def test_untriggered_traffic_pays_only_the_pause_check(client, wnp):
+    # is_canonical and the rule scan are callables, consulted only if decide_routing's
+    # order reaches them — an untriggered request never does. So flipping the switch on
+    # for organic traffic should cost exactly one query more than fully dark (the pause
+    # check, which untriggered traffic does still reach): not the is_canonical query too.
+    url = wnp.canonical.get_url()
+    with CaptureQueriesContext(connection) as dark:
+        client.get(url)
+    with override_switch("user_routing", active=True):
+        with CaptureQueriesContext(connection) as untriggered:
+            client.get(url)
+    assert len(untriggered.captured_queries) == len(dark.captured_queries) + 1
+
+
+def test_loop_broken_traffic_costs_no_more_than_fully_dark(client, wnp):
+    # The loop-breaker is checked before the pause, so a fallen-through visitor doesn't
+    # even pay for that — let alone is_canonical or the rule scan.
+    url = wnp.canonical.get_url()
+    with CaptureQueriesContext(connection) as dark:
+        client.get(url)
+    with override_switch("user_routing", active=True):
+        with CaptureQueriesContext(connection) as loop_broken:
+            client.get(url + "?utm_source=update&routed=1")
+    assert len(loop_broken.captured_queries) == len(dark.captured_queries)
 
 
 @override_switch("user_routing", active=True)
