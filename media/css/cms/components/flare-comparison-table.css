@@ -1,0 +1,325 @@
+.fl-comparison-table-wrapper {
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
+    overflow-x: auto;
+}
+
+.fl-comparison-table {
+    inline-size: 100%;
+}
+
+/* Column headers only. Row-label cells are also <th>, but are styled by the
+   :first-child rules below. */
+.fl-comparison-table thead th,
+.fl-comparison-table thead td {
+    font-weight: var(--fl-theme-font-weight-headline);
+    min-inline-size: 200px;
+    text-transform: uppercase;
+}
+
+.fl-comparison-table thead th:not(:first-child) {
+    inline-size: 25%;
+    padding: var(--token-spacing-lg);
+}
+
+.fl-comparison-table th,
+.fl-comparison-table td {
+    border: none;
+    color: var(--comparison-table-text-color);
+    text-align: start;
+    vertical-align: middle;
+}
+
+.fl-comparison-table th:first-child,
+.fl-comparison-table td:first-child {
+    color: var(--fl-theme-color-text);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--fl-theme-font-weight-headline);
+}
+
+.fl-comparison-table td:not(:first-child) {
+    padding: var(--token-spacing-lg);
+}
+
+.fl-comparison-table .highlighted {
+    background-color: var(--comparison-table-highlighted-bg);
+    color: var(--fl-theme-color-text);
+}
+
+.fl-comparison-table thead th.highlighted,
+.fl-comparison-table thead td.highlighted {
+    border-start-end-radius: var(--token-spacing-lg);
+    border-start-start-radius: var(--token-spacing-lg);
+    padding-block-start: var(--token-spacing-xl);
+}
+
+.fl-comparison-table tbody tr {
+    border-block-start: 1px solid var(--comparison-table-border-color);
+}
+
+.fl-comparison-table tbody tr:last-child th.highlighted,
+.fl-comparison-table tbody tr:last-child td.highlighted {
+    border-end-end-radius: var(--token-spacing-lg);
+    border-end-start-radius: var(--token-spacing-lg);
+    padding-block-end: var(--token-spacing-xl);
+}
+
+/* Cell contents: comparison result (icon + Yes/No/Limited label) and image header, used for column headers. */
+
+.fl-comparison-result-icon,
+.fl-comparison-result-label,
+.fl-comparison-image-header-media,
+.fl-comparison-image-header-text {
+    display: block;
+    text-transform: uppercase;
+}
+
+.fl-comparison-result-icon {
+    margin-block-end: var(--token-spacing-xs);
+}
+
+.fl-comparison-result-icon .fl-icon {
+    block-size: var(--token-spacing-xl);
+    inline-size: var(--token-spacing-xl);
+}
+
+.fl-comparison-image-header-media {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-comparison-image-header-media img {
+    block-size: auto;
+    max-inline-size: 100%;
+}
+
+/* Browser comparison variant */
+.fl-comparison-table-wrapper.browser-comparison {
+    --comparison-table-highlighted-bg: var(
+        --comparison-table-browser-highlighted-bg
+    );
+    --comparison-table-text-color: var(--comparison-table-browser-text-color);
+    --comparison-table-border-color: var(
+        --comparison-table-browser-border-color
+    );
+    --comparison-table-browser-logo-size: 30px;
+    --comparison-table-browser-highlighted-logo-size: 70px;
+
+    /* How far the highlighted column's logo sits above the table. */
+    --comparison-table-browser-highlighted-logo-offset: 35px;
+
+    /* Where the column labels start: header cell padding, plus the logo area
+       and the gap below it. */
+    --comparison-table-browser-label-offset: calc(
+        var(--token-spacing-lg) + var(--comparison-table-browser-logo-size) +
+            var(--token-spacing-sm)
+    );
+    margin-block-end: var(--token-layout-xs);
+    padding-block-start: var(
+        --comparison-table-browser-highlighted-logo-offset
+    );
+}
+
+.fl-comparison-table-wrapper.browser-comparison
+    .fl-comparison-image-header-text {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-comparison-table-wrapper.browser-comparison th .fl-comparison-image-header,
+.fl-comparison-table-wrapper.browser-comparison td .fl-comparison-result {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fl-comparison-table-wrapper.browser-comparison th .fl-comparison-image-header {
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* Reserve a fixed logo area, with the logo sitting at the bottom of it, so the
+   labels below line up across columns no matter how tall each logo renders. */
+.fl-comparison-table-wrapper.browser-comparison
+    .fl-comparison-image-header-media {
+    align-items: flex-end;
+    block-size: var(--comparison-table-browser-logo-size);
+    display: flex;
+    justify-content: center;
+}
+
+.fl-comparison-table-wrapper.browser-comparison
+    .fl-comparison-image-header-media
+    img {
+    block-size: auto;
+    inline-size: var(--comparison-table-browser-logo-size);
+    margin: 0;
+}
+
+/* Browser comparison variant - highlighted */
+.fl-comparison-table-wrapper.browser-comparison
+    .highlighted
+    .fl-comparison-image-header-media
+    img {
+    block-size: auto;
+    inline-size: var(--comparison-table-browser-highlighted-logo-size);
+    margin: 0;
+}
+
+.fl-comparison-table-wrapper.browser-comparison .highlighted {
+    color: var(--comparison-table-browser-highlighted-text-color);
+}
+
+.fl-comparison-table-wrapper.browser-comparison th.highlighted {
+    position: relative;
+}
+
+/* Only the larger logo is lifted out of the flow, so the label stays in the
+   flow and lines up with the other columns' labels. */
+.fl-comparison-table-wrapper.browser-comparison
+    .highlighted
+    .fl-comparison-image-header-media {
+    block-size: var(--comparison-table-browser-highlighted-logo-size);
+    inset-block-start: calc(
+        -1 * var(--comparison-table-browser-highlighted-logo-offset)
+    );
+    inset-inline: 0;
+    margin-block-end: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+/* Stand in for the logo area the other columns have above their label, so this
+   label sits on the same line as theirs. */
+.fl-comparison-table-wrapper.browser-comparison thead th.highlighted {
+    padding-block-start: var(--comparison-table-browser-label-offset);
+}
+
+.fl-comparison-table-wrapper.browser-comparison
+    .highlighted
+    .fl-comparison-image-header-text {
+    color: var(--comparison-table-browser-highlighted-text-color);
+}
+
+.fl-comparison-table-wrapper.browser-comparison
+    tbody
+    tr:last-child
+    td.highlighted {
+    padding-block: 0;
+}
+
+/* Stacked mobile behavior */
+
+.fl-comparison-table-wrapper.stacked {
+    overflow-x: unset;
+}
+
+@media (--viewport-below-md) {
+    /* Browser comparison variant - mobile specific styles */
+    .fl-comparison-table-wrapper.browser-comparison {
+        margin-block-end: var(--token-layout-md);
+    }
+
+    .fl-comparison-table-wrapper.browser-comparison
+        .fl-comparison-image-header-text,
+    .fl-comparison-table-wrapper.browser-comparison
+        .fl-comparison-result-label {
+        font-size: 10px;
+    }
+
+    .fl-comparison-table-wrapper.browser-comparison .fl-comparison-table {
+        table-layout: fixed;
+    }
+
+    .fl-comparison-table-wrapper.browser-comparison
+        .fl-comparison-table
+        th:not(:first-child),
+    .fl-comparison-table-wrapper.browser-comparison
+        .fl-comparison-table
+        td:not(:first-child) {
+        inline-size: 64px;
+        min-inline-size: 0;
+        overflow-wrap: break-word;
+        padding-inline: var(--token-spacing-xs);
+    }
+
+    /* default comparison table mobile styles */
+    .fl-comparison-table-wrapper.stacked thead,
+    .fl-comparison-table-wrapper.stacked tbody {
+        display: block;
+        inline-size: 100%;
+    }
+
+    .fl-comparison-table-wrapper.stacked thead tr {
+        display: flex;
+        inline-size: 100%;
+    }
+
+    .fl-comparison-table-wrapper.stacked thead th:first-child,
+    .fl-comparison-table-wrapper.stacked thead td:first-child {
+        display: none;
+    }
+
+    .fl-comparison-table-wrapper.stacked thead th {
+        flex: 1;
+        text-align: center;
+    }
+
+    .fl-comparison-table-wrapper.stacked .fl-comparison-table thead th,
+    .fl-comparison-table-wrapper.stacked .fl-comparison-table thead td {
+        min-inline-size: unset;
+    }
+
+    .fl-comparison-table-wrapper.stacked tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        inline-size: 100%;
+    }
+
+    .fl-comparison-table-wrapper.stacked tbody th:first-child,
+    .fl-comparison-table-wrapper.stacked tbody td:first-child {
+        display: block;
+        flex: 0 0 100%;
+        padding-block-end: 0;
+        text-align: center;
+    }
+
+    .fl-comparison-table-wrapper.stacked tbody td:not(:first-child) {
+        flex: 1;
+        min-inline-size: 0;
+        text-align: center;
+    }
+
+    .fl-comparison-table-wrapper.stacked .fl-comparison-table .highlighted {
+        background-color: unset;
+    }
+
+    .fl-comparison-table-wrapper.stacked
+        .fl-comparison-table
+        thead
+        .highlighted,
+    .fl-comparison-table-wrapper.stacked
+        .fl-comparison-table
+        tbody
+        tr:last-child
+        .highlighted {
+        border-radius: 0;
+        padding: var(--token-spacing-lg);
+    }
+
+    /* Keep the label lined up with the other columns' labels, which the
+       padding shorthand above would otherwise reset. */
+    .fl-comparison-table-wrapper.browser-comparison.stacked
+        .fl-comparison-table
+        thead
+        th.highlighted {
+        padding-block-start: var(--comparison-table-browser-label-offset);
+    }
+}
+
+.fl-comparison-table-fine-print {
+    color: var(--comparison-table-text-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin-block-start: var(--token-spacing-md);
+    text-align: center;
+}

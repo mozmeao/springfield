@@ -1,0 +1,139 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="comparison-table-highlighted">
+  <include:comparison-table mobile_behavior="scroll">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+
+    <content:fine_print>
+      <p>{{ fine_print }}</p>
+    </content:fine_print>
+  </include:comparison-table>
+</div>
+
+<div data-testid="comparison-table-cell-contents">
+  <include:comparison-table mobile_behavior="stacked">
+    <content:header>
+      <tr>
+        {% for cell in image_header_cells %}
+          {% set cell_tag = 'th' if cell.label else 'td' %}
+          <{{ cell_tag }} {% if cell.label %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>
+            {% if cell.url %}
+              <include:comparison-image-header label="{{ cell.label }}">
+                <content:image>
+                  <img src="{{ cell.url }}" alt="" width="200" loading="lazy" />
+                </content:image>
+              </include:comparison-image-header>
+            {% endif %}
+          </{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in result_rows %}
+        <tr>
+          <th scope="row">{{ row.label }}</th>
+          {% for result in row.results %}
+            <td {% if loop.index == 1 %}class="highlighted"{% endif %}>
+              <include:comparison-result
+                icon_name="{{ result.icon_name }}"
+                label="{{ result.label }}"
+              />
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+
+    <content:fine_print>
+      <p>{{ fine_print }}</p>
+    </content:fine_print>
+  </include:comparison-table>
+</div>
+
+<div data-testid="comparison-table-browser-comparison">
+  <include:comparison-table mobile_behavior="stacked" variant="browser-comparison">
+    <content:header>
+      <tr>
+        {% for cell in image_header_cells %}
+          {% set cell_tag = 'th' if cell.label else 'td' %}
+          <{{ cell_tag }} {% if cell.label %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>
+            {% if cell.url %}
+              <include:comparison-image-header label="{{ cell.label }}">
+                <content:image>
+                  <img src="{{ cell.url }}" alt="" width="200" loading="lazy" />
+                </content:image>
+              </include:comparison-image-header>
+            {% endif %}
+          </{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in result_rows %}
+        <tr>
+          <th scope="row">{{ row.label }}</th>
+          {% for result in row.results %}
+            <td {% if loop.index == 1 %}class="highlighted"{% endif %}>
+              <include:comparison-result
+                icon_name="{{ result.icon_name }}"
+                label="{{ result.label }}"
+              />
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+
+    <content:fine_print>
+      <p>{{ fine_print }}</p>
+    </content:fine_print>
+  </include:comparison-table>
+</div>
+
+<div data-testid="comparison-table-stacked">
+  <include:comparison-table mobile_behavior="stacked">
+    <content:header>
+      <tr>
+        {% for cell in header_cells %}
+          {% set cell_tag = 'th' if cell.content else 'td' %}
+          <{{ cell_tag }} {% if cell.content %}scope="col"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    </content:header>
+    <content:body>
+      {% for row in content_rows %}
+        <tr>
+          {% for cell in row.cells %}
+            {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+            <{{ cell_tag }} {% if cell_tag == 'th' %}scope="row"{% endif %} {% if loop.index == 2 %}class="highlighted"{% endif %}>{{ cell.content }}</{{ cell_tag }}>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </content:body>
+
+    <content:fine_print>
+      <p>{{ fine_print }}</p>
+    </content:fine_print>
+  </include:comparison-table>
+</div>

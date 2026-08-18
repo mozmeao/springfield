@@ -197,6 +197,13 @@ html {
     text-decoration: none;
 }
 
+.fl-menu-top-level-link[aria-current],
+.fl-menu-top-level-link[aria-current]:hover {
+    text-decoration-color: var(--token-color-light-purple-40);
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+}
+
 /* ================================================
    Menu Panel Styles
    ================================================ */

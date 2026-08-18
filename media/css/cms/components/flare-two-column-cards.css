@@ -30,6 +30,10 @@
     position: relative;
 }
 
+.fl-two-column-card .fl-button-row {
+    margin-block-start: auto;
+}
+
 .fl-two-column-card .fl-icon-text-list li {
     padding-block: 0;
 }
@@ -37,6 +41,10 @@
 .fl-two-column-card .media img {
     inline-size: 100%;
     margin-block-end: 0;
+}
+
+.fl-two-column-card .media video {
+    border-radius: var(--gallery-card-radius);
 }
 
 .fl-two-column-card .fl-heading {

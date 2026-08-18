@@ -9,7 +9,7 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.middleware import CMSLocaleFallbackMiddleware
+from springfield.cms.middleware import CMSLocaleFallbackMiddleware, mark_locale_fallback_exempt
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -614,3 +614,21 @@ def test_CMSLocaleFallbackMiddleware_alias_locale_view_restricted_page_redirects
     # Redirects to canonical URL so Wagtail's restriction enforcement fires there
     assert response.status_code == 302
     assert response.headers["Location"] == pt_br_child.url
+
+
+def test_CMSLocaleFallbackMiddleware_respects_the_locale_fallback_exemption(rf):
+    """A page that 404s its own request must not be locale-fallen-back.
+
+    The fallback lookup would rediscover that same live page at that same path
+    and redirect to it, which a browser sees as an infinite redirect loop. The
+    exemption short-circuits before any lookup, so no site fixture is needed --
+    which is also the point: nothing is queried.
+    """
+    request = rf.get("/en-US/test-page/")
+    mark_locale_fallback_exempt(request)
+
+    middleware = CMSLocaleFallbackMiddleware(get_response=get_404_response)
+    response = middleware(request)
+
+    assert response.status_code == 404
+    assert "Location" not in response

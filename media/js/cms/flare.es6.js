@@ -20,6 +20,8 @@ import setupScrollingCardGrid from './components/flare-scrolling-card-grid.es6';
 import { setupSetAsDefault } from './components/flare-set-as-default.es6';
 import setupSlidingCarousels from './components/flare-sliding-carousel.es6';
 import setupRoadmap from './components/flare-roadmap.es6';
+import setupTabs from './components/flare-tabs.es6';
+import setupBrowserTabs from './components/flare-browser-tabs.es6';
 import setupTopicListSidebar from './components/flare-topic-list-sidebar.es6';
 import setupTypewriter, { typewriter } from './components/flare-typewriter.es6';
 import setupVideo from './components/flare-video.es6';
@@ -42,6 +44,9 @@ function setupComponents() {
     setupDownloadDropdown();
     setupQRCodeSnippet();
     setupRoadmap();
+    // Browser auto-selection runs on the instances setupTabs() returns, and
+    // only affects tablists whose tabs declare a browser.
+    setupBrowserTabs(setupTabs());
     setupTopicListSidebar();
     setupTypewriter();
     setupDialogs();

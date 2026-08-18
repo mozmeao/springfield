@@ -76,12 +76,6 @@
     },
     {
       "files": [
-        "css/firefox/ios-summarizer.scss"
-      ],
-      "name": "firefox-ios-summarizer"
-    },
-    {
-      "files": [
         "css/base/banners/firefox-app-store.scss"
       ],
       "name": "firefox-app-store-banner"
@@ -249,7 +243,8 @@
     },
     {
       "files": [
-        "css/cms/wagtail-admin.css"
+        "css/cms/wagtail-admin.css",
+        "css/cms/routing/admin.css"
       ],
       "name": "wagtail-admin"
     },
@@ -441,6 +436,18 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-referral-hub.css"
+      ],
+      "name": "flare-referral-hub"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-referral-get-firefox.css"
+      ],
+      "name": "flare-referral-get-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
@@ -454,9 +461,22 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-geforce-now.css"
+      ],
+      "name": "flare26-geforce-now",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-geforce-now' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
         "css/cms/themes/enterprise.css"
       ],
       "name": "flare-theme-enterprise"
+    },
+    {
+      "files": [
+        "css/cms/routing/resolver.scss"
+      ],
+      "name": "cms_routing_resolver"
     }
   ],
   "js": [
@@ -556,6 +576,13 @@
         "js/base/mobile-attribution.js"
       ],
       "name": "mobile-attribution"
+    },
+    {
+      "files": [
+        "js/firefox/referral/referral-attribution.es6.js",
+        "js/firefox/referral/referral-attribution-init.es6.js"
+      ],
+      "name": "referral-attribution"
     },
     {
       "files": [
@@ -720,12 +747,6 @@
     },
     {
       "files": [
-        "js/firefox/browsers/ios-summarizer.js"
-      ],
-      "name": "ios_summarizer"
-    },
-    {
-      "files": [
         "js/base/send-to-device.es6.js",
         "js/firefox/browsers/mobile.es6.js"
       ],
@@ -846,6 +867,18 @@
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"
+    },
+    {
+      "files": [
+        "js/cms/routing/resolver.es6.js"
+      ],
+      "name": "cms_routing_resolver"
+    },
+    {
+      "files": [
+        "js/cms/routing/condition-help.es6.js"
+      ],
+      "name": "wagtailadmin-routing-help"
     }
   ]
 }

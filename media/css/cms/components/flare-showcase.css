@@ -1,3 +1,9 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
 .fl-showcase {
     display: flex;
     flex-direction: column;
@@ -22,19 +28,28 @@
     text-align: start;
 }
 
-.fl-showcase-image {
+.fl-showcase-description {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-showcase-media {
     margin: 0 auto;
+}
+
+.fl-showcase-media:has(.fl-video),
+.fl-showcase-media:has(.fl-media-tabs) {
+    inline-size: 100%;
 }
 
 .fl-showcase-cta {
     margin: 0 auto;
 }
 
-.fl-showcase-image img {
+.fl-showcase-media img {
     inline-size: 100%;
 }
 
-.fl-showcase-image .fl-video {
+.fl-showcase-media .fl-video {
     margin-block-end: var(--token-spacing-lg);
 }
 
@@ -47,11 +62,11 @@
 }
 
 @media (--viewport-md-up) {
-    .fl-showcase.fl-showcase-default .fl-showcase-image {
+    .fl-showcase.fl-showcase-default .fl-showcase-media {
         max-inline-size: var(--token-width-desktop-content);
     }
 
-    .fl-showcase.fl-showcase-full .fl-showcase-image {
+    .fl-showcase.fl-showcase-full .fl-showcase-media {
         inline-size: 100%;
     }
 
@@ -59,7 +74,8 @@
         inline-size: var(--token-width-desktop-content);
     }
 
-    .fl-showcase.fl-showcase-expanded .fl-showcase-image {
+    .fl-showcase.fl-showcase-expanded .fl-showcase-media {
+        inline-size: calc(100% + 260px);
         margin-inline: -130px;
     }
 }

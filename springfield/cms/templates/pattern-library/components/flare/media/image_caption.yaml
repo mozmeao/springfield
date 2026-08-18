@@ -1,0 +1,34 @@
+name: "Image + Caption"
+context:
+  variants:
+    - title: Default layout
+      testid: default
+      layout: default
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      caption: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, with <b>bold</b>, <i>italic</i> and a <a href="#">link</a> to the source.'
+
+    - title: Expanded layout
+      testid: expanded
+      layout: expanded
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      caption: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, with <b>bold</b>, <i>italic</i> and a <a href="#">link</a> to the source.'
+
+    - title: Full width layout
+      testid: full
+      layout: full
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      caption: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, with <b>bold</b>, <i>italic</i> and a <a href="#">link</a> to the source.'
+
+    - title: Default layout without caption
+      testid: default-without-caption
+      layout: default
+      image:
+        url: /media/img/firefox/flare/placeholder.png
+        alt: Placeholder image
+      caption: ""

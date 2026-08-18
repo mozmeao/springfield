@@ -35,9 +35,11 @@
                   {{ heading.heading_text|richtext|remove_p_tag }}
                 </{{ heading_level }}>
                 {% if heading.subheading_text %}
-                  <span class="fl-body fl-sliding-carousel-subheading">
-                    {{ heading.subheading_text|richtext|remove_p_tag }}
-                  </span>
+                  <div class="fl-sliding-carousel-subheading-wrapper">
+                    <span class="fl-body fl-sliding-carousel-subheading">
+                      {{ heading.subheading_text|richtext|remove_p_tag }}
+                    </span>
+                  </div>
                 {% endif %}
                 </div>
               </li>

@@ -187,18 +187,6 @@ Basic Card
     align-items: center;
 }
 
-/* Default card variant: illustration card look.
-   fl-card-media/fl-card-top-media sits at top, fl-card-content wraps heading/body/buttons.
-   Only applied when not an outline or filled variant. */
-.fl-card .fl-card-top-media {
-    margin-block-end: var(--token-spacing-xl);
-}
-
-.fl-card .fl-card-top-media .fl-card-media-icon,
-.fl-card .fl-card-top-media .fl-card-media-pictogram {
-    margin-block-end: var(--token-spacing-lg);
-}
-
 .fl-card .fl-card-content {
     display: flex;
     flex-direction: column;
@@ -279,6 +267,14 @@ Outlined Card variant
     opacity: 1;
 }
 
+.fl-card.fl-card-outline .fl-card-top-media {
+    margin: 0;
+}
+
+.fl-card.fl-card-outline .fl-card-content {
+    flex-grow: 0;
+}
+
 /* =====================================================================
 Filled Card variant
 ===================================================================== */
@@ -326,7 +322,9 @@ Filled Card variant
 }
 
 /* Pictogram in filled card: no squircle bg */
-.fl-card.fl-card-filled .fl-card-media-pictogram {
+.fl-card.fl-card-filled .fl-card-media-pictogram,
+.fl-card.fl-card-outline > *:not(.fl-card-top-media) .fl-card-media-pictogram {
+    align-self: flex-start;
     background-color: transparent;
     block-size: auto;
     border-radius: 0;
@@ -352,6 +350,10 @@ Card Testimonial content block
 /* Testimonial cards use xl padding on mobile; md-up upgrades font to body-sm. */
 .fl-card.fl-card-outline:has(.fl-card-testimonial) {
     padding: var(--token-spacing-xl);
+}
+
+.fl-card.fl-card.fl-card-outline:has(.fl-card-testimonial) .fl-card-content {
+    flex-grow: 1;
 }
 
 @media (--viewport-md-up) {
@@ -442,17 +444,35 @@ Alignment modifiers
 /* Button and tag alignment follows card alignment */
 .fl-card.fl-card-start .fl-buttons,
 .fl-card.fl-card-start .fl-tags {
+    align-items: flex-start;
     justify-content: flex-start;
+}
+
+.fl-card.fl-card-start.fl-card-filled .fl-card-media-pictogram,
+.fl-card.fl-card-start > *:not(.fl-card-top-media) .fl-card-media-pictogram {
+    align-self: flex-start;
 }
 
 .fl-card.fl-card-center .fl-buttons,
 .fl-card.fl-card-center .fl-tags {
+    align-items: center;
     justify-content: center;
+}
+
+.fl-card.fl-card-center.fl-card-filled .fl-card-media-pictogram,
+.fl-card.fl-card-center > *:not(.fl-card-top-media) .fl-card-media-pictogram {
+    align-self: center;
 }
 
 .fl-card.fl-card-end .fl-buttons,
 .fl-card.fl-card-end .fl-tags {
+    align-items: flex-end;
     justify-content: flex-end;
+}
+
+.fl-card.fl-card-end.fl-card-filled .fl-card-media-pictogram,
+.fl-card.fl-card-end > *:not(.fl-card-top-media) .fl-card-media-pictogram {
+    align-self: flex-end;
 }
 
 /* =====================================================================
@@ -495,14 +515,26 @@ Card media containers
 .fl-card .fl-card-media-icon,
 .fl-card .fl-card-media-pictogram {
     align-items: center;
-    background-color: var(--fl-theme-illustration-icon-bg);
     block-size: var(--media-size);
-    border-radius: var(--media-border-radius);
     display: flex;
     inline-size: var(--media-size);
     justify-content: center;
     min-block-size: var(--media-size);
     min-inline-size: var(--media-size);
+}
+
+/* Default card variant: illustration card look.
+   fl-card-media/fl-card-top-media sits at top, fl-card-content wraps heading/body/buttons.
+   Only applied when not an outline or filled variant. */
+.fl-card .fl-card-top-media {
+    margin-block-end: var(--token-spacing-xl);
+}
+
+.fl-card .fl-card-top-media .fl-card-media-icon,
+.fl-card .fl-card-top-media .fl-card-media-pictogram {
+    background-color: var(--fl-theme-illustration-icon-bg);
+    border-radius: var(--media-border-radius);
+    margin-block-end: var(--token-spacing-lg);
     padding: var(--media-padding);
 }
 

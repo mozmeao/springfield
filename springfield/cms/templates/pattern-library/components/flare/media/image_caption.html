@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% for variant in variants %}
+  <div data-testid="image-caption-{{ variant.testid }}" style="margin-bottom: 2em;">
+    <h2>{{ variant.title }}</h2>
+    <include:image-caption layout="{{ variant.layout }}">
+      <content:image>
+        <div class="image-variants-display">
+          <img src="{{ variant.image.url }}" alt="{{ variant.image.alt }}" />
+        </div>
+      </content:image>
+      {% if variant.caption %}
+        <content:caption>{{ variant.caption }}</content:caption>
+      {% endif %}
+    </include:image-caption>
+  </div>
+{% endfor %}

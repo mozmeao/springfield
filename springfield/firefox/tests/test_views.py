@@ -4,7 +4,7 @@
 
 import json
 from unittest.mock import patch
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, quote
 
 from django.http import HttpResponse
 from django.test import override_settings
@@ -352,6 +352,37 @@ class TestStubAttributionCode(TestCase):
         req = self._get_request(params)
         resp = views.stub_attribution_code(req)
         self.assertEqual(resp.status_code, 403)
+
+    def test_referral_utm_content_accepted(self):
+        """utm_content=fxrefer<invitation_code> must pass STUB_VALUE_RE validation
+        and round-trip through signing unchanged.
+
+        The invitation code is 17 Crockford base32 chars (uppercase letters and
+        digits), prefixed by "fxrefer". The STUB_VALUE_RE colon allowance and
+        the 150-char hasValidData cap both apply; this confirms both are satisfied
+        for a real-world code.
+        """
+        invitation_code = "1HR4FZ672Z8Y0E4HW"
+        referral_content = f"fxrefer{invitation_code}"
+        params = {
+            "utm_source": "www.firefox.com",
+            "utm_medium": "referral",
+            "utm_campaign": "firefox-referral",
+            "utm_content": referral_content,
+            "session_id": "1234567890",
+        }
+        req = self._get_request(params)
+        resp = views.stub_attribution_code(req)
+        self.assertEqual(resp.status_code, 200)
+        assert resp["cache-control"] == "max-age=300"
+        data = json.loads(resp.content)
+        # Both signed fields must be present.
+        assert "attribution_code" in data
+        assert "attribution_sig" in data
+        # The content value must survive the sign/encode round-trip.
+        attrs = parse_qs(querystringsafe_base64.decode(data["attribution_code"].encode()).decode())
+        attrs = {k: v[0] for k, v in attrs.items()}
+        self.assertEqual(attrs["content"], referral_content)
         assert resp["cache-control"] == "max-age=300"
 
 
@@ -929,3 +960,40 @@ class TestDownloadRedirect(TestCase):
         resp = download_redirect(req)
         assert resp.status_code == 302
         assert resp["Location"] == "/en-US/"
+
+
+class TestFirefoxThanksAndroidUTMParameters(TestCase):
+    def test_thanks_contains_matching_utm(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.test.com") in href
+
+    def test_thanks_passes_default_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.firefox.com") in href
+        assert quote("utm_medium=referral") in href
+        assert quote("utm_campaign=download") in href
+
+    def test_thanks_overwrites_default_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com&utm_medium=test&utm_campaign=test", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_source=www.firefox.com") not in href
+        assert quote("utm_source=www.test.com") in href
+        assert quote("utm_medium=referral") not in href
+        assert quote("utm_medium=test") in href
+        assert quote("utm_campaign=download") not in href
+        assert quote("utm_campaign=test") in href
+
+    def test_thanks_passes_all_utm_parameters(self):
+        resp = self.client.get("/en-US/thanks/?utm_source=www.test.com&utm_medium=test&utm_campaign=test&utm_content=abc123", follow=True)
+        doc = pq(resp.content)
+        link = doc("#thanks-download-button-android")
+        href = link.attr("href")
+        assert quote("utm_content=abc123") in href
