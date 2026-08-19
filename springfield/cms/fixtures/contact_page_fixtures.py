@@ -4,6 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.models import ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
 
 
 def get_form_field_variants() -> list[dict]:
@@ -201,7 +202,8 @@ def get_contact_test_page() -> ContactPage:
         parent=index_page,
         defaults={
             "title": "Test Contact Page",
-            "basket_api_path": "/api/v1/contact/enterprise/",
+            "basket_api_path": BASKET_CONTACT_ENTERPRISE_PATH,
+            "form_fields": get_form_field_variants(),
             "thank_you_message": '<p data-block-key="ctpty1">Thanks for reaching out!</p>',
         },
     )
@@ -236,7 +238,7 @@ def get_contact_test_page() -> ContactPage:
         }
     ]
     page.form_fields = get_form_field_variants()
-    page.basket_api_path = "/api/v1/contact/enterprise/"
+    page.basket_api_path = BASKET_CONTACT_ENTERPRISE_PATH
     page.thank_you_message = '<p data-block-key="ctpty1">Thanks for reaching out!</p>'
     page.save_revision().publish()
     return page
