@@ -11,7 +11,7 @@ import springfield.cms.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0140_merge_20260818_1805"),
+        ("cms", "0140_merge_20260818_1955"),
     ]
 
     operations = [
