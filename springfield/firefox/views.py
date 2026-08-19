@@ -1064,6 +1064,10 @@ class WhatsnewView(L10nTemplateView):
         ctx["version"] = version
         ctx["num_version"] = num_version
 
+        # A What's New version may be a major on its own (e.g. "153"), while release
+        # notes URLs need a minor component too (e.g. "153.0").
+        ctx["releasenotes_version"] = f"{version}.0" if version and "." not in version else version
+
         # add analytics parameters to context for use in templates
         if channel not in pre_release_channels:
             channel = ""

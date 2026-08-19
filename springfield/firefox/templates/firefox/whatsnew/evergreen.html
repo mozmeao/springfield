@@ -90,7 +90,7 @@
     </div>
 
     <aside class="mzp-l-content c-utilities">
-      {% set releasenotes_url = url('firefox.releases.index') if not version else '/firefox/%s/releasenotes/'|format(version) %}
+      {% set releasenotes_url = url('firefox.desktop.releasenotes', releasenotes_version, 'release') if releasenotes_version else url('firefox.releases.index') %}
       {% set releasenotes_link = 'href="%s" target="_blank"'|safe|format(releasenotes_url) %}
       <p>{{ ftl('whatsnew-release-notes', url=releasenotes_link) }}</p>
     </aside>
