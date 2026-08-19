@@ -59,7 +59,6 @@ VIDEO_ARTICLE_SLUG = "test-hero-video-article"
 LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
 BOTTOM_BANNER_ARTICLE_SLUG = "test-bottom-banner-article"
 
-# plus the 5 hero style / listing image / bottom banner demonstrations = 33 total articles
 NUM_LIST_ARTICLES = 33
 NUM_FEATURED_INDEX_SHOWN = 4  # articles in index page featured_articles StreamField
 
@@ -194,18 +193,13 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
                 "topic": "",
                 "title": "",
                 "description": "",
-<<<<<<< HEAD
-=======
                 "tags": [],
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
             },
         },
         "id": block_id,
     }
 
 
-<<<<<<< HEAD
-=======
 def get_bottom_banner_stream() -> list[dict]:
     """StreamField data for BlogArticlePage.bottom_banner: a single default banner."""
     return [
@@ -240,7 +234,6 @@ def get_bottom_banner_stream() -> list[dict]:
     ]
 
 
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
 def create_blog_article(
     *,
     index_page: BlogIndexPage,
@@ -492,13 +485,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
         }
     ]
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
-<<<<<<< HEAD
     index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:4], start=1)]
     index_page.article_sections = [
-=======
-    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
-    index_page.cards_lists = [
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
         {
             "type": "cards_list",
             "value": {
@@ -506,13 +494,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "source": [{"type": "topic", "value": topics["privacy"].pk, "id": "src00001-0000-0000-0000-000000000001"}],
                 "count": 3,
                 "link_label": "View all Privacy",
-<<<<<<< HEAD
-=======
-                "link_filter": "?topic=privacy",
-                "articles": [
-                    blog_article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
-                ],
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
             },
             "id": "cl000001-0000-0000-0000-000000000001",
         },
@@ -523,31 +504,12 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "source": [{"type": "tag", "value": tags["security"].pk, "id": "src00002-0000-0000-0000-000000000002"}],
                 "count": 2,
                 "link_label": "View all Security",
-<<<<<<< HEAD
-=======
-                "link_filter": "?topic=security",
-                "articles": [
-                    blog_article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
-                ],
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
             },
             "id": "cl000002-0000-0000-0000-000000000002",
         },
         {
-<<<<<<< HEAD
             "type": "latest",
             "value": {"heading_text": '<p data-block-key="clh00003">Latest</p>', "count": 4, "link_label": "View all"},
-=======
-            "type": "cards_list",
-            "value": {
-                "heading_text": '<p data-block-key="clh00003">More Articles 3</p>',
-                "link_label": "View all",
-                "link_filter": "",
-                "articles": [
-                    blog_article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
-                ],
-            },
->>>>>>> refs/rewritten/WT-1543-blog-article-base-styles
             "id": "cl000003-0000-0000-0000-000000000003",
         },
     ]

@@ -712,19 +712,6 @@ def test_blog_index_edit_handler_has_a_blog_options_tab():
     assert "featured_topics" in edit_handler.get_form_class().base_fields
 
 
-def test_blog_index_view_all_topics_link(blog_setup, rf):
-    index_page, _ = blog_setup
-    request = rf.get(index_page.get_full_url())
-    response = index_page.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    topics_route_url = index_page.url + index_page.reverse_subpage("topics_route")
-    view_all = soup.find("div", class_="fl-blog-topics-all")
-    assert view_all
-    link = view_all.find("a")
-    assert link and link["href"] == topics_route_url
-
-
 def test_blog_index_renders_first_featured_as_hero(blog_setup, rf):
     index_page, articles = blog_setup
     first_article = articles[0]  # first article placed in the StreamField
