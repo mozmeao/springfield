@@ -285,6 +285,47 @@ class TaggedBlogArticle(ItemBase):
     content_object = ParentalKey("cms.BlogArticlePage", related_name="tagged_items", on_delete=models.CASCADE)
 
 
+class BlogAuthor(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A person credited on blog articles. Articles reference default-locale authors;
+    the localized name is resolved at render time by BlogArticlePage.get_authors()."""
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
+    job_title = models.CharField(max_length=255, blank=True)
+    bio = RichTextField(features=EXPANDED_TEXT_FEATURES, blank=True)
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    email = models.EmailField(blank=True)
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+        FieldPanel("job_title"),
+        FieldPanel("bio"),
+        FieldPanel("image"),
+        FieldPanel("email"),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("slug"),
+        SynchronizedField("email"),
+        SynchronizedField("image"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Blog Author"
+        verbose_name_plural = "Blog Authors"
+        unique_together = [*TranslatableMixin.Meta.unique_together, ("slug", "locale")]
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
+
+
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet to render a floating QR code."""
 

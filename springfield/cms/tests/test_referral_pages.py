@@ -367,6 +367,40 @@ def test_hub_page_get_context_stays_tolerant_of_a_missing_ref_key(rf):
     assert context["install_count"] == 0
 
 
+def _showcase_block(block_id, headline):
+    """Minimal showcase StreamField dict, enough for the template to emit a heading."""
+    return {
+        "type": "showcase",
+        "id": block_id,
+        "value": {
+            "settings": {"layout": "default"},
+            "headline": f'<p data-block-key="a">{headline}</p>',
+            "media": [],
+        },
+    }
+
+
+def test_hub_page_renders_exactly_one_h1(rf):
+    """The pre-footer showcase must not restart the heading levels.
+
+    Its heading counter lives in a separate Jinja block from the main content's,
+    so a level reset there would give the page a second h1.
+    """
+    site = Site.objects.get(is_default_site=True)
+    hub_page = ReferralHubPageFactory(parent=site.root_page)
+    hub_page.upper_content = [_showcase_block("aa000000-0000-0000-0000-000000000001", "Invite your friends")]
+    hub_page.extra_content = [_showcase_block("aa000000-0000-0000-0000-000000000002", "Get Firefox everywhere")]
+    hub_page.save()
+
+    response = hub_page.serve(rf.get(f"/en-US/invite/?ref_key={REFERRAL_ID}"))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert [h.get_text(strip=True) for h in soup.find_all("h1")] == ["Invite your friends"]
+
+    pre_footer = soup.select_one(".fl-split-page-extra")
+    assert pre_footer.find("h2").get_text(strip=True) == "Get Firefox everywhere"
+
+
 # Invitee page: an unusable invite code is not found
 
 

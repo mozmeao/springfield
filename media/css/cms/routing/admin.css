@@ -1,0 +1,169 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* User Routing — styles for the routing authoring surface in the Wagtail admin: the
+   condition help beneath each expected-value field, the rules-listing status badges, and the
+   signals reference page. Kept out of wagtail-admin.css so the shared admin stylesheet has no
+   routing-specific rules in it, matching how the resolver page's own styles live in
+   routing/resolver.scss. */
+
+/* stylelint-disable selector-class-pattern, selector-id-pattern -- Two naming rules do not
+   apply cleanly here and neither is ours to change: `#id_routing_config-ADD` is an id Wagtail
+   generates for an InlinePanel's add button, and the source badge modifiers (`--cdn_geo`,
+   `--user_agent`) are the signal registry's own source values, rendered straight into the class
+   name so the badge cannot drift from the data. The remaining BEM modifiers follow those. */
+
+/* User Routing — the kill switch is always exactly one record (auto-added), so hide its
+   InlinePanel "Add" button entirely rather than leaving it greyed. */
+#id_routing_config-ADD {
+    display: none;
+}
+
+/* User Routing — a rule matching all triggered visitors ignores its conditions, so dim them
+   while its checkbox is ticked. Dimmed rather than disabled: the fields stay editable and
+   keep submitting, so ticking the box never quietly discards conditions the author wrote.
+   The explanation is server-rendered next to the checkbox and on the conditions panel. */
+.routing-conditions--ignored {
+    opacity: 0.5;
+}
+
+/* User Routing — dynamic condition help and its invalid state. Theme-aware
+   via Wagtail tokens. The invalid help reads as a small red callout, and the value field
+   gets an immediate red outline so a bad value is obvious before saving. */
+.routing-condition-help {
+    color: var(--w-color-text-context);
+    font-size: 0.8125rem;
+    margin-block-start: 0.35rem;
+}
+
+.routing-condition-help--invalid {
+    /* No tinted background: the fixed critical-50 pink doesn't adapt to dark mode and
+       tanks contrast. Use the theme-adaptive error colour for text + a red left border on
+       the normal page background — reads clearly in both light and dark. */
+    border-inline-start: 3px solid var(--w-color-text-error);
+    color: var(--w-color-text-error);
+    padding-block: 0.3rem;
+    padding-inline-start: 0.6rem;
+}
+
+input[name$='-expected_value'][aria-invalid='true'] {
+    border-color: var(--w-color-text-error);
+    box-shadow: 0 0 0 1px var(--w-color-text-error);
+}
+
+/* User Routing — signals reference page. Theme-aware via Wagtail design tokens so
+   it follows the admin's light/dark theme; badges carry a per-source accent. */
+.routing-signals-reference__note {
+    background: var(--w-color-surface-field-inactive);
+    border-inline-start: 4px solid var(--w-color-border-furniture);
+    border-radius: 3px;
+    color: var(--w-color-text-context);
+    margin-block: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.routing-signals-reference__table code {
+    color: var(--w-color-text-context);
+}
+
+/* Descriptions come from the registry (detailed, honest) — keep them but visually
+   secondary so the table scans quickly. */
+.routing-signal-description {
+    color: var(--w-color-text-label);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    max-width: 30rem;
+}
+
+.routing-operators {
+    color: var(--w-color-text-context);
+    font-size: 0.8125rem;
+}
+
+.routing-signal-freetext {
+    color: var(--w-color-text-label);
+    font-size: 0.8125rem;
+    font-style: italic;
+}
+
+/* Known-set string signals (locale / country): long lists collapsed behind a summary. */
+.routing-value-list > summary {
+    color: var(--w-color-text-link-default);
+    cursor: pointer;
+    font-size: 0.8125rem;
+}
+
+.routing-value-list__items {
+    line-height: 1.7;
+    margin-block-start: 0.4rem;
+    max-height: 12rem;
+    max-width: 24rem;
+    overflow-y: auto;
+}
+
+.routing-badge {
+    background: var(--w-color-surface-field-inactive);
+    border: 1px solid var(--w-color-border-furniture);
+    border-inline-start-width: 4px;
+    border-radius: 1em;
+    color: var(--w-color-text-label);
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.6;
+    padding: 0.05em 0.5em;
+    white-space: nowrap;
+}
+
+/* Rules listing status. "Waiting" is the ordinary state of a rule whose target is still being
+   translated or published, so it must not look like an error; "won't fire" is a rule that stays
+   broken until somebody edits it. Accent colours follow the same left-border-only approach as
+   the source badges below, which reads on both light and dark. */
+.routing-badge--active {
+    border-inline-start-color: var(--w-color-text-meta);
+    font-weight: 500;
+}
+
+.routing-badge--pending {
+    border-inline-start-color: #7f5f00;
+}
+
+.routing-badge--wont-fire {
+    border-inline-start-color: var(--w-color-text-error);
+    color: var(--w-color-text-error);
+}
+
+.routing-status-reason {
+    color: var(--w-color-text-context);
+    display: block;
+    font-size: 0.8125rem;
+    margin-block-start: 0.2rem;
+}
+
+/* Per-source accent (left border only, so it reads on both light and dark). */
+.routing-badge--cdn_geo {
+    border-inline-start-color: #0060df;
+}
+
+.routing-badge--user_agent {
+    border-inline-start-color: #008787;
+}
+
+.routing-badge--uitour {
+    border-inline-start-color: #b5007f;
+}
+
+.routing-badge--url {
+    border-inline-start-color: #7f5f00;
+}
+
+.routing-badge--type {
+    border-inline-start-width: 1px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+/* stylelint-enable selector-class-pattern, selector-id-pattern */
