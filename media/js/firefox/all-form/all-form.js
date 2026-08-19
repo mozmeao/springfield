@@ -91,6 +91,14 @@ const ANDROID_PLAY_STORE_LINKS = {
         'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all'
 };
 
+// The Windows options with a Microsoft Store listing. The MSI builds are for
+// corporate IT to deploy and have no store equivalent.
+const MICROSOFT_STORE_OS = new Set([
+    OS.WINDOWS32,
+    OS.WINDOWS64,
+    OS.WINDOWS64ARM
+]);
+
 const MICROSOFT_STORE_LINKS = {
     [RELEASES.STABLE]:
         'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&cid=firefox-all&mz_cn=release',
@@ -551,9 +559,11 @@ class FirefoxDownloadFormElement extends HTMLElement {
             releaseSupportsPlatform(RELEASES.ESR_115, this.#os.value)
     );
 
+    // Keyed on the exact OS rather than the family: the MSI builds are Windows
+    // but have no Store listing, and that distinction is the whole point here.
     #hasMicrosoftStore = computed(
         () =>
-            this.#platformFamily.value === PLATFORM.WINDOWS &&
+            MICROSOFT_STORE_OS.has(this.#os.value) &&
             (this.#release.value === RELEASES.STABLE ||
                 this.#release.value === RELEASES.BETA)
     );
