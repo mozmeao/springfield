@@ -9,6 +9,11 @@
     {{ value.quote|richtext }}
   </blockquote>
   {% if value.author %}
-    <figcaption class="fl-quote-author fl-body fl-body-small">{{ value.author }}</figcaption>
+    <figcaption class="fl-quote-author fl-body fl-body-small">
+      <span>{{ value.author }}</span>
+      {% if value.authors_title %}
+        <span class="fl-quote-authors-title">{{ value.authors_title }}</span>
+      {% endif %}
+    </figcaption>
   {% endif %}
 </figure>

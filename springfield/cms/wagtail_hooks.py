@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
 from wagtail import hooks
-from wagtail.admin.menu import MenuItem
+from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from wagtail.admin.rich_text.converters.html_to_contentstate import (
     ExternalLinkElementHandler,
     InlineEntityElementHandler,
@@ -28,6 +28,7 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.chooser import ChooseResultsView, ChooseView, SnippetChooserViewSet
 from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
@@ -37,6 +38,7 @@ from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
+    BlogAuthor,
     BlogTag,
     BlogTopic,
     NavigationSnippet,
@@ -50,6 +52,9 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+from springfield.cms.routing.admin import build_signal_payload
+from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
+from springfield.cms.utils import get_cms_environment
 
 
 @hooks.register("register_admin_urls")
@@ -96,6 +101,14 @@ def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
 
 
+@hooks.register("insert_global_admin_css")
+def environment_admin_css():
+    env = get_cms_environment()
+    if env not in {"dev", "stage", "local"}:
+        return ""
+    return format_html('<link rel="stylesheet" href="{}">', static(f"css/cms/wagtail_admin_{env}.css"))
+
+
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
@@ -121,6 +134,49 @@ def mark_locale_roles_in_admin():
     return mark_safe(
         f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};</script>"
         f'<script src="{static("js/wagtailadmin-locale-badges.js")}"></script>'
+    )
+
+
+# The shared "User Routing" sidebar submenu. Items are contributed via the register
+# hook so later commits (the Signals reference page) can add to the same submenu.
+user_routing_menu = Menu(register_hook_name="register_user_routing_menu_item")
+
+
+@hooks.register("register_admin_urls")
+def register_routing_admin_urls():
+    return [
+        path("user-routing/rules/", RoutingRulesIndexView.as_view(), name="cms_routing_rules"),
+        path("user-routing/signals/", RoutingSignalsReferenceView.as_view(), name="cms_routing_signals"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_user_routing_menu():
+    return SubmenuMenuItem("User Routing", user_routing_menu, icon_name="list-ul", order=8000)
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_routing_rules_menu_item():
+    return MenuItem("Rules", reverse("cms_routing_rules"), icon_name="list-ul")
+
+
+@hooks.register("register_user_routing_menu_item")
+def register_routing_signals_menu_item():
+    return MenuItem("Signals reference", reverse("cms_routing_signals"), icon_name="help")
+
+
+@hooks.register("insert_editor_js")
+def routing_condition_help_js():
+    """Deliver the registry payload + condition-help JS to the page editor.
+
+    Injects the localized signal payload as a global, then loads the static JS that
+    renders dynamic help beneath the expected-value field on signal selection.
+    """
+    # `<` is escaped so a translated signal description containing "</script>" can't break
+    # out of the tag — json.dumps() does not do this itself.
+    payload = json.dumps(build_signal_payload()).replace("<", "\\u003c")
+    return mark_safe(
+        f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
 
 
@@ -564,6 +620,35 @@ class BlogTopicViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["name", "locale", "live"]
 
 
+class DefaultLocaleBlogAuthorMixin:
+    """Restricts an author chooser to the rows an article is allowed to store."""
+
+    def get_object_list(self):
+        return BlogAuthor.objects.filter(locale=WagtailLocale.get_default(), live=True)
+
+
+class BlogAuthorChooseView(DefaultLocaleBlogAuthorMixin, ChooseView):
+    pass
+
+
+class BlogAuthorChooseResultsView(DefaultLocaleBlogAuthorMixin, ChooseResultsView):
+    pass
+
+
+class BlogAuthorChooserViewSet(SnippetChooserViewSet):
+    # Both views need the restriction: ChooseView renders the initial modal and
+    # ChooseResultsView serves search and pagination within it.
+    choose_view_class = BlogAuthorChooseView
+    choose_results_view_class = BlogAuthorChooseResultsView
+
+
+class BlogAuthorViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogAuthor
+    list_display = ["name", "job_title", "locale", "live"]
+    search_fields = ["name"]
+    chooser_viewset_class = BlogAuthorChooserViewSet
+
+
 class TagViewSet(LocaleDefaultingSnippetViewSet):
     model = Tag
     list_display = ["name", "locale", "live"]
@@ -613,6 +698,7 @@ for _viewset in (
     BannerSnippetViewSet,
     BlogTagViewSet,
     BlogTopicViewSet,
+    BlogAuthorViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,

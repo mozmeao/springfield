@@ -2,12 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from datetime import date
+
 from django.utils.text import slugify
 
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
+from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
+from springfield.cms.models.pages import HeroStyle
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
@@ -15,7 +18,11 @@ IMAGE_CAPTION = (
     '<p data-block-key="ccc33333">A caption below the image, using <b>bold</b>, <i>italic</i> and a <a href="https://www.mozilla.org/">link</a>.</p>'
 )
 
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
+
+BLOG_AUTHOR_NAMES = ["Ada Lovelace", "Grace Hopper", "Alan Turing"]
 
 LOREM_WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore".split()
 LOREM_SENTENCES = [
@@ -45,8 +52,16 @@ REGULAR_DESCRIPTIONS = [get_description(f"rt{i:04d}", n) for i, n in enumerate((
 PRIVACY_EXTRA_FEATURED_DESCRIPTIONS = [get_description(f"pf{i:04d}", n) for i, n in enumerate((2, 3, 1), start=1)]
 PRIVACY_EXTRA_REGULAR_DESCRIPTIONS = [get_description(f"pr{i:04d}", n) for i, n in enumerate((1, 3, 2, 1, 3, 2, 1, 3), start=1)]
 
-# 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28 total articles
-NUM_LIST_ARTICLES = 28
+# Slugs of the articles that demonstrate one hero style or the listing image each.
+LARGE_IMAGE_ARTICLE_SLUG = "test-hero-large-image-article"
+TEXT_ONLY_ARTICLE_SLUG = "test-hero-text-only-article"
+VIDEO_ARTICLE_SLUG = "test-hero-video-article"
+LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
+BOTTOM_BANNER_ARTICLE_SLUG = "test-bottom-banner-article"
+
+# 5 across topics + 3 extra Privacy + 12 across topics + 8 extra Privacy = 28,
+# plus the 5 hero style / listing image / bottom banner demonstrations = 33 total articles
+NUM_LIST_ARTICLES = 33
 NUM_FEATURED_INDEX_SHOWN = 8  # articles in index page featured_articles StreamField
 
 
@@ -70,19 +85,32 @@ def featured_topics_stream(topics: list[BlogTopic]) -> list[dict]:
 
 
 def get_blog_tags() -> dict[str, BlogTag]:
-    """Tag snippets for the `tags` relation, kept separate from topics so fixtures
-    don't rely on a topic and a tag being the same object."""
     locale = Locale.get_default()
     tags = {}
     for name in BLOG_TOPIC_NAMES:
         slug = slugify(name)
-        tag, _created = BlogTag.objects.update_or_create(
+        tag, _ = BlogTag.objects.update_or_create(
             slug=slug,
             locale=locale,
             defaults={"name": name},
         )
         tags[slug] = tag
     return tags
+
+
+def get_blog_authors() -> dict[str, BlogAuthor]:
+    """Author snippets for article bylines, keyed by slug."""
+    locale = Locale.get_default()
+    authors = {}
+    for name in BLOG_AUTHOR_NAMES:
+        slug = slugify(name)
+        author, _created = BlogAuthor.objects.update_or_create(
+            slug=slug,
+            locale=locale,
+            defaults={"name": name},
+        )
+        authors[slug] = author
+    return authors
 
 
 def get_blog_article_content(image, image_caption: str = "") -> list:
@@ -149,18 +177,86 @@ def get_blog_article_content(image, image_caption: str = "") -> list:
     ]
 
 
+def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str = "article") -> dict:
+    """StreamField data for one BlogArticleBlock, with every override left empty."""
+    return {
+        "type": block_type,
+        "value": {
+            "article": article.pk,
+            "overrides": {
+                "image": {
+                    "image": None,
+                    "settings": {
+                        "dark_mode_image": None,
+                        "mobile_image": None,
+                        "dark_mode_mobile_image": None,
+                    },
+                },
+                "topic": "",
+                "title": "",
+                "description": "",
+                "tags": [],
+            },
+        },
+        "id": block_id,
+    }
+
+
+def get_bottom_banner_stream() -> list[dict]:
+    """StreamField data for BlogArticlePage.bottom_banner: a single default banner."""
+    return [
+        {
+            "type": "banner",
+            "value": {
+                "settings": {
+                    "theme": "default",
+                    "media_after": False,
+                    "show_to": SHOW_TO_ALL,
+                    "anchor_id": "",
+                    "slim": False,
+                    "remove_border_radius": False,
+                    "centralize_content": False,
+                },
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="bban0001">Enjoying this article?</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "bban0001-0000-0000-0000-000000000002",
+                        "value": '<p data-block-key="bban0002">Subscribe to get more like this in your inbox.</p>',
+                    },
+                ],
+            },
+            "id": "bban0000-0000-0000-0000-000000000001",
+        }
+    ]
+
+
 def create_blog_article(
     *,
     index_page: BlogIndexPage,
     title: str,
     slug: str,
-    display_image: bool = False,
     topic: BlogTopic,
     tags: list[BlogTag],
     image,
     description: str,
     content: list,
+    authors: list[BlogAuthor] | None = None,
+    hero_style: str | None = None,
+    hero_video: list | None = None,
+    listing_image=None,
+    updated_date=None,
+    hide_dates: bool = False,
+    bottom_banner: list | None = None,
 ) -> BlogArticlePage:
+    if hero_style is None:
+        hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
+
     article = get_or_create_page(
         BlogArticlePage,
         slug=slug,
@@ -168,17 +264,29 @@ def create_blog_article(
         defaults={
             "title": title,
             "topic": topic,
+            "hero_style": hero_style,
+            "image": image,
+            "hero_video": hero_video or [],
         },
     )
 
     article.title = title
-    article.display_image = display_image
     article.topic = topic
+    article.hero_style = hero_style
     article.image = image
+    article.listing_image = listing_image
+    article.updated_date = updated_date
+    article.hide_dates = hide_dates
     article.description = description
     article.content = content
+    article.bottom_banner = bottom_banner or []
     article.tags.set(tags)
+    if hero_video is not None:
+        article.hero_video = hero_video
+    if authors:
+        article.article_authors.set([BlogArticleAuthor(author=author) for author in authors])
     article.save_revision().publish()
+    article.refresh_from_db()
 
     return article
 
@@ -197,10 +305,12 @@ def get_blog_index_page() -> BlogIndexPage:
 
 def get_blog_pages() -> list[BlogArticlePage]:
     """
-    Create a blog index page with 28 articles:
+    Create a blog index page with 32 articles:
     - 5 spread across topics + 3 extra for Privacy (Privacy gets 4 total)
     - 12 spread across topics + 8 extra for Privacy
       (Privacy gets 11 total: triggers pagination on its topic page)
+    - 5 demonstrating the large image, text only and video hero styles, a
+      listing image that differs from the featured image, and a bottom banner
 
     All articles use all available content block types: text, media or image + caption, code, quote.
     Featured articles carry a captioned image, regular ones a plain image.
@@ -215,6 +325,15 @@ def get_blog_pages() -> list[BlogArticlePage]:
     privacy = topics["privacy"]
     tags = get_blog_tags()
     tag_list = list(tags.values())
+    author_list = list(get_blog_authors().values())
+    # Featured articles 1 and 2 are the multi-author cases and 3 has a single
+    # author, so the fixture site shows every byline state. The rest stay
+    # uncredited.
+    featured_authors = {
+        1: author_list[:2],
+        2: author_list,
+        3: author_list[:1],
+    }
     articles = []
 
     # 5 articles spread across all topics
@@ -229,6 +348,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
             image=image,
             description=FEATURED_DESCRIPTIONS[i - 1],
             content=captioned_content,
+            authors=featured_authors.get(i),
         )
         articles.append(article)
 
@@ -253,7 +373,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=REGULAR_TITLES[i - 1],
             slug=f"test-regular-blog-article-{i}",
-            display_image=(i % 2 == 0),
             topic=topic,
             tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
@@ -268,7 +387,6 @@ def get_blog_pages() -> list[BlogArticlePage]:
             index_page=index_page,
             title=title,
             slug=f"test-privacy-extra-regular-{i}",
-            display_image=(i % 2 == 0),
             topic=privacy,
             tags=[tag_list[i % len(tag_list)]],
             image=dark_image,
@@ -277,26 +395,85 @@ def get_blog_pages() -> list[BlogArticlePage]:
         )
         articles.append(article)
 
-    def article_block(article, block_id, block_type="article"):
-        return {
-            "type": block_type,
-            "value": {
-                "article": article.pk,
-                "image": {
-                    "image": None,
-                    "settings": {
-                        "dark_mode_image": None,
-                        "mobile_image": None,
-                        "dark_mode_mobile_image": None,
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: large featured image",
+            slug=LARGE_IMAGE_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[0],
+            content=captioned_content,
+            hero_style=HeroStyle.LARGE_IMAGE,
+            authors=author_list[:1],
+            updated_date=date(2026, 6, 12),
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: no image, text only",
+            slug=TEXT_ONLY_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=None,
+            description=FEATURED_DESCRIPTIONS[1],
+            content=plain_content,
+            hero_style=HeroStyle.TEXT_ONLY,
+            hide_dates=True,
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Hero style: featured video",
+            slug=VIDEO_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[2],
+            content=plain_content,
+            hero_style=HeroStyle.VIDEO,
+            hero_video=[
+                {
+                    "type": "video",
+                    "value": {
+                        "video_url": "https://www.youtube.com/watch?v=firefoxdemo",
+                        "alt": "A Firefox demo",
+                        "poster": image.pk,
                     },
-                },
-                "topic": "",
-                "title": "",
-                "description": "",
-                "tags": [],
-            },
-            "id": block_id,
-        }
+                    "id": "herovid0-0000-0000-0000-000000000001",
+                }
+            ],
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Listing image override",
+            slug=LISTING_IMAGE_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[3],
+            content=plain_content,
+            listing_image=dark_image,
+        )
+    )
+    articles.append(
+        create_blog_article(
+            index_page=index_page,
+            title="Bottom banner",
+            slug=BOTTOM_BANNER_ARTICLE_SLUG,
+            topic=privacy,
+            tags=tag_list[:2],
+            image=image,
+            description=FEATURED_DESCRIPTIONS[4],
+            content=plain_content,
+            bottom_banner=get_bottom_banner_stream(),
+        )
+    )
 
     index_page.page_heading = [
         {
@@ -311,7 +488,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.more_articles_heading = '<p data-block-key="mah0001">Looking for more?</p>'
     index_page.featured_topics = featured_topics_stream([topics["tips"], topics["security"], topics["privacy"]])
-    index_page.featured_articles = [article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
+    index_page.featured_articles = [blog_article_block(a, f"feat0000-0000-0000-0000-{i:012d}") for i, a in enumerate(articles[:8], start=1)]
     index_page.cards_lists = [
         {
             "type": "cards_list",
@@ -319,7 +496,9 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "heading_text": '<p data-block-key="clh00001">More Articles 1</p>',
                 "link_label": "View all Privacy",
                 "link_filter": "?topic=privacy",
-                "articles": [article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)],
+                "articles": [
+                    blog_article_block(a, f"cl010000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[8:11], start=1)
+                ],
             },
             "id": "cl000001-0000-0000-0000-000000000001",
         },
@@ -330,7 +509,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "link_label": "View all Security",
                 "link_filter": "?topic=security",
                 "articles": [
-                    article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
+                    blog_article_block(a, f"cl020000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[11:13], start=1)
                 ],
             },
             "id": "cl000002-0000-0000-0000-000000000002",
@@ -342,7 +521,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
                 "link_label": "View all",
                 "link_filter": "",
                 "articles": [
-                    article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
+                    blog_article_block(a, f"cl030000-0000-0000-0000-{i:012d}", block_type="item") for i, a in enumerate(articles[13:17], start=1)
                 ],
             },
             "id": "cl000003-0000-0000-0000-000000000003",
@@ -350,11 +529,19 @@ def get_blog_pages() -> list[BlogArticlePage]:
     ]
     index_page.save_revision().publish()
 
+    return articles
+
+
+def get_blog_topic_page() -> BlogTopicPage:
+    """A curated header for the Privacy topic, featuring its first four articles."""
+    articles = get_blog_pages()
+    privacy = get_blog_topics()["privacy"]
     privacy_articles = [article for article in articles if article.topic_id == privacy.pk][:4]
+
     topic_page = get_or_create_page(
         BlogTopicPage,
         slug="privacy",
-        parent=index_page,
+        parent=get_blog_index_page(),
         defaults={"title": "Privacy", "topic": privacy},
     )
     topic_page.topic = privacy
@@ -370,8 +557,8 @@ def get_blog_pages() -> list[BlogArticlePage]:
         }
     ]
     topic_page.featured_articles = [
-        article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
+        blog_article_block(article, f"tpf00000-0000-0000-0000-{i:012d}") for i, article in enumerate(privacy_articles, start=1)
     ]
     topic_page.save_revision().publish()
 
-    return articles
+    return topic_page

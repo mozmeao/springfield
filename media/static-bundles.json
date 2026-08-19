@@ -243,7 +243,8 @@
     },
     {
       "files": [
-        "css/cms/wagtail-admin.css"
+        "css/cms/wagtail-admin.css",
+        "css/cms/routing/admin.css"
       ],
       "name": "wagtail-admin"
     },
@@ -872,6 +873,12 @@
         "js/cms/routing/resolver.es6.js"
       ],
       "name": "cms_routing_resolver"
+    },
+    {
+      "files": [
+        "js/cms/routing/condition-help.es6.js"
+      ],
+      "name": "wagtailadmin-routing-help"
     }
   ]
 }

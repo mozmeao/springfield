@@ -261,6 +261,10 @@ class BlogTag(BaseDraftTranslatableSnippetMixin, TagBase):
         FieldPanel("slug"),
     ]
 
+    override_translatable_fields = [
+        SynchronizedField("slug"),
+    ]
+
     class Meta(TranslatableMixin.Meta):
         verbose_name = "Blog Tag"
         verbose_name_plural = "Blog Tags"
@@ -279,6 +283,47 @@ class TaggedBlogArticle(ItemBase):
 
     tag = models.ForeignKey(BlogTag, related_name="tagged_articles", on_delete=models.CASCADE)
     content_object = ParentalKey("cms.BlogArticlePage", related_name="tagged_items", on_delete=models.CASCADE)
+
+
+class BlogAuthor(BaseDraftTranslatableSnippetMixin, models.Model):
+    """A person credited on blog articles. Articles reference default-locale authors;
+    the localized name is resolved at render time by BlogArticlePage.get_authors()."""
+
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
+    job_title = models.CharField(max_length=255, blank=True)
+    bio = RichTextField(features=EXPANDED_TEXT_FEATURES, blank=True)
+    image = models.ForeignKey(
+        "cms.SpringfieldImage",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    email = models.EmailField(blank=True)
+
+    panels = [
+        TitleFieldPanel("name"),
+        FieldPanel("slug"),
+        FieldPanel("job_title"),
+        FieldPanel("bio"),
+        FieldPanel("image"),
+        FieldPanel("email"),
+    ]
+
+    override_translatable_fields = [
+        SynchronizedField("slug"),
+        SynchronizedField("email"),
+        SynchronizedField("image"),
+    ]
+
+    class Meta(TranslatableMixin.Meta):
+        verbose_name = "Blog Author"
+        verbose_name_plural = "Blog Authors"
+        unique_together = [*TranslatableMixin.Meta.unique_together, ("slug", "locale")]
+
+    def __str__(self):
+        return f"{self.name} – {self.locale}"
 
 
 class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
@@ -585,9 +630,6 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         help_text="Override the header download button. Falls back to the default Firefox download button if empty.",
     )
 
-    LOGO_MAX_WIDTH = 480
-    LOGO_MAX_HEIGHT = 160
-
     panels = [
         FieldPanel("name"),
         FieldPanel("is_default"),
@@ -615,17 +657,6 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         """Return the site default navigation, localized to the active locale, or None."""
         snippet = cls.objects.filter(is_default=True, locale=SpringfieldLocale.get_default()).live().order_by("-last_published_at").first()
         return snippet.get_localized() if snippet else None
-
-    def validate_logo_size(self, field_name):
-        """Reject a logo image larger than the header logo cap."""
-        image = getattr(self, field_name)
-        if image and (image.width > self.LOGO_MAX_WIDTH or image.height > self.LOGO_MAX_HEIGHT):
-            raise ValidationError({field_name: f"Logo must be at most {self.LOGO_MAX_WIDTH}×{self.LOGO_MAX_HEIGHT} pixels."})
-
-    def clean(self):
-        super().clean()
-        self.validate_logo_size("logo")
-        self.validate_logo_size("logo_dark")
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/navigation-snippet-preview.html"

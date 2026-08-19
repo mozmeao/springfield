@@ -1,0 +1,82 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set hero_style = page.hero_style %}
+{% set show_image = hero_style in ("standard_image", "large_image") and page.image %}
+{% set show_video = hero_style == "video" and page.hero_video %}
+
+{% set hero_media %}
+  {% if show_image %}
+    {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+    {% set hero_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+    {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw" %}
+    <div class="image-variants-display">
+      {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, loading="lazy", class=classes.primary) }}
+      {% if page.image_mobile %}
+        {{ srcset_image(page.image_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_mobile.width, loading="lazy", class=classes.mobile) }}
+      {% endif %}
+      {% if page.image_dark_mode_mobile %}
+        {{ srcset_image(page.image_dark_mode_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode_mobile.width, loading="lazy", class=classes.dark_mode_mobile) }}
+      {% endif %}
+      {% if page.image_dark_mode %}
+        {{ srcset_image(page.image_dark_mode, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode.width, loading="lazy", class=classes.dark_mode) }}
+      {% endif %}
+    </div>
+  {% elif show_video %}
+    {% for block in page.hero_video %}
+      {% include_block block %}
+    {% endfor %}
+  {% endif %}
+{% endset %}
+
+{% set hero_text %}
+  <div class="fl-article-title">
+    <include:heading
+        level="h1"
+        heading_size="fl-heading-md"
+        heading_text="{{ page.title }}"
+        superheading_text="{{ page.topic.name }}"
+        alignment_class="{{ 'text-center' if hero_style == 'large_image' else 'text-left' }}"
+    />
+  </div>
+
+  {% if page.description %}
+    <div class="fl-article-description fl-body">{{ page.description|richtext }}</div>
+  {% endif %}
+
+  {% set author_names = page.get_authors() | map(attribute='name') | list %}
+  {% if author_names or not page.hide_dates %}
+    <div class="fl-article-meta">
+      {% if author_names %}
+        <include:blog-byline author_names="{{ author_names }}" />
+      {% endif %}
+      {% if not page.hide_dates %}
+        <div class="fl-article-dates">
+          {% if page.first_published_at %}
+            <time class="fl-article-date" datetime="{{ page.first_published_at.isoformat() }}">
+              {{ page.first_published_at|date("DATE_FORMAT") }}
+            </time>
+          {% endif %}
+          {% if page.updated_date %}
+            <p class="fl-article-date fl-article-updated">
+              {{ ftl('blog-last-updated', date=page.updated_date|date("DATE_FORMAT")) }}
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endset %}
+
+<header class="fl-article-header fl-article-header-{{ hero_style|replace('_', '-') }}">
+  {% if hero_style == "large_image" %}
+    {{ hero_text }}
+    {{ hero_media }}
+  {% else %}
+    {{ hero_media }}
+    {{ hero_text }}
+  {% endif %}
+</header>
