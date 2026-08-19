@@ -148,32 +148,32 @@ avoids layout shift + any flash of not-yet-initialized content. #}
 {% block experiments %}
 <script>
   {
-    // Auto-detect the OS to prefill the form.
-    const detectedOS = detectOS();
+    // Detection fills in what the visitor hasn’t asked for. A query param is an
+    // explicit request and always wins — overriding it is how ?os=ios ends up
+    // showing macOS. Gated per field, so ?release=esr on its own still gets both
+    // an OS and a language detected.
+    const params = new URLSearchParams(window.location.search);
+    const detectedOS = params.has('os') ? null : detectOS();
 
-    if (detectedOS) {
-      let detectedOSApplied, detectedLanguageApplied;
+    let osApplied = !detectedOS;
+    let languageApplied = params.has('language');
+
+    if (!osApplied || !languageApplied) {
       const initialSelectionObserver = new MutationObserver((entries, observer) => {
         for (const entry of entries) {
           for (const node of entry.addedNodes) {
-            if (detectedOSApplied && detectedLanguageApplied) {
-              observer.disconnect();
-              return;
-            }
-
-            if (node.nodeType !== Node.ELEMENT_NODE || !node.matches('option, select[name="language"]')) continue;
+            if (node.nodeType !== Node.ELEMENT_NODE) continue;
 
             // Auto-select the detected OS
             // It would be good to use `Sec-CH-UA-Platform` for this, but it doesn’t seem to be making any progress in standards.
-            if (node.matches('option') && node.value === detectedOS) {
+            if (!osApplied && node.matches('option') && node.value === detectedOS) {
               node.selected = true;
               node.form.dataset.autoDetectedOs = true;
-              detectedOSApplied = true;
-              break;
+              osApplied = true;
             }
 
             // Auto-select the detected language
-            if (node.matches('select')) {
+            if (!languageApplied && node.matches('select[name="language"]')) {
               // TODO: is this list ordered by preference?
               // TODO: We already have this information on the server via `Accept-Language`, we could vary the request and use it during rendering
               for (const language of navigator.languages) {
@@ -181,15 +181,24 @@ avoids layout shift + any flash of not-yet-initialized content. #}
                   node.options.namedItem(language.split("-")[0]);
                 if (matchedOption) {
                   matchedOption.selected = true;
-                  detectedLanguageApplied = true;
+                  languageApplied = true;
                   break;
                 }
               }
+            }
+
+            if (osApplied && languageApplied) {
+              observer.disconnect();
+              return;
             }
           }
         }
       });
       initialSelectionObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+      // Backstop: a detected value that never turns up as an option would
+      // otherwise leave this observing every insertion in the document.
+      document.addEventListener('DOMContentLoaded', () => initialSelectionObserver.disconnect(), { once: true });
     }
 
     function detectOS() {

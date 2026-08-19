@@ -121,6 +121,24 @@ module.exports = [
         }
     },
     {
+        // Untranspiled ES modules. Unlike `.es6.js`, these are bundled as
+        // authored — no Babel pass, since that rule only matches `.es6.js` — so
+        // they are free to use current syntax and must be parsed as modules.
+        files: ['media/js/firefox/all-form/**/*.js'],
+        languageOptions: {
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            globals: {
+                ...customGlobals,
+                ...globals.browser
+            }
+        },
+        rules: {
+            ...baseRules,
+            ...extendedRules
+        }
+    },
+    {
         // JS Jasmine test files.
         files: ['tests/unit/**/*.js'],
         languageOptions: {
