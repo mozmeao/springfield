@@ -108,9 +108,13 @@ def usable_rules(page):
         return cached
 
     usable = []
-    # Pull targets in the same query and conditions in one more, so the loop below adds no
-    # query per rule. The locale lookup inside localized_target is the residual.
-    rules = page.routing_rules.select_related("target").prefetch_related("conditions")
+    # Reuse an already-prefetched relation if the caller set one up (e.g. the admin listing,
+    # which prefetches target/conditions once for many pages up front) — chaining
+    # select_related/prefetch_related onto the manager below always issues a fresh query,
+    # bypassing that cache, so check for it first. Otherwise pull targets in the same query
+    # and conditions in one more, so the loop below adds no query per rule.
+    prefetched = getattr(page, "_prefetched_objects_cache", {}).get("routing_rules")
+    rules = prefetched if prefetched is not None else page.routing_rules.select_related("target").prefetch_related("conditions")
     for rule in rules:
         target = localized_target(rule.target, page)
         if not target or not target.live:

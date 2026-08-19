@@ -9,10 +9,13 @@
   Requires: list_articles, pagination_prev_url, pagination_next_url.
 #}
 
+{% from "cms/includes/blog/blog-card-media.html" import list_item_media with context %}
+
 {% if list_articles %}
   <div class="fl-blog-article-list">
     {% for article in list_articles %}
-      <include:blog-article-list-item with_image="{{ article.display_image }}">
+      {% set listing_image = article.get_listing_image() %}
+      <include:blog-article-list-item with_image="{{ listing_image }}">
         <content:heading>
           <hgroup class="fl-heading-group">
             <p class="fl-superheading">{{ article.topic.name }}</p>
@@ -33,16 +36,8 @@
             {% endfor %}
           </content:tags>
         {% endif %}
-        {% if article.display_image and article.image %}
-          {% set img_classes = image_variant_classes(article.image_dark_mode, article.image_mobile, article.image_dark_mode_mobile) %}
-          <content:image>
-            <div class="image-variants-display">
-              {{ srcset_image(article.image, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.primary) }}
-              {% if article.image_mobile %}{{ srcset_image(article.image_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.mobile) }}{% endif %}
-              {% if article.image_dark_mode %}{{ srcset_image(article.image_dark_mode, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode) }}{% endif %}
-              {% if article.image_dark_mode_mobile %}{{ srcset_image(article.image_dark_mode_mobile, "width-{200,400,600,800}", sizes="(min-width: 768px) 300px, 100vw", loading="lazy", class=img_classes.dark_mode_mobile) }}{% endif %}
-            </div>
-          </content:image>
+        {% if listing_image %}
+          <content:image>{{ list_item_media(article) }}</content:image>
         {% endif %}
       </include:blog-article-list-item>
     {% endfor %}
