@@ -5,8 +5,11 @@
 #}
 
 {#
-  Shared card media macro for blog article cards. Import with:
-  {% from "cms/includes/blog/blog-card-media.html" import illustration_card_media, full_width_filterspec with context %}
+  Shared media macros for blog articles. Import with:
+  {% from "cms/includes/blog/blog-card-media.html" import illustration_card_media, list_item_media, full_width_filterspec with context %}
+
+  illustration_card_media expects a BlockArticleValue — which allows overriding the article's fields
+  list_item_media expects a BlogArticlePage instance
 #}
 
 {% set full_width_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
@@ -35,6 +38,21 @@
       {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
       {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
       {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro list_item_media(article_page) %}
+  {% set listing_image = article_page.get_listing_image() %}
+  {% if listing_image %}
+    {% set variants = article_page.get_listing_image_variants() %}
+    {% set classes = image_variant_classes(variants.dark_mode, variants.mobile, variants.dark_mode_mobile) %}
+    {% set list_item_sizes = "(min-width: 768px) 300px, 100vw" %}
+    <div class="image-variants-display">
+      {{ srcset_image(listing_image, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.primary) }}
+      {% if variants.mobile %}{{ srcset_image(variants.mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.mobile) }}{% endif %}
+      {% if variants.dark_mode %}{{ srcset_image(variants.dark_mode, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+      {% if variants.dark_mode_mobile %}{{ srcset_image(variants.dark_mode_mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
     </div>
   {% endif %}
 {% endmacro %}
