@@ -622,6 +622,7 @@ class TestWhatsNew(TestCase):
         ctx = render_mock.call_args[0][2]
         assert template == ["firefox/whatsnew/evergreen.html"]
         assert ctx["version"] == "70.0"
+        assert ctx["releasenotes_version"] == "70.0"
         assert ctx["analytics_version"] == "70"
         assert ctx["entrypoint"] == "firefox.com-whatsnew70"
         assert ctx["campaign"] == "whatsnew70"
@@ -661,6 +662,27 @@ class TestWhatsNew(TestCase):
         assert ctx["utm_params"] == (
             "utm_source=firefox.com-whatsnew100nightly&utm_medium=referral&utm_campaign=whatsnew100nightly&entrypoint=firefox.com-whatsnew100nightly"
         )
+
+    @override_settings(DEV=True)
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_releasenotes_version_adds_missing_minor(self, render_mock):
+        """A version that is only a major should gain the minor component release notes URLs require"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="153")
+        ctx = render_mock.call_args[0][2]
+        assert ctx["version"] == "153"
+        assert ctx["releasenotes_version"] == "153.0"
+
+    @override_settings(DEV=True)
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_releasenotes_version_keeps_existing_minor(self, render_mock):
+        """Versions that already have a minor component should pass through unchanged"""
+        for version in ("153.0", "153.0beta", "153.0.1"):
+            with self.subTest(version=version):
+                req = self.rf.get("/en-US/whatsnew/")
+                self.view(req, version=version)
+                ctx = render_mock.call_args[0][2]
+                assert ctx["releasenotes_version"] == version
 
     # end context variable tests
 
@@ -789,6 +811,22 @@ class TestWhatsNew(TestCase):
                 assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
 
     # end URL routing tests
+
+
+class TestWhatsNewReleaseNotesLink(TestCase):
+    def test_major_only_version_links_to_versioned_release_notes(self):
+        """The evergreen WNP links to the release notes of the version it was served for"""
+        response = self.client.get("/en-US/whatsnew/153/")
+        doc = pq(response.content)
+        link = doc(".c-utilities a")
+        assert link.attr("href") == "/en-US/firefox/153.0/releasenotes/"
+
+    def test_beta_version_links_to_beta_release_notes(self):
+        """A version with a channel suffix keeps that suffix in the link"""
+        response = self.client.get("/en-US/whatsnew/153.0beta/")
+        doc = pq(response.content)
+        link = doc(".c-utilities a")
+        assert link.attr("href") == "/en-US/firefox/153.0beta/releasenotes/"
 
 
 class TestDetectChannel(TestCase):
