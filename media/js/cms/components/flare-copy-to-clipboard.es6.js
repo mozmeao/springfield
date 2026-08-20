@@ -23,22 +23,25 @@ function initCopyToClipboardButton(buttonEl) {
         return;
     }
 
-    // Lock in the initial rendered width so the button doesn't resize when
-    // the label swaps to a shorter success text.
-    buttonEl.style.minInlineSize = `${buttonEl.offsetWidth}px`;
-
     let resetTimer = null;
 
-    function resetButton() {
-        labelEl.classList.remove('opacity-0');
-        labelEl.removeAttribute('aria-hidden');
-        successLabelEl.classList.add('opacity-0');
-        successLabelEl.setAttribute('aria-hidden', 'true');
-        iconDefault.classList.remove('hidden');
-        iconDefault.removeAttribute('aria-hidden');
-        iconSuccess.classList.add('hidden');
-        buttonEl.disabled = false;
-        resetTimer = null;
+    function showLabel(labelToShow, labelToHide) {
+        labelToShow.classList.remove('is-hidden');
+        labelToShow.removeAttribute('aria-hidden');
+        labelToHide.classList.add('is-hidden');
+        labelToHide.setAttribute('aria-hidden', 'true');
+    }
+
+    function setCopiedState(isCopied) {
+        if (isCopied) {
+            showLabel(successLabelEl, labelEl);
+        } else {
+            showLabel(labelEl, successLabelEl);
+        }
+
+        iconDefault.classList.toggle('is-hidden', isCopied);
+        iconSuccess.classList.toggle('is-hidden', !isCopied);
+        buttonEl.disabled = isCopied;
     }
 
     buttonEl.addEventListener('click', () => {
@@ -64,10 +67,13 @@ function initCopyToClipboardButton(buttonEl) {
                 });
             }
 
-            if (resetTimer) {
-                clearTimeout(resetTimer);
-            }
-            resetTimer = setTimeout(resetButton, COPY_RESET_DELAY_MS);
+            setCopiedState(true);
+
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(
+                () => setCopiedState(false),
+                COPY_RESET_DELAY_MS
+            );
         });
     });
 }
