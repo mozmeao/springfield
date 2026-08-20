@@ -114,6 +114,10 @@ const MOBILE_SYSTEM_REQUIREMENTS =
 
 const PRIVACY_URL = 'https://www.mozilla.org/privacy/firefox/';
 
+// ESR 115 has no builds for these locales (mozilla/bedrock#15437). Mirrors
+// all_form.ESR_115_UNAVAILABLE_LOCALES.
+const ESR_115_UNAVAILABLE_LOCALES = new Set(['sat', 'skr']);
+
 // ESR 115 is offered to people on operating systems newer Firefox has dropped,
 // so the reason to pick it differs per platform.
 const ESR_115_RECOMMENDATIONS = {
@@ -553,10 +557,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
             releaseSupportsPlatform(RELEASES.ESR_NEXT, this.#os.value)
     );
 
+    // The only download option gated on language: ESR 115 predates a couple of
+    // locales and has no build for them, so offering it would link to a 404.
     #hasESR115 = computed(
         () =>
             this.#isESR.value &&
-            releaseSupportsPlatform(RELEASES.ESR_115, this.#os.value)
+            releaseSupportsPlatform(RELEASES.ESR_115, this.#os.value) &&
+            !ESR_115_UNAVAILABLE_LOCALES.has(this.#language.value)
     );
 
     // Keyed on the exact OS rather than the family: the MSI builds are Windows
