@@ -2180,7 +2180,6 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ],
             heading="Dates",
         ),
-        InlinePanel("article_authors", label="Authors"),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
