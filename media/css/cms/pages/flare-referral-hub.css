@@ -11,19 +11,18 @@
 
 @layer page {
     /* Custom header */
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx {
+    .fl-referral-hub-page .fl-header-inner {
         background-image: none;
-        inline-size: 209px;
     }
 
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx > img {
+    .fl-referral-hub-page .fl-header-inner > img {
+        block-size: 38px;
         display: block;
+        inline-size: auto;
         margin: 0;
+        margin-block: 15px 0;
+        margin-inline-start: -5px;
         max-block-size: unset;
-    }
-
-    .fl-referral-hub-page .fl-header:has(.fl-logo-share-fx) {
-        padding: var(--token-spacing-lg);
     }
 
     /* Upper band */
