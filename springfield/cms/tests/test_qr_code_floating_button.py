@@ -15,6 +15,7 @@ from springfield.cms.fixtures.freeformpage import get_freeform_page_with_floatin
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whats_new_page_with_floating_qr_snippet
+from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.pages import FreeFormPage2026, ThanksPage, WhatsNewPage2026
 from springfield.cms.models.snippets import QRCodeFloatingSnippet
 from springfield.cms.templatetags.cms_tags import (
@@ -38,16 +39,26 @@ def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
     assert aside, "Floating QR code snippet <aside> should be rendered"
     assert "js-qr-code-floating-snippet" in aside.get("class", []), "Floating QR code snippet JS class should be applied"
     assert "Get Firefox on your phone" in aside.get_text()
+    assert aside.has_attr("data-open-behavior"), "Aside should carry the resolved open behavior for the JS"
+    assert aside.has_attr("data-open-delay"), "Aside should carry the resolved open delay for the JS"
     button = aside.find("button", class_="fl-qr-code-floating-button")
     assert button, "Toggle button should be present"
+    # Disclosure semantics: stable accessible name via aria-labelledby, state via aria-expanded.
+    assert button.get("aria-controls"), "Toggle button should reference the content region via aria-controls"
+    assert button.get("aria-labelledby"), "Toggle button should have a stable accessible name via aria-labelledby"
     if open:
         assert "is-open" in aside.get("class", []), "Aside should have is-open class when open=True"
-        assert button.find("span", class_="fl-icon-subtract"), "Subtract icon should show when snippet is open"
+        assert button.get("aria-expanded") == "true", "aria-expanded should be true when open"
+        icon = button.find("span", class_="fl-icon-subtract")
+        assert icon, "Subtract icon should show when snippet is open"
         assert not button.find("span", class_="fl-icon-add"), "Add icon should not show when snippet is open"
     else:
         assert "is-open" not in aside.get("class", []), "Aside should not have is-open class when open=False"
-        assert button.find("span", class_="fl-icon-add"), "Add icon should show when snippet is closed"
+        assert button.get("aria-expanded") == "false", "aria-expanded should be false when closed"
+        icon = button.find("span", class_="fl-icon-add")
+        assert icon, "Add icon should show when snippet is closed"
         assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
+    assert icon.get("aria-hidden") == "true", "Decorative toggle icon should be aria-hidden"
     if svg:
         assert aside.find("svg"), "SVG should render when source is a URL"
         assert not aside.find("img"), "img tag should not render when source is a URL"
@@ -70,7 +81,13 @@ def _make_image(url="https://example.com/qr.png"):
 
 def _make_page(**kwargs):
     """Return a mock page with empty floating QR override fields by default."""
-    defaults = {"floating_qr_url": "", "floating_qr_image": None, "floating_qr_default_open": None}
+    defaults = {
+        "floating_qr_url": "",
+        "floating_qr_image": None,
+        "floating_qr_default_open": None,
+        "floating_qr_open_behavior": "",
+        "floating_qr_open_delay_ms": None,
+    }
     defaults.update(kwargs)
     return types.SimpleNamespace(**defaults)
 
@@ -92,7 +109,7 @@ PAGES_WITH_FLOATING_QR = [
 def test_resolve_qr_source_url_from_snippet():
     snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True)
     result = snippet.resolve_qr_source(_make_page())
-    assert result == {"type": "qr", "value": "https://firefox.com", "open": True}
+    assert result == {"type": "qr", "value": "https://firefox.com", "open": True, "behavior": "open", "delay_ms": 3000}
 
 
 def test_resolve_qr_source_image_from_snippet(minimal_site):
@@ -100,7 +117,7 @@ def test_resolve_qr_source_image_from_snippet(minimal_site):
     snippet = QRCodeFloatingSnippet(url="", default_open=True)
     snippet.image = image
     result = snippet.resolve_qr_source(_make_page())
-    assert result == {"type": "image", "value": image.file.url, "open": True}
+    assert result == {"type": "image", "value": image.file.url, "open": True, "behavior": "open", "delay_ms": 3000}
 
 
 def test_resolve_qr_source_image_takes_precedence_over_url(minimal_site):
@@ -118,7 +135,7 @@ def test_resolve_qr_source_floating_qr_url_takes_precedence_over_snippet_url():
     snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True)
     page = _make_page(floating_qr_url="https://override.example.com")
     result = snippet.resolve_qr_source(page)
-    assert result == {"type": "qr", "value": "https://override.example.com", "open": True}
+    assert result == {"type": "qr", "value": "https://override.example.com", "open": True, "behavior": "open", "delay_ms": 3000}
 
 
 def test_resolve_qr_source_floating_qr_image_takes_precedence_over_snippet_image(minimal_site):
@@ -179,7 +196,7 @@ def test_resolve_qr_source_page_without_any_floating_qr_attrs_falls_back_to_snip
     """A page with no floating_qr_* attributes at all uses snippet values via getattr fallback."""
     snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True)
     result = snippet.resolve_qr_source(types.SimpleNamespace())
-    assert result == {"type": "qr", "value": "https://firefox.com", "open": True}
+    assert result == {"type": "qr", "value": "https://firefox.com", "open": True, "behavior": "open", "delay_ms": 3000}
 
 
 def test_resolve_qr_source_open_is_false_when_dismissed_cookie_set():
@@ -204,6 +221,70 @@ def test_resolve_qr_source_open_is_false_when_default_open_false_and_no_cookie()
     request = types.SimpleNamespace(COOKIES={})
     result = snippet.resolve_qr_source(_make_page(), request)
     assert result["open"] is False
+
+
+# ==========================================
+# Section 1b: open_behavior + delay resolution
+# ==========================================
+
+
+def test_resolve_behavior_snippet_open_behavior_beats_legacy_default_open():
+    """A non-blank snippet open_behavior takes precedence over the legacy default_open."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=False, open_behavior=QROpenBehavior.OPEN)
+    result = snippet.resolve_qr_source(_make_page())
+    assert result["behavior"] == QROpenBehavior.OPEN
+    assert result["open"] is True
+
+
+def test_resolve_behavior_page_override_beats_snippet():
+    """A non-blank page floating_qr_open_behavior wins over the snippet's open_behavior."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_behavior=QROpenBehavior.OPEN)
+    result = snippet.resolve_qr_source(_make_page(floating_qr_open_behavior=QROpenBehavior.CLOSED))
+    assert result["behavior"] == QROpenBehavior.CLOSED
+    assert result["open"] is False
+
+
+def test_resolve_behavior_delayed_renders_closed():
+    """DELAYED renders collapsed server-side (open=False); the JS opens it later."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_behavior=QROpenBehavior.DELAYED)
+    result = snippet.resolve_qr_source(_make_page())
+    assert result["behavior"] == QROpenBehavior.DELAYED
+    assert result["open"] is False
+
+
+def test_resolve_behavior_falls_back_to_legacy_when_both_blank():
+    """With both open_behavior fields blank, the legacy default_open decides the behavior."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, default_open=True, open_behavior="")
+    result = snippet.resolve_qr_source(_make_page(floating_qr_open_behavior=""))
+    assert result["behavior"] == QROpenBehavior.OPEN
+    assert result["open"] is True
+
+
+def test_resolve_behavior_dismissed_cookie_forces_closed_even_when_delayed():
+    """The dismissed cookie collapses the snippet regardless of a DELAYED behavior."""
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_behavior=QROpenBehavior.DELAYED)
+    request = types.SimpleNamespace(COOKIES={"moz-qr-snippet-dismissed": "1"})
+    result = snippet.resolve_qr_source(_make_page(), request)
+    assert result["behavior"] == QROpenBehavior.CLOSED
+    assert result["open"] is False
+
+
+def test_resolve_delay_defaults_to_snippet_value():
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_delay_ms=5000)
+    result = snippet.resolve_qr_source(_make_page())
+    assert result["delay_ms"] == 5000
+
+
+def test_resolve_delay_page_override_wins():
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_delay_ms=5000)
+    result = snippet.resolve_qr_source(_make_page(floating_qr_open_delay_ms=1500))
+    assert result["delay_ms"] == 1500
+
+
+def test_resolve_delay_page_none_inherits_snippet():
+    snippet = QRCodeFloatingSnippet(url="https://firefox.com", image=None, open_delay_ms=2000)
+    result = snippet.resolve_qr_source(_make_page(floating_qr_open_delay_ms=None))
+    assert result["delay_ms"] == 2000
 
 
 # ==========================================
@@ -290,6 +371,28 @@ def test_page_clean_passes_with_floating_qr_image_only(get_page_fn, minimal_site
     page.clean()  # should not raise
 
 
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_page_clean_raises_when_open_behavior_set_but_flag_off(get_page_fn, minimal_site):
+    page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = False
+    page.floating_qr_open_behavior = QROpenBehavior.DELAYED
+    with pytest.raises(ValidationError, match="can only be set"):
+        page.clean()
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_page_clean_passes_when_open_behavior_blank_and_flag_off(get_page_fn, minimal_site):
+    page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = False
+    page.floating_qr_url = ""
+    page.floating_qr_image = None
+    page.floating_qr_open_behavior = ""
+    page.floating_qr_open_delay_ms = None
+    page.clean()  # should not raise
+
+
 # ==========================================
 # Section 4: Page rendering integration tests
 # ==========================================
@@ -358,6 +461,21 @@ def test_floating_snippet_no_is_open_class_when_floating_qr_default_open_false(g
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
     assert_floating_qr_snippet_rendered(soup, open=False)
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_floating_snippet_delayed_renders_closed_with_data_attrs(get_page_fn, minimal_site, rf):
+    """A DELAYED override renders collapsed and exposes the behavior + delay for the JS."""
+    page = get_page_fn()
+    page.show_floating_qr_code_snippet = True
+    page.floating_qr_open_behavior = QROpenBehavior.DELAYED
+    page.floating_qr_open_delay_ms = 1500
+
+    soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
+    assert_floating_qr_snippet_rendered(soup, open=False)
+    aside = _get_floating_qr_aside(soup)
+    assert aside["data-open-behavior"] == "delayed"
+    assert aside["data-open-delay"] == "1500"
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -473,7 +591,7 @@ def test_build_context_qr_is_none_when_no_url_or_image():
 def test_build_context_with_no_page_falls_back_to_snippet():
     snippet = _make_real_snippet(url="https://firefox.com")
     result = snippet.build_context()
-    assert result["qr"] == {"type": "qr", "value": "https://firefox.com", "open": True}
+    assert result["qr"] == {"type": "qr", "value": "https://firefox.com", "open": True, "behavior": "open", "delay_ms": 3000}
 
 
 # ==========================================
@@ -577,9 +695,11 @@ def test_floating_snippet_close_button_shows_add_icon_when_closed(get_page_fn, m
 @pytest.mark.parametrize("page_class", [ThanksPage, FreeFormPage2026, WhatsNewPage2026])
 def test_qr_mixin_override_translatable_fields_includes_slug_and_qr_fields(page_class):
     """Pages using QRCodeFloatingSnippetMixin must include slug (from AbstractSpringfieldCMSPage)
-    alongside the three QR-specific synchronized fields."""
+    alongside the QR-specific synchronized fields."""
     field_names = {f.field_name for f in page_class.override_translatable_fields}
     assert "slug" in field_names
     assert "floating_qr_url" in field_names
     assert "floating_qr_image" in field_names
     assert "floating_qr_default_open" in field_names
+    assert "floating_qr_open_behavior" in field_names
+    assert "floating_qr_open_delay_ms" in field_names
