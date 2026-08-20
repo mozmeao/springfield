@@ -55,6 +55,15 @@ function initCopyToClipboardButton(buttonEl) {
             iconSuccess.classList.remove('hidden');
             buttonEl.disabled = true;
 
+            if (window.dataLayer) {
+                window.dataLayer.push({
+                    event: 'widget_action',
+                    type: 'copy to clipboard',
+                    action: 'copy',
+                    text: labelEl.textContent
+                });
+            }
+
             if (resetTimer) {
                 clearTimeout(resetTimer);
             }
