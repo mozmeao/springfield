@@ -27,7 +27,7 @@
     .fl-referral-get-firefox-page
         .fl-split-page-upper
         .fl-showcase-description {
-        margin: auto;
+        margin-inline: auto;
     }
 
     /* tabs */
