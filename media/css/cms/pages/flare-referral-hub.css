@@ -44,6 +44,10 @@
         inline-size: 100%;
     }
 
+    .fl-referral-hub-page .fl-tabs-panels {
+        min-block-size: 481px;
+    }
+
     .fl-referral-hub-page .fl-tabs {
         --tabs-inline-padding: var(--token-spacing-lg);
     }

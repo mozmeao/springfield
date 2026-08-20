@@ -45,6 +45,10 @@
         margin: var(--token-spacing-xl) auto 0;
         max-inline-size: 60%;
     }
+
+    .fl-impact-dash-summary + .fl-impact-dash {
+        margin-block: var(--token-layout-md);
+    }
 }
 
 /* badge styles */
