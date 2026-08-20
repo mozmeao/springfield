@@ -561,4 +561,4 @@ def get_blog_topic_page() -> BlogTopicPage:
     ]
     topic_page.save_revision().publish()
 
-    return topic_page
+    return articles

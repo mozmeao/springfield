@@ -4,6 +4,12 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{#
+  The blog article header, in one of four layouts chosen by `page.hero_style`.
+  Every style renders the same text block; they differ only in whether the media
+  sits above it, below it, or not at all. Reads `page` from context.
+#}
+
 {% set hero_style = page.hero_style %}
 {% set show_image = hero_style in ("standard_image", "large_image") and page.image %}
 {% set show_video = hero_style == "video" and page.hero_video %}
