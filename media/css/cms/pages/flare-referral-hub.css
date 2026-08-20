@@ -38,7 +38,7 @@
     }
 
     .fl-referral-hub-page .fl-showcase-description {
-        margin: auto;
+        margin-inline: auto;
         max-inline-size: 566px;
     }
 
