@@ -26,10 +26,34 @@ Sass in `media/css/` keeps the existing block–element naming pattern.
 
 If you add an inline import (i.e. an import anywhere inside a function or class) to Python code, it MUST be accompanied by a comment explaining why it is an inline import.
 
+## Writing Code for the Next Reader
+
+Code here is read far more often than it is written. Optimise every change for the person who opens the file months from now with no context — favour fewer, clearer lines over clever or defensive ones.
+
+**Names carry the meaning.** Every function, method, variable and template variable gets a full, descriptive name: no single letters (`n`, `i`), no abbreviations (`rt_soup` should be `rich_text_soup`). Reserve a leading underscore for genuinely private class or module members — module-level helpers in migrations, fixtures and tests get plain descriptive names. Avoid names that shadow stdlib modules (an `html` argument sitting next to `import html`). If a comment is needed to explain what something is, rename it instead.
+
+**Docstrings say what and why, briefly.** A docstring covers what the function does, its purpose, and anything a caller must know (e.g. "runs in its own transaction so a failure rolls back cleanly"). Leave out implementation history, justification of the design, and descriptions of what other functions do with the result.
+
+**Comments are for genuinely non-obvious logic.** Delete comments that restate the code. Keep the ones that explain a decision a reader would otherwise second-guess.
+
+**Comments and docstrings must stand on their own.** Never reference anything outside the code: spec or plan documents, requirement labels (`R5`), ticket IDs, "the design says…". Those go stale the moment the document moves and mean nothing to someone reading only this file.
+
+**Never describe code that no longer exists.** After a refactor, re-read the docstrings and comments you touched and strip references to the previous shape of the code. Prefer deleting an obsolete comment, branch or test over leaving it beside its replacement.
+
+**The MPL license header stands alone.** Close the license comment, leave a blank line, then open a second comment block for the file's own documentation. Applies to every file type carrying the header — Jinja `{# #}`, Python `#`, CSS/JS `/* */`. Tooling matches the header verbatim, so it must be identical across files.
+
 ## Testing Guidelines
 
 Pytest expects files named `test_<feature>.py` beside code or in `tests/unit/` or `tests/functional/`.
 Use markers such as `cdn`, `smoke`, or `skip_if_firefox` to scope runs (e.g., `pytest -m "not cdn"`). `npm run jasmine` rebuilds assets via `webpack.test.config.js` and runs front-end unit coverage. `make test` is the containerized umbrella; browser flows in `tests/playwright/` require QA coordination before extending.
+
+Pass `--reuse-db` on every local `pytest` run — creating the test DB replays slow Wagtail page-revision data migrations and costs ~20-25s per run.
+
+**Tests describe the code as it is now.** Assert what the code does; never assert that removed behaviour is absent ("the count badge is no longer rendered", "field X is gone"). A negative assertion about history passes forever while documenting nothing, and the next reader has no context for what was removed. When a change makes a test describe behaviour that no longer exists, rewrite it to the new behaviour or delete it.
+
+**Each test builds only the data it needs.** Write a small pytest fixture with the minimal objects under test. The shared page fixtures in `springfield/cms/fixtures/` are reserved for tests that render a full page and assert on the resulting HTML — a test of a model helper, a validation rule or a block value should not pull in topics, tags, images and every block type.
+
+**Keep assertions where they are rendered.** All content checks for one rendered element (href, text, classes, data attributes, children) belong inside the single test that renders it, not behind `_get_element(soup)` helpers. Separate test functions are for orthogonal concerns. Where the same component is asserted across many tests, use and extend the shared module-level `assert_*` helpers (see `springfield/cms/tests/test_blocks.py`) rather than adding private per-file ones.
 
 ## Workflow guidelines
 
