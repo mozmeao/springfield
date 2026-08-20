@@ -15,12 +15,12 @@ function initReferralControls(containerEl) {
     );
 
     if (clipboardEl) {
-        clipboardEl.addEventListener('click', () => {
+        clipboardEl.addEventListener('fl-copy-success', () => {
             if (window.dataLayer) {
                 window.dataLayer.push({
                     event: 'widget_action',
                     type: 'referral share',
-                    action: 'copy link',
+                    action: 'copy link'
                 });
             }
         });
@@ -32,7 +32,7 @@ function initReferralControls(containerEl) {
                 window.dataLayer.push({
                     event: 'widget_action',
                     type: 'referral share',
-                    action: 'mailto link',
+                    action: 'mailto link'
                 });
             }
         });
@@ -44,7 +44,7 @@ function initReferralControls(containerEl) {
                 window.dataLayer.push({
                     event: 'widget_action',
                     type: 'referral share',
-                    action: 'qr code modal',
+                    action: 'qr code modal'
                 });
             }
         });

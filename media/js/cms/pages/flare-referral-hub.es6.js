@@ -6,4 +6,8 @@
 
 import setupReferralControls from '../components/flare-referral-controls.es6';
 
-setupReferralControls();
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', setupReferralControls, false);
+} else {
+    setupReferralControls();
+}
