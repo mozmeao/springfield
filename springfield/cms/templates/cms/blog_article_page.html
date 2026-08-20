@@ -21,13 +21,13 @@
 {% from "cms/includes/blog/blog-card-media.html" import list_item_media with context %}
 <div class="fl-main">
   <div class="fl-split-page-upper has-gradient-bottom">
+    <div class="fl-article-back">
+      <a href="{{ page.get_parent().url }}" class="fl-blog-back-link">
+        <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+        {{ ftl('blog-all-articles') }}
+      </a>
+    </div>
     <div class="fl-article-main">
-      <div class="fl-article-back">
-        <a href="{{ page.get_parent().url }}" class="fl-blog-back-link">
-          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-back') }}
-        </a>
-      </div>
       {% include "cms/includes/blog/blog-article-hero.html" %}
     </div>
   </div>
@@ -36,57 +36,63 @@
     <div class="fl-article-main">
       <section class="fl-rich-text">
         {% for block in page.content %}
-          {% include_block block %}
+          <div class="fl-article-section">
+            {% include_block block %}
+          </div>
         {% endfor %}
       </section>
     </div>
 
-  {% if related_articles %}
-    <section class="fl-section fl-blog-related-articles">
-      <div class="fl-section-container">
-        <include:heading
-          level="h2"
-          heading_text="{{ ftl('blog-related-articles') }}"
-          heading_size="fl-heading-md"
-          alignment_class="text-center"
-        />
-        <div class="fl-blog-article-list">
-          {% for article in related_articles %}
-            {% set listing_image = article.get_listing_image() %}
-            <include:blog-article-list-item with_image="{{ listing_image }}">
-              <content:heading>
-                <hgroup class="fl-heading-group">
-                  <p class="fl-superheading">{{ article.topic.name }}</p>
-                  <h3 class="fl-heading">
-                    <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
-                  </h3>
-                </hgroup>
-              </content:heading>
-              <content:body>{{ article.description|richtext }}</content:body>
-              {% if article.first_published_at %}
-                <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
-              {% endif %}
-              {% set article_tags = article.get_tags() %}
-              {% if article_tags %}
-                <content:tags>
-                  {% for tag in article_tags %}
-                    <include:tag
-                      text="{{ tag.name }}"
-                      color="purple"
-                      corners="round"
-                    />
-                  {% endfor %}
-                </content:tags>
-              {% endif %}
-              {% if listing_image %}
-                <content:image>{{ list_item_media(article) }}</content:image>
-              {% endif %}
-            </include:blog-article-list-item>
-          {% endfor %}
+    {% if page.bottom_banner %}
+      {{ page.bottom_banner }}
+    {% endif %}
+
+    {% if related_articles %}
+      <section class="fl-section fl-blog-related-articles">
+        <div class="fl-section-container">
+          <include:heading
+            level="h2"
+            heading_text="{{ ftl('blog-related-articles') }}"
+            heading_size="fl-heading-md"
+            alignment_class="text-center"
+          />
+          <div class="fl-blog-article-list">
+            {% for article in related_articles %}
+              {% set listing_image = article.get_listing_image() %}
+              <include:blog-article-list-item with_image="{{ listing_image }}">
+                <content:heading>
+                  <hgroup class="fl-heading-group">
+                    <p class="fl-superheading">{{ article.topic.name }}</p>
+                    <h3 class="fl-heading">
+                      <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
+                    </h3>
+                  </hgroup>
+                </content:heading>
+                <content:body>{{ article.description|richtext }}</content:body>
+                {% if article.first_published_at %}
+                  <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
+                {% endif %}
+                {% set article_tags = article.get_tags() %}
+                {% if article_tags %}
+                  <content:tags>
+                    {% for tag in article_tags %}
+                      <include:tag
+                        text="{{ tag.name }}"
+                        color="purple"
+                        corners="round"
+                      />
+                    {% endfor %}
+                  </content:tags>
+                {% endif %}
+                {% if listing_image %}
+                  <content:image>{{ list_item_media(article) }}</content:image>
+                {% endif %}
+              </include:blog-article-list-item>
+            {% endfor %}
+          </div>
         </div>
-      </div>
-    </section>
-  {% endif %}
+      </section>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -2158,8 +2158,23 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("image_caption", ImageCaptionBlock()),
             ("code", CodeBlock()),
             ("quote", QuoteBlock()),
+            (
+                "cards_list",
+                CardsListBlock(
+                    template="cms/blocks/sections/blog-article-cards-list.html", help_text="Some settings may be ignored in favor of the page layout."
+                ),
+            ),
         ],
         use_json_field=True,
+    )
+    bottom_banner = StreamField(
+        [
+            ("banner", BannerBlock()),
+        ],
+        use_json_field=True,
+        blank=True,
+        max_num=1,
+        help_text="Optional banner to be displayed at the bottom of the article content.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -2203,6 +2218,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             classname="collapsed",
         ),
         FieldPanel("content"),
+        FieldPanel("bottom_banner"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels

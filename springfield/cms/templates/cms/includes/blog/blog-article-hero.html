@@ -42,10 +42,10 @@
   <div class="fl-article-title">
     <include:heading
         level="h1"
-        heading_size="fl-heading-xl"
+        heading_size="fl-heading-md"
         heading_text="{{ page.title }}"
         superheading_text="{{ page.topic.name }}"
-        alignment_class="text-center"
+        alignment_class="{{ 'text-center' if hero_style == 'large_image' else 'text-left' }}"
     />
   </div>
 

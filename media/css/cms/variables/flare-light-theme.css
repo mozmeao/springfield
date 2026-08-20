@@ -23,6 +23,7 @@
 /* Background colors */
 --fl-theme-background: var(--token-color-white);
 --fl-theme-color-icon-wrap: var(--token-color-purple);
+--fl-theme-blog-body-background: var(--token-color-white);
 
 /* Surface colors */
 --fl-theme-surface-card-gradient: var(--token-gradient-light);

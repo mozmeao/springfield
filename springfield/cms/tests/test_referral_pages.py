@@ -662,7 +662,7 @@ def test_get_firefox_page_renders_download_button(client, settings):
     page.save()
 
     code = crypto.referral_id_to_invite_code(REFERRAL_ID)
-    with patch(GEO_MOCK, return_value="US"):
+    with patch(GEO_MOCK, return_value="US"), patch("springfield.base.waffle.switch_is_active", return_value=False):
         response = client.get(f"/en-US/get-firefox/?invitation={code}")
 
     assert response.status_code == 200
