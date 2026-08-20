@@ -28,12 +28,6 @@
 
     /* Upper band */
     .fl-referral-hub-page .fl-split-page-upper {
-        background: linear-gradient(
-            0deg,
-            rgba(57, 21, 112, 1) 0%,
-            rgba(46, 14, 91, 1) 28%,
-            var(--token-color-dark-purple) 100%
-        );
         padding-block-end: 0;
     }
 
