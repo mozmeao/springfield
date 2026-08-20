@@ -126,6 +126,13 @@
         padding-block-end: 0;
     }
 
+    /* kit banner */
+    .fl-referral-hub-page .fl-banner.fl-banner-kit span.fl-fx-logo {
+        block-size: 0.7em;
+        inline-size: 0.7em;
+        margin-block: 0 0.1em;
+    }
+
     /* Extra band  */
 
     .fl-referral-hub-page .fl-split-page-extra {
