@@ -40,8 +40,10 @@
 
         {% set base_url = page.url ~ page.reverse_subpage('all_route') %}
         {% set topic_param = '&topic=' ~ topic.slug if topic else '' %}
-        {% set pagination_prev_url = base_url ~ '?page=' ~ list_articles.previous_page_number() ~ topic_param if list_articles.has_previous() else '' %}
-        {% set pagination_next_url = base_url ~ '?page=' ~ list_articles.next_page_number() ~ topic_param if list_articles.has_next() else '' %}
+        {% set tag_param = '&tag=' ~ tag.slug if tag else '' %}
+        {% set filter_params = topic_param ~ tag_param %}
+        {% set pagination_prev_url = base_url ~ '?page=' ~ list_articles.previous_page_number() ~ filter_params if list_articles.has_previous() else '' %}
+        {% set pagination_next_url = base_url ~ '?page=' ~ list_articles.next_page_number() ~ filter_params if list_articles.has_next() else '' %}
         {% include "cms/includes/blog/blog-article-list.html" %}
 
       </div>
