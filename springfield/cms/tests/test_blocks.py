@@ -34,6 +34,7 @@ from springfield.cms.blocks import (
     BlogCardsListBlock,
     BlogCardsListSourceBlock,
     BlogLatestArticlesBlock,
+    BrowserComparisonTableBlock,
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
@@ -80,6 +81,13 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
+from springfield.cms.fixtures.browser_comparison_table_fixtures import (
+    cell as browser_comparison_cell,
+    get_browser_comparison_table_test_page,
+    get_browser_comparison_table_variants,
+    image_header_cell,
+    result_cell,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -98,8 +106,6 @@ from springfield.cms.fixtures.comparison_table_fixtures import (
     cell as comparison_cell,
     get_comparison_table_test_page,
     get_comparison_table_variants,
-    image_header_cell,
-    result_cell,
     row as comparison_row,
 )
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
@@ -3720,20 +3726,17 @@ def comparison_cell_is_filled(cell_data: dict) -> bool:
     return bool(cell_data["content"] or cell_data.get("optional_content"))
 
 
-def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
-    value = block_data["value"]
-    mobile_behavior = value["mobile_behavior"]
-    highlighted_column = value.get("highlighted_column") or None
-    # Tables saved before the variant setting existed have no such key.
-    variant = value.get("variant", "default")
+def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict, table_class: str = "fl-comparison-table"):
+    """Assert a comparison table's cells, highlight and fine print.
 
-    wrapper_classes = wrapper_el.get("class", [])
-    assert mobile_behavior in wrapper_classes
-    # The default variant adds no modifier class, so it keeps the base palette.
-    if variant == "default":
-        assert "browser-comparison" not in wrapper_classes
-    else:
-        assert variant in wrapper_classes
+    Shared by the comparison table and the browser comparison table, which render
+    the same rows into their own set of classes.
+    """
+    value = block_data["value"]
+    highlighted_column = value.get("highlighted_column") or None
+
+    assert value["mobile_behavior"] in wrapper_el.get("class", [])
+    assert table_class in wrapper_el.find("table").get("class")
 
     header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
     header_cell_els = wrapper_el.find("thead").find_all(["th", "td"])
@@ -3779,6 +3782,13 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
             if cell_data["column_span"] > 1:
                 assert cell_el.get("colspan") == str(cell_data["column_span"])
 
+    fine_print = value.get("fine_print")
+    fine_print_el = wrapper_el.find("div", class_=f"{table_class}-fine-print")
+    if fine_print:
+        assert fine_print_el.get_text(strip=True) == BeautifulSoup(fine_print, "html.parser").get_text(strip=True)
+    else:
+        assert fine_print_el is None
+
 
 def test_comparison_table_variants(index_page, rf):
     page = get_comparison_table_test_page()
@@ -3801,11 +3811,61 @@ def test_comparison_table_variants(index_page, rf):
             assert_comparison_table(table, variant)
 
 
-def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None, variant="default"):
+def test_comparison_table_ignores_optional_content_left_in_stored_data():
+    """Only the browser comparison table defines optional content.
+
+    A comparison table cell that holds the key in stored data renders its plain
+    text, so the table shows no result icon.
+    """
     block = ComparisonTableBlock()
+    stored_cell = {
+        "type": "item",
+        "value": {
+            "content": "24 hrs/day",
+            "optional_content": [{"type": "comparison_result", "value": {"result": "yes", "label": ""}, "id": "c0-oc"}],
+            "column_span": 1,
+        },
+        "id": "c0",
+    }
     value = block.to_python(
         {
-            "variant": variant,
+            "mobile_behavior": "scroll",
+            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM", cell_id="h0")], row_id="hr")],
+            "content_rows": [comparison_row(cells=[stored_cell], row_id="r0")],
+        }
+    )
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("div", class_="fl-comparison-result") is None
+    assert soup.find("thead").find("th").get_text(strip=True) == "PREMIUM"
+    assert soup.find("tbody").find("th").get_text(strip=True) == "24 hrs/day"
+
+
+def test_browser_comparison_table_variants(index_page, rf):
+    page = get_browser_comparison_table_test_page()
+    variants = get_browser_comparison_table_variants()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in (upper, lower):
+        tables = region.find_all("div", class_="fl-browser-comparison-table-wrapper")
+        assert len(tables) == len(variants)
+        for table, variant in zip(tables, variants):
+            assert_comparison_table(table, variant, table_class="fl-browser-comparison-table")
+
+
+def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None):
+    block = BrowserComparisonTableBlock()
+    value = block.to_python(
+        {
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
             "header_row": [comparison_row(cells=header_cells, row_id="hr")],
@@ -3816,10 +3876,10 @@ def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll
 
 
 def _render_comparison_result_row(cell_data):
-    """One-row table whose only value cell holds ``cell_data``."""
-    return _render_comparison_table(
-        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+    """One-row browser comparison table whose only value cell holds ``cell_data``."""
+    return _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Firefox")],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
     )
 
 
@@ -3863,9 +3923,9 @@ def test_comparison_cell_optional_content_replaces_plain_text():
 
 def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
     header_cell = image_header_cell("Firefox", cell_id="h1")
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
     )
 
     header_cell_els = soup.find("thead").find_all(["th", "td"])
@@ -3880,56 +3940,17 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     header_cell = image_header_cell("Firefox", cell_id="h1")
     header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
 
 
-def _comparison_variant_wrapper_classes(variant):
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), comparison_cell("Yes")], row_id="r0")],
-        variant=variant,
-    )
-    return soup.find("div", class_="fl-comparison-table-wrapper").get("class", [])
-
-
-def test_comparison_table_browser_variant_adds_modifier_class():
-    """The variant class is what swaps the highlight and border colors in CSS."""
-    assert "browser-comparison" in _comparison_variant_wrapper_classes("browser-comparison")
-
-
-def test_comparison_table_default_variant_adds_no_modifier_class():
-    classes = _comparison_variant_wrapper_classes("default")
-
-    assert "browser-comparison" not in classes
-    assert "default" not in classes
-
-
-def test_comparison_table_renders_when_variant_key_absent_from_stored_json():
-    """Tables saved before the variant setting existed have no such key at all."""
-    block = ComparisonTableBlock()
-    value = block.to_python(
-        {
-            "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[comparison_cell("24 hrs/day")], row_id="r0")],
-        }
-    )
-
-    assert value["variant"] == "default"
-
-    wrapper = BeautifulSoup(block.render(value), "html.parser").find("div", class_="fl-comparison-table-wrapper")
-
-    assert "browser-comparison" not in wrapper.get("class", [])
-
-
-def test_comparison_table_renders_cells_saved_before_optional_content_existed():
-    """Cells saved before optional_content existed have no such key at all."""
-    block = ComparisonTableBlock()
+def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():
+    """Cells retyped from a comparison table may have no optional_content key at all."""
+    block = BrowserComparisonTableBlock()
     legacy_cell = {"type": "item", "value": {"content": "24 hrs/day", "column_span": 1}, "id": "c0"}
     value = block.to_python(
         {
@@ -3946,6 +3967,56 @@ def test_comparison_table_renders_cells_saved_before_optional_content_existed():
     assert soup.find("div", class_="fl-comparison-result") is None
     assert soup.find("thead").find("th").get_text(strip=True) == "PREMIUM"
     assert soup.find("tbody").find("th").get_text(strip=True) == "24 hrs/day"
+
+
+def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
+    """The block renders its own component, not the comparison table's."""
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), image_header_cell("Firefox", cell_id="h1")],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        mobile_behavior="stacked",
+        highlighted_column=2,
+    )
+
+    wrapper = soup.find("div", class_="fl-browser-comparison-table-wrapper")
+    assert "stacked" in wrapper.get("class")
+    assert wrapper.find("table").get("class") == ["fl-browser-comparison-table"]
+    # The highlight is a class on the cells, which is what the CSS enlarges and
+    # lifts the logo of.
+    assert "highlighted" in wrapper.find("thead").find_all(["th", "td"])[1].get("class", [])
+    assert "highlighted" in wrapper.find("tbody").find_all(["th", "td"])[1].get("class", [])
+
+
+def test_browser_comparison_table_cell_spans_the_columns_it_is_given():
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Browsers", column_span=2)],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), browser_comparison_cell("Yes", column_span=2)], row_id="r0")],
+    )
+
+    assert soup.find("thead").find_all(["th", "td"])[1].get("colspan") == "2"
+    assert soup.find("tbody").find_all(["th", "td"])[1].get("colspan") == "2"
+
+
+def test_browser_comparison_table_renders_inside_a_tab(placeholder_images):
+    """A tab holds the table through a StreamBlock, so an empty tab renders none."""
+    block = TabsBlock()
+    table = get_browser_comparison_table_variants()[0]
+    value = block.to_python(
+        {
+            "section_id": "hub",
+            "tabs": [
+                {"tab_name": "With table", "browser_comparison_table": [table]},
+                {"tab_name": "Without table"},
+            ],
+        }
+    )
+    soup = BeautifulSoup(block.render(value, context={"invite_url": INVITE_URL}), "html.parser")
+
+    panels = soup.select(".fl-tab")
+    tables = panels[0].find_all("div", class_="fl-browser-comparison-table-wrapper")
+    assert len(tables) == 1
+    assert_comparison_table(tables[0], table, table_class="fl-browser-comparison-table")
+    assert panels[1].find("div", class_="fl-browser-comparison-table-wrapper") is None
 
 
 class TestIconDisplayLabel:
