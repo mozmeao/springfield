@@ -1025,7 +1025,12 @@ class WhatsnewView(L10nTemplateView):
                 locale = WagtailLocale.objects.get(language_code=locale_code)
             except WagtailLocale.DoesNotExist:
                 continue
-            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
+            # A slug is only unique among siblings, so a nested routing variant can share
+            # this slug with the real evergreen page without being one — reuse the
+            # existing "direct child of the index" predicate rather than trusting slug
+            # + locale alone, or a rogue variant could 302 here to a URL that then 404s.
+            candidates = WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale)
+            if any(candidate.is_routing_canonical() for candidate in candidates):
                 break
         else:
             return None

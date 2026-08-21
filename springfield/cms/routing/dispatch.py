@@ -7,9 +7,9 @@
 A pure function of flags — no request, no page, no Wagtail — so the highest-risk logic
 is exhaustively testable and policy stays out of the ``serve()`` adapter.
 
-``is_paused`` and ``has_live_rules`` arrive as callables, consulted only if the order
-below reaches them. As values they would cost a query each on every request to an
-adopted page, including while the switch is off.
+``is_paused``, ``is_canonical``, and ``has_live_rules`` arrive as callables, consulted
+only if the order below reaches them. As values they would cost a query each on every
+request to an adopted page, including while the switch is off.
 
 The order is fixed and must not be reordered:
 
@@ -44,7 +44,8 @@ def decide_routing(
     """Return the serve-path branch for the given flags.
 
     Keyword-only args so the flag mapping is always explicit at the call site.
-    ``is_paused`` and ``has_live_rules`` are callables — see the module docstring.
+    ``is_paused``, ``is_canonical``, and ``has_live_rules`` are callables — see the
+    module docstring.
     """
     if not routing_enabled:
         return SERVE_CANONICAL
@@ -54,8 +55,8 @@ def decide_routing(
         return SERVE_PREVIEW
     if is_paused():
         return SERVE_CANONICAL
-    # `and` short-circuits, so an untriggered or non-canonical page never reaches the
-    # rule scan — which is every organic request to an adopted page.
-    if trigger_satisfied and is_canonical and has_live_rules():
+    # `and` short-circuits, so an untriggered request never reaches is_canonical/
+    # has_live_rules — which is every organic request to an adopted page.
+    if trigger_satisfied and is_canonical() and has_live_rules():
         return SERVE_RESOLVER
     return SERVE_CANONICAL

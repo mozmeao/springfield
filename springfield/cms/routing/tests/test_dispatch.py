@@ -50,9 +50,9 @@ def expected_decision(flags):
     return SERVE_CANONICAL
 
 
-# The two database-backed flags are callables in the real signature. The truth table below
-# reasons in plain booleans, so wrap them at the call site.
-LAZY_FLAGS = ("is_paused", "has_live_rules")
+# These three are callables in the real signature. The truth table below reasons in
+# plain booleans, so wrap them at the call site.
+LAZY_FLAGS = ("is_paused", "is_canonical", "has_live_rules")
 
 
 def decide(**flags):
@@ -169,10 +169,12 @@ class _Counter:
 def _decide_counting(**overrides):
     flags = _flags(**overrides)
     paused = _Counter(flags["is_paused"])
+    canonical = _Counter(flags["is_canonical"])
     live = _Counter(flags["has_live_rules"])
     flags["is_paused"] = paused
+    flags["is_canonical"] = canonical
     flags["has_live_rules"] = live
-    return decide_routing(**flags), paused, live
+    return decide_routing(**flags), paused, canonical, live
 
 
 @pytest.mark.parametrize(
@@ -183,21 +185,24 @@ def _decide_counting(**overrides):
         ("admin preview", {"routing_enabled": True, "is_preview_admin": True}),
     ),
 )
-def test_neither_database_flag_is_read_before_its_gate(label, overrides):
-    # All three exit above the pause check, so neither flag may be touched.
-    _, paused, live = _decide_counting(**overrides, trigger_satisfied=True, is_canonical=True, has_live_rules=True)
+def test_none_of_the_database_flags_is_read_before_its_gate(label, overrides):
+    # All three exit above the pause check, so none of the callables may be touched.
+    _, paused, canonical, live = _decide_counting(**overrides, trigger_satisfied=True, is_canonical=True, has_live_rules=True)
     assert paused.calls == 0, label
+    assert canonical.calls == 0, label
     assert live.calls == 0, label
 
 
 def test_the_rule_scan_is_skipped_for_untriggered_traffic():
-    # The common case by volume: organic visitors to an adopted page. The pause is read,
-    # the rule scan is not.
-    _, paused, live = _decide_counting(routing_enabled=True, is_canonical=True, has_live_rules=True, trigger_satisfied=False)
+    # The common case by volume: organic visitors to an adopted page. The pause is read;
+    # is_canonical and the rule scan are not, since `and` short-circuits on the trigger.
+    _, paused, canonical, live = _decide_counting(routing_enabled=True, is_canonical=True, has_live_rules=True, trigger_satisfied=False)
     assert paused.calls == 1
+    assert canonical.calls == 0
     assert live.calls == 0
 
 
 def test_the_rule_scan_is_skipped_on_a_non_canonical_page():
-    _, _, live = _decide_counting(routing_enabled=True, trigger_satisfied=True, is_canonical=False, has_live_rules=True)
+    _, _, canonical, live = _decide_counting(routing_enabled=True, trigger_satisfied=True, is_canonical=False, has_live_rules=True)
+    assert canonical.calls == 1
     assert live.calls == 0
