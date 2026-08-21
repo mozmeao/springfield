@@ -69,6 +69,11 @@
     background: var(--button-bg-color-active);
 }
 
+.nav-get-mobile .fl-dropdown-trigger:focus-visible {
+    outline: 2px solid var(--button-color-focus-outline);
+    outline-offset: 2px;
+}
+
 /* Phone icon (left) + chevron (right), masked and tinted with currentColor.
    Each SVG URL is declared once via --nav-qr-icon (shared by mask + -webkit-mask). */
 .nav-get-mobile .fl-dropdown-trigger::before,
