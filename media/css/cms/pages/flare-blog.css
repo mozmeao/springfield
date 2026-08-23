@@ -144,18 +144,14 @@
     margin-block-start: var(--token-spacing-md);
 }
 
-.fl-tag.fl-blog-selected-topic {
-    background-color: var(--notification-stacked-color);
-    color: var(--notification-bg);
-    font-size: var(--fl-theme-font-size-body-xs);
-
+.fl-tag.fl-tag-blog-topic.is-selected {
     @container style(--lang-supports-uppercase: true) {
         text-transform: uppercase;
     }
 }
 
-.fl-tag.fl-blog-selected-topic .close-button {
-    color: var(--notification-bg);
+.fl-tag.fl-tag-blog-topic.is-selected .close-button {
+    color: var(--token-color-white);
     margin-block-end: 1px;
 }
 

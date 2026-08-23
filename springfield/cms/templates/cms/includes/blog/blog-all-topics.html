@@ -19,7 +19,7 @@
       {% set selected_topic = topic and topic.slug == topic_item.slug %}
       {% set all_route_url = index_page.url ~ index_page.reverse_subpage('all_route') %}
       {% if selected_topic %}
-        <span class="fl-tag fl-blog-selected-topic">
+        <span class="fl-tag fl-tag-blog-topic is-selected">
           {{ topic_item.name }}
 
           <a href="{{ all_route_url }}" class="close-button">
@@ -28,13 +28,16 @@
           </a>
         </span>
       {% else %}
-        <a href="{{ index_page.url }}{{ index_page.reverse_subpage('topic_route', args=[topic_item.slug]) }}" class="fl-blog-topic-link fl-tag">
+        <a href="{{ index_page.url }}{{ index_page.reverse_subpage('topic_route', args=[topic_item.slug]) }}" class="fl-blog-topic-link fl-tag fl-tag-blog-topic">
           {{ topic_item.name }}
         </a>
       {% endif %}
     {% endfor %}
     <div class="fl-blog-topics-all">
-      <a href="{{ index_page.url }}{{ index_page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+      <a href="{{ index_page.url }}{{ index_page.reverse_subpage('topics_route') }}" class="fl-link">
+        {{ ftl('blog-view-all-topics') }}
+        <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
+      </a>
     </div>
   </div>
 
