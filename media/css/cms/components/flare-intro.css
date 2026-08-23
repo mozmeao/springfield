@@ -116,7 +116,8 @@
     padding: var(--token-layout-3xs) 0 var(--token-layout-sm);
 }
 
-.fl-intro-body {
+.fl-intro .fl-body {
+    max-inline-size: var(--token-width-desktop-content-sm);
     padding-block-start: var(--token-spacing-lg);
 }
 
