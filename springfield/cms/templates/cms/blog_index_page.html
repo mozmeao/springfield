@@ -46,7 +46,10 @@
                 <a href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic.slug]) }}" class="fl-blog-topic-link fl-tag fl-tag-blog-topic">{{ topic.name }}</a>
               {% endfor %}
               <div class="fl-blog-topics-all">
-                <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">{{ ftl('blog-view-all-topics') }}</a>
+                <a href="{{ page.url }}{{ page.reverse_subpage('topics_route') }}" class="fl-link">
+                  {{ ftl('blog-view-all-topics') }}
+                  <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
+                </a>
               </div>
             </div>
           {% endif %}
