@@ -60,7 +60,7 @@
 
 .fl-blog-index-header .fl-heading-group,
 .fl-blog-index-header:not(:has(.fl-heading-group)) .fl-heading {
-    margin-block-end: var(--token-layout-lg);
+    margin-block-end: var(--token-layout-sm);
 }
 
 .fl-blog-topics-list {
@@ -71,7 +71,9 @@
     font-size: var(--fl-theme-font-size-body-xs);
     gap: var(--token-spacing-xl);
     inline-size: 100%;
+    justify-content: center;
     padding-block-end: var(--token-spacing-lg);
+    text-align: center;
 }
 
 .fl-blog-topics-list.is-topics-page {
@@ -237,7 +239,7 @@
 }
 
 .fl-blog-featured-main .fl-heading-group {
-    margin-block-end: 0;
+    margin-block: var(--token-spacing-lg) 0;
 }
 
 .fl-blog-featured .fl-mediacontent {
@@ -271,15 +273,16 @@
 }
 
 .fl-blog-article-list-item-image {
-    aspect-ratio: 4/3;
+    aspect-ratio: 16/9;
     overflow: hidden;
 }
 
 .fl-blog-article-list-item-image img {
     block-size: 100%;
-    border-radius: var(--token-border-radius-sm);
+    border-radius: var(--token-border-radius-md);
     inline-size: 100%;
     object-fit: cover;
+    object-position: var(--focal-point, center);
 }
 
 .fl-blog-featured-row .fl-blog-article-list {
@@ -483,6 +486,11 @@
 }
 
 @media (--viewport-md-up) {
+    .fl-blog-index-header .fl-heading-group,
+    .fl-blog-index-header:not(:has(.fl-heading-group)) .fl-heading {
+        margin-block-end: var(--token-layout-lg);
+    }
+
     .fl-blog-article-body .fl-split-page-upper {
         padding-block: var(--token-layout-md);
     }
@@ -519,10 +527,35 @@
     }
 
     .fl-blog-featured-row {
-        grid-template-columns: 2fr 1fr;
+        gap: var(--token-spacing-lg);
+        grid-template-columns: 4fr 3fr;
+    }
+
+    .fl-blog-featured-main {
+        border-inline-end: 1px solid var(--fl-subtle-border-color);
+        padding-inline-end: var(--token-spacing-lg);
     }
 
     .fl-blog-article-list-item-with-image {
-        grid-template-columns: 2fr 1fr;
+        align-items: center;
+        grid-template-columns: 1fr 2fr;
+    }
+
+    .fl-blog-article-list-item-image {
+        aspect-ratio: 1/1;
+    }
+
+    .fl-blog-article-list-item-image img {
+        border-radius: var(--token-border-radius-sm);
+        object-position: center;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-blog-index-body,
+    .fl-blog-article-body {
+        --fl-theme-background: var(--fl-theme-blog-body-background);
+        --fl-theme-body-background: var(--fl-theme-blog-body-background);
+        --fl-subtle-border-color: var(--token-color-grey-3);
     }
 }
