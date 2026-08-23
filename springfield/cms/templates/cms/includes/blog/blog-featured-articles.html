@@ -57,7 +57,28 @@
         <div class="fl-blog-article-list">
           {% for block in featured_articles[1:] %}
             {% set description = block.value.get_description() %}
-            <include:blog-article-list-item>
+            {% set image = block.value.get_image() %}
+            <include:blog-article-list-item with_image={{ image }}>
+              {% if image %}
+                {% set dark_image = block.value.get_dark_image() %}
+                {% set mobile_image = block.value.get_mobile_image() %}
+                {% set dark_mobile_image = block.value.get_mobile_dark_image() %}
+                {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+                {% if image.focal_point_x %}
+                  {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
+                {% else %}
+                  {% set focal_point = "center" %}
+                {% endif %}
+                <content:image>
+                  <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
+                    {{ srcset_image(image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
+                    {% if mobile_image %}{{ srcset_image(mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
+                    {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+                    {% if dark_image %}{{ srcset_image(dark_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
+                  </div>
+                </content:image>
+              {% endif %}
+
               <content:heading>
                 <hgroup class="fl-heading-group">
                   <p class="fl-superheading">{{ block.value.get_topic() }}</p>
