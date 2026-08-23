@@ -30,7 +30,7 @@
         {% if all_topics %}
           <div class="fl-blog-topics-list is-topics-page">
             {% for topic in all_topics %}
-              <a class="fl-tag is-large" href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic.slug]) }}">
+              <a class="fl-tag fl-tag-blog-topic is-large" href="{{ page.url }}{{ page.reverse_subpage('topic_route', args=[topic.slug]) }}">
                 {{ topic.name }}
                 <include:tag
                   text="{{ topic.article_count }}"

@@ -39,7 +39,7 @@ function initBlogTopicsScroll(filter) {
 
     update();
 
-    const selected = list.querySelector('.fl-blog-selected-topic');
+    const selected = list.querySelector('.fl-tag-blog-topic.is-selected');
     if (selected) {
         const listRect = list.getBoundingClientRect();
         const selectedRect = selected.getBoundingClientRect();

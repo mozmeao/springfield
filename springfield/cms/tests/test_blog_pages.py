@@ -1003,7 +1003,7 @@ def test_blog_all_topic_filter_shows_selected_topic(blog_setup, rf):
     response = index_page.all_route(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    selected = soup.find("span", class_="fl-blog-selected-topic")
+    selected = soup.select_one("span.fl-tag-blog-topic.is-selected")
     assert selected and "Privacy" in selected.get_text()
 
 
@@ -1014,7 +1014,7 @@ def test_blog_all_topic_filter_selected_topic_has_close_link(blog_setup, rf):
     response = index_page.all_route(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    selected = soup.find("span", class_="fl-blog-selected-topic")
+    selected = soup.select_one("span.fl-tag-blog-topic.is-selected")
     assert selected
     close_link = selected.find("a")
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
@@ -1028,7 +1028,7 @@ def test_blog_all_unknown_topic_shows_all_articles(blog_setup, rf):
     response = index_page.all_route(request)
     assert response.status_code == 200
     soup = BeautifulSoup(response.content, "html.parser")
-    assert not soup.find("span", class_="fl-blog-selected-topic")
+    assert not soup.select_one("span.fl-tag-blog-topic.is-selected")
 
 
 def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
