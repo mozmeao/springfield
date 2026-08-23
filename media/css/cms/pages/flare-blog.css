@@ -127,8 +127,12 @@
     padding-inline-start: var(--token-spacing-lg);
 }
 
-.fl-blog-back-link {
+.fl-blog-back-link,
+.fl-blog-topics-all .fl-link {
+    align-items: center;
     color: var(--fl-theme-color-link-fade);
+    display: inline-flex;
+    gap: var(--token-spacing-sm);
     text-decoration: none;
 
     @container style(--lang-supports-uppercase: true) {
@@ -136,7 +140,8 @@
     }
 }
 
-.fl-blog-back-link:hover {
+.fl-blog-back-link:hover,
+.fl-blog-topics-all .fl-link:hover {
     text-decoration: underline;
 }
 
