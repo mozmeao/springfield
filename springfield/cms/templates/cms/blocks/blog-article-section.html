@@ -22,7 +22,10 @@
         heading_text="{{ value.heading_text|richtext|remove_p_tag }}"
         heading_size="fl-heading-xs"
       />
-      <a class="fl-blog-cards-list-link" href="{{ value.get_link_url() }}">{{ value.link_label }}</a>
+      <a class="fl-blog-cards-list-link" href="{{ value.get_link_url() }}">
+        {{ value.link_label }}
+        <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
+      </a>
     </div>
     {% set list_size = articles|length %}
     <include:cards-list container_width="fill">
