@@ -130,7 +130,8 @@
 }
 
 .fl-blog-back-link,
-.fl-blog-topics-all .fl-link {
+.fl-blog-topics-all .fl-link,
+.fl-blog-cards-list-link {
     align-items: center;
     color: var(--fl-theme-color-link-fade);
     display: inline-flex;
@@ -143,7 +144,8 @@
 }
 
 .fl-blog-back-link:hover,
-.fl-blog-topics-all .fl-link:hover {
+.fl-blog-topics-all .fl-link:hover,
+.fl-blog-cards-list-link:hover {
     text-decoration: underline;
 }
 
@@ -320,10 +322,6 @@
 .fl-blog-cards-list-link {
     font-size: var(--fl-theme-font-size-body-2xs);
     margin-inline-start: auto;
-
-    @container style(--lang-supports-uppercase: true) {
-        text-transform: uppercase;
-    }
 }
 
 /* Pagination */
