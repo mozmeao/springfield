@@ -4,11 +4,23 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-.fl-impact-dash-summary {
+.fl-impact-dash-summary-heading {
+    font-family: var(--token-font-family-mozilla-headline);
+    font-size: var(--fl-theme-font-size-heading-sm);
+    font-weight: var(--token-font-weight-semibold);
+    margin: 0 auto;
+    text-align: center;
+}
+
+.fl-impact-dash-summary-content {
     color: var(--token-color-soft-purple-5);
     font-size: var(--token-font-size-sm);
     margin: var(--token-spacing-md) auto 0;
     text-align: center;
+}
+
+.fl-impact-dash-summary-heading + .fl-impact-dash-summary-content {
+    margin-block-start: var(--token-spacing-xs);
 }
 
 .fl-impact-dash {
@@ -22,12 +34,14 @@
     padding: 0;
 }
 
-.fl-impact-dash-summary + .fl-impact-dash {
+.fl-impact-dash-summary-heading + .fl-impact-dash,
+.fl-impact-dash-summary-content + .fl-impact-dash {
     margin-block: var(--token-spacing-xl);
 }
 
 @media (--viewport-sm-up) {
-    .fl-impact-dash-summary {
+    .fl-impact-dash-summary-heading,
+    .fl-impact-dash-summary-content {
         max-inline-size: 80%;
     }
 }
@@ -41,13 +55,17 @@
         justify-content: center;
     }
 
-    .fl-impact-dash-summary {
-        margin: var(--token-spacing-xl) auto 0;
+    .fl-impact-dash-summary-heading,
+    .fl-impact-dash-summary-content {
         max-inline-size: 60%;
     }
 
-    .fl-impact-dash-summary + .fl-impact-dash {
-        margin-block: var(--token-layout-md);
+    .fl-impact-dash-summary-heading + .fl-impact-dash-summary-content {
+        margin-block-start: var(--token-spacing-xl);
+    }
+
+    .fl-impact-dash-summary-content + .fl-impact-dash {
+        margin-block-start: var(--token-layout-md);
     }
 }
 
