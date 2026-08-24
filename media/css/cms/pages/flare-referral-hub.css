@@ -129,11 +129,8 @@
     /* Extra band  */
 
     .fl-referral-hub-page .fl-split-page-extra {
-        background: linear-gradient(
-            0deg,
-            rgba(66, 30, 131, 1) 0%,
-            var(--token-color-dark-purple) 100%
-        );
+        border-end-end-radius: var(--fl-theme-main-border-radius);
+        border-end-start-radius: var(--fl-theme-main-border-radius);
         color: var(--fl-theme-color-text);
         margin: 0 auto;
         padding-block: var(--fl-section-v-padding);
@@ -172,8 +169,13 @@
             padding: var(--token-spacing-xl) var(--token-layout-xs);
         }
 
+        .fl-referral-hub-page .fl-split-page-extra {
+            border-end-end-radius: var(--section-border-radius);
+            border-end-start-radius: var(--section-border-radius);
+        }
+
         .fl-referral-hub-page .fl-showcase-media {
-            padding-block-end: var(--token-layout-xs);
+            padding-block-end: 0;
         }
 
         .fl-banner-kit-small {
