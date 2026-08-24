@@ -80,6 +80,10 @@
         max-inline-size: 480px;
     }
 
+    .fl-referral-hub-page .fl-tab-note a:hover {
+        color: var(--fl-theme-color-link);
+    }
+
     .fl-referral-hub-page .fl-split-page-upper .fl-showcase {
         padding-block-end: var(--token-layout-md);
         position: relative;
