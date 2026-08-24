@@ -18,6 +18,10 @@
     --fl-theme-body-background: var(--fl-theme-blog-body-background);
 }
 
+.fl-blog-index-body .fl-section-container {
+    gap: var(--token-layout-lg);
+}
+
 .fl-blog-article-body .fl-main {
     position: relative;
     z-index: 1;
@@ -56,6 +60,10 @@
 
 .fl-blog-article-body .fl-split-page-upper {
     padding-block: 0 var(--token-spacing-3xl);
+}
+
+.fl-blog-index-header {
+    margin-block-end: var(--token-spacing-xl);
 }
 
 .fl-blog-index-header .fl-heading-group,
@@ -546,6 +554,10 @@
     .fl-blog-article-list-item-image img {
         border-radius: var(--token-border-radius-sm);
         object-position: center;
+    }
+
+    .fl-blog-cards-list-header {
+        margin-block-end: var(--token-layout-md);
     }
 }
 
