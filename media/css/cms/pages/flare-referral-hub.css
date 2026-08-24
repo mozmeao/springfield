@@ -150,6 +150,7 @@
         max-inline-size: var(--token-width-desktop-content-lg);
     }
 
+    .fl-referral-hub-page .fl-split-page-extra .fl-showcase .fl-video,
     .fl-referral-hub-page .fl-split-page-extra .fl-showcase .fl-video img {
         border-radius: var(--token-border-radius-sm);
     }
