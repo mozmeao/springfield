@@ -16,7 +16,6 @@
   <main class="fl-main">
     <section class="fl-section">
       <div class="fl-section-container">
-
         <div class="fl-blog-index-header">
           {% if page.page_heading %}
             {% for block in page.page_heading %}
@@ -54,15 +53,15 @@
             </div>
           {% endif %}
         </div>
+      </div>
 
-
+      <div class="fl-section-container">
         {% set featured_articles = page.featured_articles %}
         {% include "cms/includes/blog/blog-featured-articles.html" %}
 
         {% for block in article_sections %}
           {% include_block block %}
         {% endfor %}
-
       </div>
     </section>
   </main>
