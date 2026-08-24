@@ -119,7 +119,6 @@
     /*
      * Fade the content in as the panel grows, so a delayed auto-open reveals
      * the QR code smoothly rather than snapping it in at the end of the size
-     * transition. `allow-discrete` lets the `display` change below animate.
      */
     transition:
         opacity 300ms ease,
