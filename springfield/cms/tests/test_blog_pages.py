@@ -873,7 +873,7 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
             assert expand_link and expand_link["href"]
 
             body = card.find("div", class_="fl-body")
-            assert body and body.get_text(strip=True)
+            assert not body
 
     images = soup.find("div", class_="fl-blog-cards-list").find_all("img")
     assert images, "articles that do have a listing image render one"
