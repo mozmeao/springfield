@@ -3,7 +3,7 @@ context:
   results:
     - icon_name: checkmark-circle-fill
       label: "Yes"
-    - icon_name: close-circle-fill
+    - icon_name: close-circle
       label: "No"
     - icon_name: subtract-circle-fill
       label: Limited

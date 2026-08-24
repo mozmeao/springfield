@@ -336,6 +336,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/close-cancel-dismiss/close-16.svg');
 }
 
+.fl-icon-close-circle {
+    --icon-src: url('/media/img/firefox/flare/icons/desktop-16/close-cancel-dismiss/close-circle.svg');
+}
+
 .fl-icon-close-circle-fill {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/close-cancel-dismiss/close-circle-fill-16.svg');
 }

@@ -1191,7 +1191,7 @@ COMPARISON_RESULT_CHOICES = (
 
 COMPARISON_RESULT_ICONS = {
     "yes": "checkmark-circle-fill",
-    "no": "close-circle-fill",
+    "no": "close-circle",
     "limited": "circle-semi-filled",
 }
 
