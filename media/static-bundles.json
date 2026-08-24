@@ -529,6 +529,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-translation-draftsharing.es6.js"
+      ],
+      "name": "wagtailadmin-translation-draftsharing"
+    },
+    {
+      "files": [
         "js/firefox/download/desktop/download.js"
       ],
       "name": "firefox_desktop_download"

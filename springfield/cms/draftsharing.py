@@ -98,3 +98,16 @@ def delete_dead_sharing_revisions(page):
     dead = Revision.objects.for_instance(page).filter(id__in=linked_revision_ids).exclude(id__in=active_revision_ids).exclude(id__in=protected_ids)
     deleted_count, __ = dead.delete()
     return deleted_count
+
+
+def has_shareable_translation_draft(translation, page):
+    """Whether this translated page holds content that has not been published yet."""
+    if not page.live:
+        return True
+    if page.last_published_at is None:
+        return True
+
+    latest_edit = latest_translation_edit(translation)
+    if latest_edit is None:
+        return False
+    return latest_edit > page.last_published_at

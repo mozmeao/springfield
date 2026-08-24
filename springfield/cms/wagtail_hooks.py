@@ -185,6 +185,16 @@ def routing_condition_help_js():
     )
 
 
+@hooks.register("insert_global_admin_js")
+def translation_draftsharing_js():
+    """Deliver the script that moves the draft sharing button into the translation editor.
+
+    Loaded on every admin page; the script does nothing unless the editor rendered the
+    button template.
+    """
+    return format_html('<script type="module" src="{}"></script>', static("js/wagtailadmin-translation-draftsharing.js"))
+
+
 class FXAEntityElementHandler(InlineEntityElementHandler):
     """
     Database HTML to Draft.js ContentState.
