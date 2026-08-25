@@ -9,13 +9,38 @@ from django.db import migrations
 import springfield.cms.fields
 
 
+class AddFieldIfColumnExists(migrations.AddField):
+    """
+    AddField that skips schema application when the column is already there.
+
+    This migration was applied to some databases while it was numbered 0141,
+    but was then renamed to 0144. Those databases should skip the column
+    addition, but other databases still need the column added.
+    """
+
+    def _column_exists(self, schema_editor, state, app_label):
+        model = state.apps.get_model(app_label, self.model_name)
+        column_name = model._meta.get_field(self.name).column
+        with schema_editor.connection.cursor() as cursor:
+            table_columns = schema_editor.connection.introspection.get_table_description(cursor, model._meta.db_table)
+        return any(existing.name == column_name for existing in table_columns)
+
+    def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        if not self._column_exists(schema_editor, to_state, app_label):
+            super().database_forwards(app_label, schema_editor, from_state, to_state)
+
+    def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        if self._column_exists(schema_editor, from_state, app_label):
+            super().database_backwards(app_label, schema_editor, from_state, to_state)
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0143_merge_20260818_2040"),
     ]
 
     operations = [
-        migrations.AddField(
+        AddFieldIfColumnExists(
             model_name="blogarticlepage",
             name="bottom_banner",
             field=springfield.cms.fields.StreamField(
