@@ -1687,7 +1687,7 @@ def cache_localized_topics(articles):
     a list costs one query rather than resolving each article's topic separately."""
     from springfield.cms.models.snippets import BlogTopic  # circular import
 
-    slugs = [article.topic.slug for article in articles]
+    slugs = [article.topic.slug for article in articles if article.topic]
     localized_topics_by_slug = {topic.slug: topic for topic in BlogTopic.objects.filter(locale=SpringfieldLocale.get_active(), slug__in=slugs).live()}
     for article in articles:
         if article.topic and article.topic.slug in localized_topics_by_slug:
