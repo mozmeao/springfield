@@ -4903,6 +4903,55 @@ def test_tab_block_rejects_firefox_as_a_detected_browser():
     assert "firefox" not in dict(DETECTED_BROWSER_CHOICES)
 
 
+def test_tab_block_renders_image_via_media_field(placeholder_images):
+    from django.conf import settings
+
+    raw = {
+        "tab_name": "Image tab",
+        "media": [
+            {
+                "type": "image",
+                "id": "aabbcc001122",
+                "value": {
+                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
+                },
+            }
+        ],
+    }
+    block = TabBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={"section_id": "hub", "tab_index": 1})
+    soup = BeautifulSoup(html, "html.parser")
+    assert soup.find("div", class_="image-variants-display") is not None
+
+
+def test_tab_block_renders_animation_via_media_field(placeholder_images):
+    from django.conf import settings
+
+    raw = {
+        "tab_name": "Animation tab",
+        "media": [
+            {
+                "type": "animation",
+                "id": "ddeeff334455",
+                "value": {
+                    "video_url": "https://assets.mozilla.net/video/red-pandas.webm",
+                    "alt": "Red pandas playing",
+                    "poster": settings.PLACEHOLDER_IMAGE_ID,
+                    "playback": "autoplay_loop",
+                },
+            }
+        ],
+    }
+    block = TabBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={"section_id": "hub", "tab_index": 1})
+    soup = BeautifulSoup(html, "html.parser")
+    panel = soup.find("div", id="fl-tab-panel-hub-1")
+    assert panel.find("video") is not None
+
+
 def _email_href(html):
     return BeautifulSoup(html, "html.parser").find("a", class_="fl-referral-controls-share-email")["href"]
 
