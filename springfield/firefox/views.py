@@ -430,15 +430,8 @@ def firefox_all_form(request):
     # submissions, so redirecting from here would loop.
     if not waffle.switch("all-form"):
         raise Http404()
-    # A page load counts as a prefill only when it carries one of our own field
-    # names — a query string of nothing but campaign params is not a submission.
-    is_prefilled = bool(set(all_form.FIELD_NAMES) & set(request.GET))
     selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
-    return l10n_utils.render(
-        request,
-        "firefox/all-form/base.html",
-        all_form.get_form_context(selection, is_prefilled=is_prefilled),
-    )
+    return l10n_utils.render(request, "firefox/all-form/base.html", all_form.get_form_context(selection))
 
 
 @require_safe
