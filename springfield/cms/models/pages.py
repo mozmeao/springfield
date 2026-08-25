@@ -1871,7 +1871,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             articles_by_pk = {article.pk: article for article in article_list_queryset(BlogArticlePage.objects.filter(pk__in=wanted_pks))}
             cache_localized_topics(articles_by_pk.values())
 
-        all_url = self.url + self.reverse_subpage("all_route")
+        all_url = (self.url or "") + self.reverse_subpage("all_route")
         for block, section_pks in zip(sections, pks_by_section):
             block.value._articles = [articles_by_pk[pk] for pk in section_pks if pk in articles_by_pk]
             block.value._link_url = self.get_section_link_url(block, all_url)
