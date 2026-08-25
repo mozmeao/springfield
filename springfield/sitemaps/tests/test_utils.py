@@ -11,7 +11,13 @@ from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
 from springfield.cms.models.pages import HeroStyle
-from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory, StructuralPageFactory
+from springfield.cms.tests.factories import (
+    LocaleFactory,
+    ReferralGetFirefoxPageFactory,
+    ReferralHubPageFactory,
+    SimpleRichTextPageFactory,
+    StructuralPageFactory,
+)
 from springfield.sitemaps.utils import (
     _path_for_cms_url,
     get_wagtail_urls,
@@ -309,6 +315,19 @@ def test_get_wagtail_urls__alias_locale_pages_excluded(dummy_wagtail_pages):
     # pt-PT child page does not exist, so it must not appear — even though the
     # middleware would serve pt-BR content at the pt-PT URL.
     assert "pt-PT" not in urls["/test-page/child-page/"]
+
+
+def test_get_wagtail_urls__referral_pages_excluded():
+    """Referral pages require query parameters to serve content and
+    should never appear in the sitemap."""
+    site = Site.objects.get(is_default_site=True)
+    ReferralHubPageFactory(parent=site.root_page)
+    ReferralGetFirefoxPageFactory(parent=site.root_page)
+
+    urls = get_wagtail_urls()
+
+    assert "/invite/" not in urls
+    assert "/get-firefox/" not in urls
 
 
 @patch("springfield.sitemaps.utils.get_static_urls")

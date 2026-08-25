@@ -2843,6 +2843,13 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     class Meta:
         verbose_name = "Referral Program: Referral Hub Page"
 
+    @property
+    def noindex(self):
+        return True
+
+    def get_sitemap_urls(self, request=None):
+        return []
+
     def get_context(self, request, *args, **kwargs):
         """
         Adds an invite_url to the context using the referral-hub ID
@@ -3003,6 +3010,13 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Referral Program: Invitee / Get Firefox Page"
+
+    @property
+    def noindex(self):
+        return True
+
+    def get_sitemap_urls(self, request=None):
+        return []
 
     def clean(self):
         super().clean()
