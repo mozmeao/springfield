@@ -83,6 +83,16 @@ class TestVocabulary:
 
         assert set(json.loads(all_form.get_unsupported_platforms_json())) == set(JS_RELEASE_VALUES)
 
+    def test_os_labels_come_from_product_details(self):
+        # Every desktop option product details knows about takes its label from
+        # there, so the wording cannot drift from the rest of the site.
+        for os_value, label in firefox_desktop.platform_labels.items():
+            assert all_form.OS_LABELS[os_value] == label
+
+    def test_only_store_apps_and_the_pkg_are_labelled_locally(self):
+        assert set(all_form._EXTRA_OS_LABELS) == {"ios", "android", "osx-pkg"}
+        assert not set(all_form._EXTRA_OS_LABELS) & set(firefox_desktop.platform_labels)
+
 
 class TestLinux32Drift:
     """
