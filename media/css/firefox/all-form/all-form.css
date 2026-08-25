@@ -52,11 +52,39 @@
         row-gap: var(--token-spacing-md, 16px);
     }
 
+    /* Fill the column rather than sitting ragged inside it. */
+    .c-choices .fl-field {
+        inline-size: 100%;
+    }
+
+    .c-label {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+
+        .fl-dialog-trigger {
+            margin-block-start: -3px;
+        }
+    }
+
+    .c-field-description p {
+        font-size: var(--fl-theme-label-sm);
+        margin-block: 0;
+    }
+
+    .c-language-message {
+        font-size: var(--fl-theme-label-sm);
+        font-style: italic;
+        margin-block: 0;
+    }
+
+    /* --- Results ---------------------------------------------------------- */
+
     .c-results {
+        align-content: start;
         display: grid;
-        justify-items: center;
         gap: var(--token-spacing-md, 16px);
-        padding-block: 32px;
+        justify-items: center;
     }
 
     .c-logo {
@@ -94,14 +122,38 @@
 
     .c-download-options:not([hidden]) {
         display: grid;
-        justify-items: center;
         gap: var(--c-option-gap);
+        justify-items: center;
     }
 
     .c-download-option {
         display: grid;
         justify-items: center;
         row-gap: 8px;
+    }
+
+    .c-recommendation {
+        font-size: var(--fl-theme-font-size-body-xs);
+        margin-block: 0;
+        text-align: center;
+    }
+
+    .c-or-divider {
+        align-items: center;
+        color: var(--token-color-grey-4);
+        display: flex;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: var(--token-spacing-xs);
+
+        /* Sit between two options rather than adding a third gap's worth of space. */
+        margin-block: calc(var(--c-option-gap) / -2);
+    }
+
+    .c-or-divider::before,
+    .c-or-divider::after {
+        border-top: 1px solid var(--fl-subtle-border-color);
+        content: '';
+        width: 3rem;
     }
 
     .c-support-links:not([hidden]) {
@@ -113,52 +165,8 @@
     }
 
     .c-incompatible-choices {
+        max-inline-size: 32ch;
         text-align: center;
-    }
-
-    .c-recommendation {
-        font-size: var(--fl-theme-font-size-body-xs);
-        margin-block: 0;
-        text-align: center;
-    }
-
-    .c-field-description p {
-        font-size: var(--fl-theme-label-sm);
-        margin-block: 0;
-    }
-
-    .c-or-divider {
-      display: flex;
-      align-items: center;
-      gap: var(--token-spacing-xs);
-      margin-block: calc(var(--c-option-gap) / -2);
-      font-size: var(--fl-theme-font-size-body-xs);
-      color: var(--token-color-grey-4);
-    }
-
-    .c-or-divider::before,
-    .c-or-divider::after {
-        content: '';
-        width: 3rem;
-        border-top: 1px solid var(--fl-subtle-border-color);
-    }
-
-    .c-label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        .c-help-trigger {
-            margin-block-start: -3px;
-        }
-    }
-
-    :has([name="release"]:where(:user-invalid, :user-valid)) .fl-notification-wrapper {
-        display: none;
-    }
-
-    form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
-        content-visibility: hidden;
     }
 
     /* --- Result page ------------------------------------------------------ */
@@ -181,6 +189,8 @@
         margin-block: 0;
     }
 
+    /* --- Progressive enhancement ------------------------------------------ */
+
     firefox-download-form {
         display: block;
 
@@ -188,16 +198,13 @@
             scroll-margin-block-start: 1rem;
         }
 
+        /*
+         * The language select is disabled for store apps, where the choice does
+         * not apply. Hiding it outright rather than showing a dead control; the
+         * message beside it explains why it went.
+         */
         select:disabled {
             display: none;
-        }
-
-        .language-message {
-            font-style: italic;
-        }
-
-        select {
-            max-inline-size: 24ch;
         }
     }
 
@@ -241,5 +248,30 @@
         &:has(option[value='linux']:checked) [data-hint-for='linux'] {
             display: revert;
         }
+
+        /*
+         * Same idea for the note that the language does not apply to a store
+         * app. With JS the script shows and hides it; without, this does, and
+         * follows the select rather than whatever was selected at load.
+         */
+        &:has(#os option[value='ios']:checked) .c-language-message,
+        &:has(#os option[value='android']:checked) .c-language-message {
+            display: revert;
+        }
+    }
+
+    /*
+     * The server-rendered error describes the selection the page loaded with.
+     * Once the visitor has touched the release select it is stale, and the
+     * script removes it — these hide it in the gap before that happens.
+     */
+    :has([name='release']:where(:user-invalid, :user-valid))
+        .fl-notification-wrapper {
+        display: none;
+    }
+
+    form:has([name='release']:where(:user-invalid, :user-valid))
+        #server-release-error {
+        content-visibility: hidden;
     }
 }

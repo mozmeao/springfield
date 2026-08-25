@@ -5,11 +5,17 @@
 """
 Backend for the /firefox/download/all-form/ download picker.
 
-The vocabulary here (OS values, release values, and the unsupported-platform
-matrix) is authoritative and mirrors media/js/firefox/all-form/all-form.js.
-Neither side may change without the other. The eventual plan is for the JS to
-read `get_unsupported_platforms_json()` out of the page instead of keeping its
-own copy.
+This module is the single source of truth for the picker. The vocabulary (OS
+values, release values, the unsupported-platform matrix), every URL, and every
+string of copy live here; media/js/firefox/all-form/all-form.js reads them out of
+the page via `get_client_data_json()` rather than keeping its own copy. The only
+thing the JS still builds itself is the bouncer URL, because that depends on the
+chosen language, which changes without a page load — so it gets the pieces
+(`bouncerUrl`, `bouncerChannels`) instead of a finished string.
+
+The one piece of vocabulary still duplicated on the JS side is the handful of
+option keys and platform-family names it switches on. test_all_form.py asserts
+those literals still match.
 
 Nothing in this module is cached. Label strings will become `ftl()` calls, which
 makes per-process caching locale-poisoning, and everything version-derived would
@@ -328,14 +334,14 @@ def get_language_label(language):
     return f"{names['English']} - {names['native']}" if names else language
 
 
-def get_unsupported_platforms_json():
+def get_unsupported_platforms():
     """
     The availability matrix, for the JS to read out of the form page.
 
     Every release key is always present, including ones that are not selectable:
     the JS indexes this map directly, so a missing key is a TypeError.
     """
-    return json.dumps({release: list(os_values) for release, os_values in UNSUPPORTED_PLATFORMS_BY_RELEASE.items()})
+    return {release: list(os_values) for release, os_values in UNSUPPORTED_PLATFORMS_BY_RELEASE.items()}
 
 
 # ---------------------------------------------------------------------------
@@ -528,12 +534,28 @@ def get_platform_family(os_value):
     return "linux"
 
 
+def get_link_family(os_value):
+    """
+    Coarser still: the grouping the release notes and system requirements pages
+    actually have. There is one set of desktop pages, not one per desktop OS, so
+    serializing those URLs per platform family would be three copies of the same
+    thing.
+    """
+    return os_value if os_value in MOBILE_OS else "desktop"
+
+
+LINK_FAMILIES = ("desktop", "android", "ios")
+
+
 # ---------------------------------------------------------------------------
 # Download options
 #
-# One ordered list of options per selection, built here so the labels, icons,
-# ordering and grouping live in one place. The result page renders it; the form
-# page never does, because that is where the selection can still change.
+# One ordered list of options per selection, and it has three consumers: the form
+# page renders it when the request already names a platform, the result page
+# always renders it, and the JS rebuilds it as the visitor changes the selects.
+# All three read the same labels, icons, ordering, and grouping from here, which
+# is what keeps the server-rendered list and the JS-rendered list identical — the
+# whole point of rendering it server-side is that the JS's first pass is a no-op.
 # ---------------------------------------------------------------------------
 
 
@@ -663,6 +685,99 @@ def get_support_links(os_value, release):
 # ---------------------------------------------------------------------------
 
 
+def get_client_data():
+    """
+    Everything all-form.js would otherwise hardcode, serialized into the page.
+
+    Shaped for the JS rather than for the templates: camelCase keys, and lookup
+    tables keyed the way the JS indexes them. The tables are small on purpose —
+    the full os x release x language cross product would be tens of kilobytes,
+    so anything that varies only by release or only by family is stored once at
+    that granularity and the JS combines them.
+
+    Language is never a key. It only reaches two things: the `lang` parameter of
+    the bouncer URL, which the JS builds from `bouncerUrl` + `bouncerChannels`,
+    and the ESR 115 locale exclusion, which is a short list.
+    """
+    selectable = tuple(RELEASE_LABELS)
+
+    return {
+        "osValues": list(OS_VALUES),
+        "unsupportedPlatformsByRelease": get_unsupported_platforms(),
+        "mobileOS": sorted(MOBILE_OS),
+        "microsoftStoreOS": sorted(MS_STORE_OS),
+        "esr115UnavailableLocales": sorted(ESR_115_UNAVAILABLE_LOCALES),
+        # The pieces of the bouncer URL, not a finished one: it is the only URL
+        # that depends on the chosen language, so it is the only one the JS builds.
+        "bouncerUrl": settings.BOUNCER_URL,
+        "bouncerChannels": dict(_RELEASE_TO_BOUNCER_CHANNEL),
+        "options": {
+            # {platform family: {release: {label, icon}}} — the label carries the
+            # version, so it changes with the release but not with the OS.
+            "primary": {family: {release: get_primary_action(family, release) for release in selectable} for family in ("desktop", "ios", "android")},
+            "apt": {"label": "Set up the APT repository", "icon": "external-link", "classes": ["button-secondary"], "href": LINUX_APT_URL},
+            # `available` because the option is gated on there being a second
+            # ESR in product details, which the JS cannot see for itself. Its
+            # href is built browser-side from the language, so unlike `apk` it
+            # cannot carry a null href and be gated on that.
+            "esrNext": {
+                "available": bool(get_esr_next_version()),
+                "label": get_esr_next_label(),
+                "icon": "downloads",
+                "classes": ["button-primary"],
+            },
+            "esr115": {
+                "label": f"Download {RELEASE_LABELS['esr']} 115",
+                "icon": "downloads",
+                "classes": ["button-primary", "fl-button-small"],
+                "recommendations": dict(ESR_115_RECOMMENDATIONS),
+            },
+            "apk": {
+                "label": "Download the APK directly",
+                "icon": "downloads",
+                "classes": ["button-secondary", "fl-button-small"],
+                "hrefs": {release: get_apk_url("android", release) for release in selectable},
+            },
+            "microsoftStore": {
+                "label": "Download from the Microsoft Store",
+                "icon": "external-link",
+                "classes": ["button-secondary", "fl-button-small"],
+                # Keyed by release only: every listed Windows option shares a listing.
+                "hrefs": {release: get_store_url("win64", release) for release in selectable},
+            },
+        },
+        # Store URLs for the two mobile platforms, which are the primary action's
+        # href there. Keyed by release; `null` for a release with no app.
+        "storeUrls": {os_value: {release: get_store_url(os_value, release) for release in selectable} for os_value in ("ios", "android")},
+        "supportLinks": {
+            "releaseNotes": {
+                "label": SUPPORT_LINK_LABELS["release-notes"],
+                "urls": {family: {release: _link_family_notes_url(family, release) for release in selectable} for family in LINK_FAMILIES},
+            },
+            "systemRequirements": {
+                "label": SUPPORT_LINK_LABELS["system-requirements"],
+                "urls": {family: {release: _link_family_sysreq_url(family, release) for release in selectable} for family in LINK_FAMILIES},
+            },
+            "privacy": {"label": SUPPORT_LINK_LABELS["privacy"], "url": PRIVACY_URL},
+        },
+        "messages": dict(MESSAGES),
+    }
+
+
+def _link_family_notes_url(family, release):
+    """`get_release_notes_url` for a link family, using any OS in that family."""
+    return get_release_notes_url("win64" if family == "desktop" else family, release)
+
+
+def _link_family_sysreq_url(family, release):
+    return get_system_requirements_url("win64" if family == "desktop" else family, release)
+
+
+def get_client_data_json():
+    """`get_client_data()` as the JSON the page embeds."""
+    return json.dumps(get_client_data())
+
+
 # ---------------------------------------------------------------------------
 # Selection
 # ---------------------------------------------------------------------------
@@ -772,7 +887,8 @@ def get_form_context(selection):
         "release_error": release_error,
         "has_errors": bool(release_error),
         "result_url": reverse("firefox.all_form.result"),
-        "unsupported_platforms_json": get_unsupported_platforms_json(),
+        "client_data_json": get_client_data_json(),
+        "copy": MESSAGES,
         "logos": LOGOS,
     }
 
