@@ -151,7 +151,7 @@ MarketingOptOut.setCheckboxState = (checked) => {
  * @returns {Boolean}
  */
 MarketingOptOut.shouldShowCheckbox = () => {
-    let show = false;
+    let show;
 
     /**
      * Has the visitor set a browser-level privacy flag?

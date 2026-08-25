@@ -12,7 +12,7 @@ pages) it creates. Used by the translate-all regression test and the
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
-from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages
+from springfield.cms.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_topic_page
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.button_row_fixtures import get_button_row_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_test_page
@@ -24,6 +24,7 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
+from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
@@ -97,6 +98,7 @@ PAGE_FIXTURES = [
     get_conditional_display_test_page,
     get_buttons_test_page,
     get_button_row_test_page,
+    get_comparison_table_test_page,
     get_carousel_test_page,
     get_sliding_carousel_test_page,
     get_featured_image_section_test_page,
@@ -113,6 +115,7 @@ PAGE_FIXTURES = [
     get_article_theme_hub_page,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_topic_page,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,
     get_banner_snippet_test_page,

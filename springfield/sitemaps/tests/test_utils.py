@@ -9,7 +9,15 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory, StructuralPageFactory
+from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
+from springfield.cms.models.pages import HeroStyle
+from springfield.cms.tests.factories import (
+    LocaleFactory,
+    ReferralGetFirefoxPageFactory,
+    ReferralHubPageFactory,
+    SimpleRichTextPageFactory,
+    StructuralPageFactory,
+)
 from springfield.sitemaps.utils import (
     _path_for_cms_url,
     get_wagtail_urls,
@@ -159,6 +167,67 @@ def test_get_wagtail_urls(dummy_wagtail_pages):
     }
 
 
+@pytest.fixture
+def blog_pages():
+    """A blog index with two topics, each with one live article. Only the privacy topic
+    has a curated BlogTopicPage."""
+    site = Site.objects.get(is_default_site=True)
+    locale = Locale.get_default()
+
+    index_page = BlogIndexPage(title="Blog", slug="blog", locale=locale)
+    site.root_page.add_child(instance=index_page)
+    index_page.save_revision().publish()
+
+    topics = {}
+    for name in ("Privacy", "Security"):
+        slug = name.lower()
+        topics[slug] = BlogTopic.objects.create(name=name, slug=slug, locale=locale)
+        article = BlogArticlePage(title=f"{name} article", slug=f"{slug}-article", topic=topics[slug], locale=locale, hero_style=HeroStyle.TEXT_ONLY)
+        index_page.add_child(instance=article)
+        article.save_revision().publish()
+
+    topic_page = BlogTopicPage(title="Privacy", slug="privacy", topic=topics["privacy"], locale=locale)
+    index_page.add_child(instance=topic_page)
+    topic_page.save_revision().publish()
+
+    return index_page
+
+
+def test_get_wagtail_urls__blog_topic_page_listed_at_its_route_url(blog_pages):
+    """A BlogTopicPage is only served at the index page's topics/<slug>/ route, so that is
+    the URL the sitemap must list, not the page's own position in the tree."""
+    urls = get_wagtail_urls()
+
+    assert urls["/blog/topics/privacy/"] == ["en-US"]
+    assert "/blog/privacy/" not in urls
+
+
+def test_get_wagtail_urls__blog_index_route_urls_included(blog_pages):
+    """BlogIndexPage's routable sub-routes have no Page of their own, so the sitemap asks
+    the page for them instead of discovering them from the page tree."""
+    urls = get_wagtail_urls()
+
+    assert urls == {
+        "/blog/": ["en-US"],
+        "/blog/all/": ["en-US"],
+        "/blog/privacy-article/": ["en-US"],
+        "/blog/security-article/": ["en-US"],
+        "/blog/topics/": ["en-US"],
+        "/blog/topics/privacy/": ["en-US"],
+        "/blog/topics/security/": ["en-US"],
+    }
+
+
+def test_get_wagtail_urls__blog_topic_without_live_articles_excluded(blog_pages):
+    """A topic route with no live articles behind it renders an empty listing, so it is
+    left out of the sitemap."""
+    BlogTopic.objects.create(name="Performance", slug="performance", locale=Locale.get_default())
+
+    urls = get_wagtail_urls()
+
+    assert "/blog/topics/performance/" not in urls
+
+
 @pytest.mark.parametrize(
     "page_url, lang_code, expected",
     (
@@ -246,6 +315,19 @@ def test_get_wagtail_urls__alias_locale_pages_excluded(dummy_wagtail_pages):
     # pt-PT child page does not exist, so it must not appear — even though the
     # middleware would serve pt-BR content at the pt-PT URL.
     assert "pt-PT" not in urls["/test-page/child-page/"]
+
+
+def test_get_wagtail_urls__referral_pages_excluded():
+    """Referral pages require query parameters to serve content and
+    should never appear in the sitemap."""
+    site = Site.objects.get(is_default_site=True)
+    ReferralHubPageFactory(parent=site.root_page)
+    ReferralGetFirefoxPageFactory(parent=site.root_page)
+
+    urls = get_wagtail_urls()
+
+    assert "/invite/" not in urls
+    assert "/get-firefox/" not in urls
 
 
 @patch("springfield.sitemaps.utils.get_static_urls")

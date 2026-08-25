@@ -28,6 +28,8 @@ repos:
     -   id: insert-license
         language: python
         files: \.py$
+        # Vendored port carrying its own Apache-2.0 header, not MPL.
+        exclude: ^springfield/firefox/referral/ff1\.py$
         args:
           - --license-filepath
           - license_header/mpl2_header.txt

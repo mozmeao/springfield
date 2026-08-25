@@ -13,6 +13,9 @@
 
 {% block page_css %}
 {{ css_bundle('pattern_library') }}
+{# Components whose CSS ships in a page bundle rather than the shared flare
+   bundle need that bundle loaded here too, or their previews render unstyled. #}
+{{ css_bundle('flare-referral-hub') }}
 {% endblock %}
 
 {% block content %}

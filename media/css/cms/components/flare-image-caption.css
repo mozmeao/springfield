@@ -1,0 +1,62 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-image-caption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-layout-3xs);
+    margin: 0 auto;
+    padding: var(--token-spacing-2xl) var(--token-spacing-lg);
+    text-align: center;
+}
+
+.fl-image-caption .fl-image-caption-image {
+    inline-size: 100%;
+    margin-inline: auto;
+}
+
+.fl-image-caption img {
+    inline-size: 100%;
+    margin: 0;
+}
+
+.fl-image-caption-text {
+    margin-block-start: var(--token-spacing-md);
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
+    text-align: center;
+}
+
+@media (--viewport-sm-up) {
+    .fl-image-caption {
+        margin-block-end: var(--token-layout-2xs);
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-image-caption.fl-image-caption-default .fl-image-caption-image {
+        max-inline-size: var(--token-width-desktop-content);
+    }
+
+    .fl-image-caption.fl-image-caption-full .fl-image-caption-image {
+        inline-size: 100%;
+    }
+
+    .fl-image-caption.fl-image-caption-expanded {
+        inline-size: var(--token-width-desktop-content);
+    }
+
+    .fl-image-caption.fl-image-caption-expanded .fl-image-caption-image {
+        inline-size: calc(100% + 260px);
+        margin-inline: -130px;
+    }
+}
+
+@media (--viewport-lg-up) {
+    .fl-image-caption.fl-image-caption-expanded {
+        max-inline-size: 100%;
+    }
+}

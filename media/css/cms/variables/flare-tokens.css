@@ -33,6 +33,7 @@ Static values extracted from Figma that do not change based on context.
     --token-color-dark-purple-50: rgba(33, 3, 64, 0.4);
     --token-color-dark-purple-2: rgb(21, 2, 38);
     --token-color-dark-purple-2-40: rgba(20, 2, 38, 0.4);
+    --token-color-dark-purple-3: rgba(12, 1, 23, 1);
     --token-color-purple: rgb(58, 15, 110);
     --token-color-medium-purple: rgb(76, 36, 137);
     --token-color-link-purple: rgb(97, 50, 188);
@@ -194,10 +195,11 @@ Static values extracted from Figma that do not change based on context.
     --token-border-radius-xl: 128px;
 
     /* Width and viewport variables */
+    --token-width-desktop-content-sm: 696px; /* 6 of 12 grid columns */
     --token-width-desktop-content: 725px;
-    --token-width-desktop-content-lg: 934px;
+    --token-width-desktop-content-lg: 934px; /* 8 of 12 grid columns */
     --token-width-desktop-layout: 1440px;
-    --token-width-desktop-wide-banner: 1170px;
+    --token-width-desktop-wide-banner: 1170px; /* 10 of 12 grid columns */
     --token-width-mobile-layout: 393px;
 
     /* Typography and fonts */

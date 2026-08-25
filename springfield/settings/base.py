@@ -26,6 +26,9 @@ from sentry_sdk.integrations.rq import RqIntegration
 
 from springfield.base.config_manager import config
 
+# Validates the keyring at boot. `utils.py` must stay settings-safe (see its docstring).
+from springfield.firefox.referral.utils import validate_invite_code_keyring
+
 # ROOT path of the project. A pathlib.Path object.
 DATA_PATH = config("DATA_PATH", default="data")
 ROOT_PATH = Path(__file__).resolve().parents[2]
@@ -88,6 +91,18 @@ if REDIS_URL:
 CACHE_TIME_SHORT = 60 * 10  # 10 mins
 CACHE_TIME_MED = 60 * 60  # 1 hour
 CACHE_TIME_LONG = 60 * 60 * 6  # 6 hours
+
+# How long the User Routing resolver page may be reused. It is a CDN-cacheable page that freezes
+# per-page state into its body — the rules' target URLs, whether routing is paused, and the
+# visitor's country — and nothing purges it, so this is how long any of those may be stale.
+#
+# Deliberately a setting rather than a constant, and deliberately the same value the page already
+# inherited from the cache middleware, so nothing about its caching changes on merge. Lowering it
+# shrinks every staleness window but costs origin work on each miss, and that trade depends on
+# release traffic and whether CDN shielding is on — neither knowable from here, and neither live
+# until the `user_routing` waffle switch is on, because no resolver is served while it is off.
+# Tunable by env var so the number can be chosen by whoever owns that trade, without a deploy.
+ROUTING_RESOLVER_CACHE_SECONDS = config("ROUTING_RESOLVER_CACHE_SECONDS", default="600", parser=int)
 
 
 CACHES = {
@@ -546,11 +561,43 @@ CANONICAL_URL = "https://www.firefox.com"
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = config("SECRET_KEY", default="ssssshhhhh")
 
+# Referral invite-code encryption (FF1).
+# Symmetric keyring for turning a Firefox referral ID into a public invite code
+# and back. Each key is a dedicated 256-bit AES key, hex-encoded (64 hex chars)
+# in its own per-environment secret. These keys must not be reused for cookies,
+# CSRF, sessions, or anything else. Add new versions to the dict as rotations
+# happen (a two-deploy operation: add the key first, flip the active version in
+# a later deploy). Version identifiers are single Crockford base32 characters.
+# There is deliberately no default: a key committed here would be the live key
+# anywhere the secret is missing, so every environment must supply its own. The
+# shared non-production value is in `.env-dist` for local dev and in the env
+# files for CI and the demo servers.
+REFERRAL_INVITE_CODE_KEYS = {
+    "1": bytes.fromhex(config("REFERRAL_INVITE_CODE_KEY_V1")),
+}
+REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION = config("REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION", default="1")
+
+# Fail loudly at boot on a broken keyring rather than lazily on the first request.
+validate_invite_code_keyring(REFERRAL_INVITE_CODE_KEYS, REFERRAL_INVITE_CODE_ACTIVE_KEY_VERSION)
+
+# Countries where the referral hub and invitee download page are available.
+# Defaults to US-only; can be extended via env without a code deploy.
+FF_REFERRAL_COUNTRY_CODES = {c.strip() for c in config("FF_REFERRAL_COUNTRY_CODES", default="US").split(",") if c.strip()}
+
 # If config is available, we use Google Cloud Storage, else (for local dev)
 # fall back to filesytem storage
 
 GS_BUCKET_NAME = config("GS_BUCKET_NAME", default="")
 GS_PROJECT_ID = config("GS_PROJECT_ID", default="")
+
+# Distinct GCS bucket where Data Engineering publishes periodic
+# (referral_id, install_count) snapshots consumed by update_referral_data.
+# Data Eng writes one CSV per publish, named
+# `{REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX}-YYYY-MM-DD.csv`; the
+# command picks the lex-newest name (which sorts chronologically for that
+# date format). Empty bucket name disables the import as a no-op.
+REFERRAL_DATA_GCS_BUCKET = config("REFERRAL_DATA_GCS_BUCKET", default="")
+REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX = config("REFERRAL_DATA_GCS_OBJECT_NAME_PREFIX", default="referral_data")
 
 STORAGES = {
     # In production only the CMS/Editing deployment has write access
@@ -856,6 +903,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
+                "springfield.cms.context_processors.cms_admin",
             ],
         },
     },
@@ -1039,8 +1087,12 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+# The site identifier events are attributed to (rendered as `data-domain`), not
+# where the tracker is hosted. See PLAUSIBLE_SCRIPT_URL for the tracker origin.
 PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
-PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://plausible.io/js/script.js")
+# Served from our own subdomain so the script and its events endpoint are both
+# first-party. plausible.es6.js derives /api/event on this same origin.
+PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://pa.firefox.com/js/script.js")
 
 # Transcend Consent Management - airgap.js script URL
 TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
@@ -1084,6 +1136,12 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
     # requests; keep it out of Sentry events so the token cannot leak via error reports.
     "X-Mozilla-Ops-Canary",
+    # `ref_key` is a referral ID and `invitation` is its invite code, the plaintext
+    # and ciphertext of the FF1 mapping. Both arrive as query params on public
+    # pages, so the Django integration puts them in `request.query_string` on any
+    # event raised during such a request, not just ones we capture deliberately.
+    "ref_key",
+    "invitation",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
@@ -1514,6 +1572,7 @@ _allowed_page_models = [
     "cms.ThanksPage",
     "cms.BlogIndexPage",
     "cms.BlogArticlePage",
+    "cms.BlogTopicPage",
     "cms.RoadmapPage",
     "cms.ContactPage",
     "cms.ReferralHubPage",

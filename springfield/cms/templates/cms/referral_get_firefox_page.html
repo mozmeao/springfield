@@ -4,4 +4,64 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% extends "cms/includes/referral-context-dump.html" %}
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('flare-referral-get-firefox') }}{% endblock %}
+
+{% block body_class %}fl-referral-get-firefox-page{% endblock %}
+
+{% block flare_header %}
+  {% with hide_nav_download_button=True, theme="dark" %}
+    {% include 'cms/includes/site-header.html' %}
+  {% endwith %}
+{% endblock %}
+
+{% block content %}
+<div class="fl-page">
+  <div class="fl-main">
+    <div class="fl-split-page-upper">
+      {% set ns = namespace(headings=0) %}
+      {% set block_level = 1 %}
+      {% for block in page.upper_content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+
+        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </div>
+
+    <div class="fl-split-page-lower has-gradient-top">
+      {% for block in page.lower_content %}
+        {% set block_index = loop.index %}
+        {% set block_type = block.block_type %}
+        {% set block_position = "lower-block-" ~ block_index + "-" + block_type %}
+
+        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+
+        {% include_block block %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block pre_footer %}{% endblock %}
+
+{% block js %}
+  {#
+    referral-attribution includes the referral checkbox module and its init.
+    Loaded after the universal stub_attribution block (which runs
+    download-attribution-init-essential and mobile-attribution) so the
+    DownloadAttribution singleton is available before our module runs.
+  #}
+  {{ js_bundle('referral-attribution') }}
+{% endblock %}

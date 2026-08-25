@@ -1,0 +1,25 @@
+name: Badge
+context:
+  variants:
+    # Achieved, singular: only a number of exactly 1 takes the singular label.
+    - number: 1
+      label: "person"
+      badge_name: "Connector"
+      is_achieved: true
+      image: /media/img/firefox/flare/placeholder.png
+    # Achieved, plural.
+    - number: 5
+      label: "people"
+      badge_name: "Supporter"
+      is_achieved: true
+      image: /media/img/firefox/flare/placeholder.png
+    # Locked: the artwork is dimmed, the text is not.
+    - number: 25
+      label: "people"
+      badge_name: "Champion"
+      is_achieved: false
+      image: /media/img/firefox/flare/placeholder.png
+    # No artwork and no badge name: renders as number and label only.
+    - number: 100
+      label: "people"
+      is_achieved: false

@@ -12,6 +12,7 @@
 <li class="fl-menu-category">
   <a
     class="fl-menu-title fl-menu-top-level-link"
+    {% if href.split('?')[0].endswith(request.path) %}aria-current="page"{% endif %}
     href="{{ href }}"
     {% if new_window %}target="_blank" rel="external noopener"{% endif %}
     {% if analytics_text %}data-cta-text="{{ analytics_text }}"{% endif %}
@@ -20,6 +21,7 @@
   >
     <span class="fl-menu-heading">
       {{ label }}
+
       {% if external %}
         <span class="fl-icon fl-nav-icon-up-right-arrow" aria-hidden="true"></span>
       {% endif %}

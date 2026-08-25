@@ -7,19 +7,19 @@ freezegun==1.5.5
 markdown-it-py>=4.2.0
 py==1.11.0
 PyPOM==2.2.4
-pyquery==2.0.1
+pyquery==2.0.2
 pytest==9.1.1  # Included because we use it directly, but also a subdep of pytest-selenium's subdeps
 pytest-cov==7.1.0
 pytest-datadir==1.8.0
 pytest-django==4.12.0
 pytest-mock==3.15.1
 pytest-parallel==0.1.1
-pytest-rerunfailures==16.3
+pytest-rerunfailures==16.4
 pytest-selenium==4.1.0
-responses==0.26.1
+responses==0.26.2
 ruff==0.15.18
-selenium==4.45.0
-translate-toolkit==3.19.11
+selenium==4.46.0
+translate-toolkit==3.19.15
 # unicode-segmentation-rs 0.2.2+ doesn't have the pre-built wheel we need,
 # so it tries to build from source and fails without a C compiler in the devapp Docker image.
 unicode-segmentation-rs==0.2.4

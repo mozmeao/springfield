@@ -37,6 +37,7 @@ python manage.py l10n_update || failure_detected=true
 python manage.py update_product_details_files || failure_detected=true
 python manage.py update_release_notes --quiet || failure_detected=true
 python manage.py update_newsletter_data --quiet || failure_detected=true
+python manage.py update_referral_data --quiet || failure_detected=true
 ALLOWED_HOSTS='testserver' DEV=False python manage.py update_sitemaps_data --quiet || failure_detected=true
 
 # if [[ "$AUTH" == true ]]; then

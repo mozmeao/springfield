@@ -1,0 +1,14 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div data-testid="comparison-result" style="display: flex; gap: 40px;">
+  {% for result in results %}
+    <include:comparison-result
+      icon_name="{{ result.icon_name }}"
+      label="{{ result.label }}"
+    />
+  {% endfor %}
+</div>

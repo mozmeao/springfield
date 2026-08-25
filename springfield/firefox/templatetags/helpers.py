@@ -74,9 +74,9 @@ def desktop_builds(
     return builds
 
 
-def android_builds(channel, builds=None):
+def android_builds(channel, builds=None, utm_params=None):
     builds = builds or []
-    link = firefox_android.get_download_url(channel.lower())
+    link = firefox_android.get_download_url(channel.lower(), utm_params=utm_params)
     builds.append({"os": "android", "os_pretty": "Android", "download_link": link})
 
     return builds
@@ -138,7 +138,15 @@ def download_firefox(
 
     if show_android:
         version = firefox_android.latest_version(channel)
-        builds = android_builds(channel, builds)
+
+        query_params = ctx["request"].GET.copy()
+        utm_params = {k: v for k, v in query_params.items() if k.startswith("utm_") and v}
+
+        utm_params.setdefault("utm_source", "www.firefox.com")
+        utm_params.setdefault("utm_medium", "referral")
+        utm_params.setdefault("utm_campaign", "download")
+
+        builds = android_builds(channel, builds, utm_params)
 
     if show_ios:
         version = firefox_ios.latest_version(channel)
@@ -221,11 +229,10 @@ def download_firefox_thanks(
 
 @library.global_function
 @jinja2.pass_context
-def download_firefox_thanks_link(ctx, locale=None, locale_in_transition=False, os="win"):
+def download_firefox_thanks_link(ctx, locale=None, locale_in_transition=False, os="win", channel="release"):
     """Transition URL and direct download link to build a Firefox download button
     similar to  download_firefox_thanks()."""
 
-    channel = "release"
     locale = locale or get_locale(ctx["request"])
     transition_url = "/thanks/"
     version = firefox_desktop.latest_version(channel)

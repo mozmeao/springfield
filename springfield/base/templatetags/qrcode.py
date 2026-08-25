@@ -16,12 +16,12 @@ from markupsafe import Markup
 from PIL import ImageDraw
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask
-from qrcode.image.styles.moduledrawers.pil import SquareModuleDrawer, StyledPilQRModuleDrawer
+from qrcode.image.styles.moduledrawers.pil import CircleModuleDrawer, StyledPilQRModuleDrawer
 from qrcode.image.svg import SvgPathFillImage
 
 cache = caches["qrcode"]
 
-_FIREFOX_LOGO_PNG = os.path.join(settings.ROOT_PATH, "media/img/logos/firefox/firefox-flame-qr.png")
+FIREFOX_LOGO_PNG = os.path.join(settings.ROOT_PATH, "media/img/logos/firefox/firefox-logo-white-bg.png")
 
 
 class RoundedEyeDrawer(StyledPilQRModuleDrawer):
@@ -97,10 +97,10 @@ def qrcode_rounded(data, box_size=20):
         qr_obj.make(fit=True)
         qr_img = qr_obj.make_image(
             image_factory=StyledPilImage,
-            module_drawer=SquareModuleDrawer(),
+            module_drawer=CircleModuleDrawer(),
             eye_drawer=RoundedEyeDrawer(),
             color_mask=SolidFillColorMask(front_color=(51, 51, 51)),
-            embedded_image_path=_FIREFOX_LOGO_PNG,
+            embedded_image_path=FIREFOX_LOGO_PNG,
             embedded_image_ratio=0.23,
         )
         buf = BytesIO()

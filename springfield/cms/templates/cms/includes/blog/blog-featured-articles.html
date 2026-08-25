@@ -1,0 +1,77 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Renders a curated featured-articles header.
+  Requires: featured_articles (a StreamField value of BlogArticleBlock).
+#}
+
+{% from "cms/includes/blog/blog-card-media.html" import full_width_filterspec with context %}
+
+{% if featured_articles %}
+  <div class="fl-blog-featured">
+
+    <div class="fl-blog-featured-row">
+      {% set first_block = featured_articles[0] %}
+
+      <div class="fl-blog-featured-main">
+        <div class="fl-blog-featured-main-media">
+          {% set image = first_block.value.get_image() %}
+          {% if image %}
+            {% set dark_image = first_block.value.get_dark_image() %}
+            {% set mobile_image = first_block.value.get_mobile_image() %}
+            {% set dark_mobile_image = first_block.value.get_mobile_dark_image() %}
+            {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+            {% if image.focal_point_x %}
+              {% set focal_point = (image.focal_point_x / image.width * 100)|round(2) ~ "% " ~ (image.focal_point_y / image.height * 100)|round(2) ~ "%" %}
+            {% else %}
+              {% set focal_point = "center" %}
+            {% endif %}
+            <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
+              {{ srcset_image(image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=image.width, loading="lazy", class=classes.primary) }}
+              {% if mobile_image %}{{ srcset_image(mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=mobile_image.width, loading="lazy", class=classes.mobile) }}{% endif %}
+              {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_mobile_image.width, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+              {% if dark_image %}{{ srcset_image(dark_image, full_width_filterspec, sizes="(min-width: 768px) 50vw, (min-width: 1440px) 680px, 100vw", width=dark_image.width, loading="lazy", class=classes.dark_mode) }}{% endif %}
+            </div>
+          {% endif %}
+        </div>
+        <include:heading
+          level="h2"
+          heading_text="{{ first_block.value.get_title() }}"
+          superheading_text="{{ first_block.value.get_topic() }}"
+          heading_size="fl-heading-lg fl-heading-condensed"
+        />
+        <p class="fl-body">{{ first_block.value.get_description() }}</p>
+        <div>
+          <include:button
+            label="{{ ftl('blog-read-more') }}"
+            link="{{ first_block.value.get_url() }}"
+          />
+        </div>
+      </div>
+
+      {% if featured_articles|length > 1 %}
+        <div class="fl-blog-article-list">
+          {% for block in featured_articles[1:] %}
+            {% set description = block.value.get_description() %}
+            <include:blog-article-list-item>
+              <content:heading>
+                <hgroup class="fl-heading-group">
+                  <p class="fl-superheading">{{ block.value.get_topic() }}</p>
+                  <h2 class="fl-heading">
+                    <a href="{{ block.value.get_url() }}" class="fl-link">{{ block.value.get_title() }}</a>
+                  </h2>
+                </hgroup>
+              </content:heading>
+              <content:body>{{ description|richtext }}</content:body>
+            </include:blog-article-list-item>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+{% endif %}

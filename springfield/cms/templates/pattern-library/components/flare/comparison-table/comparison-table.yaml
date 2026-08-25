@@ -1,0 +1,58 @@
+name: Comparison Table
+context:
+  header_cells:
+    - content: ""
+    - content: PREMIUM
+    - content: STANDARD
+  content_rows:
+    - cells:
+        - content: Best for
+        - content: High-assurance operational support
+        - content: Direct support for managed Firefox
+    - cells:
+        - content: Availability
+        - content: 24 hrs/day, Mon–Fri
+        - content: 09:00–17:00, Mon–Fri
+    - cells:
+        - content: Response (business-halting)
+        - content: 30 minutes
+        - content: 2 hours
+    - cells:
+        - content: Channels
+        - content: Email, portal, and live chat
+        - content: Email, web portal
+    - cells:
+        - content: Named success contact
+        - content: Named Success Lead
+        - content: Shared POC
+    - cells:
+        - content: Business reviews
+        - content: Quarterly
+        - content: "—"
+  # Header cells as an image with a label, body cells as Yes/No/Limited results
+  image_header_cells:
+    - label: ""
+    - url: /media/img/firefox/flare/placeholder.png
+      label: Firefox
+    - url: /media/img/firefox/flare/placeholder.png
+      label: Other browsers
+  result_rows:
+    - label: Blocks trackers by default
+      results:
+        - icon_name: checkmark-circle-fill
+          label: "Yes"
+        - icon_name: close-circle-fill
+          label: "No"
+    - label: Works without an account
+      results:
+        - icon_name: checkmark-circle-fill
+          label: "Yes"
+        - icon_name: subtract-circle-fill
+          label: Limited
+    - label: Sells your browsing data
+      results:
+        - icon_name: close-circle-fill
+          label: "No"
+        - icon_name: subtract-circle-fill
+          label: Limited
+  fine_print: "* Response times are estimates and may vary based on issue complexity."

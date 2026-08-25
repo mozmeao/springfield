@@ -7,14 +7,24 @@
 {% set heading_level = 'h' ~ block_level if block_level else 'h2' %}
 {% set subheading_level = 'h' ~ (block_level + 1) if block_level else 'h3' %}
 
-<include:showcase layout="{{ value.settings.layout }}">
+{# The component only ever sees rendered media, so the block type has to be read here. #}
+{% set media_is_interactive = value.media|selectattr("block_type", "equalto", "tabs")|list|length > 0 %}
+
+<include:showcase
+  layout="{{ value.settings.layout }}"
+  media_is_interactive="{{ media_is_interactive }}"
+>
   <content:heading>
     <include:heading
       level="{{ heading_level }}"
       heading_size="{{ 'fl-heading-size-' ~ block_level if block_level else 'fl-heading-size-2' }}"
       heading_text="{{ value.headline|richtext|remove_p_tag }}"
     />
+    {% if value.description %}
+      <div class="fl-showcase-description">{{ value.description|richtext }}</div>
+    {% endif %}
   </content:heading>
+
   <content:image>
     {% if value.settings.layout == "default" %}
       {% set size = "(min-width: 1200px) 750px" %}
@@ -29,12 +39,16 @@
       {% endfor %}
     {% endwith %}
   </content:image>
+
   <content:caption>
-    {% if value.caption_title %}
-      <{{ subheading_level}} class="fl-subheading">{{ value.caption_title|richtext|remove_p_tag }}</{{ subheading_level}}>
+    {% if value.caption_title and value.caption_title|richtext|remove_p_tag %}
+      <{{ subheading_level }} class="fl-subheading">{{ value.caption_title|richtext|remove_p_tag }}</{{ subheading_level}}>
     {% endif %}
-    {{ value.caption_description|richtext }}
+    {% if value.caption_description and value.caption_description|richtext %}
+      {{ value.caption_description|richtext }}
+    {% endif %}
   </content:caption>
+
   {% if value.cta %}
   <content:cta>
     {% for cta in value.cta %}

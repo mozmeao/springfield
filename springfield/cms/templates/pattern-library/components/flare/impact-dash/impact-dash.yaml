@@ -1,0 +1,28 @@
+name: Impact Dashboard
+context:
+  # Matches a referrer with 5 installs, so the 1 and 5 badges are achieved.
+  install_count: 5
+  # As ImpactDashBlock.get_context hands it over: the message belonging to the
+  # furthest badge unlocked (Supporter, at 5), with the editor's {install count}
+  # token already replaced by install_count.
+  summary: "You have helped 5 people switch to Firefox."
+  badges:
+    - number: 1
+      label: "person"
+      badge_name: "Connector"
+      is_achieved: true
+      image: /media/img/firefox/flare/placeholder.png
+    - number: 5
+      label: "people"
+      badge_name: "Supporter"
+      is_achieved: true
+      image: /media/img/firefox/flare/placeholder.png
+    - number: 25
+      label: "people"
+      badge_name: "Champion"
+      is_achieved: false
+      image: /media/img/firefox/flare/placeholder.png
+    - number: 100
+      label: "people"
+      badge_name: "Legend"
+      is_achieved: false

@@ -12,6 +12,9 @@ from springfield.cms.tests.factories import LocaleFactory
 
 EXPECTED_TRANSLATABLE_SNIPPETS = {
     "BannerSnippet",
+    "BlogAuthor",
+    "BlogTag",
+    "BlogTopic",
     "PencilBannerSnippet",
     "PreFooterCTAFormSnippet",
     "PreFooterCTASnippet",

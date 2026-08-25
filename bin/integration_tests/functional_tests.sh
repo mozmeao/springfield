@@ -67,4 +67,5 @@ docker run \
     -e "SCREEN_HEIGHT=1200" \
     -e "RERUNS_ALLOWED=${RERUNS_ALLOWED:=2}" \
     -e "RERUNS_DELAY_SECS=${RERUNS_DELAY_SECS:=1}" \
+    -e "REFERRAL_INVITE_CODE_KEY_V1=${REFERRAL_INVITE_CODE_KEY_V1:-}" \
     ${TEST_IMAGE} bin/integration_tests/run_integration_tests.sh

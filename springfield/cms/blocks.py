@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django import forms
@@ -22,7 +22,7 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Locale, Page
+from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -97,6 +97,17 @@ DEFAULT_BROWSER_CHOICES = [
     ("is-default", "Firefox is default browser"),
     ("is-not-default", "Firefox is not default browser"),
 ]
+# Browsers a tab can be auto-selected for. There is no Firefox option: the
+# comparison tables all pit Firefox against something else, so Firefox users are
+# sent to the Chrome tab instead - see flare-browser-tabs.es6.js.
+DETECTED_BROWSER_CHOICES = [
+    ("", "No auto-selection"),
+    ("chrome", "Chrome"),
+    ("edge", "Edge"),
+    ("safari", "Safari"),
+    ("opera", "Opera"),
+    ("brave", "Brave"),
+]
 GEO_CHOICES = [
     ("US", "United States"),
     ("GB", "United Kingdom"),
@@ -132,6 +143,15 @@ AI_CONTROLS_CHOICES = [
     ("", "No restriction"),
     ("available", "AI Controls available"),
     ("unavailable", "AI Controls unavailable"),
+]
+VIDEO_ASPECT_RATIO_CHOICES = [
+    ("", "Default (16:9, or 17:20 in Narrow Layout)"),
+    ("16/9", "Widescreen (16:9) - forces widescreen even in Narrow Layout"),
+    ("3/2", "Landscape (3:2)"),
+    ("1/1", "Square (1:1)"),
+    ("4/3", "Standard (4:3)"),
+    ("4/5", "Portrait (4:5)"),
+    ("9/16", "Vertical (9:16)"),
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
@@ -190,6 +210,7 @@ DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
 QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
+REFERRAL_DOWNLOAD_BUTTON_TYPE = "referral_download"
 
 
 BUTTON_PRIMARY = ""
@@ -266,9 +287,8 @@ class LabelSourceMixin(blocks.StructBlock):
     """
     Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
 
-    This mixin adds two render-time context keys:
+    This mixin adds the render-time context key:
       - button_label:        rendered, locale-resolved label (visible to users)
-      - button_label_en_us:  stable English source for analytics / campaign slugs
 
     When using this mixin,
       1. declare an explicit `Meta.form_layout` to set the admin field order, and
@@ -317,15 +337,8 @@ class LabelSourceMixin(blocks.StructBlock):
             # User-visible label: locale-resolved with fallback to the stored row.
             localized = pretranslated.get_localized() if hasattr(pretranslated, "get_localized") else None
             context["button_label"] = (localized or pretranslated).label
-            # Stable English source for analytics. On a translated page, the
-            # stored FK is the locale-specific phrase, so its own label is
-            # localized — resolve the en-US sibling through the phrase's translation
-            # group instead of reading the stored row's label.
-            en_us = pretranslated.get_translation_or_none(Locale.get_default()) if hasattr(pretranslated, "get_translation_or_none") else None
-            context["button_label_en_us"] = (en_us or pretranslated).label
         elif value.get("custom_label"):
             context["button_label"] = value["custom_label"]
-            context["button_label_en_us"] = value["custom_label"]
         return context
 
     def get_searchable_content(self, value):
@@ -452,18 +465,22 @@ class PricingHeadingBlock(blocks.StructBlock):
 # Buttons
 
 
-def get_button_types(allow_uitour=False):
-    """Helper function to get button types based on allow_uitour flag.
+def get_button_types(allow_uitour=False, allow_referral_download=False):
+    """Helper function to get button types based on feature flags.
 
     Args:
-        allow_uitour: If True, includes UI Tour button type.
+        allow_uitour: If True, includes UI Tour, Set as Default, and QR Code Modal types.
+        allow_referral_download: If True, includes the referral download CTA type.
+            Only used in ReferralGetFirefoxPage's KitIntroBlock.
 
     Returns:
         List of button type strings.
     """
     base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
-        return [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
+        base_button_types = [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
+    if allow_referral_download:
+        base_button_types = [*base_button_types, REFERRAL_DOWNLOAD_BUTTON_TYPE]
     return base_button_types
 
 
@@ -992,6 +1009,18 @@ def FirefoxFocusButtonBlock(themes=BUTTON_THEMES, **kwargs):
     return _FirefoxFocusButtonBlock(**kwargs)
 
 
+class ReferralDownloadBlock(blocks.StaticBlock):
+    """Download buttons + referral consent checkbox for the referral invitee page.
+
+    No editable fields — the invitation code is injected at request time via
+    ReferralGetFirefoxPage.get_context(). Only valid in ReferralGetFirefoxPage.
+    """
+
+    class Meta:
+        template = "cms/blocks/referral-download-cta.html"
+        label = "Referral Download CTA"
+
+
 def MixedButtonsBlock(
     button_types: list,
     min_num: int,
@@ -1018,6 +1047,7 @@ def MixedButtonsBlock(
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
         QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
+        REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
     }
     return blocks.StreamBlock(
         [(button_type, button_blocks[button_type]) for button_type in button_types],
@@ -1029,7 +1059,7 @@ def MixedButtonsBlock(
     )
 
 
-def ButtonRowBlock(allow_uitour=False, **kwargs):
+def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):
     class _ButtonRowBlock(blocks.StructBlock):
         orientation = blocks.ChoiceBlock(
             choices=[
@@ -1057,10 +1087,16 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             default="",
             required=False,
         )
+        auto_width_buttons = blocks.BooleanBlock(
+            required=False,
+            default=False,
+            label="Auto-width Buttons",
+            help_text="When stacked, shrink buttons to fit their content instead of stretching full width.",
+        )
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=1,
-            max_num=3,
+            max_num=max_buttons,
         )
         help_text = blocks.RichTextBlock(required=False)
 
@@ -1070,7 +1106,7 @@ def ButtonRowBlock(allow_uitour=False, **kwargs):
             template = "cms/blocks/button-row.html"
             form_layout = blocks.BlockGroup(
                 children=["buttons", "help_text"],
-                settings=["orientation", "spacing", "alignment"],
+                settings=["orientation", "spacing", "alignment", "auto_width_buttons"],
             )
 
     return _ButtonRowBlock(**kwargs)
@@ -1145,6 +1181,164 @@ class TagsBlock(blocks.ListBlock):
         label_format = "Tags"
 
 
+# Comparison Table
+
+COMPARISON_RESULT_CHOICES = (
+    ("yes", "Yes"),
+    ("no", "No"),
+    ("limited", "Limited"),
+)
+
+COMPARISON_RESULT_ICONS = {
+    "yes": "checkmark-circle-fill",
+    "no": "close-circle-fill",
+    "limited": "circle-semi-filled",
+}
+
+
+class ComparisonResultValue(blocks.StructValue):
+    """Maps the stored result choice to what the template renders."""
+
+    @property
+    def icon_name(self) -> str:
+        return COMPARISON_RESULT_ICONS.get(self["result"], "")
+
+    @property
+    def display_label(self) -> str:
+        # The choice's own label is the visible text unless the author overrode it.
+        return self["label"] or dict(COMPARISON_RESULT_CHOICES).get(self["result"], "")
+
+
+class ComparisonResultBlock(blocks.StructBlock):
+    """Yes/No/Limited indicator: an icon with its label underneath."""
+
+    result = blocks.ChoiceBlock(COMPARISON_RESULT_CHOICES, default="yes")
+    label = blocks.CharBlock(
+        required=False,
+        help_text='Text below the icon. Leave empty to use the result\'s own name: "Yes", "No" or "Limited".',
+    )
+
+    class Meta:
+        icon = "circle-check"
+        label = "Comparison result"
+        label_format = "Comparison result - {result}"
+        template = "cms/blocks/comparison-result.html"
+        value_class = ComparisonResultValue
+
+
+class ComparisonImageHeaderBlock(blocks.StructBlock):
+    """An image with a label underneath it, for comparison table headers."""
+
+    image = ImageChooserBlock(help_text="Image displayed above the label, such as a product logo.")
+    dark_mode_image = ImageChooserBlock(required=False, help_text="Optional dark mode image variant.")
+    alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
+    )
+    label = blocks.CharBlock(help_text="Text displayed below the image.")
+
+    class Meta:
+        icon = "image"
+        label = "Image header"
+        label_format = "Image header - {label}"
+        template = "cms/blocks/comparison-image-header.html"
+
+
+class ComparisonTableCellContentBlock(blocks.StreamBlock):
+    """Optional richer cell content, used instead of the cell's plain text."""
+
+    comparison_result = ComparisonResultBlock()
+    image_header = ComparisonImageHeaderBlock()
+
+    class Meta:
+        label = "Optional content"
+
+
+class ComparisonTableCellBlock(blocks.StructBlock):
+    content = blocks.CharBlock(label="Cell content", required=False, help_text="Leave empty if you want to only fill the space.")
+    optional_content = ComparisonTableCellContentBlock(
+        max_num=1,
+        min_num=0,
+        required=False,
+        help_text="Add a comparison result or an image header to display instead of the cell content above.",
+    )
+    column_span = blocks.ChoiceBlock(
+        (
+            (1, 1),
+            (2, 2),
+            (3, 3),
+        ),
+        default=1,
+        help_text="Amount of columns this value will visually occupy in the table.",
+        inline_form=True,
+    )
+
+    class Meta:
+        label = "Comparison table cell"
+        form_layout = blocks.BlockGroup(
+            children=["content", "optional_content"],
+            settings=["column_span"],
+        )
+
+
+class ComparisonTableRowBlock(blocks.StructBlock):
+    cells = blocks.ListBlock(ComparisonTableCellBlock, min_num=1, max_num=4)
+
+    class Meta:
+        label = "Comparison table row"
+
+
+class ComparisonTableBlock(blocks.StructBlock):
+    """Comparison table block, with a highlightable column."""
+
+    variant = blocks.ChoiceBlock(
+        (
+            ("default", "Default"),
+            ("browser-comparison", "Browser comparison"),
+        ),
+        default="default",
+        help_text="Visual variations of the table. Browser comparison uses its own styles.",
+        inline_form=True,
+    )
+    highlighted_column = blocks.ChoiceBlock(
+        (
+            (1, "Column 1"),
+            (2, "Column 2"),
+            (3, "Column 3"),
+            (4, "Column 4"),
+        ),
+        default=None,
+        required=False,
+        help_text="Column to be visually highlighted. The column may or not exist. Disabled on mobile if the behavior is stacked.",
+        inline_form=True,
+    )
+    mobile_behavior = blocks.ChoiceBlock(
+        (
+            ("scroll", "Horizontal scroll"),
+            ("stacked", "Stacked"),
+        ),
+        default="scroll",
+        inline_form=True,
+    )
+    header_row = blocks.ListBlock(ComparisonTableRowBlock, min_num=1, max_num=1)
+    content_rows = blocks.ListBlock(ComparisonTableRowBlock, min_num=1)
+    fine_print = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        label="Fine print",
+        help_text="Optional text displayed below the table.",
+    )
+
+    class Meta:
+        template = "cms/blocks/comparison-table.html"
+        label = "Comparison Table"
+        form_layout = blocks.BlockGroup(
+            children=["header_row", "content_rows", "fine_print"],
+            settings=["variant", "highlighted_column", "mobile_behavior"],
+        )
+
+
 # Media
 
 
@@ -1186,6 +1380,35 @@ def ImageVariantsBlock(required=True, *args, **kwargs):
     return _ImageVariantsBlock(*args, **kwargs)
 
 
+class ImageCaptionBlock(blocks.StructBlock):
+    image = ImageVariantsBlock()
+    caption = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        label="Caption",
+        help_text="Text displayed below the image.",
+    )
+    layout = blocks.ChoiceBlock(
+        choices=[
+            ("default", "Default"),
+            ("expanded", "Expanded"),
+            ("full", "Full Width"),
+        ],
+        default="default",
+        inline_form=True,
+    )
+
+    class Meta:
+        icon = "image"
+        label = "Image + Caption"
+        label_format = "Image + Caption - {caption}"
+        template = "cms/blocks/image-caption.html"
+        form_layout = blocks.BlockGroup(
+            children=["image", "caption"],
+            settings=["layout"],
+        )
+
+
 class VideoBlock(blocks.StructBlock):
     video_url = blocks.URLBlock(
         label="Video URL",
@@ -1194,6 +1417,13 @@ class VideoBlock(blocks.StructBlock):
     )
     alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
+    aspect_ratio = blocks.ChoiceBlock(
+        choices=VIDEO_ASPECT_RATIO_CHOICES,
+        default="",
+        required=False,
+        label="Aspect Ratio",
+        help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+    )
 
     class Meta:
         label = "Video"
@@ -1229,6 +1459,13 @@ def AnimationBlock(required=True, *args, **kwargs):
             inline_form=True,
         )
         show_pause_button = blocks.BooleanBlock(default=False, required=False)
+        aspect_ratio = blocks.ChoiceBlock(
+            choices=VIDEO_ASPECT_RATIO_CHOICES,
+            default="",
+            required=False,
+            label="Aspect Ratio",
+            help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
+        )
 
         class Meta:
             label = "Animation"
@@ -1252,15 +1489,326 @@ class QRCodeBlock(blocks.StructBlock):
         template = "cms/blocks/qr-code.html"
 
 
-class MediaBlock(blocks.StreamBlock):
-    image = ImageVariantsBlock(required=False)
-    video = VideoBlock(required=False)
-    animation = AnimationBlock(required=False)
-    qr_code = QRCodeBlock(required=False)
+class ReferralControlsBlock(blocks.StructBlock):
+    """Copy / QR / share controls for a referral invite link.
+
+    Two different URLs are in play, and these controls must only ever expose the
+    second one:
+
+    * ``/invite/?ref_key=TEST23456X000000`` -- the referrer's own hub page. Private.
+    * ``/get-firefox/?invitation=1ABCDEFGHJKMNPQRS`` -- the link handed to friends.
+
+    ``ReferralHubPage.get_context`` maps the first to the second and publishes it
+    as ``invite_url`` on the template context, so the URL is deliberately not
+    editable here; editors only control the labels. Renders nothing when
+    ``invite_url`` is empty, which is the case for a hub page opened without a
+    ``ref_key``.
+    """
+
+    copy_label = blocks.CharBlock(default="Copy link", help_text="Label for the button that copies the invite link.")
+    copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
+    email_label = blocks.CharBlock(default="Share by email", help_text="Label for the link that opens an email draft.")
+    email_subject = blocks.CharBlock(
+        default="I am inviting you to try Firefox",
+        help_text="Subject line of the email draft.",
+    )
+    email_body = blocks.TextBlock(
+        default=(
+            "Here's how to download Firefox. I wanted to share a browser with you "
+            "that protects your privacy and gives you more control online. {invite link}"
+        ),
+        help_text=(
+            "Body of the email draft. Use {invite link} where the invitation link should go. "
+            "If you leave it out, the link is appended to the end so it is never missing."
+        ),
+    )
+    qr_heading = blocks.CharBlock(
+        default="Scan the QR code",
+        required=False,
+        help_text="Heading shown above the QR code. Leave empty to show no heading.",
+    )
+    qr_label = blocks.CharBlock(default="Scan to open the invite link", help_text="Accessible label for the QR dialog and shown under the QR code.")
 
     class Meta:
-        label = "Media"
-        template = "cms/blocks/media.html"
+        label = "Referral controls"
+        label_format = "Referral controls"
+        template = "cms/blocks/referral-controls.html"
+
+
+class TabReferralControlsBlock(blocks.StreamBlock):
+    """Wrapper making ReferralControlsBlock a genuinely optional tab field.
+
+    A nested StructBlock cannot be used directly: StructValue is an OrderedDict
+    that is always populated with its children's defaults, so it is always
+    truthy and the template could never tell "not added" from "added". A
+    StreamBlock capped at one child is the same approach MediaBlock uses.
+    """
+
+    referral_controls = ReferralControlsBlock()
+
+    class Meta:
+        label = "Referral controls"
+
+
+class BadgeBlock(blocks.StructBlock):
+    """One milestone marker in an impact dashboard.
+
+    ``number`` does double duty: it is the threshold compared against the
+    referrer's install count, and the number rendered on the badge. There is
+    deliberately no separate "display" field to drift out of sync with it.
+
+    The singular/plural pair encodes the English "1 vs. everything else" rule and
+    agrees with this badge's own ``number``, not the install count -- otherwise a
+    badge reading 5 would render "5 person" whenever the referrer had exactly one
+    install. Locales with three or more plural categories cannot be expressed;
+    that is a repo-wide constraint, as there is no ngettext usage and no Fluent
+    plural selector anywhere in the codebase.
+
+    ``message`` is the dashboard's summary line for the stretch of the journey
+    where this badge is the last one earned, so it belongs to the badge rather
+    than to the dashboard: the copy that suits 1 install does not suit 100.
+    """
+
+    image = ImageChooserBlock(required=False, help_text="Badge artwork. Optional.")
+    number = blocks.IntegerBlock(
+        min_value=1,
+        help_text=(
+            "The milestone this badge marks, and the number shown on it. The badge is "
+            "marked achieved once the referrer's install count reaches this number."
+        ),
+    )
+    singular_label = blocks.CharBlock(
+        default="person",
+        help_text='Word after the number when the number is exactly 1, e.g. "person" in "1 person".',
+    )
+    plural_label = blocks.CharBlock(
+        default="people",
+        help_text='Word after the number for any other number, e.g. "people" in "5 people".',
+    )
+    badge_name = blocks.CharBlock(
+        required=True,
+        help_text='Badge name, like "Connector", "Supporter", etc.',
+    )
+    message = blocks.CharBlock(
+        required=False,
+        label="Message",
+        help_text=(
+            "Optional line shown above the badges while this is the highest badge unlocked. "
+            "Use {install count} where the number of successful installs should go, e.g. "
+            '"You have helped {install count} people switch to Firefox." Leave blank to show '
+            "no message at this milestone."
+        ),
+    )
+
+    class Meta:
+        label = "Badge"
+        label_format = "{badge_name} - {number}"
+        # No template: rendered by the loop in cms/blocks/impact-dash.html, the
+        # same way RoadmapItemBlock is rendered by roadmap-list-section.html.
+
+
+class ImpactDashBlock(blocks.StructBlock):
+    """Badge array showing a referrer's progress against invite milestones.
+
+    Only lights up on the Referral Hub page, which is the only page that puts
+    ``install_count`` on the template context. TabBlock is reachable from
+    MediaBlock on many other page models, where every badge stays locked.
+
+    Above the badges sits one optional message, chosen by progress: the message
+    of the furthest badge unlocked, or ``locked_summary`` while none is. Exactly
+    one is rendered, so the two never compete for the same line.
+    """
+
+    #: Placeholder an editor writes in a message to mark where the install count
+    #: goes. Same convention as {invite link} in ReferralControlsBlock.email_body.
+    INSTALL_COUNT_TOKEN = "{install count}"
+
+    locked_summary = blocks.CharBlock(
+        required=False,
+        label="Message if no badge is unlocked",
+        help_text=(
+            "Optional line shown above the badges while no badge has been unlocked yet. Once a "
+            "badge is unlocked, that badge's own message replaces it. Use {install count} where "
+            "the number of successful installs should go. Leave blank to show no message."
+        ),
+    )
+    badges = blocks.ListBlock(BadgeBlock(), min_num=1, label="Badges")
+
+    class Meta:
+        icon = "list-ul"
+        label = "Impact dashboard"
+        label_format = "Impact dashboard"
+        template = "cms/blocks/impact-dash.html"
+
+    def get_context(self, value, parent_context=None):
+        """Resolve each badge against the referrer's install count.
+
+        The count lives on the page context rather than in the block value, so
+        this is the only layer that can see both. Doing the comparison and the
+        singular/plural choice here rather than in Jinja keeps the coercion of a
+        missing or non-numeric count in one place -- comparing against an
+        undefined in a template would raise instead.
+        """
+        context = super().get_context(value, parent_context=parent_context)
+        install_count = self._coerce_count((parent_context or {}).get("install_count"))
+        badges = [self._badge_context(badge, install_count) for badge in value.get("badges") or []]
+        context["install_count"] = install_count
+        context["badges"] = badges
+        context["summary"] = self._resolve_summary(self._summary_source(value, badges), install_count)
+        return context
+
+    @staticmethod
+    def _summary_source(value, badges) -> str:
+        """The message to show above the badges, before token substitution.
+
+        The furthest milestone reached is the interesting one, so the achieved
+        badge with the largest number wins -- picked by number rather than by
+        position, because the editor's list is not guaranteed to be sorted. max()
+        keeps the first of equal numbers, so duplicate thresholds resolve to the
+        one the editor listed first.
+
+        With nothing unlocked there is no badge message to show, so the
+        dashboard's own locked_summary stands in. A badge whose message is blank
+        shows nothing rather than falling back to locked_summary, which would
+        claim no badge had been earned.
+        """
+        achieved = [badge for badge in badges if badge["is_achieved"]]
+        if not achieved:
+            return value.get("locked_summary") or ""
+
+        return max(achieved, key=lambda badge: badge["number"])["message"]
+
+    @classmethod
+    def _resolve_summary(cls, raw, install_count: int) -> str:
+        """Substitute the editor's {install count} token with the resolved count.
+
+        A literal replace rather than str.format, so any other braces the editor
+        typed pass through untouched instead of raising KeyError or ValueError and
+        taking down the render. A message that never mentions the count is a legitimate thing to write.
+        """
+        summary = (raw or "").strip()
+        if not summary:
+            return ""
+
+        return summary.replace(cls.INSTALL_COUNT_TOKEN, str(install_count))
+
+    @staticmethod
+    def _coerce_count(raw) -> int:
+        """Never let a missing, empty or non-numeric context value raise."""
+        try:
+            return max(int(raw), 0)
+        except (TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _badge_context(badge, install_count: int) -> dict:
+        # Clamped to the same floor the editor field enforces: a 0 or negative
+        # threshold, only reachable via legacy/imported JSON, would satisfy
+        # ``install_count >= number`` for everyone and show as achieved on a
+        # first visit. Clamping the number itself rather than only the
+        # comparison keeps the rendered number and the threshold the one value
+        # BadgeBlock documents them to be.
+        number = max(badge.get("number") or 0, 1)
+        singular = (badge.get("singular_label") or "").strip()
+        # Only reachable via legacy/imported JSON, as both fields are required
+        # with defaults. Falling back means a badge can never render a bare
+        # number with no word after it.
+        plural = (badge.get("plural_label") or "").strip() or singular
+        return {
+            "image": badge.get("image"),
+            "number": number,
+            "label": singular if number == 1 else plural,
+            "badge_name": (badge.get("badge_name") or "").strip(),
+            "is_achieved": install_count >= number,
+            # Read by _summary_source, not by the badge itself: only the highest
+            # achieved badge's message is rendered, above the badge array.
+            "message": (badge.get("message") or "").strip(),
+        }
+
+
+class TabImpactDashBlock(blocks.StreamBlock):
+    """Wrapper making ImpactDashBlock a genuinely optional tab field.
+
+    Same reason as TabReferralControlsBlock: a nested StructBlock's StructValue
+    is an always-populated OrderedDict, so it is always truthy and the template
+    could never tell "not added" from "added".
+    """
+
+    impact_dash = ImpactDashBlock()
+
+    class Meta:
+        label = "Impact dashboard"
+
+
+class TabComparisonTableBlock(blocks.StreamBlock):
+    """Wrapper making ComparisonTableBlock a genuinely optional tab field.
+
+    Same reason as TabReferralControlsBlock: a nested StructBlock's StructValue
+    is an always-populated OrderedDict, so it is always truthy and the template
+    could never tell "not added" from "added".
+    """
+
+    comparison_table = ComparisonTableBlock()
+
+    class Meta:
+        label = "Comparison table"
+
+
+class TabBlock(blocks.StructBlock):
+    tab_name = blocks.CharBlock(label="Tab name")
+    icon = IconChoiceBlock(required=False, label="Tab icon", help_text="Optional icon shown before the tab name in the tab list.")
+    detected_browser = blocks.ChoiceBlock(
+        choices=DETECTED_BROWSER_CHOICES,
+        default="",
+        required=False,
+        label="Detected browser",
+        help_text="Auto-select this tab for visitors using this browser. Leave empty to never auto-select it. "
+        "Visitors on Firefox, or on a browser no tab claims, get the Chrome tab.",
+    )
+    heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+    image = ImageChooserBlock(required=False)
+    description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
+    referral_controls = TabReferralControlsBlock(max_num=1, min_num=0, required=False)
+    impact_dash = TabImpactDashBlock(max_num=1, min_num=0, required=False)
+    comparison_table = TabComparisonTableBlock(max_num=1, min_num=0, required=False)
+    note = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+
+    class Meta:
+        label = "Tab"
+        label_format = "{tab_name}"
+        template = "cms/blocks/tab.html"
+        value_class = IconStructValue
+
+
+class TabsBlock(blocks.StructBlock):
+    section_id = blocks.CharBlock(
+        label="Section ID",
+        help_text="Unique identifier used to namespace the tab element IDs. Must be unique across the page.",
+    )
+    tabs = blocks.ListBlock(TabBlock(), required=False)
+
+    class Meta:
+        label = "Tabs"
+        label_format = "{section_id}"
+        template = "cms/blocks/tabs.html"
+
+
+def MediaBlock(allow_tabs=False, *args, **kwargs):
+    local_blocks = []
+    if allow_tabs:
+        local_blocks.append(("tabs", TabsBlock(required=False)))
+
+    class _MediaBlock(blocks.StreamBlock):
+        image = ImageVariantsBlock(required=False)
+        video = VideoBlock(required=False)
+        animation = AnimationBlock(required=False)
+        qr_code = QRCodeBlock(required=False)
+
+        class Meta:
+            label = "Media"
+            template = "cms/blocks/media.html"
+
+    return _MediaBlock(local_blocks or None, *args, **kwargs)
 
 
 # Content
@@ -1284,7 +1832,7 @@ def BaseContentBlock(allow_uitour=False, **kwargs):
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
-            max_num=3,
+            max_num=5,
             required=False,
         )
 
@@ -1412,6 +1960,12 @@ class QuoteBlock(blocks.StructBlock):
         label="Author",
         help_text="Optional attribution for the quote.",
     )
+    authors_title = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Author's title",
+        help_text="Optional title for the author of the quote.",
+    )
 
     class Meta:
         label = "Quote"
@@ -1502,19 +2056,13 @@ class BlockArticleValue(blocks.StructValue):
                 return topic.name
         return ""
 
-    def get_tags(self) -> list[str]:
-        if tags := self.get("overrides").get("tags"):
-            return tags
-        article_page = self.get_article()
-        return [tag.name for tag in article_page.get_tags()]
-
     def get_image(self):
         article_page = self.get_article()
         image_override = self.get("overrides").get("image")
         if image := image_override.get("image"):
             return image
-        if article_page and article_page.image:
-            return article_page.image
+        if article_page:
+            return article_page.get_listing_image()
         return None
 
     def get_dark_image(self):
@@ -1522,8 +2070,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_image"):
             return image
-        if article_page and article_page.image_dark_mode:
-            return article_page.image_dark_mode
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode
         return None
 
     def get_mobile_image(self):
@@ -1531,8 +2079,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("mobile_image"):
             return image
-        if article_page and article_page.image_mobile:
-            return article_page.image_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().mobile
         return None
 
     def get_mobile_dark_image(self):
@@ -1540,8 +2088,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_mobile_image"):
             return image
-        if article_page and article_page.image_dark_mode_mobile:
-            return article_page.image_dark_mode_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
 
@@ -1550,7 +2098,6 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     topic = blocks.CharBlock(required=False)
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
 
 
 class BlogArticleBlock(blocks.StructBlock):
@@ -1566,38 +2113,97 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
-class BlogCardsListBlock(blocks.StructBlock):
-    """A titled list of blog article cards."""
+class BlogArticleSectionValue(blocks.StructValue):
+    """A section whose articles the index page resolves before rendering."""
+
+    def get_articles(self):
+        return getattr(self, "_articles", [])
+
+    def get_link_url(self):
+        return getattr(self, "_link_url", "")
+
+
+class BlogCardsListSourceBlock(blocks.StreamBlock):
+    """Exactly one of topic or tag.
+
+    A single-child StreamBlock enforces that structurally, so the parent needs no
+    clean()."""
+
+    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+
+    class Meta:
+        min_num = 1
+        max_num = 1
+
+
+class BlogLatestArticlesBlock(blocks.StructBlock):
+    """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
     link_label = blocks.CharBlock(default="View all")
-    link_filter = blocks.CharBlock(
-        required=False,
-        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
-    )
-    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Latest Articles"
+        icon = "time"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
+
+    def get_source(self, value):
+        """The latest section draws from every article, so it has no source."""
+        return None
+
+    def filter_articles(self, queryset, value):
+        return queryset.order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """Nothing is exempt: the latest section has no source of its own."""
+        return set(), set()
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled grid of articles drawn from one topic or tag."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    source = BlogCardsListSourceBlock()
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
+    link_label = blocks.CharBlock(default="View all")
 
     class Meta:
         label = "Blog Cards List"
-        label_format = "{heading}"
         icon = "list-ul"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
 
-    def clean_list_filter(self, value: str) -> str:
-        if not value:
-            return value
-        value = value.strip()
-        if not value.startswith("?"):
-            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
-        query_part = value[1:]
-        if not query_part:
-            raise ValidationError(_("Query string must contain at least one parameter."))
-        try:
-            pairs = parse_qsl(query_part, strict_parsing=True)
-        except ValueError as exc:
-            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
-        if not pairs:
-            raise ValidationError(_("Query string must contain at least one key=value parameter."))
-        return value
+    def get_source(self, value):
+        """The topic or tag this section draws from, or None when it no longer resolves.
+
+        min_num is enforced only while the editor form is being cleaned, and a chooser
+        reads a snippet that has since been deleted as None, so stored data can be
+        rendered with an empty source."""
+        source = value["source"][0] if value["source"] else None
+        return source if source and source.value else None
+
+    def filter_articles(self, queryset, value):
+        source = self.get_source(value)
+        if source is None:
+            return queryset.none()
+        if source.block_type == "topic":
+            return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
+        return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """The exclusion this section may override: the source it renders.
+
+        Pointing a section at an excluded topic or tag surfaces it here on purpose.
+        Articles excluded for any other reason still drop out."""
+        source = self.get_source(value)
+        if source is None:
+            return set(), set()
+        if source.block_type == "topic":
+            return {source.value.translation_key}, set()
+        return set(), {source.value.translation_key}
 
 
 # Cards
@@ -1662,7 +2268,11 @@ def StepCardListBlock(allow_uitour=False, *args, **kwargs):
 
 class CardTestimonialBlock(blocks.StructBlock):
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    attribution = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    attribution = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Optional. Leave blank to show the quote with no attribution.",
+    )
     attribution_role = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     attribution_image = ImageVariantsBlock(required=False)
 
@@ -1682,7 +2292,7 @@ class CardMediaBlock(blocks.StreamBlock):
         label = "Media"
 
 
-def CardBlock(allow_uitour=False, *args, **kwargs):
+def CardBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
     class _CardSettings(blocks.StructBlock):
         variant = blocks.ChoiceBlock(
             choices=[
@@ -1731,7 +2341,7 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
                 ("content", RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)),
                 ("pictogram", ImageVariantsBlock(template="cms/blocks/card-pictogram.html", label="Pictogram")),
                 ("testimonial", CardTestimonialBlock()),
-                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("buttons", ButtonRowBlock(allow_uitour=allow_uitour, max_buttons=max_buttons)),
             ]
         )
 
@@ -1743,12 +2353,13 @@ def CardBlock(allow_uitour=False, *args, **kwargs):
     return _CardBlock(*args, **kwargs)
 
 
-def CardsListBlock(allow_uitour=False, *args, **kwargs):
+def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
     """Factory function to create CardsListBlock with appropriate button types.
 
     Args:
         allow_uitour: If True, allows both regular buttons and UI Tour buttons.
                       If False, only allows regular buttons.
+        max_buttons: Maximum number of buttons allowed in each card's button row.
     """
 
     class _CardsListSettings(blocks.StructBlock):
@@ -1790,7 +2401,7 @@ def CardsListBlock(allow_uitour=False, *args, **kwargs):
         settings = _CardsListSettings()
         cards = blocks.StreamBlock(
             [
-                ("card", CardBlock(allow_uitour=allow_uitour)),
+                ("card", CardBlock(allow_uitour=allow_uitour, max_buttons=max_buttons)),
             ]
         )
 
@@ -2246,6 +2857,10 @@ class IntroBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing.",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
     anchor_id = blocks.CharBlock(
         required=False,
         help_text="Add an ID to make this section linkable from navigation (e.g., 'overview', 'features')",
@@ -2256,7 +2871,7 @@ class IntroBlockSettings(blocks.StructBlock):
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id}"
+        label_format = "Layout: {layout} - Slim: {slim} - Anchor ID: {anchor_id} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -2326,6 +2941,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("comparison_table", ComparisonTableBlock()),
             ],
             required=False,
         )
@@ -2553,13 +3169,12 @@ class KitBlockSettings(blocks.StructBlock):
     )
 
 
-def KitIntroBlock(allow_uitour=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            allow_uitour=allow_uitour,
-            button_types=get_button_types(),
+            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
             min_num=0,
             max_num=2,
             required=False,
@@ -2647,24 +3262,28 @@ class ShowcaseSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-class ShowcaseBlock(blocks.StructBlock):
-    settings = ShowcaseSettings()
-    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    media = MediaBlock(max_num=1)
-    caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    cta = MixedButtonsBlock(
-        button_types=get_button_types(),
-        min_num=0,
-        max_num=2,
-        required=False,
-        label="Call to Action",
-    )
+def ShowcaseBlock(allow_tabs=False, *args, **kwargs):
+    class _ShowcaseBlock(blocks.StructBlock):
+        settings = ShowcaseSettings()
+        headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+        description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        media = MediaBlock(allow_tabs=allow_tabs, max_num=1)
+        caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
+        cta = MixedButtonsBlock(
+            button_types=get_button_types(),
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Call to Action",
+        )
 
-    class Meta:
-        template = "cms/blocks/sections/showcase.html"
-        label = "Showcase"
-        label_format = "{headline}"
+        class Meta:
+            template = "cms/blocks/sections/showcase.html"
+            label = "Showcase"
+            label_format = "{headline}"
+
+    return _ShowcaseBlock(*args, **kwargs)
 
 
 class CardGalleryCard(blocks.StructBlock):
@@ -2917,15 +3536,17 @@ class EnterpriseDownloadBlock(blocks.StaticBlock):
 
 
 class BaseFieldValue(blocks.StructValue):
+    widget_css_class = "fl-field"
+
     def get_field(self):
         """Override in subclasses to return the appropriate Django form field class."""
         return forms.CharField
 
     def get_error_messages(self):
-        """Localised validation messages. Subclasses extend for field-specific keys."""
+        """Localized validation messages. Subclasses extend for field-specific keys."""
         return {"required": ftl_lazy("contact-form-error-required", ftl_files=["cms/contact"])}
 
-    def get_form_field(self):
+    def get_form_field(self, locale=None):
         Field = self.get_field()
         kwargs = {
             "label": self.get("label"),
@@ -2936,9 +3557,12 @@ class BaseFieldValue(blocks.StructValue):
             kwargs["initial"] = initial
         if widget := self.get_widget():
             kwargs["widget"] = widget
-        if choices := self.get_choices():
+        if choices := self.get_choices(locale):
             kwargs["choices"] = choices
-        return Field(**kwargs)
+        form_field = Field(**kwargs)
+        if self.widget_css_class and not form_field.widget.is_hidden:
+            form_field.widget.attrs.setdefault("class", self.widget_css_class)
+        return form_field
 
     def get_widget(self):
         """Override in subclasses if a specific widget is needed."""
@@ -2948,14 +3572,12 @@ class BaseFieldValue(blocks.StructValue):
         """Override in subclasses if the field type has a specific initial value."""
         return None
 
-    def get_choices(self):
-        """Override in subclasses if the field type has specific choices (e.g., for select fields)."""
-        return None
+    def get_choices(self, locale=None):
+        """Override in subclasses if the field type has specific choices (e.g., for select fields).
 
-    @property
-    def is_multivalue(self):
-        """True if this field submits multiple values (e.g. checkbox group). Used by _get_display_data."""
-        return False
+        `locale` is the language code of the page being rendered, for choices with localized labels.
+        """
+        return None
 
 
 class BaseField(blocks.StructBlock):
@@ -2980,7 +3602,7 @@ class BaseField(blocks.StructBlock):
 
 class TextFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/text_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Text Field"
         label_format = "Text - {label}"
         value_class = BaseFieldValue
@@ -2988,7 +3610,12 @@ class TextFieldBlock(BaseField):
 
 class TextAreaFieldValue(BaseFieldValue):
     def get_widget(self):
-        return forms.Textarea(attrs={"rows": self.get("rows", 4)})
+        # A False attribute is omitted from the rendered HTML: the textarea is sized by CSS,
+        # so Django's default cols is dropped.
+        attrs = {"cols": False, "rows": self.get("rows", 4)}
+        if max_length := self.get("max_length"):
+            attrs["maxlength"] = max_length
+        return forms.Textarea(attrs=attrs)
 
 
 class TextAreaFieldBlock(BaseField):
@@ -2998,9 +3625,14 @@ class TextAreaFieldBlock(BaseField):
         label="Rows",
         help_text="Number of visible text lines.",
     )
+    max_length = blocks.IntegerBlock(
+        required=False,
+        label="Max Length",
+        help_text="Maximum number of characters allowed. Leave blank for no limit.",
+    )
 
     class Meta:
-        template = "cms/blocks/form_fields/textarea_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Text Area Field"
         label_format = "Text Area - {label}"
         value_class = TextAreaFieldValue
@@ -3018,7 +3650,7 @@ class EmailFieldValue(BaseFieldValue):
 
 class EmailFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/email_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Email Field"
         label_format = "Email - {label}"
         value_class = EmailFieldValue
@@ -3031,7 +3663,7 @@ class PhoneFieldValue(BaseFieldValue):
 
 class PhoneFieldBlock(BaseField):
     class Meta:
-        template = "cms/blocks/form_fields/phone_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Phone Field"
         label_format = "Phone - {label}"
         value_class = PhoneFieldValue
@@ -3050,9 +3682,13 @@ class SelectFieldValue(BaseFieldValue):
     def get_field(self):
         return forms.ChoiceField
 
-    def get_choices(self):
+    def get_blank_choice(self):
+        """Placeholder option shown until the user picks a value."""
+        return ("", ftl_lazy("contact-form-select-option", ftl_files=["cms/contact"]))
+
+    def get_choices(self, locale=None):
         options = self.get("options", [])
-        return [(option["value"], option["label"]) for option in options]
+        return [self.get_blank_choice(), *((option["value"], option["label"]) for option in options)]
 
     def get_error_messages(self):
         messages = super().get_error_messages()
@@ -3068,7 +3704,7 @@ class SelectFieldBlock(BaseField):
     )
 
     class Meta:
-        template = "cms/blocks/form_fields/select_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Select Field"
         label_format = "Select - {label}"
         value_class = SelectFieldValue
@@ -3084,14 +3720,12 @@ class CheckboxOptionBlock(blocks.StructBlock):
 
 
 class CheckboxGroupFieldValue(BaseFieldValue):
-    @property
-    def is_multivalue(self):
-        return True
+    widget_css_class = "fl-checkbox"
 
     def get_field(self):
         return forms.MultipleChoiceField
 
-    def get_choices(self):
+    def get_choices(self, locale=None):
         options = self.get("options", [])
         return [(option["value"], option["label"]) for option in options]
 
@@ -3119,6 +3753,8 @@ class CheckboxGroupFieldBlock(BaseField):
 
 
 class CheckboxFieldValue(BaseFieldValue):
+    widget_css_class = "fl-checkbox"
+
     def get_field(self):
         return forms.BooleanField
 
@@ -3161,30 +3797,18 @@ class HiddenFieldBlock(BaseField):
 
 
 class CountrySelectFieldValue(SelectFieldValue):
-    def get_choices(self):
-        # The choices displayed to the user are localized and built by the block's get_context
-        # method. The choices built here are used for validation only.
+    def get_choices(self, locale=None):
+        """Country codes paired with names localized for the page being rendered."""
         countries = sorted(
-            ((code.upper(), name) for code, name in product_details.get_regions(settings.LANGUAGE_CODE).items()),
+            ((code.upper(), name) for code, name in product_details.get_regions(locale or settings.LANGUAGE_CODE).items()),
             key=lambda item: item[1],
         )
-        return countries
+        return [self.get_blank_choice(), *countries]
 
 
 class CountrySelectFieldBlock(BaseField):
-    def get_context(self, value, parent_context=None):
-        context = super().get_context(value, parent_context=parent_context)
-        request = parent_context.get("request") if parent_context else None
-        locale = (getattr(request, "locale", None) or settings.LANGUAGE_CODE) if request else settings.LANGUAGE_CODE
-        countries = sorted(
-            ((code.upper(), name) for code, name in product_details.get_regions(locale).items()),
-            key=lambda item: item[1],
-        )
-        context["countries"] = countries
-        return context
-
     class Meta:
-        template = "cms/blocks/form_fields/country_select_field.html"
+        template = "cms/blocks/form_fields/field.html"
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue

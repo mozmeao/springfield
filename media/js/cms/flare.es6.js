@@ -5,6 +5,7 @@
  */
 
 import setupAnimations from './components/flare-animations.es6';
+import setupFlareDropdown from './components/flare-dropdown.es6';
 import setupBlogTopicsScroll from './components/flare-blog-topics-scroll.es6';
 import setupCarousels from './components/flare-carousel.es6';
 import setupCopyToClipboardButtons from './components/flare-copy-to-clipboard.es6';
@@ -19,6 +20,8 @@ import setupScrollingCardGrid from './components/flare-scrolling-card-grid.es6';
 import { setupSetAsDefault } from './components/flare-set-as-default.es6';
 import setupSlidingCarousels from './components/flare-sliding-carousel.es6';
 import setupRoadmap from './components/flare-roadmap.es6';
+import setupTabs from './components/flare-tabs.es6';
+import setupBrowserTabs from './components/flare-browser-tabs.es6';
 import setupTopicListSidebar from './components/flare-topic-list-sidebar.es6';
 import setupTypewriter, { typewriter } from './components/flare-typewriter.es6';
 import setupVideo from './components/flare-video.es6';
@@ -32,6 +35,7 @@ if (typeof window.cms === 'undefined') {
 window.cms.Flare = { typewriter, initDialogs };
 
 function setupComponents() {
+    setupFlareDropdown();
     setupBlogTopicsScroll();
     setupNewsletter();
     setupNotificationClose();
@@ -40,6 +44,9 @@ function setupComponents() {
     setupDownloadDropdown();
     setupQRCodeSnippet();
     setupRoadmap();
+    // Browser auto-selection runs on the instances setupTabs() returns, and
+    // only affects tablists whose tabs declare a browser.
+    setupBrowserTabs(setupTabs());
     setupTopicListSidebar();
     setupTypewriter();
     setupDialogs();
