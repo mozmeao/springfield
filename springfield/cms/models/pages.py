@@ -2848,6 +2848,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
         return True
 
     def get_sitemap_urls(self, request=None):
+        # Page 404s without a valid ref_key and is geo-restricted.
         return []
 
     def get_context(self, request, *args, **kwargs):
@@ -3016,6 +3017,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
         return True
 
     def get_sitemap_urls(self, request=None):
+        # Page 404s without a valid invitation and is geo-restricted.
         return []
 
     def clean(self):
