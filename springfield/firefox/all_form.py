@@ -187,6 +187,17 @@ _RELEASE_TO_NOTES_CHANNEL = {
 
 RELEASE_UNAVAILABLE_ERROR = "Chosen release type is not available for this platform."
 
+# All four logos are rendered on the form page so the visible one can change
+# without a network fetch mid-interaction. Which one shows is decided entirely in
+# CSS, from which release option is `:checked` — so it follows the select whether
+# or not the script is running.
+LOGOS = (
+    {"key": "firefox", "file": "img/logos/firefox/firefox-logo.svg", "alt": "Firefox"},
+    {"key": "firefox-beta", "file": "img/logos/firefox/firefox-logo-beta.svg", "alt": "Firefox Beta"},
+    {"key": "firefox-developer", "file": "img/logos/firefox/firefox-logo-developer.svg", "alt": "Firefox Developer Edition"},
+    {"key": "firefox-nightly", "file": "img/logos/firefox/firefox-logo-nightly.svg", "alt": "Firefox Nightly"},
+)
+
 
 # ---------------------------------------------------------------------------
 # Availability and choices
@@ -544,6 +555,7 @@ def get_form_context(selection, is_prefilled=False):
         "has_errors": bool(release_error),
         "is_prefilled": is_prefilled,
         "result_url": reverse("firefox.all_form.result"),
+        "logos": LOGOS,
         "unsupported_platforms_json": get_unsupported_platforms_json(),
     }
 

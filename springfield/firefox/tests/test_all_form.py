@@ -696,6 +696,14 @@ class TestFormView:
         assert response.context["has_errors"] is False
 
     @override_switch("ALL_FORM", active=True)
+    def test_every_logo_is_rendered_for_css_to_choose_from(self, client):
+        # All four ship on every request, so changing release costs no fetch.
+        # Which one shows is decided in CSS, from the release select.
+        response = client.get(FORM_URL)
+        for logo in all_form.LOGOS:
+            assert f'data-logo="{logo["key"]}"'.encode() in response.content
+
+    @override_switch("ALL_FORM", active=True)
     def test_campaign_params_are_not_a_prefill(self, client):
         response = client.get(FORM_URL, {"utm_source": "somewhere"})
         assert response.context["is_prefilled"] is False
