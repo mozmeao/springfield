@@ -754,13 +754,13 @@ class TestResultView:
     @override_switch("ALL_FORM", active=True)
     def test_bare_request_bounces_to_the_form(self, client):
         response = client.get(RESULT_URL)
-        assert response.status_code == 302
+        assert response.status_code == 303
         assert response["Location"] == reverse("firefox.all_form")
 
     @override_switch("ALL_FORM", active=True)
     def test_conflict_bounces_with_the_query_string(self, client):
         response = client.get(RESULT_URL, {"os": "ios", "release": "esr", "language": "de", "utm_source": "somewhere"})
-        assert response.status_code == 302
+        assert response.status_code == 303
         location = response["Location"]
         assert location.startswith(reverse("firefox.all_form") + "?")
         for param in ("os=ios", "release=esr", "language=de", "utm_source=somewhere"):
@@ -776,7 +776,7 @@ class TestResultView:
     @override_switch("ALL_FORM", active=True)
     def test_bounce_keeps_the_locale_prefix(self, client):
         response = client.get(RESULT_URL.replace("/en-US/", "/de/"), {"os": "ios", "release": "esr"})
-        assert response.status_code == 302
+        assert response.status_code == 303
         assert response["Location"].startswith(FORM_URL.replace("/en-US/", "/de/"))
 
     @override_switch("ALL_FORM", active=True)
