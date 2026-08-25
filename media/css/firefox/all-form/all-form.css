@@ -3,6 +3,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
 @layer page {
     .c-section {
         /* One measure for the heading and the form, so they line up. */
@@ -29,6 +32,14 @@
         margin-block-start: var(--token-spacing-xl, 48px);
         margin-inline: auto;
         max-inline-size: var(--c-measure);
+    }
+
+    @media (--viewport-below-md) {
+        .c-form {
+            gap: var(--token-spacing-lg, 32px);
+            grid-template-columns: minmax(0, 1fr);
+            max-inline-size: var(--c-choices-inline-size);
+        }
     }
 
     .c-choices {
