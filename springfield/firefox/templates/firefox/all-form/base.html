@@ -81,16 +81,12 @@
               <content:body>
               </content:body>
             </include:dialog>
+            {#
+              Without JS the release select keeps every option, so these say which
+              ones the chosen platform actually has. The `:has()` rules that show
+              them live in all-form.css, under `.no-js`.
+            #}
             <div id="release-no-js-hint" class="c-field-description">
-              <style>
-                .no-js form {;
-                  &:has(option[value="ios"]:checked) [data-hint-for="ios"],
-                  &:has(option[value="android"]:checked) [data-hint-for="android"],
-                  &:has(option[value="linux"]:checked) [data-hint-for="linux"] {
-                    display: revert;
-                  }
-                }
-              </style>
               <p data-hint-for="ios" hidden>Only Firefox and Firefox Beta are available for iOS.</p>
               <p data-hint-for="android" hidden>Only Firefox, Firefox Beta, and Firefox Nightly are available for Android.</p>
               <p data-hint-for="linux" hidden>Only Firefox ESR is available for Linux 32-bit.</p>
