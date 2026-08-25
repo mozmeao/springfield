@@ -28,8 +28,6 @@ from product_details import product_details
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_android, firefox_desktop, firefox_ios
 
-FIELD_NAMES = ("os", "release", "language")
-
 # The release the form falls back to, matching the first <option> the browser
 # selects when no release was submitted.
 DEFAULT_RELEASE = "stable"
@@ -212,11 +210,6 @@ def is_supported(os_value, release):
 def get_os_values():
     """OS values supported by at least one release, in display order."""
     return tuple(os_value for os_value in OS_LABELS if any(is_supported(os_value, release) for release in UNSUPPORTED_PLATFORMS_BY_RELEASE))
-
-
-def get_os_choices():
-    """(value, label) pairs for the OS field."""
-    return [(os_value, OS_LABELS[os_value]) for os_value in get_os_values()]
 
 
 def get_os_groups():
@@ -540,11 +533,10 @@ def form_url(data=None):
     return f"{url}?{query}" if query else url
 
 
-def get_form_context(selection, is_prefilled=False):
+def get_form_context(selection):
     """Context for the form page."""
     release_error = RELEASE_UNAVAILABLE_ERROR if selection.has_conflict else None
     return {
-        "os_choices": get_os_choices(),
         "os_groups": get_os_groups(),
         "release_choices": get_release_choices(),
         "language_choices": get_language_choices(),
@@ -553,7 +545,6 @@ def get_form_context(selection, is_prefilled=False):
         "selected_language": selection.language,
         "release_error": release_error,
         "has_errors": bool(release_error),
-        "is_prefilled": is_prefilled,
         "result_url": reverse("firefox.all_form.result"),
         "logos": LOGOS,
         "unsupported_platforms_json": get_unsupported_platforms_json(),

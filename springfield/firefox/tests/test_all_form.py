@@ -140,18 +140,18 @@ class TestLinux32Drift:
 
 
 class TestChoices:
-    def test_os_choices_include_linux32_because_of_esr(self):
-        assert "linux" in dict(all_form.get_os_choices())
+    def test_os_values_include_linux32_because_of_esr(self):
+        assert "linux" in all_form.get_os_values()
 
-    def test_os_choices_drop_an_os_no_release_supports(self):
+    def test_os_values_drop_an_os_no_release_supports(self):
         matrix = {release: values + ("linux64",) for release, values in all_form.UNSUPPORTED_PLATFORMS_BY_RELEASE.items()}
         with patch.object(all_form, "UNSUPPORTED_PLATFORMS_BY_RELEASE", matrix):
-            assert "linux64" not in dict(all_form.get_os_choices())
+            assert "linux64" not in all_form.get_os_values()
             grouped = {os_value for _, choices in all_form.get_os_groups() for os_value, _ in choices}
             assert "linux64" not in grouped
 
-    def test_os_choices_are_in_display_order(self):
-        assert [value for value, _ in all_form.get_os_choices()] == list(all_form.OS_LABELS)
+    def test_os_values_are_in_display_order(self):
+        assert list(all_form.get_os_values()) == list(all_form.OS_LABELS)
 
     def test_os_groups_are_labelled_and_ordered(self):
         assert [label for label, _ in all_form.get_os_groups()] == ["Apple", "Google", "Microsoft", "Linux"]
@@ -568,11 +568,10 @@ class TestParseSelection:
 class TestFormContext:
     def test_choices_and_selection(self):
         selection = all_form.parse_selection({"os": "win64", "release": "beta", "language": "de"})
-        ctx = all_form.get_form_context(selection, is_prefilled=True)
+        ctx = all_form.get_form_context(selection)
         assert ctx["selected_os"] == "win64"
         assert ctx["selected_release"] == "beta"
         assert ctx["selected_language"] == "de"
-        assert ctx["is_prefilled"] is True
         assert ctx["release_error"] is None
         assert ctx["has_errors"] is False
         assert ctx["result_url"] == reverse("firefox.all_form.result")
@@ -692,7 +691,6 @@ class TestFormView:
         assert response.context["selected_os"] == ""
         assert response.context["selected_release"] == "stable"
         assert response.context["selected_language"] == "en-US"
-        assert response.context["is_prefilled"] is False
         assert response.context["has_errors"] is False
 
     @override_switch("ALL_FORM", active=True)
@@ -704,15 +702,15 @@ class TestFormView:
             assert f'data-logo="{logo["key"]}"'.encode() in response.content
 
     @override_switch("ALL_FORM", active=True)
-    def test_campaign_params_are_not_a_prefill(self, client):
+    def test_campaign_params_do_not_change_the_selection(self, client):
         response = client.get(FORM_URL, {"utm_source": "somewhere"})
-        assert response.context["is_prefilled"] is False
+        assert response.context["selected_os"] == ""
+        assert response.context["has_errors"] is False
 
     @override_switch("ALL_FORM", active=True)
     def test_prefill(self, client):
         response = client.get(FORM_URL, {"os": "win64", "release": "beta", "language": "de"})
         assert response.status_code == 200
-        assert response.context["is_prefilled"] is True
         assert response.context["selected_os"] == "win64"
         assert response.context["selected_release"] == "beta"
         assert response.context["selected_language"] == "de"
