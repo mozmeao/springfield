@@ -1883,12 +1883,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     def get_section_link_url(self, block, all_url):
         """The "View all" destination for a section: its topic page, its tag filter, or
-        the full list."""
-        if block.block_type == "latest":
+        the full list when the section has no source."""
+        source = block.block.get_source(block.value)
+        if source is None:
             return all_url
-        source = block.value["source"][0]
         if source.block_type == "topic":
-            return self.url + self.reverse_subpage("topic_route", args=[source.value.slug])
+            return (self.url or "") + self.reverse_subpage("topic_route", args=[source.value.slug])
         return f"{all_url}?tag={source.value.slug}"
 
     # Queries and filtering

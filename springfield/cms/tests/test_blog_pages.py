@@ -613,6 +613,35 @@ def test_a_featured_article_is_not_repeated_by_a_section_on_a_translated_page(tr
     assert sections[0].value.get_articles() == [translated_blog.untagged]
 
 
+def test_section_whose_source_was_deleted_renders_nothing(blog_index, make_article):
+    """Deleting a snippet a section points is skipped: the section fills with no
+    articles and falls back to linking at the full list."""
+    make_article(title="Still listed")
+    topic_to_delete = BlogTopic.objects.create(name="Gone", slug="test-unit-gone", locale=blog_index.locale)
+    blog_index.article_sections = [cards_list_section("00001", "topic", topic_to_delete)]
+    blog_index.save()
+    topic_to_delete.delete()
+
+    sections = BlogIndexPage.objects.get(pk=blog_index.pk).resolve_article_sections()
+
+    assert sections[0].value.get_articles() == []
+    assert sections[0].value.get_link_url() == blog_index.url + blog_index.reverse_subpage("all_route")
+
+
+def test_section_with_an_empty_source_renders_nothing(blog_index, blog_topic, make_article):
+    """An empty section source returns no articles."""
+    make_article(title="Still listed")
+    section = cards_list_section("00001", "topic", blog_topic)
+    section["value"]["source"] = []
+    blog_index.article_sections = [section]
+    blog_index.save()
+
+    sections = blog_index.resolve_article_sections()
+
+    assert sections[0].value.get_articles() == []
+    assert sections[0].value.get_link_url() == blog_index.url + blog_index.reverse_subpage("all_route")
+
+
 def test_no_article_is_shown_twice_across_the_page(page_with_every_section):
     index_page, articles = page_with_every_section
 

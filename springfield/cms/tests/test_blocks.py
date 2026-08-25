@@ -5602,6 +5602,42 @@ def test_cards_list_count_rejects_five():
         block.child_blocks["count"].clean(5)
 
 
+def test_section_with_an_empty_source_exempts_nothing():
+    """min_num only holds while the form is cleaned, so stored data can arrive empty."""
+    block = BlogCardsListBlock()
+    value = block.to_python(
+        {
+            "heading_text": '<p data-block-key="h">Privacy</p>',
+            "source": [],
+            "count": 4,
+            "link_label": "View all",
+        }
+    )
+
+    assert block.get_exempt_exclusions(value) == (set(), set())
+
+
+@pytest.mark.django_db
+def test_section_with_a_deleted_source_exempts_nothing():
+    """A chooser reads a deleted snippet back as None, and a section that no longer
+    has a source cannot exempt anything."""
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-deleted", locale=Locale.get_default())
+    deleted_pk = topic.pk
+    topic.delete()
+    block = BlogCardsListBlock()
+    value = block.to_python(
+        {
+            "heading_text": '<p data-block-key="h">Privacy</p>',
+            "source": [{"type": "topic", "value": deleted_pk, "id": "src00005-0000-0000-0000-000000000005"}],
+            "count": 4,
+            "link_label": "View all",
+        }
+    )
+
+    assert value["source"][0].value is None
+    assert block.get_exempt_exclusions(value) == (set(), set())
+
+
 @pytest.mark.django_db
 def test_topic_section_exempts_its_own_topic():
     topic = BlogTopic.objects.create(name="Privacy", slug="test-block-exempt", locale=Locale.get_default())

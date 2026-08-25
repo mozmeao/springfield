@@ -2150,6 +2150,10 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
         template = "cms/blocks/blog-article-section.html"
         value_class = BlogArticleSectionValue
 
+    def get_source(self, value):
+        """The latest section draws from every article, so it has no source."""
+        return None
+
     def filter_articles(self, queryset, value):
         return queryset.order_by("-first_published_at")
 
@@ -2172,8 +2176,19 @@ class BlogCardsListBlock(blocks.StructBlock):
         template = "cms/blocks/blog-article-section.html"
         value_class = BlogArticleSectionValue
 
+    def get_source(self, value):
+        """The topic or tag this section draws from, or None when it no longer resolves.
+
+        min_num is enforced only while the editor form is being cleaned, and a chooser
+        reads a snippet that has since been deleted as None, so stored data can be
+        rendered with an empty source."""
+        source = value["source"][0] if value["source"] else None
+        return source if source and source.value else None
+
     def filter_articles(self, queryset, value):
-        source = value["source"][0]
+        source = self.get_source(value)
+        if source is None:
+            return queryset.none()
         if source.block_type == "topic":
             return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
         return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
@@ -2183,7 +2198,9 @@ class BlogCardsListBlock(blocks.StructBlock):
 
         Pointing a section at an excluded topic or tag surfaces it here on purpose.
         Articles excluded for any other reason still drop out."""
-        source = value["source"][0]
+        source = self.get_source(value)
+        if source is None:
+            return set(), set()
         if source.block_type == "topic":
             return {source.value.translation_key}, set()
         return set(), {source.value.translation_key}
