@@ -27,35 +27,42 @@ import { batch, computed, effect, signal } from '@preact/signals-core';
 // out of it, and nothing scans it per input event.
 
 // ---------------------------------------------------------------------------
-// Vocabulary
+// Data
 //
-// Mirrors springfield/firefox/all_form.py — neither side may change without the
-// other.
+// Everything this module used to hardcode — the availability matrix, every URL,
+// and every string of copy — is serialized into the page by
+// springfield/firefox/all_form.py, which is the single source of truth for all
+// of it. Nothing user-visible is written in this file.
+//
+// The one URL still built here is the bouncer one, because it is the only one
+// that depends on the chosen language, and the language changes without a page
+// load. It gets the pieces (`bouncerUrl`, `bouncerChannels`) instead.
 // ---------------------------------------------------------------------------
 
-const OS = {
-    IOS: 'ios',
-    MACOS: 'osx',
-    MACOSPKG: 'osx-pkg',
+const DATA = readData();
 
-    ANDROID: 'android',
+function readData() {
+    const island = document.getElementById('allFormData');
+    if (!island) throw new Error('Missing #allFormData data island');
+    return JSON.parse(island.textContent);
+}
 
-    WINDOWS32: 'win',
-    WINDOWS32MSI: 'win-msi',
-    WINDOWS64: 'win64',
-    WINDOWS64MSI: 'win64-msi',
-    WINDOWS64ARM: 'win64-aarch64',
+const OS_VALUES = new Set(DATA.osValues);
+const RELEASE_VALUES = new Set(Object.keys(DATA.unsupportedPlatformsByRelease));
 
-    LINUX32: 'linux',
-    LINUX64: 'linux64',
-    LINUX64ARM: 'linux64-aarch64'
-};
+const MOBILE_OS = new Set(DATA.mobileOS);
+// The Windows options with a Microsoft Store listing. The MSI builds are for
+// corporate IT to deploy and have no store equivalent.
+const MICROSOFT_STORE_OS = new Set(DATA.microsoftStoreOS);
+// ESR 115 has no builds for these locales (mozilla/bedrock#15437).
+const ESR_115_UNAVAILABLE_LOCALES = new Set(DATA.esr115UnavailableLocales);
 
+const MESSAGES = DATA.messages;
+
+// The only release values this file names directly: the option list is
+// specifically about them. Every other release is just a key it passes through.
 const RELEASES = {
     STABLE: 'stable',
-    BETA: 'beta',
-    DEV: 'dev',
-    NIGHTLY: 'nightly',
     ESR: 'esr',
     ESR_NEXT: 'esr-next',
     ESR_115: 'esr-115'
@@ -73,72 +80,15 @@ const PLATFORM = {
     LINUX: 'linux'
 };
 
-const RELEASE_UNAVAILABLE_MESSAGE =
-    'Chosen release type is not available for this platform.';
-
-const IOS_APP_STORE_LINKS = {
-    [RELEASES.STABLE]:
-        'https://apps.apple.com/us/app/apple-store/id989804926?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8',
-    [RELEASES.BETA]: 'https://www.firefox.com/channel/ios/testflight/'
-};
-
-const ANDROID_PLAY_STORE_LINKS = {
-    [RELEASES.STABLE]:
-        'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
-    [RELEASES.BETA]:
-        'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all',
-    [RELEASES.NIGHTLY]:
-        'https://play.google.com/store/apps/details?id=org.mozilla.fenix&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-all'
-};
-
-// The Windows options with a Microsoft Store listing. The MSI builds are for
-// corporate IT to deploy and have no store equivalent.
-const MICROSOFT_STORE_OS = new Set([
-    OS.WINDOWS32,
-    OS.WINDOWS64,
-    OS.WINDOWS64ARM
-]);
-
-const MICROSOFT_STORE_LINKS = {
-    [RELEASES.STABLE]:
-        'https://apps.microsoft.com/detail/9nzvdkpmr9rd?mode=mini&cid=firefox-all&mz_cn=release',
-    [RELEASES.BETA]:
-        'https://apps.microsoft.com/detail/9nzw26frndln?mode=mini&cid=firefox-all&mz_cn=beta'
-};
-
-const APT_URL =
-    'https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions';
-
-const MOBILE_SYSTEM_REQUIREMENTS =
-    'https://support.mozilla.org/kb/will-firefox-work-my-mobile-device';
-
-const PRIVACY_URL = 'https://www.mozilla.org/privacy/firefox/';
-
-// ESR 115 has no builds for these locales (mozilla/bedrock#15437). Mirrors
-// all_form.ESR_115_UNAVAILABLE_LOCALES.
-const ESR_115_UNAVAILABLE_LOCALES = new Set(['sat', 'skr']);
-
-// ESR 115 is offered to people on operating systems newer Firefox has dropped,
-// so the reason to pick it differs per platform.
-const ESR_115_RECOMMENDATIONS = {
-    [PLATFORM.WINDOWS]: 'Recommended for Windows 7/8/8.1',
-    [PLATFORM.MACOS]: 'Recommended for macOS 10.12–10.14',
-    [PLATFORM.LINUX]: 'Recommended for older operating systems'
-};
-
-// The availability matrix, serialized into the page by
-// all_form.get_unsupported_platforms_json().
-const UNSUPPORTED_PLATFORMS_BY_RELEASE = readUnsupportedPlatforms();
-
-function readUnsupportedPlatforms() {
-    const island = document.getElementById('unsupportedPlatformsByRelease');
-    if (!island)
-        throw new Error('Missing #unsupportedPlatformsByRelease data island');
-    return JSON.parse(island.textContent);
+// Coarser again, and only for the two link tables: there is one set of desktop
+// release-notes and system-requirements pages, not one per desktop OS. Mirrors
+// all_form.get_link_family().
+function linkFamily(os) {
+    return MOBILE_OS.has(os) ? os : 'desktop';
 }
 
 function isMobileOS(os) {
-    return os === OS.IOS || os === OS.ANDROID;
+    return MOBILE_OS.has(os);
 }
 
 function platformFamily(os) {
@@ -161,12 +111,12 @@ function isMobileFamily(family) {
  */
 function releaseSupportsPlatform(release, platform) {
     if (!platform) return true;
-    if (!Object.values(RELEASES).includes(release))
+    if (!RELEASE_VALUES.has(release))
         throw new RangeError(`Unknown release: ${release}`);
-    if (!Object.values(OS).includes(platform))
+    if (!OS_VALUES.has(platform))
         throw new RangeError(`Unknown platform: ${platform}`);
 
-    return !UNSUPPORTED_PLATFORMS_BY_RELEASE[release].includes(platform);
+    return !DATA.unsupportedPlatformsByRelease[release].includes(platform);
 }
 
 // ---------------------------------------------------------------------------
@@ -177,38 +127,17 @@ function releaseSupportsPlatform(release, platform) {
 // on every input event.
 // ---------------------------------------------------------------------------
 
-const BOUNCER_URL = 'https://download.mozilla.org/';
-
-const RELEASE_TO_BOUNCER_CHANNEL = {
-    [RELEASES.STABLE]: '',
-    [RELEASES.BETA]: 'beta',
-    [RELEASES.NIGHTLY]: 'nightly',
-    [RELEASES.DEV]: 'devedition',
-    [RELEASES.ESR]: 'esr',
-    [RELEASES.ESR_NEXT]: 'esr-next',
-    [RELEASES.ESR_115]: 'esr115'
-};
-
-// The path segment the release notes and system requirements pages live under.
-const RELEASE_TO_PAGE_SEGMENT = {
-    [RELEASES.STABLE]: '',
-    [RELEASES.ESR]: 'organizations',
-    [RELEASES.BETA]: 'beta',
-    [RELEASES.DEV]: 'developer',
-    [RELEASES.NIGHTLY]: 'nightly'
-};
-
 function bouncerOS(os) {
     return os.endsWith('-msi') || os.endsWith('-pkg') ? os.slice(0, -4) : os;
 }
 
 function bouncerProduct(os, release, language) {
-    const name = ['firefox', RELEASE_TO_BOUNCER_CHANNEL[release]];
+    const name = ['firefox', DATA.bouncerChannels[release]];
     if (os.endsWith('-pkg')) name.push('pkg');
     if (os.endsWith('-msi')) name.push('msi');
     name.push('latest');
     // Nightly uses a different product name for localized builds.
-    if (release === RELEASES.NIGHTLY && language !== 'en-US') name.push('l10n');
+    if (release === 'nightly' && language !== 'en-US') name.push('l10n');
     name.push('ssl');
     return name.filter(Boolean).join('-');
 }
@@ -221,32 +150,37 @@ function bouncerLang(os, language) {
 /**
  * A download.mozilla.org URL, or '' for mobile (installed from a store) and for
  * an unchosen platform.
+ *
+ * The only URL built rather than looked up, because it is the only one the
+ * chosen language reaches.
  */
 function downloadURL(os, release, language) {
     if (!os || isMobileOS(os)) return '';
 
-    const url = new URL(BOUNCER_URL);
+    const url = new URL(DATA.bouncerUrl);
     url.searchParams.set('os', bouncerOS(os));
     url.searchParams.set('product', bouncerProduct(os, release, language));
     url.searchParams.set('lang', bouncerLang(os, language));
     return url.href;
 }
 
+/**
+ * Look a URL out of one of the {family: {release: url}} tables.
+ *
+ * A missing entry is a release the platform has no page for, which only happens
+ * for pairs the conflict view covers, so '' is the right answer rather than a
+ * throw — the link is not on screen to be clicked.
+ */
+function familyURL(table, os, release) {
+    return table[linkFamily(os)]?.[release] ?? '';
+}
+
 function releaseNotesURL(os, release) {
-    const path = ['firefox', RELEASE_TO_PAGE_SEGMENT[release], 'notes'];
-    if (isMobileOS(os)) path.splice(1, 0, os);
-    return new URL(`/${path.filter(Boolean).join('/')}/`, window.location).href;
+    return familyURL(DATA.supportLinks.releaseNotes.urls, os, release);
 }
 
 function systemRequirementsURL(os, release) {
-    if (isMobileOS(os)) return MOBILE_SYSTEM_REQUIREMENTS;
-
-    const path = [
-        'firefox',
-        RELEASE_TO_PAGE_SEGMENT[release],
-        'system-requirements'
-    ];
-    return new URL(`/${path.filter(Boolean).join('/')}/`, window.location).href;
+    return familyURL(DATA.supportLinks.systemRequirements.urls, os, release);
 }
 
 /**
@@ -255,35 +189,20 @@ function systemRequirementsURL(os, release) {
  * One pure function describing the whole button, rather than three imperative
  * writes into three signals. The element wraps each field in its own computed so
  * an OS change that leaves the label alone only rewrites the href.
+ *
+ * The label and icon are looked up by platform family — they never depend on the
+ * exact build. The href does: a store URL for mobile, the bouncer URL otherwise.
  */
 function resolvePrimaryAction(os, release, href) {
-    switch (os) {
-        case OS.IOS:
-            return {
-                label:
-                    release === RELEASES.BETA
-                        ? 'Sign up for TestFlight'
-                        : 'Download from the App Store',
-                icon: release === RELEASES.BETA ? 'forward' : 'downloads',
-                href: IOS_APP_STORE_LINKS[release] ?? ''
-            };
-        case OS.ANDROID:
-            return {
-                label: 'Download from the Play Store',
-                icon: 'downloads',
-                href: ANDROID_PLAY_STORE_LINKS[release] ?? ''
-            };
-        default:
-            return {
-                // TODO: the ESR version is hardcoded. all_form.get_esr_version()
-                // already computes it; serialize it into the page alongside the
-                // availability matrix.
-                label:
-                    release === RELEASES.ESR ? 'Download ESR 140' : 'Download',
-                icon: 'downloads',
-                href
-            };
-    }
+    const family = isMobileOS(os) ? os : 'desktop';
+    const action = DATA.options.primary[family]?.[release];
+    if (!action) return { label: '', icon: 'downloads', href: '' };
+
+    return {
+        label: action.label,
+        icon: action.icon,
+        href: isMobileOS(os) ? (DATA.storeUrls[os][release] ?? '') : href
+    };
 }
 
 // ---------------------------------------------------------------------------
@@ -335,12 +254,16 @@ const VIEW = {
     CONFLICT: 'conflict' // incompatible — explain why there are none
 };
 
+// Mirrors the OPTION_* constants in all_form.py. These keys are the contract
+// with the server-rendered markup: each option element carries its key in
+// `data-download-option`, and that is how this file finds the one to adopt.
 const DOWNLOAD_OPTION = {
     FALLBACK: 'fallback',
     APT: 'apt',
     ESR_NEXT: 'esr-next',
     PRIMARY: 'primary',
     ESR_115: 'esr-115',
+    APK: 'apk',
     MICROSOFT_STORE: 'microsoft-store'
 };
 
@@ -354,7 +277,14 @@ const DOWNLOAD_OPTION_GROUPS = {
     [DOWNLOAD_OPTION.ESR_NEXT]: GROUP.DOWNLOAD,
     [DOWNLOAD_OPTION.PRIMARY]: GROUP.DOWNLOAD,
     [DOWNLOAD_OPTION.ESR_115]: GROUP.DOWNLOAD,
+    [DOWNLOAD_OPTION.APK]: GROUP.DOWNLOAD,
     [DOWNLOAD_OPTION.MICROSOFT_STORE]: GROUP.DOWNLOAD
+};
+
+const SUPPORT_LINK = {
+    RELEASE_NOTES: 'release-notes',
+    SYSTEM_REQUIREMENTS: 'system-requirements',
+    PRIVACY: 'privacy'
 };
 
 // ---------------------------------------------------------------------------
@@ -551,9 +481,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     #hasApt = computed(() => this.#platformFamily.value === PLATFORM.LINUX);
 
+    // Gated on the server saying a second ESR exists, the same as
+    // get_esr_next_download_url() is. Between ESR cycles there is no next
+    // version and no option, on either side.
     #hasESRNext = computed(
         () =>
             this.#isESR.value &&
+            DATA.options.esrNext.available &&
             releaseSupportsPlatform(RELEASES.ESR_NEXT, this.#os.value)
     );
 
@@ -568,11 +502,20 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     // Keyed on the exact OS rather than the family: the MSI builds are Windows
     // but have no Store listing, and that distinction is the whole point here.
+    // Which releases have a listing is not a second list to keep in step —
+    // `hrefs` already says, by having an entry or a null.
     #hasMicrosoftStore = computed(
         () =>
             MICROSOFT_STORE_OS.has(this.#os.value) &&
-            (this.#release.value === RELEASES.STABLE ||
-                this.#release.value === RELEASES.BETA)
+            Boolean(DATA.options.microsoftStore.hrefs[this.#release.value])
+    );
+
+    // Nightly APK URLs contain a build timestamp product details does not carry,
+    // so the server serializes `null` for them and there is no option to show.
+    #hasApk = computed(
+        () =>
+            this.#os.value === PLATFORM.ANDROID &&
+            Boolean(DATA.options.apk.hrefs[this.#release.value])
     );
 
     /**
@@ -590,11 +533,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
             case VIEW.CONFLICT:
                 return '';
             default:
+                // Same order as all_form.get_download_option_list(), so the
+                // server-rendered list and this one agree.
                 return [
                     this.#hasApt.value && DOWNLOAD_OPTION.APT,
                     this.#hasESRNext.value && DOWNLOAD_OPTION.ESR_NEXT,
                     DOWNLOAD_OPTION.PRIMARY,
                     this.#hasESR115.value && DOWNLOAD_OPTION.ESR_115,
+                    this.#hasApk.value && DOWNLOAD_OPTION.APK,
                     this.#hasMicrosoftStore.value &&
                         DOWNLOAD_OPTION.MICROSOFT_STORE
                 ]
@@ -779,12 +725,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
             '.c-incompatible-choices'
         );
 
-        this.#languageMessage = Object.assign(document.createElement('div'), {
-            className: 'language-message',
-            hidden: true,
-            textContent: 'Language can be configured after installation.'
-        });
-        language.closest('.fl-field-wrap').append(this.#languageMessage);
+        // Server-rendered, and already showing if the page loaded on a store app.
+        this.#languageMessage = language
+            .closest('.fl-field-wrap')
+            .querySelector('.c-language-message');
     }
 
     /**
@@ -815,25 +759,36 @@ class FirefoxDownloadFormElement extends HTMLElement {
         }
     }
 
+    /**
+     * Build every option element once. They are reconciled from here on, never
+     * rebuilt, and stay detached until #structure asks for them.
+     *
+     * Every label, icon, and class comes from DATA.options — the same table
+     * all_form.get_download_option_list() renders the result page from, so the
+     * list this builds and the list that page shows are the same list.
+     */
     #createDownloadOptions() {
-        // The server-rendered submit button. It is the right prompt before
-        // anything is chosen and the only working affordance without JS, so it
-        // is kept and treated as one more entry in the list rather than
-        // destroyed on upgrade.
-        const fallback = this.#downloadOptionsPane
-            .querySelector('[data-primary-action]')
-            .closest('.c-download-option');
+        const { apt, esrNext, esr115, apk, microsoftStore } = DATA.options;
 
-        this.#downloadOptions.set(DOWNLOAD_OPTION.FALLBACK, fallback);
+        // The server-rendered submit button, which is the whole results pane
+        // until we get here: it is the right prompt before anything is chosen and
+        // the only working affordance without JS. Kept and treated as one more
+        // entry in the list rather than destroyed on upgrade.
+        this.#downloadOptions.set(
+            DOWNLOAD_OPTION.FALLBACK,
+            this.#downloadOptionsPane.querySelector(
+                `[data-download-option="${DOWNLOAD_OPTION.FALLBACK}"]`
+            )
+        );
 
         this.#downloadOptions.set(
             DOWNLOAD_OPTION.APT,
             this.#createDownloadButton({
                 name: DOWNLOAD_OPTION.APT,
-                label: 'Set up the APT repository',
-                href: APT_URL,
-                icon: 'external-link',
-                additionalClasses: ['button-secondary']
+                label: apt.label,
+                href: apt.href,
+                icon: apt.icon,
+                additionalClasses: apt.classes
             })
         );
 
@@ -841,10 +796,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
             DOWNLOAD_OPTION.ESR_NEXT,
             this.#createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_NEXT,
-                // TODO: hardcoded, same as the ESR label above.
-                label: 'Download ESR 153',
-                icon: 'downloads',
-                additionalClasses: ['button-primary'],
+                label: esrNext.label,
+                icon: esrNext.icon,
+                additionalClasses: esrNext.classes,
                 href: () =>
                     downloadURL(
                         this.#os.value,
@@ -871,9 +825,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
             DOWNLOAD_OPTION.ESR_115,
             this.#createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_115,
-                label: 'Download ESR 115',
-                icon: 'downloads',
-                additionalClasses: ['button-primary', 'fl-button-small'],
+                label: esr115.label,
+                icon: esr115.icon,
+                additionalClasses: esr115.classes,
                 href: () =>
                     downloadURL(
                         this.#os.value,
@@ -881,7 +835,18 @@ class FirefoxDownloadFormElement extends HTMLElement {
                         this.#language.value
                     ),
                 recommendation: () =>
-                    ESR_115_RECOMMENDATIONS[this.#platformFamily.value] ?? ''
+                    esr115.recommendations[this.#platformFamily.value] ?? ''
+            })
+        );
+
+        this.#downloadOptions.set(
+            DOWNLOAD_OPTION.APK,
+            this.#createDownloadButton({
+                name: DOWNLOAD_OPTION.APK,
+                label: apk.label,
+                icon: apk.icon,
+                additionalClasses: apk.classes,
+                href: () => apk.hrefs[this.#release.value] ?? ''
             })
         );
 
@@ -889,32 +854,39 @@ class FirefoxDownloadFormElement extends HTMLElement {
             DOWNLOAD_OPTION.MICROSOFT_STORE,
             this.#createDownloadButton({
                 name: DOWNLOAD_OPTION.MICROSOFT_STORE,
-                label: 'Download from the Microsoft Store',
-                icon: 'external-link',
-                additionalClasses: ['button-secondary', 'fl-button-small'],
-                href: () => MICROSOFT_STORE_LINKS[this.#release.value] ?? ''
+                label: microsoftStore.label,
+                icon: microsoftStore.icon,
+                additionalClasses: microsoftStore.classes,
+                href: () => microsoftStore.hrefs[this.#release.value] ?? ''
             })
         );
     }
 
+    /**
+     * The support links row. Built here rather than server-rendered for the same
+     * reason as the options: it describes one selection, and the form page is
+     * where the selection changes.
+     */
     #createSupportLinks() {
+        const { releaseNotes, systemRequirements, privacy } = DATA.supportLinks;
+
         this.#supportLinksPane = document.createElement('div');
         this.#supportLinksPane.classList.add('c-support-links');
         this.#supportLinksPane.append(
             this.#createSupportLink({
-                name: 'link:release-notes',
-                label: 'Release Notes',
+                key: SUPPORT_LINK.RELEASE_NOTES,
+                label: releaseNotes.label,
                 href: () => this.#releaseNotesHref.value
             }),
             this.#createSupportLink({
-                name: 'link:system-requirements',
-                label: 'System Requirements',
+                key: SUPPORT_LINK.SYSTEM_REQUIREMENTS,
+                label: systemRequirements.label,
                 href: () => this.#systemRequirementsHref.value
             }),
             this.#createSupportLink({
-                name: 'link:privacy',
-                label: 'Privacy Policy',
-                href: PRIVACY_URL
+                key: SUPPORT_LINK.PRIVACY,
+                label: privacy.label,
+                href: privacy.url
             })
         );
         this.#resultsPane.append(this.#supportLinksPane);
@@ -924,7 +896,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     #registerEffects() {
         // Reflect the state machine onto the host, so it is inspectable in
-        // devtools and available to CSS. `data-release` drives the logo swap.
+        // devtools and available to CSS. Nothing visual depends on these — the
+        // logo follows the release select itself.
         this.#effect(() => {
             this.dataset.view = this.#view.value;
         }, 'attr:view');
@@ -992,7 +965,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // #report and #handleInvalid.
         this.#effect(() => {
             this.#form.elements.release.setCustomValidity(
-                this.#isCompatible.value ? '' : RELEASE_UNAVAILABLE_MESSAGE
+                this.#isCompatible.value ? '' : MESSAGES.releaseUnavailable
             );
         }, 'sync:validity');
 
@@ -1096,7 +1069,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         if (!this.#dividers.has(key)) {
             const divider = document.createElement('div');
             divider.classList.add('c-or-divider');
-            divider.textContent = 'or';
+            divider.textContent = MESSAGES.divider;
             this.#dividers.set(key, divider);
         }
         return this.#dividers.get(key);
@@ -1256,6 +1229,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
             : signal(source ?? '');
     }
 
+    /**
+     * A download option.
+     *
+     * The structure matches firefox/all-form/_download-options.html, which the
+     * result page renders the same list from, so one set of styles covers both.
+     */
     #createDownloadButton({
         name,
         label,
@@ -1266,11 +1245,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
     } = {}) {
         const element = document.createElement('div');
         element.classList.add('c-download-option');
+        element.dataset.downloadOption = name;
 
         const link = document.createElement('a');
         link.classList.add('fl-button');
         if (additionalClasses) link.classList.add(...additionalClasses);
 
+        // The label lives in its own text node so writing it cannot disturb the
+        // icon beside it.
         const text = document.createTextNode('');
         link.append(text);
 
@@ -1311,18 +1293,18 @@ class FirefoxDownloadFormElement extends HTMLElement {
         return element;
     }
 
-    #createSupportLink({ name, label, href } = {}) {
+    #createSupportLink({ key, label, href } = {}) {
         const element = document.createElement('a');
 
         const labelSource = this.#bind(label);
         this.#effect(() => {
             element.textContent = labelSource.value;
-        }, `${name}:label`);
+        }, `link:${key}:label`);
 
         const hrefSource = this.#bind(href);
         this.#effect(() => {
             element.href = hrefSource.value;
-        }, `${name}:href`);
+        }, `link:${key}:href`);
 
         return element;
     }

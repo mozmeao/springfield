@@ -71,17 +71,13 @@ class TestVocabulary:
         grouped = [os_value for _, os_values in all_form.OS_GROUPS for os_value in os_values]
         assert sorted(grouped) == sorted(all_form.OS_LABELS)
 
-    def test_json_round_trips(self):
-        import json
+    def test_matrix_round_trips(self):
+        assert all_form.get_unsupported_platforms() == JS_UNSUPPORTED_PLATFORMS_BY_RELEASE
 
-        assert json.loads(all_form.get_unsupported_platforms_json()) == JS_UNSUPPORTED_PLATFORMS_BY_RELEASE
-
-    def test_json_carries_unselectable_releases(self):
+    def test_matrix_carries_unselectable_releases(self):
         # The JS indexes this map by release without guarding, so every key has to
         # be there even for releases the form does not offer.
-        import json
-
-        assert set(json.loads(all_form.get_unsupported_platforms_json())) == set(JS_RELEASE_VALUES)
+        assert set(all_form.get_unsupported_platforms()) == set(JS_RELEASE_VALUES)
 
     def test_os_labels_come_from_product_details(self):
         # Every desktop option product details knows about takes its label from
@@ -92,6 +88,124 @@ class TestVocabulary:
     def test_only_store_apps_and_the_pkg_are_labelled_locally(self):
         assert set(all_form._EXTRA_OS_LABELS) == {"ios", "android", "osx-pkg"}
         assert not set(all_form._EXTRA_OS_LABELS) & set(firefox_desktop.platform_labels)
+
+
+# ---------------------------------------------------------------------------
+# Client data
+#
+# The payload all-form.js reads instead of hardcoding anything. The literals here
+# are the keys the JS indexes; a rename on either side has to show up as a
+# failure, because a missing key there is a silent `undefined`.
+# ---------------------------------------------------------------------------
+
+JS_OPTION_KEYS = ("fallback", "apt", "esr-next", "primary", "esr-115", "apk", "microsoft-store")
+
+JS_SUPPORT_LINK_KEYS = ("release-notes", "system-requirements", "privacy")
+
+JS_MESSAGE_KEYS = ("releaseUnavailable", "divider", "languageIgnored", "conflict", "fallback")
+
+
+class TestClientData:
+    def test_top_level_shape(self):
+        data = all_form.get_client_data()
+        assert set(data) == {
+            "osValues",
+            "unsupportedPlatformsByRelease",
+            "mobileOS",
+            "microsoftStoreOS",
+            "esr115UnavailableLocales",
+            "bouncerUrl",
+            "bouncerChannels",
+            "options",
+            "storeUrls",
+            "supportLinks",
+            "messages",
+        }
+
+    def test_json_round_trips(self):
+        import json
+
+        assert json.loads(all_form.get_client_data_json()) == all_form.get_client_data()
+
+    def test_os_values_match_the_js(self):
+        assert tuple(all_form.get_client_data()["osValues"]) == JS_OS_VALUES
+
+    def test_option_keys_match_the_js(self):
+        keys = (
+            all_form.OPTION_FALLBACK,
+            all_form.OPTION_APT,
+            all_form.OPTION_ESR_NEXT,
+            all_form.OPTION_PRIMARY,
+            all_form.OPTION_ESR_115,
+            all_form.OPTION_APK,
+            all_form.OPTION_MICROSOFT_STORE,
+        )
+        assert keys == JS_OPTION_KEYS
+
+    def test_message_keys_match_the_js(self):
+        assert set(all_form.get_client_data()["messages"]) == set(JS_MESSAGE_KEYS)
+
+    def test_support_link_keys_match_the_js(self):
+        assert tuple(link["key"] for link in all_form.get_support_links("win64", "stable")) == JS_SUPPORT_LINK_KEYS
+
+    def test_primary_actions_cover_every_family_and_release(self):
+        # The JS indexes this table directly, so a gap is a TypeError rather than
+        # a missing button.
+        primary = all_form.get_client_data()["options"]["primary"]
+        assert set(primary) == {"desktop", "ios", "android"}
+        for actions in primary.values():
+            assert set(actions) == set(all_form.RELEASE_LABELS)
+            for action in actions.values():
+                assert action["label"]
+                assert action["icon"]
+
+    def test_url_tables_cover_every_selectable_release(self):
+        data = all_form.get_client_data()
+        tables = (
+            data["options"]["apk"]["hrefs"],
+            data["options"]["microsoftStore"]["hrefs"],
+            data["storeUrls"]["ios"],
+            data["storeUrls"]["android"],
+            *data["supportLinks"]["releaseNotes"]["urls"].values(),
+            *data["supportLinks"]["systemRequirements"]["urls"].values(),
+        )
+        for table in tables:
+            assert set(table) == set(all_form.RELEASE_LABELS)
+
+    def test_link_families_are_the_ones_the_js_derives(self):
+        data = all_form.get_client_data()
+        assert set(data["supportLinks"]["releaseNotes"]["urls"]) == set(all_form.LINK_FAMILIES)
+        assert all_form.get_link_family("win64") == "desktop"
+        assert all_form.get_link_family("osx-pkg") == "desktop"
+        assert all_form.get_link_family("android") == "android"
+
+    def test_esr_115_recommendations_are_desktop_only(self):
+        recommendations = all_form.get_client_data()["options"]["esr115"]["recommendations"]
+        assert set(recommendations) == {"windows", "macos", "linux"}
+
+    def test_bouncer_pieces_rebuild_a_download_url(self):
+        # The JS builds this one URL itself because the language reaches it, so
+        # the pieces it needs have to be there and have to agree with ours.
+        data = all_form.get_client_data()
+        assert data["bouncerUrl"] == settings.BOUNCER_URL
+        assert set(data["bouncerChannels"]) == set(JS_RELEASE_VALUES)
+        assert all_form.get_download_url("win64", "beta", "de").startswith(data["bouncerUrl"])
+
+    def test_esr_next_availability_matches_the_server(self):
+        # The JS cannot see product details, so the payload has to tell it
+        # whether a second ESR exists. Both sides gate the option on that.
+        data = all_form.get_client_data()
+        available = data["options"]["esrNext"]["available"]
+        assert available is bool(all_form.get_esr_next_version())
+        offered = all_form.get_esr_next_download_url("win64", "esr", "en-US") is not None
+        assert offered is available
+
+    def test_no_copy_is_left_hardcoded_in_the_js(self):
+        # A cheap guard against a string creeping back into the frontend: the
+        # copy the JS renders is exactly what this table carries.
+        messages = all_form.get_client_data()["messages"]
+        assert messages["releaseUnavailable"] == all_form.RELEASE_UNAVAILABLE_ERROR
+        assert all(messages.values())
 
 
 class TestLinux32Drift:
@@ -810,12 +924,68 @@ class TestFormView:
         assert response.context["release_error"] == all_form.RELEASE_UNAVAILABLE_ERROR
 
     @override_switch("ALL_FORM", active=True)
-    def test_matrix_is_available_for_the_js(self, client):
+    def test_client_data_is_embedded_for_the_js(self, client):
         import json
 
         response = client.get(FORM_URL)
-        matrix = json.loads(response.context["unsupported_platforms_json"])
-        assert set(matrix) == set(JS_RELEASE_VALUES)
+        data = json.loads(response.context["client_data_json"])
+        assert set(data["unsupportedPlatformsByRelease"]) == set(JS_RELEASE_VALUES)
+        assert b'id="allFormData"' in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    @pytest.mark.parametrize(
+        "query",
+        [
+            {},
+            {"os": "win64", "release": "stable", "language": "de"},
+            {"os": "linux64"},
+            {"os": "android", "release": "stable"},
+            {"os": "ios", "release": "esr"},
+        ],
+    )
+    def test_the_results_pane_is_always_the_submit_button(self, client, query):
+        # Never a rendered option list, however complete the prefill. The form
+        # page is where the selection can still change, and nothing without JS
+        # could correct a list rendered for the values the page loaded with.
+        response = client.get(FORM_URL, query)
+        assert response.status_code == 200
+        assert b'data-download-option="fallback"' in response.content
+        assert b">See download options<" in response.content
+        for key in ("primary", "apt", "esr-115", "microsoft-store", "apk"):
+            assert f'data-download-option="{key}"'.encode() not in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_no_selection_derived_content_in_the_results_pane(self, client):
+        response = client.get(FORM_URL, {"os": "android", "release": "beta", "language": "de"})
+        content = response.content
+        # No support links row: it names one selection too. (Checking for the
+        # container, not the labels — the site footer has its own links.)
+        assert b'class="c-support-links"' not in content
+        # The conflict verdict is the script's to make.
+        assert b'class="c-incompatible-choices" hidden' in content
+        # And the language note starts hidden even though this is a store app.
+        assert b'class="c-language-message" hidden' in content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_no_selection_state_on_the_host_element(self, client):
+        # The script sets these once it runs. Server-set they would be one more
+        # copy of the selection to go stale.
+        response = client.get(FORM_URL, {"os": "win64", "release": "nightly"})
+        assert b"<firefox-download-form>" in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_a_prefill_still_selects_the_options(self, client):
+        # What a prefill does do: come back with the right values in the selects.
+        response = client.get(FORM_URL, {"os": "win64", "release": "nightly", "language": "de"})
+        assert response.context["selected_os"] == "win64"
+        assert response.context["selected_release"] == "nightly"
+        assert response.context["selected_language"] == "de"
+        assert b'value="win64" selected' in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_a_partial_prefill_falls_back_to_the_rendered_release(self, client):
+        response = client.get(FORM_URL, {"os": "linux64"})
+        assert response.context["selected_release"] == all_form.DEFAULT_RELEASE
 
 
 @pytest.mark.django_db
