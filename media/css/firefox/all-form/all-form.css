@@ -13,6 +13,11 @@
         --c-choices-inline-size: 20rem;
         --c-column-gap: 48px;
         --c-option-gap: 12px;
+
+        /* No platform chosen means nothing is about to replace the submit
+         * button, so nothing to reserve. The rules further down raise this when
+         * the selects say otherwise. */
+        --c-results-reserve: 0;
     }
 
     .c-section > .fl-heading {
@@ -153,6 +158,48 @@
             &:where([data-release="nightly"]) .firefox-nightly-logo {
                 display: block;
             }
+        }
+    }
+
+    /*
+     * Reserve room for the options pane the script is about to render.
+     *
+     * The server always renders the submit button and nothing else, so whenever a
+     * platform is known at load — prefilled from the query string or filled in by
+     * UA detection — that button is about to be replaced by something taller.
+     * Reading it off the OS select covers both cases with no attribute to set,
+     * and leaves the height alone when nothing is chosen.
+     *
+     * Sized for what the common case renders: a logo, one or two options with a
+     * divider between them, and the support links row.
+     */
+    .c-form:has(#os option:not([value='']):checked) {
+        --c-results-reserve: 17rem;
+    }
+
+    /* ESR offers up to three, and ESR 115 carries a line of copy under it. */
+    .c-form:has(#os option:not([value='']):checked):has(
+            #release option[value='esr']:checked
+        ) {
+        --c-results-reserve: 23rem;
+    }
+
+    /* Only until the element upgrades; after that the content sets the height. */
+    firefox-download-form:not(:defined) .c-results {
+        min-block-size: var(--c-results-reserve);
+    }
+
+    /*
+     * Without JS the release select keeps every option, so the hint under it
+     * says which ones the chosen platform actually has. These are the only rules
+     * here that need `.no-js`: everything else the server rendered is already
+     * correct for the selection it rendered.
+     */
+    .no-js .c-form {
+        &:has(option[value='ios']:checked) [data-hint-for='ios'],
+        &:has(option[value='android']:checked) [data-hint-for='android'],
+        &:has(option[value='linux']:checked) [data-hint-for='linux'] {
+            display: revert;
         }
     }
 }
