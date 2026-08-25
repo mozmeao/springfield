@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0133_routingconfig_routingrule_routingcondition"),
+        ("cms", "0141_blogarticlepage_bottom_banner"),
     ]
 
     operations = [
