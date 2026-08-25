@@ -551,9 +551,9 @@ def test_any_paused_config_counts_as_paused(tree):
 
 
 def test_a_page_built_from_a_revision_reports_its_staged_pause(tree):
-    # A Wagtail preview builds the page with get_latest_revision_as_object(), so the staged
-    # config lives on *that* object. Reading the live table instead would report the live
-    # pause state while every other field on the page previews as staged.
+    # Reads through the page object, so a page built from a revision reports the staged value
+    # while the live page reports the published one. Nothing serves routing from a revision
+    # today — Wagtail preview bypasses the routing serve path entirely.
     RoutingConfig.objects.create(page=tree.canonical, routing_paused=False)
     page = tree.canonical
     config = page.routing_config.first()

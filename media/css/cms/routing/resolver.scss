@@ -6,15 +6,50 @@
 
 @use '~@mozilla-protocol/core/protocol/css/includes/lib' as * with ($font-path: '/media/protocol/fonts', $image-path: '/media/protocol/img');
 
+// This page loads none of the site CSS, so without its own colours it inherits whatever canvas
+// the browser paints — black on dark for anyone in dark mode. These mirror the flare tokens;
+// keep them in step with media/css/cms/variables/flare-{light,dark}-theme.css. Mirrored rather
+// than imported because those files take the bundle from ~600 bytes to ~35 KB.
+:root {
+    --routing-resolver-background: #fff; // --token-color-white
+    --routing-resolver-text: #15141a; // --token-color-black-4
+    --routing-resolver-link: #6132bc; // --token-color-link-purple
+    // Named only, never loaded: with no @font-face the brand face is used when the visitor
+    // already has it and falls through to the system stack otherwise, so this costs no request.
+    --routing-resolver-font: 'Mozilla Text VF', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
+
+    // Match form controls and scrollbars to the ground we paint.
+    color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --routing-resolver-background: #210340; // --token-color-dark-purple
+        --routing-resolver-text: #fff; // --token-color-white
+        --routing-resolver-link: #c7a8ff; // --token-color-soft-purple-4
+    }
+}
+
+body {
+    background: var(--routing-resolver-background);
+    margin: 0;
+}
+
 .routing-resolver {
     @include text-body-lg;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: var(--routing-resolver-text);
+    font-family: var(--routing-resolver-font);
     min-block-size: 100vh;
     padding: $spacing-lg;
     text-align: center;
+}
+
+.routing-resolver a {
+    color: var(--routing-resolver-link);
 }
 
 // The escape hatch is in the markup from the start — it has to work with no JS and no
@@ -32,9 +67,12 @@
 // A keyboard user can reach the link on their first Tab, long before the delay is up, and
 // `both` holds it at opacity 0 until then — focus with nothing to see. Anyone who has
 // focused it is by definition not waiting for a redirect, so drop the animation entirely
-// and show it. Pointer users keep the delayed reveal.
-.routing-resolver-escape:focus,
-.routing-resolver-escape:focus-visible {
+// and show it. Pointer users keep the delayed reveal, since they cannot click what they
+// cannot see.
+// `:focus-within`, not `:focus`: this class is on the <p>, while the thing that takes focus
+// is the <a> inside it. A <p> is not focusable, so `:focus` on it never matches and the
+// reveal never fires.
+.routing-resolver-escape:focus-within {
     animation: none;
     opacity: 1;
 }
