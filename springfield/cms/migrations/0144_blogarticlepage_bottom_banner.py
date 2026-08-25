@@ -15,11 +15,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="blogarticlepage",
-            name="bottom_banner",
-            field=springfield.cms.fields.StreamField(
-                blank=True, block_lookup={}, help_text="Optional banner to be displayed at the bottom of the article content."
-            ),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name="blogarticlepage",
+                    name="bottom_banner",
+                    field=springfield.cms.fields.StreamField(
+                        blank=True, block_lookup={}, help_text="Optional banner to be displayed at the bottom of the article content."
+                    ),
+                ),
+            ],
+            database_operations=[
+                migrations.RunSQL(
+                    sql="ALTER TABLE cms_blogarticlepage ADD COLUMN IF NOT EXISTS bottom_banner jsonb DEFAULT '[]'",
+                    reverse_sql="ALTER TABLE cms_blogarticlepage DROP COLUMN IF EXISTS bottom_banner",
+                ),
+            ],
         ),
     ]
