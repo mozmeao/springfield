@@ -13,9 +13,11 @@ from django.test.client import RequestFactory
 import pytest
 from pyquery import PyQuery as pq
 from waffle.testutils import override_switch
+from wagtail.models import Site
 
 from lib import querystringsafe_base64
 from springfield.base.tests import TestCase
+from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
 from springfield.firefox import views
 from springfield.firefox.views import detect_download_platform, download_redirect
 
@@ -622,6 +624,7 @@ class TestWhatsNew(TestCase):
         ctx = render_mock.call_args[0][2]
         assert template == ["firefox/whatsnew/evergreen.html"]
         assert ctx["version"] == "70.0"
+        assert ctx["releasenotes_version"] == "70.0"
         assert ctx["analytics_version"] == "70"
         assert ctx["entrypoint"] == "firefox.com-whatsnew70"
         assert ctx["campaign"] == "whatsnew70"
@@ -661,6 +664,27 @@ class TestWhatsNew(TestCase):
         assert ctx["utm_params"] == (
             "utm_source=firefox.com-whatsnew100nightly&utm_medium=referral&utm_campaign=whatsnew100nightly&entrypoint=firefox.com-whatsnew100nightly"
         )
+
+    @override_settings(DEV=True)
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_releasenotes_version_adds_missing_minor(self, render_mock):
+        """A version that is only a major should gain the minor component release notes URLs require"""
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="153")
+        ctx = render_mock.call_args[0][2]
+        assert ctx["version"] == "153"
+        assert ctx["releasenotes_version"] == "153.0"
+
+    @override_settings(DEV=True)
+    @patch.object(views, "ftl_file_is_active", lambda *x: True)
+    def test_releasenotes_version_keeps_existing_minor(self, render_mock):
+        """Versions that already have a minor component should pass through unchanged"""
+        for version in ("153.0", "153.0beta", "153.0.1"):
+            with self.subTest(version=version):
+                req = self.rf.get("/en-US/whatsnew/")
+                self.view(req, version=version)
+                ctx = render_mock.call_args[0][2]
+                assert ctx["releasenotes_version"] == version
 
     # end context variable tests
 
@@ -789,6 +813,61 @@ class TestWhatsNew(TestCase):
                 assert match is not None, f"Path '{path}' should match pattern {expected_pattern_name} but didn't. Pattern: {regex.pattern}"
 
     # end URL routing tests
+
+
+class TestWhatsNewReleaseNotesLink(TestCase):
+    def test_major_only_version_links_to_versioned_release_notes(self):
+        """The evergreen WNP links to the release notes of the version it was served for"""
+        response = self.client.get("/en-US/whatsnew/153/")
+        doc = pq(response.content)
+        link = doc(".c-utilities a")
+        assert link.attr("href") == "/en-US/firefox/153.0/releasenotes/"
+
+    def test_beta_version_links_to_beta_release_notes(self):
+        """A version with a channel suffix keeps that suffix in the link"""
+        response = self.client.get("/en-US/whatsnew/153.0beta/")
+        doc = pq(response.content)
+        link = doc(".c-utilities a")
+        assert link.attr("href") == "/en-US/firefox/153.0beta/releasenotes/"
+
+
+@patch("springfield.firefox.views.l10n_utils.render", return_value=HttpResponse())
+class TestWhatsNewEvergreenCMSRedirect(TestCase):
+    """The CMS-backed evergreen redirect must not fire for a same-slug routing variant.
+
+    ``WhatsNewPage2026`` permits nested self-targeting variants for the routing
+    framework, so a slug is no longer a reliable stand-in for "is the real evergreen
+    page" — slugs are only unique among siblings, not site-wide.
+    """
+
+    def setUp(self):
+        self.view = views.WhatsnewView.as_view()
+        self.rf = RequestFactory(HTTP_USER_AGENT="Firefox")
+        self.site_root = Site.objects.get(is_default_site=True).root_page
+        self.index = WhatsNewIndexPageFactory(parent=self.site_root, slug="whatsnew")
+
+    def test_redirects_to_a_real_direct_child_of_the_index(self, render_mock):
+        WhatsNewPage2026Factory(parent=self.index, slug="general", version="general", live=True)
+
+        req = self.rf.get("/en-US/whatsnew/")
+        response = self.view(req, version="135.0")
+
+        assert response.status_code == 302
+        assert response["Location"].startswith("/en-US/whatsnew/general/")
+        render_mock.assert_not_called()
+
+    def test_ignores_a_nested_variant_sharing_the_evergreen_slug(self, render_mock):
+        # No direct child of the index is named "general" — only a nested routing
+        # variant under an unrelated canonical page shares that slug.
+        canonical = WhatsNewPage2026Factory(parent=self.index, slug="145", version="145", live=True)
+        WhatsNewPage2026Factory(parent=canonical, slug="general", version="145", live=True)
+
+        req = self.rf.get("/en-US/whatsnew/")
+        self.view(req, version="135.0")
+
+        # No real evergreen page exists, so the view falls through to the ordinary
+        # Django-rendered evergreen template rather than a redirect to a dead URL.
+        render_mock.assert_called_once()
 
 
 class TestDetectChannel(TestCase):
