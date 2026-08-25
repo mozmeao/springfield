@@ -26,7 +26,7 @@ from springfield.cms.routing.params import LOOP_BREAKER_PARAM, RESERVED_ROUTING_
 from springfield.cms.routing.signals import registry
 
 RESOLVER_TEMPLATE = "cms/routing/resolver.html"
-RESOLVER_FTL = "cms-routing-resolver"
+RESOLVER_FTL = "cms/routing-resolver"
 
 
 def url_in_requested_locale(page, request):
