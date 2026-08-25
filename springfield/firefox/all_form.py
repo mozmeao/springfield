@@ -185,6 +185,48 @@ _RELEASE_TO_NOTES_CHANNEL = {
 
 RELEASE_UNAVAILABLE_ERROR = "Chosen release type is not available for this platform."
 
+# ---------------------------------------------------------------------------
+# Copy
+#
+# Every user-visible string the picker renders, on the server or in the browser.
+# The JS reads these out of get_client_data() rather than holding its own copies,
+# so this is the only place any of them are written. They become `ftl()` calls
+# later; keeping them together is what makes that a contained change.
+# ---------------------------------------------------------------------------
+
+MESSAGES = {
+    "releaseUnavailable": RELEASE_UNAVAILABLE_ERROR,
+    # The word between two download options that are alternatives to each other.
+    # Not keyed "or": Jinja cannot reach that as an attribute, it is a keyword.
+    "divider": "or",
+    # Shown under the language select once it has been disabled for a store app.
+    "languageIgnored": "Language can be configured after installation.",
+    # The whole results pane, when the two choices cannot go together.
+    "conflict": "There are no downloads for this combination. Pick a different release type, or a different operating system.",
+    # The submit button, which is the results pane until a platform is known.
+    "fallback": "See download options",
+}
+
+SUPPORT_LINK_LABELS = {
+    "release-notes": "Release Notes",
+    "system-requirements": "System Requirements",
+    "privacy": "Privacy Policy",
+}
+
+# ESR 115 is offered to people whose operating system newer Firefox has dropped,
+# so the reason to pick it differs per platform family.
+ESR_115_RECOMMENDATIONS = {
+    "windows": "Recommended for Windows 7/8/8.1",
+    "macos": "Recommended for macOS 10.12–10.14",
+    "linux": "Recommended for older operating systems",
+}
+
+# ---------------------------------------------------------------------------
+# Download option vocabulary
+#
+# Duplicated in all-form.js, which switches on these keys. Nothing else is.
+# ---------------------------------------------------------------------------
+
 # All four logos are rendered on the form page so the visible one can change
 # without a network fetch mid-interaction. Which one shows is decided entirely in
 # CSS, from which release option is `:checked` — so it follows the select whether
@@ -195,6 +237,40 @@ LOGOS = (
     {"key": "firefox-developer", "file": "img/logos/firefox/firefox-logo-developer.svg", "alt": "Firefox Developer Edition"},
     {"key": "firefox-nightly", "file": "img/logos/firefox/firefox-logo-nightly.svg", "alt": "Firefox Nightly"},
 )
+
+# Which logo a release shows. ESR ships under the standard logo. The form page
+# does not use this — its CSS keys off the select instead — but the result page
+# has no controls, so one logo is rendered and this picks it.
+RELEASE_LOGOS = {
+    "stable": "firefox",
+    "esr": "firefox",
+    "beta": "firefox-beta",
+    "dev": "firefox-developer",
+    "nightly": "firefox-nightly",
+}
+
+OPTION_FALLBACK = "fallback"
+OPTION_APT = "apt"
+OPTION_ESR_NEXT = "esr-next"
+OPTION_PRIMARY = "primary"
+OPTION_ESR_115 = "esr-115"
+OPTION_APK = "apk"
+OPTION_MICROSOFT_STORE = "microsoft-store"
+
+# `or` dividers go between adjacent DOWNLOAD options, which are alternative ways
+# to get the same thing. An ASIDE sits alongside the whole set and never gets one.
+GROUP_DOWNLOAD = "download"
+GROUP_ASIDE = "aside"
+
+_OPTION_GROUPS = {
+    OPTION_FALLBACK: GROUP_ASIDE,
+    OPTION_APT: GROUP_ASIDE,
+    OPTION_ESR_NEXT: GROUP_DOWNLOAD,
+    OPTION_PRIMARY: GROUP_DOWNLOAD,
+    OPTION_ESR_115: GROUP_DOWNLOAD,
+    OPTION_APK: GROUP_DOWNLOAD,
+    OPTION_MICROSOFT_STORE: GROUP_DOWNLOAD,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -453,6 +529,141 @@ def get_platform_family(os_value):
 
 
 # ---------------------------------------------------------------------------
+# Download options
+#
+# One ordered list of options per selection, built here so the labels, icons,
+# ordering and grouping live in one place. The result page renders it; the form
+# page never does, because that is where the selection can still change.
+# ---------------------------------------------------------------------------
+
+
+def _option(key, label, href, icon, classes, recommendation=""):
+    return {
+        "key": key,
+        "group": _OPTION_GROUPS[key],
+        "label": label,
+        "href": href,
+        "icon": icon,
+        # Applied on top of `fl-button`.
+        "classes": classes,
+        # An optional line of copy under the button.
+        "recommendation": recommendation,
+    }
+
+
+def get_primary_action(family, release):
+    """
+    The main download button's label and icon, which never depend on the chosen
+    language — only the href does. Keyed on the platform family rather than the
+    OS so the JS can be handed one small table instead of a 12-row one.
+    """
+    if family == "ios":
+        if release == "beta":
+            # iOS betas go through TestFlight, so this leads to an explainer
+            # rather than straight to a download.
+            return {"label": "Sign up for TestFlight", "icon": "forward"}
+        return {"label": "Download from the App Store", "icon": "downloads"}
+    if family == "android":
+        return {"label": "Download from the Play Store", "icon": "downloads"}
+    version = get_version("win64", release)
+    label = f"Download {RELEASE_LABELS[release]} {version}" if version else f"Download {RELEASE_LABELS[release]}"
+    return {"label": label, "icon": "downloads"}
+
+
+def get_esr_next_label():
+    version = get_esr_next_version()
+    return f"Download {RELEASE_LABELS['esr']} {version}" if version else f"Download {RELEASE_LABELS['esr']} Next"
+
+
+def get_download_option_list(os_value, release, language):
+    """
+    Every download option for a selection, in render order.
+
+    Returns an empty list when the pair has no builds; the caller shows the
+    conflict message instead. Order is fixed here rather than emerging from the
+    order the options happen to be created in.
+    """
+    if not os_value or not is_supported(os_value, release):
+        return []
+
+    options = []
+
+    apt_url = get_apt_url(os_value)
+    if apt_url:
+        options.append(_option(OPTION_APT, "Set up the APT repository", apt_url, "external-link", ["button-secondary"]))
+
+    esr_next_url = get_esr_next_download_url(os_value, release, language)
+    if esr_next_url:
+        options.append(_option(OPTION_ESR_NEXT, get_esr_next_label(), esr_next_url, "downloads", ["button-primary"]))
+
+    family = get_platform_family(os_value)
+    primary = get_primary_action(family, release)
+    primary_href = get_store_url(os_value, release) if os_value in MOBILE_OS else get_download_url(os_value, release, language)
+    options.append(_option(OPTION_PRIMARY, primary["label"], primary_href, primary["icon"], ["button-primary"]))
+
+    esr_115_url = get_esr_115_download_url(os_value, release, language)
+    if esr_115_url:
+        options.append(
+            _option(
+                OPTION_ESR_115,
+                f"Download {RELEASE_LABELS['esr']} 115",
+                esr_115_url,
+                "downloads",
+                ["button-primary", "fl-button-small"],
+                recommendation=ESR_115_RECOMMENDATIONS.get(family, ""),
+            )
+        )
+
+    apk_url = get_apk_url(os_value, release)
+    if apk_url:
+        options.append(_option(OPTION_APK, "Download the APK directly", apk_url, "downloads", ["button-secondary", "fl-button-small"]))
+
+    if get_store_kind(os_value, release) == "microsoft-store":
+        options.append(
+            _option(
+                OPTION_MICROSOFT_STORE,
+                "Download from the Microsoft Store",
+                get_store_url(os_value, release),
+                "external-link",
+                ["button-secondary", "fl-button-small"],
+            )
+        )
+
+    return options
+
+
+def get_logo(release):
+    """The one logo the result page shows."""
+    key = RELEASE_LOGOS[release]
+    return next(logo for logo in LOGOS if logo["key"] == key)
+
+
+def get_support_links(os_value, release):
+    """
+    The row of links under the download options, for the result page.
+
+    The form page does not render these: like the options themselves they only
+    describe one selection, and there is nothing to correct them if a visitor
+    with no JS then changes a select. The JS builds its own from the label and URL
+    tables in get_client_data().
+    """
+    return [
+        {"key": "release-notes", "label": SUPPORT_LINK_LABELS["release-notes"], "href": get_release_notes_url(os_value, release)},
+        {
+            "key": "system-requirements",
+            "label": SUPPORT_LINK_LABELS["system-requirements"],
+            "href": get_system_requirements_url(os_value, release),
+        },
+        {"key": "privacy", "label": SUPPORT_LINK_LABELS["privacy"], "href": PRIVACY_URL},
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Client data
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
 # Selection
 # ---------------------------------------------------------------------------
 
@@ -534,8 +745,23 @@ def form_url(data=None):
 
 
 def get_form_context(selection):
-    """Context for the form page."""
+    """
+    Context for the form page.
+
+    Note what is deliberately *not* here: no download options, no support links,
+    no conflict verdict. All three describe one particular selection, and the form
+    page is the one place the selection can still change — so without JS to keep
+    them current they would sit there describing choices the visitor has since
+    moved away from, with nothing able to correct them. The submit button is the
+    only honest answer at that point, and the result page is where a selection
+    gets turned into downloads.
+
+    A prefill is still a prefill: the selects come back with the right values
+    (`selected_*`), and a pair with no builds still gets its inline error, which
+    is about the submission rather than about the current state of the controls.
+    """
     release_error = RELEASE_UNAVAILABLE_ERROR if selection.has_conflict else None
+
     return {
         "os_groups": get_os_groups(),
         "release_choices": get_release_choices(),
@@ -546,43 +772,31 @@ def get_form_context(selection):
         "release_error": release_error,
         "has_errors": bool(release_error),
         "result_url": reverse("firefox.all_form.result"),
-        "logos": LOGOS,
         "unsupported_platforms_json": get_unsupported_platforms_json(),
+        "logos": LOGOS,
     }
 
 
 def get_download_options(selection):
-    """Context for the result page: every download option for a valid selection."""
+    """
+    Context for the result page: every download option for a valid selection.
+
+    This page has no controls, so a selection-derived list is exactly right here —
+    it describes the submission that produced the URL, and it cannot go stale
+    without a new request.
+    """
     os_value = selection.os
     release = selection.release
     language = selection.effective_language
 
-    download_url = get_download_url(os_value, release, language)
-    store_url = get_store_url(os_value, release)
-    is_mobile = os_value in MOBILE_OS
-
     return {
-        "os": os_value,
-        "release": release,
-        "language": language,
-        "is_mobile": is_mobile,
-        "platform_family": get_platform_family(os_value),
+        "is_mobile": os_value in MOBILE_OS,
         "os_label": OS_LABELS[os_value],
         "release_label": RELEASE_LABELS[release],
         "language_label": get_language_label(language) if language else "",
-        "version": get_version(os_value, release),
-        "primary_action": "store" if is_mobile else "download",
-        "primary_url": store_url if is_mobile else download_url,
-        "download_url": download_url,
-        "store_url": store_url,
-        "store_kind": get_store_kind(os_value, release),
-        "apk_url": get_apk_url(os_value, release),
-        "apt_url": get_apt_url(os_value),
-        "esr_115_url": get_esr_115_download_url(os_value, release, language),
-        "esr_next_url": get_esr_next_download_url(os_value, release, language),
-        "esr_next_version": get_esr_next_version() if release == "esr" else None,
-        "release_notes_url": get_release_notes_url(os_value, release),
-        "system_requirements_url": get_system_requirements_url(os_value, release),
-        "privacy_url": PRIVACY_URL,
+        "download_options": get_download_option_list(os_value, release, language),
+        "support_links": get_support_links(os_value, release),
+        "copy": MESSAGES,
+        "logo": get_logo(release),
         "form_url": form_url({"os": os_value, "release": release, "language": selection.language}),
     }
