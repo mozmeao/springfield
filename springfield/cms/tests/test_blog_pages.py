@@ -4,6 +4,7 @@
 
 import itertools
 from datetime import UTC, date, datetime
+from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
@@ -180,6 +181,43 @@ def articles_for_exclusion(blog_index, blog_topic, blog_tag, make_article):
     with_excluded_tag.save()
     clear = make_article(title="Not excluded", topic=other_topic)
     return in_excluded_topic, with_excluded_tag, clear
+
+
+@pytest.fixture
+def translated_blog(blog_index, blog_tag, make_article):
+    """A French index page translated from an English one that features its tagged
+    article and carries a latest-articles section.
+
+    Translating copies both StreamFields and the tags, so the French index still
+    features the English article page, and the French article still points at the
+    English tag row.
+    """
+    tagged = make_article(title="Tagged article")
+    tagged.tags.add(blog_tag)
+    tagged.save()
+    untagged = make_article(title="Untagged article")
+    blog_index.featured_articles = [blog_article_block(tagged, "feat0000-0000-0000-0000-000000000001")]
+    blog_index.article_sections = [latest_section("00001")]
+    blog_index.save()
+
+    french = Locale.objects.get_or_create(language_code="fr")[0]
+    blog_index.copy_for_translation(french)
+    french_tag = blog_tag.copy_for_translation(french)
+    french_tag.name = "VPN (fr)"
+    french_tag.save()
+
+    def published_translation(article):
+        """Translating a page leaves it as a draft, and only live articles list."""
+        translation = article.copy_for_translation(french)
+        translation.save_revision().publish()
+        return translation
+
+    return SimpleNamespace(
+        index=blog_index.get_translation(french),
+        tag=french_tag,
+        tagged=published_translation(tagged),
+        untagged=published_translation(untagged),
+    )
 
 
 @pytest.fixture
@@ -466,6 +504,15 @@ def test_all_context_topic_and_tag_filters_combine(blog_index, blog_topic, blog_
     assert list(context["list_articles"]) == [both]
 
 
+def test_all_context_tag_filter_works_on_a_translated_page(translated_blog, rf):
+    """An article's tags stay pointed at its source locale's tag rows, so ?tag= has to
+    match on translation_key to find anything on a translated index page."""
+    context = translated_blog.index.get_all_context(rf.get("/", {"tag": translated_blog.tag.slug}))
+
+    assert context["tag"] == translated_blog.tag
+    assert list(context["list_articles"]) == [translated_blog.tagged]
+
+
 def test_topic_context_tag_filter_narrows_within_the_topic(blog_index, blog_topic, blog_tag, tagged_articles, rf):
     tagged, _ = tagged_articles
 
@@ -556,6 +603,14 @@ def test_each_section_skips_articles_shown_above_it(page_with_every_section):
     assert by_topic.value.get_articles() == articles[4:6]
     assert by_tag.value.get_articles() == articles[6:8]
     assert latest.value.get_articles() == articles[8:]
+
+
+def test_a_featured_article_is_not_repeated_by_a_section_on_a_translated_page(translated_blog):
+    """featured_articles stores the source-locale page while sections draw from this
+    page's own children, so the two only match by translation_key."""
+    sections = translated_blog.index.resolve_article_sections()
+
+    assert sections[0].value.get_articles() == [translated_blog.untagged]
 
 
 def test_no_article_is_shown_twice_across_the_page(page_with_every_section):

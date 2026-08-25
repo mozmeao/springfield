@@ -1849,9 +1849,12 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def resolve_article_sections(self):
         """Fill each article section, in order, based on its source and count,
         excluding articles already used in earlier sections.
-        """
 
-        seen_pks = {block.value["article"].pk for block in (self.featured_articles or []) if block.value.get("article")}
+        Articles are tracked by translation_key, because a featured article block
+        stores the page of its source locale while the sections draw from this
+        page's own children."""
+
+        seen_translation_keys = {block.value["article"].translation_key for block in (self.featured_articles or []) if block.value.get("article")}
         sections = list(self.article_sections or [])
         pks_by_section = []
 
@@ -1860,10 +1863,10 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             block_queryset = block.block.filter_articles(
                 self.exclude_from_feed(self.live_articles(), exempt_topic_keys, exempt_tag_keys),
                 block.value,
-            ).exclude(pk__in=seen_pks)
-            section_pks = list(block_queryset.values_list("pk", flat=True)[: block.value["count"]])
-            seen_pks.update(section_pks)
-            pks_by_section.append(section_pks)
+            ).exclude(translation_key__in=seen_translation_keys)
+            section_articles = list(block_queryset.values_list("pk", "translation_key")[: block.value["count"]])
+            seen_translation_keys.update(translation_key for __, translation_key in section_articles)
+            pks_by_section.append([pk for pk, __ in section_articles])
 
         wanted_pks = [pk for section_pks in pks_by_section for pk in section_pks]
         articles_by_pk = {}
@@ -1944,6 +1947,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return queryset
 
     def get_tag_filter(self, request):
+        """The ?tag= snippet in this page's locale, or None if the parameter is absent
+        or names no live tag."""
         # Inline import: snippets and pages import from each other at module scope.
         from springfield.cms.models.snippets import BlogTag
 
@@ -1970,7 +1975,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         tag = self.get_tag_filter(request)
         if tag:
-            articles = articles.filter(tags=tag)
+            articles = articles.filter(tags__translation_key=tag.translation_key)
 
         articles = self.exclude_from_feed(
             articles,
@@ -2006,7 +2011,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
         tag = self.get_tag_filter(request)
         if tag:
-            articles = articles.filter(tags=tag)
+            articles = articles.filter(tags__translation_key=tag.translation_key)
 
         # This page's own topic is always exempt: applying its exclusion would leave
         # the page rendering nothing.
