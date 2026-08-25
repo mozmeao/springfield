@@ -34,22 +34,37 @@ FIELD_NAMES = ("os", "release", "language")
 # selects when no release was submitted.
 DEFAULT_RELEASE = "stable"
 
-# Keys are bouncer platform slugs, except `ios`/`android` (store apps) and
-# `osx-pkg` (not in firefox_desktop.platform_labels). Order is display order.
-OS_LABELS = {
+# Every OS option, in display order. Keys are bouncer platform slugs, except
+# `ios`/`android` (store apps).
+OS_VALUES = (
+    "ios",
+    "osx",
+    "osx-pkg",
+    "android",
+    "win",
+    "win-msi",
+    "win64",
+    "win64-msi",
+    "win64-aarch64",
+    "linux",
+    "linux64",
+    "linux64-aarch64",
+)
+
+# The three options firefox_desktop.platform_labels has no entry for: the two
+# store apps, and the macOS PKG build, which bouncer serves but product details
+# does not list.
+_EXTRA_OS_LABELS = {
     "ios": "iOS",
-    "osx": "macOS",
-    "osx-pkg": "macOS - PKG",
     "android": "Android",
-    "win": "Windows 32-bit",
-    "win-msi": "Windows 32-bit MSI",
-    "win64": "Windows 64-bit",
-    "win64-msi": "Windows 64-bit MSI",
-    "win64-aarch64": "Windows ARM64/AArch64",
-    "linux": "Linux 32-bit",
-    "linux64": "Linux 64-bit",
-    "linux64-aarch64": "Linux ARM64/AArch64",
+    "osx-pkg": "macOS - PKG",
 }
+
+# Labels come from firefox_desktop wherever it has one, so the wording cannot
+# drift from the rest of the site. Safe to build at import: platform_labels is a
+# class attribute, not live product-details data, so there is nothing to go stale
+# — unlike the version lookups further down, which are deliberately per-request.
+OS_LABELS = {os_value: _EXTRA_OS_LABELS.get(os_value) or firefox_desktop.platform_labels[os_value] for os_value in OS_VALUES}
 
 # How the OS options are grouped in the form, kept here rather than in the
 # template so the grouping cannot drift from OS_LABELS.
@@ -68,6 +83,11 @@ LINUX_OS = frozenset({"linux", "linux64", "linux64-aarch64"})
 MS_STORE_OS = frozenset({"win", "win64", "win64-aarch64"})
 
 # Selectable release types, in display order.
+#
+# Not taken from firefox_desktop.channel_labels: that map is keyed by
+# product-details channel rather than by the values this form submits, and two of
+# its strings are wrong for a download picker — it calls ESR "Firefox Extended
+# Support Release" and Developer Edition "Developer Edition" without the brand.
 RELEASE_LABELS = {
     "stable": "Firefox",
     "esr": "Firefox ESR",
