@@ -4,32 +4,49 @@
  */
 
 @layer page {
-    .c-form {
-        display: grid;
-        grid-template-columns: 32ch 1fr;
-        gap: 24px;
-        align-items: start;
-        max-inline-size: 800px;
+    .c-section {
+        /* One measure for the heading and the form, so they line up. */
+        --c-measure: 56rem;
+        --c-choices-inline-size: 20rem;
+        --c-column-gap: 48px;
+        --c-option-gap: 12px;
+    }
+
+    .c-section > .fl-heading {
         margin-inline: auto;
-        margin-block-start: 60px;
+        max-inline-size: var(--c-measure);
+    }
+
+    /*
+     * Choices on one side, results on the other, top-aligned so the logo starts
+     * level with the first field label rather than floating against nothing.
+     */
+    .c-form {
+        align-items: start;
+        display: grid;
+        gap: var(--c-column-gap);
+        grid-template-columns: var(--c-choices-inline-size) minmax(0, 1fr);
+        margin-block-start: var(--token-spacing-xl, 48px);
+        margin-inline: auto;
+        max-inline-size: var(--c-measure);
     }
 
     .c-choices {
         display: grid;
-        row-gap: 16px;
+        row-gap: var(--token-spacing-md, 16px);
     }
 
     .c-results {
         display: grid;
         justify-items: center;
-        gap: 16px;
+        gap: var(--token-spacing-md, 16px);
         padding-block: 32px;
     }
 
     .c-download-options:not([hidden]) {
         display: grid;
         justify-items: center;
-        gap: 16px;
+        gap: var(--c-option-gap);
     }
 
     .c-download-option {
@@ -59,7 +76,7 @@
       display: flex;
       align-items: center;
       gap: var(--token-spacing-xs);
-      margin-block: -8px;
+      margin-block: calc(var(--c-option-gap) / -2);
       font-size: var(--fl-theme-font-size-body-xs);
       color: var(--token-color-grey-4);
     }
