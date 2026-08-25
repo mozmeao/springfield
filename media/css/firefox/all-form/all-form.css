@@ -3,127 +3,128 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-.c-form {
-    display: grid;
-    grid-template-columns: 32ch 1fr;
-    gap: 24px;
-    align-items: start;
-    max-inline-size: 800px;
-    margin-inline: auto;
-    margin-block-start: 60px;
-}
-
-.c-choices {
-    display: grid;
-    row-gap: 16px;
-}
-
-.c-results {
-    display: grid;
-    justify-items: center;
-    gap: 16px;
-    padding-block: 32px;
-}
-
-.c-download-options:not([hidden]) {
-    display: grid;
-    justify-items: center;
-    gap: 16px;
-}
-
-.c-download-option {
-    display: grid;
-    row-gap: 8px;
-}
-
-.c-support-links:not([hidden]) {
-    display: inline-flex;
-    column-gap: 16px;
-}
-
-.c-incompatible-choices {
-    text-align: center;
-}
-
-.c-recommendation {
-    margin-block: 0;
-}
-
-.c-field-description p {
-    font-size: var(--fl-theme-label-sm);
-    margin-block: 0;
-}
-
-.c-or-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--token-spacing-xs);
-  margin-block: -8px;
-  font-size: var(--fl-theme-font-size-body-xs);
-  color: var(--token-color-grey-4);
-}
-
-.c-or-divider::before,
-.c-or-divider::after {
-    content: '';
-    width: 3rem;
-    border-top: 1px solid var(--fl-subtle-border-color);
-}
-
-.c-label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-
-    .c-help-trigger {
-        margin-block-start: -3px;
-    }
-}
-
-:has([name="release"]:where(:user-invalid, :user-valid)) .fl-notification-wrapper {
-    display: none;
-}
-
-form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
-    content-visibility: hidden;
-}
-
-firefox-download-form {
-    display: block;
-
-    :target {
-        scroll-margin-block-start: 1rem;
+@layer page {
+    .c-form {
+        display: grid;
+        grid-template-columns: 32ch 1fr;
+        gap: 24px;
+        align-items: start;
+        max-inline-size: 800px;
+        margin-inline: auto;
+        margin-block-start: 60px;
     }
 
-    select:disabled {
+    .c-choices {
+        display: grid;
+        row-gap: 16px;
+    }
+
+    .c-results {
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding-block: 32px;
+    }
+
+    .c-download-options:not([hidden]) {
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+    }
+
+    .c-download-option {
+        display: grid;
+        row-gap: 8px;
+    }
+
+    .c-support-links:not([hidden]) {
+        display: inline-flex;
+        column-gap: 16px;
+    }
+
+    .c-incompatible-choices {
+        text-align: center;
+    }
+
+    .c-recommendation {
+        margin-block: 0;
+    }
+
+    .c-field-description p {
+        font-size: var(--fl-theme-label-sm);
+        margin-block: 0;
+    }
+
+    .c-or-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--token-spacing-xs);
+      margin-block: -8px;
+      font-size: var(--fl-theme-font-size-body-xs);
+      color: var(--token-color-grey-4);
+    }
+
+    .c-or-divider::before,
+    .c-or-divider::after {
+        content: '';
+        width: 3rem;
+        border-top: 1px solid var(--fl-subtle-border-color);
+    }
+
+    .c-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .c-help-trigger {
+            margin-block-start: -3px;
+        }
+    }
+
+    :has([name="release"]:where(:user-invalid, :user-valid)) .fl-notification-wrapper {
         display: none;
     }
 
-    .language-message {
-        font-style: italic;
+    form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
+        content-visibility: hidden;
     }
 
-    select {
-        max-inline-size: 24ch;
-    }
+    firefox-download-form {
+        display: block;
 
-    img {
-        width: 100px;
-        height: 100px;
+        :target {
+            scroll-margin-block-start: 1rem;
+        }
 
-        &:where([hidden]) {
+        select:disabled {
             display: none;
         }
-    }
 
-    &:defined {
-        /* Which Firefox logo to show */
-        &:where([data-release="stable"], [data-release="esr"]) .firefox-logo,
-        &:where([data-release="beta"]) .firefox-beta-logo,
-        &:where([data-release="dev"]) .firefox-developer-logo,
-        &:where([data-release="nightly"]) .firefox-nightly-logo {
-            display: block;
+        .language-message {
+            font-style: italic;
+        }
+
+        select {
+            max-inline-size: 24ch;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+
+            &:where([hidden]) {
+                display: none;
+            }
+        }
+
+        &:defined {
+            /* Which Firefox logo to show */
+            &:where([data-release="stable"], [data-release="esr"]) .firefox-logo,
+            &:where([data-release="beta"]) .firefox-beta-logo,
+            &:where([data-release="dev"]) .firefox-developer-logo,
+            &:where([data-release="nightly"]) .firefox-nightly-logo {
+                display: block;
+            }
         }
     }
 }
-
