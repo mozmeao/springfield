@@ -59,6 +59,39 @@
         padding-block: 32px;
     }
 
+    .c-logo {
+        /*
+         * A fixed box for a stack of four logos of which exactly one is shown,
+         * so swapping release never resizes anything and the images have
+         * somewhere to land before they load.
+         */
+        block-size: 100px;
+        inline-size: 100px;
+    }
+
+    .c-logo-image {
+        block-size: 100%;
+        display: none;
+        inline-size: 100%;
+    }
+
+    /*
+     * Which logo shows follows the release select itself, rather than an
+     * attribute someone has to keep in step with it. So it is right on first
+     * paint, right after UA detection, right when the visitor picks something,
+     * and right with no JS at all — one rule set, no `:defined` variant.
+     */
+    .c-form:has(#release option[value='stable']:checked) [data-logo='firefox'],
+    .c-form:has(#release option[value='esr']:checked) [data-logo='firefox'],
+    .c-form:has(#release option[value='beta']:checked)
+        [data-logo='firefox-beta'],
+    .c-form:has(#release option[value='dev']:checked)
+        [data-logo='firefox-developer'],
+    .c-form:has(#release option[value='nightly']:checked)
+        [data-logo='firefox-nightly'] {
+        display: block;
+    }
+
     .c-download-options:not([hidden]) {
         display: grid;
         justify-items: center;
@@ -139,25 +172,6 @@
 
         select {
             max-inline-size: 24ch;
-        }
-
-        img {
-            width: 100px;
-            height: 100px;
-
-            &:where([hidden]) {
-                display: none;
-            }
-        }
-
-        &:defined {
-            /* Which Firefox logo to show */
-            &:where([data-release="stable"], [data-release="esr"]) .firefox-logo,
-            &:where([data-release="beta"]) .firefox-beta-logo,
-            &:where([data-release="dev"]) .firefox-developer-logo,
-            &:where([data-release="nightly"]) .firefox-nightly-logo {
-                display: block;
-            }
         }
     }
 

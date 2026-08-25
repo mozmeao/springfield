@@ -174,11 +174,15 @@
 
         <div class="c-results">
 
+          {#
+            All four, with CSS picking the one matching the release select. Which
+            means it stays right when the select changes, with or without JS, and
+            switching costs no network fetch.
+          #}
           <div class="c-logo">
-            <img hidden class="firefox-logo" src="{{ static('img/logos/firefox/firefox-logo.svg') }}" alt="Firefox">
-            <img hidden class="firefox-beta-logo" src="{{ static('img/logos/firefox/firefox-logo-beta.svg') }}" alt="Firefox Beta">
-            <img hidden class="firefox-developer-logo" src="{{ static('img/logos/firefox/firefox-logo-developer.svg') }}" alt="Firefox Developer">
-            <img hidden class="firefox-nightly-logo" src="{{ static('img/logos/firefox/firefox-logo-nightly.svg') }}" alt="Firefox Nightly">
+            {%- for logo in logos %}
+            <img class="c-logo-image" data-logo="{{ logo.key }}" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
+            {%- endfor %}
           </div>
 
           <div class="c-download-options">
