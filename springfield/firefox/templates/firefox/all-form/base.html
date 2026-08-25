@@ -115,6 +115,67 @@
           </div>
         </div>
 
+        {#
+          Detection runs here rather than in the head: the three selects are
+          parsed by this point, so it can set their values directly instead of
+          watching the document for them to appear — one less MutationObserver
+          over every insertion on the page, which is the sort of thing that hurts
+          on slow hardware. It stays a blocking inline script so it runs before
+          this region is painted, and it only changes select values, so there is
+          no layout to shift either way.
+        #}
+        <script>
+          {
+            // Detection fills in what the visitor hasn't asked for. A query param
+            // is an explicit request and always wins — overriding it is how
+            // ?os=ios would end up showing macOS. Gated per field, so ?release=esr
+            // on its own still gets both an OS and a language detected.
+            const form = document.currentScript.closest('form');
+            const params = new URLSearchParams(window.location.search);
+
+            if (!params.has('os')) {
+              // It would be good to use `Sec-CH-UA-Platform` for this, but it
+              // doesn't seem to be making any progress in standards.
+              const detected = detectOS();
+              const option = detected && form.elements.os.namedItem(detected);
+              if (option) {
+                option.selected = true;
+                // Read back by the script's provenance machine, and by CSS, which
+                // reserves room for the options pane it is about to replace.
+                form.dataset.autoDetectedOs = detected;
+              }
+            }
+
+            if (!params.has('language')) {
+              // TODO: is this list ordered by preference?
+              // TODO: We already have this information on the server via
+              // `Accept-Language`, we could vary the request and use it during
+              // rendering.
+              const languages = form.elements.language;
+              for (const language of navigator.languages) {
+                const option =
+                  languages.namedItem(language) ||
+                  languages.namedItem(language.split('-')[0]);
+                if (option) {
+                  option.selected = true;
+                  break;
+                }
+              }
+            }
+
+            function detectOS() {
+              const ua = navigator.userAgent;
+              if (/Android|iPhone|iPad/.test(ua)) return null;
+              if (/Windows/.test(ua))
+                return /ARM|aarch64/i.test(ua) ? 'win64-aarch64' : 'win64';
+              if (/Mac OS X/.test(ua)) return 'osx';
+              if (/Linux/.test(ua))
+                return /aarch64|arm64/i.test(ua) ? 'linux64-aarch64' : 'linux64';
+              return null;
+            }
+          }
+        </script>
+
         <div class="c-results">
 
           <div class="c-logo">
@@ -139,80 +200,6 @@
   </div>
 </div>
 
-{% endblock %}
-
-{# I set this to experiments since the form state can persist through a reload
-and we need to validate and update the conditional display logic immediately
-(also relevant if form values were prefilled). Making it a blocking script
-avoids layout shift + any flash of not-yet-initialized content. #}
-{% block experiments %}
-<script>
-  {
-    // Detection fills in what the visitor hasn’t asked for. A query param is an
-    // explicit request and always wins — overriding it is how ?os=ios ends up
-    // showing macOS. Gated per field, so ?release=esr on its own still gets both
-    // an OS and a language detected.
-    const params = new URLSearchParams(window.location.search);
-    const detectedOS = params.has('os') ? null : detectOS();
-
-    let osApplied = !detectedOS;
-    let languageApplied = params.has('language');
-
-    if (!osApplied || !languageApplied) {
-      const initialSelectionObserver = new MutationObserver((entries, observer) => {
-        for (const entry of entries) {
-          for (const node of entry.addedNodes) {
-            if (node.nodeType !== Node.ELEMENT_NODE) continue;
-
-            // Auto-select the detected OS
-            // It would be good to use `Sec-CH-UA-Platform` for this, but it doesn’t seem to be making any progress in standards.
-            if (!osApplied && node.matches('option') && node.value === detectedOS) {
-              node.selected = true;
-              node.form.dataset.autoDetectedOs = true;
-              osApplied = true;
-            }
-
-            // Auto-select the detected language
-            if (!languageApplied && node.matches('select[name="language"]')) {
-              // TODO: is this list ordered by preference?
-              // TODO: We already have this information on the server via `Accept-Language`, we could vary the request and use it during rendering
-              for (const language of navigator.languages) {
-                let matchedOption = node.options.namedItem(language) ||
-                  node.options.namedItem(language.split("-")[0]);
-                if (matchedOption) {
-                  matchedOption.selected = true;
-                  languageApplied = true;
-                  break;
-                }
-              }
-            }
-
-            if (osApplied && languageApplied) {
-              observer.disconnect();
-              return;
-            }
-          }
-        }
-      });
-      initialSelectionObserver.observe(document.documentElement, { childList: true, subtree: true });
-
-      // Backstop: a detected value that never turns up as an option would
-      // otherwise leave this observing every insertion in the document.
-      document.addEventListener('DOMContentLoaded', () => initialSelectionObserver.disconnect(), { once: true });
-    }
-
-    function detectOS() {
-      const ua = navigator.userAgent;
-      if (/Android|iPhone|iPad/.test(ua)) return null;
-      if (/Windows/.test(ua))
-        return /ARM|aarch64/i.test(ua) ? 'win64-aarch64' : 'win64';
-      if (/Mac OS X/.test(ua)) return 'osx';
-      if (/Linux/.test(ua))
-        return /aarch64|arm64/i.test(ua) ? 'linux64-aarch64' : 'linux64';
-      return null;
-    }
-  }
-</script>
 {% endblock %}
 
 {% block js %}
