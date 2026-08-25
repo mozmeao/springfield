@@ -100,12 +100,16 @@
 
     .c-download-option {
         display: grid;
+        justify-items: center;
         row-gap: 8px;
     }
 
     .c-support-links:not([hidden]) {
-        display: inline-flex;
-        column-gap: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: 4px var(--token-spacing-md, 16px);
+        justify-content: center;
     }
 
     .c-incompatible-choices {
@@ -113,7 +117,9 @@
     }
 
     .c-recommendation {
+        font-size: var(--fl-theme-font-size-body-xs);
         margin-block: 0;
+        text-align: center;
     }
 
     .c-field-description p {
@@ -153,6 +159,26 @@
 
     form:has([name="release"]:where(:user-invalid, :user-valid)) #server-release-error {
         content-visibility: hidden;
+    }
+
+    /* --- Result page ------------------------------------------------------ */
+
+    .c-result {
+        display: grid;
+        gap: var(--token-spacing-md, 16px);
+        justify-items: center;
+        margin-inline: auto;
+        max-inline-size: var(--c-measure);
+        text-align: center;
+    }
+
+    .c-result-logo {
+        block-size: 100px;
+        inline-size: 100px;
+    }
+
+    .c-result-summary {
+        margin-block: 0;
     }
 
     firefox-download-form {
