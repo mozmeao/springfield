@@ -590,77 +590,151 @@ class TestFormContext:
         assert ctx["has_errors"] is False
 
 
-class TestDownloadOptions:
+def options_for(**data):
+    """The download option list for a query string, keyed for easy assertions."""
+    selection = all_form.parse_selection(data)
+    ctx = all_form.get_download_options(selection)
+    return {option["key"]: option for option in ctx["download_options"]}
+
+
+class TestDownloadOptionList:
+    """
+    One ordered list per selection, shared by the form page, the result page and
+    the JS. See all_form.get_download_option_list.
+    """
+
+    def test_order_is_fixed(self):
+        # Every option at once: Linux gets APT, ESR gets both extra ESR builds.
+        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+            keys = list(options_for(os="linux64", release="esr", language="de"))
+        assert keys == ["apt", "esr-next", "primary", "esr-115"]
+
+    def test_desktop_primary(self):
+        options = options_for(os="win64", release="stable", language="de")
+        assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
+        assert options["primary"]["label"].startswith("Download Firefox ")
+        assert options["primary"]["icon"] == "downloads"
+        assert options["primary"]["group"] == all_form.GROUP_DOWNLOAD
+
+    def test_windows_offers_the_microsoft_store(self):
+        options = options_for(os="win64", release="stable", language="de")
+        assert "microsoft-store" in options
+        assert "mz_cn=release" in options["microsoft-store"]["href"]
+
+    def test_msi_has_no_store_option(self):
+        options = options_for(os="win64-msi", release="stable", language="de")
+        assert "microsoft-store" not in options
+        assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-msi-latest-ssl&lang=de"
+
+    def test_linux_offers_apt_as_an_aside(self):
+        options = options_for(os="linux64", release="stable", language="de")
+        assert options["apt"]["href"] == all_form.LINUX_APT_URL
+        # An aside sits alongside the downloads and never gets an `or` before it.
+        assert options["apt"]["group"] == all_form.GROUP_ASIDE
+
+    def test_esr_offers_esr_115(self):
+        options = options_for(os="osx", release="esr", language="de")
+        assert "product=firefox-esr115-latest-ssl" in options["esr-115"]["href"]
+        assert options["esr-115"]["recommendation"] == all_form.ESR_115_RECOMMENDATIONS["macos"]
+
+    def test_esr_on_unsupported_os_has_no_esr_115(self):
+        assert "esr-115" not in options_for(os="linux64-aarch64", release="esr", language="de")
+
+    def test_esr_115_is_dropped_for_locales_with_no_build(self):
+        # Straight to the list builder: parse_selection would drop `skr` first if
+        # this product-details snapshot does not offer it.
+        keys = [option["key"] for option in all_form.get_download_option_list("osx", "esr", "skr")]
+        assert "esr-115" not in keys
+        assert "primary" in keys
+
+    def test_esr_next_when_a_second_esr_exists(self):
+        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+            options = options_for(os="osx", release="esr", language="de")
+        assert "product=firefox-esr-next-latest-ssl" in options["esr-next"]["href"]
+        # The version comes from product details rather than being written out.
+        assert options["esr-next"]["label"] == "Download Firefox ESR 153.0"
+
+    def test_no_esr_next_with_a_single_esr(self):
+        with patch.object(all_form, "get_esr_next_version", return_value=None):
+            assert "esr-next" not in options_for(os="osx", release="esr", language="de")
+
+    def test_japanese_on_macos(self):
+        options = options_for(os="osx", release="esr", language="ja")
+        assert options["primary"]["href"].endswith("lang=ja-JP-mac")
+
+    def test_android_primary_is_the_play_store(self):
+        options = options_for(os="android", release="nightly", language="de")
+        assert options["primary"]["label"] == "Download from the Play Store"
+        assert "play.google.com" in options["primary"]["href"]
+        # bug 1756697: nightly APK URLs carry a build timestamp we cannot derive.
+        assert "apk" not in options
+
+    def test_android_offers_the_apk_where_one_can_be_built(self):
+        options = options_for(os="android", release="stable", language="de")
+        assert options["apk"]["href"].endswith(".multi.android-universal.apk")
+
+    def test_ios_beta_goes_to_testflight(self):
+        options = options_for(os="ios", release="beta", language="de")
+        assert options["primary"]["label"] == "Sign up for TestFlight"
+        assert options["primary"]["href"] == reverse("firefox.ios.testflight")
+        assert options["primary"]["icon"] == "forward"
+
+    def test_an_unusable_pair_has_no_options(self):
+        assert all_form.get_download_option_list("ios", "esr", "de") == []
+
+    def test_every_key_has_a_group(self):
+        for os_value in all_form.get_os_values():
+            for release in all_form.RELEASE_LABELS:
+                for option in all_form.get_download_option_list(os_value, release, "de"):
+                    assert option["group"] in (all_form.GROUP_DOWNLOAD, all_form.GROUP_ASIDE)
+
+
+class TestSupportLinks:
+    def test_always_three(self):
+        assert [link["key"] for link in all_form.get_support_links("win64", "stable")] == [
+            "release-notes",
+            "system-requirements",
+            "privacy",
+        ]
+
+    def test_labels_are_the_ones_the_js_gets(self):
+        # One definition, read by the result page and serialized for the script.
+        labels = {link["key"]: link["label"] for link in all_form.get_support_links("win64", "stable")}
+        assert labels == all_form.SUPPORT_LINK_LABELS
+
+    def test_urls_keep_the_locale_prefix(self):
+        # The JS used to build these itself and dropped the prefix.
+        links = {link["key"]: link["href"] for link in all_form.get_support_links("win64", "beta")}
+        assert links["release-notes"].startswith("/en-US/")
+
+
+class TestDownloadOptionsContext:
     def test_desktop(self):
         ctx = all_form.get_download_options(all_form.parse_selection({"os": "win64", "release": "stable", "language": "de"}))
-        assert ctx["primary_action"] == "download"
-        assert ctx["primary_url"] == ctx["download_url"]
-        assert ctx["download_url"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
-        assert ctx["store_kind"] == "microsoft-store"
-        assert ctx["store_url"] is not None
-        assert ctx["apk_url"] is None
-        assert ctx["apt_url"] is None
         assert ctx["is_mobile"] is False
         assert ctx["os_label"] == "Windows 64-bit"
         assert ctx["release_label"] == "Firefox"
         assert ctx["language_label"].startswith("German")
-        assert ctx["privacy_url"] == all_form.PRIVACY_URL
 
-    def test_msi_has_no_store_option(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "win64-msi", "release": "stable", "language": "de"}))
-        assert ctx["store_url"] is None
-        assert ctx["download_url"] == f"{BOUNCER}?os=win64&product=firefox-msi-latest-ssl&lang=de"
-
-    def test_linux_offers_apt(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "linux64", "release": "stable", "language": "de"}))
-        assert ctx["apt_url"] == all_form.LINUX_APT_URL
-
-    def test_esr_offers_esr_115(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "osx", "release": "esr", "language": "de"}))
-        assert "product=firefox-esr115-latest-ssl" in ctx["esr_115_url"]
-
-    def test_esr_on_unsupported_os_has_no_esr_115(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "linux64-aarch64", "release": "esr", "language": "de"}))
-        assert ctx["esr_115_url"] is None
+    @pytest.mark.parametrize(
+        "release,logo",
+        [("stable", "firefox"), ("esr", "firefox"), ("beta", "firefox-beta"), ("dev", "firefox-developer"), ("nightly", "firefox-nightly")],
+    )
+    def test_one_logo_per_release(self, release, logo):
+        # The result page has no controls, so it renders the single right logo
+        # rather than all four and a CSS rule to pick between them.
+        assert all_form.get_logo(release)["key"] == logo
 
     def test_esr_version_omits_the_esr_suffix(self):
         # latest_version("esr") returns e.g. "140.12.0esr", which is not a label.
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "osx", "release": "esr", "language": "de"}))
-        assert ctx["version"] == firefox_desktop.esr_minor_versions[0]
-        assert "esr" not in ctx["version"]
+        version = all_form.get_version("osx", "esr")
+        assert version == firefox_desktop.esr_minor_versions[0]
+        assert "esr" not in version
 
-    def test_esr_next_when_a_second_esr_exists(self):
-        with patch.object(all_form, "get_esr_next_version", return_value="140.0"):
-            ctx = all_form.get_download_options(all_form.parse_selection({"os": "osx", "release": "esr", "language": "de"}))
-        assert ctx["esr_next_version"] == "140.0"
-        assert "product=firefox-esr-next-latest-ssl" in ctx["esr_next_url"]
-
-    def test_no_esr_next_with_a_single_esr(self):
-        with patch.object(all_form, "get_esr_next_version", return_value=None):
-            ctx = all_form.get_download_options(all_form.parse_selection({"os": "osx", "release": "esr", "language": "de"}))
-        assert ctx["esr_next_version"] is None
-        assert ctx["esr_next_url"] is None
-
-    def test_japanese_on_macos(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "osx", "release": "esr", "language": "ja"}))
-        assert ctx["download_url"].endswith("lang=ja-JP-mac")
-
-    def test_android(self):
+    def test_android_ignores_the_submitted_language(self):
         ctx = all_form.get_download_options(all_form.parse_selection({"os": "android", "release": "nightly", "language": "de"}))
         assert ctx["is_mobile"] is True
-        assert ctx["primary_action"] == "store"
-        assert ctx["primary_url"] == ctx["store_url"]
-        assert ctx["store_kind"] == "google-play"
-        assert ctx["download_url"] is None
-        assert ctx["apk_url"] is None  # bug 1756697
-        # The submitted language is ignored: Android builds are multi-locale.
-        assert ctx["language"] == ""
         assert ctx["language_label"] == ""
-
-    def test_ios_beta(self):
-        ctx = all_form.get_download_options(all_form.parse_selection({"os": "ios", "release": "beta", "language": "de"}))
-        assert ctx["store_kind"] == "testflight"
-        assert ctx["primary_url"] == reverse("firefox.ios.testflight")
 
     def test_form_url_round_trips_the_choices(self):
         ctx = all_form.get_download_options(all_form.parse_selection({"os": "win64", "release": "beta", "language": "de"}))
@@ -754,8 +828,13 @@ class TestResultView:
     def test_valid_submission(self, client):
         response = client.get(RESULT_URL, {"os": "win64", "release": "stable", "language": "de"})
         assert response.status_code == 200
-        assert response.context["download_url"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
-        assert response.context["primary_action"] == "download"
+        options = {option["key"]: option for option in response.context["download_options"]}
+        assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
+        assert b'data-download-option="primary"' in response.content
+        # Unlike the form page, this one does render the support links: it has no
+        # controls, so the row cannot fall out of step with anything.
+        assert b'class="c-support-links"' in response.content
+        assert all_form.SUPPORT_LINK_LABELS["privacy"].encode() in response.content
 
     @override_switch("ALL_FORM", active=True)
     def test_bare_request_bounces_to_the_form(self, client):

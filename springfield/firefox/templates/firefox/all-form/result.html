@@ -8,79 +8,40 @@
 
 {% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
 
-{% block page_title %}Download Firefox — form results{% endblock %}
+{% block page_title %}Download {{ release_label }} for {{ os_label }}{% endblock %}
 
 {% block content %}
 <div class="fl-main">
-  <div class="fl-section" style="display: grid; justify-items: center; gap:
-    24px; text-align: center;">
-    <h1 class="text-align: center;">{{ release_label }} for {{ os_label }}</h1>
-    <include:button
+  <div class="fl-section c-section">
+    <div class="c-result">
+      <h1 class="fl-heading fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
+
+      {# One logo: this page has no controls, so there is nothing to swap to. #}
+      <img class="c-result-logo" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
+
+      <p class="c-result-summary">
+        {%- if is_mobile -%}
+          Installed from the store, in every language Firefox supports.
+        {%- else -%}
+          {{ language_label }}
+        {%- endif -%}
+      </p>
+
+      <div class="c-download-options">
+        {% include "firefox/all-form/_download-options.html" %}
+      </div>
+
+      <div class="c-support-links">
+        {%- for link in support_links %}
+        <a href="{{ link.href }}">{{ link.label }}</a>
+        {%- endfor %}
+      </div>
+
+      <include:button
         theme_class="button-link"
         link="{{ form_url }}"
         label="Change selection"
-    />
-    <div class="downloads" style="display: grid; justify-items: center; gap: 8px;">
-    {% if is_mobile %}
-      <include:button
-        link="{{ primary_url }}"
-        label="Download Firefox on {{ store_kind }}"
-        icon_name="downloads"
-        icon_position="right"
       />
-      {% if apk_url %}
-        <include:button
-          link="{{ apk_url }}"
-          label="Download APK"
-          icon_name="downloads"
-          icon_position="right"
-        />
-      {% endif %}
-    {% else %}
-      {% if esr_next_url %}
-        <include:button
-          link="{{ esr_next_url }}"
-          label="Download ESR Next {{ esr_next_version }}"
-          icon_name="downloads"
-          icon_position="right"
-        />
-        <div class="c-or-divider">or</div>
-      {% endif %}
-      <include:button
-        theme_class="{% if esr_next_url %}button-secondary{% endif %}"
-        link="{{ primary_url }}"
-        label="Download {{ release_label }} {{ version }}"
-        icon_name="downloads"
-        icon_position="right"
-      />
-      {% if esr_115_url %}
-        <div class="c-or-divider">or</div>
-        <include:button
-          theme_class="button-secondary"
-          size_class="fl-button-small"
-          link="{{ esr_115_url }}"
-          label="Download ESR 115"
-          icon_name="downloads"
-          icon_position="right"
-        />
-      {% endif %}
-
-      {% if store_kind == "microsoft-store" %}
-        <div class="c-or-divider">or</div>
-        <include:button
-          theme_class="button-secondary"
-          link="{{ store_url }}"
-          label="Download from the Microsoft Store"
-          icon_name="external-link"
-          icon_position="right"
-        />
-      {% endif %}
-    {% endif %}
-    </div>
-    <div style="display: flex; gap: 8px;">
-      <a href="{{ system_requirements_url }}">System requirements</a>
-      <a href="{{ release_notes_url }}">Release notes</a>
-      <a href="{{ privacy_url }}">Privacy policy</a>
     </div>
   </div>
 </div>
