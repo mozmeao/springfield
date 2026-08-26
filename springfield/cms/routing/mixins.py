@@ -13,9 +13,10 @@ lives in the routing tables keyed to ``wagtailcore.Page``), so adopting it produ
 migration**.
 """
 
+import logging
 from contextlib import contextmanager
 
-from django.db import models
+from django.db import OperationalError, ProgrammingError, models
 from django.utils.translation import gettext_lazy as _
 
 import waffle
@@ -27,6 +28,8 @@ from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
+
+logger = logging.getLogger(__name__)
 
 # Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
 # generic (no per-consumer specifics) and localized; HTML is allowed in a HelpPanel.
@@ -245,7 +248,13 @@ class RoutingMixin(models.Model):
         # trigger, so there is nothing to derive until a concrete consumer adopts it.
         if cls._meta.abstract:
             return None
-        trigger = cls().get_routing_trigger()
+        try:
+            trigger = cls().get_routing_trigger()
+        except (OperationalError, ProgrammingError):
+            # Fresh DB: Page.__init__ queries django_content_type which
+            # may not exist yet (e.g. export-db-to-sqlite before migrate).
+            logger.info("Skipping routing arming-param derivation for %s: DB tables not ready", cls.__name__)
+            return None
         param = getattr(trigger, "param_name", None)
         return param if param in registry else None
 
