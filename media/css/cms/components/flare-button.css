@@ -426,6 +426,12 @@ Copy-to-Clipboard Button
     cursor: default;
 }
 
+/* A mouse click focuses the button, then the JS disables it and the browser
+   drops focus, flashing the ring. Limit the ring to keyboard focus to avoid the flash. */
+.fl-copy-to-clipboard-button:focus:not(:focus-visible) {
+    outline: none;
+}
+
 .fl-copy-to-clipboard-button {
     display: inline-grid;
     grid-template-columns: auto auto;

@@ -70,6 +70,7 @@
 .fl-referral-controls
     .fl-button.fl-copy-to-clipboard-button.fl-button[disabled] {
     background-color: var(--token-color-medium-purple);
+    border-color: transparent;
     color: var(--token-color-white);
 }
 
