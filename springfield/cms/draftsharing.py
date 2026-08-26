@@ -9,6 +9,7 @@
 # These helpers create revisions for the pending translation that exists solely to be
 # shared, without altering the page itself.
 
+from django.db import transaction
 from django.db.models import Max, Q
 
 from wagtail.models import Revision
@@ -95,9 +96,17 @@ def delete_dead_sharing_revisions(page):
     linked_revision_ids = _links_for_page(page).values_list("revision_id", flat=True)
     active_revision_ids = _active_links_for_page(page).values_list("revision_id", flat=True)
 
-    dead = Revision.objects.for_instance(page).filter(id__in=linked_revision_ids).exclude(id__in=active_revision_ids).exclude(id__in=protected_ids)
-    deleted_count, __ = dead.delete()
-    return deleted_count
+    revisions_to_delete = (
+        Revision.objects.for_instance(page).filter(id__in=linked_revision_ids).exclude(id__in=active_revision_ids).exclude(id__in=protected_ids)
+    )
+    if not revisions_to_delete:
+        return 0
+
+    with transaction.atomic():
+        for revision in revisions_to_delete:
+            # Revision has a custom `delete` method
+            revision.delete()
+    return len(revisions_to_delete)
 
 
 def has_shareable_translation_draft(translation, page):

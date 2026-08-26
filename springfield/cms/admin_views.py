@@ -67,7 +67,7 @@ def create_translation_sharing_link(request, translation_id):
         raise PermissionDenied
 
     deleted_count = delete_dead_sharing_revisions(page)
-    logger.info("%d expired link revisions(s) deleted for translation page ID=%d", deleted_count, page.pk)
+    logger.info("%d expired link revision(s) deleted for translation page ID=%d", deleted_count, page.pk)
 
     link = reusable_sharing_link(translation, page)
     if link is None:
