@@ -252,6 +252,7 @@ echo "Purged data that was automatically added via Django/Wagtail migrations"
 
 # Load the data, getting the contenttypes table in first
 PROD_DETAILS_STORAGE=product_details.storage.PDFileStorage \
+SQLITE_EXPORT_MODE=True \
     python manage.py loaddata \
         "/tmp/export_contenttypes.json" \
         "/tmp/export_wagtail_locales.json" \
