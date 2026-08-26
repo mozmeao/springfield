@@ -211,6 +211,74 @@ describe('cms/routing/readers.es6.js', function () {
                 REJECTED
             );
         });
+
+        describe('browser_name', function () {
+            it('reads a non-Chrome browser straight from UA detection, without Mozilla.Client', async function () {
+                const reader = createUserAgentReader({
+                    client: null,
+                    navigator: {
+                        userAgent:
+                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0'
+                    }
+                });
+                expect(await reader.read({ name: 'browser_name' })).toEqual(
+                    'firefox'
+                );
+            });
+
+            it('skips the Brave check entirely when detection is not Chrome', async function () {
+                const isBraveSpy = jasmine
+                    .createSpy('isBrave')
+                    .and.returnValue(Promise.resolve(true));
+                const reader = createUserAgentReader({
+                    navigator: {
+                        userAgent:
+                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
+                    },
+                    isBrave: isBraveSpy
+                });
+                expect(await reader.read({ name: 'browser_name' })).toEqual(
+                    'edge'
+                );
+                // Confirms Brave, which reports Chrome's UA verbatim, is only worth
+                // asking about when UA detection actually lands on Chrome.
+                expect(isBraveSpy).not.toHaveBeenCalled();
+            });
+
+            it('asks the Brave check when detection lands on Chrome, and upgrades the result', async function () {
+                const reader = createUserAgentReader({
+                    navigator: {
+                        userAgent: 'Mozilla/5.0 Chrome/120.0.0.0 Safari/537.36'
+                    },
+                    isBrave: () => Promise.resolve(true)
+                });
+                expect(await reader.read({ name: 'browser_name' })).toEqual(
+                    'brave'
+                );
+            });
+
+            it('stays chrome when the Brave check says no', async function () {
+                const reader = createUserAgentReader({
+                    navigator: {
+                        userAgent: 'Mozilla/5.0 Chrome/120.0.0.0 Safari/537.36'
+                    },
+                    isBrave: () => Promise.resolve(false)
+                });
+                expect(await reader.read({ name: 'browser_name' })).toEqual(
+                    'chrome'
+                );
+            });
+
+            it('is unavailable when there is no user agent to sniff', async function () {
+                const reader = createUserAgentReader({
+                    navigator: { userAgent: '' }
+                });
+                const outcome = await settle(
+                    reader.read({ name: 'browser_name' })
+                );
+                expect(outcome).toBe(REJECTED);
+            });
+        });
     });
 
     describe('UITour reader', function () {
@@ -251,6 +319,103 @@ describe('cms/routing/readers.es6.js', function () {
             const outcome = await settle(
                 reader.read({
                     name: 'is_default_browser',
+                    browserStateKey: 'appinfo'
+                })
+            );
+            expect(outcome).toBe(REJECTED);
+        });
+
+        it('reads fxa_signed_in from the fxa key, not the deprecated sync key', async function () {
+            const uiTour = {
+                ping: (cb) => cb(),
+                getConfiguration: (key, cb) => {
+                    // Only the `fxa` key reports a genuine signed-in check; `sync` would
+                    // report Sync-configured instead.
+                    expect(key).toEqual('fxa');
+                    cb({ setup: true, accountStateOK: true });
+                }
+            };
+            const reader = createUITourReader({ uiTour: uiTour, timeout: 100 });
+            const value = await reader.read({
+                name: 'fxa_signed_in',
+                browserStateKey: 'fxa'
+            });
+            expect(value).toBe(true);
+        });
+
+        describe('days_since_last_session', function () {
+            const NOW = 1_735_000_000_000; // arbitrary fixed instant
+
+            function readerFor(previousSessionEnd) {
+                const uiTour = {
+                    ping: (cb) => cb(),
+                    getConfiguration: (key, cb) => cb({ previousSessionEnd })
+                };
+                return createUITourReader({
+                    uiTour: uiTour,
+                    timeout: 100,
+                    now: () => NOW
+                });
+            }
+
+            it('reports whole days since the previous session ended', async function () {
+                const twentyEightDaysAgo = NOW - 28 * 24 * 60 * 60 * 1000;
+                const reader = readerFor(twentyEightDaysAgo);
+                const value = await reader.read({
+                    name: 'days_since_last_session',
+                    browserStateKey: 'appinfo'
+                });
+                expect(value).toEqual(28);
+            });
+
+            it('is unavailable when no previous session was ever recorded', async function () {
+                // UITour's own sentinel for "nothing recorded yet" is 0, not undefined —
+                // treating it as a real timestamp would read as decades lapsed.
+                const reader = readerFor(0);
+                const outcome = await settle(
+                    reader.read({
+                        name: 'days_since_last_session',
+                        browserStateKey: 'appinfo'
+                    })
+                );
+                expect(outcome).toBe(REJECTED);
+            });
+
+            it('is unavailable when the field is missing (older Firefox)', async function () {
+                const reader = readerFor(undefined);
+                const outcome = await settle(
+                    reader.read({
+                        name: 'days_since_last_session',
+                        browserStateKey: 'appinfo'
+                    })
+                );
+                expect(outcome).toBe(REJECTED);
+            });
+        });
+
+        it('reads profile_reset_weeks_ago directly, whole weeks', async function () {
+            const uiTour = {
+                ping: (cb) => cb(),
+                getConfiguration: (key, cb) => cb({ profileResetWeeksAgo: 3 })
+            };
+            const reader = createUITourReader({ uiTour: uiTour, timeout: 100 });
+            const value = await reader.read({
+                name: 'profile_reset_weeks_ago',
+                browserStateKey: 'appinfo'
+            });
+            expect(value).toEqual(3);
+        });
+
+        it('is unavailable for profile_reset_weeks_ago when the profile was never reset', async function () {
+            const uiTour = {
+                ping: (cb) => cb(),
+                getConfiguration: (key, cb) =>
+                    cb({ profileResetWeeksAgo: null })
+            };
+            const reader = createUITourReader({ uiTour: uiTour, timeout: 100 });
+            const outcome = await settle(
+                reader.read({
+                    name: 'profile_reset_weeks_ago',
                     browserStateKey: 'appinfo'
                 })
             );

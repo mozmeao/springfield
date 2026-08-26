@@ -24,6 +24,7 @@ import {
     PER_UITOUR_KEY_TIMEOUT_MS,
     normalizeVersion
 } from './evaluator.es6';
+import { detectBrowser, isBrave } from '../components/flare-browser-detect.es6';
 
 // Source identifiers, mirroring the Python Source enum values.
 export const SOURCE_CDN_GEO = 'cdn_geo';
@@ -78,7 +79,7 @@ export function createGeoReader(options) {
 /**
  * User-Agent — read via Mozilla.Client, the canonical UA parser. Its UA
  * methods work in any browser (returning falsey off Firefox), so it is not Firefox-
- * gated. Injectable `client`.
+ * gated. Injectable `client`, `navigator`, and `isBrave`.
  */
 export function createUserAgentReader(options) {
     const opts = options || {};
@@ -86,6 +87,7 @@ export function createUserAgentReader(options) {
         opts.client || (mozillaGlobal() ? mozillaGlobal().Client : null);
     const nav =
         opts.navigator || (typeof navigator !== 'undefined' ? navigator : null);
+    const detectBraveBrowser = opts.isBrave || isBrave;
     return {
         read: function (descriptor) {
             return new Promise(function (resolve, reject) {
@@ -102,6 +104,25 @@ export function createUserAgentReader(options) {
                     } else {
                         reject();
                     }
+                    return;
+                }
+                if (descriptor.name === 'browser_name') {
+                    // Also checked before the Mozilla.Client guard: this is UA sniffing,
+                    // available off Firefox too. Brave reports Chrome's user agent
+                    // verbatim, so it's only worth the extra async API check when UA
+                    // detection lands on Chrome — every other result is unambiguous.
+                    if (!nav || !nav.userAgent) {
+                        reject();
+                        return;
+                    }
+                    const detected = detectBrowser(nav.userAgent);
+                    if (detected !== 'chrome') {
+                        resolve(detected);
+                        return;
+                    }
+                    detectBraveBrowser().then(function (brave) {
+                        resolve(brave ? 'brave' : 'chrome');
+                    });
                     return;
                 }
                 if (!client) {
@@ -177,15 +198,19 @@ export function aiControlsPosture(config) {
     return 'neutral';
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 // Per-signal extraction from a UITour getConfiguration() payload. Firefox-specific and
 // therefore quarantined here. Field names verified against UITour.sys.mjs in
-// mozilla-central.
+// mozilla-central. Extractors are called with the config object and the current time
+// (ms); only `days_since_last_session` needs the latter.
 const UITOUR_EXTRACTORS = {
     is_default_browser: function (config) {
         return config.defaultBrowser;
     },
-    // `sync.setup` is prefHasUserValue("services.sync.username") — it reports that sync is
-    // configured, which is close to but not the same as being signed in to a Firefox Account.
+    // Reads the `fxa` key: `config.setup` here is `!!(await fxAccounts.getSignedInUser())`,
+    // a genuine signed-in check. The `sync` key's `setup` field only reports that Sync has
+    // been configured, and is marked deprecated in UITour.sys.mjs.
     fxa_signed_in: function (config) {
         return config.setup;
     },
@@ -196,6 +221,24 @@ const UITOUR_EXTRACTORS = {
             ? config.profileCreatedWeeksAgo
             : undefined;
     },
+    // `previousSessionEnd` is a ms timestamp written only when Firefox fully quits, and
+    // defaults to `0` when no previous session was ever recorded. `0` is treated as
+    // unavailable rather than computed through, which would otherwise read as decades
+    // lapsed for a brand-new profile.
+    days_since_last_session: function (config, now) {
+        const previousSessionEnd = config.previousSessionEnd;
+        if (typeof previousSessionEnd !== 'number' || previousSessionEnd <= 0) {
+            return undefined;
+        }
+        return Math.floor((now - previousSessionEnd) / MS_PER_DAY);
+    },
+    // Whole weeks, reported directly, mirroring profile_age_weeks. `null` means the
+    // profile has never been reset.
+    profile_reset_weeks_ago: function (config) {
+        return typeof config.profileResetWeeksAgo === 'number'
+            ? config.profileResetWeeksAgo
+            : undefined;
+    },
     ai_controls: aiControlsPosture
 };
 
@@ -203,13 +246,14 @@ const UITOUR_EXTRACTORS = {
  * UITour — Firefox-only browser state, read via a ping-gated getConfiguration under a
  * per-key budget. A ping or getConfiguration that never answers
  * leaves the read pending until the budget expires, then rejects (⇒ not-matched).
- * Injectable `uiTour` and `timeout`.
+ * Injectable `uiTour`, `timeout`, and `now`.
  */
 export function createUITourReader(options) {
     const opts = options || {};
     const uiTour =
         opts.uiTour || (mozillaGlobal() ? mozillaGlobal().UITour : null);
     const timeout = opts.timeout || PER_UITOUR_KEY_TIMEOUT_MS;
+    const now = opts.now || Date.now;
     return {
         read: function (descriptor) {
             return new Promise(function (resolve, reject) {
@@ -243,7 +287,7 @@ export function createUITourReader(options) {
                             }
                             settled = true;
                             window.clearTimeout(timer);
-                            const value = extractor(config || {});
+                            const value = extractor(config || {}, now());
                             if (value === undefined || value === null) {
                                 reject();
                             } else {
