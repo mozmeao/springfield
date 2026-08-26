@@ -263,8 +263,8 @@ export function createUITourReader(options) {
  *
  *   - `oldversion` is a version signal (Firefox's just-updated flow sends it); its value
  *     is normalized the same way `firefox_version` is (bare / rv: / fully-qualified).
- *   - `locale` is the page locale, read from an explicit `?locale=` override and falling
- *     back to the `<html lang>` attribute (server-rendered on the resolver page).
+ *   - `locale` is the page locale, read from the `<html lang>` attribute (server-rendered on
+ *     the resolver page) and never from a query param.
  *   - `language` is that same locale with the region dropped, so one condition covers
  *     every regional variant of a language.
  *
@@ -308,10 +308,12 @@ export function createUrlReader(options) {
                     descriptor.name === 'locale' ||
                     descriptor.name === 'language'
                 ) {
-                    // Explicit ?locale= wins; otherwise fall back to <html lang>.
-                    const locale = params.has('locale')
-                        ? params.get('locale')
-                        : htmlLang();
+                    // The page locale, from the server-rendered <html lang>. Deliberately
+                    // not readable from a query param — that would let a visitor choose
+                    // which variant they are routed to. This case must stay ahead of the
+                    // generic param branch below, which would otherwise honour ?locale=
+                    // and ?language=. Staff preview goes through ?preview_signal=.
+                    const locale = htmlLang();
                     if (locale) {
                         // `language` is the same value with the region dropped, so one
                         // condition matches every regional variant.

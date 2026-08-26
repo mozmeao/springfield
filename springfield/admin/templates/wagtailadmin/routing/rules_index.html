@@ -32,10 +32,12 @@
           <td>{{ row.rule.conditions.count }}</td>
           <td>
             {% if row.problem %}
-              {# Two different situations, deliberately styled differently: a target that is
-                 simply not translated or published *yet* clears itself, while the rest need
-                 an author to change the rule. One badge for both would train authors to
-                 ignore the column during every normal staged translation. #}
+              {% comment %}
+                Two different situations, deliberately styled differently: a target that is
+                simply not translated or published *yet* clears itself, while the rest need
+                an author to change the rule. One badge for both would train authors to
+                ignore the column during every normal staged translation.
+              {% endcomment %}
               {% if row.problem.pending %}
                 <span class="routing-badge routing-badge--pending">{% trans "Waiting" %}</span>
               {% else %}

@@ -306,15 +306,15 @@ describe('cms/routing/readers.es6.js', function () {
             expect(await reader.read({ name: 'locale' })).toEqual('de');
         });
 
-        it('prefers an explicit ?locale= over <html lang>', async function () {
+        it('ignores ?locale=, so a visitor cannot pick their own locale', async function () {
             const reader = createUrlReader({
                 search: '?locale=pt-BR',
                 lang: 'de'
             });
-            expect(await reader.read({ name: 'locale' })).toEqual('pt-BR');
+            expect(await reader.read({ name: 'locale' })).toEqual('de');
         });
 
-        it('is unavailable when neither ?locale= nor <html lang> is set', async function () {
+        it('is unavailable when <html lang> is not set', async function () {
             const reader = createUrlReader({ search: '', lang: null });
             expect(await settle(reader.read({ name: 'locale' }))).toBe(
                 REJECTED
@@ -333,12 +333,14 @@ describe('cms/routing/readers.es6.js', function () {
             expect(await reader.read({ name: 'language' })).toEqual('de');
         });
 
-        it('derives language from an explicit ?locale= override too', async function () {
+        it('ignores ?locale= and ?language= when deriving language', async function () {
+            // Both must be special-cased ahead of the generic "read any param by signal
+            // name" branch, or that branch would honour them.
             const reader = createUrlReader({
-                search: '?locale=pt-BR',
+                search: '?locale=pt-BR&language=pt',
                 lang: 'de'
             });
-            expect(await reader.read({ name: 'language' })).toEqual('pt');
+            expect(await reader.read({ name: 'language' })).toEqual('de');
         });
 
         it('is unavailable for language when no locale can be determined', async function () {

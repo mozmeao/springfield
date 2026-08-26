@@ -100,6 +100,21 @@ def test_listing_marks_a_healthy_rule_as_firing(admin_client):
     assert "Will fire" in _status_cell(content, "Healthy rule")
 
 
+def test_listing_renders_no_raw_template_syntax(admin_client):
+    """These are Django templates, where ``{# … #}`` comments out a single line only — a
+    multi-line one prints verbatim into the page."""
+    # The comment sits inside the ``{% if row.problem %}`` branch, so the rule must have a
+    # problem for the status column to render it at all.
+    rule = _matchable(_rule_on("syntax-canonical", "Syntax"))
+    rule.name = "Syntax rule"
+    rule.save()
+    rule.target.unpublish()
+
+    content = admin_client.get(reverse("cms_routing_rules")).content.decode("utf-8")
+    for marker in ("{#", "#}", "{%"):
+        assert marker not in content, f"raw template syntax {marker!r} rendered into the rules listing"
+
+
 def test_listing_flags_an_unpublished_target_as_waiting(admin_client):
     # Publishing the variant is work already in flight, so this must not read as an error.
     rule = _matchable(_rule_on("draft-target-canonical", "Draft target"))

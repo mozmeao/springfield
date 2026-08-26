@@ -162,8 +162,9 @@ registry.register(
     )
 )
 
-# Read from an explicit `?locale=` override, falling back to the page's `<html lang>`.
-# A string, not an enum, for the reason in value_lists: the set is lazy and data-backed.
+# Read from the page's `<html lang>`, never from a query param — a visitor must not be able to
+# choose their own locale. A string, not an enum, for the reason in value_lists: the set is lazy
+# and data-backed.
 registry.register(
     RoutingSignal(
         name="locale",

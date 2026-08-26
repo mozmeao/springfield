@@ -223,6 +223,26 @@ def test_the_resolver_offers_a_way_out_that_does_not_depend_on_javascript(routed
     assert not escape.find_parents("noscript")
 
 
+def test_the_resolver_paints_its_own_colours_in_both_schemes():
+    """It loads none of the site CSS, so without its own colours it inherits the browser's
+    canvas — black-on-dark for a visitor in dark mode."""
+    stylesheet = (settings.ROOT_PATH / "media" / "css" / "cms" / "routing" / "resolver.scss").read_text()
+
+    assert "--routing-resolver-background" in stylesheet
+    assert "--routing-resolver-text" in stylesheet
+    assert "prefers-color-scheme: dark" in stylesheet
+
+
+def test_the_escape_link_reveals_itself_on_focus():
+    """The class sits on the ``<p>`` while the ``<a>`` inside takes focus, so keying the reveal
+    off ``:focus`` matches nothing and a keyboard user focuses a transparent element."""
+    stylesheet = (settings.ROOT_PATH / "media" / "css" / "cms" / "routing" / "resolver.scss").read_text()
+
+    assert ".routing-resolver-escape:focus-within" in stylesheet
+    for dead in (".routing-resolver-escape:focus,", ".routing-resolver-escape:focus-visible"):
+        assert dead not in stylesheet, f"{dead} can never match — the class is on a non-focusable <p>"
+
+
 def _render_for(routed_page, request):
     """Render the resolver for a specific request, so its query string reaches the template."""
     response = render_resolver(request, routed_page.canonical)
