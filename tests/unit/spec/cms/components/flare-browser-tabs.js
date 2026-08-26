@@ -373,7 +373,13 @@ describe('flare-browser-tabs.es6.js', function () {
 
         it('should stand down once the visitor tabs into the tablist', async function () {
             setupWithPendingBrave();
-            tab('safari').focus();
+            // Dispatched by hand rather than calling focus(): a browser only
+            // fires focus events while its own window holds system focus, so
+            // focus() is silent whenever the test window sits in the
+            // background.
+            tab('safari').dispatchEvent(
+                new FocusEvent('focusin', { bubbles: true })
+            );
             expect(selected()).toEqual('chrome');
 
             await settle(true);

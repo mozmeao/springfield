@@ -11,29 +11,22 @@
 
 @layer page {
     /* Custom header */
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx {
+    .fl-referral-hub-page .fl-header-inner {
         background-image: none;
-        inline-size: 209px;
     }
 
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx > img {
+    .fl-referral-hub-page .fl-header-inner > img {
+        block-size: 38px;
         display: block;
+        inline-size: auto;
         margin: 0;
+        margin-block: 15px 0;
+        margin-inline-start: -5px;
         max-block-size: unset;
-    }
-
-    .fl-referral-hub-page .fl-header:has(.fl-logo-share-fx) {
-        padding: var(--token-spacing-lg);
     }
 
     /* Upper band */
     .fl-referral-hub-page .fl-split-page-upper {
-        background: linear-gradient(
-            0deg,
-            rgba(57, 21, 112, 1) 0%,
-            rgba(46, 14, 91, 1) 28%,
-            var(--token-color-dark-purple) 100%
-        );
         padding-block-end: 0;
     }
 
@@ -49,6 +42,10 @@
 
     .fl-referral-hub-page .fl-media-tabs {
         inline-size: 100%;
+    }
+
+    .fl-referral-hub-page .fl-tabs-panels {
+        min-block-size: 481px;
     }
 
     .fl-referral-hub-page .fl-tabs {
@@ -118,12 +115,15 @@
         padding-block-start: 0;
     }
 
-    .fl-referral-hub-page .fl-banner-kit {
-        background-image: none;
-    }
-
     .fl-referral-hub-page .fl-split-page-lower > :last-child {
         padding-block-end: 0;
+    }
+
+    /* kit banner */
+    .fl-referral-hub-page .fl-banner.fl-banner-kit span.fl-fx-logo {
+        block-size: 0.7em;
+        inline-size: 0.7em;
+        margin-block: 0 0.1em;
     }
 
     /* Extra band  */
