@@ -39,11 +39,16 @@ def create_detached_revision(translation, page, user):
     )
 
 
-def latest_translation_edit(translation):
+def latest_translation_content_change(translation):
     """When this `translation`'s content was last changed, or None.
 
-    Covers both translated strings and segment overrides. Rows flagged with an error
-    are excluded: a failed publish updates their timestamp, but they are not rendered.
+    Covers:
+    - translated strings
+    - segment overrides
+    - source page (fills any segment that is not translated)
+
+    Rows flagged with an error are excluded: a failed publish updates their timestamp,
+    but they are not rendered.
     """
     context_ids = StringSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
     latest_updates = [
@@ -57,8 +62,19 @@ def latest_translation_edit(translation):
             context_id__in=context_ids,
             has_error=False,
         ).aggregate(latest=Max("updated_at"))["latest"],
+        translation.source.last_updated_at,
     ]
     return max([latest_update for latest_update in latest_updates if latest_update], default=None)
+
+
+# def latest_shareable_content_change(translation):
+#     """When the content for `translation` last changed.
+#
+#     Covers both the translated strings and the source page, whose text fills any segment
+#     that is not translated.
+#     """
+#     changes = [translation.source.last_updated_at, latest_translation_edit(translation)]
+#     return max(change for change in changes if change is not None)
 
 
 def _links_for_page(page):
@@ -77,13 +93,12 @@ def reusable_sharing_link(translation, page):
 
     Allows repeated shares to return the same link instead of creating a duplicate revision.
     """
-    active_links_for_page = _active_links_for_page(page).order_by("-revision__created_at")
-
-    latest_edit = latest_translation_edit(translation)
-    if latest_edit is not None:
-        active_links_for_page = active_links_for_page.filter(revision__created_at__gte=latest_edit)
-
-    return active_links_for_page.first()
+    return (
+        _active_links_for_page(page)
+        .filter(revision__created_at__gte=latest_translation_content_change(translation))
+        .order_by("-revision__created_at")
+        .first()
+    )
 
 
 def delete_dead_sharing_revisions(page):
@@ -116,7 +131,7 @@ def has_shareable_translation_draft(translation, page):
     if page.last_published_at is None:
         return True
 
-    latest_edit = latest_translation_edit(translation)
-    if latest_edit is None:
+    latest_content_change = latest_translation_content_change(translation)
+    if latest_content_change is None:
         return False
-    return latest_edit > page.last_published_at
+    return latest_content_change > page.last_published_at

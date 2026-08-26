@@ -179,6 +179,21 @@ def test_creates_new_sharing_link_for_edits(existing_sharing_url, post, translat
     assert WagtaildraftsharingLink.objects.count() == 2
 
 
+def test_creates_new_sharing_link_for_source_page_changes(existing_sharing_url, post, translated_page_with_pending_edit):
+    source_page = translated_page_with_pending_edit.source_page
+    source_page.title += "!"
+    source_page.save()
+    TranslationSource.update_or_create_from_instance(source_page)
+
+    response = post()
+
+    assert response.status_code == 200
+
+    url = response.json()["url"]
+    assert url != existing_sharing_url
+    assert WagtaildraftsharingLink.objects.count() == 2
+
+
 def test_deactivated_sharing_link_is_not_reused(existing_sharing_url, post):
     WagtaildraftsharingLink.objects.update(is_active=False)
 

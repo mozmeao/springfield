@@ -94,6 +94,15 @@ def test_shown_when_a_segment_override_is_pending(assert_button_in_page, transla
     assert_button_in_page(translated_page.page, translated_page.translation)
 
 
+def test_shown_when_source_page_has_changed(assert_button_in_page, translated_page):
+    source_page = translated_page.source_page
+    source_page.title += "!"
+    source_page.save()
+    TranslationSource.update_or_create_from_instance(source_page)
+
+    assert_button_in_page(translated_page.page, translated_page.translation)
+
+
 def test_hidden_when_nothing_has_changed_since_publication(assert_button_not_in_page, translated_page):
     assert_button_not_in_page(translated_page.page)
 
