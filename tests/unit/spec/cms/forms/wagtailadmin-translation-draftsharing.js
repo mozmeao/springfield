@@ -105,16 +105,28 @@ describe('wagtailadmin-translation-draftsharing', function () {
     });
 
     describe('createSharingLink', function () {
+        let writeText;
+
         beforeEach(function () {
             const config = document.createElement('script');
             config.id = 'wagtail-config';
             config.type = 'application/json';
             config.textContent = JSON.stringify({ CSRF_TOKEN: 'test-token' });
             document.body.appendChild(config);
+
+            // Stub the copy step (never settles in headed Chrome)
+            writeText = jasmine
+                .createSpy('writeText')
+                .and.returnValue(Promise.resolve());
+            Object.defineProperty(navigator, 'clipboard', {
+                value: { writeText },
+                configurable: true
+            });
         });
 
         afterEach(function () {
             document.getElementById('wagtail-config').remove();
+            delete navigator.clipboard;
         });
 
         it('posts to the button url with the csrf token', async function () {
@@ -136,6 +148,28 @@ describe('wagtailadmin-translation-draftsharing', function () {
             expect(url).toEqual('/cms-admin/translation-draftsharing/37/');
             expect(options.method).toEqual('POST');
             expect(options.headers['X-CSRFToken']).toEqual('test-token');
+        });
+
+        it('copies the returned url to the clipboard', async function () {
+            root = buildEditor(true);
+            placeDraftsharingButton(root);
+            const button = root.querySelector(
+                '[data-translation-draftsharing]'
+            );
+            const shareURL = '/shared/abc/';
+            spyOn(window, 'fetch').and.returnValue(
+                Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ url: shareURL })
+                })
+            );
+
+            await createSharingLink(button);
+
+            expect(writeText).toHaveBeenCalledWith(
+                window.location.origin + shareURL
+            );
+            expect(button.textContent).toContain('Copied!');
         });
 
         it('restores the button icon and label when the request fails', async function () {

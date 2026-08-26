@@ -9,24 +9,16 @@ from pytest_django.asserts import assertInHTML
 from wagtail.models import Locale
 from wagtail_localize.models import SegmentOverride, StringSegment, StringTranslation, Translation, TranslationSource
 
-from springfield.cms.tests.factories import WagtailUserFactory
-
 pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def editor():
-    return WagtailUserFactory(is_superuser=True)
-
-
-@pytest.fixture
-def get_edit_page_html(client, editor):
+def get_edit_page_html(admin_client):
 
     def _get_edit_page_html(page):
         url = reverse("wagtailadmin_pages:edit", args=[page.id])
-        client.force_login(editor)
 
-        response = client.get(url)
+        response = admin_client.get(url)
 
         assert response.status_code == 200
         return response.content.decode()
@@ -112,7 +104,7 @@ def test_hidden_when_the_only_pending_edit_has_an_error(assert_button_not_in_pag
     assert_button_not_in_page(translated_page_with_pending_edit.page)
 
 
-def test_button_not_rendered_in_translated_snippet_editor(client, pretranslated_phrase_snippet, editor):
+def test_button_not_rendered_in_translated_snippet_editor(admin_client, pretranslated_phrase_snippet):
     """edit_translation.html is shared with snippets, which have no page to share."""
     # Create a translatable snippet with an enabled Translation for the snippet editor path
     locale = Locale.objects.create(language_code="fr")
@@ -122,10 +114,9 @@ def test_button_not_rendered_in_translated_snippet_editor(client, pretranslated_
     source, __ = TranslationSource.get_or_create_from_instance(pretranslated_phrase_snippet)
     Translation.objects.create(source=source, target_locale=locale, enabled=True)
 
-    client.force_login(editor)
     url = reverse("wagtailsnippets_cms_pretranslatedphrase:edit", args=[translated_snippet.pk])
 
-    response = client.get(url)
+    response = admin_client.get(url)
 
     assert response.status_code == 200
     page_html = response.content.decode()

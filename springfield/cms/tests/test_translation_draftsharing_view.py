@@ -34,12 +34,11 @@ def url():
 
 
 @pytest.fixture
-def post(client, editor, translated_page_with_pending_edit, url):
+def post(admin_client, translated_page_with_pending_edit, url):
     translation_id = translated_page_with_pending_edit.translation.pk
 
     def _post():
-        client.force_login(editor)
-        return client.post(url(translation_id))
+        return admin_client.post(url(translation_id))
 
     return _post
 
@@ -56,35 +55,31 @@ def test_anonymous_user_not_permitted(client, translated_page_with_pending_edit,
     assert WagtaildraftsharingLink.objects.exists() is False
 
 
-def test_user_without_edit_permission_not_permitted(client, translated_page_with_pending_edit, url):
+def test_user_without_edit_permission_not_permitted(admin_client, translated_page_with_pending_edit, url):
     no_access = WagtailUserFactory(username="no-access", is_superuser=False)
-    client.force_login(no_access)
+    admin_client.force_login(no_access, backend="django.contrib.auth.backends.ModelBackend")
 
-    response = client.post(url(translated_page_with_pending_edit.translation.pk))
+    response = admin_client.post(url(translated_page_with_pending_edit.translation.pk))
 
     assert response.status_code == 302
     assert response.url.startswith("/cms-admin/login/")
     assert WagtaildraftsharingLink.objects.exists() is False
 
 
-def test_get_is_rejected(client, editor, translated_page_with_pending_edit, url):
-    client.force_login(editor)
-
-    response = client.get(url(translated_page_with_pending_edit.translation.pk))
+def test_get_is_rejected(admin_client, translated_page_with_pending_edit, url):
+    response = admin_client.get(url(translated_page_with_pending_edit.translation.pk))
 
     assert response.status_code == 405
 
 
-def test_unknown_translation_returns_404(client, editor, url):
-    client.force_login(editor)
-
-    response = client.post(url(999999), follow=True)
+def test_unknown_translation_returns_404(admin_client, url):
+    response = admin_client.post(url(999999), follow=True)
 
     assert response.status_code == 404
     assert WagtaildraftsharingLink.objects.exists() is False
 
 
-def test_returns_sharing_url_without_changing_page(client, post, translated_page_with_pending_edit):
+def test_returns_sharing_url_without_changing_page(admin_client, post, translated_page_with_pending_edit):
     response = post()
 
     assert response.status_code == 200
@@ -97,18 +92,18 @@ def test_returns_sharing_url_without_changing_page(client, post, translated_page
     data = response.json()
     assert data["url"] == sharing_link.url
 
-    client.logout()
+    admin_client.logout()
     unpublished_text = "Passer à Firefox"
 
     # Shared page preview shows unpublished translation
-    shared_response = client.get(sharing_link.url)
+    shared_response = admin_client.get(sharing_link.url)
 
     assert shared_response.status_code == 200
     assert shared_response["X-Robots-Tag"] == "noindex, nofollow"
     assert unpublished_text in shared_response.content.decode()
 
     # Change to public page is not published
-    public_response = client.get(translated_page_with_pending_edit.page.url)
+    public_response = admin_client.get(translated_page_with_pending_edit.page.url)
 
     assert public_response.status_code == 200
     assert unpublished_text not in public_response.content.decode()
