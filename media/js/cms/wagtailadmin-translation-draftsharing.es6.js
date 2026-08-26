@@ -43,6 +43,15 @@ export async function createSharingLink(button) {
         if (!response.ok) {
             labelNode.nodeValue = originalLabel;
             button.disabled = false;
+            document.dispatchEvent(
+                new CustomEvent('w-messages:add', {
+                    detail: {
+                        clear: true,
+                        text: 'Error generating sharing URL',
+                        type: 'error'
+                    }
+                })
+            );
             return;
         }
 
@@ -70,6 +79,15 @@ export async function createSharingLink(button) {
     } catch (error) {
         labelNode.nodeValue = originalLabel;
         button.disabled = false;
+        document.dispatchEvent(
+            new CustomEvent('w-messages:add', {
+                detail: {
+                    clear: true,
+                    text: 'Error generating sharing URL',
+                    type: 'error'
+                }
+            })
+        );
     }
 }
 
