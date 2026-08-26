@@ -11,11 +11,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 import pytest
-from wagtail.models import Revision
-from wagtail_localize.models import StringSegment, StringTranslation
+from wagtail.models import Locale, Revision
+from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationSource
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
-from springfield.cms.tests.factories import WagtailUserFactory
+from springfield.cms.tests.factories import SimpleRichTextPageFactory, WagtailUserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -78,6 +78,21 @@ def test_get_is_rejected(admin_client, translated_page_with_pending_edit, url):
 
 def test_unknown_translation_returns_404(admin_client, url):
     response = admin_client.post(url(999999), follow=True)
+
+    assert response.status_code == 404
+    assert WagtaildraftsharingLink.objects.exists() is False
+
+
+def test_translation_without_a_target_page_returns_404(admin_client, minimal_site, url):
+    source_page = SimpleRichTextPageFactory(title="Not yet synced", slug="not-yet-synced", parent=minimal_site.root_page)
+    source, __ = TranslationSource.get_or_create_from_instance(source_page)
+    translation = Translation.objects.create(
+        source=source,
+        target_locale=Locale.objects.get(language_code="fr"),
+        enabled=True,
+    )
+
+    response = admin_client.post(url(translation.pk), follow=True)
 
     assert response.status_code == 404
     assert WagtaildraftsharingLink.objects.exists() is False

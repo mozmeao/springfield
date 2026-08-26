@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -60,7 +60,10 @@ def create_translation_sharing_link(request, translation_id):
     and cleans up revisions for this page's expired links.
     """
     translation = get_object_or_404(Translation, id=translation_id)
-    page = translation.get_target_instance()
+    try:
+        page = translation.get_target_instance()
+    except ObjectDoesNotExist:
+        raise Http404
     if not isinstance(page, Page):
         raise Http404
     if not page.permissions_for_user(request.user).can_edit():
