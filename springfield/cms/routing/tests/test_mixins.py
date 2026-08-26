@@ -46,6 +46,17 @@ def test_arming_param_is_none_without_a_trigger():
     assert RoutingMixin.get_routing_arming_param() is None
 
 
+@pytest.mark.django_db
+def test_arming_param_skipped_in_sqlite_export_mode(monkeypatch):
+    from springfield.cms.models.pages import WhatsNewPage2026
+
+    # Without the env var, a concrete consumer returns its arming param.
+    assert WhatsNewPage2026.get_routing_arming_param() is not None
+
+    monkeypatch.setenv("SQLITE_EXPORT_MODE", "True")
+    assert WhatsNewPage2026.get_routing_arming_param() is None
+
+
 # ---------------------------------------------------------------------------
 # The mixin adds no database fields, so adoption produces no migration.
 # ---------------------------------------------------------------------------
