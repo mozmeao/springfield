@@ -43,6 +43,9 @@ function initCopyToClipboardButton(buttonEl) {
 
     buttonEl.addEventListener('click', () => {
         navigator.clipboard.writeText(value).then(() => {
+            buttonEl.dispatchEvent(
+                new CustomEvent('fl-copy-success', { bubbles: true })
+            );
             labelEl.classList.add('opacity-0');
             labelEl.setAttribute('aria-hidden', 'true');
             successLabelEl.classList.remove('opacity-0');
@@ -51,6 +54,15 @@ function initCopyToClipboardButton(buttonEl) {
             iconDefault.setAttribute('aria-hidden', 'true');
             iconSuccess.classList.remove('hidden');
             buttonEl.disabled = true;
+
+            if (window.dataLayer) {
+                window.dataLayer.push({
+                    event: 'widget_action',
+                    type: 'copy to clipboard',
+                    action: 'copy',
+                    text: labelEl.textContent
+                });
+            }
 
             if (resetTimer) {
                 clearTimeout(resetTimer);

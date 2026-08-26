@@ -64,3 +64,8 @@
     {% endfor %}
   </div>
 {% endblock pre_footer %}
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('flare-referral-hub') }}
+{% endblock %}
