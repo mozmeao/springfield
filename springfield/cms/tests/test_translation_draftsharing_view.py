@@ -6,6 +6,7 @@
 
 from datetime import timedelta
 
+from django.contrib.auth.models import Group, Permission
 from django.urls import reverse
 from django.utils import timezone
 
@@ -56,13 +57,16 @@ def test_anonymous_user_not_permitted(client, translated_page_with_pending_edit,
 
 
 def test_user_without_edit_permission_not_permitted(admin_client, translated_page_with_pending_edit, url):
-    no_access = WagtailUserFactory(username="no-access", is_superuser=False)
-    admin_client.force_login(no_access, backend="django.contrib.auth.backends.ModelBackend")
+    no_edit_perm = WagtailUserFactory(username="admin-only")
+    admin_only = Group.objects.create(name="Admin access only")
+    admin_only.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+    no_edit_perm.groups.add(admin_only)
+    admin_client.force_login(no_edit_perm, backend="django.contrib.auth.backends.ModelBackend")
 
     response = admin_client.post(url(translated_page_with_pending_edit.translation.pk))
 
     assert response.status_code == 302
-    assert response.url.startswith("/cms-admin/login/")
+    assert response.url == "/cms-admin/"
     assert WagtaildraftsharingLink.objects.exists() is False
 
 
