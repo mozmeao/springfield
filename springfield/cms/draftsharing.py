@@ -17,6 +17,9 @@ from wagtail_localize.models import SegmentOverride, StringSegment, StringTransl
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 from wagtaildraftsharing.utils import tz_aware_utc_now
 
+# Marker on `Revision.object_str` for revisions created solely for draft sharing
+SHARE_REVISION_PREFIX = "[draft-sharing]"
+
 
 def create_detached_revision(translation, page, user):
     """Create a revision for the pending translation that is not the page's latest.
@@ -26,7 +29,7 @@ def create_detached_revision(translation, page, user):
     """
     pending = translation.source.get_ephemeral_translated_instance(
         translation.target_locale,
-        # Untranslated strings will fallback to the original page's text
+        # Untranslated strings will fall back to the original page's text
         fallback=True,
     )
     specific_page = page.specific
@@ -35,7 +38,7 @@ def create_detached_revision(translation, page, user):
         base_content_type=specific_page.get_base_content_type(),
         user=user,
         content=pending.serializable_data(),
-        object_str=str(pending),
+        object_str=f"{SHARE_REVISION_PREFIX} {pending}",
     )
 
 
@@ -65,16 +68,6 @@ def latest_translation_content_change(translation):
         translation.source.last_updated_at,
     ]
     return max([latest_update for latest_update in latest_updates if latest_update], default=None)
-
-
-# def latest_shareable_content_change(translation):
-#     """When the content for `translation` last changed.
-#
-#     Covers both the translated strings and the source page, whose text fills any segment
-#     that is not translated.
-#     """
-#     changes = [translation.source.last_updated_at, latest_translation_edit(translation)]
-#     return max(change for change in changes if change is not None)
 
 
 def _links_for_page(page):
@@ -112,7 +105,11 @@ def delete_dead_sharing_revisions(page):
     active_revision_ids = _active_links_for_page(page).values_list("revision_id", flat=True)
 
     revisions_to_delete = (
-        Revision.objects.for_instance(page).filter(id__in=linked_revision_ids).exclude(id__in=active_revision_ids).exclude(id__in=protected_ids)
+        Revision.objects.for_instance(page)
+        .filter(object_str__startswith=SHARE_REVISION_PREFIX)
+        .filter(id__in=linked_revision_ids)
+        .exclude(id__in=active_revision_ids)
+        .exclude(id__in=protected_ids)
     )
     if not revisions_to_delete:
         return 0

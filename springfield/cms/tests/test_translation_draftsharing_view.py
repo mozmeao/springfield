@@ -106,6 +106,7 @@ def test_returns_sharing_url_without_changing_page(admin_client, post, translate
     sharing_link = WagtaildraftsharingLink.objects.get()
     revision = Revision.objects.for_instance(translated_page_with_pending_edit.page).order_by("-created_at").first()
     assert sharing_link.revision == revision
+    assert revision.object_str.startswith("[draft-sharing] ")
     expected_url = reverse("wagtaildraftsharing:view", args=[sharing_link.key])
     assert sharing_link.url == expected_url
     data = response.json()
@@ -139,7 +140,7 @@ def existing_sharing_link(editor, translated_page_with_pending_edit):
         base_content_type=page.get_base_content_type(),
         user=editor,
         content=page.serializable_data(),
-        object_str=str(page),
+        object_str=f"[draft-sharing] {page}",
     )
     return WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=editor)
 
@@ -223,7 +224,7 @@ def test_different_page_sharing_link_is_not_reused(editor, post, translated_page
         base_content_type=source.get_base_content_type(),
         user=editor,
         content=source.serializable_data(),
-        object_str=str(source),
+        object_str=f"[draft-sharing] {source}",
     )
     source_link = WagtaildraftsharingLink.objects.create_for_revision(revision=source_revision, user=editor)
     source_sharing_url = source_link.url
@@ -288,7 +289,7 @@ def test_does_not_delete_expired_link_revision_from_other_page(editor, existing_
         base_content_type=source.get_base_content_type(),
         user=editor,
         content=source.serializable_data(),
-        object_str=str(source),
+        object_str=f"[draft-sharing] {source}",
     )
     source_link = WagtaildraftsharingLink.objects.create_for_revision(revision=source_revision, user=editor)
     source_link.is_active = False
@@ -302,3 +303,19 @@ def test_does_not_delete_expired_link_revision_from_other_page(editor, existing_
     assert Revision.objects.count() == existing_revision_count
     existing_sharing_link.refresh_from_db()
     source_link.refresh_from_db()
+
+
+def test_does_not_delete_normal_revision(editor, existing_sharing_link, post, translated_page_with_pending_edit):
+    """Revisions used for draft sharing are marked with a prefix - only those should be deleted."""
+    existing_sharing_link.is_active = False
+    existing_sharing_link.save(update_fields=["is_active"])
+    revision = existing_sharing_link.revision
+    revision.object_str = "Do not delete"
+    revision.save(update_fields=["object_str"])
+
+    response = post()
+
+    assert response.status_code == 200
+    # No revisions or links deleted
+    revision.refresh_from_db()
+    existing_sharing_link.refresh_from_db()
