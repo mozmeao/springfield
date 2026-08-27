@@ -75,6 +75,13 @@ html {
     text-size-adjust: 100%;
     accent-color: var(--fl-theme-accent-color);
     color: white;
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
 }
 
 body {
