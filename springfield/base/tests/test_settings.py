@@ -38,3 +38,30 @@ def test_get_media_cdn_hostname(media_url, expected_hostname):
 def test_catch_disallowed_redirect_middleware_enabled():
     middleware_path = "springfield.base.middleware.CatchDisallowedRedirect"
     assert middleware_path in settings.MIDDLEWARE
+
+
+def test_lazy_langs_skips_db_before_apps_ready(mocker):
+    from springfield.settings.base import lazy_langs
+
+    mocker.patch("springfield.settings.base.DEV_LANGUAGES", ["en-US", "de"])
+    apps = mocker.patch("django.apps.apps")
+    apps.ready = False
+
+    result = lazy_langs()
+    assert result == [("en-US", "en-US"), ("de", "de")]
+
+
+def test_lazy_langs_uses_product_details_after_apps_ready(mocker):
+    from springfield.settings.base import lazy_langs
+
+    mocker.patch("springfield.settings.base.DEV_LANGUAGES", ["en-US", "de"])
+    apps = mocker.patch("django.apps.apps")
+    apps.ready = True
+    pd = mocker.patch("product_details.product_details")
+    pd.languages = {
+        "en-US": {"native": "English (US)"},
+        "de": {"native": "Deutsch"},
+    }
+
+    result = lazy_langs()
+    assert result == [("en-US", "English (US)"), ("de", "Deutsch")]
