@@ -82,22 +82,3 @@ def delete_dead_sharing_revisions(page):
             # Revision has a custom `delete` method
             revision.delete()
     return len(revisions_to_delete)
-
-
-def _shareable_content(instance):
-    # The ephemeral instance rebuilds `slug` from the source page (as a `SynchronizedField`) but `wagtail-localize`
-    # makes the saved page's slug unique via `find_available_slug()`, so the two will always disagree. Ignore it.
-    return {k: v for k, v in instance.serializable_data().items() if k != "slug"}
-
-
-def has_shareable_translation_draft(translation, page):
-    """Whether this translated page has content different from what is published."""
-    if not page.live:
-        return True
-    if page.last_published_at is None:
-        return True
-
-    # Compare content directly to handle complexity of string translations, segment overrides,
-    # errors, and source page fallback.
-    pending = translation.source.get_ephemeral_translated_instance(translation.target_locale, fallback=True)
-    return _shareable_content(pending) != _shareable_content(page.specific)

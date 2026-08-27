@@ -9,8 +9,6 @@ from django.utils.html import format_html
 from wagtail.models import Page
 from wagtaildraftsharing.wagtail_hooks import DraftsharingPageActionMenuItem
 
-from springfield.cms.draftsharing import has_shareable_translation_draft
-
 register = template.Library()
 
 
@@ -33,15 +31,13 @@ class TranslationDraftsharingMenuItem(DraftsharingPageActionMenuItem):
 def translation_draftsharing_button(context, translation, instance):
     """
     Returns the draft sharing button for a translated page inside a `<template>`
-    element. Returns an empty string when there is nothing unpublished and for
-    snippets (which share this editor but have no page to share).
+    element. Returns an empty string for snippets (which share this editor but have
+    no page to share).
 
     The translation editor's action menu is rendered by React, so the button is moved
     into place by `wagtailadmin-translation-draftsharing.es6.js`.
     """
     if not isinstance(instance, Page):
-        return ""
-    if not has_shareable_translation_draft(translation, instance):
         return ""
 
     menu_item = TranslationDraftsharingMenuItem(translation=translation)

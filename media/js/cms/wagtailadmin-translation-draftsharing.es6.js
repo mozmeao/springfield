@@ -131,7 +131,7 @@ export function initTranslationDraftsharing(options) {
     return observer;
 }
 
-// Auto-run only when there is a button (so there is something to share). Skips otherwise.
+// Auto-run only when there is a button. Skips otherwise.
 if (typeof document !== 'undefined' && document.getElementById(TEMPLATE_ID)) {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
