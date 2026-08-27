@@ -92,33 +92,52 @@ def test_releases_index(render_mock, rf):
 
     expected_data = {
         "releases": [
-            (101.0, {"major": "101.0", "minor": ["101.2"]}),
+            (
+                101.0,
+                {
+                    "major": "101.0",
+                    "minor": [
+                        {"version_string": "101.2", "is_esr": True},
+                    ],
+                },
+            ),
             (
                 100.0,
                 {
                     "major": "100.0",
-                    "minor": ["100.1", "100.2"],
+                    "minor": [
+                        {"version_string": "100.1", "is_esr": True},
+                        {"version_string": "100.2", "is_esr": True},
+                    ],
                 },
             ),
             (
                 96.0,
                 {
                     "major": "96.0",
-                    "minor": ["96.5"],
+                    "minor": [
+                        {"version_string": "96.5", "is_esr": True},
+                    ],
                 },
             ),
             (
                 33.1,
                 {
                     "major": "33.1",
-                    "minor": ["33.1.1"],
+                    "minor": [
+                        {"version_string": "33.1.1", "is_esr": False},
+                    ],
                 },
             ),
             (
                 33.0,
                 {
                     "major": "33.0",
-                    "minor": ["33.0.1", "33.0.2", "33.0.3"],
+                    "minor": [
+                        {"version_string": "33.0.1", "is_esr": False},
+                        {"version_string": "33.0.2", "is_esr": False},
+                        {"version_string": "33.0.3", "is_esr": False},
+                    ],
                 },
             ),
             (
@@ -126,20 +145,81 @@ def test_releases_index(render_mock, rf):
                 {
                     "major": "3.6",
                     "minor": [
-                        "3.6.2",
-                        "3.6.3",
-                        "3.6.4",
-                        "3.6.6",
-                        "3.6.7",
-                        "3.6.8",
-                        "3.6.9",
-                        "3.6.10",
-                        "3.6.11",
-                        "3.6.12",
-                        "3.6.13",
-                        "3.6.14",
-                        "3.6.15",
-                        "3.6.16",
+                        {"version_string": "3.6.2", "is_esr": False},
+                        {"version_string": "3.6.3", "is_esr": False},
+                        {"version_string": "3.6.4", "is_esr": False},
+                        {"version_string": "3.6.6", "is_esr": False},
+                        {"version_string": "3.6.7", "is_esr": False},
+                        {"version_string": "3.6.8", "is_esr": False},
+                        {"version_string": "3.6.9", "is_esr": False},
+                        {"version_string": "3.6.10", "is_esr": False},
+                        {"version_string": "3.6.11", "is_esr": False},
+                        {"version_string": "3.6.12", "is_esr": False},
+                        {"version_string": "3.6.13", "is_esr": False},
+                        {"version_string": "3.6.14", "is_esr": False},
+                        {"version_string": "3.6.15", "is_esr": False},
+                        {"version_string": "3.6.16", "is_esr": False},
+                    ],
+                },
+            ),
+        ],
+    }
+    render_mock.assert_called_once_with(
+        request,
+        "firefox/releases/index.html",
+        expected_data,
+    )
+
+
+@patch("springfield.firefox.views.l10n_utils.render")
+def test_releases_index__esr_annotation(render_mock, rf):
+    """ESR point releases (nonzero second segment) are flagged,
+    but 50.1.0 is excluded as a known non-ESR exception."""
+
+    mock_major_releases_val = {
+        "50.0": "2016-11-15",
+        "115.0": "2023-07-04",
+    }
+    mock_minor_releases_val = {
+        "50.0.1": "2016-11-28",
+        "50.0.2": "2016-12-01",
+        "50.1.0": "2016-12-13",
+        "115.0.1": "2023-07-06",
+        "115.0.2": "2023-07-11",
+        "115.1.0": "2023-08-01",
+        "115.2.0": "2023-08-29",
+    }
+
+    request = rf.get("/")
+
+    with patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop:
+        mock_firefox_desktop.firefox_history_major_releases = mock_major_releases_val
+        mock_firefox_desktop.firefox_history_stability_releases = mock_minor_releases_val
+
+        releases_index(request, "Firefox")
+
+    expected_data = {
+        "releases": [
+            (
+                115.0,
+                {
+                    "major": "115.0",
+                    "minor": [
+                        {"version_string": "115.0.1", "is_esr": False},
+                        {"version_string": "115.0.2", "is_esr": False},
+                        {"version_string": "115.1.0", "is_esr": True},
+                        {"version_string": "115.2.0", "is_esr": True},
+                    ],
+                },
+            ),
+            (
+                50.0,
+                {
+                    "major": "50.0",
+                    "minor": [
+                        {"version_string": "50.0.1", "is_esr": False},
+                        {"version_string": "50.0.2", "is_esr": False},
+                        {"version_string": "50.1.0", "is_esr": False},
                     ],
                 },
             ),

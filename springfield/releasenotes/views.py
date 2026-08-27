@@ -278,11 +278,16 @@ def releases_index(request, product):
         major_pattern = r"^" + re.escape(
             f"{major_version:.0f}." if major_version > 4 and release not in ["33.0", "33.1"] else f"{major_version:.1f}."
         )
+        non_esr_releases = {"33.1", "50.0"}
         releases[major_version] = {
             "major": release,
-            "minor": sorted(
-                [x for x in minor_releases if re.findall(major_pattern, x) if x not in major_releases], key=lambda x: [int(y) for y in x.split(".")]
-            ),
+            "minor": [
+                {"version_string": x, "is_esr": major_version > 4 and x.split(".")[1] != "0" and release not in non_esr_releases}
+                for x in sorted(
+                    [x for x in minor_releases if re.findall(major_pattern, x) if x not in major_releases],
+                    key=lambda x: [int(y) for y in x.split(".")],
+                )
+            ],
         }
 
     return l10n_utils.render(request, f"{product.lower()}/releases/index.html", {"releases": sorted(releases.items(), reverse=True)})
