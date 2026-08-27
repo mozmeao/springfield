@@ -63,13 +63,6 @@
         color: var(--theme-tabs-tab-color-hover);
     }
 
-    .fl-tab-image {
-        block-size: auto;
-        display: block;
-        margin: 0 auto var(--token-layout-xs);
-        max-inline-size: 100%;
-    }
-
     [role='tabpanel'].is-hidden {
         display: none;
     }
@@ -89,4 +82,26 @@
     .fl-tabs button[role='tab'] {
         min-inline-size: 122px;
     }
+}
+
+.fl-tab-panel-media {
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.fl-tab-panel-media .fl-video {
+    block-size: 120px;
+    display: block;
+    inline-size: auto;
+    margin: 0 auto var(--token-spacing-xl);
+    max-inline-size: 100%;
+}
+
+.fl-tab-panel-media img {
+    block-size: auto;
+    display: block;
+    inline-size: auto;
+    margin: 0 auto var(--token-spacing-xl);
+    max-block-size: 120px;
 }

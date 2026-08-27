@@ -1754,6 +1754,15 @@ class TabComparisonTableBlock(blocks.StreamBlock):
         label = "Comparison table"
 
 
+class TabMediaBlock(blocks.StreamBlock):
+    image = ImageVariantsBlock(required=False)
+    animation = AnimationBlock(required=False)
+
+    class Meta:
+        label = "Media"
+        template = "cms/blocks/media.html"
+
+
 class TabBlock(blocks.StructBlock):
     tab_name = blocks.CharBlock(label="Tab name")
     icon = IconChoiceBlock(required=False, label="Tab icon", help_text="Optional icon shown before the tab name in the tab list.")
@@ -1766,7 +1775,7 @@ class TabBlock(blocks.StructBlock):
         "Visitors on Firefox, or on a browser no tab claims, get the Chrome tab.",
     )
     heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    image = ImageChooserBlock(required=False)
+    media = TabMediaBlock(max_num=1, required=False)
     description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
     referral_controls = TabReferralControlsBlock(max_num=1, min_num=0, required=False)
     impact_dash = TabImpactDashBlock(max_num=1, min_num=0, required=False)

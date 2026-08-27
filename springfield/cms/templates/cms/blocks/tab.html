@@ -5,17 +5,9 @@
 #}
 
 <div id="fl-tab-panel-{{ section_id }}-{{ tab_index }}" role="tabpanel" aria-labelledby="fl-tab-{{ section_id }}-{{ tab_index }}" class="fl-tab">
-  {% if value.image %}
-    {{ srcset_image(
-        value.image,
-        "width-{200,400,600,800,1000,1200}",
-        sizes="(min-width: 1024px) 50vw, 100vw",
-        width=value.image.width,
-        height=value.image.height,
-        loading="lazy",
-        class="fl-tab-image",
-    ) }}
-  {% endif %}
+  <div class="fl-tab-panel-media">
+  {% include_block value.media %}
+  </div>
   {% if value.heading %}
     <h2 class="fl-tab-heading fl-heading-sm">{{ value.heading|richtext|remove_p_tag }}</h2>
   {% endif %}
