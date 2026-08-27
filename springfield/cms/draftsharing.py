@@ -46,17 +46,6 @@ def create_detached_revision(translation, page, user):
     )
 
 
-def _links_for_page(page):
-    """All sharing links for `page`'s revisions."""
-    return WagtaildraftsharingLink.objects.filter(revision__in=Revision.objects.for_instance(page))
-
-
-def _active_links_for_page(page):
-    """Active sharing links for `page`."""
-    now = tz_aware_utc_now()
-    return _links_for_page(page).filter(is_active=True).filter(Q(active_until__isnull=True) | Q(active_until__gt=now))
-
-
 def delete_dead_sharing_revisions(page):
     """Delete `page`'s revisions used solely by now-inactive sharing links. Returns
     the number of deleted revisions.
@@ -64,13 +53,17 @@ def delete_dead_sharing_revisions(page):
     Deleting the revision cascades to its links.
     """
     protected_ids = [pk for pk in (page.latest_revision_id, page.live_revision_id) if pk]
-    linked_revision_ids = _links_for_page(page).values_list("revision_id", flat=True)
-    active_revision_ids = _active_links_for_page(page).values_list("revision_id", flat=True)
+    now = tz_aware_utc_now()
+    active_revision_ids = (
+        WagtaildraftsharingLink.objects.filter(revision__in=Revision.objects.for_instance(page))
+        .filter(is_active=True)
+        .filter(Q(active_until__isnull=True) | Q(active_until__gt=now))
+        .values_list("revision_id", flat=True)
+    )
 
     revisions_to_delete = (
         Revision.objects.for_instance(page)
         .filter(object_str__startswith=SHARE_REVISION_PREFIX)
-        .filter(id__in=linked_revision_ids)
         .exclude(id__in=active_revision_ids)
         .exclude(id__in=protected_ids)
     )

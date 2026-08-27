@@ -176,6 +176,18 @@ def test_deletes_revision_whose_only_link_is_inactive(existing_sharing_link, pos
         existing_sharing_link.refresh_from_db()
 
 
+def test_deletes_revision_with_no_links(existing_sharing_link, post):
+    """If the link is deleted, then the revision should still be cleaned up."""
+    revision_with_expired_link = existing_sharing_link.revision
+    existing_sharing_link.delete()
+
+    response = post()
+
+    assert response.status_code == 200
+    with pytest.raises(Revision.DoesNotExist):
+        revision_with_expired_link.refresh_from_db()
+
+
 def test_does_not_delete_revision_with_one_active_link(editor, existing_sharing_link, post, translated_page_with_pending_edit):
     revision = existing_sharing_link.revision
     expired_sharing_link = WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=editor)
