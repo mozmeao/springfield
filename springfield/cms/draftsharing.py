@@ -13,7 +13,7 @@ from django.db import transaction
 from django.db.models import Max, Q
 
 from wagtail.models import Revision
-from wagtail_localize.models import SegmentOverride, StringSegment, StringTranslation
+from wagtail_localize.models import OverridableSegment, SegmentOverride, StringSegment, StringTranslation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 from wagtaildraftsharing.utils import tz_aware_utc_now
 
@@ -42,34 +42,6 @@ def create_detached_revision(translation, page, user):
     )
 
 
-def latest_translation_content_change(translation):
-    """When this `translation`'s content was last changed, or None.
-
-    Covers:
-    - translated strings
-    - segment overrides
-    - source page (fills any segment that is not translated)
-
-    Rows flagged with an error are excluded: a failed publish updates their timestamp,
-    but they are not rendered.
-    """
-    context_ids = StringSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
-    latest_updates = [
-        StringTranslation.objects.filter(
-            locale_id=translation.target_locale_id,
-            context_id__in=context_ids,
-            has_error=False,
-        ).aggregate(latest=Max("updated_at"))["latest"],
-        SegmentOverride.objects.filter(
-            locale_id=translation.target_locale_id,
-            context_id__in=context_ids,
-            has_error=False,
-        ).aggregate(latest=Max("updated_at"))["latest"],
-        translation.source.last_updated_at,
-    ]
-    return max([latest_update for latest_update in latest_updates if latest_update], default=None)
-
-
 def _links_for_page(page):
     """All sharing links for `page`'s revisions."""
     return WagtaildraftsharingLink.objects.filter(revision__in=Revision.objects.for_instance(page))
@@ -79,19 +51,6 @@ def _active_links_for_page(page):
     """Active sharing links for `page`."""
     now = tz_aware_utc_now()
     return _links_for_page(page).filter(is_active=True).filter(Q(active_until__isnull=True) | Q(active_until__gt=now))
-
-
-def reusable_sharing_link(translation, page):
-    """An existing link whose revision already contains the current translation, or None.
-
-    Allows repeated shares to return the same link instead of creating a duplicate revision.
-    """
-    return (
-        _active_links_for_page(page)
-        .filter(revision__created_at__gte=latest_translation_content_change(translation))
-        .order_by("-revision__created_at")
-        .first()
-    )
 
 
 def delete_dead_sharing_revisions(page):
@@ -121,6 +80,35 @@ def delete_dead_sharing_revisions(page):
     return len(revisions_to_delete)
 
 
+def latest_translation_content_change(translation):
+    """When this `translation`'s content was last changed, or None.
+
+    Covers:
+    - translated strings
+    - segment overrides
+    - source page (fills any segment that is not translated)
+
+    Rows flagged with an error are excluded: a failed publish updates their timestamp,
+    but they are not rendered.
+    """
+    string_context_ids = StringSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
+    override_context_ids = OverridableSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
+    latest_updates = [
+        StringTranslation.objects.filter(
+            locale_id=translation.target_locale_id,
+            context_id__in=string_context_ids,
+            has_error=False,
+        ).aggregate(latest=Max("updated_at"))["latest"],
+        SegmentOverride.objects.filter(
+            locale_id=translation.target_locale_id,
+            context_id__in=override_context_ids,
+            has_error=False,
+        ).aggregate(latest=Max("updated_at"))["latest"],
+        translation.source.last_updated_at,
+    ]
+    return max(latest_update for latest_update in latest_updates if latest_update)
+
+
 def has_shareable_translation_draft(translation, page):
     """Whether this translated page holds content that has not been published yet."""
     if not page.live:
@@ -129,6 +117,4 @@ def has_shareable_translation_draft(translation, page):
         return True
 
     latest_content_change = latest_translation_content_change(translation)
-    if latest_content_change is None:
-        return False
     return latest_content_change > page.last_published_at

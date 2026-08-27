@@ -4,6 +4,7 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -14,7 +15,7 @@ from wagtail.models import Locale, Page
 from wagtail_localize.models import Translation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
-from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions, reusable_sharing_link
+from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions
 from springfield.cms.models import BlogTag
 
 logger = logging.getLogger(__name__)
@@ -55,9 +56,7 @@ def blog_tag_autocomplete(request):
 @require_POST
 def create_translation_sharing_link(request, translation_id):
     """Returns a draft-sharing URL for a translated page's unpublished translation.
-
-    Reuses an existing link when the translation has not changed since it was made,
-    and cleans up revisions for this page's expired links.
+    Also cleans up revisions for this page's expired links.
     """
     translation = get_object_or_404(Translation, id=translation_id)
     try:
@@ -70,10 +69,10 @@ def create_translation_sharing_link(request, translation_id):
         raise PermissionDenied
 
     deleted_count = delete_dead_sharing_revisions(page)
-    logger.info("%d expired link revision(s) deleted for translation page ID=%d", deleted_count, page.pk)
+    if deleted_count:
+        logger.info("%d expired link revision(s) deleted for translation page ID=%d", deleted_count, page.pk)
 
-    link = reusable_sharing_link(translation, page)
-    if link is None:
+    with transaction.atomic():
         revision = create_detached_revision(translation, page, request.user)
         link = WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=request.user)
 

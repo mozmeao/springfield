@@ -12,7 +12,7 @@ from django.utils import timezone
 
 import pytest
 from wagtail.models import Locale, Revision
-from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationSource
+from wagtail_localize.models import Translation, TranslationSource
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
 from springfield.cms.tests.factories import SimpleRichTextPageFactory, WagtailUserFactory
@@ -145,98 +145,6 @@ def existing_sharing_link(editor, translated_page_with_pending_edit):
     return WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=editor)
 
 
-@pytest.fixture
-def existing_sharing_url(existing_sharing_link):
-    return existing_sharing_link.url
-
-
-def test_reuses_existing_sharing_link(existing_sharing_url, post):
-    existing_revision_count = Revision.objects.count()
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url == existing_sharing_url
-    assert Revision.objects.count() == existing_revision_count
-    assert WagtaildraftsharingLink.objects.count() == 1
-
-
-def test_creates_new_sharing_link_for_edits(existing_sharing_url, post, translated_page_with_pending_edit):
-    segment = StringSegment.objects.filter(source=translated_page_with_pending_edit.translation.source).first()
-    StringTranslation.objects.filter(
-        translation_of_id=segment.string_id,
-        locale=translated_page_with_pending_edit.locale,
-        context_id=segment.context_id,
-    ).update(data="Encore changé", updated_at=timezone.now() + timedelta(minutes=5))
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url != existing_sharing_url
-    assert WagtaildraftsharingLink.objects.count() == 2
-
-
-def test_creates_new_sharing_link_for_source_page_changes(existing_sharing_url, post, translated_page_with_pending_edit):
-    source_page = translated_page_with_pending_edit.source_page
-    source_page.title += "!"
-    source_page.save()
-    TranslationSource.update_or_create_from_instance(source_page)
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url != existing_sharing_url
-    assert WagtaildraftsharingLink.objects.count() == 2
-
-
-def test_deactivated_sharing_link_is_not_reused(existing_sharing_url, post):
-    WagtaildraftsharingLink.objects.update(is_active=False)
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url != existing_sharing_url
-
-
-def test_expired_sharing_link_is_not_reused(existing_sharing_url, post):
-    WagtaildraftsharingLink.objects.update(active_until=timezone.now() - timedelta(days=1))
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url != existing_sharing_url
-
-
-def test_different_page_sharing_link_is_not_reused(editor, post, translated_page_with_pending_edit):
-    source = translated_page_with_pending_edit.source_page.specific
-    source_revision = Revision.objects.create(
-        content_object=source,
-        base_content_type=source.get_base_content_type(),
-        user=editor,
-        content=source.serializable_data(),
-        object_str=f"[draft-sharing] {source}",
-    )
-    source_link = WagtaildraftsharingLink.objects.create_for_revision(revision=source_revision, user=editor)
-    source_sharing_url = source_link.url
-
-    response = post()
-
-    assert response.status_code == 200
-
-    url = response.json()["url"]
-    assert url != source_sharing_url
-
-
 def test_deletes_revision_whose_only_link_expired(existing_sharing_link, post):
     existing_sharing_link.active_until = timezone.now() - timedelta(days=1)
     existing_sharing_link.save(update_fields=["active_until"])
@@ -300,7 +208,7 @@ def test_does_not_delete_expired_link_revision_from_other_page(editor, existing_
 
     assert response.status_code == 200
     # No revisions or links deleted
-    assert Revision.objects.count() == existing_revision_count
+    assert Revision.objects.count() == existing_revision_count + 1
     existing_sharing_link.refresh_from_db()
     source_link.refresh_from_db()
 

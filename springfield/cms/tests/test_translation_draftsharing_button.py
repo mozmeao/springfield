@@ -7,7 +7,7 @@ from django.urls import reverse
 import pytest
 from pytest_django.asserts import assertInHTML
 from wagtail.models import Locale
-from wagtail_localize.models import SegmentOverride, StringSegment, StringTranslation, Translation, TranslationSource
+from wagtail_localize.models import OverridableSegment, SegmentOverride, StringTranslation, Translation, TranslationSource
 
 pytestmark = pytest.mark.django_db
 
@@ -83,7 +83,7 @@ def test_shown_when_live_but_never_published(assert_button_in_page, translated_p
 
 
 def test_shown_when_a_segment_override_is_pending(assert_button_in_page, translated_page):
-    segment = StringSegment.objects.filter(source=translated_page.translation.source).first()
+    segment = OverridableSegment.objects.filter(source=translated_page.translation.source).first()
     SegmentOverride.objects.create(
         locale=translated_page.locale,
         context=segment.context,
