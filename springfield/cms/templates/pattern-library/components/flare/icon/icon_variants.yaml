@@ -99,6 +99,8 @@ context:
       icon_name: chevron-up
     - name: Close
       icon_name: close
+    - name: Close Circle
+      icon_name: close-circle
     - name: Close Circle Fill
       icon_name: close-circle-fill
     - name: Closed Caption

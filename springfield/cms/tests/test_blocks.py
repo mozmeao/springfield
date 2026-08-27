@@ -3666,7 +3666,7 @@ def test_uuid_block_is_not_translatable():
 
 COMPARISON_RESULT_RENDERING = {
     "yes": ("fl-icon-checkmark-circle-fill", "Yes"),
-    "no": ("fl-icon-close-circle-fill", "No"),
+    "no": ("fl-icon-close-circle", "No"),
     "limited": ("fl-icon-circle-semi-filled", "Limited"),
 }
 
@@ -3827,7 +3827,7 @@ def _render_comparison_result_row(cell_data):
     ("result", "icon_class", "label"),
     (
         ("yes", "fl-icon-checkmark-circle-fill", "Yes"),
-        ("no", "fl-icon-close-circle-fill", "No"),
+        ("no", "fl-icon-close-circle", "No"),
         ("limited", "fl-icon-circle-semi-filled", "Limited"),
     ),
 )
