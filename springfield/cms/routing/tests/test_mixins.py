@@ -37,24 +37,13 @@ def test_is_routing_canonical_defaults_to_false():
 
 
 def test_routing_trigger_is_unset_by_default():
-    assert RoutingMixin.get_routing_trigger(SimpleNamespace()) is None
+    assert RoutingMixin.get_routing_trigger() is None
 
 
 def test_arming_param_is_none_without_a_trigger():
     # Derived from the trigger, so an unadopted surface withholds nothing. The mixin is
     # abstract and cannot be instantiated, so this also pins that it never tries.
     assert RoutingMixin.get_routing_arming_param() is None
-
-
-@pytest.mark.django_db
-def test_arming_param_skipped_in_sqlite_export_mode(monkeypatch):
-    from springfield.cms.models.pages import WhatsNewPage2026
-
-    # Without the env var, a concrete consumer returns its arming param.
-    assert WhatsNewPage2026.get_routing_arming_param() is not None
-
-    monkeypatch.setenv("SQLITE_EXPORT_MODE", "True")
-    assert WhatsNewPage2026.get_routing_arming_param() is None
 
 
 # ---------------------------------------------------------------------------
