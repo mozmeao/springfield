@@ -9,11 +9,12 @@
 # These helpers create revisions for the pending translation that exists solely to be
 # shared, without altering the page itself.
 
+from datetime import timedelta
+
 from django.db import transaction
-from django.db.models import Max, Q
+from django.db.models import Q
 
 from wagtail.models import Revision
-from wagtail_localize.models import OverridableSegment, SegmentOverride, StringSegment, StringTranslation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 from wagtaildraftsharing.utils import tz_aware_utc_now
 
@@ -33,12 +34,15 @@ def create_detached_revision(translation, page, user):
         fallback=True,
     )
     specific_page = page.specific
+    latest_revision_created_at = page.latest_revision.created_at if page.latest_revision else tz_aware_utc_now()
     return Revision.objects.create(
         content_object=specific_page,
         base_content_type=specific_page.get_base_content_type(),
         user=user,
         content=pending.serializable_data(),
         object_str=f"{SHARE_REVISION_PREFIX} {pending}",
+        # Ensure this revision is never the official latest revision
+        created_at=latest_revision_created_at - timedelta(seconds=1),
     )
 
 
@@ -80,41 +84,20 @@ def delete_dead_sharing_revisions(page):
     return len(revisions_to_delete)
 
 
-def latest_translation_content_change(translation):
-    """When this `translation`'s content was last changed, or None.
-
-    Covers:
-    - translated strings
-    - segment overrides
-    - source page (fills any segment that is not translated)
-
-    Rows flagged with an error are excluded: a failed publish updates their timestamp,
-    but they are not rendered.
-    """
-    string_context_ids = StringSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
-    override_context_ids = OverridableSegment.objects.filter(source_id=translation.source_id).values_list("context_id", flat=True)
-    latest_updates = [
-        StringTranslation.objects.filter(
-            locale_id=translation.target_locale_id,
-            context_id__in=string_context_ids,
-            has_error=False,
-        ).aggregate(latest=Max("updated_at"))["latest"],
-        SegmentOverride.objects.filter(
-            locale_id=translation.target_locale_id,
-            context_id__in=override_context_ids,
-            has_error=False,
-        ).aggregate(latest=Max("updated_at"))["latest"],
-        translation.source.last_updated_at,
-    ]
-    return max(latest_update for latest_update in latest_updates if latest_update)
+def _shareable_content(instance):
+    # The ephemeral instance rebuilds `slug` from the source page (as a `SynchronizedField`) but `wagtail-localize`
+    # makes the saved page's slug unique via `find_available_slug()`, so the two will always disagree. Ignore it.
+    return {k: v for k, v in instance.serializable_data().items() if k != "slug"}
 
 
 def has_shareable_translation_draft(translation, page):
-    """Whether this translated page holds content that has not been published yet."""
+    """Whether this translated page has content different from what is published."""
     if not page.live:
         return True
     if page.last_published_at is None:
         return True
 
-    latest_content_change = latest_translation_content_change(translation)
-    return latest_content_change > page.last_published_at
+    # Compare content directly to handle complexity of string translations, segment overrides,
+    # errors, and source page fallback.
+    pending = translation.source.get_ephemeral_translated_instance(translation.target_locale, fallback=True)
+    return _shareable_content(pending) != _shareable_content(page.specific)

@@ -104,9 +104,10 @@ def test_returns_sharing_url_without_changing_page(admin_client, post, translate
     assert response.status_code == 200
 
     sharing_link = WagtaildraftsharingLink.objects.get()
-    revision = Revision.objects.for_instance(translated_page_with_pending_edit.page).order_by("-created_at").first()
+    page = translated_page_with_pending_edit.page
+    revision = Revision.objects.for_instance(page).get(object_str__startswith="[draft-sharing]")
     assert sharing_link.revision == revision
-    assert revision.object_str.startswith("[draft-sharing] ")
+    assert revision.created_at < page.latest_revision.created_at  # Do not usurp the actual latest revision
     expected_url = reverse("wagtaildraftsharing:view", args=[sharing_link.key])
     assert sharing_link.url == expected_url
     data = response.json()
@@ -123,7 +124,7 @@ def test_returns_sharing_url_without_changing_page(admin_client, post, translate
     assert unpublished_text in shared_response.content.decode()
 
     # Change to public page is not published
-    public_response = admin_client.get(translated_page_with_pending_edit.page.url)
+    public_response = admin_client.get(page.url)
 
     assert public_response.status_code == 200
     assert unpublished_text not in public_response.content.decode()
