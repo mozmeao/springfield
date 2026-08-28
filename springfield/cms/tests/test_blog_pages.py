@@ -8,7 +8,6 @@ from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
-from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
@@ -853,7 +852,7 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     cards_list_divs = soup.find_all("div", class_="fl-blog-cards-list")
-    assert len(cards_list_divs) == 3
+    assert len(cards_list_divs) == 2
 
     for cards_list in cards_list_divs:
         assert cards_list.find(class_="fl-heading")
@@ -879,6 +878,26 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     assert images, "articles that do have a listing image render one"
 
 
+def test_blog_index_renders_latest_section(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    latest = soup.find("section", class_="fl-blog-latest-body")
+    assert latest
+    assert latest.find(class_="fl-heading")
+
+    items = latest.find_all("article", class_="fl-blog-article-list-item")
+    assert items
+    for item in items:
+        assert item.find("p", class_="fl-superheading")
+        link = item.find("h3", class_="fl-heading").find("a")
+        assert link and link["href"]
+
+    assert latest.find("a", class_="fl-button")
+
+
 def test_blog_index_section_links_are_derived_from_the_source(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
@@ -899,7 +918,8 @@ def test_blog_index_section_links_are_derived_from_the_source(blog_setup, rf):
     assert link["href"] == f"{all_route_url}?tag=security"
 
     # Latest section links to the full list
-    link = section_divs[2].find("a", class_="fl-blog-cards-list-link")
+    latest = soup.find("section", class_="fl-blog-latest-body")
+    link = latest.find("a", class_="fl-button")
     assert link.get_text(strip=True) == "View all"
     assert link["href"] == all_route_url
 
@@ -947,8 +967,8 @@ def test_blog_all_renders_list_articles(blog_setup, rf):
         heading = item.find("h2", class_="fl-heading")
         assert heading and heading.find("a")
         assert item.find("div", class_="fl-body")
-        assert item.find("p", class_="fl-blog-article-date")
-        assert item.find("span", class_="fl-tag")
+        assert not item.find("p", class_="fl-blog-article-date")
+        assert not item.find("span", class_="fl-tag")
 
 
 def test_blog_all_renders_pagination(blog_setup, rf):
@@ -1556,8 +1576,8 @@ def test_blog_article_renders_related_articles(privacy_articles, rf):
         assert link and link["href"] == related.url
         body = item.find("div", class_="fl-body")
         assert body and body.get_text(strip=True)
-        assert item.find("p", class_="fl-blog-article-date")
-        assert item.find("span", class_="fl-tag")
+        assert not item.find("p", class_="fl-blog-article-date")
+        assert not item.find("span", class_="fl-tag")
 
 
 def test_blog_article_excludes_self_from_related(privacy_articles, rf):
@@ -1655,27 +1675,6 @@ def test_get_tags_skips_tags_with_no_live_localization(single_article):
     article = BlogArticlePage.objects.get(pk=article.pk)
 
     assert article.get_tags() == []
-
-
-def test_all_page_renders_localized_tag_names(privacy_articles, rf):
-    index_page, _ = privacy_articles
-    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
-    en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
-    BlogTag.objects.create(
-        name="Confidentialité",
-        slug="privacy",
-        locale=fr_locale,
-        translation_key=en_tag.translation_key,
-    )
-
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    with override("fr"):
-        response = index_page.all_route(rf.get(url))
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
-    assert "Confidentialité" in tag_labels
-    assert "Privacy" not in tag_labels
 
 
 # ---------------------------------------------------------------------------
