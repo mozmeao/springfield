@@ -1,0 +1,71 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  "Latest Articles": a full-width dark band with bottom-rounded corners. The
+  scallop rounds off the previous (light) section above it, mirroring
+  fl-featured-image-section. Renders nothing when there are no articles.
+#}
+
+{% from "cms/includes/blog/blog-card-media.html" import list_item_media with context %}
+
+{% set articles = value.get_articles() %}
+{% if articles %}
+<div class="fl-blog-latest">
+  <div class="fl-blog-latest-scallop">
+    <div class="fl-blog-latest-scallop-inner"></div>
+  </div>
+  <section class="fl-blog-latest-body fl-force-dark-theme">
+    <div class="fl-section">
+      <div class="fl-section-container">
+        <include:heading
+          level="h2"
+          heading_text="{{ value.heading_text|richtext|remove_p_tag }}"
+          heading_size="fl-heading-md"
+          alignment_class="text-center"
+        />
+        <div class="fl-blog-latest-grid">
+          {% for article in articles %}
+            {% set listing_image = article.get_listing_image() %}
+            <include:blog-article-list-item with_image="{{ listing_image }}">
+              <content:heading>
+                <hgroup class="fl-heading-group">
+                  {% set topic = article.get_topic() %}
+                  <p class="fl-superheading">{{ topic.name if topic else "" }}</p>
+                  <h3 class="fl-heading">
+                    <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
+                  </h3>
+                </hgroup>
+              </content:heading>
+              {% if listing_image %}
+                <content:image>{{ list_item_media(article) }}</content:image>
+              {% endif %}
+            </include:blog-article-list-item>
+          {% endfor %}
+        </div>
+        <div class="fl-buttons is-horizontal is-center">
+          <a class="fl-button button-ghost" href="{{ value.get_link_url() }}">
+            {{ value.link_label }}
+            <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="fl-blog-latest-scallop">
+    <div class="fl-blog-latest-scallop-inner"></div>
+  </div>
+</div>
+{% elif is_preview %}
+  <div class="conditional-display is-preview">
+    <include:notification color="red">
+      <content:heading>This section is empty</content:heading>
+      <p>No articles meet this block's filter criteria. Articles that match the filters might already be listed above.</p>
+      <p>Heading: {{ value.heading_text|richtext|remove_p_tag }}</p>
+      <p>Filter: {{ value.source }}</p>
+    </include:notification>
+  </div>
+{% endif %}
