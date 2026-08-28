@@ -12,17 +12,12 @@
     }
 }
 
-.fl-blog-index-body,
-.fl-blog-article-body,
-.fl-blog-all-body,
-.fl-blog-topic-body,
-.fl-blog-topics-body {
+.fl-blog-body {
     --fl-theme-background: var(--fl-theme-blog-body-background);
     --fl-theme-body-background: var(--fl-theme-blog-body-background);
 }
 
-/* The latest section rounds off into the body, so it is dark in light mode. Dark
-   mode keeps the darker blog body (see the prefers-color-scheme block below). */
+/* Light mode only: matches the dark "latest" section rounding into it below. */
 .fl-blog-index-body {
     --fl-theme-body-background: var(--token-color-dark-purple);
 }
@@ -31,63 +26,20 @@
     gap: var(--token-layout-md-half);
 }
 
-.fl-blog-article-body .fl-main {
+/* Page content — .fl-main on articles, .fl-page everywhere else — overlaps the
+   pre-footer band below it, so it stacks on top. */
+.fl-blog-body main > :is(.fl-main, .fl-page) {
     position: relative;
     z-index: 1;
 }
 
-:is(
-        .fl-blog-index-body,
-        .fl-blog-all-body,
-        .fl-blog-topic-body,
-        .fl-blog-topics-body
-    )
-    .fl-page {
-    position: relative;
-    z-index: 1;
-}
-
-:is(
-        .fl-blog-index-body,
-        .fl-blog-article-body,
-        .fl-blog-all-body,
-        .fl-blog-topic-body,
-        .fl-blog-topics-body
-    )
-    main
-    > div:has(.fl-pre-footer-cta),
-:is(
-        .fl-blog-index-body,
-        .fl-blog-article-body,
-        .fl-blog-all-body,
-        .fl-blog-topic-body,
-        .fl-blog-topics-body
-    )
-    main
-    > div:has(.fl-newsletterform-cta) {
+/* Pre-footer CTAs tuck under the content's rounded bottom, so they carry the
+   dark band. Matched with ~ rather than +, because preview renders every
+   conditional CTA and the newsletter one is then not the first sibling. */
+.fl-blog-body
+    :is(.fl-main, .fl-page)
+    ~ div:has(:is(.fl-pre-footer-cta, .fl-newsletterform-cta)) {
     background-color: var(--token-color-dark-purple);
-}
-
-/* Prevents display issues on preview */
-
-.fl-blog-article-body .fl-main ~ div:has(.fl-pre-footer-cta),
-.fl-blog-article-body .fl-main ~ div:has(.fl-newsletterform-cta),
-:is(
-        .fl-blog-index-body,
-        .fl-blog-all-body,
-        .fl-blog-topic-body,
-        .fl-blog-topics-body
-    )
-    .fl-page
-    ~ div:has(.fl-pre-footer-cta),
-:is(
-        .fl-blog-index-body,
-        .fl-blog-all-body,
-        .fl-blog-topic-body,
-        .fl-blog-topics-body
-    )
-    .fl-page
-    ~ div:has(.fl-newsletterform-cta) {
     margin-block-start: calc(var(--fl-theme-main-border-radius) * -1);
     padding-block-start: var(--fl-theme-main-border-radius);
     position: relative;
@@ -106,7 +58,7 @@
     margin-inline-start: -900px;
 }
 
-/*  Heading and topics */
+/* Heading and topics */
 
 .fl-blog-article-body .fl-split-page-upper {
     padding-block: 0 var(--token-spacing-3xl);
@@ -154,11 +106,15 @@
     display: flex;
     flex-wrap: wrap;
     font-size: var(--fl-theme-font-size-body-xs);
-    gap: var(--token-spacing-xl);
+    gap: var(--token-spacing-sm);
     inline-size: 100%;
-    justify-content: safe center;
+    justify-content: start;
     padding-block-end: var(--token-spacing-lg);
     text-align: center;
+}
+
+.fl-blog-topics-list.is-header {
+    justify-content: center;
 }
 
 .fl-blog-topics-list.is-topics-page {
@@ -166,6 +122,10 @@
     justify-content: center;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-content);
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
 }
 
 .fl-blog-topics-list.is-carousel {
@@ -174,7 +134,7 @@
     padding-block-end: 0;
 }
 
-.fl-blog-topics-list.is-carousel .fl-tag {
+.fl-blog-topics-list .fl-tag {
     border-radius: var(--token-border-radius-lg);
     margin-block-end: 0;
     padding: var(--token-spacing-md) var(--token-spacing-lg);
@@ -200,14 +160,9 @@
 }
 
 .fl-blog-topics-all {
+    align-self: end;
     display: none;
     flex-shrink: 0;
-    inline-size: 100%;
-    margin-block-start: auto;
-
-    @container style(--lang-supports-uppercase: true) {
-        text-transform: uppercase;
-    }
 }
 
 .fl-blog-article-body .fl-article-back {
@@ -233,10 +188,6 @@
 .fl-blog-topics-all .fl-link:hover,
 .fl-blog-cards-list-link:hover {
     text-decoration: underline;
-}
-
-.fl-card-tags {
-    margin-block-start: var(--token-spacing-md);
 }
 
 .fl-tag.fl-tag-blog-topic.is-selected {
@@ -333,11 +284,6 @@
     margin-block: var(--token-spacing-lg) 0;
 }
 
-.fl-blog-featured .fl-mediacontent {
-    align-items: start;
-    max-inline-size: unset;
-}
-
 .fl-blog-article-list {
     display: flex;
     flex-direction: column;
@@ -363,20 +309,20 @@
     gap: var(--token-spacing-xl);
 }
 
-/* All-articles page and related-articles list: image sits on the right at every viewport size. */
-:is(.fl-page-blog-all, .fl-blog-related-articles)
+/* All-articles & related lists: image always sits on the right. */
+:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
     .fl-blog-article-list-item-image {
     aspect-ratio: 1 / 1;
     inline-size: 120px;
     order: 2;
 }
 
-:is(.fl-page-blog-all, .fl-blog-related-articles)
+:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
     .fl-blog-article-list-item-content {
     order: 1;
 }
 
-:is(.fl-page-blog-all, .fl-blog-related-articles)
+:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
     .fl-blog-article-list-item-with-image {
     align-items: center;
     grid-template-columns: 1fr auto;
@@ -395,11 +341,6 @@
     object-position: var(--focal-point, center);
 }
 
-.fl-blog-featured-row .fl-blog-article-list {
-    inline-size: unset;
-}
-
-.fl-blog-featured .fl-mediacontent-content .fl-superheading,
 .fl-blog-index-body .fl-card .fl-superheading,
 .fl-blog-article-list-item .fl-superheading,
 .fl-article-title .fl-superheading,
@@ -457,7 +398,7 @@
     margin-block: 0;
 }
 
-/* Clip main to its rounded bottom so the band's corners reveal the body, not main. */
+/* Clips main's rounded bottom so the band reveals the body, not main. */
 .fl-main:has(> .fl-blog-latest:last-child) {
     border-radius: 0;
     contain: paint;
@@ -476,7 +417,7 @@
     margin-block-end: 0;
 }
 
-/* Scallop: fakes the previous section rounding off. Hidden in dark mode. */
+/* Scallop: fakes the previous section's round-off; hidden in dark mode. */
 .fl-blog-latest-scallop {
     background-color: var(--token-color-dark-purple);
 }
@@ -501,7 +442,7 @@
     max-inline-size: var(--token-width-desktop-wide-banner);
 }
 
-/* Compact image-left row (smaller than the featured/all-page list's 180px image). */
+/* Compact image-left row, smaller than the 180px featured/all-page image. */
 .fl-blog-latest .fl-blog-article-list-item-with-image {
     align-items: center;
     gap: var(--token-spacing-xl);
@@ -513,24 +454,17 @@
     inline-size: 120px;
 }
 
-.fl-blog-latest .fl-blog-article-list-item-image img {
-    border-radius: var(--token-border-radius-sm);
-}
-
 /* Pagination */
 
-.fl-page-blog-index .fl-pagination,
-.fl-page-blog-all .fl-pagination {
+.fl-page-blog-all .fl-pagination,
+.fl-page-blog-topic .fl-pagination {
     inline-size: 100%;
     margin: 0 auto;
     max-inline-size: var(--token-width-desktop-content);
 }
 
-/* Card grid: on mobile the media matches the featured section's 16/9 ratio.
-   On desktop each row's media box is a uniform fixed height (--fl-blog-card-max,
-   the tallest of the row's positions) and the image is sized per position
-   (--fl-blog-card-height) and pinned to the bottom, so the images stagger while
-   their bottoms — and the text below them — stay aligned across the row. */
+/* Mobile: 16/9 media. Desktop: --fl-blog-card-max sets a uniform row height,
+   --fl-blog-card-height staggers each image within it so bottoms align. */
 .fl-blog-index-body .fl-card-grid {
     --fl-card-grid-gap: var(--token-spacing-xl) var(--token-spacing-lg);
 }
@@ -540,14 +474,13 @@
 }
 
 .fl-blog-index-body .fl-card-top-media {
-    align-items: flex-end; /* pin the image to the bottom of the media box */
+    align-items: flex-end; /* pins image to the box bottom */
     aspect-ratio: 16 / 9;
     display: flex;
     margin-block-end: 0;
 }
 
-/* Only cards without an image get a placeholder surface; when an image is
-   present the space above a shorter image stays transparent. */
+/* Only imageless cards get a placeholder background; others stay transparent. */
 .fl-blog-index-body .fl-card-top-media:not(:has(img)) {
     background: var(--theme-purple-card-bg-color);
     border-radius: var(--token-border-radius-sm);
@@ -702,10 +635,6 @@
         inline-size: 120px;
     }
 
-    .fl-blog-featured-row .fl-blog-article-list-item-image img {
-        border-radius: var(--token-border-radius-sm);
-    }
-
     .fl-blog-featured-row .fl-blog-article-list-item .fl-heading {
         font-size: var(--fl-theme-font-size-heading-xs);
     }
@@ -741,7 +670,7 @@
         block-size: var(--fl-blog-card-height, 420px);
     }
 
-    /* Uniform media-box height per row = tallest position, so text aligns. */
+    /* Row height = tallest position, so card text aligns. */
     .fl-blog-index-body .fl-card-grid:has(> *:nth-child(2):last-child),
     .fl-blog-index-body .fl-card-grid:has(> *:nth-child(3):last-child) {
         --fl-blog-card-max: 560px;
@@ -751,7 +680,7 @@
         --fl-blog-card-max: 420px;
     }
 
-    /* Per-position image height (the staggered part). */
+    /* Per-position image height — the stagger. */
     .fl-blog-index-body
         .fl-card-grid:has(> *:nth-child(2):last-child)
         .fl-card:nth-child(1) {
@@ -784,19 +713,13 @@
 
     .fl-blog-index-body
         .fl-card-grid:has(> *:nth-child(4):last-child)
-        .fl-card:nth-child(1),
-    .fl-blog-index-body
-        .fl-card-grid:has(> *:nth-child(4):last-child)
-        .fl-card:nth-child(3) {
+        .fl-card:nth-child(odd) {
         --fl-blog-card-height: 280px;
     }
 
     .fl-blog-index-body
         .fl-card-grid:has(> *:nth-child(4):last-child)
-        .fl-card:nth-child(2),
-    .fl-blog-index-body
-        .fl-card-grid:has(> *:nth-child(4):last-child)
-        .fl-card:nth-child(4) {
+        .fl-card:nth-child(even) {
         --fl-blog-card-height: 420px;
     }
 
@@ -832,9 +755,11 @@
 
     .fl-blog-topics-all {
         display: block;
-        inline-size: unset;
-        margin-block-start: 0;
         margin-inline-start: auto;
+    }
+
+    .fl-blog-topics-list {
+        justify-content: center;
     }
 
     .fl-blog-featured {
@@ -869,7 +794,6 @@
     }
 
     .fl-blog-article-list-item-image img {
-        border-radius: var(--token-border-radius-sm);
         object-position: center;
     }
 
@@ -879,13 +803,12 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .fl-blog-index-body,
-    .fl-blog-article-body,
-    .fl-blog-all-body,
-    .fl-blog-topic-body,
-    .fl-blog-topics-body {
-        --fl-theme-background: var(--fl-theme-blog-body-background);
-        --fl-theme-body-background: var(--fl-theme-blog-body-background);
+    .fl-blog-body {
         --fl-subtle-border-color: var(--token-color-grey-3);
+    }
+
+    /* Reverts the light-mode-only dark-purple override above. */
+    .fl-blog-index-body {
+        --fl-theme-body-background: var(--fl-theme-blog-body-background);
     }
 }

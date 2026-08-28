@@ -15,7 +15,7 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
-{% block body_class %}fl-blog-topic-body{% endblock %}
+{% block body_class %}fl-blog-body fl-blog-topic-body{% endblock %}
 
 {% block content %}
 {% set topic_url = blog_index.url ~ blog_index.reverse_subpage('topic_route', args=[topic.slug]) %}
