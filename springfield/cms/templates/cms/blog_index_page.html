@@ -59,11 +59,18 @@
         {% set featured_articles = page.featured_articles %}
         {% include "cms/includes/blog/blog-featured-articles.html" %}
 
-        {% for block in article_sections %}
+        {% for block in article_sections if block.block_type != "latest" %}
           {% include_block block %}
         {% endfor %}
       </div>
     </section>
+
+    {# The latest section is a full-width dark band, so it sits outside the container. #}
+    {% for block in article_sections if block.block_type == "latest" %}
+      {% if loop.index == 1 %}
+        {% include_block block %}
+      {% endif %}
+    {% endfor %}
   </main>
 </div>
 {% endblock %}

@@ -337,6 +337,86 @@
     margin-inline-start: auto;
 }
 
+/* Latest articles */
+
+.fl-blog-latest {
+    background-color: var(--token-color-dark-purple);
+}
+
+.fl-blog-latest-body {
+    background:
+        url('/media/img/firefox/flare/noise-filter.svg'),
+        linear-gradient(
+            to bottom,
+            var(--token-color-dark-purple) 50%,
+            var(--token-color-light-purple-60)
+        );
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    contain: paint;
+    margin-block: 0;
+}
+
+/* Clip main to its rounded bottom so the band's corners reveal the body, not main. */
+.fl-main:has(> .fl-blog-latest:last-child) {
+    border-radius: 0;
+    contain: paint;
+    padding-block-end: 0;
+}
+
+.fl-blog-latest .fl-section {
+    padding-block: calc(var(--fl-section-v-padding) * 2);
+}
+
+.fl-blog-latest .fl-blog-article-list-item .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+.fl-blog-latest .fl-blog-article-list-item .fl-heading-group {
+    margin-block-end: 0;
+}
+
+/* Scallop: fakes the previous section rounding off. Hidden in dark mode. */
+.fl-blog-latest-scallop {
+    background-color: var(--token-color-dark-purple);
+}
+
+.fl-blog-latest-scallop-inner {
+    background-color: var(--fl-theme-background);
+    block-size: var(--fl-theme-main-border-radius);
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    inline-size: 100vw;
+}
+
+.fl-blog-latest-scallop:last-child .fl-blog-latest-scallop-inner {
+    background-color: var(--token-color-dark-purple);
+}
+
+.fl-blog-latest-grid {
+    display: grid;
+    gap: var(--token-spacing-2xl);
+    grid-template-columns: 1fr;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
+/* Compact image-left row (smaller than the featured/all-page list's 180px image). */
+.fl-blog-latest .fl-blog-article-list-item-with-image {
+    align-items: center;
+    gap: var(--token-spacing-xl);
+    grid-template-columns: auto 1fr;
+}
+
+.fl-blog-latest .fl-blog-article-list-item-image {
+    aspect-ratio: 1 / 1;
+    inline-size: 120px;
+}
+
+.fl-blog-latest .fl-blog-article-list-item-image img {
+    border-radius: var(--token-border-radius-sm);
+}
+
 /* Pagination */
 
 .fl-page-blog-index .fl-pagination {

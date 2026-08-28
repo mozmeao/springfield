@@ -2147,7 +2147,7 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
     class Meta:
         label = "Latest Articles"
         icon = "time"
-        template = "cms/blocks/blog-article-section.html"
+        template = "cms/blocks/blog-latest-articles-section.html"
         value_class = BlogArticleSectionValue
 
     def get_source(self, value):
