@@ -2113,6 +2113,18 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
+class BlogRecommendedArticleBlock(blocks.StructBlock):
+    """Picks a blog article."""
+
+    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+
+    class Meta:
+        label = "Blog Article"
+        label_format = "{article}"
+        icon = "doc-full"
+        value_class = BlockArticleValue
+
+
 class BlogArticleSectionValue(blocks.StructValue):
     """A section whose articles the index page resolves before rendering."""
 

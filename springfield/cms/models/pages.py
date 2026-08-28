@@ -16,7 +16,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import DatabaseError, models
-from django.db.models import Count
+from django.db.models import Case, Count, Exists, OuterRef, Q, Value, When
 from django.db.models.expressions import F
 from django.http import Http404
 from django.shortcuts import redirect
@@ -49,6 +49,7 @@ from springfield.cms.blocks import (
     BlogArticleBlock,
     BlogCardsListBlock,
     BlogLatestArticlesBlock,
+    BlogRecommendedArticleBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -2250,6 +2251,9 @@ class HeroStyle(models.TextChoices):
     VIDEO = "video", "Featured video"
 
 
+MAX_RECOMMENDED_ARTICLES = 4
+
+
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
@@ -2358,6 +2362,20 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_num=1,
         help_text="Optional banner to be displayed at the bottom of the article content.",
     )
+    recommended_articles = StreamField(
+        [("article", BlogRecommendedArticleBlock())],
+        max_num=MAX_RECOMMENDED_ARTICLES,
+        use_json_field=True,
+        blank=True,
+        help_text=(
+            f"Up to {MAX_RECOMMENDED_ARTICLES} recommended articles shown at the bottom. Remaining empty slots are filled with articles "
+            f"that match by topic and tag, then topic, then tag, up to {MAX_RECOMMENDED_ARTICLES}."
+        ),
+    )
+    hide_recommended = models.BooleanField(
+        default=False,
+        help_text="Hide the recommended articles section on this article.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("description"),
@@ -2403,6 +2421,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("bottom_banner"),
     ]
 
+    recommended_panels = [
+        FieldPanel("hide_recommended"),
+        FieldPanel("recommended_articles"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     # Drops show_in_menus, unused by the CMS
@@ -2421,6 +2444,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
+            ObjectList(recommended_panels, heading="Recommended Articles"),
             ObjectList(promote_panels, heading="Promote & SEO"),
             ObjectList(settings_panels, heading="Settings"),
         ]
@@ -2453,22 +2477,14 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        if self.topic_id:
-            related = (
-                BlogArticlePage.objects.sibling_of(self)
-                .live()
-                .public()
-                .filter(topic=self.topic)
-                .exclude(pk=self.pk)
-                .prefetch_related("tags")
-                .order_by("-first_published_at")[:4]
-            )
-            context["related_articles"] = list(related)
+        if not self.hide_recommended:
+            recommended = self.get_recommended_articles()
+            context["recommended_articles"] = list(recommended)
             blog_index = self.get_parent().specific
-            # Hidden tags are not displayed on the related articles listing
-            cache_localized_tags(context["related_articles"], blog_index.get_hidden_tag_keys())
+            # Hidden tags are not displayed on the recommended articles listing
+            cache_localized_tags(context["recommended_articles"], blog_index.get_hidden_tag_keys())
         else:
-            context["related_articles"] = []
+            context["recommended_articles"] = []
         return context
 
     def get_topic(self):
@@ -2509,6 +2525,51 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             mobile=self.image_mobile,
             dark_mode_mobile=self.image_dark_mode_mobile,
         )
+
+    def get_recommended_articles(self):
+        """Up to MAX_RECOMMENDED_ARTICLES published articles shown below the
+        article:
+
+        - `recommended_articles` in their chosen order,
+        - then siblings sharing this article's topic and one of its tags,
+        - then its topic,
+        - then one of its tags.
+
+        Each automatic group is ordered by publication date, descending. No
+        article is recommended twice, and an article never recommends itself."""
+        recommended = []
+        recommended_ids = {self.pk}
+        for block in self.recommended_articles:
+            article = block.value.get_article()
+            if not article.live or article.pk in recommended_ids:
+                continue
+            recommended.append(article)
+            recommended_ids.add(article.pk)
+        if len(recommended) == MAX_RECOMMENDED_ARTICLES:
+            return recommended
+
+        tag_ids = [tag.pk for tag in self.tags.all()]
+        shares_topic = Q(topic_id=self.topic_id) if self.topic_id else Q(topic_id__in=[])
+        shares_tag = Q(carries_a_matching_tag=True)
+        matching_siblings = (
+            BlogArticlePage.objects.sibling_of(self)
+            .live()
+            .public()
+            .exclude(pk__in=recommended_ids)
+            .annotate(carries_a_matching_tag=Exists(BlogArticlePage.objects.filter(pk=OuterRef("pk"), tags__in=tag_ids)))
+            .filter(shares_topic | shares_tag)
+            .annotate(
+                recommendation_rank=Case(
+                    When(shares_topic & shares_tag, then=Value(0)),
+                    When(shares_topic, then=Value(1)),
+                    default=Value(2),  # `shares_tag`
+                )
+            )
+            .prefetch_related("tags")
+            .order_by("recommendation_rank", "-first_published_at")
+        )
+        recommended.extend(matching_siblings[: MAX_RECOMMENDED_ARTICLES - len(recommended)])
+        return recommended
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

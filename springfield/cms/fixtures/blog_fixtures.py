@@ -251,6 +251,7 @@ def create_blog_article(
     updated_date=None,
     hide_dates: bool = False,
     bottom_banner: list | None = None,
+    recommended_articles: list | None = None,
 ) -> BlogArticlePage:
     if hero_style is None:
         hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
@@ -278,6 +279,7 @@ def create_blog_article(
     article.description = description
     article.content = content
     article.bottom_banner = bottom_banner or []
+    article.recommended_articles = recommended_articles or []
     article.tags.set(tags)
     if hero_video is not None:
         article.hero_video = hero_video
@@ -309,6 +311,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
       (Privacy gets 11 total: triggers pagination on its topic page)
     - 5 demonstrating the large image, text only and video hero styles, a
       listing image that differs from the featured image, and a bottom banner
+      alongside two hand-picked recommended articles
 
     All articles use all available content block types: text, media or image + caption, code, quote.
     Featured articles carry a captioned image, regular ones a plain image.
@@ -459,6 +462,10 @@ def get_blog_pages() -> list[BlogArticlePage]:
             listing_image=dark_image,
         )
     )
+    # Picks from another topic, tagged differently, so neither could have been
+    # recommended automatically and the editor's choice is visible on the page.
+    articles_by_slug = {article.slug: article for article in articles}
+    hand_picked = [articles_by_slug[f"test-regular-blog-article-{number}"] for number in (3, 4)]
     articles.append(
         create_blog_article(
             index_page=index_page,
@@ -470,6 +477,9 @@ def get_blog_pages() -> list[BlogArticlePage]:
             description=FEATURED_DESCRIPTIONS[4],
             content=plain_content,
             bottom_banner=get_bottom_banner_stream(),
+            recommended_articles=[
+                blog_article_block(article, f"rec00000-0000-0000-0000-{position:012d}") for position, article in enumerate(hand_picked, start=1)
+            ],
         )
     )
 
