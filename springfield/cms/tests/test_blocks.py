@@ -5133,8 +5133,8 @@ def test_tab_block_renders_referral_controls_between_description_and_note():
 # Impact dashboard / badges (inside TabBlock)
 
 
-def _badge(number, singular="person", plural="people", badge_name="Connector", message=None):
-    """A raw badge dict. ``message`` is left out entirely unless given."""
+def _badge(number, singular="person", plural="people", badge_name="Connector", message=None, heading=None):
+    """A raw badge dict. ``message`` and ``heading`` are left out entirely unless given."""
     badge = {
         "number": number,
         "singular_label": singular,
@@ -5143,29 +5143,33 @@ def _badge(number, singular="person", plural="people", badge_name="Connector", m
     }
     if message is not None:
         badge["message"] = message
+    if heading is not None:
+        badge["heading"] = heading
     return badge
 
 
-def _impact_dash(badges, locked_summary=None):
+def _impact_dash(badges, locked_heading=None, locked_content=None):
     """A raw impact_dash stream value holding one dashboard with these badges.
 
-    ``locked_summary`` defaults to being absent from the stored JSON entirely,
-    which is both a dashboard saved before the field existed and one an editor
-    left blank.
+    The locked pair defaults to being absent from the stored JSON entirely, which
+    is a dashboard saved before the fields existed.
     """
     value = {"badges": badges}
-    if locked_summary is not None:
-        value["locked_summary"] = locked_summary
+    if locked_heading is not None:
+        value["locked_heading"] = locked_heading
+    if locked_content is not None:
+        value["locked_content"] = locked_content
     return [{"type": "impact_dash", "value": value}]
 
 
-def _render_impact_dash(numbers=(1, 5, 25), install_count=_UNSET, badges=None, locked_summary=None):
+def _render_impact_dash(numbers=(1, 5, 25), install_count=_UNSET, badges=None, locked_heading=None, locked_content=None):
     html = _render_tab(
         referral_controls=False,
         install_count=install_count,
         impact_dash=_impact_dash(
             badges if badges is not None else [_badge(n) for n in numbers],
-            locked_summary=locked_summary,
+            locked_heading=locked_heading,
+            locked_content=locked_content,
         ),
     )
     return BeautifulSoup(html, "html.parser")
@@ -5175,8 +5179,12 @@ def _badge_elements(soup):
     return soup.select("ul.fl-impact-dash li.fl-badge")
 
 
-def _summary_element(soup):
-    return soup.find("p", class_="fl-impact-dash-summary")
+def _summary_heading_element(soup):
+    return soup.find("h2", class_="fl-impact-dash-summary-heading")
+
+
+def _summary_content_element(soup):
+    return soup.find("p", class_="fl-impact-dash-summary-content")
 
 
 @pytest.mark.parametrize(
@@ -5386,68 +5394,91 @@ def test_impact_dash_badge_context_strips_the_badge_name():
     assert resolved["badge_name"] == "Supporter"
 
 
-# Impact dashboard summary: one line above the badges, picked by progress
+# Impact dashboard summary: a heading and a message above the badges, picked by progress
 
 
-def _summary_source(install_count, badges, locked_summary=""):
+def _summary_source(install_count, badges, locked_heading="", locked_content=""):
     """_summary_source over raw badge dicts, resolved at this install count."""
     resolved = [ImpactDashBlock._badge_context(badge, install_count) for badge in badges]
+    value = {"locked_heading": locked_heading, "locked_content": locked_content}
 
-    return ImpactDashBlock._summary_source({"locked_summary": locked_summary}, resolved)
+    return ImpactDashBlock._summary_source(value, resolved)
 
 
-# Deliberately not in ascending order: the message must be chosen by number, not
-# by position in the editor's list.
+# Deliberately not in ascending order: the pair must be chosen by number, not by
+# position in the editor's list.
 _MESSAGE_BADGES = [
-    _badge(1, message="first friend"),
-    _badge(25, message="twenty-five friends"),
-    _badge(5, message="five friends"),
+    _badge(1, heading="One down", message="first friend"),
+    _badge(25, heading="Twenty-five down", message="twenty-five friends"),
+    _badge(5, heading="Five down", message="five friends"),
 ]
 
 
 @pytest.mark.parametrize(
     ("install_count", "expected"),
     [
-        (1, "first friend"),
-        (4, "first friend"),
-        (5, "five friends"),  # the boundary: the 5 badge is unlocked at exactly 5
-        (24, "five friends"),
-        (25, "twenty-five friends"),
-        (342, "twenty-five friends"),  # nothing beyond the top badge to move on to
+        (1, ("One down", "first friend")),
+        (4, ("One down", "first friend")),
+        (5, ("Five down", "five friends")),  # the boundary: the 5 badge is unlocked at exactly 5
+        (24, ("Five down", "five friends")),
+        (25, ("Twenty-five down", "twenty-five friends")),
+        (342, ("Twenty-five down", "twenty-five friends")),  # nothing beyond the top badge to move on to
     ],
 )
 def test_impact_dash_summary_comes_from_the_furthest_badge_unlocked(install_count, expected):
     assert _summary_source(install_count, _MESSAGE_BADGES) == expected
 
 
-def test_impact_dash_summary_falls_back_to_locked_summary_when_nothing_unlocked():
-    source = _summary_source(0, _MESSAGE_BADGES, locked_summary="Invite your first friend.")
+def test_impact_dash_summary_never_mixes_the_pair_across_badges():
+    """A half missing from legacy JSON stays blank rather than reaching for a neighbour's."""
+    badges = [_badge(1, heading="One down", message="first friend"), _badge(5, message="five friends")]
 
-    assert source == "Invite your first friend."
-
-
-def test_impact_dash_summary_is_empty_when_nothing_unlocked_and_no_locked_summary():
-    assert _summary_source(0, _MESSAGE_BADGES) == ""
+    assert _summary_source(5, badges) == ("", "five friends")
 
 
-def test_impact_dash_summary_is_empty_when_the_unlocked_badge_has_no_message():
-    """Blank means silence, not the locked copy, which would deny the milestone."""
-    badges = [_badge(1, message="first friend"), _badge(5, message="   ")]
+def test_impact_dash_summary_falls_back_to_the_locked_pair_when_nothing_unlocked():
+    source = _summary_source(
+        0,
+        _MESSAGE_BADGES,
+        locked_heading="Nobody yet",
+        locked_content="Invite your first friend.",
+    )
 
-    assert _summary_source(5, badges, locked_summary="Invite your first friend.") == ""
+    assert source == ("Nobody yet", "Invite your first friend.")
+
+
+def test_impact_dash_summary_is_empty_when_nothing_unlocked_and_no_locked_pair():
+    assert _summary_source(0, _MESSAGE_BADGES) == ("", "")
+
+
+def test_impact_dash_summary_is_empty_when_the_unlocked_badge_fills_in_neither_half():
+    """Blank means silence, not the locked copy, which would deny the milestone.
+
+    Only reachable via legacy or imported JSON, as both halves are required.
+    """
+    badges = [_badge(1, heading="One down", message="first friend"), _badge(5, heading="  ", message="   ")]
+    source = _summary_source(5, badges, locked_heading="Nobody yet", locked_content="Invite your first friend.")
+
+    assert source == ("", "")
 
 
 def test_impact_dash_summary_prefers_the_first_of_duplicate_thresholds():
     """Two badges at the same number is editor error, but must be deterministic."""
-    badges = [_badge(5, message="first five"), _badge(5, message="second five")]
+    badges = [
+        _badge(5, heading="First five", message="first five"),
+        _badge(5, heading="Second five", message="second five"),
+    ]
 
-    assert _summary_source(5, badges) == "first five"
+    assert _summary_source(5, badges) == ("First five", "first five")
 
 
-def test_impact_dash_summary_ignores_messages_on_still_locked_badges():
-    badges = [_badge(1, message="first friend"), _badge(5, message="five friends")]
+def test_impact_dash_summary_ignores_copy_on_still_locked_badges():
+    badges = [
+        _badge(1, heading="One down", message="first friend"),
+        _badge(5, heading="Five down", message="five friends"),
+    ]
 
-    assert _summary_source(1, badges) == "first friend"
+    assert _summary_source(1, badges) == ("One down", "first friend")
 
 
 @pytest.mark.parametrize("raw", [None, "", "   ", "\n"])
@@ -5486,87 +5517,169 @@ def test_impact_dash_resolve_summary_substitutes_zero():
     assert ImpactDashBlock._resolve_summary("You have {install count} installs", install_count=0) == "You have 0 installs"
 
 
-def test_tab_block_renders_the_unlocked_badge_message_with_the_count_substituted():
+def test_tab_block_renders_the_unlocked_badge_pair_with_the_count_substituted():
     soup = _render_impact_dash(
         install_count=342,
         badges=[
-            _badge(1, message="Off the mark with {install count}."),
-            _badge(25, message="You have helped {install count} people switch to Firefox."),
+            _badge(1, heading="Off the mark", message="Off the mark with {install count}."),
+            _badge(
+                25,
+                heading="{install count} friends switched!",
+                message="You have helped {install count} people switch to Firefox.",
+            ),
         ],
-        locked_summary="Invite your first friend.",
+        locked_heading="Nobody yet",
+        locked_content="Invite your first friend.",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "You have helped 342 people switch to Firefox."
+    assert _summary_heading_element(soup).get_text(strip=True) == "342 friends switched!"
+    assert _summary_content_element(soup).get_text(strip=True) == "You have helped 342 people switch to Firefox."
 
 
-def test_tab_block_renders_the_locked_summary_before_any_badge_is_unlocked():
+def test_tab_block_renders_the_locked_pair_before_any_badge_is_unlocked():
     soup = _render_impact_dash(
         install_count=0,
-        badges=[_badge(1, message="first friend")],
-        locked_summary="Nobody yet -- invite your first friend.",
+        badges=[_badge(1, heading="One down", message="first friend")],
+        locked_heading="Nobody yet",
+        locked_content="Nobody yet -- invite your first friend.",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "Nobody yet -- invite your first friend."
+    assert _summary_heading_element(soup).get_text(strip=True) == "Nobody yet"
+    assert _summary_content_element(soup).get_text(strip=True) == "Nobody yet -- invite your first friend."
 
 
-def test_tab_block_renders_the_locked_summary_when_install_count_absent_from_context():
+def test_tab_block_renders_the_locked_pair_when_install_count_absent_from_context():
     """TabBlock is reachable from MediaBlock on pages that never set the count."""
     soup = _render_impact_dash(
         install_count=_UNSET,
-        badges=[_badge(1, message="first friend")],
-        locked_summary="{install count} so far",
+        badges=[_badge(1, heading="One down", message="first friend")],
+        locked_heading="{install count} friends so far",
+        locked_content="{install count} so far",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "0 so far"
+    assert _summary_heading_element(soup).get_text(strip=True) == "0 friends so far"
+    assert _summary_content_element(soup).get_text(strip=True) == "0 so far"
 
 
-def test_tab_block_omits_summary_element_when_the_chosen_message_is_blank():
-    soup = _render_impact_dash(numbers=(1, 5), install_count=5, locked_summary="   ")
+def test_tab_block_renders_the_heading_alone_when_legacy_json_has_no_message():
+    """One half missing must not suppress the other, however the JSON got that way."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, heading="Five down")])
 
-    assert _summary_element(soup) is None
-    # The badges are unaffected by there being no message to show.
+    assert _summary_heading_element(soup).get_text(strip=True) == "Five down"
+    assert _summary_content_element(soup) is None
+
+
+def test_tab_block_renders_the_message_alone_when_legacy_json_has_no_heading():
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="five friends")])
+
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup).get_text(strip=True) == "five friends"
+
+
+def test_tab_block_omits_both_summary_elements_when_the_chosen_pair_is_blank():
+    soup = _render_impact_dash(numbers=(1, 5), install_count=5, locked_heading="   ", locked_content="   ")
+
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup) is None
+    # The badges are unaffected by there being no summary to show.
     assert len(_badge_elements(soup)) == 2
 
 
-def test_tab_block_renders_impact_dash_saved_before_the_message_fields_existed():
+def test_tab_block_renders_impact_dash_saved_before_the_summary_fields_existed():
     soup = _render_impact_dash(numbers=(1, 5), install_count=5)
 
-    assert _summary_element(soup) is None
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup) is None
     assert len(_badge_elements(soup)) == 2
 
 
-def test_tab_block_renders_summary_above_the_badge_list():
+def test_tab_block_renders_the_summary_pair_above_the_badge_list():
     html = _render_tab(
         referral_controls=False,
         install_count=5,
-        impact_dash=_impact_dash([_badge(1, message="{install count} installs")]),
+        impact_dash=_impact_dash([_badge(1, heading="{install count} down", message="{install count} installs")]),
     )
     panel = BeautifulSoup(html, "html.parser").find("div", class_="fl-tab")
 
-    order = [c for el in panel.find_all(["p", "ul"]) for c in (el.get("class") or []) if c in {"fl-impact-dash-summary", "fl-impact-dash"}]
-    assert order == ["fl-impact-dash-summary", "fl-impact-dash"]
+    wanted = {"fl-impact-dash-summary-heading", "fl-impact-dash-summary-content", "fl-impact-dash"}
+    order = [c for el in panel.find_all(["h2", "p", "ul"]) for c in (el.get("class") or []) if c in wanted]
+    assert order == ["fl-impact-dash-summary-heading", "fl-impact-dash-summary-content", "fl-impact-dash"]
 
 
-def test_tab_block_does_not_render_the_message_on_the_badge_itself():
-    """The message is the dashboard's summary line, not badge copy."""
-    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="five friends")])
+def test_tab_block_does_not_render_the_summary_pair_on_the_badge_itself():
+    """The pair is the dashboard's summary, not badge copy."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, heading="Five down", message="five friends")])
+    badge_text = _badge_elements(soup)[0].get_text()
 
-    assert "five friends" not in _badge_elements(soup)[0].get_text()
+    assert "Five down" not in badge_text
+    assert "five friends" not in badge_text
 
 
-def test_tab_block_escapes_html_typed_into_a_message():
+def test_tab_block_escapes_html_typed_into_the_summary_pair():
     """A CharBlock is plain text; markup in it must never reach the DOM as markup."""
-    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="<b>{install count}</b> installs")])
+    soup = _render_impact_dash(
+        install_count=5,
+        badges=[_badge(5, heading="<i>{install count}</i> down", message="<b>{install count}</b> installs")],
+    )
 
-    summary = _summary_element(soup)
-    assert summary.find("b") is None
-    assert summary.get_text(strip=True) == "<b>5</b> installs"
+    heading = _summary_heading_element(soup)
+    assert heading.find("i") is None
+    assert heading.get_text(strip=True) == "<i>5</i> down"
+    content = _summary_content_element(soup)
+    assert content.find("b") is None
+    assert content.get_text(strip=True) == "<b>5</b> installs"
 
 
-def test_impact_dash_badge_context_strips_the_message():
-    resolved = ImpactDashBlock._badge_context(_badge(5, message="  five friends  "), install_count=5)
+def test_impact_dash_badge_context_strips_the_summary_pair():
+    resolved = ImpactDashBlock._badge_context(
+        _badge(5, heading="  Five down  ", message="  five friends  "),
+        install_count=5,
+    )
 
+    assert resolved["heading"] == "Five down"
     assert resolved["message"] == "five friends"
+
+
+def _clean_impact_dash(badge, **dashboard_fields):
+    """Run editor-facing validation over a dashboard holding this one badge."""
+    block = ImpactDashBlock()
+    value = block.to_python(
+        {
+            "locked_heading": "Nobody yet",
+            "locked_content": "Invite your first friend.",
+            "badges": [badge],
+            **dashboard_fields,
+        }
+    )
+
+    return block.clean(value)
+
+
+@pytest.mark.parametrize("blank_half", ["heading", "message"])
+def test_impact_dash_badge_requires_both_halves_of_the_summary_pair(blank_half):
+    """Half a summary is not publishable copy, so the editor cannot save one."""
+    badge = _badge(5, heading="Five down", message="five friends")
+    badge[blank_half] = ""
+
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        _clean_impact_dash(badge)
+
+    assert "badges" in excinfo.value.block_errors
+
+
+@pytest.mark.parametrize("blank_half", ["locked_heading", "locked_content"])
+def test_impact_dash_requires_both_halves_of_the_locked_pair(blank_half):
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        _clean_impact_dash(_badge(5, heading="Five down", message="five friends"), **{blank_half: ""})
+
+    assert blank_half in excinfo.value.block_errors
+
+
+def test_impact_dash_accepts_a_dashboard_with_both_pairs_filled_in():
+    cleaned = _clean_impact_dash(_badge(5, heading="Five down", message="five friends"))
+
+    assert cleaned["locked_heading"] == "Nobody yet"
+    assert cleaned["badges"][0]["heading"] == "Five down"
 
 
 # Comparison table (inside TabBlock)
