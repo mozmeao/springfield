@@ -79,24 +79,6 @@ if (typeof window.Mozilla === 'undefined') {
         }
     };
 
-    // Replace Google Play links on Android devices to let them open the marketplace app
-    Utils.initMobileDownloadLinks = function () {
-        if (site.platform === 'android') {
-            var playLinks = document.querySelectorAll(
-                'a[href^="https://play.google.com/store/apps/"]'
-            );
-            for (var i = 0; i < playLinks.length; ++i) {
-                var playLink = playLinks[i];
-                var oldHref = playLink.getAttribute('href');
-                var newHref = oldHref.replace(
-                    'https://play.google.com/store/apps/',
-                    'market://'
-                );
-                playLink.setAttribute('href', newHref);
-            }
-        }
-    };
-
     // client-side redirects (handy for testing)
     Utils.doRedirect = function (destination) {
         if (destination) {
