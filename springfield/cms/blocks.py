@@ -2017,9 +2017,11 @@ class TimelineBlock(blocks.StructBlock):
 
 
 class BlockArticleValue(blocks.StructValue):
-    def get_article(self) -> BlogArticlePage:
+    def get_article(self) -> BlogArticlePage | None:
         if not hasattr(self, "_article_cache"):
-            article = self["article"].localized
+            chosen_article = self["article"]
+            # Chosen article may have been deleted, leaving an empty chooser value
+            article = chosen_article.localized if chosen_article else None
             self._article_cache = article.specific if article else None
         return self._article_cache
 

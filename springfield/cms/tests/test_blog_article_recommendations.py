@@ -24,7 +24,7 @@ from django.utils.text import slugify
 import pytest
 from bs4 import BeautifulSoup
 from PIL import Image
-from wagtail.models import Locale, Site
+from wagtail.models import Locale, PageViewRestriction, Site
 
 from springfield.cms.fixtures.blog_fixtures import blog_article_block
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, HeroStyle, SpringfieldImage
@@ -74,6 +74,10 @@ def make_recommended_article(article):
         return recommended_article
 
     return _make_recommended_article
+
+
+def restrict_page(page):
+    PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.PASSWORD, password="secret")
 
 
 def set_recommended_articles(article, *recommended):
@@ -141,6 +145,9 @@ def test_default_recommendations(get_article_recommendations, make_recommended_a
     """Matching topic and tag before matching topic only before matching tag only."""
     unpublished = make_recommended_article("Unpublished", topic=topic, first_published_at=datetime(2026, 1, 6, tzinfo=UTC))
     unpublished.unpublish()
+    # Articles behind a view restriction are not recommended publicly
+    restricted = make_recommended_article("Restricted", topic=topic, first_published_at=datetime(2026, 1, 7, tzinfo=UTC))
+    restrict_page(restricted)
 
     assert get_article_recommendations() == [
         "Topic and tag",
@@ -167,10 +174,21 @@ def test_custom_recommendations(article, get_article_recommendations, make_recom
     second_pick = make_recommended_article("Second pick", topic=other_topic)
     unpublished_pick = make_recommended_article("Unpublished pick", topic=other_topic)
     unpublished_pick.unpublish()
-    # Article should not recommend itself nor unpublished articles
-    set_recommended_articles(article, second_pick, unpublished_pick, article, first_pick)
+    restricted_pick = make_recommended_article("Restricted pick", topic=other_topic)
+    restrict_page(restricted_pick)
+    # Article should not recommend itself, unpublished articles, nor restricted ones
+    set_recommended_articles(article, second_pick, unpublished_pick, article, restricted_pick, first_pick)
 
     assert get_article_recommendations() == ["Second pick", "First pick"]
+
+
+def test_ignore_deleted_custom_recommendation(article, get_article_recommendations, make_recommended_article, other_topic):
+    deleted_article = make_recommended_article("Deleted article", topic=other_topic)
+    remaining_article = make_recommended_article("Remaining article", topic=other_topic)
+    set_recommended_articles(article, deleted_article, remaining_article)
+    deleted_article.delete()
+
+    assert get_article_recommendations() == ["Remaining article"]
 
 
 def test_default_recommendations_fill_extra_slots_after_custom_ones(article, get_article_recommendations, recommendation_pool):

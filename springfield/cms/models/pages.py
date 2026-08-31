@@ -2527,8 +2527,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         )
 
     def get_recommended_articles(self):
-        """Up to MAX_RECOMMENDED_ARTICLES published articles shown below the
-        article:
+        """Up to MAX_RECOMMENDED_ARTICLES published, publicly-visible articles
+        shown below the article:
 
         - `recommended_articles` in their chosen order,
         - then siblings sharing this article's topic and one of its tags,
@@ -2541,10 +2541,16 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         recommended_ids = {self.pk}
         for block in self.recommended_articles:
             article = block.value.get_article()
-            if not article.live or article.pk in recommended_ids:
+            if article is None or not article.live or article.pk in recommended_ids:
                 continue
             recommended.append(article)
             recommended_ids.add(article.pk)
+        if recommended:
+            # Apply potential page view restrictions
+            public_article_ids = set(
+                BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in recommended]).values_list("pk", flat=True)
+            )
+            recommended = [article for article in recommended if article.pk in public_article_ids]
         if len(recommended) == MAX_RECOMMENDED_ARTICLES:
             return recommended
 
