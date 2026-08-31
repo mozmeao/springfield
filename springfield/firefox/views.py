@@ -431,7 +431,7 @@ def firefox_all_form(request):
     if not waffle.switch("all-form"):
         raise Http404()
     selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
-    return l10n_utils.render(request, "firefox/all-form/base.html", all_form.get_form_context(selection))
+    return l10n_utils.render(request, "firefox/all-form/base.html", all_form.get_form_context(selection), ftl_files="firefox/all")
 
 
 @require_safe

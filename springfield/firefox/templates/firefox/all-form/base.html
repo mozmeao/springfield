@@ -50,10 +50,18 @@
                 />
               </content:heading>
               <content:body>
-                <h2 class="fl-heading-size-4">32, 64, ARM64/AArch64</h2>
-                <p>These options refer to your computer's <strong>processor architecture</strong>, not the software version — most modern computers are 64-bit. You should be able to look up which type you need in your system settings.</p>
-                <h2 class="fl-heading-size-4">Windows MSI</h2>
-                <p>For corporate IT, these installers simplify the configuration, deployment and management of the Firefox Browser.</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-64-bit-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-64-bit-installer') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-32-bit-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-32-bit-installer', url='https://support.mozilla.org/kb/choosing-firefox-cpu-architecture-windows-os') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-msi-installers') }}</h2>
+                <p>{{ ftl('firefox-all-windows-installers-for') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-arm64-installers') }}</h2>
+                <p>{{ ftl('firefox-all-arm64-installers-optimized-v2') }}</p>
+                {% if ftl_has_messages('firefox-all-choose-a-microsoft-store-installer') %}
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-microsoft-store-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-microsoft-store-installer') }}</p>
+                {% endif %}
               </content:body>
             </include:dialog>
             <select id="os" name="os" required class="fl-field">
@@ -81,10 +89,20 @@
                 <include:heading
                   level="h1"
                   heading_size="fl-heading-size-3"
-                  heading_text="Learn about Firefox browsers"
+                  heading_text="{{ ftl('firefox-all-learn-about-firefox') }}"
                 />
               </content:heading>
               <content:body>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox') }}">Firefox</a></h2>
+                <p>{{ ftl('firefox-all-the-standard-firefox') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.enterprise.index') }}">Firefox ESR</a></h2>
+                <p>{{ ftl('firefox-all-count-on-stability-and') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.channel.desktop') }}#beta">Firefox Beta</a></h2>
+                <p>{{ ftl('firefox-all-get-a-sneak-peek-at') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.developer.index') }}">Firefox Developer Edition</a></h2>
+                <p>{{ ftl('firefox-all-test-your-sites-against') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.channel.desktop') }}#nightly">Firefox Nightly</a></h2>
+                <p>{{ ftl('firefox-all-the-pre-alpha-version') }}</p>
               </content:body>
             </include:dialog>
             {#
