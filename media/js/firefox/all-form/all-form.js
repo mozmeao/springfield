@@ -655,8 +655,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 break;
             case 'submit':
                 event.preventDefault();
-                // TODO: maybe since a submit is expected we just follow the
-                // most prominent link? Or we direct users to the options?
                 break;
         }
     }
