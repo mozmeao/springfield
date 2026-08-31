@@ -680,6 +680,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             });
 
             this.#collectElements();
+            this.#removeNoJSReleaseHint();
             this.#collectReleaseOptions();
             this.#createDownloadOptions();
             this.#createSupportLinks();
@@ -729,6 +730,28 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this.#languageMessage = language
             .closest('.fl-field-wrap')
             .querySelector('.c-language-message');
+    }
+
+    /**
+     * Remove the no-JS release hint.
+     */
+    #removeNoJSReleaseHint() {
+        const hint = this.querySelector('#release-no-js-hint');
+        if (!hint) return;
+
+        const control = this.#form.elements.release;
+
+        // Preserve the server error message association if it’s present.
+        const describedBy = control
+            .getAttribute('aria-describedby')
+            .split(/\s+/)
+            .filter((id) => id !== hint.id)
+            .join(' ');
+
+        if (describedBy) control.setAttribute('aria-describedby', describedBy);
+        else control.removeAttribute('aria-describedby');
+
+        hint.remove();
     }
 
     /**
@@ -976,10 +999,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             const serverError = this.querySelector('#server-release-error');
             if (!serverError) return;
             serverError.remove();
-            this.#form.elements.release.setAttribute(
-                'aria-describedby',
-                'release-no-js-hint'
-            );
+            this.#form.elements.release.removeAttribute('aria-describedby');
         }, 'clear:server-error');
 
         this.#effect(() => {
@@ -1162,10 +1182,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             clearTimeout(current.announcement);
             current.element.remove();
             fieldWrap.classList.remove('fl-field-error');
-            control.ariaDescribedByElements = null;
-            if (current.describedBy)
-                control.setAttribute('aria-describedby', current.describedBy);
-            else control.removeAttribute('aria-describedby');
+            control.removeAttribute('aria-describedby');
             this.#fieldErrors.delete(control);
             return;
         }
@@ -1184,6 +1201,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         if (fieldWrap.querySelector('.fl-field-error-message')) return;
 
         const element = document.createElement('deferred-alert');
+        element.id = `${control.id}-error`;
         element.classList.add('fl-field-error-message');
         element.textContent = message;
 
@@ -1206,14 +1224,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
         fieldWrap.classList.add('fl-field-error');
         fieldWrap.append(element);
 
-        this.#fieldErrors.set(control, {
-            element,
-            message,
-            announcement,
-            describedBy: control.getAttribute('aria-describedby')
-        });
+        this.#fieldErrors.set(control, { element, message, announcement });
 
-        control.ariaDescribedByElements = [element];
+        control.setAttribute('aria-describedby', element.id);
     }
 
     // ── Widget factories ───────────────────────────────────────────────────
