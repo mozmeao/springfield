@@ -1209,14 +1209,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // For iOS VoiceOver, we need an extra long delay to avoid clobbering.
         // We can visually display the error immediately, but then wait for a timeout.
         // Safari tends to be quite aggressive with how it caches its accessibility tree, but if we use a shadow root to change the DOM structure, we can force it to invalidate.
-        // TODO: use a more reliable/accurate way of checking for mobile.
         const announcement = setTimeout(
             () => {
                 element.attachShadow({ mode: 'open' });
                 element.shadowRoot.innerHTML =
                     '<div role=alert><slot></slot></div>';
             },
-            matchMedia('(pointer: coarse)').matches ? 1_400 : 250
+            !window.Mozilla?.Client?.isMobile ? 250 : 1_400
         );
 
         fieldWrap.classList.add('fl-field-error');
