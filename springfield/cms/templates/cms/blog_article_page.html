@@ -62,7 +62,9 @@
               <include:blog-article-list-item with_image="{{ listing_image }}">
                 <content:heading>
                   <hgroup class="fl-heading-group">
-                    <p class="fl-superheading">{{ article.topic.name }}</p>
+                    {% if article.topic %}
+                      <p class="fl-superheading">{{ article.get_topic().name }}</p>
+                    {% endif %}
                     <h3 class="fl-heading">
                       <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
                     </h3>

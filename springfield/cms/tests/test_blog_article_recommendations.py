@@ -210,10 +210,14 @@ def test_recommendations_hidden(article, get_article_soup, recommendation_pool):
 
 @pytest.fixture
 def minimal_recommendation(make_recommended_article, topic):
-    return make_recommended_article("Matches topic", topic=topic, description="<p>Matches topic description</p>")
+    recommended_article = make_recommended_article("Matches topic", topic=topic, description="<p>Matches topic description</p>")
+    BlogArticlePage.objects.filter(pk=recommended_article.pk).update(topic=None)
+    return recommended_article
 
 
-def test_recommended_article_minimum_elements(get_article_soup, minimal_recommendation):
+def test_recommended_article_minimum_elements(article, get_article_soup, minimal_recommendation):
+    set_recommended_articles(article, minimal_recommendation)
+
     soup = get_article_soup()
 
     section = soup.select_one(".fl-blog-recommended-articles")
@@ -226,9 +230,8 @@ def test_recommended_article_minimum_elements(get_article_soup, minimal_recommen
     recommended_article_elements = section.select(".fl-blog-article-list-item")
     assert len(recommended_article_elements) == 1
     article_element = recommended_article_elements[0]
-    heading = article_element.select_one("p.fl-superheading")
-    assert heading is not None
-    assert heading.get_text(strip=True) == "Topic"
+    topic_heading = article_element.select_one("p.fl-superheading")
+    assert topic_heading is None
     link = article_element.select_one("h3.fl-heading a.fl-link")
     assert link is not None
     assert link.get_text(strip=True) == "Matches topic"
@@ -276,6 +279,9 @@ def test_recommended_article_optional_elements(full_recommendation, get_article_
     assert len(recommended_article_elements) == 1
     article_element = recommended_article_elements[0]
     date = article_element.select_one("p.fl-blog-article-date")
+    topic_heading = article_element.select_one("p.fl-superheading")
+    assert topic_heading is not None
+    assert topic_heading.get_text(strip=True) == "Topic"
     assert date is not None
     assert date.get_text(strip=True) == "Jan. 1, 2026"
     tags = [tag.get_text(strip=True) for tag in article_element.select("span.fl-tag")]
