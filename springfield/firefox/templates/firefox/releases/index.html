@@ -91,6 +91,6 @@
   {%- if int_version < 2 -%}
     <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/releases/{{ version }}.html">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
   {%- else -%}
-    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version }}{% if theme == 'primary' %}.0{% endif %}{% if is_esr %} ESR{% endif %}</a>
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version.replace('esr', '') }}{% if theme == 'primary' %}.0{% endif %}{% if is_esr %} ESR{% endif %}</a>
   {%- endif -%}
 {% endmacro %}
