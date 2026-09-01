@@ -26,9 +26,8 @@
    conditional-display component uses to reveal the QR (Firefox + a supported
    desktop OS), so a visitor never ends up with no CTA at all. */
 @media (--viewport-md-up) {
-    html.is-firefox.windows:not(.fx-unsupported) .hide-from-firefox-desktop,
-    html.is-firefox.osx:not(.fx-unsupported) .hide-from-firefox-desktop,
-    html.is-firefox.linux:not(.fx-unsupported) .hide-from-firefox-desktop {
+    html.is-firefox:is(.windows, .osx, .linux):not(.fx-unsupported)
+        .hide-from-firefox-desktop {
         display: none;
     }
 }
