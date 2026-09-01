@@ -73,6 +73,12 @@
         }
     }
 
+    .fl-c-releases-list-minor-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-sm);
+    }
+
     .fl-c-releases-list-minor {
         display: flex;
         flex-wrap: wrap;

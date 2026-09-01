@@ -349,13 +349,15 @@ def releases_index(request, product):
                 minor_entries.append((x, False))
 
         minor_entries += [(v, True) for v in missing_esr_versions if re.findall(major_pattern, normalize_esr_version(v))]
+        minor_entries.sort(key=lambda pair: [int(y) for y in normalize_esr_version(pair[0]).split(".")])
 
+        # ESR pills are kept in their own list (rather than one combined
+        # list with a per-item flag) so the template can render them on
+        # their own line instead of interleaved with Release pills.
         releases[major_version] = {
             "major": release,
-            "minor": [
-                {"version_string": x, "is_esr": is_esr}
-                for x, is_esr in sorted(minor_entries, key=lambda pair: ([int(y) for y in normalize_esr_version(pair[0]).split(".")], pair[1]))
-            ],
+            "minor": [x for x, is_esr in minor_entries if not is_esr],
+            "minor_esr": [x for x, is_esr in minor_entries if is_esr],
         }
 
     return l10n_utils.render(request, f"{product.lower()}/releases/index.html", {"releases": sorted(releases.items(), reverse=True)})

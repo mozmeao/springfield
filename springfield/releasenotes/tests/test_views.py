@@ -83,33 +83,15 @@ def test_releases_index(render_mock, rf):
         releases_index(request, "Firefox")
 
     # None of these version strings are in the (empty) mocked ESR set, so
-    # every minor entry should render as a single, non-ESR pill.
+    # everything lands in "minor" and "minor_esr" stays empty throughout.
     expected_data = {
         "releases": [
-            (101.0, {"major": "101.0", "minor": [{"version_string": "101.2", "is_esr": False}]}),
-            (
-                100.0,
-                {
-                    "major": "100.0",
-                    "minor": [
-                        {"version_string": "100.1", "is_esr": False},
-                        {"version_string": "100.2", "is_esr": False},
-                    ],
-                },
-            ),
-            (96.0, {"major": "96.0", "minor": [{"version_string": "96.5", "is_esr": False}]}),
-            (33.1, {"major": "33.1", "minor": [{"version_string": "33.1.1", "is_esr": False}]}),
-            (33.0, {"major": "33.0", "minor": [{"version_string": "33.0.1", "is_esr": False}]}),
-            (
-                3.6,
-                {
-                    "major": "3.6",
-                    "minor": [
-                        {"version_string": "3.6.2", "is_esr": False},
-                        {"version_string": "3.6.3", "is_esr": False},
-                    ],
-                },
-            ),
+            (101.0, {"major": "101.0", "minor": ["101.2"], "minor_esr": []}),
+            (100.0, {"major": "100.0", "minor": ["100.1", "100.2"], "minor_esr": []}),
+            (96.0, {"major": "96.0", "minor": ["96.5"], "minor_esr": []}),
+            (33.1, {"major": "33.1", "minor": ["33.1.1"], "minor_esr": []}),
+            (33.0, {"major": "33.0", "minor": ["33.0.1"], "minor_esr": []}),
+            (3.6, {"major": "3.6", "minor": ["3.6.2", "3.6.3"], "minor_esr": []}),
         ],
     }
     render_mock.assert_called_once_with(
@@ -124,22 +106,22 @@ def test_releases_index__esr_annotation(render_mock, rf):
     """ESR annotation is driven by the ESR/Release-channel ProductRelease
     queries, not by the shape of the version string:
 
-    - "115.0.1"/"115.0.2" are Release-channel-only -> not flagged.
+    - "115.0.1"/"115.0.2" are Release-channel-only -> land in "minor".
     - "115.1.0"/"115.2.0" are genuine ESR-only point releases (present in
       firefox_history_stability_releases, which mixes Release and ESR point
       releases with no marker, but absent from the Release-channel set) ->
-      flagged, and shown as a single pill each, not doubled.
+      land in "minor_esr", not doubled up in "minor" too.
     - "140.5.0" simulates a genuine channel collision: the same version
-      string, separately public on both Release and ESR -> both a plain and
-      an "ESR" pill are shown, neither channel silently wins.
+      string, separately public on both Release and ESR -> appears in BOTH
+      "minor" and "minor_esr", neither channel silently wins.
     - "102.0.1" mirrors the one real historical collision found in
       data/release_notes/releases/: present in the Release-channel set, but
       its ESR sibling was never public, so it never makes it into the ESR
-      set -> resolves to a single, non-ESR pill.
+      set -> lands only in "minor".
     - "140.0esr" has no entry at all in firefox_history_major_releases/
       firefox_history_stability_releases (ESR baselines aren't tracked
-      there) and must be injected as an extra minor pill under its matching
-      major (140.0), sorted before its point releases.
+      there) and must be injected into "minor_esr" under its matching
+      major (140.0).
     """
     mock_major_releases_val = {
         "102.0": "2022-06-28",
@@ -175,32 +157,24 @@ def test_releases_index__esr_annotation(render_mock, rf):
                 140.0,
                 {
                     "major": "140.0",
-                    "minor": [
-                        {"version_string": "140.0esr", "is_esr": True},
-                        {"version_string": "140.5.0", "is_esr": False},
-                        {"version_string": "140.5.0", "is_esr": True},
-                    ],
+                    "minor": ["140.5.0"],
+                    "minor_esr": ["140.0esr", "140.5.0"],
                 },
             ),
             (
                 115.0,
                 {
                     "major": "115.0",
-                    "minor": [
-                        {"version_string": "115.0.1", "is_esr": False},
-                        {"version_string": "115.0.2", "is_esr": False},
-                        {"version_string": "115.1.0", "is_esr": True},
-                        {"version_string": "115.2.0", "is_esr": True},
-                    ],
+                    "minor": ["115.0.1", "115.0.2"],
+                    "minor_esr": ["115.1.0", "115.2.0"],
                 },
             ),
             (
                 102.0,
                 {
                     "major": "102.0",
-                    "minor": [
-                        {"version_string": "102.0.1", "is_esr": False},
-                    ],
+                    "minor": ["102.0.1"],
+                    "minor_esr": [],
                 },
             ),
         ],

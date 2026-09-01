@@ -35,12 +35,23 @@
       {% for int_version, versions in releases -%}
       <li>
         <strong>{{ get_flare_link(int_version, versions.major, 'primary') }}</strong>
-        {% if versions.minor -%}
-        <ol class="fl-c-releases-list-minor">
-          {% for version in versions.minor -%}
-          <li>{{ get_flare_link(int_version, version.version_string, 'secondary', version.is_esr) }}</li>
-          {% endfor -%}
-        </ol>
+        {% if versions.minor or versions.minor_esr -%}
+        <div class="fl-c-releases-list-minor-group">
+          {% if versions.minor -%}
+          <ol class="fl-c-releases-list-minor">
+            {% for version in versions.minor -%}
+            <li>{{ get_flare_link(int_version, version, 'secondary') }}</li>
+            {% endfor -%}
+          </ol>
+          {% endif -%}
+          {% if versions.minor_esr -%}
+          <ol class="fl-c-releases-list-minor fl-c-releases-list-minor-esr">
+            {% for version in versions.minor_esr -%}
+            <li>{{ get_flare_link(int_version, version, 'secondary', true) }}</li>
+            {% endfor -%}
+          </ol>
+          {% endif -%}
+        </div>
         {% endif -%}
       </li>
       {% endfor -%}
