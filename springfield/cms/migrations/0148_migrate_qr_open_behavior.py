@@ -50,7 +50,7 @@ def backfill_open_behavior(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0142_freeformpage2026_floating_qr_open_behavior_and_more"),
+        ("cms", "0147_freeformpage2026_floating_qr_open_behavior_and_more"),
     ]
 
     operations = [
