@@ -379,23 +379,23 @@ def rewrite_embed_shortcodes(raw_html):
     return EMBED_SHORTCODE_RE.sub(replace, raw_html)
 
 
-def demote_h1_headings(html):
+def demote_h1_headings(raw_html):
     """Turn any `<h1>` in a post body into an `<h2>`.
 
     The page renders its title as the only h1 it should have, and h1 isn't one of the rich text
     features, so Draftail doesn't move such a heading down a level - it drops it to plain text
     the first time an editor saves. A few posts use h1 for every section heading they have.
     """
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(raw_html, "html.parser")
     headings = soup.find_all("h1")
     if not headings:
-        return html
+        return raw_html
     for heading in headings:
         heading.name = "h2"
     return str(soup)
 
 
-def wrap_bare_paragraphs(html):
+def wrap_bare_paragraphs(raw_html):
     """Wrap runs of bare text in `<p>`, the way WordPress does when it renders a classic post.
 
     Pre-Gutenberg posts carry no paragraph markup at all: paragraphs are separated by blank lines
@@ -403,7 +403,7 @@ def wrap_bare_paragraphs(html):
     without this a third of these posts render as one unbroken block of text - and the first
     editor save fuses them for good, because Draftail keeps the words and drops the newlines.
     """
-    soup = BeautifulSoup(f"<div>{html}</div>", "html.parser")
+    soup = BeautifulSoup(f"<div>{raw_html}</div>", "html.parser")
     pieces = []
     paragraph = []
 
