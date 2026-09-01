@@ -44,10 +44,6 @@
         inline-size: 100%;
     }
 
-    .fl-referral-hub-page .fl-tabs-panels {
-        min-block-size: 481px;
-    }
-
     .fl-referral-hub-page .fl-tabs {
         --tabs-inline-padding: var(--token-spacing-lg);
     }
@@ -158,6 +154,30 @@
 
         .fl-referral-hub-page .fl-tabs {
             padding: var(--token-layout-2xs) 0 0;
+        }
+
+        /* Stack every panel in the same grid cell so the panels container is
+        always as tall as the tallest panel and switching tabs does not resize
+        the card. The inactive panel stays in flow but is hidden from view, the
+        a11y tree and the tab order. Without JS the panels are all shown, so
+        they must stay stacked in normal flow instead. */
+        html:not(.no-js) .fl-referral-hub-page .fl-tabs-panels {
+            display: grid;
+        }
+
+        html:not(.no-js)
+            .fl-referral-hub-page
+            .fl-tabs-panels
+            > [role='tabpanel'] {
+            grid-area: 1 / 1;
+        }
+
+        html:not(.no-js)
+            .fl-referral-hub-page
+            .fl-tabs-panels
+            > [role='tabpanel'].is-hidden {
+            display: block;
+            visibility: hidden;
         }
 
         .fl-referral-hub-page .fl-tab-note-wrapper {
