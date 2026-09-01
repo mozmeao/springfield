@@ -45,7 +45,9 @@ def test_show_android_sys_req(version_string, expected):
 
 @patch("springfield.firefox.views.l10n_utils.render")
 def test_releases_index(render_mock, rf):
-    """Spot checks, incl confirmation that FF100 will not cause a hiccup"""
+    """Spot checks, incl confirmation that FF100 will not cause a hiccup, and
+    that ESR status comes from the ESR/Release-channel ProductRelease
+    queries rather than being guessed from the version string shape."""
 
     # Dates are from https://wiki.mozilla.org/Release_Management/Calendar but
     # these are here just for testing/dummy purposes
@@ -60,21 +62,7 @@ def test_releases_index(render_mock, rf):
     mock_minor_releases_val = {
         "3.6.2": "2010-03-22",
         "3.6.3": "2010-04-01",
-        "3.6.4": "2010-06-22",
-        "3.6.6": "2010-06-26",
-        "3.6.7": "2010-07-20",
-        "3.6.8": "2010-07-23",
-        "3.6.9": "2010-09-07",
-        "3.6.10": "2010-09-15",
-        "3.6.11": "2010-10-19",
-        "3.6.12": "2010-10-27",
-        "3.6.13": "2010-12-09",
-        "3.6.14": "2011-03-01",
-        "3.6.15": "2011-03-04",
-        "3.6.16": "2011-03-22",
         "33.0.1": "2014-10-24",
-        "33.0.2": "2014-10-28",
-        "33.0.3": "2014-11-06",
         "33.1.1": "2014-11-14",
         "96.5": "2022-01-11",  # 100% fake/test
         "100.1": "2022-05-03",  # 100% fake/test
@@ -84,62 +72,34 @@ def test_releases_index(render_mock, rf):
 
     request = rf.get("/")
 
-    with patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop:
+    with (
+        patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop,
+        patch("springfield.releasenotes.views.get_esr_release_versions", return_value=set()),
+        patch("springfield.releasenotes.views.get_release_channel_versions", return_value=set()),
+    ):
         mock_firefox_desktop.firefox_history_major_releases = mock_major_releases_val
         mock_firefox_desktop.firefox_history_stability_releases = mock_minor_releases_val
 
         releases_index(request, "Firefox")
 
+    # None of these version strings are in the (empty) mocked ESR set, so
+    # every minor entry should render as a single, non-ESR pill.
     expected_data = {
         "releases": [
-            (
-                101.0,
-                {
-                    "major": "101.0",
-                    "minor": [
-                        {"version_string": "101.2", "is_esr": True},
-                    ],
-                },
-            ),
+            (101.0, {"major": "101.0", "minor": [{"version_string": "101.2", "is_esr": False}]}),
             (
                 100.0,
                 {
                     "major": "100.0",
                     "minor": [
-                        {"version_string": "100.1", "is_esr": True},
-                        {"version_string": "100.2", "is_esr": True},
+                        {"version_string": "100.1", "is_esr": False},
+                        {"version_string": "100.2", "is_esr": False},
                     ],
                 },
             ),
-            (
-                96.0,
-                {
-                    "major": "96.0",
-                    "minor": [
-                        {"version_string": "96.5", "is_esr": True},
-                    ],
-                },
-            ),
-            (
-                33.1,
-                {
-                    "major": "33.1",
-                    "minor": [
-                        {"version_string": "33.1.1", "is_esr": False},
-                    ],
-                },
-            ),
-            (
-                33.0,
-                {
-                    "major": "33.0",
-                    "minor": [
-                        {"version_string": "33.0.1", "is_esr": False},
-                        {"version_string": "33.0.2", "is_esr": False},
-                        {"version_string": "33.0.3", "is_esr": False},
-                    ],
-                },
-            ),
+            (96.0, {"major": "96.0", "minor": [{"version_string": "96.5", "is_esr": False}]}),
+            (33.1, {"major": "33.1", "minor": [{"version_string": "33.1.1", "is_esr": False}]}),
+            (33.0, {"major": "33.0", "minor": [{"version_string": "33.0.1", "is_esr": False}]}),
             (
                 3.6,
                 {
@@ -147,18 +107,6 @@ def test_releases_index(render_mock, rf):
                     "minor": [
                         {"version_string": "3.6.2", "is_esr": False},
                         {"version_string": "3.6.3", "is_esr": False},
-                        {"version_string": "3.6.4", "is_esr": False},
-                        {"version_string": "3.6.6", "is_esr": False},
-                        {"version_string": "3.6.7", "is_esr": False},
-                        {"version_string": "3.6.8", "is_esr": False},
-                        {"version_string": "3.6.9", "is_esr": False},
-                        {"version_string": "3.6.10", "is_esr": False},
-                        {"version_string": "3.6.11", "is_esr": False},
-                        {"version_string": "3.6.12", "is_esr": False},
-                        {"version_string": "3.6.13", "is_esr": False},
-                        {"version_string": "3.6.14", "is_esr": False},
-                        {"version_string": "3.6.15", "is_esr": False},
-                        {"version_string": "3.6.16", "is_esr": False},
                     ],
                 },
             ),
@@ -173,26 +121,49 @@ def test_releases_index(render_mock, rf):
 
 @patch("springfield.firefox.views.l10n_utils.render")
 def test_releases_index__esr_annotation(render_mock, rf):
-    """ESR point releases (nonzero second segment) are flagged,
-    but 50.1.0 is excluded as a known non-ESR exception."""
+    """ESR annotation is driven by the ESR/Release-channel ProductRelease
+    queries, not by the shape of the version string:
 
+    - "115.0.1"/"115.0.2" are Release-channel-only -> not flagged.
+    - "115.1.0"/"115.2.0" are genuine ESR-only point releases (present in
+      firefox_history_stability_releases, which mixes Release and ESR point
+      releases with no marker, but absent from the Release-channel set) ->
+      flagged, and shown as a single pill each, not doubled.
+    - "140.5.0" simulates a genuine channel collision: the same version
+      string, separately public on both Release and ESR -> both a plain and
+      an "ESR" pill are shown, neither channel silently wins.
+    - "102.0.1" mirrors the one real historical collision found in
+      data/release_notes/releases/: present in the Release-channel set, but
+      its ESR sibling was never public, so it never makes it into the ESR
+      set -> resolves to a single, non-ESR pill.
+    - "140.0esr" has no entry at all in firefox_history_major_releases/
+      firefox_history_stability_releases (ESR baselines aren't tracked
+      there) and must be injected as an extra minor pill under its matching
+      major (140.0), sorted before its point releases.
+    """
     mock_major_releases_val = {
-        "50.0": "2016-11-15",
+        "102.0": "2022-06-28",
         "115.0": "2023-07-04",
+        "140.0": "2025-06-30",
     }
     mock_minor_releases_val = {
-        "50.0.1": "2016-11-28",
-        "50.0.2": "2016-12-01",
-        "50.1.0": "2016-12-13",
+        "102.0.1": "2022-07-06",
         "115.0.1": "2023-07-06",
         "115.0.2": "2023-07-11",
         "115.1.0": "2023-08-01",
         "115.2.0": "2023-08-29",
+        "140.5.0": "2025-11-01",
     }
+    mock_esr_versions = {"115.1.0", "115.2.0", "140.0esr", "140.5.0"}
+    mock_release_versions = {"102.0.1", "140.5.0"}
 
     request = rf.get("/")
 
-    with patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop:
+    with (
+        patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop,
+        patch("springfield.releasenotes.views.get_esr_release_versions", return_value=mock_esr_versions),
+        patch("springfield.releasenotes.views.get_release_channel_versions", return_value=mock_release_versions),
+    ):
         mock_firefox_desktop.firefox_history_major_releases = mock_major_releases_val
         mock_firefox_desktop.firefox_history_stability_releases = mock_minor_releases_val
 
@@ -200,6 +171,17 @@ def test_releases_index__esr_annotation(render_mock, rf):
 
     expected_data = {
         "releases": [
+            (
+                140.0,
+                {
+                    "major": "140.0",
+                    "minor": [
+                        {"version_string": "140.0esr", "is_esr": True},
+                        {"version_string": "140.5.0", "is_esr": False},
+                        {"version_string": "140.5.0", "is_esr": True},
+                    ],
+                },
+            ),
             (
                 115.0,
                 {
@@ -213,13 +195,11 @@ def test_releases_index__esr_annotation(render_mock, rf):
                 },
             ),
             (
-                50.0,
+                102.0,
                 {
-                    "major": "50.0",
+                    "major": "102.0",
                     "minor": [
-                        {"version_string": "50.0.1", "is_esr": False},
-                        {"version_string": "50.0.2", "is_esr": False},
-                        {"version_string": "50.1.0", "is_esr": False},
+                        {"version_string": "102.0.1", "is_esr": False},
                     ],
                 },
             ),
