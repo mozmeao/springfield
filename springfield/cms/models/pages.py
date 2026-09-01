@@ -1412,7 +1412,8 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     # chooser to that type; the descendant guard remains the correctness backstop.
     routing_target_page_types = ["cms.WhatsNewPage2026"]
 
-    def get_routing_trigger(self):
+    @classmethod
+    def get_routing_trigger(cls):
         """Routing arms only on Firefox's just-updated flow (``?utm_source=update``).
 
         Value-matching, not presence: ``utm_source`` doubles as an available URL

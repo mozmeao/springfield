@@ -19,6 +19,7 @@ from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Site
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.cms.routing.arming import QueryParamArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin, RoutingObjectList, routing_tab_is_shown
 from springfield.cms.routing.models import RoutingRule
@@ -37,7 +38,7 @@ def test_is_routing_canonical_defaults_to_false():
 
 
 def test_routing_trigger_is_unset_by_default():
-    assert RoutingMixin.get_routing_trigger(SimpleNamespace()) is None
+    assert RoutingMixin.get_routing_trigger() is None
 
 
 def test_arming_param_is_none_without_a_trigger():
@@ -46,15 +47,11 @@ def test_arming_param_is_none_without_a_trigger():
     assert RoutingMixin.get_routing_arming_param() is None
 
 
-@pytest.mark.django_db
-def test_arming_param_skipped_in_sqlite_export_mode(monkeypatch):
-    from springfield.cms.models.pages import WhatsNewPage2026
-
-    # Without the env var, a concrete consumer returns its arming param.
-    assert WhatsNewPage2026.get_routing_arming_param() is not None
-
-    monkeypatch.setenv("SQLITE_EXPORT_MODE", "True")
-    assert WhatsNewPage2026.get_routing_arming_param() is None
+def test_arming_param_on_concrete_consumer_avoids_db_and_instantiation():
+    # get_routing_trigger is a classmethod precisely so this never instantiates the
+    # page (and so never hits the database) — called here on the class itself, with
+    # no @pytest.mark.django_db, to pin that.
+    assert WhatsNewPage2026.get_routing_arming_param() == "utm_source"
 
 
 # ---------------------------------------------------------------------------
