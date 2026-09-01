@@ -22,8 +22,9 @@ attach to, a self-hosted video, an image that won't download. Warnings go to std
 proceeds and to a CSV keyed by the post they came from, because a long run's output scrolls past.
 
 Two CSVs are written, both row by row so a crash keeps whatever finished:
-- the old-URL -> new-URL map, to hand to the blog.mozilla.org team for their redirects
-- the warnings, as a worklist of what needs a human afterwards
+- wordpress_url_map.csv: the old-URL -> new-URL map, to hand to the blog.mozilla.org team for
+  redirects.
+- wordpress_import_warnings.csv: the warnings, as a worklist of what needs a human afterward.
 """
 
 import csv
