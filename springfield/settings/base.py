@@ -11,6 +11,7 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
+from django.apps import apps
 from django.conf.locale import LANG_INFO
 from django.utils.functional import lazy
 
@@ -434,7 +435,6 @@ def lazy_langs():
     :return: list of tuples
 
     """
-    from django.apps import apps
     from django.conf import settings
 
     langs = DEV_LANGUAGES if settings.DEV else settings.PROD_LANGUAGES
@@ -442,6 +442,8 @@ def lazy_langs():
     if not apps.ready:
         return [(lang, lang) for lang in langs]
 
+    # Deferred: must stay below the apps.ready guard above, otherwise this
+    # reintroduces the startup DB access that guard exists to avoid.
     from product_details import product_details
 
     return [(lang, product_details.languages[lang]["native"]) for lang in langs if lang in product_details.languages]
