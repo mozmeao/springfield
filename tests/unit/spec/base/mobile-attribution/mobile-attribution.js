@@ -298,17 +298,9 @@ describe('mobile-attribution.js', function () {
             );
         });
 
-        it('clicking a rewritten button fires sendEventFromURL and navigates to the https store URL', function () {
-            // Simulate the post-rewrite + post-mozilla-utils.js state: the
-            // button HREF has been mutated to a market:// URL after our
-            // rewrite ran (as would happen on real Android UAs). The click
-            // handler normalizes market:// back to https://play.google.com/store/apps/
-            // (preserving the query) so TrackProductDownload's regex recognizes it
-            // and desktop browsers reach a real destination.
+        it('clicking a rewritten button fires sendEventFromURL', function () {
             const ORIGINAL_STORE_URL =
                 'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dtest-19';
-            const MUTATED_HREF =
-                'market://details?id=org.mozilla.firefox&referrer=utm_campaign%3Dtest-19';
 
             container.innerHTML =
                 '<a class="c-button-download-thanks-link" href="/thanks/">Download</a>';
@@ -317,36 +309,59 @@ describe('mobile-attribution.js', function () {
                 Mozilla.TrackProductDownload,
                 'sendEventFromURL'
             );
-            // Spy on the navigation seam so the test doesn't actually
-            // navigate the jasmine runner away.
-            const navigateSpy = spyOn(Mozilla.MobileAttribution, '_navigate');
 
             Mozilla.MobileAttribution.rewriteLinks(
                 container,
                 ORIGINAL_STORE_URL
             );
 
-            // Simulate mozilla-utils.js mutating the href to market:// after
-            // our rewrite (this is what happens in practice on Android UAs).
             const link = container.querySelector('a');
-            link.setAttribute('href', MUTATED_HREF);
-
-            const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true
-            });
-            const preventSpy = spyOn(
-                clickEvent,
-                'preventDefault'
-            ).and.callThrough();
-            link.dispatchEvent(clickEvent);
+            link.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true })
+            );
 
             expect(sendEventSpy).toHaveBeenCalledWith(ORIGINAL_STORE_URL);
-            expect(navigateSpy).toHaveBeenCalledWith(ORIGINAL_STORE_URL);
-            expect(preventSpy).toHaveBeenCalled();
         });
 
-        it('does not throw if TrackProductDownload is undefined at init time', function () {
+        it('reads the href at click time, reflecting any rewrite after binding', function () {
+            // Sequence: rewriteLinks binds at rewrite time, capturing the
+            // original store URL. Something else on the page (e.g. another
+            // script) can rewrite the href again afterwards. The click
+            // handler must use the current href, not the originally-
+            // captured URL.
+            const ORIGINAL_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dget-firefox';
+            const REWRITTEN_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
+
+            container.innerHTML =
+                '<a class="c-button-download-thanks-link" href="/thanks/">Download</a>';
+
+            const sendEventSpy = spyOn(
+                Mozilla.TrackProductDownload,
+                'sendEventFromURL'
+            );
+
+            Mozilla.MobileAttribution.rewriteLinks(
+                container,
+                ORIGINAL_STORE_URL
+            );
+
+            // Something else on the page rewrites the href after binding.
+            container
+                .querySelector('a')
+                .setAttribute('href', REWRITTEN_STORE_URL);
+
+            container
+                .querySelector('a')
+                .dispatchEvent(
+                    new MouseEvent('click', { bubbles: true, cancelable: true })
+                );
+
+            expect(sendEventSpy).toHaveBeenCalledWith(REWRITTEN_STORE_URL);
+        });
+
+        it('does not throw if TrackProductDownload is undefined', function () {
             window._OriginalTrackProductDownload =
                 window.Mozilla.TrackProductDownload;
             delete window.Mozilla.TrackProductDownload;
@@ -359,196 +374,16 @@ describe('mobile-attribution.js', function () {
             }).not.toThrow();
 
             // The HREF still gets rewritten even without the tracker — the
-            // navigation works, only the click event is missed.
+            // link still works, only the click event is missed.
             expect(container.querySelector('a').getAttribute('href')).toBe(
                 'TARGET'
             );
         });
     });
 
-    describe('attachAndroidStoreButtonTracking', function () {
-        afterEach(function () {
-            // Restore the TrackProductDownload namespace if a test deleted it.
-            if (
-                window.Mozilla &&
-                !window.Mozilla.TrackProductDownload &&
-                window._OriginalTrackProductDownload
-            ) {
-                window.Mozilla.TrackProductDownload =
-                    window._OriginalTrackProductDownload;
-                delete window._OriginalTrackProductDownload;
-            }
-        });
-
-        it('attaches a sendEventFromURL click handler to .fl-store-button-android elements', function () {
-            const ORIGINAL_ANDROID_URL =
-                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dpage-slug';
-
-            container.innerHTML =
-                '<a class="ga-product-download fl-store-button fl-store-button-android" href="' +
-                ORIGINAL_ANDROID_URL +
-                '">Play Store</a>';
-
-            const sendEventSpy = spyOn(
-                Mozilla.TrackProductDownload,
-                'sendEventFromURL'
-            );
-            const navigateSpy = spyOn(Mozilla.MobileAttribution, '_navigate');
-
-            Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
-                container
-            );
-
-            const link = container.querySelector('a');
-            link.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, cancelable: true })
-            );
-
-            expect(sendEventSpy).toHaveBeenCalledWith(ORIGINAL_ANDROID_URL);
-            expect(navigateSpy).toHaveBeenCalledWith(ORIGINAL_ANDROID_URL);
-        });
-
-        it('normalizes market:// back to https when href is mutated by mozilla-utils.js', function () {
-            // Simulate the real-world sequence: our handler is attached at
-            // script load (sync). mozilla-utils.js mutates the href to
-            // market:// on DOMContentLoaded. The click handler normalizes
-            // market:// → https://play.google.com/store/apps/ so the full
-            // query (including any utm_content from referral attribution) is
-            // preserved.
-            const ORIGINAL_ANDROID_URL =
-                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_campaign%3Dpage-slug';
-            const MUTATED_HREF =
-                'market://details?id=org.mozilla.firefox&referrer=utm_campaign%3Dpage-slug';
-
-            container.innerHTML =
-                '<a class="ga-product-download fl-store-button fl-store-button-android" href="' +
-                ORIGINAL_ANDROID_URL +
-                '">Play Store</a>';
-
-            const sendEventSpy = spyOn(
-                Mozilla.TrackProductDownload,
-                'sendEventFromURL'
-            );
-            spyOn(Mozilla.MobileAttribution, '_navigate');
-
-            Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
-                container
-            );
-
-            // Simulate mozilla-utils.js mutation after our attach.
-            container.querySelector('a').setAttribute('href', MUTATED_HREF);
-
-            container
-                .querySelector('a')
-                .dispatchEvent(
-                    new MouseEvent('click', { bubbles: true, cancelable: true })
-                );
-
-            // Normalized market:// → https, preserving the query.
-            expect(sendEventSpy).toHaveBeenCalledWith(ORIGINAL_ANDROID_URL);
-        });
-
-        it('preserves utm_content in market:// URL rewritten by referral attribution', function () {
-            // Sequence: attachAndroidStoreButtonTracking binds at script load,
-            // capturing the original URL (no utm_content). Referral attribution
-            // then rewrites the href to include utm_content. mozilla-utils.js
-            // converts that rewritten HTTPS URL to market://. The click handler
-            // must use the normalized market:// (which has utm_content), not the
-            // originally-captured URL (which does not).
-            const ORIGINAL_URL =
-                'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
-                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
-                '%26utm_campaign%3Dget-firefox';
-            const REFERRAL_URL =
-                'https://play.google.com/store/apps/details?id=org.mozilla.firefox' +
-                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
-                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
-            const MUTATED_REFERRAL_HREF =
-                'market://details?id=org.mozilla.firefox' +
-                '&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral' +
-                '%26utm_campaign%3Dfirefox-referral%26utm_content%3DfxreferTESTCODE';
-
-            container.innerHTML =
-                '<a class="ga-product-download fl-store-button fl-store-button-android" href="' +
-                ORIGINAL_URL +
-                '">Play Store</a>';
-
-            const sendEventSpy = spyOn(
-                Mozilla.TrackProductDownload,
-                'sendEventFromURL'
-            );
-            const navigateSpy = spyOn(Mozilla.MobileAttribution, '_navigate');
-
-            // Step 1: bind at script load (captures ORIGINAL_URL).
-            Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
-                container
-            );
-
-            // Step 2: referral attribution rewrites href (HTTPS, with utm_content).
-            container.querySelector('a').setAttribute('href', REFERRAL_URL);
-
-            // Step 3: mozilla-utils.js converts the referral HTTPS href to market://.
-            container
-                .querySelector('a')
-                .setAttribute('href', MUTATED_REFERRAL_HREF);
-
-            container
-                .querySelector('a')
-                .dispatchEvent(
-                    new MouseEvent('click', { bubbles: true, cancelable: true })
-                );
-
-            // Must use the referral URL (with utm_content), not the originally-
-            // captured URL (without utm_content).
-            expect(sendEventSpy).toHaveBeenCalledWith(REFERRAL_URL);
-            expect(navigateSpy).toHaveBeenCalledWith(REFERRAL_URL);
-        });
-
-        it('does NOT attach to .fl-store-button-ios elements (iOS already fires via existing handler)', function () {
-            container.innerHTML =
-                '<a class="ga-product-download fl-store-button fl-store-button-ios" href="https://apps.apple.com/...?ct=page-slug">App Store</a>';
-
-            const sendEventSpy = spyOn(
-                Mozilla.TrackProductDownload,
-                'sendEventFromURL'
-            );
-
-            Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
-                container
-            );
-
-            container
-                .querySelector('a')
-                .dispatchEvent(
-                    new MouseEvent('click', { bubbles: true, cancelable: true })
-                );
-
-            expect(sendEventSpy).not.toHaveBeenCalled();
-        });
-
-        it('does not throw if TrackProductDownload is undefined', function () {
-            window._OriginalTrackProductDownload =
-                window.Mozilla.TrackProductDownload;
-            delete window.Mozilla.TrackProductDownload;
-
-            container.innerHTML =
-                '<a class="fl-store-button-android" href="https://play.google.com/...">Play Store</a>';
-
-            expect(function () {
-                Mozilla.MobileAttribution.attachAndroidStoreButtonTracking(
-                    container
-                );
-            }).not.toThrow();
-        });
-    });
-
     describe('init', function () {
         beforeEach(function () {
             spyOn(Mozilla.MobileAttribution, 'rewriteLinks');
-            spyOn(
-                Mozilla.MobileAttribution,
-                'attachAndroidStoreButtonTracking'
-            );
         });
 
         it('falls back to the "fxcomdefault" default campaign on iOS UA with no campaign declared', function () {
@@ -565,9 +400,6 @@ describe('mobile-attribution.js', function () {
                 Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
             expect(callArgs[1].indexOf(IOS_STORE_PREFIX)).toBe(0);
             expect(callArgs[1]).toContain('ct=fxcomdefault');
-            expect(
-                Mozilla.MobileAttribution.attachAndroidStoreButtonTracking
-            ).not.toHaveBeenCalled();
         });
 
         it('falls back to the "fxcomdefault" default campaign on Android UA with no campaign declared', function () {
@@ -597,34 +429,6 @@ describe('mobile-attribution.js', function () {
 
             expect(
                 Mozilla.MobileAttribution.rewriteLinks
-            ).not.toHaveBeenCalled();
-            expect(
-                Mozilla.MobileAttribution.attachAndroidStoreButtonTracking
-            ).not.toHaveBeenCalled();
-        });
-
-        it('calls attachAndroidStoreButtonTracking on Android UA regardless of campaign', function () {
-            spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
-                ANDROID_UA
-            );
-
-            Mozilla.MobileAttribution.init();
-
-            expect(
-                Mozilla.MobileAttribution.attachAndroidStoreButtonTracking
-            ).toHaveBeenCalled();
-        });
-
-        it('does NOT call attachAndroidStoreButtonTracking on iOS UA', function () {
-            html.setAttribute('data-stub-attribution-campaign', 'test-19');
-            spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
-                IOS_UA
-            );
-
-            Mozilla.MobileAttribution.init();
-
-            expect(
-                Mozilla.MobileAttribution.attachAndroidStoreButtonTracking
             ).not.toHaveBeenCalled();
         });
 

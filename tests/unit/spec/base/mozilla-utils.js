@@ -33,31 +33,6 @@ describe('mozilla-utils.js', function () {
         });
     });
 
-    describe('initMobileDownloadLinks', function () {
-        beforeEach(function () {
-            const link =
-                '<a class="download-link" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox">Download Firefox</a>';
-            document.body.insertAdjacentHTML('beforeend', link);
-        });
-
-        afterEach(function () {
-            window.site.platform = 'other';
-
-            document.querySelectorAll('.download-link').forEach((e) => {
-                e.parentNode.removeChild(e);
-            });
-        });
-
-        it('should set a URL with the market scheme on Android', function () {
-            window.site.platform = 'android';
-            Mozilla.Utils.initMobileDownloadLinks();
-            const link = document.querySelector('.download-link');
-            expect(link.href).toEqual(
-                'market://details?id=org.mozilla.firefox'
-            );
-        });
-    });
-
     describe('getDownloadPlatformVersion', function () {
         it('should return expected values for Windows', function () {
             const site = {

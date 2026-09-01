@@ -14,7 +14,6 @@
         Mozilla.Utils.onDocumentReady(function () {
             var utils = Mozilla.Utils;
 
-            utils.initMobileDownloadLinks();
             utils.attributeDownloadThanksButton();
         });
     }
