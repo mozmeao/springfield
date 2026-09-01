@@ -722,20 +722,6 @@ def test_cache_localized_tags_drops_hidden_tags(bare_article, blog_tag):
     assert [tag.slug for tag in bare_article.get_tags()] == [keeper.slug]
 
 
-def test_excluded_tags_do_not_render_on_recommended_article_cards(excluded_index, blog_tag, make_article, rf):
-    """Recommended cards are not feed-filtered, so an excluded tag reaches them."""
-    keeper = BlogTag.objects.create(name="Keeper", slug="test-unit-keeper", locale=excluded_index.locale)
-    sibling = make_article(title="Two tags")
-    sibling.tags.add(blog_tag, keeper)
-    sibling.save()
-    article = make_article(title="The article")
-
-    recommended = article.get_context(rf.get("/"))["recommended_articles"]
-
-    assert recommended == [sibling]
-    assert [tag.slug for tag in recommended[0].get_tags()] == [keeper.slug]
-
-
 def test_tag_filter_renders_every_chip(excluded_index, blog_tag, make_article, rf):
     """Under ?tag= the tag the reader followed is spared, so its chip shows.
 

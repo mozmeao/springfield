@@ -2480,9 +2480,6 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         if not self.hide_recommended:
             recommended = self.get_recommended_articles()
             context["recommended_articles"] = list(recommended)
-            blog_index = self.get_parent().specific
-            # Hidden tags are not displayed on the recommended articles listing
-            cache_localized_tags(context["recommended_articles"], blog_index.get_hidden_tag_keys())
         else:
             context["recommended_articles"] = []
         return context

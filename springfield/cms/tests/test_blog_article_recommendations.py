@@ -257,10 +257,6 @@ def test_recommended_article_minimum_elements(article, get_article_soup, minimal
     description = article_element.select_one("div.fl-body")
     assert description is not None
     assert description.get_text(strip=True) == "Recommended description"
-    date = article_element.select_one("p.fl-blog-article-date")
-    assert date is None
-    tags = [tag.get_text(strip=True) for tag in article_element.select("span.fl-tag")]
-    assert tags == []
     image = article_element.select_one("img")
     assert image is None
 
@@ -279,10 +275,8 @@ def recommendation_listing_image():
 
 
 @pytest.fixture
-def full_recommendation(blog_tags, minimal_recommendation, recommendation_listing_image, topic):
-    minimal_recommendation.tags.add(*blog_tags)
+def full_recommendation(minimal_recommendation, recommendation_listing_image, topic):
     minimal_recommendation.topic = topic
-    minimal_recommendation.first_published_at = datetime(2026, 1, 1, tzinfo=UTC)
     minimal_recommendation.listing_image = recommendation_listing_image
     minimal_recommendation.save()
     return minimal_recommendation
@@ -294,14 +288,9 @@ def test_recommended_article_optional_elements(full_recommendation, get_article_
     recommended_article_elements = soup.select(".fl-blog-recommended-articles .fl-blog-article-list-item")
     assert len(recommended_article_elements) == 1
     article_element = recommended_article_elements[0]
-    date = article_element.select_one("p.fl-blog-article-date")
     topic_heading = article_element.select_one("p.fl-superheading")
     assert topic_heading is not None
     assert topic_heading.get_text(strip=True) == "Topic"
-    assert date is not None
-    assert date.get_text(strip=True) == "Jan. 1, 2026"
-    tags = [tag.get_text(strip=True) for tag in article_element.select("span.fl-tag")]
-    assert tags == ["Tag A", "Tag B"]
     image = article_element.select_one("img")
     assert image is not None
     assert "recommended-image" in image.get("src", "")
