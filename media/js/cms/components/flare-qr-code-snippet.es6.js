@@ -111,7 +111,7 @@ function initQRCodeSnippet() {
         '.fl-qr-code-snippet-close'
     );
 
-    // Legacy snippet: always auto-opens after a fixed delay.
+    // First-generation snippet: always auto-opens after a fixed delay.
     let autoOpenTimer;
     if (oldSnippet) {
         autoOpenTimer = setTimeout(function () {

@@ -471,17 +471,16 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         related_name="+",
         help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
     )
-    # Legacy field, superseded by `open_behavior`. Retained so existing
-    # revisions that predate `open_behavior` still resolve correctly; read only
-    # as a fallback in `resolve_qr_source`. Slated for removal once no live
-    # revision relies on it.
+    # Deprecated: superseded by `open_behavior`, which is now backfilled and the
+    # only field read (see `resolve_open_behavior`). Kept temporarily so the
+    # column can be dropped in a separate, deploy-safe follow-up migration
+    # instead of alongside the schema changes here.
     default_open = models.BooleanField(default=True)
     open_behavior = models.CharField(
         max_length=16,
         choices=QROpenBehavior.choices,
-        blank=True,
-        default="",
-        help_text="How the snippet starts. Leave blank to use the previous open/closed setting.",
+        default=QROpenBehavior.OPEN,
+        help_text="How the snippet starts.",
     )
     open_delay_ms = models.PositiveIntegerField(
         default=3000,
@@ -528,18 +527,9 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return cls.objects.filter(locale=locale).live().first()
 
     def resolve_open_behavior(self, page: QRCodeFloatingSnippetMixin | None = None) -> str:
-        """Resolve the starting behavior: page override, then snippet, then legacy booleans."""
+        """Resolve the starting behavior: the page override if set, otherwise the snippet's own."""
         page_behavior = getattr(page, "floating_qr_open_behavior", "")
-        if page_behavior:
-            return page_behavior
-        if self.open_behavior:
-            return self.open_behavior
-
-        # Fall back to the legacy open/closed booleans for snippets and pages
-        # saved before `open_behavior` existed.
-        floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
-        resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
-        return QROpenBehavior.OPEN if resolved_default_open else QROpenBehavior.CLOSED
+        return page_behavior or self.open_behavior
 
     def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
         """Resolve the QR code source from page overrides or snippet fields."""

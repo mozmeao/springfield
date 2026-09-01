@@ -317,12 +317,12 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
+        help_text="If true, the first-generation floating QR code snippet is displayed on the page.",
     )
     show_floating_qr_code_snippet = models.BooleanField(
         default=False,
         verbose_name="Show Floating QR Code Snippet",
-        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+        help_text="If true, the second-generation floating QR code snippet is displayed on the page.",
     )
     floating_qr_url = models.CharField(
         blank=True,
@@ -338,10 +338,9 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Override Floating QR Code Image",
         help_text="Override with an uploaded QR code image. Takes priority over the URL.",
     )
-    # Legacy field, superseded by `floating_qr_open_behavior`. Kept off the
-    # editor panels; read only as a fallback for pages saved before the
-    # behavior override existed. Slated for removal alongside the snippet's
-    # `default_open`.
+    # Deprecated: superseded by `floating_qr_open_behavior`, which is now
+    # backfilled and the only override read. Kept temporarily so the column can
+    # be dropped in a separate, deploy-safe follow-up migration.
     floating_qr_default_open = models.BooleanField(
         null=True,
         blank=True,
@@ -1295,10 +1294,6 @@ class FreeFormPage2026(
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
-    ]
-
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1415,10 +1410,6 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
         index.SearchField("content"),
-    ]
-
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:

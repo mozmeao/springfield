@@ -117,12 +117,16 @@
     opacity: 1;
 
     /*
-     * Fade the content in as the panel grows, so a delayed auto-open reveals
-     * the QR code smoothly rather than snapping it in at the end of the size
+     * Fade the content in over the same 300ms the panel grows, so it eases in
+     * instead of snapping once the size transition finishes. `transition-behavior`
+     * is set standalone rather than in the shorthand (`display 300ms allow-discrete`)
+     * because the CSS minifier mangles the shorthand form in the production bundle,
+     * dropping the discrete `display` transition so the content snaps on close.
      */
     transition:
         opacity 300ms ease,
-        display 300ms allow-discrete;
+        display 300ms;
+    transition-behavior: allow-discrete;
 }
 
 .fl-qr-code-prompt {
