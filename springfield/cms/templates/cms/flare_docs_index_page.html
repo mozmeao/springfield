@@ -18,7 +18,12 @@
   {% for node in groups %}
     <li class="fl-docs-sidebar-group">
       <details class="fl-docs-sidebar-group-details">
-        <summary class="fl-docs-sidebar-group-label">{{ node.page.title }}</summary>
+        <summary class="fl-docs-sidebar-group-label">
+          <a href="#{{ node.page.slug }}" data-url="{{ node.page.get_url(req) }}">
+            {{ node.page.title }}
+            <include:icon icon_name="external-link"/>
+          </a>
+        </summary>
         <ul>
           {{ sidebar_nodes(node.children, req) }}
         </ul>
