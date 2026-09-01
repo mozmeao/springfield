@@ -1446,7 +1446,7 @@ def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page):
     assert video.value["video_url"] == "https://www.youtube.com/watch?v=abc123"
     assert video.value["alt"] == "A Test Post"
     assert video.value["poster"] is not None
-    assert run.stderr == "", "a YouTube video no longer needs a warning"
+    assert run.stderr == "", "a YouTube video needs no warning"
 
 
 @responses.activate
