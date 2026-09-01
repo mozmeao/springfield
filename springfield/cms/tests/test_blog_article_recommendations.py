@@ -157,10 +157,10 @@ def test_default_recommendations(get_article_recommendations, make_recommended_a
     ]
 
 
-def test_default_recommendations_with_no_topic(article, get_article_recommendations, recommendation_pool):
-    """A null article topic means matching by tag only."""
+def test_default_recommendations_for_article_with_null_topic_matches_by_tag_only(article, get_article_recommendations, recommendation_pool):
     BlogArticlePage.objects.filter(pk=article.pk).update(topic=None)
 
+    # No "Topic only" article
     assert get_article_recommendations() == [
         "Tag only",
         "Topic and tag",
@@ -228,7 +228,7 @@ def test_recommendations_hidden(article, get_article_soup, recommendation_pool):
 
 @pytest.fixture
 def minimal_recommendation(make_recommended_article, topic):
-    recommended_article = make_recommended_article("Matches topic", topic=topic, description="<p>Matches topic description</p>")
+    recommended_article = make_recommended_article("Recommended", topic=topic, description="<p>Recommended description</p>")
     BlogArticlePage.objects.filter(pk=recommended_article.pk).update(topic=None)
     return recommended_article
 
@@ -252,11 +252,11 @@ def test_recommended_article_minimum_elements(article, get_article_soup, minimal
     assert topic_heading is None
     link = article_element.select_one("h3.fl-heading a.fl-link")
     assert link is not None
-    assert link.get_text(strip=True) == "Matches topic"
+    assert link.get_text(strip=True) == "Recommended"
     assert link.get("href") == minimal_recommendation.url
     description = article_element.select_one("div.fl-body")
     assert description is not None
-    assert description.get_text(strip=True) == "Matches topic description"
+    assert description.get_text(strip=True) == "Recommended description"
     date = article_element.select_one("p.fl-blog-article-date")
     assert date is None
     tags = [tag.get_text(strip=True) for tag in article_element.select("span.fl-tag")]
@@ -271,23 +271,21 @@ def recommendation_listing_image():
     Image.new("RGB", (800, 450), (117, 79, 224)).save(image_buffer, format="PNG")
     image_buffer.seek(0)
     return SpringfieldImage.objects.create(
-        title="Matches topic and tag",
-        file=ContentFile(image_buffer.read(), "matches-topic-and-tag.png"),
+        title="Recommended",
+        file=ContentFile(image_buffer.read(), "recommended-image.png"),
         width=800,
         height=450,
     )
 
 
 @pytest.fixture
-def full_recommendation(blog_tags, make_recommended_article, recommendation_listing_image, topic):
-    return make_recommended_article(
-        "Matches topic and tag",
-        topic=topic,
-        tags=blog_tags,
-        description="<p>Matches topic and tag description</p>",
-        listing_image=recommendation_listing_image,
-        first_published_at=datetime(2026, 1, 1, tzinfo=UTC),
-    )
+def full_recommendation(blog_tags, minimal_recommendation, recommendation_listing_image, topic):
+    minimal_recommendation.tags.add(*blog_tags)
+    minimal_recommendation.topic = topic
+    minimal_recommendation.first_published_at = datetime(2026, 1, 1, tzinfo=UTC)
+    minimal_recommendation.listing_image = recommendation_listing_image
+    minimal_recommendation.save()
+    return minimal_recommendation
 
 
 def test_recommended_article_optional_elements(full_recommendation, get_article_soup):
@@ -306,18 +304,12 @@ def test_recommended_article_optional_elements(full_recommendation, get_article_
     assert tags == ["Tag A", "Tag B"]
     image = article_element.select_one("img")
     assert image is not None
-    assert "matches-topic-and-tag" in image.get("src", "")
+    assert "recommended-image" in image.get("src", "")
 
 
 # ---------------------------------------------------------------------------
 # Editing blog article recommendations
 # ---------------------------------------------------------------------------
-
-
-def test_max_four_custom_recommendations_presented():
-    recommended_articles_field = BlogArticlePage.get_edit_handler().get_form_class().base_fields["recommended_articles"]
-
-    assert recommended_articles_field.block.meta.max_num == 4
 
 
 def test_max_four_custom_recommendations_validated(article, make_recommended_article, other_topic):
