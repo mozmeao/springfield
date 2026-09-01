@@ -572,10 +572,26 @@ def test_parse_content_figure_with_linked_image_still_captures_caption():
         "<figcaption>Click to enlarge</figcaption>"
         "</figure>"
     )
-    specs, _ = parse_content(html)
+    specs, warnings = parse_content(html)
+    assert warnings == []
     assert [spec[0] for spec in specs] == ["image"]
     assert specs[0][1]["src"] == "https://example.com/a.png"
     assert specs[0][1]["caption"] == "<p>Click to enlarge</p>"
+
+
+def test_parse_content_figure_image_linked_to_a_real_destination_warns():
+    """A linked figure is a CTA, and the image block has no field to keep its destination in."""
+    html = (
+        '<figure class="wp-block-image">'
+        '<a href="https://monitor.firefox.com/"><img src="https://example.com/banner.png" alt="Check for breaches"/></a>'
+        "<figcaption>Check whether your details have leaked</figcaption>"
+        "</figure>"
+    )
+    specs, warnings = parse_content(html)
+    assert [spec[0] for spec in specs] == ["image"]
+    assert specs[0][1]["caption"] == "<p>Check whether your details have leaked</p>"
+    assert [kind for kind, _ in warnings] == ["link"]
+    assert "https://monitor.firefox.com/" in warnings[0][1]
 
 
 def test_parse_content_captioned_figure_without_an_image_warns():

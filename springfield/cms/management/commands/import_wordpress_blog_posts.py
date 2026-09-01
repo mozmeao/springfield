@@ -133,6 +133,7 @@ WARNING_PROCESSING = "processing"
 WARNING_ALT_TEXT = "alt-text"
 WARNING_FAILURE = "failure"
 WARNING_INLINE_IMAGE = "inline-image"
+WARNING_LINK = "link"
 WARNING_AUTHOR = "author"
 
 # WordPress bookkeeping that rides along in the Tags field: the export tool's own marker, a
@@ -629,6 +630,7 @@ class ContentParser:
         images = figure.find_all("img")
         if len(images) == 1:
             self.flush_text()
+            self.warn_dropped_link(images[0])
             self.specs.append(image_spec(images[0], figure.find("figcaption", recursive=False)))
             return
 
@@ -639,6 +641,21 @@ class ContentParser:
             return
 
         self.keep_as_text(figure)
+
+    def warn_dropped_link(self, img):
+        """Report where a linked image pointed, since an image block has no field to keep it in.
+
+        Links to the image's own file are unwrapped before parsing starts, so an anchor still
+        around the image here leads somewhere real - usually a call to action.
+        """
+        anchor = img.find_parent("a", href=True)
+        if anchor is None:
+            return
+        self.warn(
+            WARNING_LINK,
+            f"image {img.get('src', '')} links to {anchor['href']} - an image block has no link field, "
+            "so the destination is dropped; re-add it on the page if it is worth keeping",
+        )
 
     def add_gallery(self, gallery):
         """Turn each figure nested in a gallery into an image spec of its own.
