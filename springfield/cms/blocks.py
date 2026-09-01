@@ -2115,7 +2115,7 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
-class BlogRecommendedArticleBlock(blocks.StructBlock):
+class BlogRelatedArticleBlock(blocks.StructBlock):
     """Picks a blog article."""
 
     article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")

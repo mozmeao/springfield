@@ -49,7 +49,7 @@ from springfield.cms.blocks import (
     BlogArticleBlock,
     BlogCardsListBlock,
     BlogLatestArticlesBlock,
-    BlogRecommendedArticleBlock,
+    BlogRelatedArticleBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -2251,7 +2251,7 @@ class HeroStyle(models.TextChoices):
     VIDEO = "video", "Featured video"
 
 
-MAX_RECOMMENDED_ARTICLES = 4
+MAX_RELATED_ARTICLES = 4
 
 
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
@@ -2362,19 +2362,19 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_num=1,
         help_text="Optional banner to be displayed at the bottom of the article content.",
     )
-    recommended_articles = StreamField(
-        [("article", BlogRecommendedArticleBlock())],
-        max_num=MAX_RECOMMENDED_ARTICLES,
+    related_articles = StreamField(
+        [("article", BlogRelatedArticleBlock())],
+        max_num=MAX_RELATED_ARTICLES,
         use_json_field=True,
         blank=True,
         help_text=(
-            f"Up to {MAX_RECOMMENDED_ARTICLES} recommended articles shown at the bottom. Remaining empty slots are filled with articles "
-            f"that match by topic and tag, then topic, then tag, up to {MAX_RECOMMENDED_ARTICLES}."
+            f"Up to {MAX_RELATED_ARTICLES} related articles shown at the bottom. Remaining empty slots are filled with articles "
+            f"that match by topic and tag, then topic, then tag, up to {MAX_RELATED_ARTICLES}."
         ),
     )
-    hide_recommended = models.BooleanField(
+    hide_related = models.BooleanField(
         default=False,
-        help_text="Hide the recommended articles section on this article.",
+        help_text="Hide the Related Articles section on this article.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -2421,9 +2421,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("bottom_banner"),
     ]
 
-    recommended_panels = [
-        FieldPanel("hide_recommended"),
-        FieldPanel("recommended_articles"),
+    related_articles_panels = [
+        FieldPanel("hide_related"),
+        FieldPanel("related_articles"),
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -2444,7 +2444,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
-            ObjectList(recommended_panels, heading="Recommended Articles"),
+            ObjectList(related_articles_panels, heading="Related Articles"),
             ObjectList(promote_panels, heading="Promote & SEO"),
             ObjectList(settings_panels, heading="Settings"),
         ]
@@ -2477,11 +2477,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        if not self.hide_recommended:
-            recommended = self.get_recommended_articles()
-            context["recommended_articles"] = list(recommended)
+        if not self.hide_related:
+            related = self.get_related_articles()
+            context["related_articles"] = list(related)
         else:
-            context["recommended_articles"] = []
+            context["related_articles"] = []
         return context
 
     def get_topic(self):
@@ -2523,33 +2523,31 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             dark_mode_mobile=self.image_dark_mode_mobile,
         )
 
-    def get_recommended_articles(self):
-        """Up to MAX_RECOMMENDED_ARTICLES published, publicly-visible articles
+    def get_related_articles(self):
+        """Up to MAX_RELATED_ARTICLES published, publicly-visible articles
         shown below the article:
 
-        - `recommended_articles` in their chosen order,
+        - `related_articles` in their chosen order,
         - then siblings sharing this article's topic and one of its tags,
         - then its topic,
         - then one of its tags.
 
         Each automatic group is ordered by publication date, descending. No
-        article is recommended twice, and an article never recommends itself."""
-        recommended = []
-        recommended_ids = {self.pk}
-        for block in self.recommended_articles:
+        article is shown twice, and an article never shows itself."""
+        related = []
+        related_ids = {self.pk}
+        for block in self.related_articles:
             article = block.value.get_article()
-            if article is None or not article.live or article.pk in recommended_ids:
+            if article is None or not article.live or article.pk in related_ids:
                 continue
-            recommended.append(article)
-            recommended_ids.add(article.pk)
-        if recommended:
+            related.append(article)
+            related_ids.add(article.pk)
+        if related:
             # Apply potential page view restrictions
-            public_article_ids = set(
-                BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in recommended]).values_list("pk", flat=True)
-            )
-            recommended = [article for article in recommended if article.pk in public_article_ids]
-        if len(recommended) == MAX_RECOMMENDED_ARTICLES:
-            return recommended
+            public_article_ids = set(BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in related]).values_list("pk", flat=True))
+            related = [article for article in related if article.pk in public_article_ids]
+        if len(related) == MAX_RELATED_ARTICLES:
+            return related
 
         tag_ids = [tag.pk for tag in self.tags.all()]
         shares_topic = Q(topic_id=self.topic_id) if self.topic_id else Q(topic_id__in=[])
@@ -2558,21 +2556,21 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             BlogArticlePage.objects.sibling_of(self)
             .live()
             .public()
-            .exclude(pk__in=recommended_ids)
+            .exclude(pk__in=related_ids)
             .annotate(carries_a_matching_tag=Exists(BlogArticlePage.objects.filter(pk=OuterRef("pk"), tags__in=tag_ids)))
             .filter(shares_topic | shares_tag)
             .annotate(
-                recommendation_rank=Case(
+                related_rank=Case(
                     When(shares_topic & shares_tag, then=Value(0)),
                     When(shares_topic, then=Value(1)),
                     default=Value(2),  # `shares_tag`
                 )
             )
             .prefetch_related("tags")
-            .order_by("recommendation_rank", "-first_published_at")
+            .order_by("related_rank", "-first_published_at")
         )
-        recommended.extend(matching_siblings[: MAX_RECOMMENDED_ARTICLES - len(recommended)])
-        return recommended
+        related.extend(matching_siblings[: MAX_RELATED_ARTICLES - len(related)])
+        return related
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

@@ -47,17 +47,17 @@
       {{ page.bottom_banner }}
     {% endif %}
 
-    {% if recommended_articles %}
-      <section class="fl-section fl-blog-recommended-articles">
+    {% if related_articles %}
+      <section class="fl-section fl-blog-related-articles">
         <div class="fl-section-container">
           <include:heading
             level="h2"
-            heading_text="{{ ftl('blog-recommended-articles') }}"
+            heading_text="{{ ftl('blog-related-articles') }}"
             heading_size="fl-heading-md"
             alignment_class="text-center"
           />
           <div class="fl-blog-article-list">
-            {% for article in recommended_articles %}
+            {% for article in related_articles %}
               {% set listing_image = article.get_listing_image() %}
               <include:blog-article-list-item with_image="{{ listing_image }}">
                 <content:heading>

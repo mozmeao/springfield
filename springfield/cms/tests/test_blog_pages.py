@@ -1802,7 +1802,7 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
-    assert headings == ["Content", "Recommended Articles", "Promote & SEO", "Settings"]
+    assert headings == ["Content", "Related Articles", "Promote & SEO", "Settings"]
 
 
 def test_blog_article_content_tab_panel_order():
@@ -1823,13 +1823,13 @@ def test_blog_article_content_tab_panel_order():
     ]
 
 
-def test_blog_article_recommended_articles_tab_panel_order():
-    recommended_tab = BlogArticlePage.get_edit_handler().children[1]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in recommended_tab.children]
+def test_blog_article_related_articles_tab_panel_order():
+    related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
+    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
 
     assert labels == [
-        "hide_recommended",
-        "recommended_articles",
+        "hide_related",
+        "related_articles",
     ]
 
 
