@@ -19,6 +19,7 @@ from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Site
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.cms.routing.arming import QueryParamArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin, RoutingObjectList, routing_tab_is_shown
 from springfield.cms.routing.models import RoutingRule
@@ -44,6 +45,13 @@ def test_arming_param_is_none_without_a_trigger():
     # Derived from the trigger, so an unadopted surface withholds nothing. The mixin is
     # abstract and cannot be instantiated, so this also pins that it never tries.
     assert RoutingMixin.get_routing_arming_param() is None
+
+
+def test_arming_param_on_concrete_consumer_avoids_db_and_instantiation():
+    # get_routing_trigger is a classmethod precisely so this never instantiates the
+    # page (and so never hits the database) — called here on the class itself, with
+    # no @pytest.mark.django_db, to pin that.
+    assert WhatsNewPage2026.get_routing_arming_param() == "utm_source"
 
 
 # ---------------------------------------------------------------------------
