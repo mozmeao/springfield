@@ -29,6 +29,7 @@ def test_pre_sentry_sanitisation__before_send_setup():
         "invitation",
         "git_config_value",
         "authentication",
+        "fluent_repo_auth",
     ]
 
 
@@ -166,3 +167,29 @@ def test_pre_sentry_sanitisation_authentication_in_nested_params_dict(shared_dat
     assert sanitised_params["authentication"] == "********"
     # sibling keys in the same nested dict are untouched
     assert sanitised_params["path"] == "/app/data/www-firefox-l10n"
+
+
+def test_pre_sentry_sanitisation_fluent_repo_auth_in_nested_git_options(shared_datadir):
+    # Mirrors springfield.utils.git.GitRepo.git(), where a frame local
+    # ("git_options") holds {"env": {**os.environ, **environment_overrides}} -
+    # i.e. FLUENT_REPO_AUTH (read from the real container env at config-load
+    # time) sitting two levels deep, alongside GIT_CONFIG_VALUE_0.
+    noop_because_hint_is_not_used = None
+    raw_json = (shared_datadir / "example_sentry_payload.json").read_text()
+    fake_event = json.loads(raw_json)["payload"]
+    fake_event["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["git_options"] = {
+        "stderr": -2,
+        "env": {
+            "PATH": "/usr/bin",
+            "FLUENT_REPO_AUTH": "ghp_realisticrawtoken1234567890",
+            "GIT_CONFIG_VALUE_0": "AUTHORIZATION: Basic ZHVkZTphYmlkZXM=",
+        },
+    }
+
+    output = before_send(event=fake_event, hint=noop_because_hint_is_not_used)
+
+    sanitised_env = output["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["git_options"]["env"]
+    assert sanitised_env["FLUENT_REPO_AUTH"] == "********"
+    assert sanitised_env["GIT_CONFIG_VALUE_0"] == "********"
+    # a non-sensitive sibling key two levels deep is untouched
+    assert sanitised_env["PATH"] == "/usr/bin"

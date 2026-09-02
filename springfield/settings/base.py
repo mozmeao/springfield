@@ -1159,6 +1159,12 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # stack-frame local (e.g. a params dict passed to GitRepo(**params))
     # on a failed git subprocess call.
     "authentication",
+    # GitRepo.git() merges the whole of os.environ into a frame-local dict
+    # (git_options["env"]) to pass through to the subprocess. FLUENT_REPO_AUTH
+    # is read from that same os.environ at config-load time, so it's one of
+    # the many keys carried along verbatim, unmasked by "authentication" or
+    # "git_config_value" (both are our own key names, not the raw env var's).
+    "fluent_repo_auth",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
