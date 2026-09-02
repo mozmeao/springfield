@@ -412,8 +412,8 @@ def ConditionalDisplayBlock(include_sample_rate=True, *args, **kwargs):
             label="Default Browser",
             help_text="Filter by default browser state. Leave empty for no restriction.",
         )
-        min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
-        max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+        min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version", classname="compact-input")
+        max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version", classname="compact-input")
         geo = blocks.MultipleChoiceBlock(
             choices=GEO_CHOICES,
             required=False,
@@ -443,6 +443,7 @@ def ConditionalDisplayBlock(include_sample_rate=True, *args, **kwargs):
                 label="Sample rate (%)",
                 help_text="Show to a random percentage of eligible visitors, e.g. 0.1 for 0.1%. Every "
                 "block with a sample rate on a page must use the same rate.",
+                classname="compact-input",
             )
 
         class Meta:
@@ -1665,6 +1666,7 @@ class BadgeBlock(blocks.StructBlock):
             "The milestone this badge marks, and the number shown on it. The badge is "
             "marked achieved once the referrer's install count reaches this number."
         ),
+        classname="compact-input",
     )
     singular_label = blocks.CharBlock(
         default="person",
@@ -2266,7 +2268,7 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
     """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
-    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4, classname="compact-input")
     link_label = blocks.CharBlock(default="View all")
 
     class Meta:
@@ -2292,7 +2294,7 @@ class BlogCardsListBlock(blocks.StructBlock):
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
     source = BlogCardsListSourceBlock()
-    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4, classname="compact-input")
     link_label = blocks.CharBlock(default="View all")
 
     class Meta:
