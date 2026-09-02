@@ -15,7 +15,9 @@ def get_client():
         return GITHUB_CLIENT
 
     if settings.FLUENT_REPO_AUTH:
-        auth_token = settings.FLUENT_REPO_AUTH.split(":")[1]
+        # FLUENT_REPO_AUTH is normally just a bare token; also accept a
+        # legacy "username:token" form and use the token half of that.
+        auth_token = settings.FLUENT_REPO_AUTH.rsplit(":", 1)[-1]
         GITHUB_CLIENT = Github(auth_token)
 
     return GITHUB_CLIENT
