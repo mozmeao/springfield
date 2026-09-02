@@ -5,9 +5,15 @@
 from unittest import mock
 
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.messages import get_messages
+from django.contrib.messages.middleware import MessageMiddleware
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail import hooks
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.smart_window_page_fixtures import (
@@ -18,6 +24,7 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_testimonial_cards,
 )
 from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage
+from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
 
 @pytest.fixture
@@ -522,3 +529,99 @@ def test_smart_window_show_try_smart_window(smart_window_page: SmartWindowPage, 
         assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
         assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
         assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
+
+
+# Leading conditional blocks warning
+
+
+def conditional_intro_block(heading_text, platforms):
+    """Intro block carrying only a heading, shown to `platforms` alone."""
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {"show_to": {"platforms": platforms}},
+            "heading": {"heading_text": f"<p>{heading_text}</p>"},
+        },
+    }
+
+
+def build_page_save_request(rf, page):
+    """POST request for `page`'s edit view in the CMS admin.
+
+    RequestFactory runs no middleware, so session and message storage are attached by
+    hand — without them a hook cannot add a message.
+    """
+    request = rf.post(reverse("wagtailadmin_pages:edit", args=[page.id]))
+    SessionMiddleware(get_response=lambda incoming_request: None).process_request(request)
+    MessageMiddleware(get_response=lambda incoming_request: None).process_request(request)
+    return request
+
+
+def save_page_and_collect_warnings(page, content, rf):
+    """Publish `content` on `page` the way the admin would, and return the warnings the
+    save hook shows the editor."""
+    page.content = content
+    page.save_revision().publish()
+
+    request = build_page_save_request(rf, page)
+    warn_about_leading_conditional_blocks(request, page)
+    return [str(message) for message in get_messages(request) if message.level == messages.WARNING]
+
+
+@pytest.mark.django_db
+def test_editor_is_warned_when_a_page_leads_with_conditional_blocks(free_form_page: FreeFormPage2026, rf):
+    assert warn_about_leading_conditional_blocks in hooks.get_hooks("after_edit_page")
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_intro_block("Firefox for macOS", ["osx"]),
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+    assert "h1" in warnings[0]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("notification_headline", ["", "<p>Your Firefox is up to date.</p>"], ids=["message_only", "with_headline"])
+def test_editor_is_warned_when_a_notification_precedes_the_conditional_blocks(free_form_page: FreeFormPage2026, notification_headline, rf):
+    notification = {
+        "type": "notification",
+        "value": {"headline": notification_headline, "message": "<p>Firefox has been updated.</p>"},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            notification,
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_intro_block("Firefox for macOS", ["osx"]),
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+
+
+@pytest.mark.django_db
+def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(free_form_page: FreeFormPage2026, rf):
+    unconditional_intro = {
+        "type": "intro",
+        "value": {"heading": {"heading_text": "<p>Firefox for everyone</p>"}},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            unconditional_intro,
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+        ],
+        rf,
+    )
+
+    assert warnings == []
