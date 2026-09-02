@@ -191,6 +191,7 @@ def make_command(dry_run=False):
     command.stderr = OutputWrapper(StringIO())
     command.dry_run = dry_run
     command.image_cache = {}
+    command.urls_cached_by_post = []
     return command
 
 
@@ -1276,6 +1277,27 @@ def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path
     assert BlogTopic.objects.filter(slug="firefox").exists()
     assert "failed to import 'post-one'" in run.stderr
     assert "Done. 1 imported, 0 skipped, 1 failed." in run.stdout
+
+
+@responses.activate
+def test_an_image_created_by_a_failed_post_is_not_handed_to_a_later_one(tmp_path, index_page):
+    """A failed post's transaction takes its new images with it, so none may stay in the cache."""
+    # Post one's hero downloads and is cached, and the image in its body then raises, so the post
+    # fails after having created the hero. A ValueError is not a RequestException, so it is
+    # neither retried nor swallowed.
+    mock_failed_downloads("https://example.com/broken.png", error=ValueError("boom"))
+    mock_image_downloads()
+
+    # Both posts take their hero from the default image_url
+    run = run_import(
+        tmp_path,
+        post_xml(id="1", slug="post-one", content='<p>Body <img src="https://example.com/broken.png"></p>'),
+        post_xml(id="2", slug="post-two"),
+    )
+
+    assert "Done. 1 imported, 0 skipped, 1 failed." in run.stdout
+    hero = BlogArticlePage.objects.get(slug="post-two").image
+    assert SpringfieldImage.objects.filter(pk=hero.pk).exists(), "the hero must be an image the database still holds"
 
 
 @responses.activate

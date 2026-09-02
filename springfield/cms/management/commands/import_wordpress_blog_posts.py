@@ -792,10 +792,14 @@ class Command(BaseCommand):
                 # inherit the previous post's warnings.
                 self.post_warnings = []
                 self.images_without_alt = 0
+                self.urls_cached_by_post = []
                 try:
                     url_map_row = self.import_post(post, index_page, locale)
                 except Exception as exc:
                     self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
+                    # Clean up cached URLs from images rolled back by the transaction
+                    for cached_url in self.urls_cached_by_post:
+                        self.image_cache.pop(cached_url, None)
                     # A failed post is the most important thing to record: it has no page to
                     # inspect, so the CSV is the only trace of what went wrong.
                     self.record_warnings(post, new_url="", failure=(WARNING_FAILURE, f"post failed to import: {exc}"))
@@ -1080,7 +1084,7 @@ class Command(BaseCommand):
         # never matches again. The contents are what identify it, and Wagtail indexes their hash.
         existing = SpringfieldImage.objects.filter(file_hash=hash_filelike(BytesIO(response.content))).first()
         if existing is not None:
-            self.image_cache[url] = existing
+            self.cache_image(url, existing)
             return existing
 
         alt_text = image_description(description)
@@ -1105,8 +1109,15 @@ class Command(BaseCommand):
             self.warn(WARNING_PROCESSING, f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
             return None
 
-        self.image_cache[url] = image
+        self.cache_image(url, image)
         return image
+
+    def cache_image(self, url, image):
+        """The cache spans the whole run, but each post is imported in a transaction of its own, so
+        `handle` needs to know which entries to drop when one rolls back.
+        """
+        self.image_cache[url] = image
+        self.urls_cached_by_post.append(url)
 
     def download(self, url):
         """Fetch `url`, retrying with a widening gap, or warn and return None if it never answers."""
