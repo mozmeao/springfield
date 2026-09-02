@@ -107,10 +107,39 @@ registry.register(
 registry.register(
     RoutingSignal(
         name="fxa_signed_in",
+        # Reads the `fxa` key, not the deprecated `sync` key: `sync.setup` only reports
+        # that Sync has been configured, which is not the same as being signed in.
         description=_("Whether the visitor is signed in to a Firefox Account."),
         source=Source.UITOUR,
         value_type=ValueType.BOOLEAN,
-        browser_state_key="sync",
+        browser_state_key="fxa",
+    )
+)
+
+registry.register(
+    RoutingSignal(
+        name="days_since_last_session",
+        # `previousSessionEnd` is written only when Firefox fully quits, so this measures
+        # days since the browser was last *closed*, not since the visitor was last active —
+        # a long-running session that never restarts reads as lapsed until it does. Landed
+        # in Firefox 155 (2026-08-05); reads unavailable on older releases and for a
+        # profile with no recorded previous session.
+        description=_("How many whole days since the visitor's previous Firefox session ended (i.e. since Firefox was last closed)."),
+        source=Source.UITOUR,
+        value_type=ValueType.INTEGER,
+        browser_state_key="appinfo",
+    )
+)
+
+registry.register(
+    RoutingSignal(
+        name="profile_reset_weeks_ago",
+        # Whole weeks, reported directly, mirroring profile_age_weeks. Unavailable if the
+        # visitor has never reset (refreshed) their profile.
+        description=_("How many whole weeks since the visitor last reset (refreshed) their Firefox profile."),
+        source=Source.UITOUR,
+        value_type=ValueType.INTEGER,
+        browser_state_key="appinfo",
     )
 )
 
@@ -203,5 +232,27 @@ registry.register(
         ),
         source=Source.USER_AGENT,
         value_type=ValueType.STRING,
+    )
+)
+
+# Coarse user-agent detection, matching the browsers our own comparison tables name
+# (TabBlock's "Detected browser" field). Works off Firefox too, unlike the UITour
+# signals above. Brave ships Chrome's user agent verbatim, so it is only distinguished
+# from Chrome by an extra, best-effort browser API check.
+registry.register(
+    RoutingSignal(
+        name="browser_name",
+        description=_("The visitor's browser (Firefox, Chrome, Edge, Opera, Safari, or Brave), or “other” for anything else."),
+        source=Source.USER_AGENT,
+        value_type=ValueType.ENUM,
+        enum_values=(
+            EnumValue("firefox", _("Firefox")),
+            EnumValue("chrome", _("Chrome")),
+            EnumValue("edge", _("Edge")),
+            EnumValue("opera", _("Opera")),
+            EnumValue("safari", _("Safari")),
+            EnumValue("brave", _("Brave")),
+            EnumValue("other", _("Other")),
+        ),
     )
 )
