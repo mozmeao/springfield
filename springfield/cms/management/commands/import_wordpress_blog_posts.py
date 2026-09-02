@@ -1089,14 +1089,15 @@ class Command(BaseCommand):
             # rather than one per image.
             self.images_without_alt += 1
         try:
-            image = SpringfieldImage.objects.create(
-                title=title,
-                description=alt_text,
-                file=ContentFile(response.content, name=filename),
-                # Wagtail only fills this in for admin uploads, and it is what the lookup above
-                # matches on, so a later run can recognise this file.
-                file_hash=hash_filelike(BytesIO(response.content)),
-            )
+            with transaction.atomic():
+                image = SpringfieldImage.objects.create(
+                    title=title,
+                    description=alt_text,
+                    file=ContentFile(response.content, name=filename),
+                    # Wagtail only fills this in for admin uploads, and it is what the lookup above
+                    # matches on, so a later run can recognise this file.
+                    file_hash=hash_filelike(BytesIO(response.content)),
+                )
         except Exception as exc:
             # Saving computes the image's dimensions through ImageMagick, which gives up on some
             # files - a large animated GIF exhausts its pixel cache. One unusable image is worth
