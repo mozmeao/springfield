@@ -23,6 +23,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   {% if settings.STUB_ATTRIBUTION_RATE %}
   data-stub-attribution-rate="{{ settings.STUB_ATTRIBUTION_RATE }}"
   {% endif %}
+  {% if page is defined and page.experiment_sample_rate %}
+  data-experiment-sample-rate="{{ page.experiment_sample_rate }}"
+  data-experiment-id="{{ page.slug }}"
+  {% endif %}
   {% if settings.SENTRY_FRONTEND_DSN %}
   data-sentry-dsn="{{ settings.SENTRY_FRONTEND_DSN }}"
   {% endif %}
@@ -135,7 +139,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {# site bundle must load in head before analytics #}
     {{ js_bundle('site') }}
-    {% block experiments %}{% endblock %}
+    {% block experiments %}
+      {% if page is defined and page.experiment_sample_rate %}
+      {{ js_bundle('flare-sample-rate') }}
+      {% endif %}
+    {% endblock %}
     {% block google_analytics %}
     {% if settings.GTM_CONTAINER_ID %}
     {{ js_bundle('gtm-snippet') }}
