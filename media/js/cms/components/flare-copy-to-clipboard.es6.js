@@ -49,14 +49,6 @@ function initCopyToClipboardButton(buttonEl) {
             buttonEl.dispatchEvent(
                 new CustomEvent('fl-copy-success', { bubbles: true })
             );
-            labelEl.classList.add('opacity-0');
-            labelEl.setAttribute('aria-hidden', 'true');
-            successLabelEl.classList.remove('opacity-0');
-            successLabelEl.removeAttribute('aria-hidden');
-            iconDefault.classList.add('hidden');
-            iconDefault.setAttribute('aria-hidden', 'true');
-            iconSuccess.classList.remove('hidden');
-            buttonEl.disabled = true;
 
             if (window.dataLayer) {
                 window.dataLayer.push({
