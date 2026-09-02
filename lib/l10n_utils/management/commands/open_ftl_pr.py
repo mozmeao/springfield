@@ -91,7 +91,7 @@ class Command(FTLRepoCommand):
         return True
 
     def push_changes(self):
-        if not self.l10n_repo.auth:
+        if not self.l10n_repo.authentication:
             raise CommandError("Git push authentication not configured")
 
         try:

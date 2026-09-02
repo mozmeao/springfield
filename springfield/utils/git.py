@@ -28,61 +28,66 @@ DEFAULT_AUTH_USERNAME = "x-access-token"
 
 
 class GitRepo:
-    def __init__(self, path, remote_url=None, branch_name="main", name=None, auth=None):
+    def __init__(self, path, remote_url=None, branch_name="main", name=None, authentication=None):
         self.path = Path(path)
         self.path_str = str(self.path)
         self.remote_url = remote_url
         self.branch_name = branch_name
-        self.auth = auth or None
+        self.authentication = authentication or None
         db_latest_key = f"{self.path_str}:{remote_url or ''}:{branch_name}"
         self.db_latest_key = sha256(db_latest_key.encode()).hexdigest()
         self.repo_name = name or self.path.name
 
     def _scrub(self, value):
-        """Redact the auth credential from a str or bytes value, if configured."""
-        if not self.auth or value is None:
+        """Redact the authentication credential from a str or bytes value, if configured."""
+        if not self.authentication or value is None:
             return value
-        needle = self.auth.encode() if isinstance(value, bytes) else self.auth
+        needle = self.authentication.encode() if isinstance(value, bytes) else self.authentication
         replacement = b"***" if isinstance(value, bytes) else "***"
         return value.replace(needle, replacement)
 
-    def git(self, *args, env=None):
+    def git(self, *args, environment_overrides=None):
         """Run a git command against the current repo"""
         curdir = os.getcwd()
         try:
             os.chdir(self.path_str)
-            kwargs = {"stderr": STDOUT}
-            if env is not None:
-                kwargs["env"] = {**os.environ, **env}
-            output = check_output((GIT,) + args, **kwargs)
-        except CalledProcessError as cpe:
+            git_options = {"stderr": STDOUT}
+            if environment_overrides is not None:
+                git_options["env"] = {**os.environ, **environment_overrides}
+            output = check_output((GIT,) + args, **git_options)
+        except CalledProcessError as called_process_error:
             # Defense in depth: if a credentialed URL is ever passed as a
             # literal arg, scrub it before this propagates to logs/Sentry.
-            cpe.cmd = tuple(self._scrub(arg) for arg in cpe.cmd)
-            cpe.output = self._scrub(cpe.output)
-            raise cpe from None
+            # `.args` is set independently of `.cmd` at construction time and
+            # won't pick up a mutated `.cmd`, so it needs resetting too, or
+            # an exception serializer reading `.args` bypasses the redaction.
+            called_process_error.cmd = tuple(self._scrub(arg) for arg in called_process_error.cmd)
+            called_process_error.output = self._scrub(called_process_error.output)
+            called_process_error.stderr = self._scrub(called_process_error.stderr)
+            called_process_error.args = (called_process_error.returncode, called_process_error.cmd)
+            raise called_process_error from None
         finally:
             os.chdir(curdir)
 
         return force_str(output.strip())
 
     def _split_auth(self):
-        """Return (username, token) parsed from self.auth.
+        """Return (username, token) parsed from self.authentication.
 
         Accepts a bare token (paired with the conventional
         ``x-access-token`` username) or an explicit ``"<username>:<token>"``
-        form. Returns ``(None, None)`` if no auth is configured.
+        form. Returns ``(None, None)`` if no authentication is configured.
         """
-        if not self.auth:
+        if not self.authentication:
             return None, None
-        if ":" in self.auth:
-            username, token = self.auth.split(":", 1)
+        if ":" in self.authentication:
+            username, token = self.authentication.split(":", 1)
             return (username or DEFAULT_AUTH_USERNAME), token
-        return DEFAULT_AUTH_USERNAME, self.auth
+        return DEFAULT_AUTH_USERNAME, self.authentication
 
     @contextlib.contextmanager
     def auth_env(self):
-        """Yield env overrides that authenticate git via HTTP Basic auth.
+        """Yield environment overrides that authenticate git via HTTP Basic auth.
 
         Uses git's ``GIT_CONFIG_COUNT`` / ``GIT_CONFIG_KEY_N`` /
         ``GIT_CONFIG_VALUE_N`` env-var protocol (git >= 2.31) to set
@@ -90,10 +95,14 @@ class GitRepo:
         lives only in the subprocess environment - it never enters argv,
         gets recorded into `.git/config` by `git clone`, or appears in the
         `CalledProcessError` payload that would otherwise ship to logs/Sentry.
+        The env dict itself still ends up as a stack-frame local visible to
+        Sentry if this subprocess call fails - see the `git_config_value`
+        entry in `SENSITIVE_FIELDS_TO_MASK_ENTIRELY`, which is what actually
+        keeps `GIT_CONFIG_VALUE_0` out of captured events.
 
-        Yields ``None`` when no auth is configured.
+        Yields ``None`` when no authentication is configured.
         """
-        if not self.auth:
+        if not self.authentication:
             yield None
             return
 
@@ -193,15 +202,15 @@ class GitRepo:
             raise RuntimeError("remote_url required to clone")
 
         self.path.mkdir(parents=True, exist_ok=True)
-        with self.auth_env() as env:
-            extra = {"env": env} if env else {}
-            self.git("clone", "--depth", "1", "--branch", self.branch_name, self.remote_url, ".", **extra)
+        with self.auth_env() as environment_overrides:
+            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
+            self.git("clone", "--depth", "1", "--branch", self.branch_name, self.remote_url, ".", **git_options)
 
     def reclone(self):
         """Safely get a fresh clone of the repo"""
         if self.path.exists():
             new_path = self.path.with_suffix(f".{int(time())}")
-            new_repo = GitRepo(new_path, self.remote_url, self.branch_name, auth=self.auth)
+            new_repo = GitRepo(new_path, self.remote_url, self.branch_name, authentication=self.authentication)
             new_repo.clone()
             # only remove the old after the new clone succeeds
             rmtree(self.path_str, ignore_errors=True)
@@ -214,9 +223,9 @@ class GitRepo:
 
         Return the previous hash and the new hash."""
         old_hash = self.current_hash
-        with self.auth_env() as env:
-            extra = {"env": env} if env else {}
-            self.git("fetch", "-f", self.remote_url, self.branch_name, **extra)
+        with self.auth_env() as environment_overrides:
+            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
+            self.git("fetch", "-f", self.remote_url, self.branch_name, **git_options)
         self.git("checkout", "-f", "FETCH_HEAD")
         return old_hash, self.current_hash
 
@@ -225,9 +234,9 @@ class GitRepo:
 
         Returns the git command's output.
         """
-        with self.auth_env() as env:
-            extra = {"env": env} if env else {}
-            return self.git("push", self.remote_url, refspec, **extra)
+        with self.auth_env() as environment_overrides:
+            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
+            return self.git("push", self.remote_url, refspec, **git_options)
 
     def update(self):
         """Updates a repo, cloning if necessary.

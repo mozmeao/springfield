@@ -93,13 +93,16 @@ def test_git_scrubs_auth_from_called_process_error(co_mock, os_mock):
         (git.GIT, "fetch", "-f", "https://dude:abides@example.com", "main"),
         output=b"fatal: unable to access 'https://dude:abides@example.com/': error",
     )
-    g = git.GitRepo("new_repo", auth="dude:abides")
+    g = git.GitRepo("new_repo", authentication="dude:abides")
 
     with pytest.raises(CalledProcessError) as excinfo:
         g.git("fetch", "-f", "https://dude:abides@example.com", "main")
 
     assert "dude:abides" not in str(excinfo.value.cmd)
     assert b"dude:abides" not in excinfo.value.output
+    # .args is set independently of .cmd at construction time, so it needs
+    # its own scrub - see the comment in GitRepo.git().
+    assert "dude:abides" not in str(excinfo.value.args)
     assert excinfo.value.__cause__ is None
 
 
@@ -113,23 +116,25 @@ EXPECTED_AUTH_ENV = {
 
 @override_settings(DEV=True)
 def test_git_clone_with_auth():
-    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    g = git.GitRepo(".", "https://example.com", authentication="dude:abides")
     with patch.multiple(g, git=DEFAULT, path=DEFAULT) as git_mock:
         g.clone()
 
-    git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".", env=EXPECTED_AUTH_ENV)
+    git_mock["git"].assert_called_with(
+        "clone", "--depth", "1", "--branch", "main", "https://example.com", ".", environment_overrides=EXPECTED_AUTH_ENV
+    )
 
 
 def test_git_pull_with_auth():
-    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    g = git.GitRepo(".", "https://example.com", authentication="dude:abides")
     with patch.object(g, "git") as git_mock:
         g.pull()
 
-    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=EXPECTED_AUTH_ENV)
+    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", environment_overrides=EXPECTED_AUTH_ENV)
 
 
 def test_git_pull_with_bare_token_auth():
-    g = git.GitRepo(".", "https://example.com", auth="sometoken")
+    g = git.GitRepo(".", "https://example.com", authentication="sometoken")
     with patch.object(g, "git") as git_mock:
         g.pull()
 
@@ -139,15 +144,15 @@ def test_git_pull_with_bare_token_auth():
         "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: Basic {base64.b64encode(b'x-access-token:sometoken').decode('ascii')}",
         "GIT_TERMINAL_PROMPT": "0",
     }
-    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=expected_env)
+    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", environment_overrides=expected_env)
 
 
 def test_git_push_with_auth():
-    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    g = git.GitRepo(".", "https://example.com", authentication="dude:abides")
     with patch.object(g, "git") as git_mock:
         result = g.push("HEAD:main")
 
-    git_mock.assert_called_with("push", "https://example.com", "HEAD:main", env=EXPECTED_AUTH_ENV)
+    git_mock.assert_called_with("push", "https://example.com", "HEAD:main", environment_overrides=EXPECTED_AUTH_ENV)
     assert result == git_mock.return_value
 
 
@@ -168,12 +173,12 @@ def test_git_clone_without_auth_passes_no_env():
 
 
 def test_git_split_auth_bare_token():
-    g = git.GitRepo(".", "https://example.com", auth="sometoken")
+    g = git.GitRepo(".", "https://example.com", authentication="sometoken")
     assert g._split_auth() == (git.DEFAULT_AUTH_USERNAME, "sometoken")
 
 
 def test_git_split_auth_username_and_token():
-    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    g = git.GitRepo(".", "https://example.com", authentication="dude:abides")
     assert g._split_auth() == ("dude", "abides")
 
 
@@ -183,12 +188,12 @@ def test_git_split_auth_none():
 
 
 def test_git_extraheader_config_key_returns_none_for_non_http_url():
-    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
+    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", authentication="dude:abides")
     assert g._extraheader_config_key() is None
 
 
 def test_git_auth_env_rejects_unscopable_remote():
-    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
+    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", authentication="dude:abides")
     with pytest.raises(RuntimeError):
         with g.auth_env():
             pass
@@ -196,13 +201,13 @@ def test_git_auth_env_rejects_unscopable_remote():
 
 @patch.object(git, "rmtree")
 def test_git_reclone_propagates_auth(rmtree_mock):
-    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    g = git.GitRepo(".", "https://example.com", authentication="dude:abides")
     with patch.multiple(g, path=DEFAULT):
         g.path.exists.return_value = True
         with patch.object(git, "GitRepo") as gitrepo_mock:
             g.reclone()
 
-    assert gitrepo_mock.call_args.kwargs["auth"] == "dude:abides"
+    assert gitrepo_mock.call_args.kwargs["authentication"] == "dude:abides"
 
 
 @patch.object(git, "rmtree")

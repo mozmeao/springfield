@@ -27,6 +27,7 @@ def test_pre_sentry_sanitisation__before_send_setup():
         "X-Mozilla-Ops-Canary",
         "ref_key",
         "invitation",
+        "git_config_value",
     ]
 
 
@@ -122,3 +123,22 @@ def test_pre_sentry_sanitisation(shared_datadir):
     stringified = json.dumps(output)
 
     assert "blocklist" not in stringified
+
+
+def test_pre_sentry_sanitisation_git_config_value(shared_datadir):
+    # GIT_CONFIG_VALUE_0 (springfield.utils.git.GitRepo.auth_env) is a
+    # subprocess-env/stack-frame local, never an HTTP request field, so it's
+    # only realistic to exercise via the exception stacktrace path - unlike
+    # test_pre_sentry_sanitisation's shared fixtures, which also push every
+    # blocklist key through filter_http's synthetic query_string, where
+    # sentry_processor's naive key=value splitter mishandles the "="
+    # padding in this value's base64 encoding regardless of masking config.
+    noop_because_hint_is_not_used = None
+    raw_json = (shared_datadir / "example_sentry_payload.json").read_text()
+    fake_event = json.loads(raw_json)["payload"]
+    fake_event["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["GIT_CONFIG_VALUE_0"] = "AUTHORIZATION: Basic ZHVkZTphYmlkZXM="
+
+    output = before_send(event=fake_event, hint=noop_because_hint_is_not_used)
+
+    sanitised_vars = output["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]
+    assert sanitised_vars["GIT_CONFIG_VALUE_0"] == "********"

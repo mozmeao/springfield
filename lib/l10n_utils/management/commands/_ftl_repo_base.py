@@ -24,14 +24,14 @@ class FTLRepoCommand(BaseCommand):
         if options["quiet"]:
             self.stdout._out = StringIO()
 
-        auth = settings.FLUENT_REPO_AUTH or None
+        authentication = settings.FLUENT_REPO_AUTH or None
         self.l10n_repo = GitRepo(
             settings.FLUENT_L10N_TEAM_REPO_PATH,
             settings.FLUENT_L10N_TEAM_REPO_URL,
             settings.FLUENT_L10N_TEAM_REPO_BRANCH,
-            auth=auth,
+            authentication=authentication,
         )
-        self.meao_repo = GitRepo(settings.FLUENT_REPO_PATH, settings.FLUENT_REPO_URL, settings.FLUENT_REPO_BRANCH, auth=auth)
+        self.meao_repo = GitRepo(settings.FLUENT_REPO_PATH, settings.FLUENT_REPO_URL, settings.FLUENT_REPO_BRANCH, authentication=authentication)
 
     def update_l10n_team_files(self):
         try:

@@ -1149,6 +1149,11 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # event raised during such a request, not just ones we capture deliberately.
     "ref_key",
     "invitation",
+    # GIT_CONFIG_VALUE_0 (springfield.utils.git.GitRepo.auth_env) carries a
+    # base64-encoded git credential in an AUTHORIZATION header value. The
+    # default "token" blocklist entry doesn't match this key name, and it
+    # can appear as a stack-frame local on a failed git subprocess call.
+    "git_config_value",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,
