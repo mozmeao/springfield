@@ -99,13 +99,9 @@
                 </button>
               </div>
               <div class="fl-qr-code-floating-content">
-                {# Marketing-provided static QR: its destination and tracking token are baked into
-                   the image and maintained by the marketing team, not generated from ios_url. #}
                 <div class="fl-qr-code-image">
-                  <img src="{{ static('img/firefox/browsers/mobile/ios/qr-code-ios.png') }}" width="740" height="740" alt="">
+                  <img src="{{ static('img/firefox/browsers/mobile/ios/qr-code-ios.png') }}" width="740" height="740" alt="{{ ftl('download-qr-code-alt') }}">
                 </div>
-                {# Text-link alternative to the QR for keyboard / screen-reader users
-                   and anyone without a phone camera. #}
                 <a href="{{ url('firefox.browsers.mobile') }}">{{ ftl('download-get-firefox-on-your-phone') }}</a>
               </div>
             </dialog>

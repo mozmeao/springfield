@@ -183,6 +183,8 @@
 }
 
 .fl-qr-code-dialog {
+    --fl-theme-color-link: var(--token-color-black-4);
+    --fl-theme-color-link-hover: var(--token-color-black-4);
     background: var(--token-color-white);
     border-radius: var(--token-border-radius-sm);
     color: var(--token-color-black-4);
@@ -203,14 +205,4 @@
 .fl-qr-code-dialog .fl-qr-code-image img {
     block-size: 100%;
     inline-size: 100%;
-}
-
-/* The QR alt link inherits the base link purple, which is low-contrast on the
-   white dialog. Match the dialog's own near-black text color instead. */
-.fl-qr-code-dialog .fl-qr-code-floating-content a {
-    color: var(--token-color-black-4);
-}
-
-.fl-qr-code-dialog .fl-qr-code-floating-content a:hover {
-    text-decoration: none;
 }
