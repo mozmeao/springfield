@@ -142,6 +142,23 @@ def test_git_pull_with_bare_token_auth():
     git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=expected_env)
 
 
+def test_git_push_with_auth():
+    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    with patch.object(g, "git") as git_mock:
+        result = g.push("HEAD:main")
+
+    git_mock.assert_called_with("push", "https://example.com", "HEAD:main", env=EXPECTED_AUTH_ENV)
+    assert result == git_mock.return_value
+
+
+def test_git_push_without_auth_passes_no_env():
+    g = git.GitRepo(".", "https://example.com")
+    with patch.object(g, "git") as git_mock:
+        g.push("HEAD:main")
+
+    git_mock.assert_called_with("push", "https://example.com", "HEAD:main")
+
+
 def test_git_clone_without_auth_passes_no_env():
     g = git.GitRepo(".", "https://example.com")
     with patch.multiple(g, git=DEFAULT, path=DEFAULT) as git_mock:
@@ -173,7 +190,7 @@ def test_git_extraheader_config_key_returns_none_for_non_http_url():
 def test_git_auth_env_rejects_unscopable_remote():
     g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
     with pytest.raises(RuntimeError):
-        with g._auth_env():
+        with g.auth_env():
             pass
 
 

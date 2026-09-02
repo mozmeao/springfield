@@ -56,8 +56,8 @@ class GitRepo:
                 kwargs["env"] = {**os.environ, **env}
             output = check_output((GIT,) + args, **kwargs)
         except CalledProcessError as cpe:
-            # cpe.cmd/cpe.output may embed a credentialed URL (see remote_url_auth) -
-            # scrub before this propagates to logs/Sentry.
+            # Defense in depth: if a credentialed URL is ever passed as a
+            # literal arg, scrub it before this propagates to logs/Sentry.
             cpe.cmd = tuple(self._scrub(arg) for arg in cpe.cmd)
             cpe.output = self._scrub(cpe.output)
             raise cpe from None
@@ -69,11 +69,9 @@ class GitRepo:
     def _split_auth(self):
         """Return (username, token) parsed from self.auth.
 
-        ``FLUENT_REPO_AUTH`` is normally just a bare token, in which case
-        the conventional ``x-access-token`` username is used (matches
-        ``springfield.utils.github.get_client()``, which also accepts a
-        bare token). A legacy ``"<username>:<token>"`` form is also
-        accepted. Returns ``(None, None)`` if no auth is configured.
+        Accepts a bare token (paired with the conventional
+        ``x-access-token`` username) or an explicit ``"<username>:<token>"``
+        form. Returns ``(None, None)`` if no auth is configured.
         """
         if not self.auth:
             return None, None
@@ -83,7 +81,7 @@ class GitRepo:
         return DEFAULT_AUTH_USERNAME, self.auth
 
     @contextlib.contextmanager
-    def _auth_env(self):
+    def auth_env(self):
         """Yield env overrides that authenticate git via HTTP Basic auth.
 
         Uses git's ``GIT_CONFIG_COUNT`` / ``GIT_CONFIG_KEY_N`` /
@@ -195,7 +193,7 @@ class GitRepo:
             raise RuntimeError("remote_url required to clone")
 
         self.path.mkdir(parents=True, exist_ok=True)
-        with self._auth_env() as env:
+        with self.auth_env() as env:
             extra = {"env": env} if env else {}
             self.git("clone", "--depth", "1", "--branch", self.branch_name, self.remote_url, ".", **extra)
 
@@ -216,11 +214,20 @@ class GitRepo:
 
         Return the previous hash and the new hash."""
         old_hash = self.current_hash
-        with self._auth_env() as env:
+        with self.auth_env() as env:
             extra = {"env": env} if env else {}
             self.git("fetch", "-f", self.remote_url, self.branch_name, **extra)
         self.git("checkout", "-f", "FETCH_HEAD")
         return old_hash, self.current_hash
+
+    def push(self, refspec):
+        """Push refspec to remote_url, authenticating via auth_env() if configured.
+
+        Returns the git command's output.
+        """
+        with self.auth_env() as env:
+            extra = {"env": env} if env else {}
+            return self.git("push", self.remote_url, refspec, **extra)
 
     def update(self):
         """Updates a repo, cloning if necessary.
@@ -262,12 +269,6 @@ class GitRepo:
             repo_base = repo_base[:-1]
 
         return repo_base
-
-    def remote_url_auth(self, auth):
-        url = self.clean_remote_url
-        # remove https://
-        url = url[8:]
-        return f"https://{auth}@{url}"
 
     def set_db_latest(self, latest_ref=None):
         latest_ref = latest_ref or self.current_hash
