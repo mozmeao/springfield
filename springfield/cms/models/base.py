@@ -324,13 +324,17 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     def iter_sample_rated_blocks(self):
         """Yield (field_name, block_index, block_type, sample_rate) for every top-level
         block on this page whose Conditional Display settings, at any nesting depth,
-        set a sample rate.
+        set a sample rate. A top-level block yields one entry per distinct rate it
+        contains, even when that rate is repeated across several nested Conditional
+        Display blocks (e.g. multiple cards in a cards list) — so a page's block-level
+        validation error doesn't list the same block more than once.
         """
         for field in self._meta.get_fields():
             if not isinstance(field, StreamField):
                 continue
             for block_index, raw_block in enumerate(getattr(self, field.name).raw_data):
-                for sample_rate in _sample_rates_in_raw_block_data(raw_block.get("value")):
+                sample_rates = set(_sample_rates_in_raw_block_data(raw_block.get("value")))
+                for sample_rate in sample_rates:
                     yield field.name, block_index, raw_block.get("type"), sample_rate
 
     @cached_property
