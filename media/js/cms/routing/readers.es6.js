@@ -224,13 +224,16 @@ const UITOUR_EXTRACTORS = {
     // `previousSessionEnd` is a ms timestamp written only when Firefox fully quits, and
     // defaults to `0` when no previous session was ever recorded. `0` is treated as
     // unavailable rather than computed through, which would otherwise read as decades
-    // lapsed for a brand-new profile.
+    // lapsed for a brand-new profile. A timestamp in the future (clock skew, bad data)
+    // is unavailable too: a negative day count would still count as a real value and
+    // could satisfy a `less than` rule.
     days_since_last_session: function (config, now) {
         const previousSessionEnd = config.previousSessionEnd;
         if (typeof previousSessionEnd !== 'number' || previousSessionEnd <= 0) {
             return undefined;
         }
-        return Math.floor((now - previousSessionEnd) / MS_PER_DAY);
+        const days = Math.floor((now - previousSessionEnd) / MS_PER_DAY);
+        return days < 0 ? undefined : days;
     },
     // Whole weeks, reported directly, mirroring profile_age_weeks. `null` means the
     // profile has never been reset.

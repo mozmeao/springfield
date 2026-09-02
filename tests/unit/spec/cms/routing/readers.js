@@ -381,6 +381,19 @@ describe('cms/routing/readers.es6.js', function () {
                 expect(outcome).toBe(REJECTED);
             });
 
+            it('is unavailable when the timestamp is in the future', async function () {
+                // Clock skew would otherwise produce a negative day count, which counts
+                // as a real value and could satisfy a `less than` rule.
+                const reader = readerFor(NOW + 3 * 24 * 60 * 60 * 1000);
+                const outcome = await settle(
+                    reader.read({
+                        name: 'days_since_last_session',
+                        browserStateKey: 'appinfo'
+                    })
+                );
+                expect(outcome).toBe(REJECTED);
+            });
+
             it('is unavailable when the field is missing (older Firefox)', async function () {
                 const reader = readerFor(undefined);
                 const outcome = await settle(
