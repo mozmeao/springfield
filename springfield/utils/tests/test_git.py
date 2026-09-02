@@ -192,6 +192,21 @@ def test_git_extraheader_config_key_returns_none_for_non_http_url():
     assert g._extraheader_config_key() is None
 
 
+def test_git_extraheader_config_key_omits_default_port():
+    g = git.GitRepo(".", "https://example.com/repo", authentication="dude:abides")
+    assert g._extraheader_config_key() == "http.https://example.com/.extraheader"
+
+
+def test_git_extraheader_config_key_includes_non_default_port():
+    g = git.GitRepo(".", "https://example.com:8443/repo", authentication="dude:abides")
+    assert g._extraheader_config_key() == "http.https://example.com:8443/.extraheader"
+
+
+def test_git_extraheader_config_key_restores_ipv6_brackets():
+    g = git.GitRepo(".", "https://[::1]:8443/repo", authentication="dude:abides")
+    assert g._extraheader_config_key() == "http.https://[::1]:8443/.extraheader"
+
+
 def test_git_auth_env_rejects_unscopable_remote():
     g = git.GitRepo(".", "git@github.com:mozmeao/example.git", authentication="dude:abides")
     with pytest.raises(RuntimeError):

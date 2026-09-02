@@ -124,8 +124,8 @@ class GitRepo:
 
     def _extraheader_config_key(self):
         """Return the git config key for the http.extraheader setting,
-        scoped to the remote's scheme+host, or None if the remote isn't a
-        scopable HTTP(S) URL.
+        scoped to the remote's scheme+host(+port), or None if the remote
+        isn't a scopable HTTP(S) URL.
 
         Per git's URL-specific HTTP config rules, ``http.<url>.extraheader``
         only applies to requests whose URL is prefix-matched by ``<url>``.
@@ -135,11 +135,19 @@ class GitRepo:
         no safe unscoped fallback: the global ``http.extraheader`` would
         attach the credential to every HTTP(S) request the subprocess
         makes, so callers must treat ``None`` as "don't authenticate."
+
+        git matches the port exactly, treating an omitted port as the
+        scheme's default (443/80) rather than "any port" - so a non-default
+        port must be included in the key or the header silently won't be
+        sent. IPv6 hosts need their brackets restored, since
+        ``urlparse().hostname`` strips them.
         """
         parsed = urlparse(self.remote_url or "")
-        if parsed.scheme in ("http", "https") and parsed.hostname:
-            return f"http.{parsed.scheme}://{parsed.hostname}/.extraheader"
-        return None
+        if parsed.scheme not in ("http", "https") or not parsed.hostname:
+            return None
+        host = f"[{parsed.hostname}]" if ":" in parsed.hostname else parsed.hostname
+        authority = f"{host}:{parsed.port}" if parsed.port else host
+        return f"http.{parsed.scheme}://{authority}/.extraheader"
 
     @property
     def current_hash(self):
