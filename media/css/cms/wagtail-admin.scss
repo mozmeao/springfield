@@ -19,4 +19,8 @@
 .compact-form .w-panel__content > div:has(.w-field--draftail_rich_text_area, input[type="text"]) {
     width: 100%;
 }
+
+.compact-input input {
+    width: 10rem;
+}
 /* stylelint-enable */

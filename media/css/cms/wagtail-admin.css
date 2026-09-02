@@ -58,4 +58,8 @@
 .compact-form > .c-sf-help {
     width: 100%;
 }
+
+.compact-input input {
+    width: 10rem;
+}
 /* stylelint-enable */
