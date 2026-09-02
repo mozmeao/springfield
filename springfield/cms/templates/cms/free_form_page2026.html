@@ -35,7 +35,7 @@
           {% set block_type = block.block_type %}
           {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
 
-          {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+          {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
             {% set block_has_display_conditions = block.value.settings and block.value.settings.show_to and block.value.settings.show_to.has_conditions %}
             {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
             {% set ns.headings = ns.headings + 1 %}
@@ -55,7 +55,7 @@
             {% set block_type = block.block_type %}
             {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
 
-            {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+            {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
               {% set block_has_display_conditions = block.value.settings and block.value.settings.show_to and block.value.settings.show_to.has_conditions %}
               {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
               {% set ns.headings = ns.headings + 1 %}
@@ -77,7 +77,7 @@
         {% set block_type = block.block_type %}
         {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
 
-        {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
+        {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
           {% set block_has_display_conditions = block.value.settings and block.value.settings.show_to and block.value.settings.show_to.has_conditions %}
           {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
           {% set ns.headings = ns.headings + 1 %}

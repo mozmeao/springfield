@@ -5959,11 +5959,12 @@ def test_heading_levels_consider_conditional_display(page_model, index_page, rf)
     assert_section_and_banner_heading_levels(main)
 
 
+@pytest.mark.parametrize("notification_headline", ["", "<p>Your Firefox is up to date.</p>"], ids=["message_only", "with_headline"])
 @pytest.mark.parametrize("page_model", FREEFORM_PAGE_TYPES)
-def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, index_page, rf):
+def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notification_headline, index_page, rf):
     notification = {
         "type": "notification",
-        "value": {"message": "<p>Firefox has been updated.</p>"},
+        "value": {"headline": notification_headline, "message": "<p>Firefox has been updated.</p>"},
     }
     page = publish_freeform_content_page(
         page_model,
@@ -5975,7 +5976,7 @@ def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, index
     main = render_main_element(page, rf)
 
     notification_element = main.find("div", class_="fl-notification")
-    assert notification_element.get_text(strip=True) == "Firefox has been updated."
+    assert "Firefox has been updated." in notification_element.get_text(strip=True)
     assert notification_element.find(["h1", "h2", "h3", "h4", "h5", "h6"]) is None
 
     for condition_class, heading_text, _ in PLATFORM_INTROS:
