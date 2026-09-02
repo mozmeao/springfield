@@ -17,12 +17,14 @@ from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
+    LONG_RN_CACHE_TIMEOUT,
     ProductRelease,
     get_latest_release_or_404,
     get_release,
     get_release_or_404,
     get_releases_or_404,
 )
+from springfield.releasenotes.utils import memoize
 
 SUPPORT_URLS = {
     "Firefox for Android": "https://support.mozilla.org/products/mobile",
@@ -259,19 +261,25 @@ def latest_sysreq(request, product="firefox", platform=None, channel=None):
     return HttpResponseRedirect(url)
 
 
+@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_esr_release_versions():
     """Return the set of all historical Firefox ESR-channel release versions.
 
-    channel == "ESR" is the only reliable signal for "is this release ESR"
-    (see ProductReleaseManager.refresh()) -- the version string shape cannot
-    be trusted. The first baseline release of an ESR train carries an "esr"
-    suffix (e.g. "140.0esr"); later point releases in that train don't
+    The version string shape cannot be trusted to tell ESR and Release
+    releases apart: a version string on its own doesn't say which channel
+    shipped it, and the two channels can even share an identical string.
+    channel == "ESR" on the underlying ProductRelease row is the only
+    reliable signal. The first baseline release of an ESR train carries an
+    "esr" suffix (e.g. "140.0esr"); later point releases in that train don't
     (e.g. "140.1.0") and are indistinguishable by shape from a Release point
     release.
     """
-    return set(ProductRelease.objects.filter(product="Firefox", channel="ESR", is_public=True).values_list("version", flat=True))
+    return set(
+        ProductRelease.objects.filter(product="Firefox", channel="ESR", is_public=True).values_list("version", flat=True),
+    )
 
 
+@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_release_channel_versions():
     """Return the set of all historical Firefox Release-channel versions.
 
@@ -282,14 +290,16 @@ def get_release_channel_versions():
     together with no channel marker, so membership there alone can't
     distinguish the two.
     """
-    return set(ProductRelease.objects.filter(product="Firefox", channel="Release", is_public=True).values_list("version", flat=True))
+    return set(
+        ProductRelease.objects.filter(product="Firefox", channel="Release", is_public=True).values_list("version", flat=True),
+    )
 
 
 def normalize_esr_version(version):
     """Strip the "esr" suffix carried only by ESR baseline releases (e.g.
     "140.0esr" -> "140.0") so it can be compared/sorted against plain
     version strings. No-op for every other version string."""
-    return version.replace("esr", "")
+    return version.removesuffix("esr")
 
 
 def has_valid_version_shape(version):
