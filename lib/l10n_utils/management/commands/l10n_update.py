@@ -13,6 +13,7 @@ FLUENT_L10N_UPDATE_PARAMS = {
         path=settings.FLUENT_REPO_PATH,
         remote_url=settings.FLUENT_REPO_URL,
         branch_name=settings.FLUENT_REPO_BRANCH,
+        auth=settings.FLUENT_REPO_AUTH or None,
     ),
 }
 

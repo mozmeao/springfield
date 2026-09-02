@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import base64
+from subprocess import CalledProcessError
 from unittest.mock import DEFAULT, call, patch
 
 from django.test import override_settings
@@ -80,6 +82,89 @@ def test_git_clone():
 
     git_mock["path"].mkdir.assert_called_with(parents=True, exist_ok=True)
     git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".")
+
+
+@patch.object(git, "os")
+@patch.object(git, "check_output")
+def test_git_scrubs_auth_from_called_process_error(co_mock, os_mock):
+    os_mock.getcwd.return_value = "olddir"
+    co_mock.side_effect = CalledProcessError(
+        128,
+        (git.GIT, "fetch", "-f", "https://dude:abides@example.com", "main"),
+        output=b"fatal: unable to access 'https://dude:abides@example.com/': error",
+    )
+    g = git.GitRepo("new_repo", auth="dude:abides")
+
+    with pytest.raises(CalledProcessError) as excinfo:
+        g.git("fetch", "-f", "https://dude:abides@example.com", "main")
+
+    assert "dude:abides" not in str(excinfo.value.cmd)
+    assert b"dude:abides" not in excinfo.value.output
+    assert excinfo.value.__cause__ is None
+
+
+EXPECTED_AUTH_ENV = {
+    "GIT_CONFIG_COUNT": "1",
+    "GIT_CONFIG_KEY_0": "http.https://example.com/.extraheader",
+    "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: Basic {base64.b64encode(b'dude:abides').decode('ascii')}",
+    "GIT_TERMINAL_PROMPT": "0",
+}
+
+
+@override_settings(DEV=True)
+def test_git_clone_with_auth():
+    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    with patch.multiple(g, git=DEFAULT, path=DEFAULT) as git_mock:
+        g.clone()
+
+    git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".", env=EXPECTED_AUTH_ENV)
+
+
+def test_git_pull_with_auth():
+    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    with patch.object(g, "git") as git_mock:
+        g.pull()
+
+    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=EXPECTED_AUTH_ENV)
+
+
+def test_git_clone_without_auth_passes_no_env():
+    g = git.GitRepo(".", "https://example.com")
+    with patch.multiple(g, git=DEFAULT, path=DEFAULT) as git_mock:
+        g.clone()
+
+    git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".")
+
+
+def test_git_split_auth_bare_token():
+    g = git.GitRepo(".", "https://example.com", auth="sometoken")
+    assert g._split_auth() == (git.DEFAULT_AUTH_USERNAME, "sometoken")
+
+
+def test_git_split_auth_username_and_token():
+    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    assert g._split_auth() == ("dude", "abides")
+
+
+def test_git_split_auth_none():
+    g = git.GitRepo(".", "https://example.com")
+    assert g._split_auth() == (None, None)
+
+
+def test_git_extraheader_config_key_falls_back_for_non_http_url():
+    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
+    assert g._extraheader_config_key() == "http.extraheader"
+
+
+@patch.object(git, "rmtree")
+def test_git_reclone_propagates_auth(rmtree_mock):
+    g = git.GitRepo(".", "https://example.com", auth="dude:abides")
+    with patch.multiple(g, path=DEFAULT):
+        g.path.exists.return_value = True
+        with patch.object(git, "GitRepo") as gitrepo_mock:
+            g.reclone()
+
+    assert gitrepo_mock.call_args.kwargs["auth"] == "dude:abides"
 
 
 @patch.object(git, "rmtree")
