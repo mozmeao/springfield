@@ -722,20 +722,6 @@ def test_cache_localized_tags_drops_hidden_tags(bare_article, blog_tag):
     assert [tag.slug for tag in bare_article.get_tags()] == [keeper.slug]
 
 
-def test_excluded_tags_do_not_render_on_related_article_cards(excluded_index, blog_tag, make_article, rf):
-    """Related cards are not feed-filtered, so an excluded tag reaches them."""
-    keeper = BlogTag.objects.create(name="Keeper", slug="test-unit-keeper", locale=excluded_index.locale)
-    sibling = make_article(title="Two tags")
-    sibling.tags.add(blog_tag, keeper)
-    sibling.save()
-    article = make_article(title="The article")
-
-    related = article.get_context(rf.get("/"))["related_articles"]
-
-    assert related == [sibling]
-    assert [tag.slug for tag in related[0].get_tags()] == [keeper.slug]
-
-
 def test_tag_filter_renders_every_chip(excluded_index, blog_tag, make_article, rf):
     """Under ?tag= the tag the reader followed is spared, so its chip shows.
 
@@ -1522,66 +1508,6 @@ def test_blog_article_renders_header_image(single_article, rf):
     assert image_div and image_div.find("img")
 
 
-def test_blog_article_renders_related_articles(privacy_articles, rf):
-    index_page, articles = privacy_articles
-    article = articles[0]
-    expected_related = list(
-        BlogArticlePage.objects.child_of(index_page)
-        .live()
-        .public()
-        .filter(topic=article.topic)
-        .exclude(pk=article.pk)
-        .order_by("-first_published_at")[:4]
-    )
-
-    request = rf.get(article.get_full_url())
-    response = article.serve(request)
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    section = soup.find("section", class_="fl-blog-related-articles")
-    assert section
-
-    heading = section.find("h2", class_="fl-heading")
-    assert heading and "Related Articles" in heading.get_text()
-
-    items = section.find_all("article", class_="fl-blog-article-list-item")
-    assert len(items) == len(expected_related)
-
-    for related, item in zip(expected_related, items):
-        superheading = item.find("p", class_="fl-superheading")
-        assert superheading and related.topic.name in superheading.get_text()
-        heading = item.find("h3", class_="fl-heading")
-        assert heading and related.title in heading.get_text()
-        link = heading.find("a", class_="fl-link")
-        assert link and link["href"] == related.url
-        body = item.find("div", class_="fl-body")
-        assert body and body.get_text(strip=True)
-        assert item.find("p", class_="fl-blog-article-date")
-        assert item.find("span", class_="fl-tag")
-
-
-def test_blog_article_excludes_self_from_related(privacy_articles, rf):
-    index_page, articles = privacy_articles
-    article = articles[0]
-    request = rf.get(article.get_full_url())
-    context = article.get_context(request)
-    assert article not in context["related_articles"]
-
-
-def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
-    _, articles = privacy_articles
-    article = articles[0]
-    response = article.serve(rf.get(article.get_full_url()))
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    items = soup.find("section", class_="fl-blog-related-articles").find_all("article", class_="fl-blog-article-list-item")
-    assert items
-
-    for item in items:
-        assert "fl-blog-article-list-item-with-image" in item.get("class", [])
-        assert item.find("div", class_="fl-blog-article-list-item-image").find("img")
-
-
 # ---------------------------------------------------------------------------
 # N+1 query tests
 # ---------------------------------------------------------------------------
@@ -1876,7 +1802,7 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
-    assert headings == ["Content", "Promote & SEO", "Settings"]
+    assert headings == ["Content", "Related Articles", "Promote & SEO", "Settings"]
 
 
 def test_blog_article_content_tab_panel_order():
@@ -1894,6 +1820,16 @@ def test_blog_article_content_tab_panel_order():
         "Hero Options",
         "content",
         "bottom_banner",
+    ]
+
+
+def test_blog_article_related_articles_tab_panel_order():
+    related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
+    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
+
+    assert labels == [
+        "hide_related",
+        "related_articles",
     ]
 
 
