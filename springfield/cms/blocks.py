@@ -2824,6 +2824,12 @@ class NotificationSettings(blocks.StructBlock):
         label="Show To",
         help_text="Control which users can see this content block",
     )
+    anchor_id = blocks.CharBlock(
+        required=False,
+        help_text="Add an ID to make this section linkable from navigation. "
+        "Use 'firefox-has-been-updated' on a What's New page to hide the notification "
+        "when the user comes from a context where they shouldn't see this message.",
+    )
 
     class Meta:
         icon = "cog"
@@ -3882,11 +3888,79 @@ class NavSeparatorBlock(blocks.StaticBlock):
         admin_text = "Horizontal rule — separates groups of links."
 
 
+class NavWhatsNewLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    """A link to the What's New Index page when available for the active locale"""
+
+    icon = IconChoiceBlock(required=False, label="Icon")
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="left",
+        required=False,
+        label="Icon position",
+    )
+    has_button_style = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Has button style",
+        help_text="Render this link as a button instead of a plain nav link.",
+    )
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        template = "cms/blocks/whats-new-link.html"
+        icon = "link"
+        label = "What's New Link"
+        label_format = "What's New Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label"],
+            settings=["icon", "icon_position", "has_button_style", "analytics_id"],
+        )
+
+
+class NavWhatsNextLinkBlock(LabelSourceMixin, blocks.StructBlock):
+    """A link to the What's Next page when available for the active locale"""
+
+    icon = IconChoiceBlock(required=False, label="Icon")
+    icon_position = blocks.ChoiceBlock(
+        choices=(("left", "Left"), ("right", "Right")),
+        default="left",
+        required=False,
+        label="Icon position",
+    )
+    has_button_style = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Has button style",
+        help_text="Render this link as a button instead of a plain nav link.",
+    )
+    analytics_id = UUIDBlock(
+        required=False,
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+    )
+
+    class Meta:
+        template = "cms/blocks/whats-next-link.html"
+        icon = "link"
+        label = "What's Next Link"
+        label_format = "What's Next Link - {custom_label} {pretranslated_label}"
+        form_layout = blocks.BlockGroup(
+            children=["pretranslated_label", "custom_label"],
+            settings=["icon", "icon_position", "has_button_style", "analytics_id"],
+        )
+
+
 class NavColumnBlock(blocks.StreamBlock):
     """A single column within a folder: a sequence of links and horizontal rules."""
 
     link = NavLinkBlock()
     separator = NavSeparatorBlock()
+    whats_new_link = NavWhatsNewLinkBlock()
+    whats_next_link = NavWhatsNextLinkBlock()
 
     class Meta:
         template = "cms/blocks/nav-column.html"

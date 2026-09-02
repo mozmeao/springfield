@@ -309,6 +309,7 @@ html {
 
 .fl-menu-panel {
     background-color: var(--fl-theme-background);
+    z-index: 3;
 }
 
 .fl-menu-panel .fl-button {
