@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 import base64
 import contextlib
 import os
@@ -21,9 +22,6 @@ import timeago
 from springfield.utils.models import GitRepoState
 
 GIT = getattr(settings, "GIT_BIN", "git")
-
-# Conventional GitHub username for token-only auth (fine-grained PATs).
-DEFAULT_AUTH_USERNAME = "x-access-token"
 
 
 class GitRepo:
@@ -68,16 +66,15 @@ class GitRepo:
     def _split_auth(self):
         """Return (username, token) parsed from self.auth.
 
-        Accepts either ``"<username>:<token>"`` (matches the existing
-        ``FLUENT_REPO_AUTH`` convention) or a bare ``"<token>"``. Returns
-        ``(None, None)`` if no auth is configured.
+        Follows the existing ``FLUENT_REPO_AUTH`` "<username>:<token>"
+        contract also assumed by ``remote_url_auth()`` and
+        ``springfield.utils.github.get_client()``. Returns ``(None, None)``
+        if no auth is configured.
         """
         if not self.auth:
             return None, None
-        if ":" in self.auth:
-            username, token = self.auth.split(":", 1)
-            return (username or DEFAULT_AUTH_USERNAME), token
-        return DEFAULT_AUTH_USERNAME, self.auth
+        username, token = self.auth.split(":", 1)
+        return username, token
 
     @contextlib.contextmanager
     def _auth_env(self):
@@ -96,32 +93,40 @@ class GitRepo:
             yield None
             return
 
+        config_key = self._extraheader_config_key()
+        if config_key is None:
+            # Refuse to apply the credential rather than fall back to the
+            # global http.extraheader, which would attach it to every
+            # HTTP(S) request the subprocess makes, not just this remote.
+            raise RuntimeError(f"Cannot scope credential to remote_url {self.remote_url!r}; refusing to authenticate an unscoped request.")
+
         username, token = self._split_auth()
         basic = base64.b64encode(f"{username}:{token}".encode()).decode("ascii")
         yield {
             "GIT_CONFIG_COUNT": "1",
-            "GIT_CONFIG_KEY_0": self._extraheader_config_key(),
+            "GIT_CONFIG_KEY_0": config_key,
             "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: Basic {basic}",
             "GIT_TERMINAL_PROMPT": "0",
         }
 
     def _extraheader_config_key(self):
         """Return the git config key for the http.extraheader setting,
-        scoped to the remote's scheme+host when possible.
+        scoped to the remote's scheme+host, or None if the remote isn't a
+        scopable HTTP(S) URL.
 
         Per git's URL-specific HTTP config rules, ``http.<url>.extraheader``
         only applies to requests whose URL is prefix-matched by ``<url>``.
         Scoping to e.g. ``http.https://github.com/.extraheader`` means
         the ``Authorization`` header won't follow off-host redirects or
-        LFS fetches against unrelated hosts during the clone/fetch.
-
-        Falls back to the global ``http.extraheader`` if the remote URL
-        isn't usable HTTPS (e.g. SSH form, missing host).
+        LFS fetches against unrelated hosts during the clone/fetch. There's
+        no safe unscoped fallback: the global ``http.extraheader`` would
+        attach the credential to every HTTP(S) request the subprocess
+        makes, so callers must treat ``None`` as "don't authenticate."
         """
         parsed = urlparse(self.remote_url or "")
         if parsed.scheme in ("http", "https") and parsed.hostname:
             return f"http.{parsed.scheme}://{parsed.hostname}/.extraheader"
-        return "http.extraheader"
+        return None
 
     @property
     def current_hash(self):

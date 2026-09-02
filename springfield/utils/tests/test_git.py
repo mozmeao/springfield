@@ -136,11 +136,6 @@ def test_git_clone_without_auth_passes_no_env():
     git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".")
 
 
-def test_git_split_auth_bare_token():
-    g = git.GitRepo(".", "https://example.com", auth="sometoken")
-    assert g._split_auth() == (git.DEFAULT_AUTH_USERNAME, "sometoken")
-
-
 def test_git_split_auth_username_and_token():
     g = git.GitRepo(".", "https://example.com", auth="dude:abides")
     assert g._split_auth() == ("dude", "abides")
@@ -151,9 +146,16 @@ def test_git_split_auth_none():
     assert g._split_auth() == (None, None)
 
 
-def test_git_extraheader_config_key_falls_back_for_non_http_url():
+def test_git_extraheader_config_key_returns_none_for_non_http_url():
     g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
-    assert g._extraheader_config_key() == "http.extraheader"
+    assert g._extraheader_config_key() is None
+
+
+def test_git_auth_env_rejects_unscopable_remote():
+    g = git.GitRepo(".", "git@github.com:mozmeao/example.git", auth="dude:abides")
+    with pytest.raises(RuntimeError):
+        with g._auth_env():
+            pass
 
 
 @patch.object(git, "rmtree")
