@@ -13,13 +13,14 @@ from xml.etree import ElementTree
 
 from django.core.management import call_command
 from django.core.management.base import CommandError, OutputWrapper
+from django.utils.timezone import get_default_timezone
 
 import pytest
 import requests
 import responses
 from bs4 import BeautifulSoup
 from PIL import Image
-from wagtail.models import Locale
+from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
 from springfield.cms.management.commands.import_wordpress_blog_posts import (
@@ -1418,8 +1419,6 @@ def test_a_byline_the_export_names_needs_no_author_warning(tmp_path, index_page)
 
 @responses.activate
 def test_first_published_at_is_localized_to_the_default_timezone(tmp_path, index_page):
-    from django.utils.timezone import get_default_timezone
-
     mock_image_downloads()
 
     run_import(tmp_path, post_xml(date="2020-01-01 09:30:00"))
@@ -1708,7 +1707,6 @@ def test_no_warnings_csv_is_written_when_a_post_has_no_warnings(tmp_path, index_
 def test_url_map_generated_on_a_local_site_says_so(tmp_path, index_page):
     """The map is for the blog.mozilla.org team's redirects, so localhost rows are no use to them."""
     mock_image_downloads()
-    from wagtail.models import Site
 
     Site.objects.filter(is_default_site=True).update(hostname="localhost", port=8000)
 
