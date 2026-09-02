@@ -145,8 +145,15 @@ class GitRepo:
         parsed = urlparse(self.remote_url or "")
         if parsed.scheme not in ("http", "https") or not parsed.hostname:
             return None
+        try:
+            port = parsed.port
+        except ValueError:
+            # Malformed port (e.g. non-numeric) - treat the same as
+            # unscopable rather than let it raise past this method's
+            # "None means don't authenticate" contract.
+            return None
         host = f"[{parsed.hostname}]" if ":" in parsed.hostname else parsed.hostname
-        authority = f"{host}:{parsed.port}" if parsed.port else host
+        authority = f"{host}:{port}" if port else host
         return f"http.{parsed.scheme}://{authority}/.extraheader"
 
     @property
@@ -204,15 +211,24 @@ class GitRepo:
 
         return modified, removed
 
+    def _authenticated_git(self, *args):
+        """Run a git command, authenticating via auth_env() if configured.
+
+        Shared by clone()/pull()/push() so the "wrap with auth_env(), only
+        pass environment_overrides if there's actually something to pass"
+        logic lives in one place rather than being repeated at each call site.
+        """
+        with self.auth_env() as environment_overrides:
+            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
+            return self.git(*args, **git_options)
+
     def clone(self):
         """Clone the repo specified in the initial arguments"""
         if not self.remote_url:
             raise RuntimeError("remote_url required to clone")
 
         self.path.mkdir(parents=True, exist_ok=True)
-        with self.auth_env() as environment_overrides:
-            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
-            self.git("clone", "--depth", "1", "--branch", self.branch_name, self.remote_url, ".", **git_options)
+        self._authenticated_git("clone", "--depth", "1", "--branch", self.branch_name, self.remote_url, ".")
 
     def reclone(self):
         """Safely get a fresh clone of the repo"""
@@ -231,9 +247,7 @@ class GitRepo:
 
         Return the previous hash and the new hash."""
         old_hash = self.current_hash
-        with self.auth_env() as environment_overrides:
-            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
-            self.git("fetch", "-f", self.remote_url, self.branch_name, **git_options)
+        self._authenticated_git("fetch", "-f", self.remote_url, self.branch_name)
         self.git("checkout", "-f", "FETCH_HEAD")
         return old_hash, self.current_hash
 
@@ -242,9 +256,7 @@ class GitRepo:
 
         Returns the git command's output.
         """
-        with self.auth_env() as environment_overrides:
-            git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
-            return self.git("push", self.remote_url, refspec, **git_options)
+        return self._authenticated_git("push", self.remote_url, refspec)
 
     def update(self):
         """Updates a repo, cloning if necessary.

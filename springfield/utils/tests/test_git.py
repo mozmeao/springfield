@@ -227,6 +227,11 @@ def test_git_extraheader_config_key_restores_ipv6_brackets():
     assert git_repo._extraheader_config_key() == "http.https://[::1]:8443/.extraheader"
 
 
+def test_git_extraheader_config_key_returns_none_for_malformed_port():
+    git_repo = git.GitRepo(".", "https://example.com:abc/repo", authentication="dude:abides")
+    assert git_repo._extraheader_config_key() is None
+
+
 def test_git_auth_env_rejects_unscopable_remote():
     git_repo = git.GitRepo(".", "git@github.com:mozmeao/example.git", authentication="dude:abides")
     with pytest.raises(RuntimeError):
