@@ -23,6 +23,9 @@ from springfield.utils.models import GitRepoState
 
 GIT = getattr(settings, "GIT_BIN", "git")
 
+# Conventional GitHub username for token-only auth (fine-grained PATs).
+DEFAULT_AUTH_USERNAME = "x-access-token"
+
 
 class GitRepo:
     def __init__(self, path, remote_url=None, branch_name="main", name=None, auth=None):
@@ -66,15 +69,18 @@ class GitRepo:
     def _split_auth(self):
         """Return (username, token) parsed from self.auth.
 
-        Follows the existing ``FLUENT_REPO_AUTH`` "<username>:<token>"
-        contract also assumed by ``remote_url_auth()`` and
-        ``springfield.utils.github.get_client()``. Returns ``(None, None)``
-        if no auth is configured.
+        ``FLUENT_REPO_AUTH`` is normally just a bare token, in which case
+        the conventional ``x-access-token`` username is used (matches
+        ``springfield.utils.github.get_client()``, which also accepts a
+        bare token). A legacy ``"<username>:<token>"`` form is also
+        accepted. Returns ``(None, None)`` if no auth is configured.
         """
         if not self.auth:
             return None, None
-        username, token = self.auth.split(":", 1)
-        return username, token
+        if ":" in self.auth:
+            username, token = self.auth.split(":", 1)
+            return (username or DEFAULT_AUTH_USERNAME), token
+        return DEFAULT_AUTH_USERNAME, self.auth
 
     @contextlib.contextmanager
     def _auth_env(self):

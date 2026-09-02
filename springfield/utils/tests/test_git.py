@@ -128,12 +128,31 @@ def test_git_pull_with_auth():
     git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=EXPECTED_AUTH_ENV)
 
 
+def test_git_pull_with_bare_token_auth():
+    g = git.GitRepo(".", "https://example.com", auth="sometoken")
+    with patch.object(g, "git") as git_mock:
+        g.pull()
+
+    expected_env = {
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "http.https://example.com/.extraheader",
+        "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: Basic {base64.b64encode(b'x-access-token:sometoken').decode('ascii')}",
+        "GIT_TERMINAL_PROMPT": "0",
+    }
+    git_mock.assert_any_call("fetch", "-f", "https://example.com", "main", env=expected_env)
+
+
 def test_git_clone_without_auth_passes_no_env():
     g = git.GitRepo(".", "https://example.com")
     with patch.multiple(g, git=DEFAULT, path=DEFAULT) as git_mock:
         g.clone()
 
     git_mock["git"].assert_called_with("clone", "--depth", "1", "--branch", "main", "https://example.com", ".")
+
+
+def test_git_split_auth_bare_token():
+    g = git.GitRepo(".", "https://example.com", auth="sometoken")
+    assert g._split_auth() == (git.DEFAULT_AUTH_USERNAME, "sometoken")
 
 
 def test_git_split_auth_username_and_token():
