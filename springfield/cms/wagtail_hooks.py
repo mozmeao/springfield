@@ -28,6 +28,7 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
+from wagtail.snippets.views.chooser import ChooseResultsView, ChooseView, SnippetChooserViewSet
 from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
@@ -37,6 +38,7 @@ from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
+    BlogAuthor,
     BlogTag,
     BlogTopic,
     NavigationSnippet,
@@ -52,6 +54,7 @@ from springfield.cms.models import (
 )
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
+from springfield.cms.utils import get_cms_environment
 
 
 @hooks.register("register_admin_urls")
@@ -96,6 +99,14 @@ def register_django_admin_link():
 @hooks.register("insert_global_admin_css")
 def global_admin_css():
     return mark_safe(css_bundle("wagtail-admin"))
+
+
+@hooks.register("insert_global_admin_css")
+def environment_admin_css():
+    env = get_cms_environment()
+    if env not in {"dev", "stage", "local"}:
+        return ""
+    return format_html('<link rel="stylesheet" href="{}">', static(f"css/cms/wagtail_admin_{env}.css"))
 
 
 @hooks.register("insert_global_admin_js")
@@ -609,6 +620,35 @@ class BlogTopicViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["name", "locale", "live"]
 
 
+class DefaultLocaleBlogAuthorMixin:
+    """Restricts an author chooser to the rows an article is allowed to store."""
+
+    def get_object_list(self):
+        return BlogAuthor.objects.filter(locale=WagtailLocale.get_default(), live=True)
+
+
+class BlogAuthorChooseView(DefaultLocaleBlogAuthorMixin, ChooseView):
+    pass
+
+
+class BlogAuthorChooseResultsView(DefaultLocaleBlogAuthorMixin, ChooseResultsView):
+    pass
+
+
+class BlogAuthorChooserViewSet(SnippetChooserViewSet):
+    # Both views need the restriction: ChooseView renders the initial modal and
+    # ChooseResultsView serves search and pagination within it.
+    choose_view_class = BlogAuthorChooseView
+    choose_results_view_class = BlogAuthorChooseResultsView
+
+
+class BlogAuthorViewSet(LocaleDefaultingSnippetViewSet):
+    model = BlogAuthor
+    list_display = ["name", "job_title", "locale", "live"]
+    search_fields = ["name"]
+    chooser_viewset_class = BlogAuthorChooserViewSet
+
+
 class TagViewSet(LocaleDefaultingSnippetViewSet):
     model = Tag
     list_display = ["name", "locale", "live"]
@@ -658,6 +698,7 @@ for _viewset in (
     BannerSnippetViewSet,
     BlogTagViewSet,
     BlogTopicViewSet,
+    BlogAuthorViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,

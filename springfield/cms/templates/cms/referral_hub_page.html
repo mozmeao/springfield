@@ -17,7 +17,7 @@
 {% block content %}
 <div class="fl-page">
   <div class="fl-main">
-    <div class="fl-split-page-upper">
+    <div class="fl-split-page-upper has-gradient-bottom">
       {% set ns = namespace(headings=0) %}
       {% set block_level = 1 %}
       {% for block in page.upper_content %}
@@ -34,7 +34,7 @@
       {% endfor %}
     </div>
 
-    <div class="fl-split-page-lower has-gradient-top">
+    <div class="fl-split-page-lower">
       {% for block in page.lower_content %}
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
@@ -53,19 +53,19 @@
 {% endblock %}
 
 {% block pre_footer %}
-  {% set ns = namespace(headings=0) %}
-  <div class="fl-split-page-extra fl-force-dark-theme">
+  {% set block_level = 2 %}
+  <div class="fl-split-page-extra fl-force-dark-theme has-gradient-bottom">
     {% for block in page.extra_content %}
       {% set block_index = loop.index %}
       {% set block_type = block.block_type %}
       {% set block_position = "footer-block-" ~ block_index + "-" + block_type %}
 
-      {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
-        {% set block_level = 1 if ns.headings == 0 else 2 %}
-        {% set ns.headings = ns.headings + 1 %}
-      {% endif %}
-
       {% include_block block %}
     {% endfor %}
   </div>
 {% endblock pre_footer %}
+
+{% block js %}
+  {{ super() }}
+  {{ js_bundle('flare-referral-hub') }}
+{% endblock %}

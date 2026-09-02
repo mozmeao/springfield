@@ -380,6 +380,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
                 download_esr_next_url = list(filter(lambda b: b["locale"] == locale, firefox_desktop.get_filtered_full_builds("esr_next")))[0][
                     "platforms"
                 ][platform]["download_url"]
+                # ESR153+ builds do not exist for "linux" (i686) any longer (issue #1726)
+                if platform == "linux":
+                    download_esr_next_url = None
                 context.update(
                     download_esr_next_url=download_esr_next_url,
                 )
@@ -1025,7 +1028,12 @@ class WhatsnewView(L10nTemplateView):
                 locale = WagtailLocale.objects.get(language_code=locale_code)
             except WagtailLocale.DoesNotExist:
                 continue
-            if WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale).exists():
+            # A slug is only unique among siblings, so a nested routing variant can share
+            # this slug with the real evergreen page without being one — reuse the
+            # existing "direct child of the index" predicate rather than trusting slug
+            # + locale alone, or a rogue variant could 302 here to a URL that then 404s.
+            candidates = WhatsNewPage2026.objects.live().public().filter(slug=wnp_slug, locale=locale)
+            if any(candidate.is_routing_canonical() for candidate in candidates):
                 break
         else:
             return None
@@ -1063,6 +1071,10 @@ class WhatsnewView(L10nTemplateView):
         num_version = int(match.group(0)) if match else ""
         ctx["version"] = version
         ctx["num_version"] = num_version
+
+        # A What's New version may be a major on its own (e.g. "153"), while release
+        # notes URLs need a minor component too (e.g. "153.0").
+        ctx["releasenotes_version"] = f"{version}.0" if version and "." not in version else version
 
         # add analytics parameters to context for use in templates
         if channel not in pre_release_channels:

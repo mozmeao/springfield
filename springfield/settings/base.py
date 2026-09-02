@@ -11,6 +11,7 @@ from os.path import abspath
 from pathlib import Path
 from urllib.parse import urlparse
 
+from django.apps import apps
 from django.conf.locale import LANG_INFO
 from django.utils.functional import lazy
 
@@ -330,7 +331,8 @@ FLUENT_REPO = config("FLUENT_REPO", default="mozmeao/www-firefox-l10n")
 FLUENT_REPO_URL = f"https://github.com/{FLUENT_REPO}"
 FLUENT_REPO_BRANCH = config("FLUENT_REPO_BRANCH", default="main")
 FLUENT_REPO_PATH = DATA_PATH / "www-firefox-l10n"
-# will be something like "<github username>:<github token>"
+# Normally just a bare GitHub token. A legacy "<github username>:<github token>"
+# form is also accepted.
 FLUENT_REPO_AUTH = config("FLUENT_REPO_AUTH", default="")
 FLUENT_LOCAL_PATH = ROOT_PATH / "l10n"
 FLUENT_L10N_TEAM_REPO = config("FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-firefox-l10n")
@@ -436,9 +438,14 @@ def lazy_langs():
     """
     from django.conf import settings
 
-    from product_details import product_details
-
     langs = DEV_LANGUAGES if settings.DEV else settings.PROD_LANGUAGES
+
+    if not apps.ready:
+        return [(lang, lang) for lang in langs]
+
+    # Deferred: must stay below the apps.ready guard above, otherwise this
+    # reintroduces the startup DB access that guard exists to avoid.
+    from product_details import product_details
 
     return [(lang, product_details.languages[lang]["native"]) for lang in langs if lang in product_details.languages]
 
@@ -903,6 +910,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "wagtail.contrib.settings.context_processors.settings",
+                "springfield.cms.context_processors.cms_admin",
             ],
         },
     },
@@ -1141,6 +1149,22 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # event raised during such a request, not just ones we capture deliberately.
     "ref_key",
     "invitation",
+    # GIT_CONFIG_VALUE_0 carries a base64-encoded git credential in an
+    # AUTHORIZATION header value, set as a git subprocess env var. The
+    # default "token" blocklist entry doesn't match this key name, and it
+    # can appear as a stack-frame local on a failed git subprocess call.
+    "git_config_value",
+    # A GitRepo(authentication=...) value is a raw, unencoded credential
+    # (not even base64), and can appear as a plain dict value on a
+    # stack-frame local (e.g. a params dict passed to GitRepo(**params))
+    # on a failed git subprocess call.
+    "authentication",
+    # GitRepo.git() merges the whole of os.environ into a frame-local dict
+    # (git_options["env"]) to pass through to the subprocess. FLUENT_REPO_AUTH
+    # is read from that same os.environ at config-load time, so it's one of
+    # the many keys carried along verbatim, unmasked by "authentication" or
+    # "git_config_value" (both are our own key names, not the raw env var's).
+    "fluent_repo_auth",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,

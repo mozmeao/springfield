@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from django import forms
@@ -1191,7 +1191,7 @@ COMPARISON_RESULT_CHOICES = (
 
 COMPARISON_RESULT_ICONS = {
     "yes": "checkmark-circle-fill",
-    "no": "close-circle-fill",
+    "no": "close-circle",
     "limited": "circle-semi-filled",
 }
 
@@ -1557,16 +1557,9 @@ class BadgeBlock(blocks.StructBlock):
     referrer's install count, and the number rendered on the badge. There is
     deliberately no separate "display" field to drift out of sync with it.
 
-    The singular/plural pair encodes the English "1 vs. everything else" rule and
-    agrees with this badge's own ``number``, not the install count -- otherwise a
-    badge reading 5 would render "5 person" whenever the referrer had exactly one
-    install. Locales with three or more plural categories cannot be expressed;
-    that is a repo-wide constraint, as there is no ngettext usage and no Fluent
-    plural selector anywhere in the codebase.
-
-    ``message`` is the dashboard's summary line for the stretch of the journey
-    where this badge is the last one earned, so it belongs to the badge rather
-    than to the dashboard: the copy that suits 1 install does not suit 100.
+    ``heading`` and ``message`` are the dashboard's summary for the stretch of
+    the journey where this badge is the last one earned, so they belong to the
+    badge rather than to the dashboard.
     """
 
     image = ImageChooserBlock(required=False, help_text="Badge artwork. Optional.")
@@ -1589,14 +1582,22 @@ class BadgeBlock(blocks.StructBlock):
         required=True,
         help_text='Badge name, like "Connector", "Supporter", etc.',
     )
+    heading = blocks.CharBlock(
+        required=True,
+        label="Summary heading",
+        help_text=(
+            "Heading shown above the badges while this is the highest badge unlocked, e.g. "
+            '"You are a Supporter!" Use {install count} where the number of successful '
+            "installs should go."
+        ),
+    )
     message = blocks.CharBlock(
-        required=False,
+        required=True,
         label="Message",
         help_text=(
-            "Optional line shown above the badges while this is the highest badge unlocked. "
+            "Line shown under the summary heading while this is the highest badge unlocked. "
             "Use {install count} where the number of successful installs should go, e.g. "
-            '"You have helped {install count} people switch to Firefox." Leave blank to show '
-            "no message at this milestone."
+            '"You have helped {install count} people switch to Firefox."'
         ),
     )
 
@@ -1610,26 +1611,31 @@ class BadgeBlock(blocks.StructBlock):
 class ImpactDashBlock(blocks.StructBlock):
     """Badge array showing a referrer's progress against invite milestones.
 
-    Only lights up on the Referral Hub page, which is the only page that puts
-    ``install_count`` on the template context. TabBlock is reachable from
-    MediaBlock on many other page models, where every badge stays locked.
-
-    Above the badges sits one optional message, chosen by progress: the message
-    of the furthest badge unlocked, or ``locked_summary`` while none is. Exactly
-    one is rendered, so the two never compete for the same line.
+    Above the badges sits one summary -- a heading and a message -- chosen by
+    progress: the pair belonging to the furthest badge unlocked, or
+    ``locked_heading``/``locked_content`` while none is.
     """
 
-    #: Placeholder an editor writes in a message to mark where the install count
-    #: goes. Same convention as {invite link} in ReferralControlsBlock.email_body.
+    #: Placeholder an editor writes in a heading or message to mark where the install
+    #: count goes. Same convention as {invite link} in ReferralControlsBlock.email_body.
     INSTALL_COUNT_TOKEN = "{install count}"
 
-    locked_summary = blocks.CharBlock(
-        required=False,
+    locked_heading = blocks.CharBlock(
+        required=True,
+        label="Heading if no badge is unlocked",
+        help_text=(
+            "Heading shown above the badges while no badge has been unlocked yet. Once a badge "
+            "is unlocked, that badge's own heading replaces it. Use {install count} where the "
+            "number of successful installs should go."
+        ),
+    )
+    locked_content = blocks.CharBlock(
+        required=True,
         label="Message if no badge is unlocked",
         help_text=(
-            "Optional line shown above the badges while no badge has been unlocked yet. Once a "
-            "badge is unlocked, that badge's own message replaces it. Use {install count} where "
-            "the number of successful installs should go. Leave blank to show no message."
+            "Line shown under the heading while no badge has been unlocked yet. Once a badge is "
+            "unlocked, that badge's own message replaces it. Use {install count} where the "
+            "number of successful installs should go."
         ),
     )
     badges = blocks.ListBlock(BadgeBlock(), min_num=1, label="Badges")
@@ -1641,51 +1647,41 @@ class ImpactDashBlock(blocks.StructBlock):
         template = "cms/blocks/impact-dash.html"
 
     def get_context(self, value, parent_context=None):
-        """Resolve each badge against the referrer's install count.
-
-        The count lives on the page context rather than in the block value, so
-        this is the only layer that can see both. Doing the comparison and the
-        singular/plural choice here rather than in Jinja keeps the coercion of a
-        missing or non-numeric count in one place -- comparing against an
-        undefined in a template would raise instead.
-        """
+        """Resolve each badge against the referrer's install count."""
         context = super().get_context(value, parent_context=parent_context)
         install_count = self._coerce_count((parent_context or {}).get("install_count"))
         badges = [self._badge_context(badge, install_count) for badge in value.get("badges") or []]
+        heading, content = self._summary_source(value, badges)
         context["install_count"] = install_count
         context["badges"] = badges
-        context["summary"] = self._resolve_summary(self._summary_source(value, badges), install_count)
+        context["summary_heading"] = self._resolve_summary(heading, install_count)
+        context["summary_content"] = self._resolve_summary(content, install_count)
         return context
 
     @staticmethod
-    def _summary_source(value, badges) -> str:
-        """The message to show above the badges, before token substitution.
+    def _summary_source(value, badges) -> tuple[str, str]:
+        """The heading and message to show above the badges, before token substitution.
 
-        The furthest milestone reached is the interesting one, so the achieved
-        badge with the largest number wins -- picked by number rather than by
-        position, because the editor's list is not guaranteed to be sorted. max()
-        keeps the first of equal numbers, so duplicate thresholds resolve to the
-        one the editor listed first.
+        Both halves come from one source, never mixed across milestones.
 
-        With nothing unlocked there is no badge message to show, so the
-        dashboard's own locked_summary stands in. A badge whose message is blank
-        shows nothing rather than falling back to locked_summary, which would
-        claim no badge had been earned.
+        The furthest milestone reached is the badge achieved with the largest number,
+        picked by number rather than by position, because the editor's list is not guaranteed to be sorted.
+
+        With nothing unlocked there is no badge summary to show, so the
+        dashboard's own locked pair stands in. Both halves are required of the
+        editor, but a half left blank in legacy or imported JSON renders as
+        nothing.
         """
         achieved = [badge for badge in badges if badge["is_achieved"]]
         if not achieved:
-            return value.get("locked_summary") or ""
+            return value.get("locked_heading") or "", value.get("locked_content") or ""
 
-        return max(achieved, key=lambda badge: badge["number"])["message"]
+        furthest = max(achieved, key=lambda badge: badge["number"])
+        return furthest["heading"], furthest["message"]
 
     @classmethod
     def _resolve_summary(cls, raw, install_count: int) -> str:
-        """Substitute the editor's {install count} token with the resolved count.
-
-        A literal replace rather than str.format, so any other braces the editor
-        typed pass through untouched instead of raising KeyError or ValueError and
-        taking down the render. A message that never mentions the count is a legitimate thing to write.
-        """
+        """Substitute the editor's {install count} token with the resolved count."""
         summary = (raw or "").strip()
         if not summary:
             return ""
@@ -1702,12 +1698,6 @@ class ImpactDashBlock(blocks.StructBlock):
 
     @staticmethod
     def _badge_context(badge, install_count: int) -> dict:
-        # Clamped to the same floor the editor field enforces: a 0 or negative
-        # threshold, only reachable via legacy/imported JSON, would satisfy
-        # ``install_count >= number`` for everyone and show as achieved on a
-        # first visit. Clamping the number itself rather than only the
-        # comparison keeps the rendered number and the threshold the one value
-        # BadgeBlock documents them to be.
         number = max(badge.get("number") or 0, 1)
         singular = (badge.get("singular_label") or "").strip()
         # Only reachable via legacy/imported JSON, as both fields are required
@@ -1721,7 +1711,8 @@ class ImpactDashBlock(blocks.StructBlock):
             "badge_name": (badge.get("badge_name") or "").strip(),
             "is_achieved": install_count >= number,
             # Read by _summary_source, not by the badge itself: only the highest
-            # achieved badge's message is rendered, above the badge array.
+            # achieved badge's pair is rendered, above the badge array.
+            "heading": (badge.get("heading") or "").strip(),
             "message": (badge.get("message") or "").strip(),
         }
 
@@ -1754,6 +1745,15 @@ class TabComparisonTableBlock(blocks.StreamBlock):
         label = "Comparison table"
 
 
+class TabMediaBlock(blocks.StreamBlock):
+    image = ImageVariantsBlock(required=False)
+    animation = AnimationBlock(required=False)
+
+    class Meta:
+        label = "Media"
+        template = "cms/blocks/media.html"
+
+
 class TabBlock(blocks.StructBlock):
     tab_name = blocks.CharBlock(label="Tab name")
     icon = IconChoiceBlock(required=False, label="Tab icon", help_text="Optional icon shown before the tab name in the tab list.")
@@ -1766,7 +1766,7 @@ class TabBlock(blocks.StructBlock):
         "Visitors on Firefox, or on a browser no tab claims, get the Chrome tab.",
     )
     heading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    image = ImageChooserBlock(required=False)
+    media = TabMediaBlock(max_num=1, required=False)
     description = RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False)
     referral_controls = TabReferralControlsBlock(max_num=1, min_num=0, required=False)
     impact_dash = TabImpactDashBlock(max_num=1, min_num=0, required=False)
@@ -1960,6 +1960,12 @@ class QuoteBlock(blocks.StructBlock):
         label="Author",
         help_text="Optional attribution for the quote.",
     )
+    authors_title = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Author's title",
+        help_text="Optional title for the author of the quote.",
+    )
 
     class Meta:
         label = "Quote"
@@ -2011,9 +2017,11 @@ class TimelineBlock(blocks.StructBlock):
 
 
 class BlockArticleValue(blocks.StructValue):
-    def get_article(self) -> BlogArticlePage:
+    def get_article(self) -> BlogArticlePage | None:
         if not hasattr(self, "_article_cache"):
-            article = self["article"].localized
+            chosen_article = self["article"]
+            # Chosen article may have been deleted, leaving an empty chooser value
+            article = chosen_article.localized if chosen_article else None
             self._article_cache = article.specific if article else None
         return self._article_cache
 
@@ -2050,19 +2058,13 @@ class BlockArticleValue(blocks.StructValue):
                 return topic.name
         return ""
 
-    def get_tags(self) -> list[str]:
-        if tags := self.get("overrides").get("tags"):
-            return tags
-        article_page = self.get_article()
-        return [tag.name for tag in article_page.get_tags()]
-
     def get_image(self):
         article_page = self.get_article()
         image_override = self.get("overrides").get("image")
         if image := image_override.get("image"):
             return image
-        if article_page and article_page.image:
-            return article_page.image
+        if article_page:
+            return article_page.get_listing_image()
         return None
 
     def get_dark_image(self):
@@ -2070,8 +2072,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_image"):
             return image
-        if article_page and article_page.image_dark_mode:
-            return article_page.image_dark_mode
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode
         return None
 
     def get_mobile_image(self):
@@ -2079,8 +2081,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("mobile_image"):
             return image
-        if article_page and article_page.image_mobile:
-            return article_page.image_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().mobile
         return None
 
     def get_mobile_dark_image(self):
@@ -2088,8 +2090,8 @@ class BlockArticleValue(blocks.StructValue):
         image_override = self.get("overrides").get("image")
         if image := image_override.get("settings").get("dark_mode_mobile_image"):
             return image
-        if article_page and article_page.image_dark_mode_mobile:
-            return article_page.image_dark_mode_mobile
+        if article_page:
+            return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
 
@@ -2098,7 +2100,6 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     topic = blocks.CharBlock(required=False)
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-    tags = blocks.ListBlock(blocks.CharBlock(), default=[])
 
 
 class BlogArticleBlock(blocks.StructBlock):
@@ -2114,38 +2115,109 @@ class BlogArticleBlock(blocks.StructBlock):
         value_class = BlockArticleValue
 
 
-class BlogCardsListBlock(blocks.StructBlock):
-    """A titled list of blog article cards."""
+class BlogRelatedArticleBlock(blocks.StructBlock):
+    """Picks a blog article."""
+
+    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+
+    class Meta:
+        label = "Blog Article"
+        label_format = "{article}"
+        icon = "doc-full"
+        value_class = BlockArticleValue
+
+
+class BlogArticleSectionValue(blocks.StructValue):
+    """A section whose articles the index page resolves before rendering."""
+
+    def get_articles(self):
+        return getattr(self, "_articles", [])
+
+    def get_link_url(self):
+        return getattr(self, "_link_url", "")
+
+
+class BlogCardsListSourceBlock(blocks.StreamBlock):
+    """Exactly one of topic or tag.
+
+    A single-child StreamBlock enforces that structurally, so the parent needs no
+    clean()."""
+
+    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+
+    class Meta:
+        min_num = 1
+        max_num = 1
+
+
+class BlogLatestArticlesBlock(blocks.StructBlock):
+    """A titled grid of the newest articles."""
 
     heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    count = blocks.IntegerBlock(min_value=2, max_value=8, default=4)
     link_label = blocks.CharBlock(default="View all")
-    link_filter = blocks.CharBlock(
-        required=False,
-        help_text="Query parameters to filter the list. Ex: '?topic=privacy&page=2'. If not set, the link defaults to the full list.",
-    )
-    articles = blocks.ListBlock(BlogArticleBlock(), max_num=4)
+
+    class Meta:
+        label = "Latest Articles"
+        icon = "time"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
+
+    def get_source(self, value):
+        """The latest section draws from every article, so it has no source."""
+        return None
+
+    def filter_articles(self, queryset, value):
+        return queryset.order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """Nothing is exempt: the latest section has no source of its own."""
+        return set(), set()
+
+
+class BlogCardsListBlock(blocks.StructBlock):
+    """A titled grid of articles drawn from one topic or tag."""
+
+    heading_text = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES)
+    source = BlogCardsListSourceBlock()
+    count = blocks.IntegerBlock(min_value=2, max_value=4, default=4)
+    link_label = blocks.CharBlock(default="View all")
 
     class Meta:
         label = "Blog Cards List"
-        label_format = "{heading}"
         icon = "list-ul"
+        template = "cms/blocks/blog-article-section.html"
+        value_class = BlogArticleSectionValue
 
-    def clean_list_filter(self, value: str) -> str:
-        if not value:
-            return value
-        value = value.strip()
-        if not value.startswith("?"):
-            raise ValidationError(_("Query string must start with '?'. Example: '?topic=privacy'"))
-        query_part = value[1:]
-        if not query_part:
-            raise ValidationError(_("Query string must contain at least one parameter."))
-        try:
-            pairs = parse_qsl(query_part, strict_parsing=True)
-        except ValueError as exc:
-            raise ValidationError(_("Invalid query string: %(error)s") % {"error": exc}) from exc
-        if not pairs:
-            raise ValidationError(_("Query string must contain at least one key=value parameter."))
-        return value
+    def get_source(self, value):
+        """The topic or tag this section draws from, or None when it no longer resolves.
+
+        min_num is enforced only while the editor form is being cleaned, and a chooser
+        reads a snippet that has since been deleted as None, so stored data can be
+        rendered with an empty source."""
+        source = value["source"][0] if value["source"] else None
+        return source if source and source.value else None
+
+    def filter_articles(self, queryset, value):
+        source = self.get_source(value)
+        if source is None:
+            return queryset.none()
+        if source.block_type == "topic":
+            return queryset.filter(topic__translation_key=source.value.translation_key).order_by("-first_published_at")
+        return queryset.filter(tags__slug=source.value.slug).order_by("-first_published_at")
+
+    def get_exempt_exclusions(self, value):
+        """The exclusion this section may override: the source it renders.
+
+        Pointing a section at an excluded topic or tag surfaces it here on purpose.
+        Articles excluded for any other reason still drop out."""
+        source = self.get_source(value)
+        if source is None:
+            return set(), set()
+        if source.block_type == "topic":
+            return {source.value.translation_key}, set()
+        return set(), {source.value.translation_key}
 
 
 # Cards

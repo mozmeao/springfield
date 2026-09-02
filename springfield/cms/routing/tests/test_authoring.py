@@ -1,0 +1,440 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""Admin authoring round-trip for the User Routing tab.
+
+Every other routing test builds rules through the ORM; this one drives the real
+Wagtail page edit form — the nested ``routing_rules`` → ``conditions`` InlinePanel
+formsets — so the authoring path (formset wiring + save-time ``clean()``) is exercised
+end to end. Uses the ``admin_client`` fixture (routing ``conftest.py``): a naive
+``force_login`` 302s to Auth0 on CI, so the fixture's ``override_settings`` is required.
+"""
+
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+
+import pytest
+from wagtail.models import Site
+from wagtail.test.utils.form_data import (
+    inline_formset,
+    nested_form_data,
+    rich_text,
+    streamfield,
+)
+
+from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
+from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
+
+pytestmark = [pytest.mark.django_db]
+
+
+@pytest.fixture
+def wnp():
+    """A canonical WhatsNewPage2026 (direct child of the index) with a valid target."""
+    site_root = Site.objects.get(is_default_site=True).root_page
+    index = WhatsNewIndexPageFactory(parent=site_root, slug="whatsnew")
+    canonical = WhatsNewPage2026Factory(parent=index, slug="wnp-200", version="200", live=True)
+    target = WhatsNewPage2026Factory(parent=canonical, slug="wnp-200-variant", version="200", live=True)
+    return canonical, target
+
+
+def _edit_post_data(canonical, rules_formset, publish=True):
+    """A complete WNP edit POST with the given routing_rules formset.
+
+    Publishes by default, so the edited cluster is written to the live child tables (a draft
+    save would only stash it in a revision). Pass ``publish=False`` for **Save draft**, which
+    is Wagtail's primary button and therefore the more common author action.
+    """
+    # RoutingPageForm auto-creates the kill-switch record for canonical pages, so a real
+    # edit POST carries it back as an existing form (INITIAL_FORMS=1). Mirror that here.
+    config, _ = RoutingConfig.objects.get_or_create(page=canonical)
+    data = {
+        "title": canonical.title,
+        "slug": canonical.slug,
+        "internal_title": "",
+        "version": canonical.version,
+        # Required by PreFooterImageMixin; the form has no implicit default on POST.
+        "pre_footer_image": "kit",
+        "upper_content": streamfield([]),
+        "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
+        "routing_rules": rules_formset,
+        "routing_config": inline_formset([{"id": config.pk, "routing_paused": ""}], initial=1),
+    }
+    if publish:
+        data["action-publish"] = "action-publish"
+    return nested_form_data(data)
+
+
+def _rules_resubmitted_unchanged(page):
+    """The routing_rules formset a browser posts back when the author touches nothing.
+
+    The target chooser renders a hidden input holding the stored page id, so resubmitting
+    that id is what "left the field alone" looks like on the wire.
+    """
+    forms = []
+    for rule in page.routing_rules.all():
+        conditions = [
+            {
+                "id": condition.pk,
+                "signal": condition.signal,
+                "operator": condition.operator,
+                "expected_value": condition.expected_value,
+            }
+            for condition in rule.conditions.all()
+        ]
+        forms.append(
+            {
+                "id": rule.pk,
+                "name": rule.name,
+                "match_all": "on" if rule.match_all else "",
+                "target": str(rule.target_id),
+                "conditions": inline_formset(conditions, initial=len(conditions)),
+            }
+        )
+    return inline_formset(forms, initial=len(forms))
+
+
+def _routing_errors(response):
+    """Routing formset errors from a rejected save, for a useful assertion message."""
+    form = response.context.get("form") if response.context else None
+    formset = getattr(form, "formsets", {}).get("routing_rules") if form else None
+    return f"routing_rules errors: {formset.errors}" if formset else "no form in response"
+
+
+def _edit_url(page):
+    return reverse("wagtailadmin_pages:edit", args=[page.id])
+
+
+def test_authoring_a_rule_with_a_condition_round_trips(admin_client, wnp):
+    canonical, target = wnp
+    rules = inline_formset(
+        [
+            {
+                "name": "Windows users",
+                "match_all": "",
+                "target": target.pk,
+                "conditions": inline_formset([{"signal": "platform", "operator": "is", "expected_value": "windows"}]),
+            }
+        ]
+    )
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 302  # a successful save redirects
+
+    rule = RoutingRule.objects.get(page=canonical)
+    assert rule.name == "Windows users"
+    assert rule.target_id == target.pk
+    condition = RoutingCondition.objects.get(rule=rule)
+    assert (condition.signal, condition.operator, condition.expected_value) == ("platform", "is", "windows")
+
+
+def test_authoring_a_match_all_rule_round_trips(admin_client, wnp):
+    canonical, target = wnp
+    rules = inline_formset([{"name": "Everyone", "match_all": "on", "target": target.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 302
+
+    rule = RoutingRule.objects.get(page=canonical)
+    assert rule.match_all is True
+    assert rule.conditions.count() == 0
+
+
+def test_authoring_an_empty_non_match_all_rule_is_rejected(admin_client, wnp):
+    # The condition floor must fire through the real formset, not just the ORM: a
+    # rule with no conditions and match_all off is invalid and nothing is persisted.
+    canonical, target = wnp
+    rules = inline_formset([{"name": "Oops", "match_all": "", "target": target.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    # A failed floor check re-renders the form (200) with the specific error, and no
+    # rule is written. (Asserting the message guards against a false pass from some
+    # unrelated form error.)
+    assert response.status_code == 200
+    assert "Add at least one condition" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+# ---------------------------------------------------------------------------
+# Kill switch + non-canonical saves.
+# ---------------------------------------------------------------------------
+
+
+def test_kill_switch_checkbox_always_renders_on_canonical(admin_client, wnp):
+    # The pause checkbox is always present (no "Add" step), nested under the Options group.
+    canonical, _target = wnp
+    html = admin_client.get(_edit_url(canonical)).content.decode("utf-8")
+    assert 'name="routing_config-0-routing_paused"' in html
+    assert "Options" in html  # the options group heading
+    assert "Kill switch" in html
+
+
+# ---------------------------------------------------------------------------
+# Translating a page copies its rules, and the copies keep pointing at the source
+# locale's target. Saving such a page must not report that as the author's mistake:
+# the target is resolved per-locale when the page is served.
+# ---------------------------------------------------------------------------
+
+
+def test_a_translated_page_with_copied_rules_saves_and_publishes(admin_client, translated_wnp):
+    # The common authoring flow — translate strings, then publish — with the routing tab
+    # untouched. Both buttons must go through.
+    page = translated_wnp.de_canonical
+    assert page.routing_rules.first().target_id == translated_wnp.variant.pk  # still the English one
+
+    draft = admin_client.post(_edit_url(page), _edit_post_data(page, _rules_resubmitted_unchanged(page), publish=False))
+    assert draft.status_code == 302, _routing_errors(draft)
+
+    published = admin_client.post(_edit_url(page), _edit_post_data(page, _rules_resubmitted_unchanged(page)))
+    assert published.status_code == 302, _routing_errors(published)
+
+    # The stored target is left exactly as it was; nothing "repaired" it behind the author.
+    page.routing_rules.first().refresh_from_db()
+    assert page.routing_rules.first().target_id == translated_wnp.variant.pk
+
+
+def test_editing_a_rules_other_fields_does_not_implicate_its_target(admin_client, translated_wnp):
+    # The subtle one: the target is unresolvable here (no German variant yet), and the author
+    # renames the rule and ticks match-all. Touching the rule must not be read as touching the
+    # target they never went near.
+    translated_wnp.de_variant.delete()
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "Renamed by the translator", "match_all": "on", "target": str(rule.target_id), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    rule.refresh_from_db()
+    assert rule.name == "Renamed by the translator"
+
+
+def test_repointing_a_rule_at_a_page_missing_from_this_locale_is_rejected(admin_client, translated_wnp):
+    # Now the author *does* choose it, so it is their mistake to fix: this target could never
+    # route anyone from this page.
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    # An English-only page: never translated, so it has no German version to route to.
+    english_only = WhatsNewPage2026Factory(parent=translated_wnp.canonical, slug="146-b", version="146", live=True)
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "", "match_all": "on", "target": str(english_only.pk), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 200
+    assert "no version in this page" in response.content.decode("utf-8")
+    rule.refresh_from_db()
+    assert rule.target_id == translated_wnp.variant.pk  # unchanged
+
+
+def test_repointing_a_rule_at_a_variant_in_this_locale_succeeds(admin_client, translated_wnp):
+    page = translated_wnp.de_canonical
+    rule = page.routing_rules.first()
+    rules = inline_formset(
+        [{"id": rule.pk, "name": "", "match_all": "on", "target": str(translated_wnp.de_variant.pk), "conditions": inline_formset([])}],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    rule.refresh_from_db()
+    assert rule.target_id == translated_wnp.de_variant.pk
+
+
+def test_adding_a_rule_targeting_a_variant_in_this_locale_succeeds(admin_client, translated_wnp):
+    page = translated_wnp.de_canonical
+    existing = page.routing_rules.first()
+    rules = inline_formset(
+        [
+            {"id": existing.pk, "name": "", "match_all": "on", "target": str(existing.target_id), "conditions": inline_formset([])},
+            {"name": "New German rule", "match_all": "on", "target": str(translated_wnp.de_variant.pk), "conditions": inline_formset([])},
+        ],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    assert page.routing_rules.filter(name="New German rule").exists()
+
+
+def test_adding_a_rule_targeting_a_page_missing_from_this_locale_is_rejected(admin_client, translated_wnp):
+    # A new rule's target is always "just chosen", so an unresolvable one is rejected — while
+    # the untouched copied rule alongside it, unresolvable for the same reason, is left alone.
+    translated_wnp.de_variant.delete()
+    page = translated_wnp.de_canonical
+    existing = page.routing_rules.first()
+    rules = inline_formset(
+        [
+            {"id": existing.pk, "name": "", "match_all": "on", "target": str(existing.target_id), "conditions": inline_formset([])},
+            {"name": "Points at English", "match_all": "on", "target": str(translated_wnp.variant.pk), "conditions": inline_formset([])},
+        ],
+        initial=1,
+    )
+
+    response = admin_client.post(_edit_url(page), _edit_post_data(page, rules))
+    assert response.status_code == 200
+    assert "no version in this page" in response.content.decode("utf-8")
+    assert not page.routing_rules.filter(name="Points at English").exists()
+
+
+def test_a_same_locale_target_outside_the_page_is_still_rejected(translated_wnp):
+    # The locale-aware resolution must not become a way to smuggle a bad target past the
+    # model guard: within one locale, the descendant rule still holds.
+    rule = RoutingRule(page=translated_wnp.de_canonical, target=translated_wnp.de_index, match_all=True)
+    with pytest.raises(ValidationError) as exc:
+        rule.full_clean()
+    assert "must be a descendant" in str(exc.value)
+
+
+def test_the_editor_says_conditions_are_ignored_on_a_match_all_rule(admin_client, wnp):
+    # The serializer drops conditions from a match-all rule, so the author has to be told —
+    # once next to the checkbox they tick, and once on the panel holding the conditions the
+    # decision affects. Both are server-rendered and translated; the dimming is only the
+    # live state on top of them.
+    canonical, _target = wnp
+    html = admin_client.get(_edit_url(canonical)).content.decode("utf-8")
+    assert "ignored while this is ticked" in html
+    assert "Ignored while" in html
+
+
+def _content_only_post_data(page):
+    """An edit POST with no routing formsets — as a non-canonical page's hidden tab sends."""
+    return nested_form_data(
+        {
+            "title": page.title,
+            "slug": page.slug,
+            "internal_title": "",
+            "version": page.version,
+            "pre_footer_image": "kit",
+            "upper_content": streamfield([]),
+            "content": streamfield([("rich_text", rich_text("<p>Hello</p>"))]),
+            "action-publish": "action-publish",
+        }
+    )
+
+
+def test_non_canonical_page_saves_without_routing_formsets(admin_client, wnp):
+    # The target is a nested variant → non-canonical, so its routing tab (and the
+    # min_num=1 kill switch) is hidden and omitted from the POST. The page must still
+    # save; the routing formsets are excluded from validation, not forced.
+    _canonical, variant = wnp
+    assert variant.is_routing_canonical() is False
+
+    response = admin_client.post(_edit_url(variant), _content_only_post_data(variant))
+    assert response.status_code == 302
+    # min_num=1 did not force a RoutingConfig onto the non-canonical page.
+    assert not RoutingConfig.objects.filter(page=variant).exists()
+
+
+# ---------------------------------------------------------------------------
+# Target guards enforced admin-side.
+# ---------------------------------------------------------------------------
+
+
+def test_self_target_rule_is_rejected_in_admin(admin_client, wnp):
+    canonical, _target = wnp
+    rules = inline_formset([{"name": "Self", "match_all": "on", "target": canonical.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "cannot target its own page" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+# ---------------------------------------------------------------------------
+# The arming param is not offerable as a condition signal.
+# ---------------------------------------------------------------------------
+
+
+def _offered_signals(form):
+    """The signal names a condition form's dropdown actually offers."""
+    names = []
+    for value, label in form.fields["signal"].widget.choices:
+        if isinstance(label, (list, tuple)):
+            names.extend(option[0] for option in label)
+        else:
+            names.append(value)
+    return names
+
+
+def _condition_forms(page_form):
+    """Every condition form on the page form, including the add-a-row templates."""
+    rules = page_form.formsets["routing_rules"]
+    for rule_form in [*rules.forms, rules.empty_form]:
+        conditions = rule_form.formsets["conditions"]
+        yield from [*conditions.forms, conditions.empty_form]
+
+
+def test_arming_param_is_not_offered_as_a_condition_signal(admin_client, wnp):
+    # WNP arms on ?utm_source=update, so the resolver only ever runs with utm_source
+    # already at that value — a condition testing it could never do anything useful.
+    # empty_form is covered too: it's the template Wagtail clones for "Add condition".
+    canonical, _target = wnp
+    page_form = admin_client.get(_edit_url(canonical)).context["form"]
+
+    forms = list(_condition_forms(page_form))
+    assert forms, "expected at least the add-a-row template"
+    for form in forms:
+        offered = _offered_signals(form)
+        assert "utm_source" not in offered, "the arming param must not be offerable"
+        # Only the arming param is withheld — everything else stays available.
+        assert {"country", "utm_medium", "utm_campaign", "firefox_version"} <= set(offered)
+
+
+def test_posting_the_arming_param_as_a_signal_is_rejected(admin_client, wnp):
+    # The narrowed dropdown is presentation only, so the save path has to reject it too:
+    # a hand-crafted POST is refused with an explanatory error and nothing is written.
+    canonical, target = wnp
+    rules = inline_formset(
+        [
+            {
+                "name": "Always true",
+                "match_all": "",
+                "target": target.pk,
+                "conditions": inline_formset([{"signal": "utm_source", "operator": "is", "expected_value": "update"}]),
+            }
+        ]
+    )
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "always matches" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_other_url_signals_are_still_authorable(admin_client, wnp):
+    # Only the arming param is withheld. Geo and the other utm signals stay usable —
+    # guards against the exclusion widening to the whole URL source.
+    canonical, target = wnp
+    rules = inline_formset(
+        [
+            {
+                "name": "Germany",
+                "match_all": "",
+                "target": target.pk,
+                "conditions": inline_formset([{"signal": "country", "operator": "is", "expected_value": "DE"}]),
+            }
+        ]
+    )
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 302
+    assert RoutingCondition.objects.get(rule__page=canonical).signal == "country"
+
+
+def test_non_descendant_target_is_rejected_in_admin(admin_client, wnp):
+    canonical, _target = wnp
+    # A sibling canonical (direct child of the index) is a valid WhatsNewPage2026 but
+    # NOT a descendant of `canonical`, so the chooser type-scope wouldn't catch it.
+    index = canonical.get_parent()
+    sibling = WhatsNewPage2026Factory(parent=index, slug="wnp-201", version="201", live=True)
+    rules = inline_formset([{"name": "Sibling", "match_all": "on", "target": sibling.pk, "conditions": inline_formset([])}])
+
+    response = admin_client.post(_edit_url(canonical), _edit_post_data(canonical, rules))
+    assert response.status_code == 200
+    assert "must be a descendant" in response.content.decode("utf-8")
+    assert not RoutingRule.objects.filter(page=canonical).exists()

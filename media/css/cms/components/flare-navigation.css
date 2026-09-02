@@ -141,7 +141,6 @@ html {
 .fl-nav {
     background: var(--fl-theme-background);
     display: none;
-    flex-grow: 1;
 }
 
 .fl-nav a[href^='http']::after {
@@ -494,9 +493,22 @@ html {
         display: none;
     }
 
-    .fl-header:has(.hide-cta-on-desktop),
-    .fl-header:has(.hide-nav-download-on-desktop) {
-        padding-inline-end: 156px;
+    /* Grid keeps the main nav truly centred in the viewport no matter how wide
+       the CTA is (the "Firefox for mobile" pill is wider than the download
+       button, which pushed the old flex layout off-centre) — and it
+       self-corrects when the CTA is hidden, replacing the old fixed
+       padding-inline-end compensation. The bare 1fr outer columns matter: their
+       implicit auto minimum lets a wide CTA grow its own column at narrow
+       viewports, nudging the nav slightly off-centre instead of overflowing
+       into it, with the column-gap as guaranteed breathing room. */
+    .fl-header-inner {
+        column-gap: var(--token-spacing-lg);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+    }
+
+    .fl-header-buttons {
+        justify-self: end;
     }
 
     .fl-menu-category-link a {
@@ -512,7 +524,6 @@ html {
 
     .fl-nav {
         display: flex;
-        flex-grow: 1;
         justify-content: center;
         position: static;
     }

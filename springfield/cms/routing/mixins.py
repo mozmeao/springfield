@@ -212,7 +212,8 @@ class RoutingMixin(models.Model):
 
     # -- Adoption surface: the only two things a consumer declares --
 
-    def get_routing_trigger(self):
+    @classmethod
+    def get_routing_trigger(cls):
         """This surface's trigger — the arming condition under which routing fires.
 
         Default **unset** (``None``): absent a trigger, dispatch never fires and
@@ -235,17 +236,13 @@ class RoutingMixin(models.Model):
         """The query param this surface arms on, if it is also a registry signal.
 
         Derived from the trigger rather than declared separately, so it can never drift
-        from what actually arms the surface. Read from a bare instance because the panels
-        are built per class: a trigger describes the *surface*, so it must not depend on
-        one page's saved state. Returns ``None`` for a surface with no trigger, a
-        non-param trigger, or a param that isn't a signal — in every case there is
-        nothing to withhold.
+        from what actually arms the surface. Returns ``None`` for a surface with no
+        trigger, a non-param trigger, or a param that isn't a signal -- in every case
+        there is nothing to withhold.
         """
-        # The mixin itself is abstract and so can't be instantiated; it also declares no
-        # trigger, so there is nothing to derive until a concrete consumer adopts it.
         if cls._meta.abstract:
             return None
-        trigger = cls().get_routing_trigger()
+        trigger = cls.get_routing_trigger()
         param = getattr(trigger, "param_name", None)
         return param if param in registry else None
 
@@ -349,15 +346,15 @@ class RoutingMixin(models.Model):
         from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
         from springfield.cms.routing.resolver import render_resolver
 
-        # The two database-backed flags are passed unevaluated; decide_routing calls them
-        # only if its precedence reaches them.
+        # The three database-backed flags are passed unevaluated; decide_routing calls
+        # them only if its precedence reaches them.
         decision = decide_routing(
             routing_enabled=True,
             has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
             is_preview_admin=is_preview_request(request) and is_preview_admin(request),
             is_paused=lambda: RoutingConfig.is_paused_for(self),
             trigger_satisfied=self._routing_trigger_satisfied(request),
-            is_canonical=self.is_routing_canonical(),
+            is_canonical=self.is_routing_canonical,
             has_live_rules=self._has_live_routing_rules,
         )
 

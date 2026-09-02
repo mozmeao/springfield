@@ -100,7 +100,7 @@
         max-inline-size: none;
     }
 
-    .fl-page-user-privacy .fl-intro-body .fl-button {
+    .fl-page-user-privacy .fl-intro .fl-body .fl-button {
         margin-block-end: var(--token-spacing-lg);
     }
 

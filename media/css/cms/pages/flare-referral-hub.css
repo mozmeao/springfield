@@ -11,34 +11,27 @@
 
 @layer page {
     /* Custom header */
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx {
+    .fl-referral-hub-page .fl-header-inner {
         background-image: none;
-        inline-size: 209px;
     }
 
-    .fl-referral-hub-page .fl-logo-fx.fl-logo-share-fx > img {
+    .fl-referral-hub-page .fl-header-inner > img {
+        block-size: 38px;
         display: block;
+        inline-size: auto;
         margin: 0;
+        margin-block: 15px 0;
+        margin-inline-start: -5px;
         max-block-size: unset;
-    }
-
-    .fl-referral-hub-page .fl-header:has(.fl-logo-share-fx) {
-        padding: var(--token-spacing-lg);
     }
 
     /* Upper band */
     .fl-referral-hub-page .fl-split-page-upper {
-        background: linear-gradient(
-            0deg,
-            rgba(57, 21, 112, 1) 0%,
-            rgba(46, 14, 91, 1) 28%,
-            var(--token-color-dark-purple) 100%
-        );
         padding-block-end: 0;
     }
 
     .fl-referral-hub-page .fl-showcase-description {
-        margin: auto;
+        margin-inline: auto;
         max-inline-size: 566px;
     }
 
@@ -53,11 +46,6 @@
 
     .fl-referral-hub-page .fl-tabs {
         --tabs-inline-padding: var(--token-spacing-lg);
-    }
-
-    .fl-referral-hub-page .fl-tabs .fl-tab-image {
-        margin-block-end: var(--token-spacing-xl);
-        max-inline-size: 110px;
     }
 
     .fl-referral-hub-page .fl-tabs .fl-tab-heading {
@@ -81,6 +69,10 @@
         font-size: var(--token-font-size-xs);
         margin: 0 auto;
         max-inline-size: 480px;
+    }
+
+    .fl-referral-hub-page .fl-tab-note a:hover {
+        color: var(--fl-theme-color-link);
     }
 
     .fl-referral-hub-page .fl-split-page-upper .fl-showcase {
@@ -118,22 +110,22 @@
         padding-block-start: 0;
     }
 
-    .fl-referral-hub-page .fl-banner-kit {
-        background-image: none;
-    }
-
     .fl-referral-hub-page .fl-split-page-lower > :last-child {
         padding-block-end: 0;
+    }
+
+    /* kit banner */
+    .fl-referral-hub-page .fl-banner.fl-banner-kit span.fl-fx-logo {
+        block-size: 0.7em;
+        inline-size: 0.7em;
+        margin-block: 0 0.1em;
     }
 
     /* Extra band  */
 
     .fl-referral-hub-page .fl-split-page-extra {
-        background: linear-gradient(
-            0deg,
-            rgba(66, 30, 131, 1) 0%,
-            var(--token-color-dark-purple) 100%
-        );
+        border-end-end-radius: var(--fl-theme-main-border-radius);
+        border-end-start-radius: var(--fl-theme-main-border-radius);
         color: var(--fl-theme-color-text);
         margin: 0 auto;
         padding-block: var(--fl-section-v-padding);
@@ -150,6 +142,7 @@
         max-inline-size: var(--token-width-desktop-content-lg);
     }
 
+    .fl-referral-hub-page .fl-split-page-extra .fl-showcase .fl-video,
     .fl-referral-hub-page .fl-split-page-extra .fl-showcase .fl-video img {
         border-radius: var(--token-border-radius-sm);
     }
@@ -163,6 +156,30 @@
             padding: var(--token-layout-2xs) 0 0;
         }
 
+        /* Stack every panel in the same grid cell so the panels container is
+        always as tall as the tallest panel and switching tabs does not resize
+        the card. The inactive panel stays in flow but is hidden from view, the
+        a11y tree and the tab order. Without JS the panels are all shown, so
+        they must stay stacked in normal flow instead. */
+        html:not(.no-js) .fl-referral-hub-page .fl-tabs-panels {
+            display: grid;
+        }
+
+        html:not(.no-js)
+            .fl-referral-hub-page
+            .fl-tabs-panels
+            > [role='tabpanel'] {
+            grid-area: 1 / 1;
+        }
+
+        html:not(.no-js)
+            .fl-referral-hub-page
+            .fl-tabs-panels
+            > [role='tabpanel'].is-hidden {
+            display: block;
+            visibility: hidden;
+        }
+
         .fl-referral-hub-page .fl-tab-note-wrapper {
             border-block-start: 1px solid var(--token-color-medium-purple);
             color: var(--token-color-soft-purple-5);
@@ -171,8 +188,13 @@
             padding: var(--token-spacing-xl) var(--token-layout-xs);
         }
 
+        .fl-referral-hub-page .fl-split-page-extra {
+            border-end-end-radius: var(--section-border-radius);
+            border-end-start-radius: var(--section-border-radius);
+        }
+
         .fl-referral-hub-page .fl-showcase-media {
-            padding-block-end: var(--token-layout-xs);
+            padding-block-end: 0;
         }
 
         .fl-banner-kit-small {

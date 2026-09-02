@@ -798,6 +798,12 @@
     },
     {
       "files": [
+        "js/cms/pages/flare-referral-hub.es6.js"
+      ],
+      "name": "flare-referral-hub"
+    },
+    {
+      "files": [
         "js/cms/easter-egg-logo.es6.js"
       ],
       "name": "easter-egg-logo"

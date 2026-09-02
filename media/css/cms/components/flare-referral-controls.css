@@ -17,6 +17,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--token-spacing-sm);
+    min-inline-size: 100%;
+}
+
+.fl-referral-controls-link {
+    min-inline-size: 100%;
 }
 
 .fl-referral-controls-invite {
@@ -56,13 +61,17 @@
 }
 
 .fl-referral-controls .fl-button.fl-copy-to-clipboard-button {
-    justify-content: space-between;
+    justify-content: center;
+    min-inline-size: 100%;
     padding: var(--token-spacing-sm) var(--token-spacing-xl);
 }
 
-.fl-referral-controls .fl-copy-to-clipboard-label,
-.fl-referral-controls .fl-copy-to-clipboard-label-success {
-    min-inline-size: 101px;
+.fl-referral-controls .fl-button.fl-copy-to-clipboard-button.fl-button:disabled,
+.fl-referral-controls
+    .fl-button.fl-copy-to-clipboard-button.fl-button[disabled] {
+    background-color: var(--token-color-medium-purple);
+    border-color: transparent;
+    color: var(--token-color-white);
 }
 
 .fl-referral-controls-email-and-qr {
@@ -116,6 +125,16 @@
 
 .fl-referral-controls .fl-dialog-content-text {
     padding-block: 0;
+}
+
+@media (--viewport-sm-up) {
+    .fl-referral-options {
+        min-inline-size: unset;
+    }
+
+    .fl-referral-controls-link {
+        min-inline-size: unset;
+    }
 }
 
 @media (--viewport-md-up) {

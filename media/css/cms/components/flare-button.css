@@ -426,15 +426,31 @@ Copy-to-Clipboard Button
     cursor: default;
 }
 
-.fl-copy-to-clipboard-label-success {
-    position: absolute;
+/* A mouse click focuses the button, then the JS disables it and the browser
+   drops focus, flashing the ring. Limit the ring to keyboard focus to avoid the flash. */
+.fl-copy-to-clipboard-button:focus:not(:focus-visible) {
+    outline: none;
 }
 
-/* Used to avoid layout shift when swapping text.
-   Not good for accessibility, so it's used in
-   conjunction with aria-hidden in the JS */
-.opacity-0 {
-    opacity: 0;
+.fl-copy-to-clipboard-button {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+}
+
+.fl-copy-to-clipboard-label,
+.fl-copy-to-clipboard-label-success {
+    grid-area: 1 / 1;
+}
+
+.fl-copy-to-clipboard-icon-default,
+.fl-copy-to-clipboard-icon-success {
+    grid-area: 1 / 2;
+}
+
+/* The inactive state is hidden with `visibility`so it keeps contributing to
+   that sizing */
+.fl-copy-to-clipboard-button .is-hidden {
+    visibility: hidden;
 }
 
 @media (--viewport-sm-up) {

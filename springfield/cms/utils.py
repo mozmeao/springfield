@@ -119,3 +119,19 @@ def get_cms_locales_for_path(request):
         locales = get_locales_for_cms_page(page=page)
 
     return locales
+
+
+def get_cms_environment():
+    """Return a short environment label derived from APP_NAME.
+
+    APP_NAME follows the pattern "springfield-{dev|stage|prod}" in deployed
+    environments; local development produces plain "springfield" (no suffix).
+    """
+    app_name = getattr(settings, "APP_NAME", "springfield")
+    if app_name == "springfield":
+        return "local"
+    if app_name.startswith("springfield-"):
+        suffix = app_name.split("-")[1]
+        if suffix in {"dev", "stage", "prod"}:
+            return suffix
+    return None
