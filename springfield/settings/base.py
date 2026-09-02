@@ -332,7 +332,7 @@ FLUENT_REPO_URL = f"https://github.com/{FLUENT_REPO}"
 FLUENT_REPO_BRANCH = config("FLUENT_REPO_BRANCH", default="main")
 FLUENT_REPO_PATH = DATA_PATH / "www-firefox-l10n"
 # Normally just a bare GitHub token. A legacy "<github username>:<github token>"
-# form is also accepted (see springfield.utils.git.GitRepo._split_auth).
+# form is also accepted.
 FLUENT_REPO_AUTH = config("FLUENT_REPO_AUTH", default="")
 FLUENT_LOCAL_PATH = ROOT_PATH / "l10n"
 FLUENT_L10N_TEAM_REPO = config("FLUENT_L10N_TEAM_REPO", default="mozilla-l10n/www-firefox-l10n")
@@ -1149,8 +1149,8 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # event raised during such a request, not just ones we capture deliberately.
     "ref_key",
     "invitation",
-    # GIT_CONFIG_VALUE_0 (springfield.utils.git.GitRepo.auth_env) carries a
-    # base64-encoded git credential in an AUTHORIZATION header value. The
+    # GIT_CONFIG_VALUE_0 carries a base64-encoded git credential in an
+    # AUTHORIZATION header value, set as a git subprocess env var. The
     # default "token" blocklist entry doesn't match this key name, and it
     # can appear as a stack-frame local on a failed git subprocess call.
     "git_config_value",

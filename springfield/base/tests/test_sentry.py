@@ -126,9 +126,9 @@ def test_pre_sentry_sanitisation(shared_datadir):
 
 
 def test_pre_sentry_sanitisation_git_config_value(shared_datadir):
-    # GIT_CONFIG_VALUE_0 (springfield.utils.git.GitRepo.auth_env) is a
-    # subprocess-env/stack-frame local, never an HTTP request field, so it's
-    # only realistic to exercise via the exception stacktrace path - unlike
+    # GIT_CONFIG_VALUE_0 is a subprocess-env/stack-frame local, never an
+    # HTTP request field, so it's only realistic to exercise via the
+    # exception stacktrace path - unlike
     # test_pre_sentry_sanitisation's shared fixtures, which also push every
     # blocklist key through filter_http's synthetic query_string, where
     # sentry_processor's naive key=value splitter mishandles the "="
