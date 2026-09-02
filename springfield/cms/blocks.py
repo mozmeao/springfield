@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -420,12 +421,22 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         help_text="If checked, this block will only be shown when it includes a UI Tour button and "
         "the button matches the UI Tour display conditions.",
     )
+    sample_rate = blocks.DecimalBlock(
+        required=False,
+        max_digits=5,
+        decimal_places=2,
+        min_value=Decimal("0.01"),
+        max_value=Decimal("100"),
+        label="Sample rate (%)",
+        help_text="Show to a random percentage of eligible visitors, e.g. 0.1 for 0.1%. Every "
+        "block with a sample rate on a page must use the same rate.",
+    )
 
     class Meta:
         label = "Conditional Display"
         label_format = (
             "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
-            "AI {ai_controls} - Versions {min_version} to {max_version}"
+            "AI {ai_controls} - Versions {min_version} to {max_version} - Sample {sample_rate}%"
         )
         icon = "view"
         collapsed = True

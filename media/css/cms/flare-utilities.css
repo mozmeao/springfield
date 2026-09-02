@@ -341,3 +341,8 @@ html.other .conditional-display.condition-other-os {
     display: block;
     display: revert;
 }
+
+.in-experiment-sample .conditional-display.condition-sample-rate {
+    display: block;
+    display: revert;
+}

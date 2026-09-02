@@ -393,6 +393,41 @@ context:
         <div class="ui-tour is-hidden">
           <button type="button" class="fl-button ui-tour-open-new-tab">Open New Tab</button>
         </div>
+    - name: "Sample rate: 10% (not in sample)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      ai_controls_condition: null
+      sample_rate: 10
+      html_class:
+      body_class:
+      unconditional_contents: |
+        <p>Nothing is shown above this note: normally <code>flare-sample-rate.es6.js</code> rolls one random
+          number per page load and adds class <code>.in-experiment-sample</code> to <code>&lt;html&gt;</code>
+          for the 10% of visitors it selects. This variant fakes the "not selected" outcome by leaving the
+          class off, so the base <code>.conditional-display { display: none }</code> rule keeps the block hidden.</p>
+      contents: |
+        <p>This paragraph is not displayed because the page was not marked as being in the sample.</p>
+    - name: "Sample rate: 10% (in sample)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      ai_controls_condition: null
+      sample_rate: 10
+      html_class: in-experiment-sample
+      body_class:
+      contents: |
+        <p>Content with class <code>.conditional-display.condition-sample-rate</code> will be displayed
+          if wrapped in class <code>.in-experiment-sample</code>. Every sample-rated block on a page shares
+          the same roll, so they all reveal together for the same visitors.</p>
     - name: "Combo: Windows + Firefox users"
       platform_conditions:
         - windows

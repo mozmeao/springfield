@@ -10,6 +10,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
+from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -192,6 +193,40 @@ def test_get_utm_campaign_uses_stub_value(free_form_page: FreeFormPage2026):
 def test_get_utm_campaign_falls_back_to_slug(free_form_page: FreeFormPage2026):
     page = free_form_page
     assert page.get_utm_campaign() == page.slug
+
+
+# Experiment Sample Rate
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_html_attributes_and_bundle(free_form_page: FreeFormPage2026, rf):
+    """A page with a sample rate gets the data attributes on <html> and loads the
+    sample-rate JS bundle in the head."""
+    page = free_form_page
+    page.content = [make_notification("samp0001", "Sample rate test", make_show_to(sample_rate=10))]
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    html_el = soup.find("html")
+    assert html_el.get("data-experiment-sample-rate") == "10"
+    assert html_el.get("data-experiment-id") == page.slug
+    assert soup.find("script", src=lambda src: src and "flare-sample-rate" in src)
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_not_rendered_without_a_rate(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    html_el = soup.find("html")
+    assert html_el.get("data-experiment-sample-rate") is None
+    assert html_el.get("data-experiment-id") is None
+    assert not soup.find("script", src=lambda src: src and "flare-sample-rate" in src)
 
 
 # Smart Window Page
