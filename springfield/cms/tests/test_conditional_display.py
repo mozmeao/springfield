@@ -44,9 +44,10 @@ def get_conditional_wrappers(element):
     return [el for el in element.parents if "conditional-display" in (el.get("class") or [])]
 
 
-def make_cards_list(sample_rate):
-    """A cards_list block with one card, for exercising sample-rate discovery several
-    levels deep inside a top-level block (cards_list -> card -> settings -> show_to)."""
+def make_cards_list(sample_rates):
+    """A cards_list block with one card per given sample rate, for exercising
+    sample-rate discovery several levels deep inside a top-level block
+    (cards_list -> card -> settings -> show_to), and across multiple such cards."""
     return {
         "type": "cards_list",
         "value": {
@@ -65,6 +66,7 @@ def make_cards_list(sample_rate):
                         "content": [],
                     },
                 }
+                for sample_rate in sample_rates
             ],
         },
     }
@@ -224,7 +226,7 @@ def test_experiment_sample_rate_finds_rate_nested_inside_a_block():
     """experiment_sample_rate finds a rate however deep it is nested — here, a card's
     settings inside a cards list."""
     page = FreeFormPage2026(title="Nested Sample Rate", slug="test-nested-sample-rate")
-    page.content = [make_cards_list(sample_rate=10)]
+    page.content = [make_cards_list(sample_rates=[10])]
     assert page.experiment_sample_rate == Decimal("10")
 
 
@@ -261,3 +263,30 @@ def test_clean_rejects_mismatched_sample_rates_across_streamfields():
     message = exc_info.value.message_dict["upper_content"][0]
     assert "5%: block 1 (intro)" in message
     assert "10%: block 1 (intro)" in message
+
+
+@pytest.mark.django_db
+def test_iter_sample_rated_blocks_deduplicates_repeated_rate_within_one_block():
+    """A single top-level block containing several nested Conditional Display blocks
+    with the same rate (e.g. three cards in one cards list) contributes only one entry,
+    not one per nested occurrence."""
+    page = FreeFormPage2026(title="Repeated Rate In One Block", slug="test-repeated-rate-one-block")
+    page.content = [make_cards_list(sample_rates=[10, 10, 10])]
+    assert list(page.iter_sample_rated_blocks()) == [("content", 0, "cards_list", Decimal("10"))]
+
+
+@pytest.mark.django_db
+def test_clean_error_message_does_not_repeat_a_block_with_several_matching_rates():
+    """A mismatch elsewhere on the page must not multiply-list a block whose own several
+    nested rates already agree with each other."""
+    page = FreeFormPage2026(title="Repeated Rate Mismatch", slug="test-repeated-rate-mismatch")
+    page.content = [
+        make_cards_list(sample_rates=[10, 10, 10]),
+        make_intro("introa1", "Everyone", make_show_to(sample_rate=5)),
+    ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+
+    message = exc_info.value.message_dict["content"][0]
+    assert message.count("cards_list") == 1
