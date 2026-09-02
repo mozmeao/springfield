@@ -1154,6 +1154,11 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     # default "token" blocklist entry doesn't match this key name, and it
     # can appear as a stack-frame local on a failed git subprocess call.
     "git_config_value",
+    # A GitRepo(authentication=...) value is a raw, unencoded credential
+    # (not even base64), and can appear as a plain dict value on a
+    # stack-frame local (e.g. a params dict passed to GitRepo(**params))
+    # on a failed git subprocess call.
+    "authentication",
 ]
 SENTRY_IGNORE_ERRORS = (
     BrokenPipeError,

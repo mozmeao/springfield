@@ -212,12 +212,7 @@ class GitRepo:
         return modified, removed
 
     def _authenticated_git(self, *args):
-        """Run a git command, authenticating via auth_env() if configured.
-
-        Shared by clone()/pull()/push() so the "wrap with auth_env(), only
-        pass environment_overrides if there's actually something to pass"
-        logic lives in one place rather than being repeated at each call site.
-        """
+        """Run a git command, authenticating via auth_env() if configured."""
         with self.auth_env() as environment_overrides:
             git_options = {"environment_overrides": environment_overrides} if environment_overrides else {}
             return self.git(*args, **git_options)

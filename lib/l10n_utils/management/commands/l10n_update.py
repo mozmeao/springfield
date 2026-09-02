@@ -13,7 +13,6 @@ FLUENT_L10N_UPDATE_PARAMS = {
         path=settings.FLUENT_REPO_PATH,
         remote_url=settings.FLUENT_REPO_URL,
         branch_name=settings.FLUENT_REPO_BRANCH,
-        authentication=settings.FLUENT_REPO_AUTH or None,
     ),
 }
 
@@ -35,7 +34,7 @@ class Command(BaseCommand):
 
     def update_fluent_files(self, clean=False):
         for site, params in FLUENT_L10N_UPDATE_PARAMS.items():
-            repo = GitRepo(**params)
+            repo = GitRepo(**params, authentication=settings.FLUENT_REPO_AUTH or None)
             if clean:
                 repo.reclone()
             else:
