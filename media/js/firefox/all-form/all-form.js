@@ -281,130 +281,6 @@ const DOWNLOAD_OPTION_GROUPS = {
     [DOWNLOAD_OPTION.MICROSOFT_STORE]: GROUP.DOWNLOAD
 };
 
-const SUPPORT_LINK = {
-    RELEASE_NOTES: 'release-notes',
-    SYSTEM_REQUIREMENTS: 'system-requirements',
-    PRIVACY: 'privacy'
-};
-
-// ---------------------------------------------------------------------------
-// Temporary: state debugging and timing
-//
-// TODO: remove this section, its call sites, and the `label`/`name` arguments
-// that only exist to feed it, before this ships.
-//
-// Two independent flags, each settable as a query param (`?debug`, `?measure`,
-// or both) or as localStorage (`allFormDebug`, `allFormMeasure`) to survive
-// reloads. Both are preserved across the history rewrite.
-//
-// `?debug` — a collapsed log line per state change, expanding to the full
-// snapshot and a count of how many times each effect has run. The counts are
-// the quick way to check the graph is as narrow as it looks: changing only the
-// language should leave `render:options` and `sync:release-options` untouched.
-//
-// `?measure` — User Timing marks and measures around every DOM write, under the
-// `all-form:` prefix so they filter cleanly in the Performance panel:
-//
-//     all-form:init             the whole first-paint setup
-//     all-form:update           one input event, start to finish
-//     all-form:effect:<label>   a single effect run
-//
-// Keep them separate when you care about the numbers: `?debug` logging costs
-// more than the work it is reporting on, so measure with `?measure` alone.
-//
-// Either flag exposes `$0.debug` on the element: `.state()`, `.effects()`,
-// `.log()`, `.timings()`, `.clearTimings()`.
-// ---------------------------------------------------------------------------
-
-const DEBUG = hasDebugFlag('debug', 'allFormDebug');
-const MEASURE = hasDebugFlag('measure', 'allFormMeasure');
-
-const MEASURE_PREFIX = 'all-form:';
-
-function hasDebugFlag(param, storageKey) {
-    if (new URLSearchParams(window.location.search).has(param)) return true;
-    try {
-        return Boolean(window.localStorage.getItem(storageKey));
-    } catch {
-        // Storage can be unavailable (private mode, blocked cookies).
-        return false;
-    }
-}
-
-/**
- * Run `fn`, leaving a mark at its start and a measure spanning it.
- *
- * The start mark is cleared once measured so the entry buffer holds only the
- * measures — the timeline recording keeps both either way.
- */
-function measure(name, fn) {
-    if (!MEASURE) return fn();
-
-    const startMark = `${name}:start`;
-    performance.mark(startMark);
-    try {
-        return fn();
-    } finally {
-        performance.measure(name, startMark);
-        performance.clearMarks(startMark);
-    }
-}
-
-/** count / total / mean / max per measure, in ms. */
-function timings() {
-    const stats = new Map();
-
-    for (const entry of performance.getEntriesByType('measure')) {
-        if (!entry.name.startsWith(MEASURE_PREFIX)) continue;
-        const name = entry.name.slice(MEASURE_PREFIX.length);
-        const stat = stats.get(name) ?? { count: 0, total: 0, max: 0 };
-        stat.count += 1;
-        stat.total += entry.duration;
-        stat.max = Math.max(stat.max, entry.duration);
-        stats.set(name, stat);
-    }
-
-    const round = (value) => Math.round(value * 1000) / 1000;
-
-    return Object.fromEntries(
-        Array.from(stats, ([name, { count, total, max }]) => [
-            name,
-            {
-                count,
-                total: round(total),
-                mean: round(total / count),
-                max: round(max)
-            }
-        ]).sort(([, a], [, b]) => b.total - a.total)
-    );
-}
-
-function clearTimings() {
-    for (const entry of performance.getEntriesByType('measure')) {
-        if (entry.name.startsWith(MEASURE_PREFIX))
-            performance.clearMeasures(entry.name);
-    }
-}
-
-/* eslint-disable no-console */
-const DEBUG_STYLE = 'color: #ff6611; font-weight: bold';
-
-function debugLog(message) {
-    console.log(`%c[all-form]%c ${message}`, DEBUG_STYLE, 'color: inherit');
-}
-
-function debugSnapshot(summary, snapshot, effectRuns) {
-    console.groupCollapsed(
-        `%c[all-form]%c ${summary}`,
-        DEBUG_STYLE,
-        'color: inherit'
-    );
-    console.table(snapshot);
-    console.table(effectRuns);
-    console.groupEnd();
-}
-/* eslint-enable no-console */
-
 // ---------------------------------------------------------------------------
 // Element
 // ---------------------------------------------------------------------------
@@ -579,30 +455,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     #disposers = [];
 
-    /** Effect label -> how many times it has run. Debug only. */
-    #effectRuns = new Map();
-
-    /**
-     * Everything worth looking at, in one object. Debug only: it returns a fresh
-     * object so it is dirty on every change, which is fine because nothing
-     * subscribes to it unless DEBUG is on — and computeds are lazy, so with
-     * DEBUG off it is never evaluated at all.
-     */
-    #snapshot = computed(() => ({
-        provenance: this.#provenance.value,
-        view: this.#view.value,
-        os: this.#os.value,
-        release: this.#release.value,
-        language: this.#language.value,
-        platformFamily: this.#platformFamily.value,
-        isMobile: this.#isMobile.value,
-        isCompatible: this.#isCompatible.value,
-        structure: this.#structure.value,
-        downloadHref: this.#downloadHref.value,
-        releaseNotesHref: this.#releaseNotesHref.value,
-        systemRequirementsHref: this.#systemRequirementsHref.value
-    }));
-
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -615,31 +467,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this.#disposers.length = 0;
     }
 
-    /**
-     * Register an effect and keep its disposer so teardown is possible.
-     *
-     * With both debug flags off, `run` is `fn` untouched — no wrapper, no cost.
-     */
-    #effect(fn, label = 'anonymous') {
-        let run = fn;
-
-        // The debug logger is not a DOM update and would only skew the numbers.
-        if (MEASURE && !label.startsWith('debug:')) {
-            const name = `${MEASURE_PREFIX}effect:${label}`;
-            const measured = run;
-            run = () => measure(name, measured);
-        }
-
-        if (DEBUG) {
-            this.#effectRuns.set(label, 0);
-            const counted = run;
-            run = () => {
-                this.#effectRuns.set(label, this.#effectRuns.get(label) + 1);
-                counted();
-            };
-        }
-
-        this.#disposers.push(effect(run));
+    /** Register an effect and keep its disposer so teardown is possible. */
+    #effect(fn) {
+        this.#disposers.push(effect(fn));
     }
 
     handleEvent(event) {
@@ -667,23 +497,21 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
         this.#form = form;
 
-        measure(`${MEASURE_PREFIX}init`, () => {
-            // Seed the machine before anything can rewrite the query string.
-            this.#seedProvenance();
+        // Seed the machine before anything can rewrite the query string.
+        this.#seedProvenance();
 
-            batch(() => {
-                this.#os.value = this.#form.elements.os.value;
-                this.#release.value = this.#form.elements.release.value;
-                this.#language.value = this.#form.elements.language.value;
-            });
-
-            this.#collectElements();
-            this.#removeNoJSReleaseHint();
-            this.#collectReleaseOptions();
-            this.#createDownloadOptions();
-            this.#createSupportLinks();
-            this.#registerEffects();
+        batch(() => {
+            this.#os.value = this.#form.elements.os.value;
+            this.#release.value = this.#form.elements.release.value;
+            this.#language.value = this.#form.elements.language.value;
         });
+
+        this.#collectElements();
+        this.#removeNoJSReleaseHint();
+        this.#collectReleaseOptions();
+        this.#createDownloadOptions();
+        this.#createSupportLinks();
+        this.#registerEffects();
 
         this.#form.addEventListener('submit', this);
         this.#form.addEventListener('input', this);
@@ -895,17 +723,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this.#supportLinksPane.classList.add('c-support-links');
         this.#supportLinksPane.append(
             this.#createSupportLink({
-                key: SUPPORT_LINK.RELEASE_NOTES,
                 label: releaseNotes.label,
                 href: () => this.#releaseNotesHref.value
             }),
             this.#createSupportLink({
-                key: SUPPORT_LINK.SYSTEM_REQUIREMENTS,
                 label: systemRequirements.label,
                 href: () => this.#systemRequirementsHref.value
             }),
             this.#createSupportLink({
-                key: SUPPORT_LINK.PRIVACY,
                 label: privacy.label,
                 href: privacy.url
             })
@@ -921,19 +746,19 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // logo follows the release select itself.
         this.#effect(() => {
             this.dataset.view = this.#view.value;
-        }, 'attr:view');
+        });
         this.#effect(() => {
             this.dataset.provenance = this.#provenance.value;
-        }, 'attr:provenance');
+        });
         this.#effect(() => {
             this.dataset.os = this.#os.value;
-        }, 'attr:os');
+        });
         this.#effect(() => {
             this.dataset.release = this.#release.value;
-        }, 'attr:release');
+        });
         this.#effect(() => {
             this.dataset.language = this.#language.value;
-        }, 'attr:language');
+        });
 
         // Keep the query string in step with what the visitor chose. Gated on
         // an actual edit: a detected platform is a guess, and writing it to the
@@ -945,12 +770,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 release: this.#release.value,
                 language: this.#language.value
             };
-            if (DEBUG) params.debug = '';
-            if (MEASURE) params.measure = '';
             const url = new URL(window.location);
             url.search = new URLSearchParams(params);
             history.replaceState(null, '', url);
-        }, 'sync:url');
+        });
 
         // Which releases the platform can actually offer.
         this.#effect(() => {
@@ -971,13 +794,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
                     option.replaceWith(placeholder);
                 }
             }
-        }, 'sync:release-options');
+        });
 
         // Mobile builds are multi-locale, so the language choice does not apply.
         this.#effect(() => {
             this.#form.elements.language.disabled = this.#isMobile.value;
             this.#languageMessage.hidden = !this.#isMobile.value;
-        }, 'sync:language-field');
+        });
 
         // Compatibility is expressed as a native constraint, so the browser
         // stays the single source of validity and everything downstream —
@@ -988,7 +811,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this.#form.elements.release.setCustomValidity(
                 this.#isCompatible.value ? '' : MESSAGES.releaseUnavailable
             );
-        }, 'sync:validity');
+        });
 
         // The server-rendered error describes the selection the page loaded
         // with. Once the visitor edits, it is stale.
@@ -998,14 +821,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
             if (!serverError) return;
             serverError.remove();
             this.#form.elements.release.removeAttribute('aria-describedby');
-        }, 'clear:server-error');
+        });
 
         this.#effect(() => {
             const view = this.#view.value;
             this.#downloadOptionsPane.hidden = view === VIEW.CONFLICT;
             this.#supportLinksPane.hidden = view !== VIEW.OPTIONS;
             this.#incompatiblePane.hidden = view !== VIEW.CONFLICT;
-        }, 'render:panes');
+        });
 
         // Structure only. Content updates happen in each option's own effects
         // and never reach this far.
@@ -1013,51 +836,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this.#renderDownloadOptions(
                 this.#structure.value ? this.#structure.value.split(' ') : []
             );
-        }, 'render:options');
-
-        this.#registerDebug();
-    }
-
-    /**
-     * Temporary. Registered last so the run counts it prints already include
-     * everything else that ran in the same flush.
-     */
-    #registerDebug() {
-        if (!DEBUG && !MEASURE) return;
-
-        this.debug = {
-            state: () => this.#snapshot.value,
-            effects: () => Object.fromEntries(this.#effectRuns),
-            log: () => this.#logState('manual'),
-            timings,
-            clearTimings
-        };
-
-        debugLog(
-            `${[DEBUG && 'debug', MEASURE && 'measure'].filter(Boolean).join(' + ')} on — ` +
-                'select the <firefox-download-form> element and use ' +
-                '$0.debug.state(), .effects(), .log(), .timings(), .clearTimings()'
-        );
-
-        if (!DEBUG) return;
-
-        // #logState reads the snapshot, which is what subscribes this effect.
-        this.#effect(() => this.#logState('change'), 'debug:log');
-    }
-
-    #logState(reason) {
-        const snapshot = this.#snapshot.value;
-        debugSnapshot(
-            [
-                reason,
-                snapshot.provenance,
-                snapshot.view,
-                `${snapshot.os || '(none)'} / ${snapshot.release} / ${snapshot.language}`,
-                snapshot.structure ? `[${snapshot.structure}]` : '[]'
-            ].join(' · '),
-            snapshot,
-            Object.fromEntries(this.#effectRuns)
-        );
+        });
     }
 
     /**
@@ -1098,20 +877,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
     #handleInput(event) {
         if (!(event.target instanceof HTMLSelectElement)) return;
 
-        // One measure spanning everything a single choice costs: the batched
-        // signal writes, every effect they wake, and the reporting pass.
-        measure(`${MEASURE_PREFIX}update`, () => {
-            batch(() => {
-                this.#send(EVENT.EDIT);
-                this.#os.value = this.#form.elements.os.value;
-                this.#release.value = this.#form.elements.release.value;
-                this.#language.value = this.#form.elements.language.value;
-            });
-
-            // Custom validity has already been synced by the batch above, so
-            // the browser's answer is current by the time we ask for it.
-            this.#report();
+        batch(() => {
+            this.#send(EVENT.EDIT);
+            this.#os.value = this.#form.elements.os.value;
+            this.#release.value = this.#form.elements.release.value;
+            this.#language.value = this.#form.elements.language.value;
         });
+
+        // Custom validity has already been synced by the batch above, so the
+        // browser's answer is current by the time we ask for it.
+        this.#report();
     }
 
     /**
@@ -1269,12 +1044,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const labelSource = this.#bind(label);
         this.#effect(() => {
             text.data = labelSource.value;
-        }, `${name}:label`);
+        });
 
         const hrefSource = this.#bind(href);
         this.#effect(() => {
             link.href = hrefSource.value;
-        }, `${name}:href`);
+        });
 
         if (icon) {
             const iconElement = document.createElement('span');
@@ -1284,7 +1059,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             const iconSource = this.#bind(icon);
             this.#effect(() => {
                 iconElement.className = `fl-icon fl-icon-${iconSource.value}`;
-            }, `${name}:icon`);
+            });
         }
 
         element.append(link);
@@ -1297,24 +1072,24 @@ class FirefoxDownloadFormElement extends HTMLElement {
             const recommendationSource = this.#bind(recommendation);
             this.#effect(() => {
                 recommendationElement.textContent = recommendationSource.value;
-            }, `${name}:recommendation`);
+            });
         }
 
         return element;
     }
 
-    #createSupportLink({ key, label, href } = {}) {
+    #createSupportLink({ label, href } = {}) {
         const element = document.createElement('a');
 
         const labelSource = this.#bind(label);
         this.#effect(() => {
             element.textContent = labelSource.value;
-        }, `link:${key}:label`);
+        });
 
         const hrefSource = this.#bind(href);
         this.#effect(() => {
             element.href = hrefSource.value;
-        }, `link:${key}:href`);
+        });
 
         return element;
     }
