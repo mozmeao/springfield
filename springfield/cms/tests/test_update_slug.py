@@ -7,10 +7,15 @@ from django.db import transaction
 
 import pytest
 from wagtail.contrib.redirects.models import Redirect
-from wagtail.models import Locale
+from wagtail.models import Locale, Page
 from wagtail_localize.operations import translate_object
 
-from springfield.cms.slug_updates import automatic_redirect_creation_disabled, find_sibling_with_slug, page_with_translations
+from springfield.cms.slug_updates import (
+    automatic_redirect_creation_disabled,
+    find_sibling_with_slug,
+    page_with_translations,
+    rename_page_and_translations,
+)
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 
@@ -153,3 +158,63 @@ def test_page_with_translations_excludes_alias_translations(replacement_page, fr
     assert alias.alias_of_id == replacement_page.pk
 
     assert [page.pk for page in page_with_translations(replacement_page)] == [replacement_page.pk]
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_sets_the_new_slug_on_the_page(replacement_page):
+    rename_page_and_translations(replacement_page, "thing")
+
+    assert Page.objects.get(pk=replacement_page.pk).slug == "thing"
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_sets_the_new_slug_on_each_translation(replacement_page, french_locale):
+    translate_object(replacement_page, [french_locale])
+    translation = replacement_page.get_translation(french_locale)
+
+    rename_page_and_translations(replacement_page, "thing")
+
+    assert Page.objects.get(pk=translation.pk).slug == "thing"
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_keeps_a_draft_revision_in_step(replacement_page):
+    """A page with unpublished changes stores its own copy of the slug in its latest
+    revision. Left alone, the editor's next publish would revert the rename."""
+    rename_page_and_translations(replacement_page, "thing")
+
+    Page.objects.get(pk=replacement_page.pk).get_latest_revision().publish()
+
+    assert Page.objects.get(pk=replacement_page.pk).slug == "thing"
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_keeps_an_already_published_revision_in_step(outgoing_page):
+    """The same hazard on a live page carrying no draft: publishing it as part of the
+    rename must not restore the slug held by the revision published before it."""
+    outgoing_page.save_revision().publish()
+    # Re-fetch: publishing updates the database, not the instance held here, and a
+    # stale instance would misreport whether the page carries a draft.
+    published_page = Page.objects.get(pk=outgoing_page.pk)
+
+    rename_page_and_translations(published_page, "renamed-thing", publish=True)
+
+    assert Page.objects.get(pk=outgoing_page.pk).slug == "renamed-thing"
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_publishes_the_page_and_its_translations_when_asked(replacement_page, french_locale):
+    translate_object(replacement_page, [french_locale])
+    translation = replacement_page.get_translation(french_locale)
+
+    rename_page_and_translations(replacement_page, "thing", publish=True)
+
+    assert Page.objects.get(pk=replacement_page.pk).live
+    assert Page.objects.get(pk=translation.pk).live
+
+
+@pytest.mark.django_db
+def test_rename_page_and_translations_leaves_an_unpublished_page_unpublished(replacement_page):
+    rename_page_and_translations(replacement_page, "thing")
+
+    assert not Page.objects.get(pk=replacement_page.pk).live
