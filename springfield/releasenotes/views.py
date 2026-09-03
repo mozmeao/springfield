@@ -17,12 +17,14 @@ from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
+    LONG_RN_CACHE_TIMEOUT,
     ProductRelease,
     get_latest_release_or_404,
     get_release,
     get_release_or_404,
     get_releases_or_404,
 )
+from springfield.releasenotes.utils import memoize
 
 SUPPORT_URLS = {
     "Firefox for Android": "https://support.mozilla.org/products/mobile",
@@ -259,14 +261,81 @@ def latest_sysreq(request, product="firefox", platform=None, channel=None):
     return HttpResponseRedirect(url)
 
 
+@memoize(LONG_RN_CACHE_TIMEOUT)
+def get_esr_release_versions():
+    """Return the set of all historical Firefox ESR-channel release versions.
+
+    The version string shape cannot be trusted to tell ESR and Release
+    releases apart: a version string on its own doesn't say which channel
+    shipped it, and the two channels can even share an identical string.
+    channel == "ESR" on the underlying ProductRelease row is the only
+    reliable signal. The first baseline release of an ESR train carries an
+    "esr" suffix (e.g. "140.0esr"); later point releases in that train don't
+    (e.g. "140.1.0") and are indistinguishable by shape from a Release point
+    release.
+    """
+    return set(
+        ProductRelease.objects.filter(product="Firefox", channel="ESR", is_public=True).values_list("version", flat=True),
+    )
+
+
+@memoize(LONG_RN_CACHE_TIMEOUT)
+def get_release_channel_versions():
+    """Return the set of all historical Firefox Release-channel versions.
+
+    Needed alongside get_esr_release_versions() to tell a genuine
+    channel collision (the same version string shipped separately on both
+    Release and ESR) apart from an ordinary ESR-only release:
+    firefox_history_stability_releases mixes Release and ESR point releases
+    together with no channel marker, so membership there alone can't
+    distinguish the two.
+    """
+    return set(
+        ProductRelease.objects.filter(product="Firefox", channel="Release", is_public=True).values_list("version", flat=True),
+    )
+
+
+def normalize_esr_version(version):
+    """Strip the "esr" suffix carried only by ESR baseline releases (e.g.
+    "140.0esr" -> "140.0") so it can be compared/sorted against plain
+    version strings. No-op for every other version string."""
+    return version.removesuffix("esr")
+
+
+def has_valid_version_shape(version):
+    """Some historical release-notes entries have a malformed version
+    (e.g. "128.8..1" -- a real typo in the source data), which would blow up
+    the numeric sort below. Filter those out rather than let one bad entry
+    take down the whole page."""
+    return all(segment.isdigit() for segment in normalize_esr_version(version).split("."))
+
+
 @require_safe
 def releases_index(request, product):
     releases = {}
     major_releases = []
+    minor_releases = {}
+    esr_versions_raw = set()
+    release_versions_raw = set()
 
     if product == "Firefox":
         major_releases = firefox_desktop.firefox_history_major_releases
         minor_releases = firefox_desktop.firefox_history_stability_releases
+        esr_versions_raw = {v for v in get_esr_release_versions() if has_valid_version_shape(v)}
+        release_versions_raw = {v for v in get_release_channel_versions() if has_valid_version_shape(v)}
+
+    esr_versions_normalized = {normalize_esr_version(v) for v in esr_versions_raw}
+    # ESR baseline releases (e.g. "140.0esr") never get their own entry in
+    # firefox_history_major_releases/firefox_history_stability_releases, so
+    # they'd otherwise be unreachable from this page. Surface them as extra
+    # "minor" pills under their matching major version. Compare normalized
+    # forms, not raw strings: some older ESR trains kept the "esr" suffix on
+    # point releases too (e.g. "115.0.2esr"), not just the baseline, and the
+    # unsuffixed "115.0.2" is already a real minor_releases entry that the
+    # main loop below picks up and flags correctly -- injecting the raw
+    # suffixed form as well would just duplicate that same pill.
+    normalized_minor_keys = {normalize_esr_version(x) for x in minor_releases}
+    missing_esr_versions = {v for v in esr_versions_raw if v not in major_releases and normalize_esr_version(v) not in normalized_minor_keys}
 
     for release in major_releases:
         major_version = float(re.findall(r"^\d+\.\d+", release)[0])
@@ -278,11 +347,33 @@ def releases_index(request, product):
         major_pattern = r"^" + re.escape(
             f"{major_version:.0f}." if major_version > 4 and release not in ["33.0", "33.1"] else f"{major_version:.1f}."
         )
+
+        minor_entries = []
+        for x in minor_releases:
+            if not re.findall(major_pattern, x) or x in major_releases:
+                continue
+            is_esr = normalize_esr_version(x) in esr_versions_normalized
+            is_release = x in release_versions_raw
+            # A version string almost always belongs to exactly one channel.
+            # On the rare occasion it was genuinely, separately shipped on
+            # both (e.g. "102.0.1"), show a pill for each rather than
+            # letting one channel silently win. Default to a plain pill
+            # when neither channel's DB data confirms it either way.
+            if is_esr:
+                minor_entries.append((x, True))
+            if is_release or not is_esr:
+                minor_entries.append((x, False))
+
+        minor_entries += [(v, True) for v in missing_esr_versions if re.findall(major_pattern, normalize_esr_version(v))]
+        minor_entries.sort(key=lambda pair: [int(y) for y in normalize_esr_version(pair[0]).split(".")])
+
+        # ESR pills are kept in their own list (rather than one combined
+        # list with a per-item flag) so the template can render them on
+        # their own line instead of interleaved with Release pills.
         releases[major_version] = {
             "major": release,
-            "minor": sorted(
-                [x for x in minor_releases if re.findall(major_pattern, x) if x not in major_releases], key=lambda x: [int(y) for y in x.split(".")]
-            ),
+            "minor": [x for x, is_esr in minor_entries if not is_esr],
+            "minor_esr": [x for x, is_esr in minor_entries if is_esr],
         }
 
     return l10n_utils.render(request, f"{product.lower()}/releases/index.html", {"releases": sorted(releases.items(), reverse=True)})

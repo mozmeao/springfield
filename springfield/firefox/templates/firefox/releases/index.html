@@ -35,12 +35,23 @@
       {% for int_version, versions in releases -%}
       <li>
         <strong>{{ get_flare_link(int_version, versions.major, 'primary') }}</strong>
-        {% if versions.minor -%}
-        <ol class="fl-c-releases-list-minor">
-          {% for version in versions.minor -%}
-          <li>{{ get_flare_link(int_version, version, 'secondary') }}</li>
-          {% endfor -%}
-        </ol>
+        {% if versions.minor or versions.minor_esr -%}
+        <div class="fl-c-releases-list-minor-group">
+          {% if versions.minor -%}
+          <ol class="fl-c-releases-list-minor">
+            {% for version in versions.minor -%}
+            <li>{{ get_flare_link(int_version, version, 'secondary') }}</li>
+            {% endfor -%}
+          </ol>
+          {% endif -%}
+          {% if versions.minor_esr -%}
+          <ol class="fl-c-releases-list-minor fl-c-releases-list-minor-esr">
+            {% for version in versions.minor_esr -%}
+            <li>{{ get_flare_link(int_version, version, 'secondary', true) }}</li>
+            {% endfor -%}
+          </ol>
+          {% endif -%}
+        </div>
         {% endif -%}
       </li>
       {% endfor -%}
@@ -75,11 +86,11 @@
   {%- endif -%}
 {% endmacro %}
 
-{% macro get_flare_link(int_version, version, theme) %}
+{% macro get_flare_link(int_version, version, theme, is_esr=False) %}
   <!-- Add .0 for primary (Major) release text. Link must remain in versions.major format -->
   {%- if int_version < 2 -%}
     <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/releases/{{ version }}.html">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
   {%- else -%}
-    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version.replace('esr', '') }}{% if theme == 'primary' %}.0{% endif %}{% if is_esr %} ESR{% endif %}</a>
   {%- endif -%}
 {% endmacro %}
