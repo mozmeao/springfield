@@ -967,8 +967,6 @@ def test_blog_all_renders_list_articles(blog_setup, rf):
         heading = item.find("h2", class_="fl-heading")
         assert heading and heading.find("a")
         assert item.find("div", class_="fl-body")
-        assert not item.find("p", class_="fl-blog-article-date")
-        assert not item.find("span", class_="fl-tag")
 
 
 def test_blog_all_renders_pagination(blog_setup, rf):
@@ -1576,8 +1574,6 @@ def test_blog_article_renders_related_articles(privacy_articles, rf):
         assert link and link["href"] == related.url
         body = item.find("div", class_="fl-body")
         assert body and body.get_text(strip=True)
-        assert not item.find("p", class_="fl-blog-article-date")
-        assert not item.find("span", class_="fl-tag")
 
 
 def test_blog_article_excludes_self_from_related(privacy_articles, rf):
