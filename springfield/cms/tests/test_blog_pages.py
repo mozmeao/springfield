@@ -604,6 +604,25 @@ def test_each_section_skips_articles_shown_above_it(page_with_every_section):
     assert latest.value.get_articles() == articles[8:]
 
 
+def test_latest_section_must_be_the_last_section(blog_topic):
+    """A latest section above another one would take its articles while still rendering
+    below it, so the field rejects it."""
+    field = BlogIndexPage._meta.get_field("article_sections")
+    sections = [latest_section("00001"), cards_list_section("00002", "topic", blog_topic)]
+
+    with pytest.raises(ValidationError):
+        field.stream_block.clean(field.to_python(sections))
+
+
+def test_latest_section_is_accepted_as_the_last_section(blog_topic):
+    field = BlogIndexPage._meta.get_field("article_sections")
+    sections = [cards_list_section("00001", "topic", blog_topic), latest_section("00002")]
+
+    cleaned = field.stream_block.clean(field.to_python(sections))
+
+    assert [block.block_type for block in cleaned] == ["cards_list", "latest"]
+
+
 def test_a_featured_article_is_not_repeated_by_a_section_on_a_translated_page(translated_blog):
     """featured_articles stores the source-locale page while sections draw from this
     page's own children, so the two only match by translation_key."""
