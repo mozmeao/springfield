@@ -47,10 +47,13 @@
           {% endfor %}
         </div>
         <div class="fl-buttons is-horizontal is-center">
-          <a class="fl-button button-ghost" href="{{ value.get_link_url() }}">
-            {{ value.link_label }}
-            <span class="fl-icon fl-icon-forward" aria-hidden="true"></span>
-          </a>
+          <include:button
+            label="{{ value.link_label }}"
+            link="{{ value.get_link_url() }}"
+            theme_class="button-ghost"
+            icon_name="forward"
+            icon_position="right"
+          />
         </div>
       </div>
     </div>
