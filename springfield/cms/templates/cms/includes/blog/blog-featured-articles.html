@@ -80,12 +80,12 @@
               {% endif %}
 
               <content:heading>
-                <hgroup class="fl-heading-group">
-                  <p class="fl-superheading">{{ block.value.get_topic() }}</p>
-                  <h2 class="fl-heading">
-                    <a href="{{ block.value.get_url() }}" class="fl-link">{{ block.value.get_title() }}</a>
-                  </h2>
-                </hgroup>
+                <include:heading
+                  level="h2"
+                  heading_text="{{ block.value.get_title() }}"
+                  superheading_text="{{ block.value.get_topic() }}"
+                  link="{{ block.value.get_url() }}"
+                />
               </content:heading>
               <content:body>{{ description|richtext }}</content:body>
             </include:blog-article-list-item>

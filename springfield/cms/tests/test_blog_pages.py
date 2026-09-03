@@ -2080,6 +2080,24 @@ def test_blog_list_item_uses_listing_image_without_variants(blog_index, make_art
     assert len(images) == 1, "A dedicated listing image renders alone, with no variant siblings"
 
 
+def test_blog_list_item_without_a_topic_renders_no_superheading(blog_index, make_article, rf):
+    """topic is null in the database even though the admin form requires it, so the
+    heading renders on its own rather than inside an hgroup holding an empty paragraph."""
+    article = make_article(title="No topic here")
+    article.save_revision().publish()
+    BlogArticlePage.objects.filter(pk=article.pk).update(topic=None)
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    assert not item.find("hgroup")
+    assert not item.find("p", class_="fl-superheading")
+    heading = item.find("h2", class_="fl-heading")
+    assert heading and heading.find("a", class_="fl-link").get_text(strip=True) == "No topic here"
+
+
 def test_blog_list_item_falls_back_to_featured_image_with_variants(blog_index, make_article, real_images, rf):
     featured_image, dark_image = real_images
     article = make_article(
