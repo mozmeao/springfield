@@ -86,8 +86,6 @@
 
 .fl-banner-kit-large .fl-heading,
 .fl-banner-kit-large .fl-subheading,
-.fl-banner-kit-face .fl-heading,
-.fl-banner-kit-face .fl-subheading,
 .fl-banner-kit-tail .fl-heading,
 .fl-banner-kit-tail .fl-subheading {
     max-inline-size: min(600px, 100%);
@@ -175,7 +173,8 @@
     max-inline-size: min(500px, 100%);
 }
 
-.fl-banner-kit.align-start-on-desktop .fl-banner-content-inner {
+.fl-banner-kit.align-start-on-desktop:not(.fl-banner-kit-face)
+    .fl-banner-content-inner {
     align-items: start;
     max-inline-size: min(600px, 100%);
 }
@@ -293,7 +292,11 @@
     }
 
     .fl-banner-kit-face {
-        --kit-banner-padding-bottom: 180px;
+        --kit-banner-padding-bottom: 220px;
+    }
+
+    .fl-banner-kit-face .fl-heading {
+        text-align: center;
     }
 
     .fl-banner-kit-tail {
@@ -370,7 +373,7 @@
     }
 
     .fl-banner-kit-face {
-        --kit-img-size: 280px auto;
+        --kit-img-size: 220px auto;
         --kit-img-position: bottom right 18%;
     }
 
