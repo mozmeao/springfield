@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import transaction
 
 import pytest
@@ -15,6 +16,8 @@ from springfield.cms.slug_updates import (
     find_sibling_with_slug,
     page_with_translations,
     rename_page_and_translations,
+    retire_page_and_translations,
+    update_page_slug,
 )
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
@@ -218,3 +221,85 @@ def test_rename_page_and_translations_leaves_an_unpublished_page_unpublished(rep
     rename_page_and_translations(replacement_page, "thing")
 
     assert not Page.objects.get(pk=replacement_page.pk).live
+
+
+@pytest.mark.django_db
+def test_retire_page_and_translations_renames_and_unpublishes_the_page(outgoing_page):
+    retire_page_and_translations(outgoing_page, "thing-old")
+
+    retired = Page.objects.get(pk=outgoing_page.pk)
+    assert retired.slug == "thing-old"
+    assert not retired.live
+
+
+@pytest.mark.django_db
+def test_retire_page_and_translations_renames_and_unpublishes_each_translation(outgoing_page, french_locale):
+    translate_object(outgoing_page, [french_locale])
+    translation = outgoing_page.get_translation(french_locale)
+    translation.save_revision().publish()
+
+    retire_page_and_translations(outgoing_page, "thing-old")
+
+    retired_translation = Page.objects.get(pk=translation.pk)
+    assert retired_translation.slug == "thing-old"
+    assert not retired_translation.live
+
+
+@pytest.mark.django_db
+def test_retire_page_and_translations_keeps_the_revision_in_step(outgoing_page):
+    """An outgoing page carrying a draft would otherwise reclaim the target slug
+    the next time anyone published it."""
+    outgoing_page.save_revision()
+
+    retire_page_and_translations(outgoing_page, "thing-old")
+
+    Page.objects.get(pk=outgoing_page.pk).get_latest_revision().publish()
+
+    assert Page.objects.get(pk=outgoing_page.pk).slug == "thing-old"
+
+
+@pytest.mark.django_db
+def test_update_page_slug_swaps_the_replacement_onto_the_outgoing_slug(replacement_page, outgoing_page, french_locale):
+    translate_object(replacement_page, [french_locale])
+    replacement_translation = replacement_page.get_translation(french_locale)
+
+    update_page_slug(replacement_page, "thing", conflicting_page=outgoing_page, conflicting_page_slug="thing-old")
+
+    assert Page.objects.get(pk=replacement_page.pk).slug == "thing"
+    assert Page.objects.get(pk=replacement_translation.pk).slug == "thing"
+    retired = Page.objects.get(pk=outgoing_page.pk)
+    assert retired.slug == "thing-old"
+    assert not retired.live
+
+
+@pytest.mark.django_db
+def test_update_page_slug_leaves_other_pages_alone_when_nothing_holds_the_slug(replacement_page, outgoing_page):
+    update_page_slug(replacement_page, "unclaimed")
+
+    assert Page.objects.get(pk=replacement_page.pk).slug == "unclaimed"
+    assert Page.objects.get(pk=outgoing_page.pk).slug == "thing"
+
+
+@pytest.mark.django_db
+def test_update_page_slug_rolls_back_completely_when_a_translation_cannot_be_renamed(replacement_page, outgoing_page, parent_page, french_locale):
+    """The failure lands on the outgoing page's translation, after the outgoing page
+    itself has already been renamed and unpublished, so the transaction reverts both
+    changes."""
+    translate_object(outgoing_page, [french_locale])
+    french_parent = parent_page.get_translation(french_locale)
+    SimpleRichTextPageFactory(slug="thing-old", title="Blocker", parent=french_parent, locale=french_locale, live=True)
+
+    with pytest.raises(ValidationError):
+        update_page_slug(replacement_page, "thing", conflicting_page=outgoing_page, conflicting_page_slug="thing-old")
+
+    untouched = Page.objects.get(pk=outgoing_page.pk)
+    assert untouched.slug == "thing"
+    assert untouched.live
+    assert Page.objects.get(pk=replacement_page.pk).slug == "new-thing"
+
+
+@pytest.mark.django_db(transaction=True)
+def test_update_page_slug_creates_no_redirects(replacement_page, outgoing_page):
+    update_page_slug(replacement_page, "thing", conflicting_page=outgoing_page, conflicting_page_slug="thing-old")
+
+    assert not Redirect.objects.exists()

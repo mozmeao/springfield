@@ -6,6 +6,8 @@
 
 from contextlib import contextmanager
 
+from django.db import transaction
+
 from wagtail.contrib.redirects.signal_handlers import autocreate_redirects_on_slug_change
 from wagtail.signals import page_slug_changed
 
@@ -72,3 +74,32 @@ def rename_page_and_translations(page, new_slug, publish=False, user=None):
         set_page_slug(translatable_page, new_slug)
         if publish:
             publish_page(translatable_page, user=user)
+
+
+def retire_page_and_translations(page, new_slug, user=None):
+    """Move ``page`` and its non-alias translations onto ``new_slug`` and unpublish them.
+
+    Renaming is what frees the original slug for the page taking it over; unpublishing
+    is what takes the retired content off the live site. Both are needed — a renamed
+    page left published would carry on serving its content at the new URL.
+    """
+    for translatable_page in page_with_translations(page):
+        set_page_slug(translatable_page, new_slug)
+        if translatable_page.live:
+            translatable_page.unpublish(user=user)
+
+
+def update_page_slug(page, new_slug, conflicting_page=None, conflicting_page_slug=None, publish=False, user=None):
+    """Move ``page`` and its translations onto ``new_slug``, retiring whichever page
+    already holds it.
+
+    The conflicting page is retired first: Wagtail rejects a save that would duplicate
+    a sibling's slug, so the slug has to be freed before the target can take it. The
+    redirect suppression wraps the transaction rather than sitting inside it, because
+    the signal it suppresses is sent on commit — that is, as the atomic block exits.
+    """
+    with automatic_redirect_creation_disabled():
+        with transaction.atomic():
+            if conflicting_page is not None:
+                retire_page_and_translations(conflicting_page, conflicting_page_slug, user=user)
+            rename_page_and_translations(page, new_slug, publish=publish, user=user)
