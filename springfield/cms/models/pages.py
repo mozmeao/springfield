@@ -1650,8 +1650,6 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     @property
     def noindex(self):
-        # Deliberately declared per model rather than on PromotedPageMixin: whether a
-        # promoted page should also be hidden from search is a per-page-type call.
         return self.enable_marketing_attribution
 
     def clean(self):

@@ -743,8 +743,7 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
         for field in stream_fields:
             setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
 
-        # Some page types keep analytics IDs in their own fields, which the StreamField
-        # walk above can't reach.
+        # Some page types keep analytics IDs in their own fields
         for field_name in copied_page.analytics_id_fields:
             setattr(copied_page, field_name, uuid4())
 

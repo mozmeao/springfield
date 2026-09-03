@@ -48,10 +48,6 @@
         margin: 0;
     }
 
-    /* Sits below the button row rather than inside a button, so the shared rule in
-       flare-download-link.css doesn't reach it. Deliberately styled here instead of
-       loading the firefox_marketing_opt_out bundle, whose unlayered rules would
-       outrank every flare layer and force left alignment in RTL locales. */
     .fl-smart-window-instructions-container .marketing-opt-out-checkbox-label {
         align-items: flex-start;
         display: flex;
