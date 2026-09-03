@@ -17,12 +17,14 @@ from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
+    LONG_RN_CACHE_TIMEOUT,
     ProductRelease,
     get_latest_release_or_404,
     get_release,
     get_release_or_404,
     get_releases_or_404,
 )
+from springfield.releasenotes.utils import memoize
 
 SUPPORT_URLS = {
     "Firefox for Android": "https://support.mozilla.org/products/mobile",
@@ -259,6 +261,7 @@ def latest_sysreq(request, product="firefox", platform=None, channel=None):
     return HttpResponseRedirect(url)
 
 
+@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_esr_release_versions():
     """Return the set of all historical Firefox ESR-channel release versions.
 
@@ -276,6 +279,7 @@ def get_esr_release_versions():
     )
 
 
+@memoize(LONG_RN_CACHE_TIMEOUT)
 def get_release_channel_versions():
     """Return the set of all historical Firefox Release-channel versions.
 
