@@ -1444,14 +1444,14 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
 
-    analytics_id_fields = [
+    analytics_id_fields = (
         "nav_button_uid",
         "intro_button_uid",
         "waitlist_submit_uid",
         "nav_download_button_uid",
         "intro_download_button_uid",
         "update_button_uid",
-    ]
+    )
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)

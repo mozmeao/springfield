@@ -149,14 +149,14 @@ def test_copy_form_renders_keep_analytics_ids_checkbox(admin_client):
     assert b"keep_analytics_ids" in response.content
 
 
-SMART_WINDOW_UID_FIELDS = [
+SMART_WINDOW_UID_FIELDS = (
     "nav_button_uid",
     "intro_button_uid",
     "waitlist_submit_uid",
     "nav_download_button_uid",
     "intro_download_button_uid",
     "update_button_uid",
-]
+)
 
 
 def collect_uids(page):

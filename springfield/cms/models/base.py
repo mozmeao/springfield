@@ -62,7 +62,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     # Names of analytics-ID fields held directly on the model. Copying a page regenerates
     # these; see regenerate_analytics_ids_on_copy.
-    analytics_id_fields = []
+    analytics_id_fields: tuple[str, ...] = ()
 
     internal_title = models.CharField(
         max_length=255,
