@@ -313,19 +313,19 @@
 }
 
 /* All-articles & related lists: image always sits on the right. */
-:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
+:is(.fl-page-blog-all, .fl-blog-related-articles)
     .fl-blog-article-list-item-image {
     aspect-ratio: 1 / 1;
     inline-size: 120px;
     order: 2;
 }
 
-:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
+:is(.fl-page-blog-all, .fl-blog-related-articles)
     .fl-blog-article-list-item-content {
     order: 1;
 }
 
-:is(.fl-page-blog-all, .fl-blog-related-articles, .fl-page-blog-topic)
+:is(.fl-page-blog-all, .fl-blog-related-articles)
     .fl-blog-article-list-item-with-image {
     align-items: center;
     grid-template-columns: 1fr auto;
