@@ -1,4 +1,4 @@
-{% extends "wagtailadmin/generic/base.html" %}
+{% extends "wagtailadmin/base.html" %}
 
 {% comment %} SKIP LICENSE INSERTION {% endcomment %}
 {% comment %}
@@ -7,19 +7,26 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 {% endcomment %}
 
-{% load i18n %}
+{% load i18n wagtailadmin_tags %}
 
-{% block main_content %}
-  <p class="help-block help-info">
-    {% blocktrans trimmed with title=page_to_update.get_admin_display_title %}
-      Choose the slug where “{{ title }}” should move to. A confirmation step will show you
-      what the change affects before anything is saved.
-    {% endblocktrans %}
-  </p>
+{% block titletag %}{% blocktrans trimmed with title=page_to_update.get_admin_display_title %}Update slug for {{ title }}{% endblocktrans %}{% endblock %}
 
-  <form action="{% url 'cms_page_update_slug' page_to_update.id %}" method="POST" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="button">{% trans "Continue" %}</button>
-  </form>
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title=_("Update slug") subtitle=page_to_update.get_admin_display_title icon="link" %}
+
+  <div class="nice-padding">
+    <p class="help-block help-info">
+      {% trans "Choose the slug this page should move to. You will be shown what the change affects before anything is saved." %}
+    </p>
+
+    <form action="{% url 'cms_page_update_slug' page_to_update.id %}" method="POST" novalidate>
+      {% csrf_token %}
+
+      <ul class="fields">
+        <li>{% formattedfield form.slug %}</li>
+      </ul>
+
+      <input type="submit" value="{% trans 'Continue' %}" class="button">
+    </form>
+  </div>
 {% endblock %}

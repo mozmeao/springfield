@@ -1,4 +1,4 @@
-{% extends "wagtailadmin/generic/base.html" %}
+{% extends "wagtailadmin/base.html" %}
 
 {% comment %} SKIP LICENSE INSERTION {% endcomment %}
 {% comment %}
@@ -7,34 +7,48 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 {% endcomment %}
 
-{% load i18n %}
+{% load i18n wagtailadmin_tags %}
 
-{% block main_content %}
-  <p class="help-block help-info">
-    {% blocktrans trimmed count counter=translation_count with title=page_to_update.get_admin_display_title slug=new_slug %}
-      “{{ title }}” and its {{ counter }} translation will move to the slug “{{ slug }}”.
-    {% plural %}
-      “{{ title }}” and its {{ counter }} translations will move to the slug “{{ slug }}”.
-    {% endblocktrans %}
-  </p>
+{% block titletag %}{% blocktrans trimmed with title=page_to_update.get_admin_display_title %}Update slug for {{ title }}{% endblocktrans %}{% endblock %}
 
-  {% if conflicting_page %}
-    <p class="help-block help-warning">
-      {% blocktrans trimmed with slug=new_slug %}
-        Another page already uses the slug “{{ slug }}”:
-      {% endblocktrans %}
-      <a href="{% url 'wagtailadmin_pages:edit' conflicting_page.id %}">{{ conflicting_page.get_admin_display_title }}</a>.
-      {% blocktrans trimmed count counter=conflicting_page_translation_count %}
-        It and its {{ counter }} translation will be moved to the slug below and unpublished.
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title=_("Update slug") subtitle=page_to_update.get_admin_display_title icon="link" %}
+
+  <div class="nice-padding">
+    <p class="help-block help-info">
+      {% blocktrans trimmed count counter=translation_count with title=page_to_update.get_admin_display_title slug=new_slug %}
+        “{{ title }}” and its {{ counter }} translation will move to the slug “{{ slug }}”.
       {% plural %}
-        It and its {{ counter }} translations will be moved to the slug below and unpublished.
+        “{{ title }}” and its {{ counter }} translations will move to the slug “{{ slug }}”.
       {% endblocktrans %}
     </p>
-  {% endif %}
 
-  <form action="{% url 'cms_page_update_slug_confirm' page_to_update.id %}" method="POST" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="button">{% trans "Update slug" %}</button>
-  </form>
+    {% if conflicting_page %}
+      <p class="help-block help-warning">
+        {% blocktrans trimmed with slug=new_slug %}
+          Another page already uses the slug “{{ slug }}”:
+        {% endblocktrans %}
+        <a href="{% url 'wagtailadmin_pages:edit' conflicting_page.id %}">{{ conflicting_page.get_admin_display_title }}</a>.
+        {% blocktrans trimmed count counter=conflicting_page_translation_count %}
+          It and its {{ counter }} translation will be moved to the slug below and unpublished.
+        {% plural %}
+          It and its {{ counter }} translations will be moved to the slug below and unpublished.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
+    <form action="{% url 'cms_page_update_slug_confirm' page_to_update.id %}" method="POST" novalidate>
+      {% csrf_token %}
+      {{ form.slug }}
+
+      <ul class="fields">
+        {% if form.conflicting_page_slug %}
+          <li>{% formattedfield form.conflicting_page_slug %}</li>
+        {% endif %}
+        <li>{% formattedfield form.publish %}</li>
+      </ul>
+
+      <input type="submit" value="{% trans 'Update slug' %}" class="button">
+    </form>
+  </div>
 {% endblock %}

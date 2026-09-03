@@ -11,7 +11,6 @@ from django.utils.http import urlencode
 from django.views.generic import FormView
 
 from wagtail.admin import messages
-from wagtail.admin.views.generic.base import WagtailAdminTemplateMixin
 from wagtail.admin.views.pages.listing import IndexView
 from wagtail.admin.views.tags import TAGS_AUTOCOMPLETE_LIMIT
 from wagtail.models import Locale, Page
@@ -53,13 +52,11 @@ def blog_tag_autocomplete(request):
     return JsonResponse(list(names), safe=False)
 
 
-class UpdateSlugView(WagtailAdminTemplateMixin, FormView):
+class UpdateSlugView(FormView):
     """Step one of the update-slug action: choose the slug the page should move to."""
 
     template_name = "wagtailadmin/pages/update_slug.html"
     form_class = UpdateSlugForm
-    page_title = "Update slug"
-    header_icon = "link"
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -77,13 +74,11 @@ class UpdateSlugView(WagtailAdminTemplateMixin, FormView):
         return redirect(f"{confirm_url}?{urlencode({'slug': form.cleaned_data['slug']})}")
 
 
-class UpdateSlugConfirmView(WagtailAdminTemplateMixin, FormView):
+class UpdateSlugConfirmView(FormView):
     """Step two of the update-slug action: show what the change affects, then do it."""
 
     template_name = "wagtailadmin/pages/confirm_update_slug.html"
     form_class = ConfirmUpdateSlugForm
-    page_title = "Update slug"
-    header_icon = "link"
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
