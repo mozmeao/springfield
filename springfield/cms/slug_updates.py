@@ -24,3 +24,18 @@ def automatic_redirect_creation_disabled():
         yield
     finally:
         page_slug_changed.connect(autocreate_redirects_on_slug_change)
+
+
+def find_sibling_with_slug(page, slug):
+    """Return the sibling of ``page`` holding ``slug``, or ``None``"""
+    return page.get_siblings(inclusive=False).filter(slug=slug, locale=page.locale).first()
+
+
+def page_with_translations(page):
+    """Return ``page`` followed by its translations, excluding aliases.
+
+    Aliases are left out because an alias exists to mirror its source; writing a
+    slug onto one directly would desynchronise it from the page it tracks.
+    """
+    translations = page.get_translations().filter(alias_of__isnull=True)
+    return [page, *translations]
