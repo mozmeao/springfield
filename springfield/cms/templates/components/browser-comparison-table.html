@@ -6,11 +6,11 @@
 
 <div
   class="
-    fl-comparison-table-wrapper
+    fl-browser-comparison-table-wrapper
     {% if mobile_behavior %}{{ mobile_behavior }}{% endif %}
   "
 >
-  <table class="fl-comparison-table">
+  <table class="fl-browser-comparison-table">
     <thead>
       {{ contents.header }}
     </thead>
@@ -20,7 +20,7 @@
   </table>
 
   {% if contents.fine_print %}
-    <div class="fl-comparison-table-fine-print">
+    <div class="fl-browser-comparison-table-fine-print">
       {{ contents.fine_print }}
     </div>
   {% endif %}

@@ -9,10 +9,10 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/comparison-table/comparison-table.html`;
+const url = `${patternLibraryURL}/browser-comparison-table/browser-comparison-table.html`;
 
 test.describe(
-    'Comparison Table',
+    'Browser Comparison Table',
     {
         tag: '@visual-regression'
     },
@@ -21,23 +21,8 @@ test.describe(
             await openPage(url, page, browserName);
         });
 
-        test('desktop highlighted', async ({ page }) => {
-            await expectComponentScreenshot(
-                page,
-                'comparison-table-highlighted'
-            );
-        });
-
-        test.describe('mobile scroll', () => {
-            test.use({ viewport: { width: 375, height: 667 } });
-
-            test('highlighted', async ({ page }) => {
-                await expectComponentScreenshot(
-                    page,
-                    'comparison-table-highlighted',
-                    'comparison-table-highlighted-mobile'
-                );
-            });
+        test('desktop', async ({ page }) => {
+            await expectComponentScreenshot(page, 'browser-comparison-table');
         });
 
         test.describe('mobile stacked', () => {
@@ -46,8 +31,8 @@ test.describe(
             test('stacked', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'comparison-table-stacked',
-                    'comparison-table-stacked-mobile'
+                    'browser-comparison-table',
+                    'browser-comparison-table-mobile'
                 );
             });
         });
@@ -55,11 +40,11 @@ test.describe(
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
-            test('desktop highlighted', async ({ page }) => {
+            test('desktop', async ({ page }) => {
                 await expectComponentScreenshot(
                     page,
-                    'comparison-table-highlighted',
-                    'comparison-table-highlighted-dark'
+                    'browser-comparison-table',
+                    'browser-comparison-table-dark'
                 );
             });
         });

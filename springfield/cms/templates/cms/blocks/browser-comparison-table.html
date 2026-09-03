@@ -4,14 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:comparison-table mobile_behavior="{{ value.mobile_behavior }}">
+<include:browser-comparison-table mobile_behavior="{{ value.mobile_behavior }}">
   <content:header>
     {% for header_row in value.header_row %}
       <tr>
         {% for cell in header_row.cells %}
-          {% set cell_tag = 'th' if cell.content else 'td' %}
+          {% set is_filled = cell.content or cell.optional_content %}
+          {% set cell_tag = 'th' if is_filled else 'td' %}
           <{{ cell_tag }}
-            {% if cell.content %}
+            {% if is_filled %}
               scope="col"
             {% endif %}
 
@@ -23,7 +24,14 @@
               class="highlighted"
             {% endif %}
           >
-            {{ cell.content }}
+            {# Optional content, when added, replaces the cell's plain text. #}
+            {% if cell.optional_content %}
+              {% for child in cell.optional_content %}
+                {% include_block child %}
+              {% endfor %}
+            {% else %}
+              {{ cell.content }}
+            {% endif %}
           </{{ cell_tag }}>
         {% endfor %}
       </tr>
@@ -34,7 +42,8 @@
     {% for row in value.content_rows %}
       <tr>
         {% for cell in row.cells %}
-          {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
+          {% set is_filled = cell.content or cell.optional_content %}
+          {% set cell_tag = 'th' if loop.first and is_filled else 'td' %}
           <{{ cell_tag }}
             {% if cell_tag == 'th' %}
               scope="row"
@@ -48,7 +57,13 @@
               class="highlighted"
             {% endif %}
           >
-            {{ cell.content }}
+            {% if cell.optional_content %}
+              {% for child in cell.optional_content %}
+                {% include_block child %}
+              {% endfor %}
+            {% else %}
+              {{ cell.content }}
+            {% endif %}
           </{{ cell_tag }}>
         {% endfor %}
       </tr>
@@ -60,4 +75,4 @@
       {{ value.fine_print|richtext }}
     </content:fine_print>
   {% endif %}
-</include:comparison-table>
+</include:browser-comparison-table>
