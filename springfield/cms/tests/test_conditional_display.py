@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 import pytest
 from bs4 import BeautifulSoup
 
+from springfield.cms.blocks import ConditionalDisplayBlock
 from springfield.cms.fixtures.conditional_display_fixtures import (
     get_bind_to_uitour_section,
     get_conditional_display_test_page,
@@ -290,3 +291,14 @@ def test_clean_error_message_does_not_repeat_a_block_with_several_matching_rates
 
     message = exc_info.value.message_dict["content"][0]
     assert message.count("cards_list") == 1
+
+
+def test_conditional_display_block_can_omit_sample_rate():
+    """ConditionalDisplayBlock(include_sample_rate=False) is for usages that aren't a
+    page's own StreamField content (e.g. PencilBannerSnippet), where a sample rate can
+    never be revealed: Page.experiment_sample_rate only looks at sample rates set on the
+    page's own StreamFields, so a rate set anywhere else would render permanently
+    hidden."""
+    block = ConditionalDisplayBlock(include_sample_rate=False)
+    assert "sample_rate" not in block.child_blocks
+    assert "{sample_rate}" not in block.meta.label_format
