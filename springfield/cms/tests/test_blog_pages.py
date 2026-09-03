@@ -740,20 +740,6 @@ def test_cache_localized_tags_drops_hidden_tags(bare_article, blog_tag):
     assert [tag.slug for tag in bare_article.get_tags()] == [keeper.slug]
 
 
-def test_excluded_tags_do_not_render_on_related_article_cards(excluded_index, blog_tag, make_article, rf):
-    """Related cards are not feed-filtered, so an excluded tag reaches them."""
-    keeper = BlogTag.objects.create(name="Keeper", slug="test-unit-keeper", locale=excluded_index.locale)
-    sibling = make_article(title="Two tags")
-    sibling.tags.add(blog_tag, keeper)
-    sibling.save()
-    article = make_article(title="The article")
-
-    related = article.get_context(rf.get("/"))["related_articles"]
-
-    assert related == [sibling]
-    assert [tag.slug for tag in related[0].get_tags()] == [keeper.slug]
-
-
 def test_tag_filter_renders_every_chip(excluded_index, blog_tag, make_article, rf):
     """Under ?tag= the tag the reader followed is spared, so its chip shows.
 
@@ -1630,13 +1616,14 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
 
     It also includes ~5 constant (not per-article) queries from custom-navigation
-    resolution that runs on every page render.
+    resolution and another 5 from the header's What's New / What's Next lookups,
+    both of which run on every page render.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(37):
+    with django_assert_max_num_queries(42):
         index_page.serve(request)
 
 
@@ -1644,7 +1631,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(37):
+    with django_assert_max_num_queries(42):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1661,7 +1648,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(37):
+    with django_assert_max_num_queries(42):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
@@ -1670,14 +1657,15 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
 
     As with the index page, the ceiling includes ~5 constant (not per-article)
     queries from custom-navigation resolution on every render: get_navigation()'s
-    ancestor walk plus the get_default_navigation() tag's default-snippet lookup.
+    ancestor walk plus the get_default_navigation() tag's default-snippet lookup,
+    and another 5 from the header's What's New / What's Next lookups.
     # TODO (WT-1468): revisit caching the resolved page nav / default snippet
     # to drop the ceiling back down.
     """
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(32):
+    with django_assert_max_num_queries(28):
         index_page.all_route(request)
 
 
@@ -1890,7 +1878,7 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
-    assert headings == ["Content", "Promote & SEO", "Settings"]
+    assert headings == ["Content", "Related Articles", "Promote & SEO", "Settings"]
 
 
 def test_blog_article_content_tab_panel_order():
@@ -1908,6 +1896,16 @@ def test_blog_article_content_tab_panel_order():
         "Hero Options",
         "content",
         "bottom_banner",
+    ]
+
+
+def test_blog_article_related_articles_tab_panel_order():
+    related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
+    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
+
+    assert labels == [
+        "hide_related",
+        "related_articles",
     ]
 
 

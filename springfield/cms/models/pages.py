@@ -16,12 +16,13 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import DatabaseError, models
-from django.db.models import Count
+from django.db.models import Case, Count, Exists, OuterRef, Q, Value, When
 from django.db.models.expressions import F
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
@@ -40,6 +41,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.i18n import normalize_language
 from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -48,6 +50,8 @@ from springfield.cms.blocks import (
     BannerBlock,
     BlogArticleBlock,
     BlogArticleSectionsBlock,
+    BlogRelatedArticleBlock,
+    BrowserComparisonTableBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -1065,6 +1069,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("comparison_table", ComparisonTableBlock(group="Main")),
+        ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -1317,8 +1322,12 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .first()
         )
         if latest_whats_new:
-            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        return redirect("/")
+            url = request.build_absolute_uri(latest_whats_new.get_url())
+            if request.GET.get("from_main_nav"):
+                url += "?from_main_nav=true"
+            return redirect(url)
+        active_language = normalize_language(translation.get_language()) or settings.LANGUAGE_CODE
+        return redirect(f"/{active_language}/")
 
 
 class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1411,7 +1420,8 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     # chooser to that type; the descendant guard remains the correctness backstop.
     routing_target_page_types = ["cms.WhatsNewPage2026"]
 
-    def get_routing_trigger(self):
+    @classmethod
+    def get_routing_trigger(cls):
         """Routing arms only on Firefox's just-updated flow (``?utm_source=update``).
 
         Value-matching, not presence: ``utm_source`` doubles as an available URL
@@ -2247,6 +2257,9 @@ class HeroStyle(models.TextChoices):
     VIDEO = "video", "Featured video"
 
 
+MAX_RELATED_ARTICLES = 4
+
+
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
@@ -2355,6 +2368,20 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_num=1,
         help_text="Optional banner to be displayed at the bottom of the article content.",
     )
+    related_articles = StreamField(
+        [("article", BlogRelatedArticleBlock())],
+        max_num=MAX_RELATED_ARTICLES,
+        use_json_field=True,
+        blank=True,
+        help_text=(
+            f"Up to {MAX_RELATED_ARTICLES} related articles shown at the bottom. Remaining empty slots are filled with articles "
+            f"that match by topic and tag, then topic, then tag, up to {MAX_RELATED_ARTICLES}."
+        ),
+    )
+    hide_related = models.BooleanField(
+        default=False,
+        help_text="Hide the Related Articles section on this article.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("description"),
@@ -2400,6 +2427,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("bottom_banner"),
     ]
 
+    related_articles_panels = [
+        FieldPanel("hide_related"),
+        FieldPanel("related_articles"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     # Drops show_in_menus, unused by the CMS
@@ -2418,6 +2450,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
+            ObjectList(related_articles_panels, heading="Related Articles"),
             ObjectList(promote_panels, heading="Promote & SEO"),
             ObjectList(settings_panels, heading="Settings"),
         ]
@@ -2450,20 +2483,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        if self.topic_id:
-            related = (
-                BlogArticlePage.objects.sibling_of(self)
-                .live()
-                .public()
-                .filter(topic=self.topic)
-                .exclude(pk=self.pk)
-                .prefetch_related("tags")
-                .order_by("-first_published_at")[:4]
-            )
+        if not self.hide_related:
+            related = self.get_related_articles()
             context["related_articles"] = list(related)
-            blog_index = self.get_parent().specific
-            # Hidden tags are not displayed on the related articles listing
-            cache_localized_tags(context["related_articles"], blog_index.get_hidden_tag_keys())
         else:
             context["related_articles"] = []
         return context
@@ -2506,6 +2528,55 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             mobile=self.image_mobile,
             dark_mode_mobile=self.image_dark_mode_mobile,
         )
+
+    def get_related_articles(self):
+        """Up to MAX_RELATED_ARTICLES published, publicly-visible articles
+        shown below the article:
+
+        - `related_articles` in their chosen order,
+        - then siblings sharing this article's topic and one of its tags,
+        - then its topic,
+        - then one of its tags.
+
+        Each automatic group is ordered by publication date, descending. No
+        article is shown twice, and an article never shows itself."""
+        related = []
+        related_ids = {self.pk}
+        for block in self.related_articles:
+            article = block.value.get_article()
+            if article is None or not article.live or article.pk in related_ids:
+                continue
+            related.append(article)
+            related_ids.add(article.pk)
+        if related:
+            # Apply potential page view restrictions
+            public_article_ids = set(BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in related]).values_list("pk", flat=True))
+            related = [article for article in related if article.pk in public_article_ids]
+        if len(related) == MAX_RELATED_ARTICLES:
+            return related
+
+        tag_ids = [tag.pk for tag in self.tags.all()]
+        shares_topic = Q(topic_id=self.topic_id) if self.topic_id else Q(topic_id__in=[])
+        shares_tag = Q(carries_a_matching_tag=True)
+        matching_siblings = (
+            BlogArticlePage.objects.sibling_of(self)
+            .live()
+            .public()
+            .exclude(pk__in=related_ids)
+            .annotate(carries_a_matching_tag=Exists(BlogArticlePage.objects.filter(pk=OuterRef("pk"), tags__in=tag_ids)))
+            .filter(shares_topic | shares_tag)
+            .annotate(
+                related_rank=Case(
+                    When(shares_topic & shares_tag, then=Value(0)),
+                    When(shares_topic, then=Value(1)),
+                    default=Value(2),  # `shares_tag`
+                )
+            )
+            .prefetch_related("tags")
+            .order_by("related_rank", "-first_published_at")
+        )
+        related.extend(matching_siblings[: MAX_RELATED_ARTICLES - len(related)])
+        return related
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

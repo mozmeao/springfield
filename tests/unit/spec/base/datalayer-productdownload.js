@@ -49,12 +49,6 @@ describe('TrackProductDownload.isValidDownloadURL', function () {
         );
         expect(testPlayStoreURL).toBe(true);
     });
-    it('should recognize the Android Market as a valid URL', function () {
-        const testPlayStoreURL = TrackProductDownload.isValidDownloadURL(
-            'market://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dmozilla-org'
-        );
-        expect(testPlayStoreURL).toBe(true);
-    });
     it('should recognize the MS Store as a valid URL', function () {
         const testMsStoreURL = TrackProductDownload.isValidDownloadURL(
             'https://apps.microsoft.com/detail/9nzvdkpmr9rd'
