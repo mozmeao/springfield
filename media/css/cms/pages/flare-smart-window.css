@@ -48,6 +48,27 @@
         margin: 0;
     }
 
+    /* Sits below the button row rather than inside a button, so the shared rule in
+       flare-download-link.css doesn't reach it. Deliberately styled here instead of
+       loading the firefox_marketing_opt_out bundle, whose unlayered rules would
+       outrank every flare layer and force left alignment in RTL locales. */
+    .fl-smart-window-instructions-container .marketing-opt-out-checkbox-label {
+        align-items: flex-start;
+        display: flex;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: var(--token-spacing-sm);
+        max-inline-size: 42em;
+        text-align: start;
+    }
+
+    .fl-smart-window-instructions-container
+        .marketing-opt-out-checkbox-label
+        input[type='checkbox'] {
+        block-size: 16px;
+        flex-shrink: 0;
+        inline-size: 16px;
+    }
+
     .fl-smart-window-heading-success {
         display: none;
     }

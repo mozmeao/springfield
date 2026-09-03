@@ -1437,12 +1437,21 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+
+    analytics_id_fields = [
+        "nav_button_uid",
+        "intro_button_uid",
+        "waitlist_submit_uid",
+        "nav_download_button_uid",
+        "intro_download_button_uid",
+        "update_button_uid",
+    ]
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -1610,6 +1619,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    promote_panels = UTMParamsMixin.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -1634,6 +1647,12 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
+
+    @property
+    def noindex(self):
+        # Deliberately declared per model rather than on PromotedPageMixin: whether a
+        # promoted page should also be hidden from search is a per-page-type call.
+        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()

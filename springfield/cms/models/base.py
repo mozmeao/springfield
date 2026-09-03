@@ -60,6 +60,11 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     ftl_files = None
 
+    # Names of analytics-ID fields held directly on the model rather than inside a
+    # StreamField block. Copying a page regenerates these so the copy doesn't report
+    # against its source's IDs; see regenerate_analytics_ids_on_copy.
+    analytics_id_fields = []
+
     internal_title = models.CharField(
         max_length=255,
         blank=True,

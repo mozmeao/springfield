@@ -8,7 +8,8 @@ import pytest
 
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_buttons_test_page
-from springfield.cms.models import FreeFormPage2026
+from springfield.cms.fixtures.smart_window_page_fixtures import get_smart_window_test_page
+from springfield.cms.models import FreeFormPage2026, SimpleRichTextPage, SmartWindowPage
 from springfield.cms.tests.factories import LocaleFactory
 
 pytestmark = [
@@ -146,3 +147,65 @@ def test_copy_form_renders_keep_analytics_ids_checkbox(admin_client):
 
     assert response.status_code == 200
     assert b"keep_analytics_ids" in response.content
+
+
+SMART_WINDOW_UID_FIELDS = [
+    "nav_button_uid",
+    "intro_button_uid",
+    "waitlist_submit_uid",
+    "nav_download_button_uid",
+    "intro_download_button_uid",
+    "update_button_uid",
+]
+
+
+def collect_uids(page):
+    return {name: getattr(page, name) for name in SMART_WINDOW_UID_FIELDS}
+
+
+def test_admin_copy_regenerates_uuid_fields_held_on_the_model(admin_client, placeholder_images):
+    """SmartWindowPage keeps its analytics IDs in model fields rather than StreamField
+    blocks, so copying must regenerate those too."""
+    assert SmartWindowPage.analytics_id_fields == SMART_WINDOW_UID_FIELDS
+
+    page = get_smart_window_test_page()
+    original_uids = collect_uids(page)
+
+    response = copy_via_admin(admin_client, page, new_title="Smart Window Copy", new_slug="smart-window-copy")
+    assert response.status_code == 302
+
+    copied = SmartWindowPage.objects.get(slug="smart-window-copy")
+    copied_uids = collect_uids(copied)
+
+    assert set(copied_uids.values()).isdisjoint(original_uids.values())
+    assert len(set(copied_uids.values())) == len(SMART_WINDOW_UID_FIELDS)
+
+
+def test_admin_copy_keeps_uuid_fields_when_checkbox_checked(admin_client, placeholder_images):
+    page = get_smart_window_test_page()
+    original_uids = collect_uids(page)
+
+    response = copy_via_admin(admin_client, page, new_title="Smart Window Copy", new_slug="smart-window-copy", keep_analytics_ids="on")
+    assert response.status_code == 302
+
+    copied = SmartWindowPage.objects.get(slug="smart-window-copy")
+    assert collect_uids(copied) == original_uids
+
+
+def test_admin_copy_leaves_pages_with_no_analytics_ids_untouched(admin_client):
+    """A page with neither StreamFields nor analytics_id_fields has nothing to regenerate,
+    so the hook must skip it instead of saving and publishing a redundant revision."""
+    parent_page = get_buttons_test_page()
+    plain_page = SimpleRichTextPage(slug="plain-child", title="Plain Child")
+    parent_page.add_child(instance=plain_page)
+    plain_page.save_revision().publish()
+
+    response = copy_via_admin(admin_client, parent_page, copy_subpages="on")
+    assert response.status_code == 302
+
+    copied_parent = FreeFormPage2026.objects.get(slug="buttons-copy")
+    copied_plain = SimpleRichTextPage.objects.get(slug="plain-child", path__startswith=copied_parent.path)
+
+    # The parent has StreamFields, so the hook saves it an extra revision; the plain
+    # child has nothing to regenerate and must not pick one up.
+    assert copied_plain.revisions.count() < copied_parent.revisions.count()
