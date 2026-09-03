@@ -187,6 +187,51 @@ def test_releases_index__esr_annotation(render_mock, rf):
 
 
 @patch("springfield.firefox.views.l10n_utils.render")
+def test_releases_index__esr_suffixed_point_release_not_duplicated(render_mock, rf):
+    """Some older ESR trains kept the "esr" suffix on point releases too, not
+    just the baseline (e.g. real historical ESR-channel rows "115.0.2" *and*
+    "115.0.2esr" both exist). The unsuffixed form is already a real
+    firefox_history_stability_releases entry that the main loop flags as ESR
+    via normalized-set membership -- the raw suffixed form must not also get
+    injected as a "missing baseline", or it renders as a second, identical-
+    looking "115.0.2 ESR" pill next to the first."""
+    mock_major_releases_val = {"115.0": "2023-07-04"}
+    mock_minor_releases_val = {"115.0.2": "2023-07-11"}
+    mock_esr_versions = {"115.0.2esr"}
+    mock_release_versions = set()
+
+    request = rf.get("/")
+
+    with (
+        patch("springfield.releasenotes.views.firefox_desktop") as mock_firefox_desktop,
+        patch("springfield.releasenotes.views.get_esr_release_versions", return_value=mock_esr_versions),
+        patch("springfield.releasenotes.views.get_release_channel_versions", return_value=mock_release_versions),
+    ):
+        mock_firefox_desktop.firefox_history_major_releases = mock_major_releases_val
+        mock_firefox_desktop.firefox_history_stability_releases = mock_minor_releases_val
+
+        releases_index(request, "Firefox")
+
+    expected_data = {
+        "releases": [
+            (
+                115.0,
+                {
+                    "major": "115.0",
+                    "minor": [],
+                    "minor_esr": ["115.0.2"],
+                },
+            ),
+        ],
+    }
+    render_mock.assert_called_once_with(
+        request,
+        "firefox/releases/index.html",
+        expected_data,
+    )
+
+
+@patch("springfield.firefox.views.l10n_utils.render")
 def test_releases_index__product_other_than_firefox(render_mock, rf):
     request = rf.get("/")
     releases_index(request, "someproduct")

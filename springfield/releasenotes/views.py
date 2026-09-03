@@ -328,8 +328,14 @@ def releases_index(request, product):
     # ESR baseline releases (e.g. "140.0esr") never get their own entry in
     # firefox_history_major_releases/firefox_history_stability_releases, so
     # they'd otherwise be unreachable from this page. Surface them as extra
-    # "minor" pills under their matching major version.
-    missing_esr_versions = esr_versions_raw - set(major_releases) - set(minor_releases)
+    # "minor" pills under their matching major version. Compare normalized
+    # forms, not raw strings: some older ESR trains kept the "esr" suffix on
+    # point releases too (e.g. "115.0.2esr"), not just the baseline, and the
+    # unsuffixed "115.0.2" is already a real minor_releases entry that the
+    # main loop below picks up and flags correctly -- injecting the raw
+    # suffixed form as well would just duplicate that same pill.
+    normalized_minor_keys = {normalize_esr_version(x) for x in minor_releases}
+    missing_esr_versions = {v for v in esr_versions_raw if v not in major_releases and normalize_esr_version(v) not in normalized_minor_keys}
 
     for release in major_releases:
         major_version = float(re.findall(r"^\d+\.\d+", release)[0])
