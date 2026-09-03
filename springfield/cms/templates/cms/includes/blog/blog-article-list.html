@@ -17,12 +17,12 @@
       {% set listing_image = article.get_listing_image() %}
       <include:blog-article-list-item with_image="{{ listing_image }}">
         <content:heading>
-          <hgroup class="fl-heading-group">
-            <p class="fl-superheading">{{ article.topic.name }}</p>
-            <h2 class="fl-heading">
-              <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
-            </h2>
-          </hgroup>
+          <include:heading
+            level="h2"
+            heading_text="{{ article.title }}"
+            superheading_text="{{ article.topic.name if article.topic else '' }}"
+            link="{{ article.url }}"
+          />
         </content:heading>
         <content:body>{{ article.description|richtext }}</content:body>
         {% if listing_image %}

@@ -4,6 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set heading_body %}
+  {% if link %}<a href="{{ link }}" class="fl-link">{{ heading_text }}</a>{% else %}{{ heading_text }}{% endif %}
+{% endset %}
+
 {% if superheading_text or subheading_text %}
   <hgroup class="fl-heading-group {{ alignment_class }}">
     {% if superheading_text %}
@@ -13,7 +17,7 @@
     {% endif %}
     {% if heading_text %}
       <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}" {% if id %}id="{{ id }}"{% endif %}>
-        {{ heading_text }}
+        {{ heading_body }}
       </{{ level|default('h2') }}>
     {% endif %}
     {% if subheading_text %}
@@ -22,6 +26,6 @@
   </hgroup>
 {% elif heading_text %}
   <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
-    {{ heading_text }}
+    {{ heading_body }}
   </{{ level|default('h2') }}>
 {% endif %}

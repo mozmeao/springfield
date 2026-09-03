@@ -292,7 +292,10 @@
     max-inline-size: var(--token-width-desktop-content);
 }
 
-.fl-blog-article-list-item .fl-heading-group {
+/* The bare heading selector covers articles with no topic, where the heading
+   component renders no hgroup to wrap. */
+.fl-blog-article-list-item .fl-heading-group,
+.fl-blog-article-list-item-content > .fl-heading {
     margin-block-end: var(--token-spacing-lg);
 }
 
@@ -413,7 +416,8 @@
     font-size: var(--fl-theme-font-size-heading-xs);
 }
 
-.fl-blog-latest .fl-blog-article-list-item .fl-heading-group {
+.fl-blog-latest .fl-blog-article-list-item .fl-heading-group,
+.fl-blog-latest .fl-blog-article-list-item-content > .fl-heading {
     margin-block-end: 0;
 }
 
