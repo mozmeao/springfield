@@ -2206,6 +2206,28 @@ class BlogCardsListBlock(blocks.StructBlock):
         return set(), {source.value.translation_key}
 
 
+class BlogArticleSectionsBlock(blocks.StreamBlock):
+    """The article sections of a blog index page.
+
+    Sections are filled in order, each one dropping the articles an earlier section
+    already used, and the latest section draws from every article — so anywhere but
+    last it silently starves the sections below it. The page renders it last
+    regardless, as a full-width band outside the container, so require it there."""
+
+    cards_list = BlogCardsListBlock()
+    latest = BlogLatestArticlesBlock()
+
+    def clean(self, value, ignore_required_constraints=False):
+        cleaned = super().clean(value, ignore_required_constraints=ignore_required_constraints)
+        latest_positions = [position for position, child in enumerate(cleaned) if child.block_type == "latest"]
+        if latest_positions and latest_positions[0] != len(cleaned) - 1:
+            raise blocks.StreamBlockValidationError(
+                block_errors={},
+                non_block_errors=ErrorList(["The latest articles section must be the last section, and there can't be more than one."]),
+            )
+        return cleaned
+
+
 # Cards
 
 
