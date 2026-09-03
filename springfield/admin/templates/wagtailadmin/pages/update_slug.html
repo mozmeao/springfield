@@ -1,0 +1,25 @@
+{% extends "wagtailadmin/generic/base.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% load i18n %}
+
+{% block main_content %}
+  <p class="help-block help-info">
+    {% blocktrans trimmed with title=page_to_update.get_admin_display_title %}
+      Choose the slug where “{{ title }}” should move to. A confirmation step will show you
+      what the change affects before anything is saved.
+    {% endblocktrans %}
+  </p>
+
+  <form action="{% url 'cms_page_update_slug' page_to_update.id %}" method="POST" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">{% trans "Continue" %}</button>
+  </form>
+{% endblock %}

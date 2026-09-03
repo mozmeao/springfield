@@ -21,6 +21,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
     PageLinkElementHandler,
 )
+from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -33,7 +34,7 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete
+from springfield.cms.admin_views import ContentSearchView, UpdateSlugConfirmView, UpdateSlugView, blog_tag_autocomplete
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -63,7 +64,30 @@ def register_cms_admin_urls():
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
         path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
+        path("pages/<int:page_id>/update-slug/", UpdateSlugView.as_view(), name="cms_page_update_slug"),
+        path("pages/<int:page_id>/update-slug/confirm/", UpdateSlugConfirmView.as_view(), name="cms_page_update_slug_confirm"),
     ]
+
+
+class PageUpdateSlugButton(PageMenuItem):
+    label = "Update slug"
+    icon_name = "link"
+    url_name = "cms_page_update_slug"
+
+    def is_shown(self, user):
+        return self.page.permissions_for_user(user).can_publish()
+
+
+@hooks.register("register_page_listing_more_buttons")
+def register_update_slug_listing_button(page, user, next_url=None):
+    # Priority 15 sits between Wagtail's Move (10) and Copy (20).
+    yield PageUpdateSlugButton(page=page, priority=15)
+
+
+@hooks.register("register_page_header_buttons")
+def register_update_slug_header_button(page, user, view_name, next_url=None):
+    # Priority 25 sits between Wagtail's Move (20) and Copy (30).
+    yield PageUpdateSlugButton(page=page, priority=25)
 
 
 @hooks.register("register_admin_menu_item")
@@ -545,7 +569,7 @@ class LocaleDefaultingIndexView(IndexView):
     """
     Snippet IndexView that defaults to the default locale (en-US) when the
     `locale` query parameter is absent from the URL, matching the page tree's
-    behaviour.
+    behavior.
 
     When `locale` is present in the request, we treat it as an explicit editor
     decision, so we do NOT redirect. This includes the 'locale=' value Wagtail's

@@ -3,14 +3,21 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.test import override_settings
+from django.urls import reverse
 
 import pytest
+from wagtail import hooks
 from wagtail.contrib.redirects.models import Redirect
-from wagtail.models import Locale, Page
+from wagtail.models import GroupPagePermission, Locale, Page
 from wagtail_localize.operations import translate_object
 
+from springfield.cms.forms import ConfirmUpdateSlugForm, UpdateSlugForm
 from springfield.cms.slug_updates import (
     automatic_redirect_creation_disabled,
     find_sibling_with_slug,
@@ -20,6 +27,8 @@ from springfield.cms.slug_updates import (
     update_page_slug,
 )
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
+
+User = get_user_model()
 
 
 @pytest.fixture(autouse=True)
@@ -32,6 +41,36 @@ def default_locale(db):
     one cannot build a page.
     """
     Locale.objects.get_or_create(language_code=settings.LANGUAGE_CODE)
+
+
+@pytest.fixture
+def publisher_user(db):
+    return User.objects.create_superuser(username="publisher", email="publisher@example.com", password="pass")
+
+
+@pytest.fixture
+def editor_user(parent_page):
+    """A user who may change pages but not publish them."""
+    user = User.objects.create_user(username="editor", email="editor@example.com", password="pass", is_staff=True)
+    group = Group.objects.create(name="Editors without publish rights")
+    group.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+    GroupPagePermission.objects.create(
+        group=group,
+        page=parent_page,
+        permission=Permission.objects.get(content_type__app_label="wagtailcore", codename="change_page"),
+    )
+    user.groups.add(group)
+    return user
+
+
+@pytest.fixture
+def editor_client(client, editor_user):
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        client.force_login(editor_user, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
 
 
 @pytest.fixture
@@ -74,6 +113,9 @@ def replacement_page(parent_page):
     return page
 
 
+# Suppress redirect creation
+
+
 @pytest.mark.django_db(transaction=True)
 def test_wagtail_creates_a_redirect_when_a_live_page_slug_changes(outgoing_page):
     """The behavior the update-slug action has to suppress. Wagtail's redirects
@@ -99,6 +141,9 @@ def test_no_redirect_is_created_while_automatic_creation_is_disabled(outgoing_pa
             outgoing_page.save()
 
     assert not Redirect.objects.exists()
+
+
+# Page and slug querying
 
 
 @pytest.mark.django_db
@@ -161,6 +206,9 @@ def test_page_with_translations_excludes_alias_translations(replacement_page, fr
     assert alias.alias_of_id == replacement_page.pk
 
     assert [page.pk for page in page_with_translations(replacement_page)] == [replacement_page.pk]
+
+
+# Slug update operation
 
 
 @pytest.mark.django_db
@@ -303,3 +351,214 @@ def test_update_page_slug_creates_no_redirects(replacement_page, outgoing_page):
     update_page_slug(replacement_page, "thing", conflicting_page=outgoing_page, conflicting_page_slug="thing-old")
 
     assert not Redirect.objects.exists()
+
+
+# Admin views and forms
+
+
+def test_update_slug_form_accepts_a_valid_slug():
+    assert UpdateSlugForm(data={"slug": "thing"}).is_valid()
+
+
+def test_update_slug_form_rejects_a_value_that_is_not_a_slug():
+    form = UpdateSlugForm(data={"slug": "not a slug!"})
+
+    assert not form.is_valid()
+    assert "slug" in form.errors
+
+
+@pytest.mark.django_db
+def test_confirm_update_slug_form_prefills_the_replacement_slug(outgoing_page):
+    form = ConfirmUpdateSlugForm(conflicting_page=outgoing_page, initial={"slug": "thing"})
+
+    assert form["conflicting_page_slug"].value() == "thing-old"
+
+
+@pytest.mark.django_db
+def test_confirm_update_slug_form_omits_the_replacement_slug_field_when_nothing_holds_the_slug(db):
+    form = ConfirmUpdateSlugForm(conflicting_page=None, initial={"slug": "unclaimed"})
+
+    assert "conflicting_page_slug" not in form.fields
+
+
+@pytest.mark.django_db
+def test_confirm_update_slug_form_rejects_a_replacement_slug_another_sibling_holds(outgoing_page, parent_page):
+    SimpleRichTextPageFactory(slug="thing-old", title="Already Here", parent=parent_page, live=True)
+
+    form = ConfirmUpdateSlugForm(
+        conflicting_page=outgoing_page,
+        data={"slug": "thing", "conflicting_page_slug": "thing-old"},
+    )
+
+    assert not form.is_valid()
+    assert "conflicting_page_slug" in form.errors
+
+
+@pytest.mark.django_db
+def test_confirm_update_slug_form_rejects_a_replacement_slug_equal_to_the_new_slug(outgoing_page):
+    form = ConfirmUpdateSlugForm(
+        conflicting_page=outgoing_page,
+        data={"slug": "thing", "conflicting_page_slug": "thing"},
+    )
+
+    assert not form.is_valid()
+    assert "conflicting_page_slug" in form.errors
+
+
+@pytest.mark.django_db
+def test_slug_entry_view_renders_the_slug_field(admin_client, replacement_page):
+    response = admin_client.get(reverse("cms_page_update_slug", args=[replacement_page.id]))
+
+    assert response.status_code == 200
+    assert list(response.context["form"].fields) == ["slug"]
+
+
+@pytest.mark.django_db
+def test_slug_entry_view_redirects_to_the_confirmation_carrying_the_slug(admin_client, replacement_page):
+    response = admin_client.post(reverse("cms_page_update_slug", args=[replacement_page.id]), {"slug": "thing"})
+
+    assert response.status_code == 302
+    assert response.url == f"/cms-admin/pages/{replacement_page.id}/update-slug/confirm/?slug=thing"
+
+
+@pytest.mark.django_db
+def test_slug_entry_view_requires_publish_permission(editor_client, replacement_page):
+    response = editor_client.get(reverse("cms_page_update_slug", args=[replacement_page.id]))
+
+    assert response.status_code == 302
+    assert response.url == reverse("wagtailadmin_home")
+
+
+@pytest.mark.django_db
+def test_slug_entry_view_returns_404_for_a_page_that_does_not_exist(admin_client):
+    """Followed, because Django's LocaleMiddleware answers a 404 on an unprefixed URL
+    by redirecting to the locale-prefixed one first."""
+    response = admin_client.get(reverse("cms_page_update_slug", args=[999999]), follow=True)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_confirm_view_context_when_no_page_holds_the_slug(admin_client, replacement_page, french_locale):
+    translate_object(replacement_page, [french_locale])
+
+    response = admin_client.get(reverse("cms_page_update_slug_confirm", args=[replacement_page.id]), {"slug": "unclaimed"})
+
+    assert response.status_code == 200
+    assert response.context["new_slug"] == "unclaimed"
+    assert response.context["translation_count"] == 1
+    assert response.context["conflicting_page"] is None
+    assert "publish" in response.context["form"].fields
+    assert "conflicting_page_slug" not in response.context["form"].fields
+
+
+@pytest.mark.django_db
+def test_confirm_view_links_to_the_page_being_retired_and_prefills_its_new_slug(admin_client, replacement_page, outgoing_page):
+    response = admin_client.get(reverse("cms_page_update_slug_confirm", args=[replacement_page.id]), {"slug": "thing"})
+
+    assert response.status_code == 200
+    assert response.context["conflicting_page"].pk == outgoing_page.pk
+    assert response.context["conflicting_page_translation_count"] == 0
+    assert response.context["form"]["conflicting_page_slug"].value() == "thing-old"
+
+
+@pytest.mark.django_db
+def test_confirm_view_redirects_back_when_no_slug_is_given(admin_client, replacement_page):
+    response = admin_client.get(reverse("cms_page_update_slug_confirm", args=[replacement_page.id]))
+
+    assert response.status_code == 302
+    assert response.url == reverse("cms_page_update_slug", args=[replacement_page.id])
+
+
+@pytest.mark.django_db
+def test_confirm_view_performs_the_swap_and_reports_it(admin_client, replacement_page, outgoing_page):
+    response = admin_client.post(
+        reverse("cms_page_update_slug_confirm", args=[replacement_page.id]),
+        {"slug": "thing", "conflicting_page_slug": "thing-old"},
+    )
+
+    updated_page = Page.objects.get(pk=replacement_page.pk)
+    assert updated_page.slug == "thing"
+    assert updated_page.live is False
+    retired = Page.objects.get(pk=outgoing_page.pk)
+    assert retired.slug == "thing-old"
+    assert not retired.live
+    # Wagtail renders each message through a template, so the stored message is HTML.
+    message = str(list(get_messages(response.wsgi_request))[0])
+    assert "Page “New Thing” now uses the slug “thing”." in message
+    assert reverse("wagtailadmin_pages:edit", args=[replacement_page.id]) in message
+    assert "View live" not in message
+
+
+@pytest.mark.django_db
+def test_confirm_view_publishes_the_page_when_the_box_is_ticked(admin_client, replacement_page, outgoing_page):
+    response = admin_client.post(
+        reverse("cms_page_update_slug_confirm", args=[replacement_page.id]),
+        {"slug": "thing", "conflicting_page_slug": "thing-old", "publish": "on"},
+    )
+
+    updated_page = Page.objects.get(pk=replacement_page.pk)
+    assert updated_page.slug == "thing"
+    assert updated_page.live
+
+    message = str(list(get_messages(response.wsgi_request))[0])
+    assert "Page “New Thing” now uses the slug “thing”." in message
+    assert reverse("wagtailadmin_pages:edit", args=[replacement_page.id]) in message
+    assert updated_page.url in message
+
+
+@pytest.mark.django_db
+def test_confirm_view_redirects_to_the_parent_explorer(admin_client, replacement_page, outgoing_page, parent_page):
+    response = admin_client.post(
+        reverse("cms_page_update_slug_confirm", args=[replacement_page.id]),
+        {"slug": "thing", "conflicting_page_slug": "thing-old"},
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("wagtailadmin_explore", args=[parent_page.id])
+
+
+@pytest.mark.django_db
+def test_update_slug_button_is_displayed_in_page_listing(publisher_user, replacement_page):
+    buttons = [
+        button
+        for hook in hooks.get_hooks("register_page_listing_more_buttons")
+        for button in hook(page=replacement_page, user=publisher_user, next_url=None)
+        if getattr(button, "url_name", None) == "cms_page_update_slug"
+    ]
+
+    assert len(buttons) == 1
+    assert buttons[0].is_shown(publisher_user)
+
+
+@pytest.mark.django_db
+def test_update_slug_button_is_displayed_in_page_header(publisher_user, replacement_page):
+    buttons = [
+        button
+        for hook in hooks.get_hooks("register_page_header_buttons")
+        for button in hook(page=replacement_page, user=publisher_user, next_url=None, view_name="edit")
+        if getattr(button, "url_name", None) == "cms_page_update_slug"
+    ]
+
+    assert len(buttons) == 1
+    assert buttons[0].is_shown(publisher_user)
+
+
+@pytest.mark.django_db
+def test_update_slug_button_is_hidden_for_user_without_publish_permission(editor_user, replacement_page):
+    listing_buttons = [
+        button
+        for hook in hooks.get_hooks("register_page_listing_more_buttons")
+        for button in hook(page=replacement_page, user=editor_user, next_url=None)
+        if getattr(button, "url_name", None) == "cms_page_update_slug"
+    ]
+    header_buttons = [
+        button
+        for hook in hooks.get_hooks("register_page_header_buttons")
+        for button in hook(page=replacement_page, user=editor_user, next_url=None, view_name="edit")
+        if getattr(button, "url_name", None) == "cms_page_update_slug"
+    ]
+
+    assert len(listing_buttons) == 1
+    assert len(header_buttons) == 1
+    assert not any(button.is_shown(editor_user) for button in listing_buttons + header_buttons)

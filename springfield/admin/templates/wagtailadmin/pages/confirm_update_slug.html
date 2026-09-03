@@ -1,0 +1,40 @@
+{% extends "wagtailadmin/generic/base.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% load i18n %}
+
+{% block main_content %}
+  <p class="help-block help-info">
+    {% blocktrans trimmed count counter=translation_count with title=page_to_update.get_admin_display_title slug=new_slug %}
+      “{{ title }}” and its {{ counter }} translation will move to the slug “{{ slug }}”.
+    {% plural %}
+      “{{ title }}” and its {{ counter }} translations will move to the slug “{{ slug }}”.
+    {% endblocktrans %}
+  </p>
+
+  {% if conflicting_page %}
+    <p class="help-block help-warning">
+      {% blocktrans trimmed with slug=new_slug %}
+        Another page already uses the slug “{{ slug }}”:
+      {% endblocktrans %}
+      <a href="{% url 'wagtailadmin_pages:edit' conflicting_page.id %}">{{ conflicting_page.get_admin_display_title }}</a>.
+      {% blocktrans trimmed count counter=conflicting_page_translation_count %}
+        It and its {{ counter }} translation will be moved to the slug below and unpublished.
+      {% plural %}
+        It and its {{ counter }} translations will be moved to the slug below and unpublished.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+
+  <form action="{% url 'cms_page_update_slug_confirm' page_to_update.id %}" method="POST" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">{% trans "Update slug" %}</button>
+  </form>
+{% endblock %}
