@@ -183,6 +183,8 @@
 }
 
 .fl-qr-code-dialog {
+    --fl-theme-color-link: var(--token-color-black-4);
+    --fl-theme-color-link-hover: var(--token-color-black-4);
     background: var(--token-color-white);
     border-radius: var(--token-border-radius-sm);
     color: var(--token-color-black-4);
