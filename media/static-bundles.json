@@ -468,6 +468,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-wrexhamafc.css"
+      ],
+      "name": "flare26-wrexhamafc",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-wrexhamafc' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
         "css/cms/themes/enterprise.css"
       ],
       "name": "flare-theme-enterprise"
