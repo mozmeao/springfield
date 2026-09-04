@@ -37,6 +37,7 @@ from springfield.cms.blocks import (
     get_button_types,
 )
 from springfield.cms.fields import StreamField
+from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
@@ -470,11 +471,37 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         related_name="+",
         help_text="Upload a QR code image. If set, this is used instead of generating one from the URL.",
     )
+    # Deprecated: superseded by `open_behavior`, which is now backfilled and the
+    # only field read (see `resolve_open_behavior`). Kept temporarily so the
+    # column can be dropped in a separate, deploy-safe follow-up migration
+    # instead of alongside the schema changes here.
     default_open = models.BooleanField(default=True)
+    open_behavior = models.CharField(
+        max_length=16,
+        choices=QROpenBehavior.choices,
+        default=QROpenBehavior.OPEN,
+        help_text="How the snippet starts.",
+    )
+    open_delay_ms = models.PositiveIntegerField(
+        default=3000,
+        help_text="Delay before the snippet opens, in milliseconds (3000 = 3 seconds). Only used for the auto-open behavior.",
+    )
 
-    panels = [FieldPanel("heading"), FieldPanel("content"), FieldPanel("url"), FieldPanel("image"), FieldPanel("default_open")]
+    panels = [
+        FieldPanel("heading"),
+        FieldPanel("content"),
+        FieldPanel("url"),
+        FieldPanel("image"),
+        FieldPanel("open_behavior"),
+        FieldPanel("open_delay_ms"),
+    ]
 
-    override_translatable_fields = [SynchronizedField("url"), SynchronizedField("image")]
+    override_translatable_fields = [
+        SynchronizedField("url"),
+        SynchronizedField("image"),
+        SynchronizedField("open_behavior"),
+        SynchronizedField("open_delay_ms"),
+    ]
 
     class Meta(BaseDraftTranslatableSnippetMixin.Meta):
         verbose_name = "QR Code Floating Snippet"
@@ -499,21 +526,37 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         """Return the live QRCodeFloatingSnippet for the given locale, or None."""
         return cls.objects.filter(locale=locale).live().first()
 
+    def resolve_open_behavior(self, page: QRCodeFloatingSnippetMixin | None = None) -> str:
+        """Resolve the starting behavior: the page override if set, otherwise the snippet's own."""
+        page_behavior = getattr(page, "floating_qr_open_behavior", "")
+        return page_behavior or self.open_behavior
+
     def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
         """Resolve the QR code source from page overrides or snippet fields."""
         resolved_image = getattr(page, "floating_qr_image", None) or self.image
         resolved_url = getattr(page, "floating_qr_url", None) or self.url
-        floating_qr_default_open = getattr(page, "floating_qr_default_open", None)
+
+        behavior = self.resolve_open_behavior(page)
 
         hide = bool(request and request.COOKIES.get("moz-qr-snippet-dismissed"))
+        if hide:
+            behavior = QROpenBehavior.CLOSED
 
-        resolved_default_open = floating_qr_default_open if floating_qr_default_open is not None else self.default_open
-        open = not hide and resolved_default_open
+        page_delay = getattr(page, "floating_qr_open_delay_ms", None)
+        delay_ms = page_delay if page_delay is not None else self.open_delay_ms
 
+        # `open` == render with the `is-open` class server-side. DELAYED renders
+        # collapsed; the JS opens it after `delay_ms`.
+        open = behavior == QROpenBehavior.OPEN
+
+        # Normalize to a plain str: `behavior` may be an enum member (fallback /
+        # hide paths) or a stored field string, and the value is consumed as a
+        # DOM data attribute.
+        result = {"open": open, "behavior": str(behavior), "delay_ms": delay_ms}
         if resolved_image:
-            return {"type": "image", "value": resolved_image.file.url, "open": open}
+            return {"type": "image", "value": resolved_image.file.url, **result}
         if resolved_url:
-            return {"type": "qr", "value": resolved_url, "open": open}
+            return {"type": "qr", "value": resolved_url, **result}
         return None
 
     def build_context(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict:
