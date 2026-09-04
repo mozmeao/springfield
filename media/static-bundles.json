@@ -870,6 +870,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-translation-draftsharing.es6.js"
+      ],
+      "name": "wagtailadmin-translation-draftsharing"
+    },
+    {
+      "files": [
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"
