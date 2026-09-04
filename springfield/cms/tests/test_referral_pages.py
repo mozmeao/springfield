@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponseNotFound
 
 import pytest
 from bs4 import BeautifulSoup
+from waffle.testutils import override_switch
 from wagtail.models import Site
 
 from springfield.cms.blocks import TabBlock
@@ -627,6 +628,7 @@ def test_get_firefox_page_get_context_channel_forced_to_nightly_by_switch(rf):
     assert context["channel"] == "nightly"
 
 
+@override_switch("REFERRAL_FORCE_NIGHTLY_QA", active=False)
 def test_get_firefox_page_renders_download_button(client, settings):
     """The referral page template must render an actual download button (not the
     context-dump skeleton) so the referral-attribution JS has a link to decorate."""

@@ -22,6 +22,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
@@ -40,6 +41,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.i18n import normalize_language
 from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -50,6 +52,7 @@ from springfield.cms.blocks import (
     BlogCardsListBlock,
     BlogLatestArticlesBlock,
     BlogRelatedArticleBlock,
+    BrowserComparisonTableBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -1067,6 +1070,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("comparison_table", ComparisonTableBlock(group="Main")),
+        ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -1319,8 +1323,12 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .first()
         )
         if latest_whats_new:
-            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        return redirect("/")
+            url = request.build_absolute_uri(latest_whats_new.get_url())
+            if request.GET.get("from_main_nav"):
+                url += "?from_main_nav=true"
+            return redirect(url)
+        active_language = normalize_language(translation.get_language()) or settings.LANGUAGE_CODE
+        return redirect(f"/{active_language}/")
 
 
 class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1429,12 +1437,21 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+
+    analytics_id_fields = (
+        "nav_button_uid",
+        "intro_button_uid",
+        "waitlist_submit_uid",
+        "nav_download_button_uid",
+        "intro_download_button_uid",
+        "update_button_uid",
+    )
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -1602,6 +1619,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    promote_panels = UTMParamsMixin.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -1626,6 +1647,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()

@@ -1,0 +1,78 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<include:browser-comparison-table mobile_behavior="{{ value.mobile_behavior }}">
+  <content:header>
+    {% for header_row in value.header_row %}
+      <tr>
+        {% for cell in header_row.cells %}
+          {% set is_filled = cell.content or cell.optional_content %}
+          {% set cell_tag = 'th' if is_filled else 'td' %}
+          <{{ cell_tag }}
+            {% if is_filled %}
+              scope="col"
+            {% endif %}
+
+            {% if cell.column_span|int > 1 %}
+              colspan="{{ cell.column_span }}"
+            {% endif %}
+
+            {% if value.highlighted_column and value.highlighted_column|int == loop.index %}
+              class="highlighted"
+            {% endif %}
+          >
+            {# Optional content, when added, replaces the cell's plain text. #}
+            {% if cell.optional_content %}
+              {% for child in cell.optional_content %}
+                {% include_block child %}
+              {% endfor %}
+            {% else %}
+              {{ cell.content }}
+            {% endif %}
+          </{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </content:header>
+
+  <content:body>
+    {% for row in value.content_rows %}
+      <tr>
+        {% for cell in row.cells %}
+          {% set is_filled = cell.content or cell.optional_content %}
+          {% set cell_tag = 'th' if loop.first and is_filled else 'td' %}
+          <{{ cell_tag }}
+            {% if cell_tag == 'th' %}
+              scope="row"
+            {% endif %}
+
+            {% if cell.column_span|int > 1 %}
+              colspan="{{ cell.column_span }}"
+            {% endif %}
+
+            {% if value.highlighted_column and value.highlighted_column|int == loop.index %}
+              class="highlighted"
+            {% endif %}
+          >
+            {% if cell.optional_content %}
+              {% for child in cell.optional_content %}
+                {% include_block child %}
+              {% endfor %}
+            {% else %}
+              {{ cell.content }}
+            {% endif %}
+          </{{ cell_tag }}>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </content:body>
+
+  {% if value.fine_print %}
+    <content:fine_print>
+      {{ value.fine_print|richtext }}
+    </content:fine_print>
+  {% endif %}
+</include:browser-comparison-table>
