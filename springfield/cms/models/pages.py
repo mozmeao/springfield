@@ -49,8 +49,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
     BlogArticleBlock,
-    BlogCardsListBlock,
-    BlogLatestArticlesBlock,
+    BlogArticleSectionsBlock,
     BlogRelatedArticleBlock,
     BrowserComparisonTableBlock,
     ButtonRowBlock,
@@ -1869,10 +1868,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         ),
     )
     article_sections = StreamField(
-        [
-            ("cards_list", BlogCardsListBlock()),
-            ("latest", BlogLatestArticlesBlock()),
-        ],
+        BlogArticleSectionsBlock(),
         use_json_field=True,
         null=True,
         blank=True,
@@ -2154,9 +2150,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     @path("")
     def index_route(self, request):
         prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
+        sections = self.resolve_article_sections()
         extra_context = {
             "header_topics": self.get_header_topics(),
-            "article_sections": self.resolve_article_sections(),
+            "article_sections": [block for block in sections if block.block_type != "latest"],
+            "latest_section": next((block for block in sections if block.block_type == "latest"), None),
             "is_preview": getattr(request, "is_preview", False),
         }
         return self._render_route(request, self.get_template(request), extra_context=extra_context)

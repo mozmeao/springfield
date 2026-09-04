@@ -8,7 +8,7 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
-{% block body_class %}fl-blog-all-body{% endblock %}
+{% block body_class %}fl-blog-body fl-blog-all-body{% endblock %}
 
 {% block content %}
 <div class="fl-page fl-page-blog-all">
@@ -17,25 +17,17 @@
       <div class="fl-section-container">
 
         <div class="fl-blog-index-header">
-          {% if page.page_heading %}
-            {% for block in page.page_heading %}
-              {% if block.block_type == "heading" %}
-                <include:heading
-                  level="h1"
-                  heading_size="fl-heading-xl"
-                  superheading_text="{{ block.value.superheading_text|richtext|remove_p_tag }}"
-                  heading_text="{{ block.value.heading_text|richtext|remove_p_tag }}"
-                  subheading_text="{{ block.value.subheading_text|richtext|remove_p_tag }}"
-                  alignment_class="text-center"
-                />
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-
           {% if all_topics %}
             {% set index_page = page %}
             {% include "cms/includes/blog/blog-all-topics.html" %}
           {% endif %}
+
+          <include:heading
+            level="h1"
+            heading_text="{{ ftl('blog-all-articles') }}"
+            heading_size="fl-heading-xl"
+            alignment_class="text-center"
+          />
         </div>
 
         {% set base_url = page.url ~ page.reverse_subpage('all_route') %}

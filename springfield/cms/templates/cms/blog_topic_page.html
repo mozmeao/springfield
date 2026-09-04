@@ -15,7 +15,7 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
-{% block body_class %}fl-blog-topic-body{% endblock %}
+{% block body_class %}fl-blog-body fl-blog-topic-body{% endblock %}
 
 {% block content %}
 {% set topic_url = blog_index.url ~ blog_index.reverse_subpage('topic_route', args=[topic.slug]) %}
@@ -27,7 +27,7 @@
 
         <a href="{{ blog_index.url }}" class="fl-blog-back-link">
           <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-back') }}
+          {{ ftl('blog-all-articles') }}
         </a>
 
         <div class="fl-blog-index-header">

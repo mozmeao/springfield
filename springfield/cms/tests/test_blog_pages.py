@@ -8,7 +8,6 @@ from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
-from django.utils.translation import override
 
 import pytest
 from bs4 import BeautifulSoup
@@ -605,6 +604,25 @@ def test_each_section_skips_articles_shown_above_it(page_with_every_section):
     assert latest.value.get_articles() == articles[8:]
 
 
+def test_latest_section_must_be_the_last_section(blog_topic):
+    """A latest section above another one would take its articles while still rendering
+    below it, so the field rejects it."""
+    field = BlogIndexPage._meta.get_field("article_sections")
+    sections = [latest_section("00001"), cards_list_section("00002", "topic", blog_topic)]
+
+    with pytest.raises(ValidationError):
+        field.stream_block.clean(field.to_python(sections))
+
+
+def test_latest_section_is_accepted_as_the_last_section(blog_topic):
+    field = BlogIndexPage._meta.get_field("article_sections")
+    sections = [cards_list_section("00001", "topic", blog_topic), latest_section("00002")]
+
+    cleaned = field.stream_block.clean(field.to_python(sections))
+
+    assert [block.block_type for block in cleaned] == ["cards_list", "latest"]
+
+
 def test_a_featured_article_is_not_repeated_by_a_section_on_a_translated_page(translated_blog):
     """featured_articles stores the source-locale page while sections draw from this
     page's own children, so the two only match by translation_key."""
@@ -839,7 +857,7 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
     soup = BeautifulSoup(response.content, "html.parser")
 
     cards_list_divs = soup.find_all("div", class_="fl-blog-cards-list")
-    assert len(cards_list_divs) == 3
+    assert len(cards_list_divs) == 2
 
     for cards_list in cards_list_divs:
         assert cards_list.find(class_="fl-heading")
@@ -859,10 +877,30 @@ def test_blog_index_renders_cards_lists(blog_setup, rf):
             assert expand_link and expand_link["href"]
 
             body = card.find("div", class_="fl-body")
-            assert body and body.get_text(strip=True)
+            assert not body
 
     images = soup.find("div", class_="fl-blog-cards-list").find_all("img")
     assert images, "articles that do have a listing image render one"
+
+
+def test_blog_index_renders_latest_section(blog_setup, rf):
+    index_page, _ = blog_setup
+    request = rf.get(index_page.get_full_url())
+    response = index_page.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    latest = soup.find("section", class_="fl-blog-latest-body")
+    assert latest
+    assert latest.find(class_="fl-heading")
+
+    items = latest.find_all("article", class_="fl-blog-article-list-item")
+    assert items
+    for item in items:
+        assert item.find("p", class_="fl-superheading")
+        link = item.find("h3", class_="fl-heading").find("a")
+        assert link and link["href"]
+
+    assert latest.find("a", class_="fl-button")
 
 
 def test_blog_index_section_links_are_derived_from_the_source(blog_setup, rf):
@@ -885,7 +923,8 @@ def test_blog_index_section_links_are_derived_from_the_source(blog_setup, rf):
     assert link["href"] == f"{all_route_url}?tag=security"
 
     # Latest section links to the full list
-    link = section_divs[2].find("a", class_="fl-blog-cards-list-link")
+    latest = soup.find("section", class_="fl-blog-latest-body")
+    link = latest.find("a", class_="fl-button")
     assert link.get_text(strip=True) == "View all"
     assert link["href"] == all_route_url
 
@@ -933,8 +972,6 @@ def test_blog_all_renders_list_articles(blog_setup, rf):
         heading = item.find("h2", class_="fl-heading")
         assert heading and heading.find("a")
         assert item.find("div", class_="fl-body")
-        assert item.find("p", class_="fl-blog-article-date")
-        assert item.find("span", class_="fl-tag")
 
 
 def test_blog_all_renders_pagination(blog_setup, rf):
@@ -989,7 +1026,7 @@ def test_blog_all_topic_filter_shows_selected_topic(blog_setup, rf):
     response = index_page.all_route(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    selected = soup.find("span", class_="fl-blog-selected-topic")
+    selected = soup.select_one("span.fl-tag-blog-topic.is-selected")
     assert selected and "Privacy" in selected.get_text()
 
 
@@ -1000,7 +1037,7 @@ def test_blog_all_topic_filter_selected_topic_has_close_link(blog_setup, rf):
     response = index_page.all_route(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    selected = soup.find("span", class_="fl-blog-selected-topic")
+    selected = soup.select_one("span.fl-tag-blog-topic.is-selected")
     assert selected
     close_link = selected.find("a")
     all_route_url = index_page.url + index_page.reverse_subpage("all_route")
@@ -1014,7 +1051,7 @@ def test_blog_all_unknown_topic_shows_all_articles(blog_setup, rf):
     response = index_page.all_route(request)
     assert response.status_code == 200
     soup = BeautifulSoup(response.content, "html.parser")
-    assert not soup.find("span", class_="fl-blog-selected-topic")
+    assert not soup.select_one("span.fl-tag-blog-topic.is-selected")
 
 
 def test_blog_all_topic_filter_filters_articles(privacy_articles, rf):
@@ -1508,6 +1545,64 @@ def test_blog_article_renders_header_image(single_article, rf):
     assert image_div and image_div.find("img")
 
 
+def test_blog_article_renders_related_articles(privacy_articles, rf):
+    index_page, articles = privacy_articles
+    article = articles[0]
+    expected_related = list(
+        BlogArticlePage.objects.child_of(index_page)
+        .live()
+        .public()
+        .filter(topic=article.topic)
+        .exclude(pk=article.pk)
+        .order_by("-first_published_at")[:4]
+    )
+
+    request = rf.get(article.get_full_url())
+    response = article.serve(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    section = soup.find("section", class_="fl-blog-related-articles")
+    assert section
+
+    heading = section.find("h2", class_="fl-heading")
+    assert heading and "Related Articles" in heading.get_text()
+
+    items = section.find_all("article", class_="fl-blog-article-list-item")
+    assert len(items) == len(expected_related)
+
+    for related, item in zip(expected_related, items):
+        superheading = item.find("p", class_="fl-superheading")
+        assert superheading and related.topic.name in superheading.get_text()
+        heading = item.find("h3", class_="fl-heading")
+        assert heading and related.title in heading.get_text()
+        link = heading.find("a", class_="fl-link")
+        assert link and link["href"] == related.url
+        body = item.find("div", class_="fl-body")
+        assert body and body.get_text(strip=True)
+
+
+def test_blog_article_excludes_self_from_related(privacy_articles, rf):
+    index_page, articles = privacy_articles
+    article = articles[0]
+    request = rf.get(article.get_full_url())
+    context = article.get_context(request)
+    assert article not in context["related_articles"]
+
+
+def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
+    _, articles = privacy_articles
+    article = articles[0]
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    items = soup.find("section", class_="fl-blog-related-articles").find_all("article", class_="fl-blog-article-list-item")
+    assert items
+
+    for item in items:
+        assert "fl-blog-article-list-item-with-image" in item.get("class", [])
+        assert item.find("div", class_="fl-blog-article-list-item-image").find("img")
+
+
 # ---------------------------------------------------------------------------
 # N+1 query tests
 # ---------------------------------------------------------------------------
@@ -1583,27 +1678,6 @@ def test_get_tags_skips_tags_with_no_live_localization(single_article):
     article = BlogArticlePage.objects.get(pk=article.pk)
 
     assert article.get_tags() == []
-
-
-def test_all_page_renders_localized_tag_names(privacy_articles, rf):
-    index_page, _ = privacy_articles
-    fr_locale, _ = Locale.objects.get_or_create(language_code="fr")
-    en_tag = BlogTag.objects.get(slug="privacy", locale=Locale.get_default())
-    BlogTag.objects.create(
-        name="Confidentialité",
-        slug="privacy",
-        locale=fr_locale,
-        translation_key=en_tag.translation_key,
-    )
-
-    url = index_page.full_url + index_page.reverse_subpage("all_route")
-    with override("fr"):
-        response = index_page.all_route(rf.get(url))
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    tag_labels = {element.get_text(strip=True) for element in soup.select(".fl-blog-article-list-item .fl-tag")}
-    assert "Confidentialité" in tag_labels
-    assert "Privacy" not in tag_labels
 
 
 # ---------------------------------------------------------------------------
@@ -2021,6 +2095,24 @@ def test_blog_list_item_uses_listing_image_without_variants(blog_index, make_art
     images = item.find("div", class_="fl-blog-article-list-item-image").find_all("img")
 
     assert len(images) == 1, "A dedicated listing image renders alone, with no variant siblings"
+
+
+def test_blog_list_item_without_a_topic_renders_no_superheading(blog_index, make_article, rf):
+    """topic is null in the database even though the admin form requires it, so the
+    heading renders on its own rather than inside an hgroup holding an empty paragraph."""
+    article = make_article(title="No topic here")
+    article.save_revision().publish()
+    BlogArticlePage.objects.filter(pk=article.pk).update(topic=None)
+
+    url = blog_index.full_url + blog_index.reverse_subpage("all_route")
+    response = blog_index.all_route(rf.get(url))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    item = soup.find("div", class_="fl-blog-article-list").find("article", class_="fl-blog-article-list-item")
+    assert not item.find("hgroup")
+    assert not item.find("p", class_="fl-superheading")
+    heading = item.find("h2", class_="fl-heading")
+    assert heading and heading.find("a", class_="fl-link").get_text(strip=True) == "No topic here"
 
 
 def test_blog_list_item_falls_back_to_featured_image_with_variants(blog_index, make_article, real_images, rf):

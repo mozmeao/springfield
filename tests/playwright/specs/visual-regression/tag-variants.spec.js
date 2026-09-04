@@ -69,6 +69,14 @@ test.describe(
             await expectComponentScreenshot(page, 'tag-light-purple-selected');
         });
 
+        test('blog topic', async ({ page }) => {
+            await expectComponentScreenshot(page, 'tag-blog-topic');
+        });
+
+        test('blog topic selected', async ({ page }) => {
+            await expectComponentScreenshot(page, 'tag-blog-topic-selected');
+        });
+
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
@@ -165,6 +173,22 @@ test.describe(
                     page,
                     'tag-light-purple-selected',
                     'tag-light-purple-selected-dark'
+                );
+            });
+
+            test('blog topic', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-blog-topic',
+                    'tag-blog-topic-dark'
+                );
+            });
+
+            test('blog topic selected', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'tag-blog-topic-selected',
+                    'tag-blog-topic-selected-dark'
                 );
             });
         });
