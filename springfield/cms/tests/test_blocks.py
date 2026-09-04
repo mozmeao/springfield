@@ -70,7 +70,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -170,8 +170,16 @@ from springfield.cms.fixtures.testimonial_card_fixtures import (
 )
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_variants, get_topic_list_test_page, get_topic_list_upper_variants
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
+from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.icon_utils import icon_value_fn
-from springfield.cms.models import ArticleDetailPage, PretranslatedPhrase, SpringfieldImage
+from springfield.cms.models import (
+    ArticleDetailPage,
+    FreeFormPage2026,
+    PretranslatedPhrase,
+    SmartWindowExplainerPage,
+    SpringfieldImage,
+    WhatsNewPage2026,
+)
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.snippets import BlogTag, BlogTopic
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
@@ -5888,3 +5896,161 @@ def test_topic_section_exempts_its_own_topic():
 
     assert topic_keys == {topic.translation_key}
     assert tag_keys == set()
+
+
+# Page heading levels
+
+# The page types whose free form content stream supplies the page's h1. SmartWindowPage
+# is absent on purpose: it renders the same blocks below its own h1, starting at h2.
+FREEFORM_PAGE_TYPES = [
+    pytest.param(FreeFormPage2026, id="free_form_page"),
+    pytest.param(WhatsNewPage2026, id="whats_new_page"),
+    pytest.param(SmartWindowExplainerPage, id="smart_window_explainer_page"),
+]
+
+# The platform intros used by the heading-level tests: mutually exclusive, so a
+# visitor only ever sees one of them.
+PLATFORM_INTROS = [
+    ("condition-windows", "Firefox for Windows", ["windows"]),
+    ("condition-osx", "Firefox for macOS", ["osx"]),
+    ("condition-other-os", "Firefox for every other platform", ["linux", "android", "ios", "other-os", "unsupported"]),
+]
+
+
+def intro_block(heading_text, platforms=None):
+    """Intro block carrying only a heading, shown to `platforms` if given and to everyone otherwise."""
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {"show_to": {"platforms": platforms or []}},
+            "heading": {"heading_text": f"<p>{heading_text}</p>"},
+        },
+    }
+
+
+def conditional_intro_blocks():
+    return [intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_INTROS]
+
+
+def section_and_banner_blocks():
+    """The two blocks that follow the intros in the heading-level tests: a section
+    holding a media + content block, and a banner."""
+    return [
+        {
+            "type": "section",
+            "value": {
+                "heading": {"heading_text": "<p>Ways to browse</p>"},
+                "content": [{"type": "media_content", "value": {"heading": {"heading_text": "<p>Private by default</p>"}}}],
+            },
+        },
+        {"type": "banner", "value": {"heading": {"heading_text": "<p>Get Firefox now</p>"}}},
+    ]
+
+
+def publish_freeform_content_page(page_model, slug, parent, content):
+    """Publish a page of `page_model` whose free form content stream holds `content`.
+
+    What's New pages carry a version and only live under a What's New index page; the
+    other types sit happily under any parent.
+    """
+    defaults = {"title": slug.replace("-", " ").capitalize()}
+    if page_model is WhatsNewPage2026:
+        parent = get_whatsnew_index_page()
+        defaults["version"] = "150"
+
+    page = get_or_create_page(page_model, slug=f"{slug}-{page_model._meta.model_name}", parent=parent, defaults=defaults)
+    page.content = content
+    page.save_revision().publish()
+    return page
+
+
+def render_main_element(page, rf):
+    """Serve `page` and return the soup for its main content wrapper."""
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+    return BeautifulSoup(response.content, "html.parser").find(class_="fl-main")
+
+
+def assert_intro_heading(main, condition_class, heading_text, heading_tag):
+    conditional_wrapper = main.find("div", class_=condition_class)
+    heading = conditional_wrapper.find("div", class_="fl-intro").find(class_="fl-heading")
+    assert heading.name == heading_tag
+    assert heading.get_text(strip=True) == heading_text
+
+
+def assert_section_and_banner_heading_levels(main):
+    """The section, the media + content block nested inside it, and the banner sit
+    below the intros in the hierarchy, however many intros lead the page."""
+    section_element = main.find("section", class_="fl-section")
+    section_heading = section_element.find(class_="fl-heading")
+    assert section_heading.name == "h2"
+    assert section_heading.get_text(strip=True) == "Ways to browse"
+
+    media_content_heading = section_element.find("div", class_="fl-mediacontent").find(class_="fl-heading")
+    assert media_content_heading.name == "h3"
+    assert media_content_heading.get_text(strip=True) == "Private by default"
+
+    banner_heading = main.find("div", class_="fl-banner-container").find(class_="fl-heading")
+    assert banner_heading.name == "h2"
+    assert banner_heading.get_text(strip=True) == "Get Firefox now"
+
+
+@pytest.mark.parametrize("page_model", FREEFORM_PAGE_TYPES)
+def test_heading_levels_respect_page_hierarchy(page_model, index_page, rf):
+    page = publish_freeform_content_page(
+        page_model,
+        slug="heading-hierarchy",
+        parent=index_page,
+        content=[intro_block("Firefox for everyone")] + section_and_banner_blocks(),
+    )
+
+    main = render_main_element(page, rf)
+
+    intro_heading = main.find("div", class_="fl-intro").find(class_="fl-heading")
+    assert intro_heading.name == "h1"
+    assert intro_heading.get_text(strip=True) == "Firefox for everyone"
+
+    assert_section_and_banner_heading_levels(main)
+
+
+@pytest.mark.parametrize("page_model", FREEFORM_PAGE_TYPES)
+def test_heading_levels_consider_conditional_display(page_model, index_page, rf):
+    page = publish_freeform_content_page(
+        page_model,
+        slug="platform-intros",
+        parent=index_page,
+        content=conditional_intro_blocks() + section_and_banner_blocks(),
+    )
+
+    main = render_main_element(page, rf)
+
+    for condition_class, heading_text, _ in PLATFORM_INTROS:
+        assert_intro_heading(main, condition_class, heading_text, "h1")
+
+    assert_section_and_banner_heading_levels(main)
+
+
+@pytest.mark.parametrize("notification_headline", ["", "<p>Your Firefox is up to date.</p>"], ids=["message_only", "with_headline"])
+@pytest.mark.parametrize("page_model", FREEFORM_PAGE_TYPES)
+def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notification_headline, index_page, rf):
+    notification = {
+        "type": "notification",
+        "value": {"headline": notification_headline, "message": "<p>Firefox has been updated.</p>"},
+    }
+    page = publish_freeform_content_page(
+        page_model,
+        slug="notification-and-platform-intros",
+        parent=index_page,
+        content=[notification] + conditional_intro_blocks() + section_and_banner_blocks(),
+    )
+
+    main = render_main_element(page, rf)
+
+    notification_element = main.find("div", class_="fl-notification")
+    assert "Firefox has been updated." in notification_element.get_text(strip=True)
+    assert notification_element.find(["h1", "h2", "h3", "h4", "h5", "h6"]) is None
+
+    for condition_class, heading_text, _ in PLATFORM_INTROS:
+        assert_intro_heading(main, condition_class, heading_text, "h1")
+
+    assert_section_and_banner_heading_levels(main)
