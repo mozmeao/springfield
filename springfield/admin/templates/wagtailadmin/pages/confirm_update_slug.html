@@ -39,6 +39,7 @@
 
     <form action="{% url 'cms_page_update_slug_confirm' page_to_update.id %}" method="POST" novalidate>
       {% csrf_token %}
+      {% include "wagtailadmin/shared/non_field_errors.html" %}
       {{ form.slug }}
 
       <ul class="fields">

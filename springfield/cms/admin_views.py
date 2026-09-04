@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -119,14 +119,19 @@ class UpdateSlugConfirmView(FormView):
         return context
 
     def form_valid(self, form):
-        update_page_slug(
-            self.page_to_update,
-            form.cleaned_data["slug"],
-            conflicting_page=self.conflicting_page,
-            conflicting_page_slug=form.cleaned_data.get("conflicting_page_slug"),
-            publish=form.cleaned_data["publish"],
-            user=self.request.user,
-        )
+        try:
+            update_page_slug(
+                self.page_to_update,
+                form.cleaned_data["slug"],
+                conflicting_page=self.conflicting_page,
+                conflicting_page_slug=form.cleaned_data.get("conflicting_page_slug"),
+                publish=form.cleaned_data["publish"],
+                user=self.request.user,
+            )
+        except ValidationError as error:
+            form.add_error(None, " ".join(error.messages))
+            return self.form_invalid(form)
+
         # Re-fetch: the operation changed the slug, and with it the page's URL and
         # possibly its published state, none of which the instance held here reflects.
         updated_page = Page.objects.get(pk=self.page_to_update.pk)

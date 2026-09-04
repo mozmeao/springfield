@@ -418,7 +418,7 @@ def test_slug_entry_view_redirects_to_the_confirmation_carrying_the_slug(admin_c
     response = admin_client.post(reverse("cms_page_update_slug", args=[replacement_page.id]), {"slug": "thing"})
 
     assert response.status_code == 302
-    assert response.url == f"/cms-admin/pages/{replacement_page.id}/update-slug/confirm/?slug=thing"
+    assert response.url == f"{reverse('cms_page_update_slug_confirm', args=[replacement_page.id])}?slug=thing"
 
 
 @pytest.mark.django_db
@@ -505,6 +505,23 @@ def test_confirm_view_publishes_the_page_when_the_box_is_ticked(admin_client, re
     assert "Page “New Thing” now uses the slug “thing”." in message
     assert reverse("wagtailadmin_pages:edit", args=[replacement_page.id]) in message
     assert updated_page.url in message
+
+
+@pytest.mark.django_db
+def test_confirm_view_shows_error_raised_by_update_method(admin_client, replacement_page, outgoing_page, parent_page, french_locale):
+    translate_object(outgoing_page, [french_locale])
+    french_parent = parent_page.get_translation(french_locale)
+    SimpleRichTextPageFactory(slug="thing-old", title="Blocker", parent=french_parent, locale=french_locale, live=True)
+
+    response = admin_client.post(
+        reverse("cms_page_update_slug_confirm", args=[replacement_page.id]),
+        {"slug": "thing", "conflicting_page_slug": "thing-old"},
+    )
+
+    assert response.status_code == 200
+    assert response.context["form"].non_field_errors()[0] == "The slug 'thing-old' is already in use within the parent page at '/en-US/features-fr/'."
+    assert Page.objects.get(pk=replacement_page.pk).slug == "new-thing"
+    assert Page.objects.get(pk=outgoing_page.pk).slug == "thing"
 
 
 @pytest.mark.django_db
