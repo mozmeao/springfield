@@ -5,8 +5,8 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from springfield.base.fixtures.registry import PAGE_FIXTURES
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
-from springfield.cms.fixtures.registry import PAGE_FIXTURES
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_scroll_to_see_more_snippet
 
 

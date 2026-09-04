@@ -805,6 +805,7 @@ INSTALLED_APPS = [
     # Local apps
     # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
+    "springfield.blog",
     "springfield.cms",  # Wagtail-based CMS bases
     "springfield.firefox",
     "springfield.newsletter",

@@ -22,6 +22,16 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.blog.fixtures.blog_fixtures import (
+    FEATURED_DESCRIPTIONS,
+    FEATURED_TITLES,
+    IMAGE_CAPTION,
+    create_blog_article,
+    get_blog_article_content,
+    get_blog_index_page,
+    get_blog_tags,
+    get_blog_topics,
+)
 from springfield.cms.blocks import (
     DETECTED_BROWSER_CHOICES,
     ROADMAP_STATUS_LABELS,
@@ -71,16 +81,6 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.blog_fixtures import (
-    FEATURED_DESCRIPTIONS,
-    FEATURED_TITLES,
-    IMAGE_CAPTION,
-    create_blog_article,
-    get_blog_article_content,
-    get_blog_index_page,
-    get_blog_tags,
-    get_blog_topics,
-)
 from springfield.cms.fixtures.browser_comparison_table_fixtures import (
     cell as browser_comparison_cell,
     get_browser_comparison_table_test_page,

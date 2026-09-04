@@ -27,7 +27,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from wagtail.models import Locale, PageViewRestriction, Site
 
-from springfield.cms.fixtures.blog_fixtures import blog_article_block
+from springfield.blog.fixtures.blog_fixtures import blog_article_block
 from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, HeroStyle, SpringfieldImage
 
 pytestmark = [pytest.mark.django_db]
