@@ -72,7 +72,7 @@ Button - Flare Design System Buttons
     outline: none;
 }
 
-.fl-button:focus {
+.fl-button:focus-visible {
     outline: 2px solid var(--button-color-focus-outline);
     outline-offset: 2px;
 }
@@ -126,7 +126,6 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     text-decoration: none;
 }
 
-.fl-button.button-link:focus,
 .fl-button.button-link:focus-visible {
     outline: none;
     text-decoration: none;
@@ -193,7 +192,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 
     /* hover and active states are variations on the same gold gradient, so we can just shift the background position */
     .fl-button.button-gold:hover,
-    .fl-button.button-gold:focus {
+    .fl-button.button-gold:focus-visible {
         background-position: top -10px left;
     }
 
@@ -275,8 +274,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 /* hover and active states are variations on the same gold gradient, so we can just shift the background position */
 .fl-split-page-upper .fl-button.button-gold:hover,
 .fl-force-dark-theme .fl-button.button-gold:hover,
-.fl-split-page-upper .fl-button.button-gold:focus,
-.fl-force-dark-theme .fl-button.button-gold:focus {
+.fl-split-page-upper .fl-button.button-gold:focus-visible,
+.fl-force-dark-theme .fl-button.button-gold:focus-visible {
     background-position: top -10px left;
 }
 
@@ -424,12 +423,6 @@ Copy-to-Clipboard Button
 
 .fl-copy-to-clipboard-button:disabled {
     cursor: default;
-}
-
-/* A mouse click focuses the button, then the JS disables it and the browser
-   drops focus, flashing the ring. Limit the ring to keyboard focus to avoid the flash. */
-.fl-copy-to-clipboard-button:focus:not(:focus-visible) {
-    outline: none;
 }
 
 .fl-copy-to-clipboard-button {

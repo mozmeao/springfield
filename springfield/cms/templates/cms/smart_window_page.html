@@ -167,6 +167,9 @@
                   {{ intro_download }}
                   {{ copy_to_clipboard }}
                 </div>
+                {% if page.enable_marketing_attribution %}
+                  <include:marketing-opt-out-checkbox analytics_id="{{ page.intro_download_button_uid }}" />
+                {% endif %}
                 <p class="fl-post-download-instructions">{{ page.post_download_instructions|richtext|remove_p_tag }}</p>
               </div>
             </include:conditional-display>

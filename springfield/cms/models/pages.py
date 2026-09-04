@@ -103,7 +103,7 @@ from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
-from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
+from .base import AbstractSpringfieldCMSPage, PromotedPageMixin, QROpenBehavior
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -320,12 +320,12 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
+        help_text="If true, the first-generation floating QR code snippet is displayed on the page.",
     )
     show_floating_qr_code_snippet = models.BooleanField(
         default=False,
         verbose_name="Show Floating QR Code Snippet",
-        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+        help_text="If true, the second-generation floating QR code snippet is displayed on the page.",
     )
     floating_qr_url = models.CharField(
         blank=True,
@@ -341,23 +341,45 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Override Floating QR Code Image",
         help_text="Override with an uploaded QR code image. Takes priority over the URL.",
     )
+    # Deprecated: superseded by `floating_qr_open_behavior`, which is now
+    # backfilled and the only override read. Kept temporarily so the column can
+    # be dropped in a separate, deploy-safe follow-up migration.
     floating_qr_default_open = models.BooleanField(
         null=True,
         blank=True,
         verbose_name="Override Floating QR Code Default Open",
         help_text="Override the default open state of the Floating QR code snippet.",
     )
+    floating_qr_open_behavior = models.CharField(
+        max_length=16,
+        choices=QROpenBehavior.choices,
+        blank=True,
+        default="",
+        verbose_name="Override Floating QR Code Open Behavior",
+        help_text="Leave blank to inherit the snippet's setting.",
+    )
+    floating_qr_open_delay_ms = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Override Floating QR Code Open Delay",
+        help_text="Milliseconds before the snippet opens. Leave blank to inherit the snippet's setting.",
+    )
 
     floating_qr_panels = [
         FieldPanel("show_qr_code_snippet"),
         MultiFieldPanel(
             [
+                FieldPanel("show_floating_qr_code_snippet"),
                 FieldRowPanel(
                     [
-                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("floating_qr_url"),
                         FieldPanel("floating_qr_image"),
-                        FieldPanel("floating_qr_default_open"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel("floating_qr_open_behavior"),
+                        FieldPanel("floating_qr_open_delay_ms"),
                     ]
                 ),
             ],
@@ -371,6 +393,8 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         SynchronizedField("floating_qr_url"),
         SynchronizedField("floating_qr_image"),
         SynchronizedField("floating_qr_default_open"),
+        SynchronizedField("floating_qr_open_behavior"),
+        SynchronizedField("floating_qr_open_delay_ms"),
     ]
 
     class Meta:
@@ -392,7 +416,15 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("Only one of 'Floating QR Code URL Override' and 'Floating QR Code Image Override' is allowed.")
         if self.show_qr_code_snippet and self.show_floating_qr_code_snippet:
             raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
-        if not self.show_floating_qr_code_snippet and any([self.floating_qr_url, self.floating_qr_image, self.floating_qr_default_open]):
+        if not self.show_floating_qr_code_snippet and any(
+            [
+                self.floating_qr_url,
+                self.floating_qr_image,
+                self.floating_qr_default_open,
+                self.floating_qr_open_behavior,
+                self.floating_qr_open_delay_ms,
+            ]
+        ):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
@@ -1266,10 +1298,6 @@ class FreeFormPage2026(
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
-    ]
-
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1392,10 +1420,6 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
-    ]
-
     class Meta:
         indexes = [
             models.Index(fields=["version"]),
@@ -1436,12 +1460,21 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+
+    analytics_id_fields = (
+        "nav_button_uid",
+        "intro_button_uid",
+        "waitlist_submit_uid",
+        "nav_download_button_uid",
+        "intro_download_button_uid",
+        "update_button_uid",
+    )
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -1609,6 +1642,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    promote_panels = UTMParamsMixin.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -1633,6 +1670,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()

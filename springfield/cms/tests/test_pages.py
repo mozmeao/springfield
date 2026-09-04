@@ -10,6 +10,7 @@ import pytest
 from bs4 import BeautifulSoup
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
+from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -522,3 +523,75 @@ def test_smart_window_show_try_smart_window(smart_window_page: SmartWindowPage, 
         assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
         assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
         assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
+
+
+# Smart Window Page marketing attribution
+
+
+@pytest.mark.django_db
+def test_smart_window_marketing_attribution_off_by_default(smart_window_page: SmartWindowPage, rf):
+    """With the flag off the page is unchanged: no promoted-page markup, no opt-out checkbox."""
+    page = smart_window_page
+    page.show_smart_window_button = "all"
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("html").get("data-promoted-page", "").lower() != "true"
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+
+
+@pytest.mark.django_db
+def test_smart_window_marketing_attribution_renders_promoted_markup(smart_window_page: SmartWindowPage, rf):
+    page = smart_window_page
+    page.show_smart_window_button = "all"
+    page.enable_marketing_attribution = True
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("html")["data-promoted-page"].lower() == "true"
+    assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
+
+    # One checkbox for the page, a sibling of the intro button row rather than nested in a
+    # button, so it can sit centred beneath both buttons.
+    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert len(labels) == 1
+    label = labels[0]
+    # Rendered hidden; the JS decides whether to reveal it.
+    assert "hidden" in label.get("class", [])
+    assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+    button_row = soup.find("div", class_="fl-buttons")
+    assert label.parent is button_row.parent
+    assert label.find_parent("div", {"id": str(page.intro_download_button_uid)}) is None
+
+    # The nav download button never gets one, matching /landing/get.
+    nav_button = soup.find("div", {"id": str(page.nav_download_button_uid)})
+    assert nav_button
+    assert not nav_button.find("label", class_="marketing-opt-out-checkbox-label")
+
+
+@pytest.mark.django_db
+def test_free_form_page_marketing_attribution_renders_checkbox_in_download_button(rf, placeholder_images):
+    """FreeFormPage2026 reaches the download button through the block wrapper, which nests
+    the checkbox inside the button rather than alongside it."""
+    page = get_buttons_test_page()
+    page.enable_marketing_attribution = True
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert labels
+    for label in labels:
+        assert label.find_parent("div", class_="fl-download-firefox-button")
+        assert "hidden" in label.get("class", [])
+        assert label.find("input", class_="marketing-opt-out-checkbox-input")

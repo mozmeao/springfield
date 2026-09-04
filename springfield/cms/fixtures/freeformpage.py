@@ -326,7 +326,7 @@ def get_freeform_page_with_floating_qr_snippet() -> FreeFormPage2026:
     page.docs = (
         "<p>This page demonstrates the Floating QR Code Snippet: a persistent, optionally-dismissable QR code that floats in the "
         "viewport while the user scrolls. Unlike the regular QR snippet, this one stays visible across the whole page.</p>"
-        "<p>Enable Show Floating QR Code Snippet in the page&rsquo;s options panel; the snippet&rsquo;s default_open flag controls "
+        "<p>Enable Show Floating QR Code Snippet in the page&rsquo;s options panel; the snippet&rsquo;s open behavior setting controls "
         "whether it starts expanded. Reserve floating snippets for high-intent pages (download, get-firefox flows) &mdash; they&rsquo;re "
         "attention-heavy and shouldn&rsquo;t be the default.</p>"
     )
