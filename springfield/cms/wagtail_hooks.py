@@ -39,7 +39,6 @@ from springfield.cms.admin_views import (
     ContentSearchView,
     UpdateSlugConfirmView,
     UpdateSlugView,
-    blog_tag_autocomplete,
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
@@ -73,7 +72,6 @@ def register_cms_admin_urls():
     return [
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
-        path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
         path("pages/<int:page_id>/update-slug/", UpdateSlugView.as_view(), name="cms_page_update_slug"),
         path("pages/<int:page_id>/update-slug/confirm/", UpdateSlugConfirmView.as_view(), name="cms_page_update_slug_confirm"),
         path(

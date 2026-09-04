@@ -43,6 +43,7 @@ from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
 from springfield.base.i18n import normalize_language
 from springfield.base.waffle import switch
+from springfield.blog.fields import LocalizedClusterTaggableManager
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
     UI_TOUR_CLASSES,
@@ -93,7 +94,7 @@ from springfield.cms.blocks import (
     VideoBlock,
     validate_animation_url,
 )
-from springfield.cms.fields import LocalizedClusterTaggableManager, StreamField
+from springfield.cms.fields import StreamField
 from springfield.cms.middleware import mark_locale_fallback_exempt
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField

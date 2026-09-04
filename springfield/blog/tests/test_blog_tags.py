@@ -10,7 +10,7 @@ import pytest
 from wagtail.models import Locale
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
-from springfield.cms.forms import LocaleTagField
+from springfield.blog.forms import LocaleTagField
 from springfield.cms.models import BlogTag
 
 pytestmark = [pytest.mark.django_db]
@@ -81,7 +81,7 @@ def test_blog_tag_autocomplete_offers_only_published_default_locale_tags(admin_c
     BlogTag.objects.create(name="Privacy in French", slug="privacy-fr", locale=fr_locale)
     BlogTag.objects.create(name="Privacy draft", slug="privacy-draft", locale=Locale.get_default(), live=False)
 
-    response = admin_client.get(reverse("cms_blog_tag_autocomplete"), {"term": "Privacy"})
+    response = admin_client.get(reverse("blog_tag_autocomplete"), {"term": "Privacy"})
 
     assert response.json() == ["Privacy"]
 
@@ -89,7 +89,7 @@ def test_blog_tag_autocomplete_offers_only_published_default_locale_tags(admin_c
 def test_blog_tag_autocomplete_without_term_returns_nothing(admin_client):
     BlogTag.objects.create(name="Privacy", slug="privacy", locale=Locale.get_default())
 
-    response = admin_client.get(reverse("cms_blog_tag_autocomplete"))
+    response = admin_client.get(reverse("blog_tag_autocomplete"))
 
     assert response.json() == []
 
