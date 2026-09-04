@@ -33,7 +33,7 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete
+from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete, create_translation_sharing_link
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -63,6 +63,11 @@ def register_cms_admin_urls():
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
         path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
+        path(
+            "translation-draftsharing/<int:translation_id>/",
+            create_translation_sharing_link,
+            name="cms_translation_draftsharing_create",
+        ),
     ]
 
 
@@ -178,6 +183,16 @@ def routing_condition_help_js():
     return mark_safe(
         f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
+
+
+@hooks.register("insert_global_admin_js")
+def translation_draftsharing_js():
+    """Deliver the script that moves the draft sharing button into the translation editor.
+
+    Loaded on every admin page; the script does nothing unless the editor rendered the
+    button template.
+    """
+    return format_html('<script type="module" src="{}"></script>', static("js/wagtailadmin-translation-draftsharing.js"))
 
 
 class FXAEntityElementHandler(InlineEntityElementHandler):
