@@ -752,11 +752,15 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
             continue
 
         stream_fields = [field for field in copied_page._meta.get_fields() if isinstance(field, StreamField)]
-        if not stream_fields:
+        if not stream_fields and not copied_page.analytics_id_fields:
             continue
 
         for field in stream_fields:
             setattr(copied_page, field.name, regenerate_analytics_ids(getattr(copied_page, field.name)))
+
+        # Some page types keep analytics IDs in their own fields
+        for field_name in copied_page.analytics_id_fields:
+            setattr(copied_page, field_name, uuid4())
 
         copied_page.save()
         revision = copied_page.save_revision(user=user) if user else copied_page.save_revision()
