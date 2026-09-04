@@ -158,10 +158,10 @@ def png_for(url):
 def mock_image_downloads(url=ANY_URL, content=None):
     """Serve a valid PNG for the image downloads the import makes, any URL by default.
 
-    Each URL gets bytes of its own, as a real media server would. That matters because the import
-    identifies an image by its contents: serving one fixed PNG everywhere would make every
-    unrelated image in a test look like the same file. Pass `content` where the bytes are the
-    point - two URLs standing in for one file, say.
+    Each URL gets bytes of its own, as a real media server would. This is needed because the
+    import identifies an image by its contents: serving one fixed PNG everywhere would make every
+    unrelated image in a test look like the same file. Pass `content` when the bytes themselves
+    matter, such as two URLs standing in for one file.
     """
 
     def serve(request):
@@ -177,8 +177,8 @@ DOWNLOAD_ATTEMPTS = 3
 def mock_failed_downloads(url=ANY_URL, error=None):
     """Fail every download attempt for `url`, as a dead media URL would.
 
-    One registration per attempt: responses hands out an unused match in preference to a used
-    one, so with fewer a later attempt would fall through to a broader mock and succeed.
+    One registration per attempt: responses prefers an unused match over a used one, so with
+    fewer registrations a later attempt would fall through to a broader mock and succeed.
     """
     for _ in range(DOWNLOAD_ATTEMPTS):
         responses.add(responses.GET, url, body=error or requests.ConnectionError("dead"))
@@ -342,7 +342,7 @@ def test_parse_content_plain_text_becomes_single_text_spec():
 
 
 def test_parse_content_bare_text_separated_by_blank_lines_becomes_paragraphs():
-    """Classic posts hold no <p> at all - WordPress adds them at render time, so the import must."""
+    """Classic posts hold no <p> at all: WordPress adds them at render time, so the import must."""
     specs, _ = parse_content("First paragraph.\n\nSecond paragraph.\n\nThird.")
     assert specs == [("text", "<p>First paragraph.</p><p>Second paragraph.</p><p>Third.</p>")]
 
@@ -394,7 +394,7 @@ def test_parse_content_demotes_h1_section_headings_to_h2():
 
 
 def test_parse_content_leaves_other_heading_levels_where_they_are():
-    """Only h1 moves: demoting the whole tree would push real sections down for no reason."""
+    """Only h1 is demoted; demoting the whole tree would push real sections down for no reason."""
     specs, _ = parse_content("<h2>Section</h2><h3>Subsection</h3><h4>Detail</h4>")
     assert specs == [("text", "<h2>Section</h2><h3>Subsection</h3><h4>Detail</h4>")]
 
@@ -440,7 +440,7 @@ def test_parse_content_keeps_an_image_that_shares_its_paragraph_with_text():
 
 
 def test_parse_content_keeps_an_image_inside_a_list_item_and_warns():
-    """Promoting it would break the list, so it stays put and the operator is told."""
+    """Promoting it would break the list, so it stays in place and the operator is warned."""
     specs, warnings = parse_content('<div><ul><li>Step one <img src="https://example.com/step.png" alt="Step"></li></ul></div>')
     assert [kind for kind, _ in warnings] == ["inline-image"]
     assert "https://example.com/step.png" in warnings[0][1]
@@ -450,7 +450,7 @@ def test_parse_content_keeps_an_image_inside_a_list_item_and_warns():
 
 
 def test_parse_content_inline_image_in_a_list_stays_in_the_text():
-    """Pulling an inline image out of prose would break the flow, so it is left in place.
+    """Pulling an inline image out of prose would break the surrounding text, so it stays put.
 
     materialize_content turns it into a Wagtail image embed rather than a block.
     """
@@ -472,7 +472,7 @@ def test_parse_content_drops_a_link_that_only_points_at_the_images_own_file():
 
 
 def test_parse_content_keeps_an_image_linked_to_a_real_destination_and_warns():
-    """A linked banner is a CTA, so the link stays - but the editor will pull the image out of it."""
+    """A linked banner is a CTA, so the link stays, but the editor will pull the image out of it."""
     html = '<p><a href="https://www.mozilla.org/firefox/new/"><img src="https://example.com/banner.png" alt="Get Firefox"></a></p>'
     specs, warnings = parse_content(html)
     assert [kind for kind, _ in warnings] == ["inline-image"]
@@ -481,8 +481,8 @@ def test_parse_content_keeps_an_image_linked_to_a_real_destination_and_warns():
 
 
 def test_parse_content_figure_without_figcaption_becomes_image_without_caption():
-    """A figure-wrapped image still becomes an image spec, so the file is downloaded
-    into Wagtail rather than left hotlinked inside a text block."""
+    """A figure-wrapped image still becomes an image spec, so the file is downloaded into
+    Wagtail instead of staying hotlinked inside a text block."""
     html = '<figure class="wp-block-image"><img src="https://example.com/a.png" alt="Alt"/></figure>'
     specs, warnings = parse_content(html)
     assert warnings == []
@@ -736,8 +736,8 @@ def test_parse_content_embed_shortcode_for_another_provider_becomes_a_link_with_
 
 
 def test_parse_content_non_youtube_embed_block_becomes_a_link_with_warning():
-    """A rich text <embed> is no use for a provider outside Wagtail's oEmbed list: it resolves
-    to nothing and leaves an empty paragraph on the page, so these become plain links."""
+    """A rich text <embed> does not work for a provider outside Wagtail's oEmbed list: it
+    resolves to nothing and leaves an empty paragraph on the page, so these become plain links."""
     html = (
         '<figure class="wp-block-embed is-type-video"><div class="wp-block-embed__wrapper">'
         "https://www.tiktok.com/@mozilla/video/6966371868643298566</div></figure>"
@@ -751,7 +751,8 @@ def test_parse_content_non_youtube_embed_block_becomes_a_link_with_warning():
 
 
 def test_parse_content_embed_fallback_link_drops_tracking_parameters():
-    """WordPress captured these from share links, so the query is tracking, not addressing."""
+    """WordPress captured these from share links, so the query string holds tracking parameters
+    rather than anything needed to reach the video."""
     html = (
         '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">'
         "https://www.tiktok.com/@mozilla/video/123?_d=abc&amp;checksum=def&amp;timestamp=1633557299#frag</div></figure>"
@@ -774,12 +775,12 @@ def test_parse_content_self_hosted_video_warns_and_stays_in_the_text():
     specs, warnings = parse_content(html)
     assert [spec[0] for spec in specs] == ["text"]
     assert "tab-groups.mp4" in specs[0][1]
-    # One warning for the video, not a second one for its caption, which travels with it.
+    # One warning for the video. Its caption stays inline with it, so it needs no warning.
     assert len(warnings) == 1
     assert warnings[0][0] == "video"
     assert "self-hosted video https://blog.mozilla.org/files/tab-groups.mp4" in warnings[0][1]
     # The <video> is not a rich text feature, so it does not merely stay hotlinked: the editor
-    # drops it entirely on the first save, leaving the caption behind. Say so.
+    # drops it entirely on the first save, leaving the caption behind. The warning says so.
     assert "editing the page will drop it" in warnings[0][1]
 
 
@@ -886,7 +887,7 @@ def test_materialize_content_keeps_the_original_tag_when_an_inline_image_fails(c
     spec = ("text", '<p>Before <img src="https://example.com/dead.png" alt="Alt"/> after</p>')
     html = command.materialize_content([spec], "A Test Post")[0][1]
 
-    # Nothing to embed, so the hotlink stays rather than the image vanishing from the prose.
+    # Nothing to embed, so the hotlink stays instead of the image disappearing from the prose.
     assert 'src="https://example.com/dead.png"' in html
     assert "embedtype" not in html
     assert "could not download image" in stderr_of(command)
@@ -940,7 +941,7 @@ def test_materialize_content_video_without_caption_falls_back_to_post_title_for_
 
 @responses.activate
 def test_materialize_content_links_a_video_whose_poster_download_fails(command, no_retry_backoff):
-    """The block requires a poster, but the video shouldn't vanish for want of a thumbnail.
+    """The block requires a poster, but a missing thumbnail should not drop the video.
 
     YouTube serves no thumbnail at all for a video that has since been deleted, which is the case
     for one of the videos in this export.
@@ -1007,9 +1008,9 @@ def test_get_or_create_image_reuses_the_same_url_within_a_run_without_network_ca
 def test_get_or_create_image_reuses_an_image_whose_contents_already_arrived_in_an_earlier_run():
     """Resuming an import must not add a second copy of a file already in the library.
 
-    The stored name is no guide: Django's storage appends a random suffix when the name is
-    taken, so the same source file can end up as 'hero.jpg' one run and 'hero_A1b2c3.jpg' the
-    next. The file contents are what identify it.
+    The stored name cannot be used for this: Django's storage appends a random suffix when the
+    name is taken, so the same source file can end up as 'hero.jpg' one run and 'hero_A1b2c3.jpg'
+    the next. The file contents identify it.
     """
     # One file served from two URLs, so its contents are what the two calls have in common.
     mock_image_downloads(content=PNG_BYTES)
@@ -1067,7 +1068,7 @@ def test_get_or_create_image_gives_up_after_three_attempts(command, no_retry_bac
 
 @responses.activate
 def test_get_or_create_image_unprocessable_file_warns_instead_of_raising(command, monkeypatch):
-    """A file ImageMagick cannot handle must not take the whole post down with it."""
+    """A file ImageMagick cannot handle must not fail the whole post."""
     mock_image_downloads()
     monkeypatch.setattr(
         "springfield.cms.management.commands.import_wordpress_blog_posts.SpringfieldImage.objects.create",
@@ -1198,7 +1199,7 @@ def test_incremental_csv_rows_survive_without_close(tmp_path):
     writer = IncrementalCsv(str(path), ["a", "b"])
     writer.write(("1", "one"))
     writer.write(("2", "two"))
-    # Deliberately no close(), standing in for a process that dies mid-import.
+    # No close(), standing in for a process that dies mid-import.
 
     with open(path, newline="") as fh:
         rows = list(csv.reader(fh))
@@ -1234,7 +1235,7 @@ def test_unsupported_post_type_is_skipped_and_does_not_abort_other_posts(tmp_pat
 
     assert not BlogArticlePage.objects.filter(slug="a-page").exists()
     assert BlogArticlePage.objects.filter(slug="a-test-post").exists()
-    # A non-'post' entry is an expected skip, not a failure.
+    # A non-'post' entry is skipped, not counted as a failure.
     assert "skip (unsupported PostType 'page'): a-page" in run.stdout
     assert "Done. 1 imported, 1 skipped, 0 failed." in run.stdout
 
@@ -1281,14 +1282,14 @@ def test_one_post_failure_does_not_affect_others_or_leave_partial_state(tmp_path
 
 @responses.activate
 def test_an_image_created_by_a_failed_post_is_not_handed_to_a_later_one(tmp_path, index_page):
-    """A failed post's transaction takes its new images with it, so none may stay in the cache."""
+    """A failed post's transaction rolls back its new images, so none may stay in the cache."""
     # Post one's hero downloads and is cached, and the image in its body then raises, so the post
     # fails after having created the hero. A ValueError is not a RequestException, so it is
     # neither retried nor swallowed.
     mock_failed_downloads("https://example.com/broken.png", error=ValueError("boom"))
     mock_image_downloads()
 
-    # Both posts take their hero from the default image_url
+    # Both posts take their hero from the default image_url.
     run = run_import(
         tmp_path,
         post_xml(id="1", slug="post-one", content='<p>Body <img src="https://example.com/broken.png"></p>'),
@@ -1309,7 +1310,7 @@ def test_dry_run_creates_nothing(tmp_path, index_page):
     assert BlogTag.objects.count() == 0
     assert BlogAuthor.objects.count() == 0
     assert not run.url_map.exists()
-    # No responses are registered, so any request would raise rather than be recorded.
+    # No responses are registered, so any request would raise instead of being recorded.
     assert len(responses.calls) == 0, "dry-run must not hit the network"
     assert "[dry-run] importing: A Test Post" in run.stdout
     assert "Done. 1 would be imported, 0 skipped, 0 failed." in run.stdout
@@ -1390,7 +1391,7 @@ def test_blank_categories_fails_the_post_instead_of_leaving_it_without_a_topic(t
 
 @responses.activate
 def test_wordpress_bookkeeping_tags_are_not_imported(tmp_path, index_page):
-    """'export' is the export tool's own marker and 'homepage' a placement flag - neither is a subject."""
+    """'export' is the export tool's own marker and 'homepage' a placement flag; neither is a subject."""
     mock_image_downloads()
 
     run_import(tmp_path, post_xml(tags="export|homepage|Uncategorized|Privacy"))
@@ -1488,7 +1489,7 @@ def test_youtube_iframe_is_imported_as_a_video_block(tmp_path, index_page):
 
 @responses.activate
 def test_links_to_other_posts_in_the_import_point_at_their_new_pages(tmp_path, index_page):
-    """These posts cross-link heavily; left alone the links send the reader back to WordPress."""
+    """These posts cross-link heavily. Left alone, the links send the reader back to WordPress."""
     mock_image_downloads()
     linking = post_xml(
         id="1",
@@ -1544,7 +1545,7 @@ def test_hero_image_comes_from_image_featured_not_image_url(tmp_path, index_page
 @responses.activate
 def test_blank_image_featured_falls_back_to_the_first_image_url(tmp_path, index_page):
     """Some posts leave ImageFeatured blank but still attach their header image, so the first
-    ImageURL entry becomes the hero rather than the post losing its image."""
+    ImageURL entry becomes the hero instead of the post being imported without one."""
     mock_image_downloads()
 
     run_import(
@@ -1573,14 +1574,15 @@ def test_post_with_no_images_at_all_is_imported_without_a_hero_image(tmp_path, i
     assert page.image is None
     assert page.hero_style == HeroStyle.TEXT_ONLY
     assert "Done. 1 imported, 0 skipped, 0 failed." in run.stdout
-    # A post with no images is expected, not a problem worth warning about.
+    # A post with no images is expected, so it produces no warning.
     assert run.stderr == ""
     assert len(responses.calls) == 0
 
 
 @responses.activate
 def test_hero_alt_text_falls_back_to_the_export_image_description(tmp_path, index_page):
-    """ImageDescription describes the image by definition, so it beats the file-name-ish title."""
+    """ImageDescription describes the image by definition, so it is preferred over a title that
+    looks like a file name."""
     mock_image_downloads()
 
     run_import(tmp_path, post_xml(image_alt_text="", image_title="mozilla_blog-post_visuals_grayscale", image_description="A brain in grayscale"))
@@ -1608,7 +1610,7 @@ def test_image_alt_text_is_left_blank_when_the_export_only_names_the_file(tmp_pa
 
     page = BlogArticlePage.objects.get(slug="a-test-post")
     assert page.image.description == ""
-    # The file name is still useful as a library label, just not as alt text.
+    # The file name is still used as the library label, but not as alt text.
     assert page.image.title == "SP_FX_Monitor_blogheader_01"
 
 
@@ -1667,7 +1669,7 @@ def test_warnings_are_written_to_csv_against_the_post_they_came_from(tmp_path, i
 
 @responses.activate
 def test_failed_image_download_is_recorded_in_the_warnings_csv(tmp_path, index_page, no_retry_backoff):
-    """A dead image URL only reached stderr before, which is the easiest warning of all to miss."""
+    """A dead image URL previously only reached stderr, where it is easy to miss."""
 
     # One failure per attempt, registered ahead of the catch-all, so this URL fails outright.
     mock_failed_downloads("https://example.com/dead.png")
@@ -1683,7 +1685,7 @@ def test_failed_image_download_is_recorded_in_the_warnings_csv(tmp_path, index_p
 
 @responses.activate
 def test_failed_post_records_its_warnings_and_the_failure(tmp_path, index_page):
-    """A failed post has no page to inspect, so the CSV is the only trace of what happened."""
+    """A failed post has no page to inspect, so the CSV is the only record of what happened."""
     mock_image_downloads()
     content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.tiktok.com/@mozilla/video/123</div></figure>'
     # A post with no Category fails, after its content has already raised a warning.
@@ -1727,7 +1729,7 @@ def test_no_warnings_csv_is_written_when_a_post_has_no_warnings(tmp_path, index_
 
 @responses.activate
 def test_url_map_generated_on_a_local_site_says_so(tmp_path, index_page):
-    """The map is for the blog.mozilla.org team's redirects, so localhost rows are no use to them."""
+    """The map is for the blog.mozilla.org team's redirects, so localhost rows are unusable."""
     mock_image_downloads()
 
     Site.objects.filter(is_default_site=True).update(hostname="localhost", port=8000)

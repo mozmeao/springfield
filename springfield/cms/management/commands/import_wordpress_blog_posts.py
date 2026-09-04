@@ -7,21 +7,21 @@
 Each <post> in the export becomes one BlogArticlePage, in its own transaction, so a post that
 fails leaves nothing half-written behind and doesn't stop the ones after it.
 
-A post's HTML body is converted in two passes, which is the main thing to know when reading this
-module:
+A post's HTML body is converted in two passes:
 
-1. `parse_content` (and `ContentParser`) turn the HTML into ordered *block specs* - plain tuples
-   like ("image", {"src": ..., "alt": ..., "caption": ...}). This pass is pure: it downloads
-   nothing and touches no database, so it can be tested against HTML strings.
-2. `Command.materialize_content` turns those specs into real StreamField blocks, downloading each
-   image as it goes. This is where all the I/O lives.
+1. `parse_content` (and `ContentParser`) turn the HTML into ordered block specs: tuples like
+   ("image", {"src": ..., "alt": ..., "caption": ...}). This pass does no downloads and no
+   database access, so it can be tested against HTML strings.
+2. `Command.materialize_content` turns those specs into StreamField blocks, downloading each
+   image as it goes. All the I/O is here.
 
-The export's markup rarely maps onto our blocks one-to-one, so anything that can't be represented
-is reported through `Command.warn` rather than dropped silently: a caption with no single image to
-attach to, a self-hosted video, an image that won't download. Warnings go to stderr as the run
-proceeds and to a CSV keyed by the post they came from, because a long run's output scrolls past.
+The export's markup does not map onto our blocks one-to-one. Anything that cannot be represented
+is reported through `Command.warn` instead of being dropped silently: a caption with no single
+image to attach to, a self-hosted video, an image that will not download. Warnings go to stderr
+during the run and to a CSV keyed by the post they came from, because a long run's output scrolls
+past.
 
-Two CSVs are written, both row by row so a crash keeps whatever finished:
+Two CSVs are written row by row, so a crash keeps whatever finished:
 - wordpress_url_map.csv: the old-URL -> new-URL map, to hand to the blog.mozilla.org team for
   redirects.
 - wordpress_import_warnings.csv: the warnings, as a worklist of what needs a human afterward.
@@ -66,16 +66,16 @@ from springfield.cms.models import (
 CAPTION_SHORTCODE_RE = re.compile(r"\[caption[^\]]*\](.*?)\[/caption\]", re.DOTALL)
 IMG_TAG_RE = re.compile(r"<img[^>]*>")
 
-# The same split for videos: older posts wrap a bare video URL in an `[embed]` shortcode, newer
-# ones in `<figure class="wp-block-embed">`.
+# Videos are split the same way: older posts wrap a bare video URL in an `[embed]` shortcode,
+# newer ones in `<figure class="wp-block-embed">`.
 EMBED_SHORTCODE_RE = re.compile(r"\[embed[^\]]*\](.*?)\[/embed\]", re.DOTALL)
 
 # Layout wrappers WordPress puts around blocks (groups, media-and-text pairs, columns). They
 # carry no meaning we keep, so the parser steps inside them to reach the figures they hold.
 CONTAINER_TAGS = {"div", "section"}
 
-# Elements that stand on their own in a post body. Everything else is inline, and a run of inline
-# nodes is what wrap_bare_paragraphs collects into a paragraph.
+# Elements that stand on their own in a post body. Everything else is inline, and
+# wrap_bare_paragraphs collects runs of inline nodes into a paragraph.
 BLOCK_TAGS = {
     "address",
     "article",
@@ -117,11 +117,11 @@ BLOCK_TAGS = {
 
 BLANK_LINE_RE = re.compile(r"\n\s*\n")
 
-# Media URLs go down often enough that one attempt isn't enough, with a widening gap between tries.
+# Media URLs fail often enough to need more than one attempt, with a widening gap between tries.
 DOWNLOAD_ATTEMPTS = 3
 DOWNLOAD_TIMEOUT_SECONDS = 60
 
-# Hosts serving YouTube's generated thumbnails, whose file names carry no distinguishing part.
+# Hosts serving YouTube's generated thumbnails, which all use the same file name.
 YOUTUBE_THUMBNAIL_HOSTS = {"img.youtube.com", "i.ytimg.com"}
 
 # Warning kinds, recorded alongside each message so the CSV can be filtered by them.
@@ -137,19 +137,19 @@ WARNING_LINK = "link"
 WARNING_AUTHOR = "author"
 
 # WordPress bookkeeping that rides along in the Tags field: the export tool's own marker, a
-# placement flag and WordPress's fallback bucket. None of them means anything to a reader, and
-# every one of them would show on the article cards.
+# placement flag and WordPress's fallback bucket. None of them is a subject, and all of them
+# would show on the article cards.
 IGNORED_TAG_NAMES = {"export", "homepage", "uncategorized"}
 
-# Hostnames that mean the URL map was generated somewhere only this machine can reach.
+# Hostnames that mean the URL map was generated somewhere only reachable from this machine.
 LOCAL_HOSTNAMES = {"localhost", "127.0.0.1", "0.0.0.0", "testserver"}
 
-# Media files WordPress links an image to when "link to media file" is set. Such a link points at
-# the copy on blog.mozilla.org and carries nothing once the image is ours, so it is dropped.
+# Media files WordPress links an image to when "link to media file" is set. The link points at
+# the copy on blog.mozilla.org, which is no use once the image is ours, so it is dropped.
 MEDIA_FILE_SUFFIXES = (".avif", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".webp")
 
-# Elements that hold an image somewhere a block can't go. The nearest of these around an image is
-# what the inline-image warning names, rather than whatever layout wrapper is furthest out.
+# Elements that hold an image somewhere a block can't go. The inline-image warning names the
+# nearest of these around an image, not the outermost layout wrapper.
 INLINE_IMAGE_CONTAINERS = ("a", "li", "p", "h2", "h3", "h4", "h5", "h6", "blockquote", "td")
 
 # Wagtail's own accessibility check rejects alt text that ends in an image extension or contains
@@ -202,16 +202,15 @@ def parse_categories(raw):
 
 
 class IncrementalCsv:
-    """A CSV that is written as rows arrive, rather than all at once at the end.
+    """A CSV written row by row as rows arrive, instead of all at once at the end.
 
-    Importing is long-running and can die outright - a segfault in the image libraries, an OOM
-    kill, a Ctrl-C. Each post is committed in its own transaction, so a crash still leaves
-    imported pages behind; flushing every row keeps the record of them instead of losing the
-    whole file. Re-running does not rebuild it, because those posts are skipped as already
-    imported.
+    An import runs for a long time and can die outright: a segfault in the image libraries, an
+    OOM kill, a Ctrl-C. Each post is committed in its own transaction, so a crash still leaves
+    imported pages behind, and flushing every row keeps the record of them. Re-running does not
+    rebuild the file, because those posts are skipped as already imported.
 
-    The file is only created once there is a row to write, so a run with nothing to report
-    doesn't leave an empty CSV behind.
+    The file is created only once there is a row to write, so a run with nothing to report
+    leaves no empty CSV behind.
     """
 
     def __init__(self, path, header):
@@ -227,7 +226,7 @@ class IncrementalCsv:
             self._writer = csv.writer(self._file)
             self._writer.writerow(self.header)
         self._writer.writerow(row)
-        # Hand the row to the OS now: a segfault loses Python's buffer, not the kernel's.
+        # Flush to the OS now, so a segfault loses at most the row being written.
         self._file.flush()
         self.count += 1
 
@@ -238,7 +237,7 @@ class IncrementalCsv:
 
 
 # ---------------------------------------------------------------------------
-# Media URLs and text, all pure functions of their input
+# Media URLs and text, all pure functions of their arguments
 # ---------------------------------------------------------------------------
 
 
@@ -281,8 +280,8 @@ def youtube_poster_url(video_id):
 def image_filename(url):
     """The name to store the download from `url` under.
 
-    Normally the file's own name. Every YouTube thumbnail is called 'hqdefault.jpg', so the video
-    id - the directory holding it - goes in front, which keeps posters apart in the image library.
+    Usually the file's own name. Every YouTube thumbnail is called 'hqdefault.jpg', so the video
+    id (the directory holding it) is prefixed to keep posters distinct in the image library.
     """
     path = Path(urlparse(url).path)
     name = path.name or "image.jpg"
@@ -305,8 +304,8 @@ def image_description(text):
 
     WordPress fills its image fields with whatever the file happened to be called, so most of
     these are names like 'fx_blog_header_extensions_writing' rather than descriptions. Wagtail
-    uses this as the image's alt text, where a file name is worse than nothing - a screen reader
-    reads it out - so it is dropped rather than passed on.
+    uses this as the image's alt text, and a screen reader reads a file name out loud, so it is
+    dropped instead of being passed on.
     """
     text = (text or "").strip()
     if any(pattern.search(text) for pattern in FILENAME_LIKE_PATTERNS):
@@ -318,8 +317,8 @@ def video_link(url):
     """Link to a video we can't turn into a block, labelled rather than showing a raw URL.
 
     A YouTube watch URL keeps its query string, which is where the video id lives. Every other
-    provider loses it: WordPress captured those from share links, so the query carries tracking -
-    session ids, checksums, timestamps - rather than anything needed to reach the video.
+    provider loses it: WordPress captured those from share links, so their query strings hold
+    tracking (session ids, checksums, timestamps) and nothing needed to reach the video.
     """
     parsed = urlparse(url)._replace(fragment="")
     if youtube_video_id(url) is None:
@@ -330,8 +329,8 @@ def video_link(url):
 def caption_html(figcaption):
     """Return a figcaption's inner HTML wrapped in a paragraph, ready for a RichTextBlock.
 
-    The <p> matters: the block template runs the value through `remove_p_tag`, which
-    yields nothing at all for rich text that isn't wrapped in a block-level tag.
+    The <p> is required: the block template runs the value through `remove_p_tag`, which
+    returns nothing for rich text that isn't wrapped in a block-level tag.
     """
     inner = figcaption.decode_contents().strip()
     return f"<p>{inner}</p>" if inner else ""
@@ -345,8 +344,8 @@ def caption_html(figcaption):
 def rewrite_caption_shortcodes(raw_html):
     """Rewrite every `[caption]` shortcode as a `<figure>`, keeping the prose after the `<img>`.
 
-    Doing this up front means the parser only has to understand one way of writing a captioned
-    image. A shortcode with no image in it carries nothing we can use, so it goes.
+    Doing this up front leaves the parser one form of captioned image to handle. A shortcode
+    with no image in it has nothing usable, so it is dropped.
     """
 
     def replace(match):
@@ -367,8 +366,8 @@ def rewrite_embed_shortcodes(raw_html):
     """Rewrite every `[embed]` shortcode as the embed figure Gutenberg would have produced.
 
     Older posts wrap a bare video URL in the shortcode where newer ones use
-    `<figure class="wp-block-embed">`, so rewriting leaves the parser one shape to understand.
-    Anything other than a URL keeps its place as plain text rather than being thrown away.
+    `<figure class="wp-block-embed">`, so rewriting leaves the parser one form to handle.
+    Anything other than a URL is kept in place as plain text.
     """
 
     def replace(match):
@@ -383,9 +382,9 @@ def rewrite_embed_shortcodes(raw_html):
 def demote_h1_headings(raw_html):
     """Turn any `<h1>` in a post body into an `<h2>`.
 
-    The page renders its title as the only h1 it should have, and h1 isn't one of the rich text
-    features, so Draftail doesn't move such a heading down a level - it drops it to plain text
-    the first time an editor saves. A few posts use h1 for every section heading they have.
+    The page renders its title as the only h1 it should have. h1 is not a rich text feature, so
+    Draftail does not demote a heading in the body; it converts it to plain text the first time
+    an editor saves. A few posts use h1 for every section heading.
     """
     soup = BeautifulSoup(raw_html, "html.parser")
     headings = soup.find_all("h1")
@@ -401,8 +400,8 @@ def wrap_bare_paragraphs(raw_html):
 
     Pre-Gutenberg posts carry no paragraph markup at all: paragraphs are separated by blank lines
     and WordPress adds the tags at render time (its `wpautop`). Rich text has no such step, so
-    without this a third of these posts render as one unbroken block of text - and the first
-    editor save fuses them for good, because Draftail keeps the words and drops the newlines.
+    without this about a third of these posts render as one unbroken block of text, and the first
+    editor save makes that permanent, because Draftail keeps the words and drops the newlines.
     """
     soup = BeautifulSoup(f"<div>{raw_html}</div>", "html.parser")
     pieces = []
@@ -440,7 +439,7 @@ def relink_imported_posts(text_html, new_paths):
     These posts cross-link heavily. A link left as it is sends the reader back to WordPress for a
     post that now lives here, so every blog.mozilla.org link whose last path segment matches an
     imported slug is rewritten. `new_paths` maps slug -> path on this site. Links to anything not
-    in the import are left alone: that content isn't moving.
+    in the import are left alone, because that content is not moving.
     """
     soup = BeautifulSoup(text_html, "html.parser")
     changed = False
@@ -459,9 +458,9 @@ def unwrap_media_file_links(soup):
     """Drop every `<a>` that wraps an image only to link to the image's own file.
 
     That's WordPress's "link to media file" setting: a lightbox link to the full-size upload on
-    blog.mozilla.org. Once the image is ours the link leads back to the old site, and an image
-    inside a link cannot be represented in rich text - the editor pulls it out on the first save
-    and leaves the link empty. Links that go somewhere real are left alone.
+    blog.mozilla.org. Once the image is ours the link points back to the old site, and rich text
+    cannot represent an image inside a link: the editor pulls the image out on the first save and
+    leaves the link empty. Links to anywhere else are left alone.
     """
     for anchor in soup.find_all("a", href=True):
         images = anchor.find_all("img")
@@ -474,8 +473,8 @@ def unwrap_media_file_links(soup):
 def image_only_paragraph(node):
     """Return the `<img>` a paragraph holds on its own, or None if it holds anything else.
 
-    WordPress renders such a paragraph as a block-level image, so it becomes a real image block:
-    that keeps the layout and, unlike an image embedded in rich text, survives an editor save.
+    WordPress renders such a paragraph as a block-level image, so it becomes an image block. That
+    keeps the layout, and unlike an image embedded in rich text it survives an editor save.
     """
     if not isinstance(node, HtmlTag) or node.name != "p" or node.get_text(strip=True):
         return None
@@ -501,10 +500,10 @@ class ContentParser:
     """Converts a post's HTML body into ordered block specs, collecting warnings as it goes.
 
     Prose accumulates in `text_buffer` and is flushed into a text spec whenever a block-level
-    element interrupts it, which is what preserves the original running order. Nothing here
-    downloads anything: image specs carry only the source URL.
+    element interrupts it, which preserves the original order. Nothing here downloads anything:
+    image specs carry only the source URL.
 
-    Use `parse_content`; this class is the machinery behind it.
+    Call `parse_content` rather than using this class directly.
     """
 
     def __init__(self):
@@ -544,7 +543,7 @@ class ContentParser:
                 self.specs.append(("code", {"code": node.get_text()}))
             elif name in CONTAINER_TAGS and node.find("figure") is not None:
                 # A layout wrapper (a group, a media-and-text pair) holding a figure: step inside
-                # so the image is imported rather than left hotlinked in a text block. The
+                # so the image is imported instead of staying hotlinked in a text block. The
                 # wrapper's own prose keeps its place in the surrounding text.
                 self.process(node.contents)
             else:
@@ -564,8 +563,7 @@ class ContentParser:
         """Buffer a node as rich text, reporting any caption that goes down with it.
 
         A caption only survives as an Image + Caption block when it sits on a figure holding a
-        single image. Anything else keeps its caption inline in the text, which the operator
-        should hear about.
+        single image. Any other caption stays inline in the text, and the operator is warned.
         """
         figcaptions = node.find_all("figcaption") if isinstance(node, HtmlTag) else []
         for figcaption in figcaptions:
@@ -575,8 +573,8 @@ class ContentParser:
         for img in node.find_all("img") if isinstance(node, HtmlTag) else []:
             # An image sharing a paragraph with prose, or sitting in a list item, a heading or a
             # link, can't become a block of its own without breaking what surrounds it. It is
-            # imported as a rich text embed, which renders correctly but which the editor lifts
-            # out of its container the first time someone saves the page.
+            # imported as a rich text embed, which renders correctly, but the editor lifts it out
+            # of its container the first time someone saves the page.
             container = img.find_parent(INLINE_IMAGE_CONTAINERS)
             self.warn(
                 WARNING_INLINE_IMAGE,
@@ -586,11 +584,11 @@ class ContentParser:
         self.text_buffer.append(node)
 
     def keep_video_as_text(self, node):
-        """Leave a self-hosted video where it is, and say so.
+        """Leave a self-hosted video inline and warn about it.
 
         The video block only accepts YouTube and assets.mozilla.net URLs, so an mp4 served from
         the blog itself has nowhere to go. It stays inline, still pointing at blog.mozilla.org,
-        which needs handling separately - hence the warning rather than a silent pass.
+        which needs handling separately, so it is warned about rather than passed over silently.
         """
         video = node if node.name == "video" else node.find("video")
         self.warn(
@@ -604,9 +602,9 @@ class ContentParser:
     def add_video(self, url, alt):
         """Add a video block spec for a YouTube URL, or a labelled link for any other provider.
 
-        The video block only accepts YouTube and assets.mozilla.net URLs. A rich text <embed> is
-        no use for the rest: providers outside Wagtail's oEmbed list (e.g. TikTok) resolve to
-        nothing, and their players are blocked by the site's CSP anyway.
+        The video block only accepts YouTube and assets.mozilla.net URLs. A rich text <embed>
+        does not work for the rest: providers outside Wagtail's oEmbed list (e.g. TikTok) resolve
+        to nothing, and their players are blocked by the site's CSP anyway.
         """
         self.flush_text()
         video_id = youtube_video_id(url)
@@ -646,7 +644,7 @@ class ContentParser:
         """Report where a linked image pointed, since an image block has no field to keep it in.
 
         Links to the image's own file are unwrapped before parsing starts, so an anchor still
-        around the image here leads somewhere real - usually a call to action.
+        around the image here points somewhere else, usually a call to action.
         """
         anchor = img.find_parent("a", href=True)
         if anchor is None:
@@ -660,9 +658,9 @@ class ContentParser:
     def add_gallery(self, gallery):
         """Turn each figure nested in a gallery into an image spec of its own.
 
-        We have no gallery block, so the images become a run of individual ones. The gallery's own
-        caption describes the whole set, so it only maps onto a block when the set turns out to
-        hold a single image that has no caption already.
+        There is no gallery block, so the images become individual image specs. The gallery's own
+        caption describes the whole set, so it is only used when the set holds a single image that
+        has no caption already.
         """
         own_caption = gallery.find("figcaption", recursive=False)
         first_spec = len(self.specs)
@@ -685,7 +683,7 @@ def parse_content(raw_html):
 
     Specs are ("text", html), ("image", {"src", "alt", "caption"}), ("video", {"url", "alt"}) or
     ("code", {"code": ...}); warnings are (kind, message) pairs so the caller can group them.
-    Only the markup this export actually uses is recognised - everything else stays as rich text.
+    Only the markup this export actually uses is recognised; everything else stays as rich text.
     """
     return ContentParser().parse(raw_html)
 
@@ -775,8 +773,8 @@ class Command(BaseCommand):
 
                 post_type = element_text(post, "PostType")
                 if post_type != "post":
-                    # Not an error - the export includes pages/attachments this command deliberately
-                    # doesn't handle. Report it as a skip rather than a failure.
+                    # The export includes pages and attachments this command does not handle.
+                    # Report them as skips, not failures.
                     self.stdout.write(f"  skip (unsupported PostType {post_type!r}): {slug}")
                     skipped += 1
                     continue
@@ -800,8 +798,8 @@ class Command(BaseCommand):
                     # Clean up cached URLs from images rolled back by the transaction
                     for cached_url in self.urls_cached_by_post:
                         self.image_cache.pop(cached_url, None)
-                    # A failed post is the most important thing to record: it has no page to
-                    # inspect, so the CSV is the only trace of what went wrong.
+                    # A failed post has no page to inspect, so the CSV is the only record of
+                    # what went wrong.
                     self.record_warnings(post, new_url="", failure=(WARNING_FAILURE, f"post failed to import: {exc}"))
                     failed += 1
                     continue
@@ -822,8 +820,8 @@ class Command(BaseCommand):
         if self.url_map_csv.count:
             self.stdout.write(f"Wrote {self.url_map_csv.count} URL mappings to {self.url_map_csv.path}")
             if local_hostname:
-                # The map exists for the blog.mozilla.org team's redirects, and new_url comes from
-                # the Wagtail Site record, so one generated here sends them to a machine of ours.
+                # The map is for the blog.mozilla.org team's redirects, and new_url comes from the
+                # Wagtail Site record, so a map generated here points them at a local machine.
                 self.stdout.write(
                     f"CAUTION: the new URLs point at {local_hostname!r}, which is only reachable locally. "
                     "Regenerate the map where the Site record holds the production hostname before handing it over."
@@ -847,8 +845,8 @@ class Command(BaseCommand):
         if not categories:
             raise ValueError(f"post {slug!r} has no Category - BlogArticlePage.topic is required and cannot be blank")
 
-        # Everything past here writes or downloads. The checks above run in a dry run too, so a
-        # preview reports the posts that would fail rather than only the content warnings.
+        # Everything past here writes or downloads. The checks above also run in a dry run, so a
+        # preview reports the posts that would fail as well as the content warnings.
         if self.dry_run:
             return None
 
@@ -862,7 +860,7 @@ class Command(BaseCommand):
         # other Image* fields as parallel lists. The hero image is the single URL in ImageFeatured,
         # which is the first of those, so its title is the first ImageTitle. Some posts leave
         # ImageFeatured blank while still attaching their header image, so the first ImageURL entry
-        # stands in - it is the same entry the parallel lists describe. A post with neither is
+        # stands in; it is the same entry the parallel lists describe. A post with neither is
         # imported without a hero image.
         hero_url = element_text(post, "ImageFeatured") or element_text(post, "ImageURL").split("|")[0].strip()
         image_title = element_text(post, "ImageTitle").split("|")[0].strip() or title
@@ -938,8 +936,8 @@ class Command(BaseCommand):
                 poster = self.get_or_create_image(youtube_poster_url(youtube_video_id(value["url"])), alt, description=alt)
                 if poster is None:
                     # The block requires a poster, and YouTube serves no thumbnail at all for a
-                    # video that has since been deleted. Keep the reference as a link rather than
-                    # letting the video fall out of the post.
+                    # video that has since been deleted. Keep the reference as a link so the video
+                    # does not disappear from the post.
                     blocks.append(("text", video_link(value["url"])))
                     continue
                 blocks.append(("media", [("video", {"video_url": value["url"], "alt": alt, "poster": poster})]))
@@ -950,9 +948,9 @@ class Command(BaseCommand):
     def import_inline_images(self, text_html, title):
         """Swap hotlinked <img> tags in rich text for Wagtail image embeds.
 
-        An image inside prose - a list item, a sentence, a link - can't become a block of its own
+        An image inside prose (a list item, a sentence, a link) can't become a block of its own
         without breaking the text around it, so it stays in the rich text. Stored as an embed it
-        is a managed image rather than a link back to blog.mozilla.org, and the 'image' rich text
+        is a managed image instead of a link back to blog.mozilla.org, and the 'image' rich text
         feature keeps it intact when an editor saves the page.
         """
         soup = BeautifulSoup(text_html, "html.parser")
@@ -965,7 +963,7 @@ class Command(BaseCommand):
             image = self.get_or_create_image(img.get("src", ""), img.get("alt", "") or title, description=alt)
             if image is None:
                 # Already warned. Leave the original tag: a hotlink still renders while the
-                # source is up, which beats dropping the image outright.
+                # source is up, which is better than dropping the image.
                 continue
             embed = soup.new_tag("embed")
             embed.attrs = {
@@ -992,8 +990,8 @@ class Command(BaseCommand):
 
         `Authors` holds the published byline as either an email or a bare name-slug, never a
         display name, and the Author* fields describe the post's owner rather than its byline.
-        One post's owner record is therefore what names that same person's byline on another
-        post - so this is built from every post before any of them is imported.
+        One post's owner record is what names that same person's byline on another post, so this
+        is built from every post before any of them is imported.
         """
         known = {}
         for post in posts:
@@ -1009,10 +1007,10 @@ class Command(BaseCommand):
     def get_or_create_author(self, name, email="", *, locale):
         """Fetch or create the BlogAuthor for `name`, keyed on the slug of that name.
 
-        Keying on the slug is what lets a byline like `kim-bryant` and an owner record naming
-        "Kim Bryant" land on one snippet, whichever the import meets first. BlogAuthor is
+        Keying on the slug lets a byline like `kim-bryant` and an owner record naming "Kim
+        Bryant" resolve to the same snippet, whichever the import sees first. BlogAuthor is
         translatable and unique per (slug, locale), so `locale` is required rather than
-        defaulted - an author is only ever created in the locale being imported into.
+        defaulted: an author is only ever created in the locale being imported into.
         """
         name = name.strip()
         if not name:
@@ -1024,9 +1022,9 @@ class Command(BaseCommand):
     def get_or_create_authors(self, post, locale):
         """Resolve the post's byline into BlogAuthors, in the order the export lists them.
 
-        A byline no owner record names is someone the export describes nowhere: all it carries is
-        a slug or an address, so that raw string becomes the snippet's name and a warning asks for
-        a real one. A post with no byline at all falls back to its owner, the only person it names.
+        A byline that no owner record names appears nowhere else in the export; it is only a slug
+        or an address. That raw string becomes the snippet's name, and a warning asks for a real
+        one. A post with no byline at all falls back to its owner, the only person it names.
         """
         bylines = [byline.strip() for byline in element_text(post, "Authors").split("|") if byline.strip()]
         if not bylines:
@@ -1061,8 +1059,8 @@ class Command(BaseCommand):
         month, so unrelated posts routinely hold a different `image.png`, and every YouTube
         thumbnail is called `hqdefault.jpg`. Matching on the name collapsed those into one image.
 
-        `description` is Wagtail's alt text. It is only kept when it actually describes the
-        image - see image_description - so a file name never ends up being read out.
+        `description` is Wagtail's alt text. It is only kept when it actually describes the image
+        (see image_description), so a screen reader never reads out a file name.
         """
         url = url.strip()
         if not url:
@@ -1078,10 +1076,11 @@ class Command(BaseCommand):
         if response is None:
             return None
 
-        # Reuse a file the library already holds rather than storing the same bytes twice - the
-        # same image served from two URLs, or a resumed run. The stored name is no guide: Django's
-        # storage renames a file whose name is taken, so 'hero.jpg' becomes 'hero_A1b2c3.jpg' and
-        # never matches again. The contents are what identify it, and Wagtail indexes their hash.
+        # Reuse a file the library already holds instead of storing the same bytes twice: the
+        # same image served from two URLs, or a resumed run. The stored name cannot be used for
+        # this, because Django's storage renames a file whose name is taken, so 'hero.jpg' becomes
+        # 'hero_A1b2c3.jpg' and never matches again. The contents identify the file, and Wagtail
+        # indexes their hash.
         existing = SpringfieldImage.objects.filter(file_hash=hash_filelike(BytesIO(response.content))).first()
         if existing is not None:
             self.cache_image(url, existing)
@@ -1089,8 +1088,8 @@ class Command(BaseCommand):
 
         alt_text = image_description(description)
         if not alt_text:
-            # Reported per post once the whole post is imported, so it is one line to act on
-            # rather than one per image.
+            # Reported once per post, after the post is imported, so it is one line to act on
+            # instead of one per image.
             self.images_without_alt += 1
         try:
             with transaction.atomic():
@@ -1103,9 +1102,9 @@ class Command(BaseCommand):
                     file_hash=hash_filelike(BytesIO(response.content)),
                 )
         except Exception as exc:
-            # Saving computes the image's dimensions through ImageMagick, which gives up on some
-            # files - a large animated GIF exhausts its pixel cache. One unusable image is worth
-            # a warning, not the loss of the whole post.
+            # Saving computes the image's dimensions through ImageMagick, which fails on some
+            # files; a large animated GIF exhausts its pixel cache. Warn and carry on instead of
+            # failing the whole post.
             self.warn(WARNING_PROCESSING, f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
             return None
 
