@@ -11,7 +11,7 @@
   articles for it.
 #}
 
-{% from "cms/includes/blog/blog-card-media.html" import article_card_media with context %}
+{% from "blog/includes/blog-card-media.html" import article_card_media with context %}
 
 {% set articles = value.get_articles() %}
 {% if articles %}

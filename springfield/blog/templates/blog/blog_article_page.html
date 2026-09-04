@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-{% from "cms/includes/blog/blog-card-media.html" import list_item_media with context %}
+{% from "blog/includes/blog-card-media.html" import list_item_media with context %}
 <div class="fl-main">
   <div class="fl-split-page-upper has-gradient-bottom">
     <div class="fl-article-back">
@@ -28,7 +28,7 @@
       </a>
     </div>
     <div class="fl-article-main">
-      {% include "cms/includes/blog/blog-article-hero.html" %}
+      {% include "blog/includes/blog-article-hero.html" %}
     </div>
   </div>
 

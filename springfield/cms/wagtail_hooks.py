@@ -30,7 +30,6 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.chooser import ChooseResultsView, ChooseView, SnippetChooserViewSet
 from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
@@ -45,9 +44,6 @@ from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
-    BlogAuthor,
-    BlogTag,
-    BlogTopic,
     FreeFormPage2026,
     NavigationSnippet,
     PencilBannerSnippet,
@@ -657,45 +653,6 @@ class BannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["heading_plain", "locale", "live"]
 
 
-class BlogTagViewSet(LocaleDefaultingSnippetViewSet):
-    model = BlogTag
-    list_display = ["name", "locale", "live"]
-
-
-class BlogTopicViewSet(LocaleDefaultingSnippetViewSet):
-    model = BlogTopic
-    list_display = ["name", "locale", "live"]
-
-
-class DefaultLocaleBlogAuthorMixin:
-    """Restricts an author chooser to the rows an article is allowed to store."""
-
-    def get_object_list(self):
-        return BlogAuthor.objects.filter(locale=WagtailLocale.get_default(), live=True)
-
-
-class BlogAuthorChooseView(DefaultLocaleBlogAuthorMixin, ChooseView):
-    pass
-
-
-class BlogAuthorChooseResultsView(DefaultLocaleBlogAuthorMixin, ChooseResultsView):
-    pass
-
-
-class BlogAuthorChooserViewSet(SnippetChooserViewSet):
-    # Both views need the restriction: ChooseView renders the initial modal and
-    # ChooseResultsView serves search and pagination within it.
-    choose_view_class = BlogAuthorChooseView
-    choose_results_view_class = BlogAuthorChooseResultsView
-
-
-class BlogAuthorViewSet(LocaleDefaultingSnippetViewSet):
-    model = BlogAuthor
-    list_display = ["name", "job_title", "locale", "live"]
-    search_fields = ["name"]
-    chooser_viewset_class = BlogAuthorChooserViewSet
-
-
 class TagViewSet(LocaleDefaultingSnippetViewSet):
     model = Tag
     list_display = ["name", "locale", "live"]
@@ -743,9 +700,6 @@ for _viewset in (
     PreFooterCTASnippetViewSet,
     PreFooterCTAFormSnippetViewSet,
     BannerSnippetViewSet,
-    BlogTagViewSet,
-    BlogTopicViewSet,
-    BlogAuthorViewSet,
     TagViewSet,
     QRCodeSnippetViewSet,
     SetAsDefaultSnippetViewSet,

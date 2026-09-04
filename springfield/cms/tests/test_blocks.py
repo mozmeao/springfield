@@ -22,6 +22,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.blog.blocks import BlogCardsListBlock, BlogCardsListSourceBlock, BlogLatestArticlesBlock
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -32,6 +33,7 @@ from springfield.blog.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
+from springfield.blog.models.snippets import BlogTag, BlogTopic
 from springfield.cms.blocks import (
     DETECTED_BROWSER_CHOICES,
     ROADMAP_STATUS_LABELS,
@@ -41,9 +43,6 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_NEW_TAB,
     ArticleBlock,
     BaseArticleValue,
-    BlogCardsListBlock,
-    BlogCardsListSourceBlock,
-    BlogLatestArticlesBlock,
     BrowserComparisonTableBlock,
     ButtonBlock,
     ButtonRowBlock,
@@ -181,7 +180,6 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
-from springfield.cms.models.snippets import BlogTag, BlogTopic
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop

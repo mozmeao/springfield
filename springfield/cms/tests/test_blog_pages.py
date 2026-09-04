@@ -16,6 +16,7 @@ from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
 
+from springfield.blog.blocks import BlogArticleBlock
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -33,12 +34,11 @@ from springfield.blog.fixtures.blog_fixtures import (
     get_blog_topics,
     get_bottom_banner_stream,
 )
-from springfield.cms.blocks import BlogArticleBlock
+from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
+from springfield.blog.models.pages import ARTICLES_PER_PAGE, MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle, cache_localized_tags
+from springfield.blog.models.snippets import BlogTag, BlogTopic
 from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
-from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogTopicPage
 from springfield.cms.models.images import SpringfieldImage
-from springfield.cms.models.pages import ARTICLES_PER_PAGE, MAX_HEADER_TOPICS, BlogIndexPage, HeroStyle, cache_localized_tags
-from springfield.cms.models.snippets import BlogTag, BlogTopic
 
 pytestmark = [pytest.mark.django_db]
 

@@ -11,7 +11,7 @@ from wagtail.models import Locale
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
 from springfield.blog.forms import LocaleTagField
-from springfield.cms.models import BlogTag
+from springfield.blog.models import BlogTag
 
 pytestmark = [pytest.mark.django_db]
 

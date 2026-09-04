@@ -36,11 +36,9 @@ from wagtail_localize.models import StringSegment, Translation, TranslationSourc
 from wagtail_localize.segments.extract import extract_segments
 from wagtail_localize.segments.types import StringSegmentValue
 
+from springfield.blog.models.snippets import BlogAuthor, BlogTag, BlogTopic
 from springfield.cms.models.snippets import (
     BannerSnippet,
-    BlogAuthor,
-    BlogTag,
-    BlogTopic,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
     Tag,

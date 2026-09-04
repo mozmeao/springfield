@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from wagtail.admin.views.tags import TAGS_AUTOCOMPLETE_LIMIT
 from wagtail.models import Locale
 
-from springfield.cms.models import BlogTag
+from springfield.blog.models import BlogTag
 
 
 def blog_tag_autocomplete(request):

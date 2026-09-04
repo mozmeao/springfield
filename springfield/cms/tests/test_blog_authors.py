@@ -12,10 +12,10 @@ import pytest
 from wagtail.models import Locale, Site
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 
+from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTopic
+from springfield.blog.models.pages import HeroStyle
+from springfield.blog.wagtail_hooks import BlogAuthorChooseView
 from springfield.cms.management.commands.link_translations_after_export import TRANSLATABLE_SNIPPET_MODELS
-from springfield.cms.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTopic
-from springfield.cms.models.pages import HeroStyle
-from springfield.cms.wagtail_hooks import BlogAuthorChooseView
 
 pytestmark = [pytest.mark.django_db]
 
@@ -177,7 +177,7 @@ def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_clien
     BlogAuthor.objects.create(name="Ada en français", slug="ada-fr", locale=fr_locale)
     make_author("Draft Author", "draft-author", live=False)
 
-    response = admin_client.get(reverse("wagtailsnippetchoosers_cms_blogauthor:choose"))
+    response = admin_client.get(reverse("wagtailsnippetchoosers_blog_blogauthor:choose"))
 
     assert response.status_code == 200
     rendered = response.json()["html"]
@@ -189,8 +189,8 @@ def test_author_chooser_modal_lists_only_live_default_locale_authors(admin_clien
 def test_blog_authors_are_included_in_the_db_export():
     export_script = (settings.ROOT_PATH / "bin" / "export-db-to-sqlite.sh").read_text()
 
-    assert "cms.BlogAuthor" in export_script
-    assert "cms.BlogArticleAuthor" in export_script
+    assert "blog.BlogAuthor" in export_script
+    assert "blog.BlogArticleAuthor" in export_script
 
 
 def test_blog_authors_are_relinked_after_export():

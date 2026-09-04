@@ -28,7 +28,8 @@ from PIL import Image
 from wagtail.models import Locale, PageViewRestriction, Site
 
 from springfield.blog.fixtures.blog_fixtures import blog_article_block
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, HeroStyle, SpringfieldImage
+from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, HeroStyle
+from springfield.cms.models import SpringfieldImage
 
 pytestmark = [pytest.mark.django_db]
 

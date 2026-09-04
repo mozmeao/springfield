@@ -158,6 +158,14 @@ python manage.py dumpdata \
     taggit.Tag \
     taggit.TaggedItem \
     waffle.Switch \
+    blog.BlogIndexPage \
+    blog.BlogArticlePage \
+    blog.BlogTopicPage \
+    blog.BlogTopic \
+    blog.BlogTag \
+    blog.TaggedBlogArticle \
+    blog.BlogAuthor \
+    blog.BlogArticleAuthor \
     cms.StructuralPage \
     cms.SimpleRichTextPage \
     cms.FreeFormPage2026 \
@@ -173,9 +181,6 @@ python manage.py dumpdata \
     cms.DownloadPage \
     cms.DownloadIndexPage \
     cms.ThanksPage \
-    cms.BlogIndexPage \
-    cms.BlogArticlePage \
-    cms.BlogTopicPage \
     cms.RoadmapPage \
     cms.ContactPage \
     cms.ReferralHubPage \
@@ -189,11 +194,6 @@ python manage.py dumpdata \
     cms.PretranslatedPhrase \
     cms.PencilBannerSnippet \
     cms.QRCodeSnippet \
-    cms.BlogTopic \
-    cms.BlogTag \
-    cms.TaggedBlogArticle \
-    cms.BlogAuthor \
-    cms.BlogArticleAuthor \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
     cms.PencilBannerPlacement \
