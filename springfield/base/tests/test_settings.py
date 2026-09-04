@@ -9,7 +9,7 @@ from django.test import override_settings
 
 import pytest
 
-from springfield.settings.base import _get_media_cdn_hostname_for_storage_backend, lazy_langs
+from springfield.settings.base import _get_media_cdn_hostname_for_storage_backend, _normalize_gtm_server_url, lazy_langs
 
 
 @override_settings(DEV=False, PROD_LANGUAGES=("de", "fr", "nb-NO", "ja", "ja-JP-mac", "en-US", "en-GB"))
@@ -61,3 +61,26 @@ def test_lazy_langs_uses_product_details_after_apps_ready(mocker):
 
     result = lazy_langs()
     assert result == [("en-US", "English (US)"), ("de", "Deutsch")]
+
+
+@pytest.mark.parametrize(
+    "raw_url, expected_url",
+    (
+        ("https://gtm.firefox.com", "https://gtm.firefox.com"),
+        ("https://gtm.firefox.com/", "https://gtm.firefox.com"),
+        # A scheme-less value would resolve page-relative in the browser.
+        ("gtm.firefox.com", "https://gtm.firefox.com"),
+        ("gtm.firefox.com/", "https://gtm.firefox.com"),
+        # Protocol-relative is not a valid CSP source expression.
+        ("//gtm.firefox.com", "https://gtm.firefox.com"),
+        # http:// would be mixed content on our https pages.
+        ("http://gtm.firefox.com", "https://gtm.firefox.com"),
+        ("http://gtm.firefox.com/", "https://gtm.firefox.com"),
+        ("", ""),  # unset, which disables server-side GTM
+        # A scheme with no host is treated as unset rather than becoming garbage.
+        ("https://", ""),
+        ("//", ""),
+    ),
+)
+def test_normalize_gtm_server_url(raw_url, expected_url):
+    assert _normalize_gtm_server_url(raw_url) == expected_url

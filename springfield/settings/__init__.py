@@ -50,9 +50,6 @@ _csp_connect_src = {
     "*.google-analytics.com",
     "analytics.google.com",  # WT-1453
     "*.analytics.google.com",  # WT-1453
-    "gtm.springfield.moz.works",
-    "gtm-dev.springfield.moz.works",
-    "gtm.firefox.com",
     "o1069899.sentry.io",
     "o1069899.ingest.sentry.io",
     "o1069899.ingest.us.sentry.io",
@@ -130,6 +127,19 @@ _csp_style_src = {
 # Transcend Consent Management UI uses CSS-in-JS which requires inline styles.
 if TRANSCEND_AIRGAP_URL:  # noqa: F405
     _csp_style_src.add(csp.constants.UNSAFE_INLINE)
+
+# When server-side GTM is enabled, our own tagging server receives measurement
+# hits. Google documents `connect-src`, `img-src` and `frame-src` as all required
+# for the tagging server URL, since hits fall back from fetch to an image beacon,
+# and some tags redirect via an iframe. `script-src` is pre-wired here too, ahead
+# of the tagging server also serving gtm.js itself in a later change.
+# See https://developers.google.com/tag-platform/tag-manager/server-side/send-data
+# GTM_SERVER_URL is an origin with no path.
+if GTM_SERVER_URL:
+    _csp_script_src.add(GTM_SERVER_URL)
+    _csp_connect_src.add(GTM_SERVER_URL)
+    _csp_img_src.add(GTM_SERVER_URL)
+    _csp_frame_src.add(GTM_SERVER_URL)
 
 # TODO change settings so we don't need unsafes even in dev
 if config("ENABLE_DJANGO_PATTERN_LIBRARY", parser=bool, default="False"):
