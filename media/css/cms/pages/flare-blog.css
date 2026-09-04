@@ -293,6 +293,10 @@
     margin-block: var(--token-spacing-lg) 0;
 }
 
+.fl-blog-featured-main .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
 .fl-blog-article-list {
     display: flex;
     flex-direction: column;
