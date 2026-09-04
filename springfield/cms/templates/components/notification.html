@@ -4,14 +4,15 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False, anchor_id=None #}
+{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False, anchor_id=None, extra_class="" #}
 
 {% set closable = false if stacked else closable %}
 
 <div class="
   fl-notification-wrapper
   {% if theme and theme == 'light' %}fl-force-light-theme{% endif %}
-  {% if theme and theme == 'dark' %}fl-force-dark-theme{% endif %}"
+  {% if theme and theme == 'dark' %}fl-force-dark-theme{% endif %}
+  {% if extra_class %} {{ extra_class }}{% endif %}"
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
 >
   <div class="

@@ -5,12 +5,14 @@
 from unittest import mock
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 import pytest
 from bs4 import BeautifulSoup
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -18,7 +20,8 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
-from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage
+from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
+from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
 
 
 @pytest.fixture
@@ -542,6 +545,71 @@ def test_smart_window_marketing_attribution_off_by_default(smart_window_page: Sm
     assert soup.find("html").get("data-promoted-page", "").lower() != "true"
     assert not soup.find("meta", {"name": "robots"})
     assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+
+
+# ThanksPage notification field
+
+
+@pytest.mark.django_db
+def test_thanks_page_renders_notification_field_above_content(minimal_site, rf):
+    """The notification field renders between the auto-download notification and
+    content, and its headline doesn't consume the page's first heading level."""
+    page = ThanksPage(
+        slug="test-thanks-notification",
+        title="Test Thanks Notification",
+        notification=[make_notification("thnot001", "Your download should begin shortly.", make_show_to(), headline="Thanks!")],
+        content=[
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": make_show_to()},
+                    "heading": {"heading_text": "<p>Set up Firefox</p>"},
+                    "content": [],
+                    "cta": [],
+                },
+            },
+            get_download_support(),
+        ],
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    main = soup.find("div", class_="fl-main")
+
+    # ThanksPage always renders its own hardcoded auto-download notification above the
+    # notification field, so this looks for the one built from the notification field.
+    notifications = main.find_all("div", class_="fl-notification")
+    notification = next((div for div in notifications if "Your download should begin shortly." in div.get_text()), None)
+    assert notification, "Notification field should render on ThanksPage"
+    assert "Thanks!" in notification.get_text()
+
+    heading = main.find("h1")
+    assert heading and heading.get_text(strip=True) == "Set up Firefox", "Notification's headline must not take the h1 slot"
+
+    rendered_main = str(main)
+    assert rendered_main.index("Your download should begin shortly.") < rendered_main.index("Set up Firefox")
+
+
+@pytest.mark.django_db
+def test_thanks_page_allows_at_most_two_notifications():
+    """ThanksPage.notification is capped at two blocks by the field's max_num."""
+    notification_field = ThanksPage.get_edit_handler().get_form_class().base_fields["notification"]
+
+    def notifications(count):
+        page = ThanksPage()
+        page.notification = [make_notification(f"cap{index:04d}", f"Notice {index}.", make_show_to()) for index in range(count)]
+        return page.notification
+
+    notification_field.clean(notifications(0))
+    notification_field.clean(notifications(1))
+    notification_field.clean(notifications(2))
+
+    with pytest.raises(ValidationError):
+        notification_field.clean(notifications(3))
 
 
 @pytest.mark.django_db

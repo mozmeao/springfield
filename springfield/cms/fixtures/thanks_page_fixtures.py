@@ -6,6 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
     get_floating_qr_code_snippet,
@@ -224,6 +225,23 @@ def get_download_support():
     return {"type": "download_support", "value": None, "id": "d3f5e8c4-3f4e-4c2e-9f4a-1c2b5e6d7f8a"}
 
 
+def get_notification_with_headline():
+    return make_notification(
+        "thnksnt1",
+        "Firefox is free and always will be.",
+        make_show_to(),
+        headline="Good to know",
+    )
+
+
+def get_notification_without_headline():
+    return make_notification(
+        "thnksnt2",
+        "This page is also available in other languages.",
+        make_show_to(),
+    )
+
+
 def get_thanks_page() -> ThanksPage:
     index_page = get_flare_pages_docs_page()
 
@@ -231,6 +249,11 @@ def get_thanks_page() -> ThanksPage:
 
     get_pre_footer_cta_form_snippet()
     get_floating_qr_code_snippet()
+
+    notification = [
+        get_notification_with_headline(),
+        get_notification_without_headline(),
+    ]
 
     content = [
         get_windows_section(),
@@ -248,6 +271,7 @@ def get_thanks_page() -> ThanksPage:
         parent=index_page,
         defaults={
             "title": "Thanks Page",
+            "notification": notification,
             "content": content,
         },
     )
@@ -259,6 +283,7 @@ def get_thanks_page() -> ThanksPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
+    page.notification = with_fresh_ids(notification)
     page.content = with_fresh_ids(content)
     page.save_revision().publish()
     return page
