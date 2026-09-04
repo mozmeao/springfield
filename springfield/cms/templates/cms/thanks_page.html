@@ -42,6 +42,18 @@
 
     {% set ns = namespace(headings=0) %}
     {% set block_level = 1 %}
+
+    {% if page.notification %}
+      {% for block in page.notification %}
+        {% set block_position = "notification" %}
+        {% if block.value.headline %}
+          {% set block_level = 1 if ns.headings == 0 else 2 %}
+          {% set ns.headings = ns.headings + 1 %}
+        {% endif %}
+        {% include_block block %}
+      {% endfor %}
+    {% endif %}
+
     {% for block in page.content %}
       {% set block_index = loop.index %}
       {% set block_type = block.block_type %}

@@ -564,16 +564,15 @@ def test_smart_window_show_try_smart_window(smart_window_page: SmartWindowPage, 
 
 
 @pytest.mark.django_db
-def test_thanks_page_renders_notification_block(minimal_site, rf):
-    """ThanksPage.content accepts a notification block, same as FreeFormPage2026.
-
-    ThanksPage.clean() requires the first block to be a section and a download_support
-    block to be present somewhere, so both are included alongside the notification
-    block under test.
+def test_thanks_page_renders_optional_notification_field(minimal_site, rf):
+    """ThanksPage.notification is a separate, optional field above content - unlike a
+    content block, it isn't subject to ThanksPage.clean()'s "first block must be a
+    Section" or platform-coverage rules.
     """
     page = ThanksPage(
         slug="test-thanks-notification",
         title="Test Thanks Notification",
+        notification=[make_notification("thnot01", "Your download should begin shortly.", make_show_to(), headline="Thanks!")],
         content=[
             {
                 "type": "section",
@@ -584,7 +583,6 @@ def test_thanks_page_renders_notification_block(minimal_site, rf):
                     "cta": [],
                 },
             },
-            make_notification("thnot01", "Your download should begin shortly.", make_show_to(), headline="Thanks!"),
             get_download_support(),
         ],
     )
@@ -596,8 +594,8 @@ def test_thanks_page_renders_notification_block(minimal_site, rf):
 
     soup = BeautifulSoup(response.content, "html.parser")
     # ThanksPage always renders its own hardcoded auto-download notification above the
-    # StreamField content, so this looks for the one built from the notification block.
+    # StreamField content, so this looks for the one built from the notification field.
     notifications = soup.find_all("div", class_="fl-notification")
     notification = next((div for div in notifications if "Your download should begin shortly." in div.get_text()), None)
-    assert notification, "Notification block should render on ThanksPage"
+    assert notification, "Notification field should render on ThanksPage"
     assert "Thanks!" in notification.get_text()

@@ -597,9 +597,18 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     ftl_files = ["firefox/download/desktop"]
 
-    content = StreamField(
+    notification = StreamField(
         [
             ("notification", NotificationBlock()),
+        ],
+        use_json_field=True,
+        null=True,
+        blank=True,
+        max_num=1,
+        help_text="Optional notification shown above the page's main content.",
+    )
+    content = StreamField(
+        [
             ("section", SectionBlock(allow_uitour=False)),
             ("download_support", DownloadSupportBlock()),
             (
@@ -615,6 +624,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("notification"),
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
