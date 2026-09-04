@@ -35,6 +35,7 @@ def make_show_to(
     geo=None,
     ai_controls="",
     bind_to_uitour=False,
+    sample_rate=None,
 ):
     return {
         "platforms": platforms or [],
@@ -46,6 +47,7 @@ def make_show_to(
         "geo": geo or [],
         "ai_controls": ai_controls,
         "bind_to_uitour": bind_to_uitour,
+        "sample_rate": sample_rate,
     }
 
 
@@ -272,6 +274,23 @@ def get_conditional_display_variants() -> list[dict]:
             headline="AI Controls: unavailable",
             color="red",
             icon="sparkles",
+        ),
+        # Sample rate conditions
+        make_notification(
+            "cdsamp01",
+            "Visible to a random 10% sample of eligible visitors.",
+            make_show_to(sample_rate=10),
+            headline="Sample rate: 10%",
+            color="purple",
+            icon="experiments",
+        ),
+        make_notification(
+            "cdsamp02",
+            "Visible to Windows users in the same 10% sample as above — every sample-rated block on a page shares one roll, so both reveal together.",
+            make_show_to(platforms=["windows"], sample_rate=10),
+            headline="Windows + Sample rate: 10% (combined)",
+            color="purple",
+            icon="experiments",
         ),
         # Combinations
         make_notification(

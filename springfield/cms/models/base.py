@@ -2,11 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from collections import defaultdict
+from decimal import Decimal
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property
 from django.views.decorators.cache import never_cache
 
 from wagtail.admin.panels import FieldPanel
@@ -16,8 +21,26 @@ from wagtail_localize.fields import SynchronizedField
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
+from springfield.cms.fields import StreamField
 from springfield.cms.forms import SpringfieldCopyForm
 from springfield.cms.utils import compute_cms_page_locales
+
+
+def _sample_rates_in_raw_block_data(data):
+    """Recursively yield every sample rate set inside a block's raw StreamField data.
+    Walks the raw (unparsed) JSON-ish data rather than resolved block values to avoid
+    Wagtail rebuilding the data.
+    """
+
+    if isinstance(data, dict):
+        sample_rate = data.get("sample_rate")
+        if sample_rate:
+            yield Decimal(str(sample_rate))
+        for child_value in data.values():
+            yield from _sample_rates_in_raw_block_data(child_value)
+    elif isinstance(data, list):
+        for item in data:
+            yield from _sample_rates_in_raw_block_data(item)
 
 
 class PromotedPageMixin(models.Model):
@@ -297,3 +320,45 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
                 if navigation:
                     return navigation
         return None
+
+    def iter_sample_rated_blocks(self):
+        """Yield (field_name, block_index, block_type, sample_rate) for every top-level
+        block on this page whose Conditional Display settings, at any nesting depth,
+        set a sample rate. A top-level block yields one entry per distinct rate it
+        contains, even when that rate is repeated across several nested Conditional
+        Display blocks (e.g. multiple cards in a cards list) — so a page's block-level
+        validation error doesn't list the same block more than once.
+        """
+        for field in self._meta.get_fields():
+            if not isinstance(field, StreamField):
+                continue
+            for block_index, raw_block in enumerate(getattr(self, field.name).raw_data):
+                sample_rates = set(_sample_rates_in_raw_block_data(raw_block.get("value")))
+                for sample_rate in sample_rates:
+                    yield field.name, block_index, raw_block.get("type"), sample_rate
+
+    @cached_property
+    def experiment_sample_rate(self):
+        """The sample rate shared by this page's Conditional Display blocks, or None if
+        none of them set one. clean() rejects a page whose blocks disagree, so by the
+        time a page is saved there is never more than one distinct rate to find.
+        """
+        sample_rates = {sample_rate for *_, sample_rate in self.iter_sample_rated_blocks()}
+        return sample_rates.pop() if len(sample_rates) == 1 else None
+
+    def clean(self):
+        super().clean()
+
+        field_names_by_rate = defaultdict(set)
+        block_labels_by_rate = defaultdict(list)
+        for field_name, block_index, block_type, sample_rate in self.iter_sample_rated_blocks():
+            field_names_by_rate[sample_rate].add(field_name)
+            block_labels_by_rate[sample_rate].append(f"{block_index + 1} ({block_type})")
+
+        if len(block_labels_by_rate) <= 1:
+            return
+
+        rate_descriptions = [f"{rate}%: block {', '.join(labels)}" for rate, labels in sorted(block_labels_by_rate.items())]
+        message = f"Blocks set different sample rates: {'; '.join(rate_descriptions)}. Every block on a page must use the same sample rate."
+        affected_field_names = set().union(*field_names_by_rate.values())
+        raise ValidationError(dict.fromkeys(affected_field_names, message))

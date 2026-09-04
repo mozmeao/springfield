@@ -549,7 +549,7 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
     dismissable = models.BooleanField(default=False, help_text="Whether the banner can be dismissed by the user.")
     settings = StreamField(
         [
-            ("show_to", ConditionalDisplayBlock()),
+            ("show_to", ConditionalDisplayBlock(include_sample_rate=False)),
         ],
         blank=True,
         use_json_field=True,

@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", ai_controls_condition="", bind_to_uitour=False, condition_settings={} #}
+{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", ai_controls_condition="", bind_to_uitour=False, sample_rate="", condition_settings={} #}
 
 {% set condition_settings = condition_settings or {} %}
 {% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
@@ -16,6 +16,14 @@
 {% set bind_to_uitour = bind_to_uitour or condition_settings.get("bind_to_uitour") %}
 {% set min_version = min_version or condition_settings.get("min_version") %}
 {% set max_version = max_version or condition_settings.get("max_version") %}
+{% set sample_rate = sample_rate or condition_settings.get("sample_rate") %}
+
+{% if sample_rate %}
+  <div class="conditional-display condition-sample-rate {% if is_preview %}is-preview{% endif %}">
+    {% if is_preview %}
+      <span class="preview-indicator">Condition: {{ sample_rate }}% sample</span>
+    {% endif %}
+{% endif %}
 
 {% if platform_conditions %}
   <div class="conditional-display {% for condition in platform_conditions %}condition-{{ condition }} {% endfor %} {% if is_preview %}is-preview{% endif %}">
@@ -102,5 +110,8 @@
   </div>
 {% endif %}
 {% if platform_conditions %}
+  </div>
+{% endif %}
+{% if sample_rate %}
   </div>
 {% endif %}

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -371,65 +372,90 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
         return thumbnails.get(icon_name, "")
 
 
-class ConditionalDisplayBlock(blocks.StructBlock):
-    platforms = blocks.MultipleChoiceBlock(
-        choices=PLATFORM_CHOICES,
-        required=False,
-        help_text="Show to specific platforms. Leave empty to show to all platforms.",
-        widget=CheckboxSelectMultiple,
-    )
-    firefox = blocks.ChoiceBlock(
-        choices=FIREFOX_CHOICES,
-        default="",
-        required=False,
-        label="Firefox",
-        help_text="Filter by Firefox browser. Leave empty for no restriction.",
-    )
-    auth_state = blocks.ChoiceBlock(
-        choices=AUTH_CHOICES,
-        default="",
-        required=False,
-        label="Login state",
-        help_text="Filter by login state. Leave empty for no restriction.",
-    )
-    default_browser = blocks.ChoiceBlock(
-        choices=DEFAULT_BROWSER_CHOICES,
-        default="",
-        required=False,
-        label="Default Browser",
-        help_text="Filter by default browser state. Leave empty for no restriction.",
-    )
-    min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
-    max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
-    geo = blocks.MultipleChoiceBlock(
-        choices=GEO_CHOICES,
-        required=False,
-        label="GEO",
-        help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
-        widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
-    )
-    ai_controls = blocks.ChoiceBlock(
-        choices=AI_CONTROLS_CHOICES,
-        required=False,
-        label="AI Controls",
-        help_text="Show based on AI Controls availability. Leave empty for no restriction.",
-    )
-    bind_to_uitour = blocks.BooleanBlock(
-        required=False,
-        label="Bind to UI Tour",
-        help_text="If checked, this block will only be shown when it includes a UI Tour button and "
-        "the button matches the UI Tour display conditions.",
-    )
+def ConditionalDisplayBlock(include_sample_rate=True, *args, **kwargs):
+    """Factory function to create ConditionalDisplayBlock with an optional sample rate.
 
-    class Meta:
-        label = "Conditional Display"
-        label_format = (
-            "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
-            "AI {ai_controls} - Versions {min_version} to {max_version}"
+    Args:
+        include_sample_rate: If False, omits the sample_rate field. Sample rate reveal
+            relies on Page.experiment_sample_rate, which only looks at sample rates set
+            on a page's own StreamFields — it has no way to see one set on a
+            PencilBannerSnippet, which pages reach only through a placement relation.
+            A snippet's block would therefore render permanently hidden. Set to False
+            for any ConditionalDisplayBlock usage that isn't a page's own StreamField.
+    """
+
+    class _ConditionalDisplayBlock(blocks.StructBlock):
+        platforms = blocks.MultipleChoiceBlock(
+            choices=PLATFORM_CHOICES,
+            required=False,
+            help_text="Show to specific platforms. Leave empty to show to all platforms.",
+            widget=CheckboxSelectMultiple,
         )
-        icon = "view"
-        collapsed = True
-        form_classname = "compact-form struct-block"
+        firefox = blocks.ChoiceBlock(
+            choices=FIREFOX_CHOICES,
+            default="",
+            required=False,
+            label="Firefox",
+            help_text="Filter by Firefox browser. Leave empty for no restriction.",
+        )
+        auth_state = blocks.ChoiceBlock(
+            choices=AUTH_CHOICES,
+            default="",
+            required=False,
+            label="Login state",
+            help_text="Filter by login state. Leave empty for no restriction.",
+        )
+        default_browser = blocks.ChoiceBlock(
+            choices=DEFAULT_BROWSER_CHOICES,
+            default="",
+            required=False,
+            label="Default Browser",
+            help_text="Filter by default browser state. Leave empty for no restriction.",
+        )
+        min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version")
+        max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version")
+        geo = blocks.MultipleChoiceBlock(
+            choices=GEO_CHOICES,
+            required=False,
+            label="GEO",
+            help_text="Show to specific countries based on IP address. Leave empty to show to all geographies.",
+            widget=CheckboxSelectMultiple(attrs={"class": "compact-form"}),
+        )
+        ai_controls = blocks.ChoiceBlock(
+            choices=AI_CONTROLS_CHOICES,
+            required=False,
+            label="AI Controls",
+            help_text="Show based on AI Controls availability. Leave empty for no restriction.",
+        )
+        bind_to_uitour = blocks.BooleanBlock(
+            required=False,
+            label="Bind to UI Tour",
+            help_text="If checked, this block will only be shown when it includes a UI Tour button and "
+            "the button matches the UI Tour display conditions.",
+        )
+        if include_sample_rate:
+            sample_rate = blocks.DecimalBlock(
+                required=False,
+                max_digits=5,
+                decimal_places=2,
+                min_value=Decimal("0.01"),
+                max_value=Decimal("100"),
+                label="Sample rate (%)",
+                help_text="Show to a random percentage of eligible visitors, e.g. 0.1 for 0.1%. Every "
+                "block with a sample rate on a page must use the same rate.",
+            )
+
+        class Meta:
+            label = "Conditional Display"
+            label_format = (
+                "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
+                "AI {ai_controls} - Versions {min_version} to {max_version}" + (" - Sample {sample_rate}%" if include_sample_rate else "")
+            )
+            icon = "view"
+            collapsed = True
+            form_classname = "compact-form struct-block"
+
+    return _ConditionalDisplayBlock(*args, **kwargs)
 
 
 # Element blocks
