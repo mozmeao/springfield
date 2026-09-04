@@ -599,6 +599,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     content = StreamField(
         [
+            ("notification", NotificationBlock()),
             ("section", SectionBlock(allow_uitour=False)),
             ("download_support", DownloadSupportBlock()),
             (

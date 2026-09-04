@@ -18,7 +18,8 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
-from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage
+from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
+from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
 
 
 @pytest.fixture
@@ -557,3 +558,46 @@ def test_smart_window_show_try_smart_window(smart_window_page: SmartWindowPage, 
         assert form, f"Expected form for show_button={show_button!r}, country={country!r}"
         assert not nav_button, f"Expected no nav UITour button for show_button={show_button!r}, country={country!r}"
         assert not intro_button, f"Expected no intro UITour button for show_button={show_button!r}, country={country!r}"
+
+
+# Thanks Page
+
+
+@pytest.mark.django_db
+def test_thanks_page_renders_notification_block(minimal_site, rf):
+    """ThanksPage.content accepts a notification block, same as FreeFormPage2026.
+
+    ThanksPage.clean() requires the first block to be a section and a download_support
+    block to be present somewhere, so both are included alongside the notification
+    block under test.
+    """
+    page = ThanksPage(
+        slug="test-thanks-notification",
+        title="Test Thanks Notification",
+        content=[
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": make_show_to(), "anchor_id": ""},
+                    "heading": {"superheading_text": "", "heading_text": "<p>Thanks for downloading Firefox!</p>", "subheading_text": ""},
+                    "content": [],
+                    "cta": [],
+                },
+            },
+            make_notification("thnot01", "Your download should begin shortly.", make_show_to(), headline="Thanks!"),
+            get_download_support(),
+        ],
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    # ThanksPage always renders its own hardcoded auto-download notification above the
+    # StreamField content, so this looks for the one built from the notification block.
+    notifications = soup.find_all("div", class_="fl-notification")
+    notification = next((div for div in notifications if "Your download should begin shortly." in div.get_text()), None)
+    assert notification, "Notification block should render on ThanksPage"
+    assert "Thanks!" in notification.get_text()
