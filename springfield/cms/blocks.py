@@ -3308,6 +3308,17 @@ class KitBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing.",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Slim: {slim} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
 
 
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):

@@ -80,7 +80,13 @@
     padding-block-start: 0;
 }
 
-.fl-freeform-page .fl-split-page-upper > .fl-section:first-child {
+/* The :where() guard keeps a conditional Kit Intro matching without raising specificity
+   over the fl-mobile-store-qr-section rule below. */
+.fl-freeform-page .fl-split-page-upper > .fl-section:first-child,
+.fl-freeform-page
+    .fl-split-page-upper
+    > :where(.conditional-display:first-child)
+    .fl-section:first-child {
     padding-block-start: 0;
 }
 

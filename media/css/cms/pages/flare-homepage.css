@@ -22,7 +22,11 @@
         padding: 0;
     }
 
-    .fl-home-body .fl-split-page-upper > .fl-section:first-child {
+    .fl-home-body .fl-split-page-upper > .fl-section:first-child,
+    .fl-home-body
+        .fl-split-page-upper
+        > :where(.conditional-display:first-child)
+        .fl-section:first-child {
         padding-block-start: 0;
     }
 
