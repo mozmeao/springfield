@@ -629,6 +629,16 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     ftl_files = ["firefox/download/desktop"]
 
+    notification = StreamField(
+        [
+            ("notification", NotificationBlock()),
+        ],
+        max_num=2,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text="Up to two notifications shown above the page's main content.",
+    )
     content = StreamField(
         [
             ("section", SectionBlock(allow_uitour=False)),
@@ -646,6 +656,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("notification"),
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
@@ -653,6 +664,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("notification"),
         index.SearchField("content"),
     ]
 
@@ -665,6 +677,8 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def clean(self):
         super().clean()
+        if len(self.notification) > 2:
+            raise ValidationError("Up to two notifications are allowed.")
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")

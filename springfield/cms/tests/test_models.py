@@ -4,6 +4,7 @@
 
 from unittest import mock
 
+from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.utils import translation
 
@@ -12,6 +13,8 @@ from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
+from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     FreeFormPage2026,
@@ -832,6 +835,58 @@ def test_thanks_page_get_template_ignores_other_s_values(rf, s_value):
     page = ThanksPage()
     request = rf.get(f"/thanks/?s={s_value}")
     assert page.get_template(request) == "cms/thanks_page.html"
+
+
+@pytest.mark.parametrize("notification_count", [0, 1, 2])
+def test_thanks_page_clean_ignores_notification_field(notification_count):
+    """ThanksPage.clean() only enforces the notification field's max_num; it doesn't
+    trip the `content` field's 'first block must be a Section' or platform-coverage
+    rules based on the notification blocks present."""
+    notifications = [make_notification(f"clean{index:03d}", "Heads up.", make_show_to()) for index in range(notification_count)]
+    page = ThanksPage(
+        title="Thanks",
+        slug="thanks-notification-clean",
+        notification=notifications,
+        content=[
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": make_show_to()},
+                    "heading": {"heading_text": "<p>Thanks!</p>"},
+                    "content": [],
+                    "cta": [],
+                },
+            },
+            get_download_support(),
+        ],
+    )
+    page.clean()
+
+
+def test_thanks_page_clean_rejects_more_than_two_notifications():
+    """ThanksPage.clean() enforces the notification field's max_num=2 itself, so the
+    cap holds even when a notification list is assigned outside the admin form (e.g.
+    by a script or data migration)."""
+    notifications = [make_notification(f"toomany{index:03d}", "Heads up.", make_show_to()) for index in range(3)]
+    page = ThanksPage(
+        title="Thanks",
+        slug="thanks-notification-clean-too-many",
+        notification=notifications,
+        content=[
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": make_show_to()},
+                    "heading": {"heading_text": "<p>Thanks!</p>"},
+                    "content": [],
+                    "cta": [],
+                },
+            },
+            get_download_support(),
+        ],
+    )
+    with pytest.raises(ValidationError, match="Up to two notifications are allowed."):
+        page.clean()
 
 
 # ---- Image variant CSS class tests ----
