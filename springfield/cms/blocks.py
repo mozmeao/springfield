@@ -371,6 +371,14 @@ class IconChoiceBlock(ThumbnailChoiceBlock):
         return thumbnails.get(icon_name, "")
 
 
+class ConditionalDisplayValue(blocks.StructValue):
+    @property
+    def has_conditions(self):
+        """True when at least one display condition is set, meaning the block is
+        shown to a subset of users rather than to everyone."""
+        return any(self.values())
+
+
 class ConditionalDisplayBlock(blocks.StructBlock):
     platforms = blocks.MultipleChoiceBlock(
         choices=PLATFORM_CHOICES,
@@ -430,6 +438,7 @@ class ConditionalDisplayBlock(blocks.StructBlock):
         icon = "view"
         collapsed = True
         form_classname = "compact-form struct-block"
+        value_class = ConditionalDisplayValue
 
 
 # Element blocks
