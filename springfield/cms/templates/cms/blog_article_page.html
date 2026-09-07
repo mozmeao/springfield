@@ -8,7 +8,7 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
-{% block body_class %}fl-blog-article-body{% endblock %}
+{% block body_class %}fl-blog-body fl-blog-article-body{% endblock %}
 
 {% block main_class %}{% endblock %}
 
@@ -61,15 +61,13 @@
               {% set listing_image = article.get_listing_image() %}
               <include:blog-article-list-item with_image="{{ listing_image }}">
                 <content:heading>
-                  <hgroup class="fl-heading-group">
-                    {% set topic = article.get_topic() %}
-                    {% if topic %}
-                      <p class="fl-superheading">{{ topic.name }}</p>
-                    {% endif %}
-                    <h3 class="fl-heading">
-                      <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
-                    </h3>
-                  </hgroup>
+                  {% set topic = article.get_topic() %}
+                  <include:heading
+                    level="h3"
+                    heading_text="{{ article.title }}"
+                    superheading_text="{{ topic.name if topic else '' }}"
+                    link="{{ article.url }}"
+                  />
                 </content:heading>
                 <content:body>{{ article.description|richtext }}</content:body>
                 {% if listing_image %}

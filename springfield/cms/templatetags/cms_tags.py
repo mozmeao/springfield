@@ -374,7 +374,7 @@ def get_floating_qr_code_snippet(context):
     Retrieves the floating QR code snippet for the current locale and returns a
     ready-to-render dict (with heading, content, and qr keys) that can be used
     directly as `value` in qr-code-floating-snippet.html. Page-level overrides
-    (floating_qr_url, floating_qr_image, floating_qr_default_open) are applied
+    (floating_qr_url, floating_qr_image, floating_qr_open_behavior) are applied
     when a page is available in the template context.
 
     Usage in templates:

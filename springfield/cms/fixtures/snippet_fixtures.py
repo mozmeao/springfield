@@ -17,6 +17,7 @@ from springfield.cms.models import (
     SetAsDefaultSnippet,
     Tag,
 )
+from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.snippets import PencilBannerSnippet, QRCodeFloatingSnippet, ScrollToSeeMoreSnippet
 
 
@@ -136,7 +137,7 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
             "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
             "content": "Bring your tabs with you",
             "url": "https://www.firefox.com/browsers/mobile/",
-            "default_open": True,
+            "open_behavior": QROpenBehavior.OPEN,
         },
     )
     return snippet
