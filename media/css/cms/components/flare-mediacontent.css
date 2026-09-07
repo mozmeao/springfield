@@ -126,7 +126,7 @@
     text-decoration: underline;
 }
 
-.fl-mediacontent .fl-subtitle a:focus {
+.fl-mediacontent .fl-subtitle a:focus-visible {
     outline: 2px solid var(--fl-theme-color-link);
     outline-offset: 2px;
 }

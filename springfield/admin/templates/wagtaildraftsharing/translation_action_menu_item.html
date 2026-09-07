@@ -1,0 +1,21 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Draft sharing button for a translated page. type="button" is required:
+this markup is relocated into the translation editor's footer, which is
+a POST form that publishes the page when submitted.
+{% endcomment %}
+
+{% load wagtailadmin_tags %}
+
+<button type="button"
+        class="button"
+        data-translation-draftsharing
+        data-url="{{ create_url }}">
+    {% if icon_name %}{% icon name=icon_name %}{% endif %}{{ label }}
+</button>

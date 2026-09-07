@@ -291,11 +291,11 @@ def create_blog_article(
     return article
 
 
-def get_blog_index_page() -> BlogIndexPage:
+def get_blog_index_page(slug="test-blog-index") -> BlogIndexPage:
     root_page = get_flare_pages_docs_page()
     index_page = get_or_create_page(
         BlogIndexPage,
-        slug="test-blog-index",
+        slug=slug,
         parent=root_page,
         defaults={"title": "Blog"},
     )
@@ -519,7 +519,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
         },
         {
             "type": "latest",
-            "value": {"heading_text": '<p data-block-key="clh00003">Latest</p>', "count": 4, "link_label": "View all"},
+            "value": {"heading_text": '<p data-block-key="clh00003">Recently published</p>', "count": 4, "link_label": "View all"},
             "id": "cl000003-0000-0000-0000-000000000003",
         },
     ]

@@ -1,15 +1,24 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+import logging
 
-
-from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db import transaction
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 
 from wagtail.admin.views.pages.listing import IndexView
 from wagtail.admin.views.tags import TAGS_AUTOCOMPLETE_LIMIT
-from wagtail.models import Locale
+from wagtail.models import Locale, Page
+from wagtail_localize.models import Translation
+from wagtaildraftsharing.models import WagtaildraftsharingLink
 
+from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions
 from springfield.cms.models import BlogTag
+
+logger = logging.getLogger(__name__)
 
 
 class ContentSearchView(IndexView):
@@ -42,3 +51,29 @@ def blog_tag_autocomplete(request):
         .values_list("name", flat=True)[:TAGS_AUTOCOMPLETE_LIMIT]
     )
     return JsonResponse(list(names), safe=False)
+
+
+@require_POST
+def create_translation_sharing_link(request, translation_id):
+    """Returns a draft-sharing URL for a translated page's unpublished translation.
+    Also cleans up revisions for this page's expired links.
+    """
+    translation = get_object_or_404(Translation, id=translation_id)
+    try:
+        page = translation.get_target_instance()
+    except ObjectDoesNotExist:
+        raise Http404
+    if not isinstance(page, Page):
+        raise Http404
+    if not page.permissions_for_user(request.user).can_edit():
+        raise PermissionDenied
+
+    deleted_count = delete_dead_sharing_revisions(page)
+    if deleted_count:
+        logger.info("%d expired link revision(s) deleted for translation page ID=%d", deleted_count, page.pk)
+
+    with transaction.atomic():
+        revision = create_detached_revision(translation, page, request.user)
+        link = WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=request.user)
+
+    return JsonResponse({"url": link.url})

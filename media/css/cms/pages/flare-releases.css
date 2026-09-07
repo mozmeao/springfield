@@ -73,6 +73,15 @@
         }
     }
 
+    /* gap matches .fl-c-releases-list-minor's row-gap below, so the
+       Release/ESR line break is the same size as an ordinary wrap
+       within either list. */
+    .fl-c-releases-list-minor-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+    }
+
     .fl-c-releases-list-minor {
         display: flex;
         flex-wrap: wrap;

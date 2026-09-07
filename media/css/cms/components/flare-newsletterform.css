@@ -144,7 +144,7 @@
     inline-size: 100%;
 }
 
-.fl-newsletterform .fl-button:focus {
+.fl-newsletterform .fl-button:focus-visible {
     background-color: var(--token-color-light-purple);
     outline: 2px solid var(--token-color-light-purple);
     outline-offset: 2px;

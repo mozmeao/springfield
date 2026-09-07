@@ -4,18 +4,14 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:comparison-table
-  mobile_behavior="{{ value.mobile_behavior }}"
-  variant="{{ value.variant }}"
->
+<include:comparison-table mobile_behavior="{{ value.mobile_behavior }}">
   <content:header>
     {% for header_row in value.header_row %}
       <tr>
         {% for cell in header_row.cells %}
-          {% set is_filled = cell.content or cell.optional_content %}
-          {% set cell_tag = 'th' if is_filled else 'td' %}
+          {% set cell_tag = 'th' if cell.content else 'td' %}
           <{{ cell_tag }}
-            {% if is_filled %}
+            {% if cell.content %}
               scope="col"
             {% endif %}
 
@@ -27,14 +23,7 @@
               class="highlighted"
             {% endif %}
           >
-            {# Optional content, when added, replaces the cell's plain text. #}
-            {% if cell.optional_content %}
-              {% for child in cell.optional_content %}
-                {% include_block child %}
-              {% endfor %}
-            {% else %}
-              {{ cell.content }}
-            {% endif %}
+            {{ cell.content }}
           </{{ cell_tag }}>
         {% endfor %}
       </tr>
@@ -45,8 +34,7 @@
     {% for row in value.content_rows %}
       <tr>
         {% for cell in row.cells %}
-          {% set is_filled = cell.content or cell.optional_content %}
-          {% set cell_tag = 'th' if loop.first and is_filled else 'td' %}
+          {% set cell_tag = 'th' if loop.first and cell.content else 'td' %}
           <{{ cell_tag }}
             {% if cell_tag == 'th' %}
               scope="row"
@@ -60,13 +48,7 @@
               class="highlighted"
             {% endif %}
           >
-            {% if cell.optional_content %}
-              {% for child in cell.optional_content %}
-                {% include_block child %}
-              {% endfor %}
-            {% else %}
-              {{ cell.content }}
-            {% endif %}
+            {{ cell.content }}
           </{{ cell_tag }}>
         {% endfor %}
       </tr>

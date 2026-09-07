@@ -407,7 +407,7 @@
     }
 
     .fl-docs-accordion a:hover {
-        color: var(--fl-theme-color-link);
-        text-decoration: underline;
+        color: var(--fl-theme-color-text);
+        text-decoration: none;
     }
 }
