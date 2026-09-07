@@ -21,7 +21,10 @@
     position: fixed;
     transition:
         block-size 300ms ease,
-        inline-size 300ms ease;
+        inline-size 300ms ease,
+        opacity 300ms ease,
+        transform 300ms ease;
+    transition-behavior: allow-discrete;
     z-index: 5;
 
     @media (forced-colors: active) {
@@ -38,10 +41,18 @@
     inline-size: 22.5rem;
 }
 
+/* Entry animation for the snippet that renders open on page load. */
 @starting-style {
     .fl-qr-code-floating-snippet.is-open {
         opacity: 0;
         transform: translateY(40px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fl-qr-code-floating-snippet,
+    .fl-qr-code-floating-content {
+        transition: none;
     }
 }
 
@@ -103,6 +114,19 @@
     flex: 1;
     flex-direction: column;
     justify-content: center;
+    opacity: 1;
+
+    /*
+     * Fade the content in over the same 300ms the panel grows, so it eases in
+     * instead of snapping once the size transition finishes. `transition-behavior`
+     * is set standalone rather than in the shorthand (`display 300ms allow-discrete`)
+     * because the CSS minifier mangles the shorthand form in the production bundle,
+     * dropping the discrete `display` transition so the content snaps on close.
+     */
+    transition:
+        opacity 300ms ease,
+        display 300ms;
+    transition-behavior: allow-discrete;
 }
 
 .fl-qr-code-prompt {
@@ -125,6 +149,7 @@
 
 .fl-qr-code-floating-snippet:not(.is-open) .fl-qr-code-floating-content {
     display: none;
+    opacity: 0;
 }
 
 .fl-qr-code-image {
