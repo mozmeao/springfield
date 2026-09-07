@@ -275,10 +275,11 @@ def test_whats_new_index_page_redirects_to_home_if_no_children(
 
     request = rf.get(_relative_url)
 
-    # No WhatsNewPage exists yet, so should redirect to /
-    response = index_page.specific.serve(request)
+    # No WhatsNewPage exists yet, so should redirect to the locale home page
+    with translation.override("en-US"):
+        response = index_page.specific.serve(request)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == "/en-US/"
 
 
 def test_whats_new_index_page_redirects_to_locale_appropriate_child(

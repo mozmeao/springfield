@@ -23,7 +23,6 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
-from springfield.base.config_manager import config
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
@@ -213,7 +212,8 @@ class RoutingMixin(models.Model):
 
     # -- Adoption surface: the only two things a consumer declares --
 
-    def get_routing_trigger(self):
+    @classmethod
+    def get_routing_trigger(cls):
         """This surface's trigger — the arming condition under which routing fires.
 
         Default **unset** (``None``): absent a trigger, dispatch never fires and
@@ -236,17 +236,13 @@ class RoutingMixin(models.Model):
         """The query param this surface arms on, if it is also a registry signal.
 
         Derived from the trigger rather than declared separately, so it can never drift
-        from what actually arms the surface. Read from a bare instance because the panels
-        are built per class: a trigger describes the *surface*, so it must not depend on
-        one page's saved state. Returns ``None`` for a surface with no trigger, a
-        non-param trigger, or a param that isn't a signal — in every case there is
-        nothing to withhold.
+        from what actually arms the surface. Returns ``None`` for a surface with no
+        trigger, a non-param trigger, or a param that isn't a signal -- in every case
+        there is nothing to withhold.
         """
-        # The mixin itself is abstract and so can't be instantiated; it also declares no
-        # trigger, so there is nothing to derive until a concrete consumer adopts it.
-        if cls._meta.abstract or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
+        if cls._meta.abstract:
             return None
-        trigger = cls().get_routing_trigger()
+        trigger = cls.get_routing_trigger()
         param = getattr(trigger, "param_name", None)
         return param if param in registry else None
 

@@ -16,12 +16,13 @@ from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator
 from django.db import DatabaseError, models
-from django.db.models import Count
+from django.db.models import Case, Count, Exists, OuterRef, Q, Value, When
 from django.db.models.expressions import F
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
@@ -40,6 +41,7 @@ from wagtail_thumbnail_choice_block import ThumbnailRadioSelect
 from lib import l10n_utils
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.geo import get_country_from_request
+from springfield.base.i18n import normalize_language
 from springfield.base.waffle import switch
 from springfield.cms.blocks import (
     HEADING_TEXT_FEATURES,
@@ -49,6 +51,8 @@ from springfield.cms.blocks import (
     BlogArticleBlock,
     BlogCardsListBlock,
     BlogLatestArticlesBlock,
+    BlogRelatedArticleBlock,
+    BrowserComparisonTableBlock,
     ButtonRowBlock,
     CardGalleryBlock,
     CardsListBlock,
@@ -100,7 +104,7 @@ from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
-from .base import AbstractSpringfieldCMSPage, PromotedPageMixin
+from .base import AbstractSpringfieldCMSPage, PromotedPageMixin, QROpenBehavior
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -317,12 +321,12 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 
     show_qr_code_snippet = models.BooleanField(
         default=False,
-        help_text="If true, a floating QR code snippet will be displayed on the page.",
+        help_text="If true, the first-generation floating QR code snippet is displayed on the page.",
     )
     show_floating_qr_code_snippet = models.BooleanField(
         default=False,
         verbose_name="Show Floating QR Code Snippet",
-        help_text="If true, an updated floating QR code snippet will be displayed on the page.",
+        help_text="If true, the second-generation floating QR code snippet is displayed on the page.",
     )
     floating_qr_url = models.CharField(
         blank=True,
@@ -338,23 +342,45 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Override Floating QR Code Image",
         help_text="Override with an uploaded QR code image. Takes priority over the URL.",
     )
+    # Deprecated: superseded by `floating_qr_open_behavior`, which is now
+    # backfilled and the only override read. Kept temporarily so the column can
+    # be dropped in a separate, deploy-safe follow-up migration.
     floating_qr_default_open = models.BooleanField(
         null=True,
         blank=True,
         verbose_name="Override Floating QR Code Default Open",
         help_text="Override the default open state of the Floating QR code snippet.",
     )
+    floating_qr_open_behavior = models.CharField(
+        max_length=16,
+        choices=QROpenBehavior.choices,
+        blank=True,
+        default="",
+        verbose_name="Override Floating QR Code Open Behavior",
+        help_text="Leave blank to inherit the snippet's setting.",
+    )
+    floating_qr_open_delay_ms = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Override Floating QR Code Open Delay",
+        help_text="Milliseconds before the snippet opens. Leave blank to inherit the snippet's setting.",
+    )
 
     floating_qr_panels = [
         FieldPanel("show_qr_code_snippet"),
         MultiFieldPanel(
             [
+                FieldPanel("show_floating_qr_code_snippet"),
                 FieldRowPanel(
                     [
-                        FieldPanel("show_floating_qr_code_snippet"),
                         FieldPanel("floating_qr_url"),
                         FieldPanel("floating_qr_image"),
-                        FieldPanel("floating_qr_default_open"),
+                    ]
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel("floating_qr_open_behavior"),
+                        FieldPanel("floating_qr_open_delay_ms"),
                     ]
                 ),
             ],
@@ -368,6 +394,8 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         SynchronizedField("floating_qr_url"),
         SynchronizedField("floating_qr_image"),
         SynchronizedField("floating_qr_default_open"),
+        SynchronizedField("floating_qr_open_behavior"),
+        SynchronizedField("floating_qr_open_delay_ms"),
     ]
 
     class Meta:
@@ -389,7 +417,15 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("Only one of 'Floating QR Code URL Override' and 'Floating QR Code Image Override' is allowed.")
         if self.show_qr_code_snippet and self.show_floating_qr_code_snippet:
             raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
-        if not self.show_floating_qr_code_snippet and any([self.floating_qr_url, self.floating_qr_image, self.floating_qr_default_open]):
+        if not self.show_floating_qr_code_snippet and any(
+            [
+                self.floating_qr_url,
+                self.floating_qr_image,
+                self.floating_qr_default_open,
+                self.floating_qr_open_behavior,
+                self.floating_qr_open_delay_ms,
+            ]
+        ):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
@@ -1066,6 +1102,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("comparison_table", ComparisonTableBlock(group="Main")),
+        ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
@@ -1262,10 +1299,6 @@ class FreeFormPage2026(
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
-    ]
-
     class Meta:
         verbose_name = "Free Form 2026 Page"
         verbose_name_plural = "Free Form 2026 Pages"
@@ -1318,8 +1351,12 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .first()
         )
         if latest_whats_new:
-            return redirect(request.build_absolute_uri(latest_whats_new.get_url()))
-        return redirect("/")
+            url = request.build_absolute_uri(latest_whats_new.get_url())
+            if request.GET.get("from_main_nav"):
+                url += "?from_main_nav=true"
+            return redirect(url)
+        active_language = normalize_language(translation.get_language()) or settings.LANGUAGE_CODE
+        return redirect(f"/{active_language}/")
 
 
 class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
@@ -1384,10 +1421,6 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         index.SearchField("content"),
     ]
 
-    override_translatable_fields = [
-        *QRCodeFloatingSnippetMixin.override_translatable_fields,
-    ]
-
     class Meta:
         indexes = [
             models.Index(fields=["version"]),
@@ -1412,7 +1445,8 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
     # chooser to that type; the descendant guard remains the correctness backstop.
     routing_target_page_types = ["cms.WhatsNewPage2026"]
 
-    def get_routing_trigger(self):
+    @classmethod
+    def get_routing_trigger(cls):
         """Routing arms only on Firefox's just-updated flow (``?utm_source=update``).
 
         Value-matching, not presence: ``utm_source`` doubles as an available URL
@@ -1427,12 +1461,21 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+
+    analytics_id_fields = (
+        "nav_button_uid",
+        "intro_button_uid",
+        "waitlist_submit_uid",
+        "nav_download_button_uid",
+        "intro_download_button_uid",
+        "update_button_uid",
+    )
 
     heading_text = RichTextField(features=HEADING_TEXT_FEATURES)
     subheading_text = RichTextField(features=HEADING_TEXT_FEATURES)
@@ -1600,6 +1643,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("content"),
     ]
 
+    promote_panels = UTMParamsMixin.promote_panels + [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -1624,6 +1671,10 @@ class SmartWindowPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()
@@ -2249,6 +2300,9 @@ class HeroStyle(models.TextChoices):
     VIDEO = "video", "Featured video"
 
 
+MAX_RELATED_ARTICLES = 4
+
+
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
@@ -2357,6 +2411,20 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_num=1,
         help_text="Optional banner to be displayed at the bottom of the article content.",
     )
+    related_articles = StreamField(
+        [("article", BlogRelatedArticleBlock())],
+        max_num=MAX_RELATED_ARTICLES,
+        use_json_field=True,
+        blank=True,
+        help_text=(
+            f"Up to {MAX_RELATED_ARTICLES} related articles shown at the bottom. Remaining empty slots are filled with articles "
+            f"that match by topic and tag, then topic, then tag, up to {MAX_RELATED_ARTICLES}."
+        ),
+    )
+    hide_related = models.BooleanField(
+        default=False,
+        help_text="Hide the Related Articles section on this article.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("description"),
@@ -2402,6 +2470,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("bottom_banner"),
     ]
 
+    related_articles_panels = [
+        FieldPanel("hide_related"),
+        FieldPanel("related_articles"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     # Drops show_in_menus, unused by the CMS
@@ -2420,6 +2493,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
+            ObjectList(related_articles_panels, heading="Related Articles"),
             ObjectList(promote_panels, heading="Promote & SEO"),
             ObjectList(settings_panels, heading="Settings"),
         ]
@@ -2452,20 +2526,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
-        if self.topic_id:
-            related = (
-                BlogArticlePage.objects.sibling_of(self)
-                .live()
-                .public()
-                .filter(topic=self.topic)
-                .exclude(pk=self.pk)
-                .prefetch_related("tags")
-                .order_by("-first_published_at")[:4]
-            )
+        if not self.hide_related:
+            related = self.get_related_articles()
             context["related_articles"] = list(related)
-            blog_index = self.get_parent().specific
-            # Hidden tags are not displayed on the related articles listing
-            cache_localized_tags(context["related_articles"], blog_index.get_hidden_tag_keys())
         else:
             context["related_articles"] = []
         return context
@@ -2508,6 +2571,55 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             mobile=self.image_mobile,
             dark_mode_mobile=self.image_dark_mode_mobile,
         )
+
+    def get_related_articles(self):
+        """Up to MAX_RELATED_ARTICLES published, publicly-visible articles
+        shown below the article:
+
+        - `related_articles` in their chosen order,
+        - then siblings sharing this article's topic and one of its tags,
+        - then its topic,
+        - then one of its tags.
+
+        Each automatic group is ordered by publication date, descending. No
+        article is shown twice, and an article never shows itself."""
+        related = []
+        related_ids = {self.pk}
+        for block in self.related_articles:
+            article = block.value.get_article()
+            if article is None or not article.live or article.pk in related_ids:
+                continue
+            related.append(article)
+            related_ids.add(article.pk)
+        if related:
+            # Apply potential page view restrictions
+            public_article_ids = set(BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in related]).values_list("pk", flat=True))
+            related = [article for article in related if article.pk in public_article_ids]
+        if len(related) == MAX_RELATED_ARTICLES:
+            return related
+
+        tag_ids = [tag.pk for tag in self.tags.all()]
+        shares_topic = Q(topic_id=self.topic_id) if self.topic_id else Q(topic_id__in=[])
+        shares_tag = Q(carries_a_matching_tag=True)
+        matching_siblings = (
+            BlogArticlePage.objects.sibling_of(self)
+            .live()
+            .public()
+            .exclude(pk__in=related_ids)
+            .annotate(carries_a_matching_tag=Exists(BlogArticlePage.objects.filter(pk=OuterRef("pk"), tags__in=tag_ids)))
+            .filter(shares_topic | shares_tag)
+            .annotate(
+                related_rank=Case(
+                    When(shares_topic & shares_tag, then=Value(0)),
+                    When(shares_topic, then=Value(1)),
+                    default=Value(2),  # `shares_tag`
+                )
+            )
+            .prefetch_related("tags")
+            .order_by("related_rank", "-first_published_at")
+        )
+        related.extend(matching_siblings[: MAX_RELATED_ARTICLES - len(related)])
+        return related
 
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):

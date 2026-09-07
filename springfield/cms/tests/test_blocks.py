@@ -34,6 +34,7 @@ from springfield.cms.blocks import (
     BlogCardsListBlock,
     BlogCardsListSourceBlock,
     BlogLatestArticlesBlock,
+    BrowserComparisonTableBlock,
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
@@ -80,6 +81,13 @@ from springfield.cms.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
+from springfield.cms.fixtures.browser_comparison_table_fixtures import (
+    cell as browser_comparison_cell,
+    get_browser_comparison_table_test_page,
+    get_browser_comparison_table_variants,
+    image_header_cell,
+    result_cell,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -98,8 +106,6 @@ from springfield.cms.fixtures.comparison_table_fixtures import (
     cell as comparison_cell,
     get_comparison_table_test_page,
     get_comparison_table_variants,
-    image_header_cell,
-    result_cell,
     row as comparison_row,
 )
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
@@ -3720,20 +3726,17 @@ def comparison_cell_is_filled(cell_data: dict) -> bool:
     return bool(cell_data["content"] or cell_data.get("optional_content"))
 
 
-def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
-    value = block_data["value"]
-    mobile_behavior = value["mobile_behavior"]
-    highlighted_column = value.get("highlighted_column") or None
-    # Tables saved before the variant setting existed have no such key.
-    variant = value.get("variant", "default")
+def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict, table_class: str = "fl-comparison-table"):
+    """Assert a comparison table's cells, highlight and fine print.
 
-    wrapper_classes = wrapper_el.get("class", [])
-    assert mobile_behavior in wrapper_classes
-    # The default variant adds no modifier class, so it keeps the base palette.
-    if variant == "default":
-        assert "browser-comparison" not in wrapper_classes
-    else:
-        assert variant in wrapper_classes
+    Shared by the comparison table and the browser comparison table, which render
+    the same rows into their own set of classes.
+    """
+    value = block_data["value"]
+    highlighted_column = value.get("highlighted_column") or None
+
+    assert value["mobile_behavior"] in wrapper_el.get("class", [])
+    assert table_class in wrapper_el.find("table").get("class")
 
     header_cells_data = [c["value"] for c in value["header_row"][0]["value"]["cells"]]
     header_cell_els = wrapper_el.find("thead").find_all(["th", "td"])
@@ -3779,6 +3782,13 @@ def assert_comparison_table(wrapper_el: BeautifulSoup, block_data: dict):
             if cell_data["column_span"] > 1:
                 assert cell_el.get("colspan") == str(cell_data["column_span"])
 
+    fine_print = value.get("fine_print")
+    fine_print_el = wrapper_el.find("div", class_=f"{table_class}-fine-print")
+    if fine_print:
+        assert fine_print_el.get_text(strip=True) == BeautifulSoup(fine_print, "html.parser").get_text(strip=True)
+    else:
+        assert fine_print_el is None
+
 
 def test_comparison_table_variants(index_page, rf):
     page = get_comparison_table_test_page()
@@ -3801,11 +3811,61 @@ def test_comparison_table_variants(index_page, rf):
             assert_comparison_table(table, variant)
 
 
-def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None, variant="default"):
+def test_comparison_table_ignores_optional_content_left_in_stored_data():
+    """Only the browser comparison table defines optional content.
+
+    A comparison table cell that holds the key in stored data renders its plain
+    text, so the table shows no result icon.
+    """
     block = ComparisonTableBlock()
+    stored_cell = {
+        "type": "item",
+        "value": {
+            "content": "24 hrs/day",
+            "optional_content": [{"type": "comparison_result", "value": {"result": "yes", "label": ""}, "id": "c0-oc"}],
+            "column_span": 1,
+        },
+        "id": "c0",
+    }
     value = block.to_python(
         {
-            "variant": variant,
+            "mobile_behavior": "scroll",
+            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM", cell_id="h0")], row_id="hr")],
+            "content_rows": [comparison_row(cells=[stored_cell], row_id="r0")],
+        }
+    )
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("div", class_="fl-comparison-result") is None
+    assert soup.find("thead").find("th").get_text(strip=True) == "PREMIUM"
+    assert soup.find("tbody").find("th").get_text(strip=True) == "24 hrs/day"
+
+
+def test_browser_comparison_table_variants(index_page, rf):
+    page = get_browser_comparison_table_test_page()
+    variants = get_browser_comparison_table_variants()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    for region in (upper, lower):
+        tables = region.find_all("div", class_="fl-browser-comparison-table-wrapper")
+        assert len(tables) == len(variants)
+        for table, variant in zip(tables, variants):
+            assert_comparison_table(table, variant, table_class="fl-browser-comparison-table")
+
+
+def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior="scroll", highlighted_column=None):
+    block = BrowserComparisonTableBlock()
+    value = block.to_python(
+        {
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
             "header_row": [comparison_row(cells=header_cells, row_id="hr")],
@@ -3816,10 +3876,10 @@ def _render_comparison_table(header_cells, content_rows, mobile_behavior="scroll
 
 
 def _render_comparison_result_row(cell_data):
-    """One-row table whose only value cell holds ``cell_data``."""
-    return _render_comparison_table(
-        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+    """One-row browser comparison table whose only value cell holds ``cell_data``."""
+    return _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Firefox")],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
     )
 
 
@@ -3863,9 +3923,9 @@ def test_comparison_cell_optional_content_replaces_plain_text():
 
 def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
     header_cell = image_header_cell("Firefox", cell_id="h1")
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
     )
 
     header_cell_els = soup.find("thead").find_all(["th", "td"])
@@ -3880,56 +3940,17 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     header_cell = image_header_cell("Firefox", cell_id="h1")
     header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), header_cell],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
 
 
-def _comparison_variant_wrapper_classes(variant):
-    soup = _render_comparison_table(
-        header_cells=[comparison_cell(""), comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[comparison_cell("Blocks trackers"), comparison_cell("Yes")], row_id="r0")],
-        variant=variant,
-    )
-    return soup.find("div", class_="fl-comparison-table-wrapper").get("class", [])
-
-
-def test_comparison_table_browser_variant_adds_modifier_class():
-    """The variant class is what swaps the highlight and border colors in CSS."""
-    assert "browser-comparison" in _comparison_variant_wrapper_classes("browser-comparison")
-
-
-def test_comparison_table_default_variant_adds_no_modifier_class():
-    classes = _comparison_variant_wrapper_classes("default")
-
-    assert "browser-comparison" not in classes
-    assert "default" not in classes
-
-
-def test_comparison_table_renders_when_variant_key_absent_from_stored_json():
-    """Tables saved before the variant setting existed have no such key at all."""
-    block = ComparisonTableBlock()
-    value = block.to_python(
-        {
-            "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[comparison_cell("24 hrs/day")], row_id="r0")],
-        }
-    )
-
-    assert value["variant"] == "default"
-
-    wrapper = BeautifulSoup(block.render(value), "html.parser").find("div", class_="fl-comparison-table-wrapper")
-
-    assert "browser-comparison" not in wrapper.get("class", [])
-
-
-def test_comparison_table_renders_cells_saved_before_optional_content_existed():
-    """Cells saved before optional_content existed have no such key at all."""
-    block = ComparisonTableBlock()
+def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():
+    """Cells retyped from a comparison table may have no optional_content key at all."""
+    block = BrowserComparisonTableBlock()
     legacy_cell = {"type": "item", "value": {"content": "24 hrs/day", "column_span": 1}, "id": "c0"}
     value = block.to_python(
         {
@@ -3946,6 +3967,56 @@ def test_comparison_table_renders_cells_saved_before_optional_content_existed():
     assert soup.find("div", class_="fl-comparison-result") is None
     assert soup.find("thead").find("th").get_text(strip=True) == "PREMIUM"
     assert soup.find("tbody").find("th").get_text(strip=True) == "24 hrs/day"
+
+
+def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
+    """The block renders its own component, not the comparison table's."""
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), image_header_cell("Firefox", cell_id="h1")],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        mobile_behavior="stacked",
+        highlighted_column=2,
+    )
+
+    wrapper = soup.find("div", class_="fl-browser-comparison-table-wrapper")
+    assert "stacked" in wrapper.get("class")
+    assert wrapper.find("table").get("class") == ["fl-browser-comparison-table"]
+    # The highlight is a class on the cells, which is what the CSS enlarges and
+    # lifts the logo of.
+    assert "highlighted" in wrapper.find("thead").find_all(["th", "td"])[1].get("class", [])
+    assert "highlighted" in wrapper.find("tbody").find_all(["th", "td"])[1].get("class", [])
+
+
+def test_browser_comparison_table_cell_spans_the_columns_it_is_given():
+    soup = _render_browser_comparison_table(
+        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Browsers", column_span=2)],
+        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), browser_comparison_cell("Yes", column_span=2)], row_id="r0")],
+    )
+
+    assert soup.find("thead").find_all(["th", "td"])[1].get("colspan") == "2"
+    assert soup.find("tbody").find_all(["th", "td"])[1].get("colspan") == "2"
+
+
+def test_browser_comparison_table_renders_inside_a_tab(placeholder_images):
+    """A tab holds the table through a StreamBlock, so an empty tab renders none."""
+    block = TabsBlock()
+    table = get_browser_comparison_table_variants()[0]
+    value = block.to_python(
+        {
+            "section_id": "hub",
+            "tabs": [
+                {"tab_name": "With table", "browser_comparison_table": [table]},
+                {"tab_name": "Without table"},
+            ],
+        }
+    )
+    soup = BeautifulSoup(block.render(value, context={"invite_url": INVITE_URL}), "html.parser")
+
+    panels = soup.select(".fl-tab")
+    tables = panels[0].find_all("div", class_="fl-browser-comparison-table-wrapper")
+    assert len(tables) == 1
+    assert_comparison_table(tables[0], table, table_class="fl-browser-comparison-table")
+    assert panels[1].find("div", class_="fl-browser-comparison-table-wrapper") is None
 
 
 class TestIconDisplayLabel:
@@ -5133,8 +5204,8 @@ def test_tab_block_renders_referral_controls_between_description_and_note():
 # Impact dashboard / badges (inside TabBlock)
 
 
-def _badge(number, singular="person", plural="people", badge_name="Connector", message=None):
-    """A raw badge dict. ``message`` is left out entirely unless given."""
+def _badge(number, singular="person", plural="people", badge_name="Connector", message=None, heading=None):
+    """A raw badge dict. ``message`` and ``heading`` are left out entirely unless given."""
     badge = {
         "number": number,
         "singular_label": singular,
@@ -5143,29 +5214,33 @@ def _badge(number, singular="person", plural="people", badge_name="Connector", m
     }
     if message is not None:
         badge["message"] = message
+    if heading is not None:
+        badge["heading"] = heading
     return badge
 
 
-def _impact_dash(badges, locked_summary=None):
+def _impact_dash(badges, locked_heading=None, locked_content=None):
     """A raw impact_dash stream value holding one dashboard with these badges.
 
-    ``locked_summary`` defaults to being absent from the stored JSON entirely,
-    which is both a dashboard saved before the field existed and one an editor
-    left blank.
+    The locked pair defaults to being absent from the stored JSON entirely, which
+    is a dashboard saved before the fields existed.
     """
     value = {"badges": badges}
-    if locked_summary is not None:
-        value["locked_summary"] = locked_summary
+    if locked_heading is not None:
+        value["locked_heading"] = locked_heading
+    if locked_content is not None:
+        value["locked_content"] = locked_content
     return [{"type": "impact_dash", "value": value}]
 
 
-def _render_impact_dash(numbers=(1, 5, 25), install_count=_UNSET, badges=None, locked_summary=None):
+def _render_impact_dash(numbers=(1, 5, 25), install_count=_UNSET, badges=None, locked_heading=None, locked_content=None):
     html = _render_tab(
         referral_controls=False,
         install_count=install_count,
         impact_dash=_impact_dash(
             badges if badges is not None else [_badge(n) for n in numbers],
-            locked_summary=locked_summary,
+            locked_heading=locked_heading,
+            locked_content=locked_content,
         ),
     )
     return BeautifulSoup(html, "html.parser")
@@ -5175,8 +5250,12 @@ def _badge_elements(soup):
     return soup.select("ul.fl-impact-dash li.fl-badge")
 
 
-def _summary_element(soup):
-    return soup.find("p", class_="fl-impact-dash-summary")
+def _summary_heading_element(soup):
+    return soup.find("h2", class_="fl-impact-dash-summary-heading")
+
+
+def _summary_content_element(soup):
+    return soup.find("p", class_="fl-impact-dash-summary-content")
 
 
 @pytest.mark.parametrize(
@@ -5386,68 +5465,91 @@ def test_impact_dash_badge_context_strips_the_badge_name():
     assert resolved["badge_name"] == "Supporter"
 
 
-# Impact dashboard summary: one line above the badges, picked by progress
+# Impact dashboard summary: a heading and a message above the badges, picked by progress
 
 
-def _summary_source(install_count, badges, locked_summary=""):
+def _summary_source(install_count, badges, locked_heading="", locked_content=""):
     """_summary_source over raw badge dicts, resolved at this install count."""
     resolved = [ImpactDashBlock._badge_context(badge, install_count) for badge in badges]
+    value = {"locked_heading": locked_heading, "locked_content": locked_content}
 
-    return ImpactDashBlock._summary_source({"locked_summary": locked_summary}, resolved)
+    return ImpactDashBlock._summary_source(value, resolved)
 
 
-# Deliberately not in ascending order: the message must be chosen by number, not
-# by position in the editor's list.
+# Deliberately not in ascending order: the pair must be chosen by number, not by
+# position in the editor's list.
 _MESSAGE_BADGES = [
-    _badge(1, message="first friend"),
-    _badge(25, message="twenty-five friends"),
-    _badge(5, message="five friends"),
+    _badge(1, heading="One down", message="first friend"),
+    _badge(25, heading="Twenty-five down", message="twenty-five friends"),
+    _badge(5, heading="Five down", message="five friends"),
 ]
 
 
 @pytest.mark.parametrize(
     ("install_count", "expected"),
     [
-        (1, "first friend"),
-        (4, "first friend"),
-        (5, "five friends"),  # the boundary: the 5 badge is unlocked at exactly 5
-        (24, "five friends"),
-        (25, "twenty-five friends"),
-        (342, "twenty-five friends"),  # nothing beyond the top badge to move on to
+        (1, ("One down", "first friend")),
+        (4, ("One down", "first friend")),
+        (5, ("Five down", "five friends")),  # the boundary: the 5 badge is unlocked at exactly 5
+        (24, ("Five down", "five friends")),
+        (25, ("Twenty-five down", "twenty-five friends")),
+        (342, ("Twenty-five down", "twenty-five friends")),  # nothing beyond the top badge to move on to
     ],
 )
 def test_impact_dash_summary_comes_from_the_furthest_badge_unlocked(install_count, expected):
     assert _summary_source(install_count, _MESSAGE_BADGES) == expected
 
 
-def test_impact_dash_summary_falls_back_to_locked_summary_when_nothing_unlocked():
-    source = _summary_source(0, _MESSAGE_BADGES, locked_summary="Invite your first friend.")
+def test_impact_dash_summary_never_mixes_the_pair_across_badges():
+    """A half missing from legacy JSON stays blank rather than reaching for a neighbour's."""
+    badges = [_badge(1, heading="One down", message="first friend"), _badge(5, message="five friends")]
 
-    assert source == "Invite your first friend."
-
-
-def test_impact_dash_summary_is_empty_when_nothing_unlocked_and_no_locked_summary():
-    assert _summary_source(0, _MESSAGE_BADGES) == ""
+    assert _summary_source(5, badges) == ("", "five friends")
 
 
-def test_impact_dash_summary_is_empty_when_the_unlocked_badge_has_no_message():
-    """Blank means silence, not the locked copy, which would deny the milestone."""
-    badges = [_badge(1, message="first friend"), _badge(5, message="   ")]
+def test_impact_dash_summary_falls_back_to_the_locked_pair_when_nothing_unlocked():
+    source = _summary_source(
+        0,
+        _MESSAGE_BADGES,
+        locked_heading="Nobody yet",
+        locked_content="Invite your first friend.",
+    )
 
-    assert _summary_source(5, badges, locked_summary="Invite your first friend.") == ""
+    assert source == ("Nobody yet", "Invite your first friend.")
+
+
+def test_impact_dash_summary_is_empty_when_nothing_unlocked_and_no_locked_pair():
+    assert _summary_source(0, _MESSAGE_BADGES) == ("", "")
+
+
+def test_impact_dash_summary_is_empty_when_the_unlocked_badge_fills_in_neither_half():
+    """Blank means silence, not the locked copy, which would deny the milestone.
+
+    Only reachable via legacy or imported JSON, as both halves are required.
+    """
+    badges = [_badge(1, heading="One down", message="first friend"), _badge(5, heading="  ", message="   ")]
+    source = _summary_source(5, badges, locked_heading="Nobody yet", locked_content="Invite your first friend.")
+
+    assert source == ("", "")
 
 
 def test_impact_dash_summary_prefers_the_first_of_duplicate_thresholds():
     """Two badges at the same number is editor error, but must be deterministic."""
-    badges = [_badge(5, message="first five"), _badge(5, message="second five")]
+    badges = [
+        _badge(5, heading="First five", message="first five"),
+        _badge(5, heading="Second five", message="second five"),
+    ]
 
-    assert _summary_source(5, badges) == "first five"
+    assert _summary_source(5, badges) == ("First five", "first five")
 
 
-def test_impact_dash_summary_ignores_messages_on_still_locked_badges():
-    badges = [_badge(1, message="first friend"), _badge(5, message="five friends")]
+def test_impact_dash_summary_ignores_copy_on_still_locked_badges():
+    badges = [
+        _badge(1, heading="One down", message="first friend"),
+        _badge(5, heading="Five down", message="five friends"),
+    ]
 
-    assert _summary_source(1, badges) == "first friend"
+    assert _summary_source(1, badges) == ("One down", "first friend")
 
 
 @pytest.mark.parametrize("raw", [None, "", "   ", "\n"])
@@ -5486,87 +5588,169 @@ def test_impact_dash_resolve_summary_substitutes_zero():
     assert ImpactDashBlock._resolve_summary("You have {install count} installs", install_count=0) == "You have 0 installs"
 
 
-def test_tab_block_renders_the_unlocked_badge_message_with_the_count_substituted():
+def test_tab_block_renders_the_unlocked_badge_pair_with_the_count_substituted():
     soup = _render_impact_dash(
         install_count=342,
         badges=[
-            _badge(1, message="Off the mark with {install count}."),
-            _badge(25, message="You have helped {install count} people switch to Firefox."),
+            _badge(1, heading="Off the mark", message="Off the mark with {install count}."),
+            _badge(
+                25,
+                heading="{install count} friends switched!",
+                message="You have helped {install count} people switch to Firefox.",
+            ),
         ],
-        locked_summary="Invite your first friend.",
+        locked_heading="Nobody yet",
+        locked_content="Invite your first friend.",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "You have helped 342 people switch to Firefox."
+    assert _summary_heading_element(soup).get_text(strip=True) == "342 friends switched!"
+    assert _summary_content_element(soup).get_text(strip=True) == "You have helped 342 people switch to Firefox."
 
 
-def test_tab_block_renders_the_locked_summary_before_any_badge_is_unlocked():
+def test_tab_block_renders_the_locked_pair_before_any_badge_is_unlocked():
     soup = _render_impact_dash(
         install_count=0,
-        badges=[_badge(1, message="first friend")],
-        locked_summary="Nobody yet -- invite your first friend.",
+        badges=[_badge(1, heading="One down", message="first friend")],
+        locked_heading="Nobody yet",
+        locked_content="Nobody yet -- invite your first friend.",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "Nobody yet -- invite your first friend."
+    assert _summary_heading_element(soup).get_text(strip=True) == "Nobody yet"
+    assert _summary_content_element(soup).get_text(strip=True) == "Nobody yet -- invite your first friend."
 
 
-def test_tab_block_renders_the_locked_summary_when_install_count_absent_from_context():
+def test_tab_block_renders_the_locked_pair_when_install_count_absent_from_context():
     """TabBlock is reachable from MediaBlock on pages that never set the count."""
     soup = _render_impact_dash(
         install_count=_UNSET,
-        badges=[_badge(1, message="first friend")],
-        locked_summary="{install count} so far",
+        badges=[_badge(1, heading="One down", message="first friend")],
+        locked_heading="{install count} friends so far",
+        locked_content="{install count} so far",
     )
 
-    assert _summary_element(soup).get_text(strip=True) == "0 so far"
+    assert _summary_heading_element(soup).get_text(strip=True) == "0 friends so far"
+    assert _summary_content_element(soup).get_text(strip=True) == "0 so far"
 
 
-def test_tab_block_omits_summary_element_when_the_chosen_message_is_blank():
-    soup = _render_impact_dash(numbers=(1, 5), install_count=5, locked_summary="   ")
+def test_tab_block_renders_the_heading_alone_when_legacy_json_has_no_message():
+    """One half missing must not suppress the other, however the JSON got that way."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, heading="Five down")])
 
-    assert _summary_element(soup) is None
-    # The badges are unaffected by there being no message to show.
+    assert _summary_heading_element(soup).get_text(strip=True) == "Five down"
+    assert _summary_content_element(soup) is None
+
+
+def test_tab_block_renders_the_message_alone_when_legacy_json_has_no_heading():
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="five friends")])
+
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup).get_text(strip=True) == "five friends"
+
+
+def test_tab_block_omits_both_summary_elements_when_the_chosen_pair_is_blank():
+    soup = _render_impact_dash(numbers=(1, 5), install_count=5, locked_heading="   ", locked_content="   ")
+
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup) is None
+    # The badges are unaffected by there being no summary to show.
     assert len(_badge_elements(soup)) == 2
 
 
-def test_tab_block_renders_impact_dash_saved_before_the_message_fields_existed():
+def test_tab_block_renders_impact_dash_saved_before_the_summary_fields_existed():
     soup = _render_impact_dash(numbers=(1, 5), install_count=5)
 
-    assert _summary_element(soup) is None
+    assert _summary_heading_element(soup) is None
+    assert _summary_content_element(soup) is None
     assert len(_badge_elements(soup)) == 2
 
 
-def test_tab_block_renders_summary_above_the_badge_list():
+def test_tab_block_renders_the_summary_pair_above_the_badge_list():
     html = _render_tab(
         referral_controls=False,
         install_count=5,
-        impact_dash=_impact_dash([_badge(1, message="{install count} installs")]),
+        impact_dash=_impact_dash([_badge(1, heading="{install count} down", message="{install count} installs")]),
     )
     panel = BeautifulSoup(html, "html.parser").find("div", class_="fl-tab")
 
-    order = [c for el in panel.find_all(["p", "ul"]) for c in (el.get("class") or []) if c in {"fl-impact-dash-summary", "fl-impact-dash"}]
-    assert order == ["fl-impact-dash-summary", "fl-impact-dash"]
+    wanted = {"fl-impact-dash-summary-heading", "fl-impact-dash-summary-content", "fl-impact-dash"}
+    order = [c for el in panel.find_all(["h2", "p", "ul"]) for c in (el.get("class") or []) if c in wanted]
+    assert order == ["fl-impact-dash-summary-heading", "fl-impact-dash-summary-content", "fl-impact-dash"]
 
 
-def test_tab_block_does_not_render_the_message_on_the_badge_itself():
-    """The message is the dashboard's summary line, not badge copy."""
-    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="five friends")])
+def test_tab_block_does_not_render_the_summary_pair_on_the_badge_itself():
+    """The pair is the dashboard's summary, not badge copy."""
+    soup = _render_impact_dash(install_count=5, badges=[_badge(5, heading="Five down", message="five friends")])
+    badge_text = _badge_elements(soup)[0].get_text()
 
-    assert "five friends" not in _badge_elements(soup)[0].get_text()
+    assert "Five down" not in badge_text
+    assert "five friends" not in badge_text
 
 
-def test_tab_block_escapes_html_typed_into_a_message():
+def test_tab_block_escapes_html_typed_into_the_summary_pair():
     """A CharBlock is plain text; markup in it must never reach the DOM as markup."""
-    soup = _render_impact_dash(install_count=5, badges=[_badge(5, message="<b>{install count}</b> installs")])
+    soup = _render_impact_dash(
+        install_count=5,
+        badges=[_badge(5, heading="<i>{install count}</i> down", message="<b>{install count}</b> installs")],
+    )
 
-    summary = _summary_element(soup)
-    assert summary.find("b") is None
-    assert summary.get_text(strip=True) == "<b>5</b> installs"
+    heading = _summary_heading_element(soup)
+    assert heading.find("i") is None
+    assert heading.get_text(strip=True) == "<i>5</i> down"
+    content = _summary_content_element(soup)
+    assert content.find("b") is None
+    assert content.get_text(strip=True) == "<b>5</b> installs"
 
 
-def test_impact_dash_badge_context_strips_the_message():
-    resolved = ImpactDashBlock._badge_context(_badge(5, message="  five friends  "), install_count=5)
+def test_impact_dash_badge_context_strips_the_summary_pair():
+    resolved = ImpactDashBlock._badge_context(
+        _badge(5, heading="  Five down  ", message="  five friends  "),
+        install_count=5,
+    )
 
+    assert resolved["heading"] == "Five down"
     assert resolved["message"] == "five friends"
+
+
+def _clean_impact_dash(badge, **dashboard_fields):
+    """Run editor-facing validation over a dashboard holding this one badge."""
+    block = ImpactDashBlock()
+    value = block.to_python(
+        {
+            "locked_heading": "Nobody yet",
+            "locked_content": "Invite your first friend.",
+            "badges": [badge],
+            **dashboard_fields,
+        }
+    )
+
+    return block.clean(value)
+
+
+@pytest.mark.parametrize("blank_half", ["heading", "message"])
+def test_impact_dash_badge_requires_both_halves_of_the_summary_pair(blank_half):
+    """Half a summary is not publishable copy, so the editor cannot save one."""
+    badge = _badge(5, heading="Five down", message="five friends")
+    badge[blank_half] = ""
+
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        _clean_impact_dash(badge)
+
+    assert "badges" in excinfo.value.block_errors
+
+
+@pytest.mark.parametrize("blank_half", ["locked_heading", "locked_content"])
+def test_impact_dash_requires_both_halves_of_the_locked_pair(blank_half):
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        _clean_impact_dash(_badge(5, heading="Five down", message="five friends"), **{blank_half: ""})
+
+    assert blank_half in excinfo.value.block_errors
+
+
+def test_impact_dash_accepts_a_dashboard_with_both_pairs_filled_in():
+    cleaned = _clean_impact_dash(_badge(5, heading="Five down", message="five friends"))
+
+    assert cleaned["locked_heading"] == "Nobody yet"
+    assert cleaned["badges"][0]["heading"] == "Five down"
 
 
 # Comparison table (inside TabBlock)

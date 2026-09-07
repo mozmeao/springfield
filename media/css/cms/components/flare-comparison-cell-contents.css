@@ -1,0 +1,37 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+* Cell contents of the browser comparison table: a comparison result
+* (icon + Yes/No/Limited label) and an image header, used for column headers.
+* Sized and coloured by flare-browser-comparison-table.css.
+*/
+
+.fl-comparison-result-icon,
+.fl-comparison-result-label,
+.fl-comparison-image-header-media,
+.fl-comparison-image-header-text {
+    display: block;
+    text-transform: uppercase;
+}
+
+.fl-comparison-result-icon {
+    margin-block-end: var(--token-spacing-xs);
+}
+
+.fl-comparison-result-icon .fl-icon {
+    block-size: var(--token-spacing-xl);
+    inline-size: var(--token-spacing-xl);
+}
+
+.fl-comparison-image-header-media {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-comparison-image-header-media img {
+    block-size: auto;
+    max-inline-size: 100%;
+}

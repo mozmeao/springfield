@@ -8,21 +8,33 @@
  Renders a column's stream of links and horizontal rules. Consecutive plain
  links are grouped inside a single <ul>; horizontal rules and button-style
  links break the list and render as siblings.
+
+ Links that resolve their own destination render nothing when that page is
+ missing, so a rule is held back until a later link needs it: a group that
+ renders nothing leaves no rule bracketing empty space.
 #}
 
-{% set column = namespace(list_open=false, items_count=0) %}
+{% set column = namespace(list_open=false, items_count=0, pending_separator="", has_content=false) %}
 <include:nav-column>
   {% for child in value %}
     {% if child.block_type != "separator" %}
       {% set column.items_count = column.items_count + 1 %}
     {% endif %}
     {% set block_position = block_position ~ ".link-" ~ column.items_count %}
-    {% if child.block_type == 'link' and not child.value.has_button_style %}
-      {% if not column.list_open %}<ul>{% set column.list_open = true %}{% endif %}
+    {% set rendered_block %}
       {% include_block child %}
-    {% else %}
-      {% if column.list_open %}</ul>{% set column.list_open = false %}{% endif %}
-      {% include_block child %}
+    {% endset %}
+    {% if child.block_type == "separator" %}
+      {% if column.has_content %}{% set column.pending_separator = rendered_block %}{% endif %}
+    {% elif rendered_block.strip() %}
+      {% if column.pending_separator or child.value.has_button_style %}
+        {% if column.list_open %}</ul>{% set column.list_open = false %}{% endif %}
+        {{ column.pending_separator }}
+        {% set column.pending_separator = "" %}
+      {% endif %}
+      {% if not child.value.has_button_style and not column.list_open %}<ul>{% set column.list_open = true %}{% endif %}
+      {{ rendered_block }}
+      {% set column.has_content = true %}
     {% endif %}
   {% endfor %}
   {% if column.list_open %}</ul>{% endif %}

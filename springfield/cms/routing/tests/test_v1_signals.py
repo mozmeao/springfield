@@ -22,6 +22,8 @@ EXPECTED_SIGNALS = {
     "is_default_browser": (Source.UITOUR, ValueType.BOOLEAN),
     "profile_age_weeks": (Source.UITOUR, ValueType.INTEGER),
     "fxa_signed_in": (Source.UITOUR, ValueType.BOOLEAN),
+    "days_since_last_session": (Source.UITOUR, ValueType.INTEGER),
+    "profile_reset_weeks_ago": (Source.UITOUR, ValueType.INTEGER),
     "ai_controls": (Source.UITOUR, ValueType.ENUM),
     "utm_source": (Source.URL, ValueType.STRING),
     "utm_medium": (Source.URL, ValueType.STRING),
@@ -30,6 +32,7 @@ EXPECTED_SIGNALS = {
     "locale": (Source.URL, ValueType.STRING),
     "language": (Source.URL, ValueType.STRING),
     "browser_language": (Source.USER_AGENT, ValueType.STRING),
+    "browser_name": (Source.USER_AGENT, ValueType.ENUM),
 }
 
 
@@ -104,6 +107,21 @@ def test_is_firefox_notes_cross_platform_coverage():
     assert "Android" in description
 
 
+def test_fxa_signed_in_reads_the_fxa_key_not_the_deprecated_sync_key():
+    # `sync.setup` only reports that Sync is configured, which UITour.sys.mjs itself marks
+    # deprecated; `fxa.setup` is the account's actual signed-in state.
+    fxa_signed_in = registry.get("fxa_signed_in")
+    assert fxa_signed_in.browser_state_key == "fxa"
+
+
+def test_days_since_last_session_notes_it_measures_since_the_browser_closed():
+    # The sharpest trap in this signal: it's days since Firefox last quit, not days since
+    # the visitor was last active. A long-running session that never restarts reads as
+    # lapsed until it does.
+    description = str(registry.get("days_since_last_session").description)
+    assert "closed" in description
+
+
 # ---------------------------------------------------------------------------
 # oldversion + locale: URL-derived, replacing a dedicated lapsed_user.
 # ---------------------------------------------------------------------------
@@ -152,3 +170,20 @@ def test_locale_and_language_descriptions_point_authors_at_each_other():
     # The pair is only useful if an author can tell which one they want.
     assert "language" in str(registry.get("locale").description)
     assert "en-US" in str(registry.get("language").description)
+
+
+def test_browser_name_is_read_from_the_user_agent_not_uitour():
+    # UA sniffing, not UITour: it must work off Firefox too, to identify the browsers it
+    # names.
+    browser_name = registry.get("browser_name")
+    assert browser_name.source is Source.USER_AGENT
+    assert browser_name.value_type is ValueType.ENUM
+    assert {value.value for value in browser_name.enum_values} == {
+        "firefox",
+        "chrome",
+        "edge",
+        "opera",
+        "safari",
+        "brave",
+        "other",
+    }

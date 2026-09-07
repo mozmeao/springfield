@@ -35,17 +35,25 @@
         gap: var(--token-spacing-md);
     }
 
-    .fl-smart-window-instructions-container .fl-buttons {
-        justify-content: center;
-    }
-
-    .fl-smart-window-instructions-container .fl-button,
-    .fl-smart-window-instructions-container .fl-download-firefox-button {
-        inline-size: 100%;
-    }
-
     .fl-smart-window-instructions-container p {
         margin: 0;
+    }
+
+    .fl-smart-window-instructions-container .marketing-opt-out-checkbox-label {
+        align-items: flex-start;
+        display: flex;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: var(--token-spacing-sm);
+        max-inline-size: 42em;
+        text-align: start;
+    }
+
+    .fl-smart-window-instructions-container
+        .marketing-opt-out-checkbox-label
+        input[type='checkbox'] {
+        block-size: 16px;
+        flex-shrink: 0;
+        inline-size: 16px;
     }
 
     .fl-smart-window-heading-success {
@@ -90,10 +98,6 @@
         flex-direction: column;
         gap: var(--token-spacing-xl);
         max-inline-size: var(--token-width-desktop-content-lg);
-    }
-
-    .fl-smart-window-intro .fl-buttons {
-        justify-content: center;
     }
 
     .fl-smart-window-intro .fl-heading {

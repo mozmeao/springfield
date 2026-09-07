@@ -121,59 +121,27 @@ if (typeof window.Mozilla === 'undefined') {
     };
 
     /**
-     * Click handler: fire the GA4 + legacy download events and navigate to
-     * the closure-captured https:// URL. We navigate via JS (mirroring
-     * auto-download.js) because mozilla-utils.js mutates Android Play Store
-     * hrefs to `market://details?...` on DOM ready — that scheme works on
-     * real Android but fails in desktop browsers, breaking dev testing.
-     * The https:// URL works in both contexts (Android App Links open the
-     * Play Store app; browsers load the web page).
+     * Fire the download event on click and let the browser follow the href,
+     * matching the shared .ga-product-download handler in
+     * datalayer-productdownload-init.es6.js. These CTAs don't carry that
+     * class, so they need their own listener. The href is read at click
+     * time so a later rewrite is reflected; storeUrl is the value
+     * rewriteLinks just set.
      */
     MobileAttribution._attachTrackingClick = function (button, storeUrl) {
-        button.addEventListener('click', function (event) {
-            event.preventDefault();
-            // Prefer the element's current href if it has been rewritten to an
-            // https://play.google.com URL after this listener was bound (e.g. by
-            // referral attribution). Fall back to the captured storeUrl — which
-            // may be a market:// URL set by initMobileDownloadLinks — otherwise.
-            var currentHref = button.getAttribute('href') || '';
-            var url;
-            if (currentHref.indexOf('https://play.google.com') === 0) {
-                url = currentHref;
-            } else if (currentHref.indexOf('market://') === 0) {
-                // mozilla-utils.js replaces https://play.google.com/store/apps/
-                // with market:// — reverse that to recover the current href
-                // (including any utm_content added by referral attribution).
-                url =
-                    'https://play.google.com/store/apps/' +
-                    currentHref.slice('market://'.length);
-            } else {
-                url = storeUrl;
-            }
-            window.Mozilla.TrackProductDownload.sendEventFromURL(url);
-            MobileAttribution._navigate(url);
+        button.addEventListener('click', function () {
+            window.Mozilla.TrackProductDownload.sendEventFromURL(
+                button.getAttribute('href') || storeUrl
+            );
         });
     };
 
-    /** Navigation seam — separated so tests can spy without navigating. */
-    MobileAttribution._navigate = function (url) {
-        window.location.href = url;
-    };
-
     /**
-     * Entry point. No-op on desktop. On mobile:
-     *   1. Android-only: supplement the existing .ga-product-download click
-     *      handler on Path A Play Store badges (CMS download_firefox_button
-     *      block). The existing handler reads event.target.href, which
-     *      mozilla-utils.js has mutated to market://details?... by click time,
-     *      and the tracker's marketURL regex doesn't recognize that shape —
-     *      so the event silently drops. We supplement with a handler using
-     *      the captured https:// URL. iOS Path A is unaffected and not
-     *      supplemented (would double-fire).
-     *   2. Path B: rewrite /thanks/-bound CTAs to attributed store URLs.
-     *      Falls back to DEFAULT_CAMPAIGN when no campaign is declared so
-     *      mobile users never route through /thanks/, which renders desktop-
-     *      stub-installer copy and serves no purpose pre-install on mobile.
+     * Entry point. No-op on desktop. On mobile, rewrites /thanks/-bound CTAs
+     * to attributed store URLs. Falls back to DEFAULT_CAMPAIGN when no
+     * campaign is declared so mobile users never route through /thanks/,
+     * which renders desktop-stub-installer copy and serves no purpose
+     * pre-install on mobile.
      */
     MobileAttribution.init = function () {
         var html = document.documentElement;
@@ -184,34 +152,12 @@ if (typeof window.Mozilla === 'undefined') {
             return;
         }
 
-        if (isAndroid) {
-            MobileAttribution.attachAndroidStoreButtonTracking(document);
-        }
-
         var campaign =
             MobileAttribution.getCampaign(html, window.location.search) ||
             DEFAULT_CAMPAIGN;
 
         var storeUrl = MobileAttribution.getStoreUrl(campaign, isAndroid);
         MobileAttribution.rewriteLinks(document, storeUrl);
-    };
-
-    /** Path A Android-only supplement (see init docstring for rationale). */
-    MobileAttribution.attachAndroidStoreButtonTracking = function (root) {
-        if (
-            !window.Mozilla ||
-            !window.Mozilla.TrackProductDownload ||
-            typeof window.Mozilla.TrackProductDownload.sendEventFromURL !==
-                'function'
-        ) {
-            return;
-        }
-        var buttons = root.querySelectorAll('.fl-store-button-android');
-        for (var i = 0; i < buttons.length; i++) {
-            var href = buttons[i].getAttribute('href');
-            if (!href) continue;
-            MobileAttribution._attachTrackingClick(buttons[i], href);
-        }
     };
 
     Mozilla.MobileAttribution = MobileAttribution;

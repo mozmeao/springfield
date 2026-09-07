@@ -1,0 +1,288 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-browser-comparison-table-wrapper {
+    --browser-comparison-table-logo-size: 30px;
+    --browser-comparison-table-highlighted-logo-size: 70px;
+
+    /* How far the highlighted column's logo sits above the table. */
+    --browser-comparison-table-highlighted-logo-offset: 35px;
+
+    /* Where the column labels start: header cell padding, plus the logo area
+       and the gap below it. */
+    --browser-comparison-table-label-offset: calc(
+        var(--token-spacing-lg) + var(--browser-comparison-table-logo-size) +
+            var(--token-spacing-sm)
+    );
+    inline-size: 100%;
+    margin-block-end: var(--token-layout-xs);
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
+    overflow-x: auto;
+    padding-block-start: var(
+        --browser-comparison-table-highlighted-logo-offset
+    );
+}
+
+.fl-browser-comparison-table-wrapper.stacked {
+    overflow-x: unset;
+}
+
+.fl-browser-comparison-table {
+    inline-size: 100%;
+}
+
+/* Column headers only. Row-label cells are also <th>, but are styled by the
+   :first-child rules below. */
+.fl-browser-comparison-table thead th,
+.fl-browser-comparison-table thead td {
+    font-weight: var(--fl-theme-font-weight-headline);
+    min-inline-size: 200px;
+    text-transform: uppercase;
+}
+
+.fl-browser-comparison-table thead th:not(:first-child) {
+    inline-size: 25%;
+    padding: var(--token-spacing-lg);
+}
+
+.fl-browser-comparison-table th,
+.fl-browser-comparison-table td {
+    border: none;
+    color: var(--browser-comparison-table-text-color);
+    text-align: start;
+    vertical-align: middle;
+}
+
+.fl-browser-comparison-table th:first-child,
+.fl-browser-comparison-table td:first-child {
+    color: var(--fl-theme-color-text);
+    font-family: var(--fl-theme-font-family-headline);
+    font-weight: var(--fl-theme-font-weight-headline);
+}
+
+.fl-browser-comparison-table td:not(:first-child) {
+    padding: var(--token-spacing-lg);
+}
+
+.fl-browser-comparison-table th.highlighted,
+.fl-browser-comparison-table td.highlighted {
+    background-color: var(--browser-comparison-table-highlighted-bg);
+    color: var(--browser-comparison-table-highlighted-text-color);
+}
+
+/* The highlighted column's logo is lifted out of the flow, so pad in the space it
+   would have occupied to keep this label level with the other columns' labels. */
+.fl-browser-comparison-table thead th.highlighted,
+.fl-browser-comparison-table thead td.highlighted {
+    border-start-end-radius: var(--token-spacing-lg);
+    border-start-start-radius: var(--token-spacing-lg);
+    padding-block-start: var(--browser-comparison-table-label-offset);
+}
+
+.fl-browser-comparison-table th.highlighted {
+    position: relative;
+}
+
+.fl-browser-comparison-table tbody tr {
+    border-block-start: 1px solid var(--browser-comparison-table-border-color);
+}
+
+.fl-browser-comparison-table tbody tr:last-child th.highlighted {
+    border-end-end-radius: var(--token-spacing-lg);
+    border-end-start-radius: var(--token-spacing-lg);
+    padding-block-end: var(--token-spacing-xl);
+}
+
+.fl-browser-comparison-table tbody tr:last-child td.highlighted {
+    border-end-end-radius: var(--token-spacing-lg);
+    border-end-start-radius: var(--token-spacing-lg);
+    padding-block: 0;
+}
+
+/* Cell contents. The comparison result and image header components bring their
+   own base styles; these lay them out for this table's columns. */
+
+.fl-browser-comparison-table .fl-comparison-image-header-text {
+    color: var(--fl-theme-color-text);
+}
+
+.fl-browser-comparison-table .fl-comparison-image-header-text,
+.fl-browser-comparison-table .fl-comparison-result-label {
+    font-size: var(--token-font-size-xs);
+}
+
+.fl-browser-comparison-table th .fl-comparison-image-header,
+.fl-browser-comparison-table td .fl-comparison-result {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fl-browser-comparison-table th .fl-comparison-image-header {
+    justify-content: flex-end;
+}
+
+/* Reserve a fixed logo area, with the logo sitting at the bottom of it, so the
+   labels below line up across columns no matter how tall each logo renders. */
+.fl-browser-comparison-table .fl-comparison-image-header-media {
+    align-items: flex-end;
+    block-size: var(--browser-comparison-table-logo-size);
+    display: flex;
+    justify-content: center;
+}
+
+.fl-browser-comparison-table .fl-comparison-image-header-media img {
+    block-size: auto;
+    inline-size: var(--browser-comparison-table-logo-size);
+    margin: 0;
+}
+
+/* Only the highlighted column gets the filled checkmark; the rest use the
+   outlined one. */
+.fl-browser-comparison-table
+    td:not(.highlighted)
+    .fl-comparison-result-icon
+    .fl-icon-checkmark-circle-fill {
+    --icon-src: url('/media/img/firefox/flare/icons/desktop-16/checkmarks/checkmark-circle-16.svg');
+}
+
+/* Highlighted column */
+
+.fl-browser-comparison-table .highlighted .fl-comparison-image-header-text {
+    color: var(--browser-comparison-table-highlighted-text-color);
+}
+
+/* Only the larger logo is lifted out of the flow, so the label stays in the
+   flow and lines up with the other columns' labels. */
+.fl-browser-comparison-table .highlighted .fl-comparison-image-header-media {
+    block-size: var(--browser-comparison-table-highlighted-logo-size);
+    inset-block-start: calc(
+        -1 * var(--browser-comparison-table-highlighted-logo-offset)
+    );
+    inset-inline: 0;
+    margin-block-end: 0;
+    position: absolute;
+    z-index: 1;
+}
+
+.fl-browser-comparison-table
+    .highlighted
+    .fl-comparison-image-header-media
+    img {
+    block-size: auto;
+    inline-size: var(--browser-comparison-table-highlighted-logo-size);
+    margin: 0;
+}
+
+.fl-browser-comparison-table-fine-print {
+    color: var(--browser-comparison-table-text-color);
+    font-size: var(--fl-theme-font-size-body-2xs);
+    margin-block-start: var(--token-spacing-md);
+    text-align: center;
+}
+
+@media (--viewport-below-md) {
+    .fl-browser-comparison-table-wrapper {
+        margin-block-end: var(--token-layout-md);
+    }
+
+    .fl-browser-comparison-table .fl-comparison-image-header-text,
+    .fl-browser-comparison-table .fl-comparison-result-label {
+        font-size: 10px;
+    }
+
+    .fl-browser-comparison-table {
+        table-layout: fixed;
+    }
+
+    /* Scoped through the wrapper so it outranks the desktop
+       `thead th:not(:first-child)` rule, which is one type selector more
+       specific and would otherwise keep its width and padding here. */
+    .fl-browser-comparison-table-wrapper
+        .fl-browser-comparison-table
+        th:not(:first-child),
+    .fl-browser-comparison-table-wrapper
+        .fl-browser-comparison-table
+        td:not(:first-child) {
+        inline-size: 64px;
+        min-inline-size: 0;
+        overflow-wrap: break-word;
+        padding-inline: var(--token-spacing-xs);
+    }
+
+    /* Stacked mobile behavior */
+
+    .fl-browser-comparison-table-wrapper.stacked thead,
+    .fl-browser-comparison-table-wrapper.stacked tbody {
+        display: block;
+        inline-size: 100%;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked thead tr {
+        display: flex;
+        inline-size: 100%;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked thead th:first-child,
+    .fl-browser-comparison-table-wrapper.stacked thead td:first-child {
+        display: none;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked thead th {
+        flex: 1;
+        text-align: center;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        inline-size: 100%;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked tbody th:first-child,
+    .fl-browser-comparison-table-wrapper.stacked tbody td:first-child {
+        display: block;
+        flex: 0 0 100%;
+        padding-block-end: 0;
+        text-align: center;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked tbody td:not(:first-child) {
+        flex: 1;
+        min-inline-size: 0;
+        text-align: center;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked
+        .fl-browser-comparison-table
+        .highlighted {
+        background-color: unset;
+    }
+
+    .fl-browser-comparison-table-wrapper.stacked
+        .fl-browser-comparison-table
+        thead
+        .highlighted,
+    .fl-browser-comparison-table-wrapper.stacked
+        .fl-browser-comparison-table
+        tbody
+        tr:last-child
+        .highlighted {
+        border-radius: 0;
+        padding: var(--token-spacing-lg);
+    }
+
+    /* Keep the label lined up with the other columns' labels, which the
+       padding shorthand above would otherwise reset. */
+    .fl-browser-comparison-table-wrapper.stacked
+        .fl-browser-comparison-table
+        thead
+        .highlighted {
+        padding-block-start: var(--browser-comparison-table-label-offset);
+    }
+}

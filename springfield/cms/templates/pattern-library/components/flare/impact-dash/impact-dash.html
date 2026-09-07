@@ -4,23 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#
- The badges context mirrors the dict shape produced by
- ImpactDashBlock._badge_context, which resolves each badge against the
- referrer's install count before the template ever sees it.
-#}
-
 <div class="pl-frame">
   <div class="pl-row">
     <p>
       Install count is <strong>{{ install_count }}</strong>, so every badge whose
-      number is at or below it is achieved. The optional line above the badges is
-      the message of the furthest badge unlocked, already resolved: which one it
-      is, and where its {install count} token goes, is settled before the
-      component sees it.
+      number is at or below it is achieved. The optional heading and message above
+      the badges are the pair belonging to the furthest badge unlocked, already
+      resolved: which badge it is, and where its {install count} token goes, is
+      settled before the component sees it.
     </p>
     <div data-testid="impact-dash">
-      <include:impact-dash summary="{{ summary }}">
+      <include:impact-dash summary_heading="{{ summary_heading }}" summary_content="{{ summary_content }}">
         <content:badges>
           {% for badge in badges %}
             <include:badge

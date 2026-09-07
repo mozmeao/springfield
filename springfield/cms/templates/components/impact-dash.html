@@ -9,15 +9,13 @@
  caller supplies the badge items. Same split as roadmap-list-section/roadmap-item.
 #}
 
-{# props summary="" #}
+{# props summary_heading="", summary_content="" #}
 
-{#
- summary arrives already chosen and already substituted by
- ImpactDashBlock.get_context: which message applies depends on the install count,
- which the component never sees. Nothing to resolve here.
-#}
-{% if summary %}
-  <p class="fl-impact-dash-summary">{{ summary }}</p>
+{% if summary_heading %}
+  <h2 class="fl-impact-dash-summary-heading">{{ summary_heading }}</h2>
+{% endif %}
+{% if summary_content %}
+  <p class="fl-impact-dash-summary-content">{{ summary_content }}</p>
 {% endif %}
 
 {% if contents.badges %}

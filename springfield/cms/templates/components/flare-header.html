@@ -47,7 +47,12 @@
     </nav>
     <div class="fl-header-buttons">
       <div class="fl-header-main-download-button">
-        {% include 'cms/includes/nav-cta.html' %}
+        {# Only the desktop CTA slot renders the "Get Firefox for your phone" QR
+           dropdown, so its id stays unique (the mobile-menu copy would never show
+           it anyway — it's hidden below the breakpoint the QR needs). #}
+        {% with show_get_mobile=True %}
+          {% include 'cms/includes/nav-cta.html' %}
+        {% endwith %}
       </div>
       {% if not no_menu_dropdowns %}
         <button class="fl-show-mobile-menu" type="button" data-testid="navigation-menu-button">

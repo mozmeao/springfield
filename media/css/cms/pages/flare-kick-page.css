@@ -68,6 +68,11 @@
     z-index: 2;
 }
 
+/* Avoid menu panel being overlapped by featured image section */
+.flare26-kick-page .fl-menu-panel {
+    z-index: 3;
+}
+
 /* last banner gets a special background image. */
 .flare26-kick-page
     .fl-banner-container.is-last-visible

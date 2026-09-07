@@ -42,6 +42,9 @@
     "ignoreFiles": [
         "media/css/libs/**/*",
         "media/css/cms/wagtail-admin.css",
+        "media/css/cms/wagtail_admin_dev.css",
+        "media/css/cms/wagtail_admin_local.css",
+        "media/css/cms/wagtail_admin_stage.css",
         "media/css/pattern_library/theme.css"
     ]
 }

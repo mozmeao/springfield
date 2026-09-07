@@ -14,7 +14,6 @@ const devURL = /^https:\/\/dev.bouncer.nonprod.webservices.mozgcp.net/;
 const iTunesURL = /^https:\/\/itunes.apple.com/;
 const appStoreURL = /^https:\/\/apps.apple.com/;
 const playStoreURL = /^https:\/\/play.google.com/;
-const marketURL = /^market:\/\/play.google.com/;
 const msStoreUrl = /^https:\/\/apps.microsoft.com/;
 const msStoreUrl2 = /^ms-windows-store:\/\/pdp\//;
 
@@ -23,7 +22,7 @@ if (typeof window.dataLayer === 'undefined') {
 }
 
 /**
- * Validate we got a link to download.mozilla.org with the correct parameters
+ * Validate we got a link to an expected download source
  * @param {URL}
  * @returns {Boolean}
  */
@@ -36,7 +35,6 @@ TrackProductDownload.isValidDownloadURL = (downloadURL) => {
             iTunesURL.test(downloadURL) ||
             appStoreURL.test(downloadURL) ||
             playStoreURL.test(downloadURL) ||
-            marketURL.test(downloadURL) ||
             msStoreUrl.test(downloadURL) ||
             msStoreUrl2.test(downloadURL)
         ) {
@@ -145,7 +143,7 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             release,
             params.lang
         );
-    } else if (playStoreURL.test(downloadURL) || marketURL.test(downloadURL)) {
+    } else if (playStoreURL.test(downloadURL)) {
         const idParam = params.id;
         let androidProduct = 'unrecognized';
         let androidRelease = '';
@@ -168,9 +166,6 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
                 break;
             case 'org.mozilla.klar':
                 androidProduct = 'klar';
-                break;
-            case 'com.ideashower.readitlater.pro':
-                androidProduct = 'pocket';
                 break;
             case 'org.mozilla.firefox.vpn':
                 androidProduct = 'vpn';

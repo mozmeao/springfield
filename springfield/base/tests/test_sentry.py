@@ -27,6 +27,9 @@ def test_pre_sentry_sanitisation__before_send_setup():
         "X-Mozilla-Ops-Canary",
         "ref_key",
         "invitation",
+        "git_config_value",
+        "authentication",
+        "fluent_repo_auth",
     ]
 
 
@@ -122,3 +125,71 @@ def test_pre_sentry_sanitisation(shared_datadir):
     stringified = json.dumps(output)
 
     assert "blocklist" not in stringified
+
+
+def test_pre_sentry_sanitisation_git_config_value(shared_datadir):
+    # GIT_CONFIG_VALUE_0 is a subprocess-env/stack-frame local, never an
+    # HTTP request field, so it's only realistic to exercise via the
+    # exception stacktrace path - unlike
+    # test_pre_sentry_sanitisation's shared fixtures, which also push every
+    # blocklist key through filter_http's synthetic query_string, where
+    # sentry_processor's naive key=value splitter mishandles the "="
+    # padding in this value's base64 encoding regardless of masking config.
+    noop_because_hint_is_not_used = None
+    raw_json = (shared_datadir / "example_sentry_payload.json").read_text()
+    fake_event = json.loads(raw_json)["payload"]
+    fake_event["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["GIT_CONFIG_VALUE_0"] = "AUTHORIZATION: Basic ZHVkZTphYmlkZXM="
+
+    output = before_send(event=fake_event, hint=noop_because_hint_is_not_used)
+
+    sanitised_vars = output["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]
+    assert sanitised_vars["GIT_CONFIG_VALUE_0"] == "********"
+
+
+def test_pre_sentry_sanitisation_authentication_in_nested_params_dict(shared_datadir):
+    # Mirrors lib.l10n_utils.management.commands.l10n_update.update_fluent_files,
+    # where a per-iteration frame local ("params") is a dict that can carry a
+    # raw, unencoded credential nested one level deep - not a top-level frame
+    # var - so this exercises the recursive dict-walking path specifically.
+    noop_because_hint_is_not_used = None
+    raw_json = (shared_datadir / "example_sentry_payload.json").read_text()
+    fake_event = json.loads(raw_json)["payload"]
+    fake_event["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["params"] = {
+        "path": "/app/data/www-firefox-l10n",
+        "remote_url": "https://github.com/mozmeao/www-firefox-l10n",
+        "branch_name": "main",
+        "authentication": "ghp_realisticrawtoken1234567890",
+    }
+
+    output = before_send(event=fake_event, hint=noop_because_hint_is_not_used)
+
+    sanitised_params = output["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["params"]
+    assert sanitised_params["authentication"] == "********"
+    # sibling keys in the same nested dict are untouched
+    assert sanitised_params["path"] == "/app/data/www-firefox-l10n"
+
+
+def test_pre_sentry_sanitisation_fluent_repo_auth_in_nested_git_options(shared_datadir):
+    # Mirrors springfield.utils.git.GitRepo.git(), where a frame local
+    # ("git_options") holds {"env": {**os.environ, **environment_overrides}} -
+    # i.e. FLUENT_REPO_AUTH (read from the real container env at config-load
+    # time) sitting two levels deep, alongside GIT_CONFIG_VALUE_0.
+    noop_because_hint_is_not_used = None
+    raw_json = (shared_datadir / "example_sentry_payload.json").read_text()
+    fake_event = json.loads(raw_json)["payload"]
+    fake_event["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["git_options"] = {
+        "stderr": -2,
+        "env": {
+            "PATH": "/usr/bin",
+            "FLUENT_REPO_AUTH": "ghp_realisticrawtoken1234567890",
+            "GIT_CONFIG_VALUE_0": "AUTHORIZATION: Basic ZHVkZTphYmlkZXM=",
+        },
+    }
+
+    output = before_send(event=fake_event, hint=noop_because_hint_is_not_used)
+
+    sanitised_env = output["exception"]["values"][0]["stacktrace"]["frames"][1]["vars"]["git_options"]["env"]
+    assert sanitised_env["FLUENT_REPO_AUTH"] == "********"
+    assert sanitised_env["GIT_CONFIG_VALUE_0"] == "********"
+    # a non-sensitive sibling key two levels deep is untouched
+    assert sanitised_env["PATH"] == "/usr/bin"

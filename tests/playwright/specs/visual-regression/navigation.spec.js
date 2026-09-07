@@ -20,6 +20,14 @@ async function openFirstFolder(page) {
     ).toBeVisible();
 }
 
+// The QR dropdown only renders for Firefox desktop visitors. Real UA-sniffing
+// JS adds these classes to <html>; force them here since CI runs chromium.
+async function makeFirefoxDesktop(page) {
+    await page.evaluate(() => {
+        document.documentElement.classList.add('is-firefox', 'windows');
+    });
+}
+
 test.describe(
     `Navigation`,
     {
@@ -51,6 +59,33 @@ test.describe(
                 await expect(page).toHaveScreenshot('navigation-dark.png', {
                     animations: 'disabled'
                 });
+            });
+        });
+
+        test.describe('Firefox desktop (QR dropdown)', () => {
+            test('closed', async ({ page }) => {
+                await makeFirefoxDesktop(page);
+                await expectComponentScreenshot(
+                    page,
+                    'navigation',
+                    'navigation-get-mobile-closed'
+                );
+            });
+
+            test('open', async ({ page }) => {
+                await makeFirefoxDesktop(page);
+                await page.locator('#nav-get-mobile').click();
+                await page
+                    .locator(
+                        '.nav-get-mobile .fl-dropdown.fl-is-open .fl-dropdown-panel'
+                    )
+                    .waitFor({ state: 'visible' });
+                // The open panel is absolutely positioned and overflows the
+                // header, so screenshot the whole page (same as "open folder").
+                await expect(page).toHaveScreenshot(
+                    'navigation-get-mobile-open.png',
+                    { animations: 'disabled' }
+                );
             });
         });
     }

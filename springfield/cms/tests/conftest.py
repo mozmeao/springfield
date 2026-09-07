@@ -1,13 +1,15 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 import pytest
 import wagtail_factories
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, Revision, Site
+from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationSource
 
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
@@ -385,6 +387,51 @@ def site_with_en_de_fr_it_homepages_and_some_translations(site_with_en_de_fr_it_
     it_translation = fr_page.copy_for_translation(it_locale)
     it_translation.title = "Italian Translation"
     it_translation.save_revision().publish()
+
+
+@pytest.fixture
+def translated_page(minimal_site):
+    """
+    An en-US page translated into French, published, with no edits since publication.
+    """
+    source_page = SimpleRichTextPageFactory(
+        title="Switch to Firefox",
+        slug="switch-to-firefox",
+        parent=minimal_site.root_page,
+    )
+    locale = Locale.objects.get(language_code="fr")
+
+    source, _ = TranslationSource.get_or_create_from_instance(source_page)
+    translation = Translation.objects.create(source=source, target_locale=locale, enabled=True)
+    translation.save_target(publish=True)
+
+    # Publish target revision explicitly because save_target() publishes on transaction commit
+    page = translation.get_target_instance()
+    Revision.objects.for_instance(page).order_by("-created_at").first().publish()
+    page.refresh_from_db()
+
+    return SimpleNamespace(source_page=source_page, page=page, translation=translation, locale=locale)
+
+
+@pytest.fixture
+def translated_page_with_pending_edit(translated_page):
+    """
+    A translated page whose translation memory has been edited since publication.
+    """
+    segment = StringSegment.objects.filter(source=translated_page.translation.source).first()
+    StringTranslation.objects.update_or_create(
+        translation_of_id=segment.string_id,
+        locale=translated_page.locale,
+        context_id=segment.context_id,
+        defaults={
+            "data": "Passer à Firefox",
+            "translation_type": StringTranslation.TRANSLATION_TYPE_MANUAL,
+            "tool_name": "",
+            "has_error": False,
+            "field_error": "",
+        },
+    )
+    return translated_page
 
 
 @pytest.fixture

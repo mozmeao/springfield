@@ -380,6 +380,9 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
                 download_esr_next_url = list(filter(lambda b: b["locale"] == locale, firefox_desktop.get_filtered_full_builds("esr_next")))[0][
                     "platforms"
                 ][platform]["download_url"]
+                # ESR153+ builds do not exist for "linux" (i686) any longer (issue #1726)
+                if platform == "linux":
+                    download_esr_next_url = None
                 context.update(
                     download_esr_next_url=download_esr_next_url,
                 )

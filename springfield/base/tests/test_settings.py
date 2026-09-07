@@ -9,7 +9,7 @@ from django.test import override_settings
 
 import pytest
 
-from springfield.settings.base import _get_media_cdn_hostname_for_storage_backend
+from springfield.settings.base import _get_media_cdn_hostname_for_storage_backend, lazy_langs
 
 
 @override_settings(DEV=False, PROD_LANGUAGES=("de", "fr", "nb-NO", "ja", "ja-JP-mac", "en-US", "en-GB"))
@@ -38,3 +38,26 @@ def test_get_media_cdn_hostname(media_url, expected_hostname):
 def test_catch_disallowed_redirect_middleware_enabled():
     middleware_path = "springfield.base.middleware.CatchDisallowedRedirect"
     assert middleware_path in settings.MIDDLEWARE
+
+
+@override_settings(DEV=True)
+def test_lazy_langs_skips_db_before_apps_ready(mocker):
+    mocker.patch("springfield.settings.base.DEV_LANGUAGES", ["en-US", "de"])
+    mocker.patch("springfield.settings.base.apps.ready", False)
+
+    result = lazy_langs()
+    assert result == [("en-US", "en-US"), ("de", "de")]
+
+
+@override_settings(DEV=True)
+def test_lazy_langs_uses_product_details_after_apps_ready(mocker):
+    mocker.patch("springfield.settings.base.DEV_LANGUAGES", ["en-US", "de"])
+    mocker.patch("springfield.settings.base.apps.ready", True)
+    product_details = mocker.patch("product_details.product_details")
+    product_details.languages = {
+        "en-US": {"native": "English (US)"},
+        "de": {"native": "Deutsch"},
+    }
+
+    result = lazy_langs()
+    assert result == [("en-US", "English (US)"), ("de", "Deutsch")]

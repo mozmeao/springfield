@@ -284,6 +284,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/checkmarks/checkmark-16.svg');
 }
 
+.fl-icon-checkmark-circle {
+    --icon-src: url('/media/img/firefox/flare/icons/desktop-16/checkmarks/checkmark-circle-16.svg');
+}
+
 .fl-icon-checkmark-circle-fill {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/checkmarks/checkmark-circle-fill-16.svg');
 }
