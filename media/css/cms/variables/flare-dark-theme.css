@@ -113,6 +113,12 @@
 --notification-white-border-color: var(--token-color-black-1);
 --notification-white-icon-bg: var(--token-color-white);
 
+/* blog topic */
+--notification-blog-topic-bg: var(--token-color-black-2);
+--notification-blog-topic-color: var(--token-color-white);
+--notification-blog-topic-border-color: var(--token-color-black-1);
+--notification-blog-topic-hover-border-color: var(--token-color-white);
+
 /* selected state (inverted) */
 --notification-selected-bg: var(--notification-stacked-color);
 --notification-selected-color: var(--notification-bg);

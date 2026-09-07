@@ -94,6 +94,20 @@ a.fl-tag:hover .fl-tag {
     color: var(--notification-light-purple-color);
 }
 
+/* blog topic */
+.fl-tag.fl-tag-blog-topic {
+    background: var(--notification-blog-topic-bg);
+    border: 1px solid var(--notification-blog-topic-border-color);
+    color: var(--notification-blog-topic-color);
+    font-size: var(--fl-theme-label-xs);
+}
+
+a.fl-tag.fl-tag-blog-topic:hover {
+    background-color: transparent;
+    border-color: var(--notification-blog-topic-hover-border-color);
+    color: var(--notification-blog-topic-color);
+}
+
 /* Selected state */
 
 .fl-tag.is-selected {
@@ -124,6 +138,12 @@ a.fl-tag:hover .fl-tag {
 .fl-tag.fl-tag-light-purple.is-selected {
     background: var(--notification-light-purple-selected-bg);
     color: var(--notification-light-purple-selected-color);
+}
+
+.fl-tag.fl-tag-blog-topic.is-selected {
+    background: var(--token-color-link-purple);
+    border-color: var(--token-color-link-purple);
+    color: var(--token-color-white);
 }
 
 /* when a tag is used a badge within another tag. See Blog tags page. */

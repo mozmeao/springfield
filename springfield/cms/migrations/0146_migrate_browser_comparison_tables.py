@@ -5,7 +5,7 @@
 import os
 import sys
 
-from django.core.management import call_command
+# from django.core.management import call_command
 from django.db import migrations
 
 from springfield.base.config_manager import config
@@ -17,7 +17,8 @@ def migrate_browser_comparison_tables(apps, schema_editor):
     if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return
 
-    call_command("migrate_browser_comparison_tables", verbosity=1)
+    # Commenting out since the operation was already performed in production
+    # call_command("migrate_browser_comparison_tables", verbosity=1)
 
 
 class Migration(migrations.Migration):

@@ -1,0 +1,21 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ The "Share how you discovered Firefox" opt-out for promoted pages.
+
+ Rendered hidden; media/js/firefox/landing/get/marketing-opt-out-v2.es6.js decides
+ whether to reveal it and keeps every instance on the page in sync. It rewrites the
+ href of every download link on the page.
+#}
+
+<label for="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-label hidden">
+  <input type="checkbox" id="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-input">
+  <span class="marketing-opt-out-text">
+    {% set attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
+    {{ ftl('download-button-share-how-you-discovered', attrs=attrs) }}
+  </span>
+</label>

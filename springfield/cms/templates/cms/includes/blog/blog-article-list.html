@@ -17,25 +17,14 @@
       {% set listing_image = article.get_listing_image() %}
       <include:blog-article-list-item with_image="{{ listing_image }}">
         <content:heading>
-          <hgroup class="fl-heading-group">
-            <p class="fl-superheading">{{ article.topic.name }}</p>
-            <h2 class="fl-heading">
-              <a href="{{ article.url }}" class="fl-link">{{ article.title }}</a>
-            </h2>
-          </hgroup>
+          <include:heading
+            level="h2"
+            heading_text="{{ article.title }}"
+            superheading_text="{{ article.topic.name if article.topic else '' }}"
+            link="{{ article.url }}"
+          />
         </content:heading>
         <content:body>{{ article.description|richtext }}</content:body>
-        {% if article.first_published_at %}
-          <content:date>{{ article.first_published_at|date("DATE_FORMAT") }}</content:date>
-        {% endif %}
-        {% set article_tags = article.get_tags() %}
-        {% if article_tags %}
-          <content:tags>
-            {% for tag in article_tags %}
-              <include:tag text="{{ tag.name }}" color="purple" corners="round" />
-            {% endfor %}
-          </content:tags>
-        {% endif %}
         {% if listing_image %}
           <content:image>{{ list_item_media(article) }}</content:image>
         {% endif %}

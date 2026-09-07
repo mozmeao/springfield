@@ -26,9 +26,9 @@ function initCopyToClipboardButton(buttonEl) {
     let resetTimer = null;
 
     function showLabel(labelToShow, labelToHide) {
-        labelToShow.classList.remove('is-hidden');
+        labelToShow.classList.remove('hidden');
         labelToShow.removeAttribute('aria-hidden');
-        labelToHide.classList.add('is-hidden');
+        labelToHide.classList.add('hidden');
         labelToHide.setAttribute('aria-hidden', 'true');
     }
 
@@ -39,8 +39,8 @@ function initCopyToClipboardButton(buttonEl) {
             showLabel(labelEl, successLabelEl);
         }
 
-        iconDefault.classList.toggle('is-hidden', isCopied);
-        iconSuccess.classList.toggle('is-hidden', !isCopied);
+        iconDefault.classList.toggle('hidden', isCopied);
+        iconSuccess.classList.toggle('hidden', !isCopied);
         buttonEl.disabled = isCopied;
     }
 

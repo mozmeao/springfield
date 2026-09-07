@@ -29,7 +29,7 @@
 
 {# hero #}
 {% set hero_title = hero_title or ftl('firefox-new-get-the-latest-firefox') %}
-{% set hero_img = hero_img or 'img/firefox/download/basic/browser-window.svg' %}
+{% set hero_img = hero_img or 'img/firefox/home/hero.png' %}
 
 {# small links #}
 {% set small_advanced = small_advanced or ftl('firefox-new-advanced-install-options') %}
@@ -52,7 +52,6 @@
 <main class="main-download" {% if v %}data-variant="{{ v }}"{% endif %}>
   {% call split(
     block_class='mzp-l-split-center-on-sm-md t-split-hero',
-    media_class='mzp-l-split-media-overflow',
     media_after=True,
     image=resp_img(url=hero_img, optional_attributes={ 'class': 'mzp-c-split-media-asset' })
 
