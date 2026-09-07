@@ -7,3 +7,8 @@ context:
     - heading_text: 'Lorem ipsum dolor sit amet'
       alignment_class: 'text-center'
       title: 'Center aligned'
+    - heading_text: 'Lorem ipsum dolor sit amet'
+      superheading_text: 'Superheading'
+      alignment_class: 'text-left'
+      link: 'https://www.firefox.com/'
+      title: 'Linked heading'

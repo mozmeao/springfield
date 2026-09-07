@@ -6,22 +6,23 @@
 
 {#
   Shared media macros for blog articles. Import with:
-  {% from "cms/includes/blog/blog-card-media.html" import illustration_card_media, article_card_media, list_item_media, full_width_filterspec with context %}
+  {% from "cms/includes/blog/blog-card-media.html" import illustration_card_media, article_card_media, list_item_media, full_width_filterspec, featured_sizes with context %}
 
   illustration_card_media expects a BlockArticleValue — which allows overriding the article's fields
   article_card_media and list_item_media expect a BlogArticlePage instance
 #}
 
 {% set full_width_filterspec = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
+{% set featured_sizes = "(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw" %}
 
-{% macro illustration_card_media(article, list_size, filterspec=full_width_filterspec) %}
+{% macro illustration_card_media(article, list_size=0, filterspec=full_width_filterspec, sizes_override="") %}
   {% set sizes_by_count = {
     2: "(min-width: 1440px) 696px, (min-width: 768px) 50vw, 100vw",
     3: "(min-width: 1440px) 458px, (min-width: 768px) 33vw, 100vw",
     4: "(min-width: 1440px) 340px, (min-width: 768px) 25vw, 50vw"
   } %}
   {% set default_sizes = "(min-width: 1440px) 440px, (min-width: 768px) 33vw, 100vw" %}
-  {% set sizes = sizes_by_count[list_size] if list_size in sizes_by_count else default_sizes %}
+  {% set sizes = sizes_override or (sizes_by_count[list_size] if list_size in sizes_by_count else default_sizes) %}
   {% set image = article.get_image() %}
   {% if image %}
     {% if image.focal_point_x %}

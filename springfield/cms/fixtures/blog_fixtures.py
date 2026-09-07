@@ -519,7 +519,7 @@ def get_blog_pages() -> list[BlogArticlePage]:
         },
         {
             "type": "latest",
-            "value": {"heading_text": '<p data-block-key="clh00003">Latest</p>', "count": 4, "link_label": "View all"},
+            "value": {"heading_text": '<p data-block-key="clh00003">Recently published</p>', "count": 4, "link_label": "View all"},
             "id": "cl000003-0000-0000-0000-000000000003",
         },
     ]
