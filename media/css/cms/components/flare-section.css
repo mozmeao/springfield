@@ -76,7 +76,23 @@
     margin-block-end: 0;
 }
 
-.fl-notification-wrapper ~ .fl-section:has(.fl-intro) {
+/*
+  A Notification directly above an Intro absorbs the Intro's top padding. Either side
+  may be wrapped in .conditional-display (Notification always has display conditions
+  available; Intro and Kit Intro now do too), which breaks the sibling relationship,
+  so both sides are matched wrapped or bare. :where() keeps specificity unchanged.
+*/
+:where(
+        .fl-notification-wrapper,
+        .conditional-display:has(.fl-notification-wrapper)
+    )
+    ~ .fl-section:has(.fl-intro),
+:where(
+        .fl-notification-wrapper,
+        .conditional-display:has(.fl-notification-wrapper)
+    )
+    ~ .conditional-display
+    .fl-section:has(.fl-intro) {
     padding-block-start: 0;
 }
 
