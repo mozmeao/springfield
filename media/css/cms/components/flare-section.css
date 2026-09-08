@@ -80,12 +80,6 @@
     padding-block-start: 0;
 }
 
-/*
-  A conditional Kit Intro is wrapped in .conditional-display, so match the whole leading
-  run of wrappers, not just the first — a page that opens with one Kit Intro per platform
-  shows a different one to each visitor, and every one of them is the top of the page.
-  The :where() guard keeps specificity off the fl-mobile-store-qr-section rule below.
-*/
 .fl-freeform-page .fl-split-page-upper > .fl-section:first-child,
 .fl-freeform-page
     .fl-split-page-upper

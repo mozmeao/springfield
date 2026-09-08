@@ -22,7 +22,6 @@
         padding: 0;
     }
 
-    /* Match the whole leading run of conditional wrappers, not just the first. */
     .fl-home-body .fl-split-page-upper > .fl-section:first-child,
     .fl-home-body
         .fl-split-page-upper

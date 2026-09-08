@@ -74,15 +74,7 @@
         padding: 0;
     }
 
-    /*
-      todo: This makes these components match Figma, but we should revisit container gaps.
-
-      A conditional Media + Content is wrapped in .conditional-display (one wrapper per
-      condition type, so it can nest), which breaks the sibling adjacency. Both the
-      preceding slot and this one may or may not be wrapped, hence the three selectors.
-      The padding stays on .fl-mediacontent rather than the wrapper so it cannot leave a
-      gap behind a wrapper whose inner condition hid the content.
-    */
+    /* todo: This makes these components match Figma, but we should revisit container gaps. */
     .fl-mediacontent + .fl-mediacontent,
     :where(.conditional-display:has(.fl-mediacontent)) + .fl-mediacontent,
     :where(.fl-mediacontent, .conditional-display:has(.fl-mediacontent))
