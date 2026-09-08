@@ -790,6 +790,13 @@
       "name": "firefox-cms-flare"
     },
     {
+      "files": [
+        "js/cms/flare-sample-rate.es6.js",
+        "js/cms/flare-sample-rate-init.es6.js"
+      ],
+      "name": "flare-sample-rate"
+    },
+    {
       "files":[
         "js/cms/pages/flare-kick-page.es6.js"
       ],
