@@ -676,8 +676,9 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def clean(self):
         super().clean()
-        if len(self.notification) > 2:
-            raise ValidationError("Up to two notifications are allowed.")
+        max_notifications = self.notification.stream_block.meta.max_num
+        if max_notifications is not None and len(self.notification) > max_notifications:
+            raise ValidationError(f"Up to {max_notifications} notifications are allowed.")
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")

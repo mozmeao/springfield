@@ -9,8 +9,8 @@ from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.urls import reverse
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
@@ -26,9 +26,9 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
+from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
-from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 
 
 @pytest.fixture

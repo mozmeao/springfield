@@ -885,7 +885,7 @@ def test_thanks_page_clean_rejects_more_than_two_notifications():
             get_download_support(),
         ],
     )
-    with pytest.raises(ValidationError, match="Up to two notifications are allowed."):
+    with pytest.raises(ValidationError, match="Up to 2 notifications are allowed."):
         page.clean()
 
 
