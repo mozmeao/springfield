@@ -167,7 +167,7 @@
             if (!params.has('os')) {
               // It would be good to use `Sec-CH-UA-Platform` for this, but it
               // doesn't seem to be making any progress in standards.
-              const detected = detectOS();
+              const detected = window.site.getPlatform();
               const option = detected && form.elements.os.namedItem(detected);
               if (option) {
                 option.selected = true;
@@ -192,17 +192,6 @@
                   break;
                 }
               }
-            }
-
-            function detectOS() {
-              const ua = navigator.userAgent;
-              if (/Android|iPhone|iPad/.test(ua)) return null;
-              if (/Windows/.test(ua))
-                return /ARM|aarch64/i.test(ua) ? 'win64-aarch64' : 'win64';
-              if (/Mac OS X/.test(ua)) return 'osx';
-              if (/Linux/.test(ua))
-                return /aarch64|arm64/i.test(ua) ? 'linux64-aarch64' : 'linux64';
-              return null;
             }
           }
         </script>
