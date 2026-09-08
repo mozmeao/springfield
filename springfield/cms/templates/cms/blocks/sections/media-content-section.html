@@ -6,8 +6,16 @@
 
 {# Wrap the media + content block in a section container to use it without the section heading and CTA #}
 
-<section class="fl-section">
-  <div class="fl-section-container">
-    {% include "cms/blocks/media-content.html" %}
-  </div>
-</section>
+{# The conditional wrapper goes outside the section, so a hidden block takes the
+   section's padding with it instead of leaving an empty band. #}
+<include:conditional-display
+  condition_settings="{{ value.settings.show_to }}">
+
+  <section class="fl-section">
+    <div class="fl-section-container">
+      {% set conditional_display_handled = True %}
+      {% include "cms/blocks/media-content.html" %}
+    </div>
+  </section>
+
+</include:conditional-display>

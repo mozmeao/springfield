@@ -76,32 +76,23 @@
     margin-block-end: 0;
 }
 
-/*
-  A Notification directly above an Intro absorbs the Intro's top padding. Either side
-  may be wrapped in .conditional-display (Notification always has display conditions
-  available; Intro and Kit Intro now do too), which breaks the sibling relationship,
-  so both sides are matched wrapped or bare. :where() keeps specificity unchanged.
-*/
-:where(
-        .fl-notification-wrapper,
-        .conditional-display:has(.fl-notification-wrapper)
-    )
-    ~ .fl-section:has(.fl-intro),
-:where(
-        .fl-notification-wrapper,
-        .conditional-display:has(.fl-notification-wrapper)
-    )
-    ~ .conditional-display
-    .fl-section:has(.fl-intro) {
+.fl-notification-wrapper ~ .fl-section:has(.fl-intro) {
     padding-block-start: 0;
 }
 
-/* The :where() guard keeps a conditional Kit Intro matching without raising specificity
-   over the fl-mobile-store-qr-section rule below. */
+/*
+  A conditional Kit Intro is wrapped in .conditional-display, so match the whole leading
+  run of wrappers, not just the first — a page that opens with one Kit Intro per platform
+  shows a different one to each visitor, and every one of them is the top of the page.
+  The :where() guard keeps specificity off the fl-mobile-store-qr-section rule below.
+*/
 .fl-freeform-page .fl-split-page-upper > .fl-section:first-child,
 .fl-freeform-page
     .fl-split-page-upper
-    > :where(.conditional-display:first-child)
+    > :where(
+        .conditional-display:first-child,
+        .conditional-display:first-child ~ .conditional-display
+    )
     .fl-section:first-child {
     padding-block-start: 0;
 }

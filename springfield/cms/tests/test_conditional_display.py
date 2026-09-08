@@ -258,6 +258,10 @@ def test_media_content_block_conditional_display(media_content_conditional_page,
     assert len(wrappers) == 1
     assert "condition-is-firefox" in wrappers[0]["class"]
 
+    # At top level the block supplies its own section, so the wrapper has to sit outside
+    # it — otherwise a hidden block leaves the section's padding behind as a blank band.
+    assert wrappers[0].find("section", class_="fl-section") is not None
+
     assert get_conditional_wrappers(unconditional) == []
 
 

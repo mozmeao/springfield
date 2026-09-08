@@ -8,8 +8,11 @@
 {% set block_level = block_level or 2 %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 
-<include:conditional-display
-  condition_settings="{{ value.settings.show_to }}">
+{# The section variant wraps the whole <section> itself and sets this flag, so skip the
+   inner wrapper there. Nested inside a Section block, this template is the only wrapper. #}
+{% set show_to = none if conditional_display_handled else value.settings.show_to %}
+
+<include:conditional-display condition_settings={{ show_to }}>
 
   <include:media-content
     media_after="{{ value.settings.media_after }}"
