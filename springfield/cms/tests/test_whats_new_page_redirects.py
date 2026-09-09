@@ -328,19 +328,19 @@ def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
     minimal_site,
     rf,
 ):
-    """General WNP (slug='general') must not be treated as the 'latest' version.
-    The index page should redirect to the highest numeric version, not to the
-    general page (which sorts after digits lexicographically)."""
+    """General WNP (version='general') must not be treated as the 'latest' version.
+    The index page should redirect to the highest numeric version."""
     root_page = SimpleRichTextPage.objects.first()
     index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew-2")
 
     v150_page = WhatsNewPage2026Factory(parent=index_page, slug="150", version="150")
     v150_page.save()
 
-    from springfield.cms.tests.factories import GeneralWhatsNewPage2026Factory
-
     general_page = GeneralWhatsNewPage2026Factory(parent=index_page)
     general_page.save()
+    # Multiple general pages exist simultaneously when new content is being experimented with.
+    general_page_2 = GeneralWhatsNewPage2026Factory(parent=index_page, slug="general-2")
+    general_page_2.save()
 
     _relative_url = index_page.relative_url(minimal_site)
     request = rf.get(_relative_url)
