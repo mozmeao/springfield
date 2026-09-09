@@ -223,6 +223,13 @@ def release_notes(request, version, product="Firefox"):
 @require_safe
 def system_requirements(request, version, product="Firefox"):
     release = get_release_or_404(version, product)
+    # Enterprise ships from the same desktop build, so when nucleus carries no
+    # requirements of its own send people to the desktop page instead of an empty
+    # one. Filling the field in still wins, and so does having no desktop release
+    # of that version to fall back to.
+    if product == "Firefox Enterprise" and not release.system_requirements and get_release("Firefox", version):
+        return HttpResponseRedirect(reverse("firefox.system_requirements", args=[version]))
+
     dir = "firefox"
     return l10n_utils.render(request, f"{dir}/releases/system_requirements.html", {"release": release, "version": version})
 
