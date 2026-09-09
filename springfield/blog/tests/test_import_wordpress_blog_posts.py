@@ -22,8 +22,8 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.blog_fixtures import get_blog_index_page
-from springfield.cms.management.commands.import_wordpress_blog_posts import (
+from springfield.blog.fixtures.blog_fixtures import get_blog_index_page
+from springfield.blog.management.commands.import_wordpress_blog_posts import (
     Command,
     IncrementalCsv,
     element_text,
@@ -31,9 +31,10 @@ from springfield.cms.management.commands.import_wordpress_blog_posts import (
     parse_categories,
     parse_content,
 )
-from springfield.cms.models import BlogArticlePage, SpringfieldImage
-from springfield.cms.models.pages import HeroStyle
-from springfield.cms.models.snippets import BlogAuthor, BlogTag, BlogTopic
+from springfield.blog.models import BlogArticlePage
+from springfield.blog.models.pages import HeroStyle
+from springfield.blog.models.snippets import BlogAuthor, BlogTag, BlogTopic
+from springfield.cms.models import SpringfieldImage
 from springfield.cms.tests.factories import LocaleFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -1071,7 +1072,7 @@ def test_get_or_create_image_unprocessable_file_warns_instead_of_raising(command
     """A file ImageMagick cannot handle must not fail the whole post."""
     mock_image_downloads()
     monkeypatch.setattr(
-        "springfield.cms.management.commands.import_wordpress_blog_posts.SpringfieldImage.objects.create",
+        "springfield.blog.management.commands.import_wordpress_blog_posts.SpringfieldImage.objects.create",
         lambda **kwargs: (_ for _ in ()).throw(RuntimeError("cache resources exhausted")),
     )
 

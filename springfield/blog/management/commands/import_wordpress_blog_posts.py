@@ -49,7 +49,7 @@ from bs4 import BeautifulSoup, Comment, NavigableString, Tag as HtmlTag
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
-from springfield.cms.models import (
+from springfield.blog.models import (
     BlogArticleAuthor,
     BlogArticlePage,
     BlogAuthor,
@@ -57,8 +57,8 @@ from springfield.cms.models import (
     BlogTag,
     BlogTopic,
     HeroStyle,
-    SpringfieldImage,
 )
+from springfield.cms.models import SpringfieldImage
 
 # Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
 # shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.

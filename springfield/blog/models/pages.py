@@ -450,7 +450,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     @path("topics/")
     def topics_route(self, request):
         extra_context = {"all_topics": self.get_all_topics()}
-        return self._render_route(request, "cms/blog_topics_page.html", extra_context=extra_context)
+        return self._render_route(request, "blog/blog_topics_page.html", extra_context=extra_context)
 
     @path("topics/<slug:topic_slug>/")
     def topic_route(self, request, topic_slug):
@@ -463,11 +463,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if topic_page:
             return topic_page.serve(request)
 
-        return self._render_route(request, "cms/blog_topic_page.html", self.get_topic_context(request, topic))
+        return self._render_route(request, "blog/blog_topic_page.html", self.get_topic_context(request, topic))
 
     @path("all/")
     def all_route(self, request):
-        return self._render_route(request, "cms/blog_all_page.html", self.get_all_context(request))
+        return self._render_route(request, "blog/blog_all_page.html", self.get_all_context(request))
 
     def get_sitemap_urls(self, request=None):
         """Add the URLs this page serves through its routes, which have no Page of their own
@@ -574,7 +574,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
     def get_template(self, request, *args, **kwargs):
-        return "cms/blog_topic_page.html"
+        return "blog/blog_topic_page.html"
 
 
 class HeroStyle(models.TextChoices):
@@ -680,7 +680,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             (
                 "cards_list",
                 CardsListBlock(
-                    template="cms/blocks/sections/blog-article-cards-list.html", help_text="Some settings may be ignored in favor of the page layout."
+                    template="blog/blocks/sections/blog-article-cards-list.html",
+                    help_text="Some settings may be ignored in favor of the page layout.",
                 ),
             ),
         ],
