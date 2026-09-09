@@ -321,6 +321,11 @@ html.other .conditional-display.condition-other-os {
     display: revert;
 }
 
+.conditional-display.condition-last-session.last-session-match {
+    display: block;
+    display: revert;
+}
+
 .conditional-display.condition-geo.geo-match {
     display: block;
     display: revert;

@@ -422,6 +422,14 @@ def ConditionalDisplayBlock(include_sample_rate=True, *args, **kwargs):
         )
         min_version = blocks.IntegerBlock(required=False, label="Minimum Firefox version", classname="compact-input")
         max_version = blocks.IntegerBlock(required=False, label="Maximum Firefox version", classname="compact-input")
+        # Days since Firefox was last *closed* (UITour appinfo.previousSessionEnd), not
+        # since last active. min_value=1 since 0 would silently mean "unset" below.
+        min_days_since_last_session = blocks.IntegerBlock(
+            required=False, min_value=1, label="Minimum days since last Firefox session", classname="compact-input"
+        )
+        max_days_since_last_session = blocks.IntegerBlock(
+            required=False, min_value=1, label="Maximum days since last Firefox session", classname="compact-input"
+        )
         geo = blocks.MultipleChoiceBlock(
             choices=GEO_CHOICES,
             required=False,
@@ -458,7 +466,9 @@ def ConditionalDisplayBlock(include_sample_rate=True, *args, **kwargs):
             label = "Conditional Display"
             label_format = (
                 "Conditions: {platforms} - {firefox} - {auth_state} - {default_browser} - {geo} - "
-                "AI {ai_controls} - Versions {min_version} to {max_version}" + (" - Sample {sample_rate}%" if include_sample_rate else "")
+                "AI {ai_controls} - Versions {min_version} to {max_version} - "
+                "Last session {min_days_since_last_session} to {max_days_since_last_session} days"
+                + (" - Sample {sample_rate}%" if include_sample_rate else "")
             )
             icon = "view"
             collapsed = True

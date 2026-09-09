@@ -9,6 +9,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       contents: |
         <p>No condition classes are applied. Content is shown to all users.</p>
@@ -21,6 +23,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: windows
       body_class:
@@ -36,6 +40,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: osx
       body_class:
@@ -51,6 +57,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: linux
       body_class:
@@ -66,6 +74,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: android
       body_class:
@@ -81,6 +91,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: ios
       body_class:
@@ -96,6 +108,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: windows-10-plus
       body_class:
@@ -111,6 +125,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: other
       body_class:
@@ -126,6 +142,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: fx-unsupported
       body_class:
@@ -143,6 +161,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: osx linux
       body_class:
@@ -158,6 +178,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: is-firefox
       body_class:
@@ -172,6 +194,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: not-firefox
       body_class:
@@ -186,6 +210,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class: state-fxa-supported-signed-in
@@ -200,6 +226,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class: state-fxa-supported-signed-out
@@ -214,6 +242,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: firefox-is-default
       body_class:
@@ -228,6 +258,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: firefox-is-not-default
       body_class:
@@ -243,6 +275,8 @@ context:
         - US
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class:
@@ -264,6 +298,8 @@ context:
         - CA
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class:
@@ -282,6 +318,8 @@ context:
       geo_conditions: []
       min_version: 150
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class:
@@ -297,6 +335,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: 149
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class:
@@ -312,6 +352,8 @@ context:
       geo_conditions: []
       min_version: 148
       max_version: 150
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class:
       body_class:
@@ -319,6 +361,42 @@ context:
         <p>Content inside a <code>.conditional-display.condition-fx-version</code> div with
           <code>data-min-version="148" data-max-version="150"</code> will be revealed by JS
           for Firefox 148 through 150 with the class <code>.version-match</code>.</p>
+    - name: "Last session: 28+ days ago (lapsed)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      min_days_since_last_session: 28
+      max_days_since_last_session: null
+      ai_controls_condition: null
+      html_class:
+      body_class:
+      unconditional_contents: |
+        <p>Content inside a <code>.conditional-display.condition-last-session</code> div with
+          <code>data-min-days-since-session="28"</code> is revealed by JS with the class
+          <code>.last-session-match</code> when <code>UITour.getConfiguration('appinfo').previousSessionEnd</code>
+          is at least 28 days old. Requires Firefox 155+; cannot be faked in the pattern library.</p>
+    - name: "Last session: within 27 days (active)"
+      platform_conditions: []
+      firefox_condition: null
+      auth_state_condition: null
+      default_browser_condition: null
+      geo_conditions: []
+      min_version: null
+      max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: 27
+      ai_controls_condition: null
+      html_class:
+      body_class:
+      unconditional_contents: |
+        <p>Content inside a <code>.conditional-display.condition-last-session</code> div with
+          <code>data-max-days-since-session="27"</code> is revealed by JS with the class
+          <code>.last-session-match</code> when the visitor's last session ended 27 days ago or
+          less. Requires Firefox 155+; cannot be faked in the pattern library.</p>
     - name: "AI Controls: available"
       platform_conditions: []
       firefox_condition: null
@@ -327,6 +405,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: available
       html_class: ai-controls-available
       body_class:
@@ -342,6 +422,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: unavailable
       html_class: ai-controls-unavailable
       body_class:
@@ -357,6 +439,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       bind_to_uitour: true
       html_class:
@@ -378,6 +462,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       bind_to_uitour: true
       html_class:
@@ -401,6 +487,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       sample_rate: 10
       html_class:
@@ -420,6 +508,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       sample_rate: 10
       html_class: in-experiment-sample
@@ -437,6 +527,8 @@ context:
       geo_conditions: []
       min_version: null
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: windows is-firefox
       body_class:
@@ -452,6 +544,8 @@ context:
         - US
       min_version: 150
       max_version: null
+      min_days_since_last_session: null
+      max_days_since_last_session: null
       ai_controls_condition: null
       html_class: is-firefox
       body_class: state-fxa-supported-signed-out

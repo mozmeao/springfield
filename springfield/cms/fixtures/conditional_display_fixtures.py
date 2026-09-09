@@ -35,6 +35,8 @@ def make_show_to(
     geo=None,
     ai_controls="",
     bind_to_uitour=False,
+    min_days_since_last_session=None,
+    max_days_since_last_session=None,
     sample_rate=None,
 ):
     return {
@@ -47,6 +49,8 @@ def make_show_to(
         "geo": geo or [],
         "ai_controls": ai_controls,
         "bind_to_uitour": bind_to_uitour,
+        "min_days_since_last_session": min_days_since_last_session,
+        "max_days_since_last_session": max_days_since_last_session,
         "sample_rate": sample_rate,
     }
 
@@ -240,6 +244,23 @@ def get_conditional_display_variants() -> list[dict]:
             headline="Firefox version 148-150",
             color="purple",
             icon="information",
+        ),
+        # Last-session conditions
+        make_notification(
+            "cdlast01",
+            "Visible to lapsed users — last Firefox session ended 28+ days ago.",
+            make_show_to(min_days_since_last_session=28),
+            headline="Lapsed: last session 28+ days ago",
+            color="orange",
+            icon="warning",
+        ),
+        make_notification(
+            "cdlast02",
+            "Visible to active users — last Firefox session ended within the past 27 days.",
+            make_show_to(max_days_since_last_session=27),
+            headline="Active: last session within 27 days",
+            color="green",
+            icon="checkmark-circle-fill",
         ),
         # Geo conditions
         make_notification(

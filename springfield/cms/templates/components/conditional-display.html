@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", ai_controls_condition="", bind_to_uitour=False, sample_rate="", condition_settings={} #}
+{# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", min_days_since_last_session="", max_days_since_last_session="", ai_controls_condition="", bind_to_uitour=False, sample_rate="", condition_settings={} #}
 
 {% set condition_settings = condition_settings or {} %}
 {% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
@@ -16,6 +16,8 @@
 {% set bind_to_uitour = bind_to_uitour or condition_settings.get("bind_to_uitour") %}
 {% set min_version = min_version or condition_settings.get("min_version") %}
 {% set max_version = max_version or condition_settings.get("max_version") %}
+{% set min_days_since_last_session = min_days_since_last_session or condition_settings.get("min_days_since_last_session") %}
+{% set max_days_since_last_session = max_days_since_last_session or condition_settings.get("max_days_since_last_session") %}
 {% set sample_rate = sample_rate or condition_settings.get("sample_rate") %}
 
 {% if sample_rate %}
@@ -79,6 +81,17 @@
     {% endif %}
 {% endif %}
 
+{% if min_days_since_last_session or max_days_since_last_session %}
+  <div class="conditional-display condition-last-session {% if is_preview %}is-preview{% endif %}"
+    {% if min_days_since_last_session %}data-min-days-since-session="{{ min_days_since_last_session }}"{% endif %}
+    {% if max_days_since_last_session %}data-max-days-since-session="{{ max_days_since_last_session }}"{% endif %}>
+    {% if is_preview %}
+      <span class="preview-indicator">Condition:
+        {% if min_days_since_last_session %}Last session >= {{ min_days_since_last_session }} days ago{% endif %}
+        {% if max_days_since_last_session %}Last session <= {{ max_days_since_last_session }} days ago{% endif %}</span>
+    {% endif %}
+{% endif %}
+
 {% if bind_to_uitour %}
   <div class="conditional-display condition-bind-uitour {% if is_preview %}is-preview{% endif %}">
     {% if is_preview %}
@@ -89,6 +102,9 @@
 {{ contents }}
 
 {% if bind_to_uitour %}
+  </div>
+{% endif %}
+{% if min_days_since_last_session or max_days_since_last_session %}
   </div>
 {% endif %}
 {% if min_version or max_version %}

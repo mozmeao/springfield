@@ -117,12 +117,28 @@ def test_conditional_display_blocks(index_page, rf):
         geo = show_to.get("geo") or []
         min_version = show_to.get("min_version")
         max_version = show_to.get("max_version")
+        min_days_since_last_session = show_to.get("min_days_since_last_session")
+        max_days_since_last_session = show_to.get("max_days_since_last_session")
         ai_controls = show_to.get("ai_controls")
         sample_rate = show_to.get("sample_rate")
 
         wrappers = [el for el in notification.parents if "conditional-display" in (el.get("class") or [])]
 
-        has_any_condition = any([platforms, firefox, auth_state, default_browser, geo, min_version, max_version, ai_controls, sample_rate])
+        has_any_condition = any(
+            [
+                platforms,
+                firefox,
+                auth_state,
+                default_browser,
+                geo,
+                min_version,
+                max_version,
+                min_days_since_last_session,
+                max_days_since_last_session,
+                ai_controls,
+                sample_rate,
+            ]
+        )
 
         if not has_any_condition:
             assert wrappers == [], f"Block {index}: expected no conditional-display wrappers, got {len(wrappers)}"
@@ -175,6 +191,22 @@ def test_conditional_display_blocks(index_page, rf):
                 assert version_wrapper.get("data-min-version") == str(min_version), f"Block {index}: expected data-min-version='{min_version}'"
             if max_version:
                 assert version_wrapper.get("data-max-version") == str(max_version), f"Block {index}: expected data-max-version='{max_version}'"
+
+        # Last session — wrapper has condition-last-session class with data attributes
+        if min_days_since_last_session or max_days_since_last_session:
+            last_session_wrapper = next(
+                (w for w in wrappers if "condition-last-session" in (w.get("class") or [])),
+                None,
+            )
+            assert last_session_wrapper is not None, f"Block {index}: no last-session wrapper found"
+            if min_days_since_last_session:
+                assert last_session_wrapper.get("data-min-days-since-session") == str(min_days_since_last_session), (
+                    f"Block {index}: expected data-min-days-since-session='{min_days_since_last_session}'"
+                )
+            if max_days_since_last_session:
+                assert last_session_wrapper.get("data-max-days-since-session") == str(max_days_since_last_session), (
+                    f"Block {index}: expected data-max-days-since-session='{max_days_since_last_session}'"
+                )
 
         # Sample rate — outermost wrapper, so it contains every other condition wrapper
         if sample_rate:
