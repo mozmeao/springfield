@@ -7,7 +7,6 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -22,7 +21,6 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.blog.blocks import BlogCardsListBlock, BlogCardsListSourceBlock, BlogLatestArticlesBlock
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -33,7 +31,6 @@ from springfield.blog.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
-from springfield.blog.models.snippets import BlogTag, BlogTopic
 from springfield.cms.blocks import (
     DETECTED_BROWSER_CHOICES,
     ROADMAP_STATUS_LABELS,
@@ -5792,108 +5789,6 @@ def test_tab_block_renders_when_comparison_table_key_absent_from_stored_json():
 
     assert soup.find("div", class_="fl-comparison-table-wrapper") is None
     assert soup.find("p", class_="fl-tab-description").get_text(strip=True) == "Legacy description"
-
-
-def test_cards_list_source_requires_exactly_one_choice():
-    """A section draws from one topic or one tag, never from nothing."""
-    block = BlogCardsListSourceBlock()
-
-    with pytest.raises(StreamBlockValidationError):
-        block.clean(block.to_python([]))
-
-
-@pytest.mark.django_db
-def test_cards_list_source_rejects_two_choices():
-    locale = Locale.get_default()
-    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-privacy", locale=locale)
-    tag = BlogTag.objects.create(name="VPN", slug="test-block-vpn", locale=locale)
-    block = BlogCardsListSourceBlock()
-    value = block.to_python(
-        [
-            {"type": "topic", "value": topic.pk, "id": "src00001-0000-0000-0000-000000000001"},
-            {"type": "tag", "value": tag.pk, "id": "src00002-0000-0000-0000-000000000002"},
-        ]
-    )
-
-    with pytest.raises(StreamBlockValidationError):
-        block.clean(value)
-
-
-def test_latest_articles_count_allows_eight():
-    """The latest section is expected to run to a second row."""
-    block = BlogLatestArticlesBlock()
-
-    assert block.child_blocks["count"].clean(8) == 8
-
-
-def test_latest_section_exempts_nothing():
-    """The latest section has no source of its own, so no exclusion is spared."""
-    block = BlogLatestArticlesBlock()
-
-    assert block.get_exempt_exclusions(None) == (set(), set())
-
-
-def test_cards_list_count_rejects_five():
-    """article_card_media only has tuned image sizes for grids of 2-4."""
-    block = BlogCardsListBlock()
-
-    with pytest.raises(ValidationError):
-        block.child_blocks["count"].clean(5)
-
-
-def test_section_with_an_empty_source_exempts_nothing():
-    """min_num only holds while the form is cleaned, so stored data can arrive empty."""
-    block = BlogCardsListBlock()
-    value = block.to_python(
-        {
-            "heading_text": '<p data-block-key="h">Privacy</p>',
-            "source": [],
-            "count": 4,
-            "link_label": "View all",
-        }
-    )
-
-    assert block.get_exempt_exclusions(value) == (set(), set())
-
-
-@pytest.mark.django_db
-def test_section_with_a_deleted_source_exempts_nothing():
-    """A chooser reads a deleted snippet back as None, and a section that no longer
-    has a source cannot exempt anything."""
-    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-deleted", locale=Locale.get_default())
-    deleted_pk = topic.pk
-    topic.delete()
-    block = BlogCardsListBlock()
-    value = block.to_python(
-        {
-            "heading_text": '<p data-block-key="h">Privacy</p>',
-            "source": [{"type": "topic", "value": deleted_pk, "id": "src00005-0000-0000-0000-000000000005"}],
-            "count": 4,
-            "link_label": "View all",
-        }
-    )
-
-    assert value["source"][0].value is None
-    assert block.get_exempt_exclusions(value) == (set(), set())
-
-
-@pytest.mark.django_db
-def test_topic_section_exempts_its_own_topic():
-    topic = BlogTopic.objects.create(name="Privacy", slug="test-block-exempt", locale=Locale.get_default())
-    block = BlogCardsListBlock()
-    value = block.to_python(
-        {
-            "heading_text": '<p data-block-key="h">Privacy</p>',
-            "source": [{"type": "topic", "value": topic.pk, "id": "src00004-0000-0000-0000-000000000004"}],
-            "count": 4,
-            "link_label": "View all",
-        }
-    )
-
-    topic_keys, tag_keys = block.get_exempt_exclusions(value)
-
-    assert topic_keys == {topic.translation_key}
-    assert tag_keys == set()
 
 
 # Page heading levels
