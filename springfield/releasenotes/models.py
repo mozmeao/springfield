@@ -4,6 +4,7 @@
 
 import codecs
 import json
+import logging
 import os
 import re
 import xml.etree.ElementTree as etree
@@ -29,6 +30,8 @@ from springfield.base.sanitization import sanitize_html
 from springfield.base.urlresolvers import reverse
 from springfield.releasenotes import version_re
 from springfield.releasenotes.utils import memoize
+
+logger = logging.getLogger(__name__)
 
 
 class StrikethroughInlineProcessor(InlineProcessor):
@@ -281,6 +284,11 @@ class ProductReleaseManager(models.Manager):
 
     def refresh(self):
         version_regex = re.compile(version_re)
+        # The "copy releases" admin action in nucleus prefixes the version of a scratch
+        # copy, as `copy-<version>` or `copy<n>-<version>`. Those are editors' working
+        # copies and are meant to stay off the site, so dropping them is not noteworthy.
+        scratch_copy_regex = re.compile(r"^copy\d*-")
+        scratch_copies_skipped = 0
         release_objs = []
         rn_path = os.path.join(settings.RELEASE_NOTES_PATH, "releases")
         with transaction.atomic(using=self.db):
@@ -291,6 +299,15 @@ class ProductReleaseManager(models.Manager):
                     data = json.load(rel_fh)
                     # Make sure the version is valid and publicly accessible.
                     if not version_regex.match(data["version"]):
+                        if scratch_copy_regex.match(data["version"]):
+                            scratch_copies_skipped += 1
+                        else:
+                            logger.warning(
+                                "Skipping %s release %r from %s: version is not routable",
+                                data["product"],
+                                data["version"],
+                                os.path.basename(release_file),
+                            )
                         continue
                     # doing this to simplify queries for Firefox since it is always
                     # looked up with product=Firefox and relies on the version number
@@ -304,6 +321,8 @@ class ProductReleaseManager(models.Manager):
                     release_objs.append(ProductRelease(**data))
 
             self.bulk_create(release_objs)
+
+        logger.info("Ignored %s nucleus scratch copies", scratch_copies_skipped)
 
         return len(release_objs)
 
