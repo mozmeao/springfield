@@ -47,6 +47,11 @@
 
 {% set download_title = download_title|default('Get the most recent version') %}
 
+{# The download CTAs are hidden from people already running Firefox. Products whose
+   CTA points somewhere other than a consumer Firefox build set this to
+   `fl-force-download-cta` so the CTA survives that rule. #}
+{% set download_cta_class = download_cta_class|default('') %}
+
 {% block sub_navigation %}
   <include:subnav
     heading_text="{{ ftl('sub-navigation-release-notes') }}"
@@ -142,7 +147,7 @@
                   subheading_text="{{ call_out_desc | safe }}"
                 />
                 {% if download_button_primary %}
-                  <div class="c-download-cta">
+                  <div class="c-download-cta {{ download_cta_class }}">
                     {{ download_button_primary }}
                   </div>
                 {% endif %}
@@ -522,7 +527,7 @@
       {% endwith %}
       </div>
 
-      <div class="fl-download-section-container">
+      <div class="fl-download-section-container {{ download_cta_class }}">
         <include:section>
           <content:heading>
             <include:heading
