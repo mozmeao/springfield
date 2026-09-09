@@ -58,4 +58,14 @@
 .compact-form > .c-sf-help {
     width: 100%;
 }
+
+.compact-input input {
+    width: 10rem;
+}
+
+/* Targets the flex item itself; `classname` only reaches the inner .w-field div. */
+.compact-form > div[data-contentpath='min_days_since_last_session'],
+.compact-form > div[data-contentpath='max_days_since_last_session'] {
+    flex-basis: 100%;
+}
 /* stylelint-enable */

@@ -75,7 +75,11 @@
     }
 
     /* todo: This makes these components match Figma, but we should revisit container gaps. */
-    .fl-mediacontent + .fl-mediacontent {
+    .fl-mediacontent + .fl-mediacontent,
+    :where(.conditional-display:has(.fl-mediacontent)) + .fl-mediacontent,
+    :where(.fl-mediacontent, .conditional-display:has(.fl-mediacontent))
+        + .conditional-display
+        .fl-mediacontent {
         padding-block-start: var(--token-spacing-lg);
     }
 
