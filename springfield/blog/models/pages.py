@@ -126,7 +126,7 @@ def prefetch_article_blocks(values):
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
-    subpage_types = ["cms.BlogArticlePage", "cms.BlogTopicPage"]
+    subpage_types = ["blog.BlogArticlePage", "blog.BlogTopicPage"]
     ftl_files = ["cms/blog"]
 
     page_heading = StreamField(
@@ -145,7 +145,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         help_text="Up to 4 featured articles shown at the top of the index page.",
     )
     featured_topics = StreamField(
-        [("topic", LocalizedLiveSnippetChooserBlock("cms.BlogTopic"))],
+        [("topic", LocalizedLiveSnippetChooserBlock("blog.BlogTopic"))],
         max_num=MAX_HEADER_TOPICS,
         use_json_field=True,
         null=True,
@@ -154,8 +154,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     )
     feed_exclusions = StreamField(
         [
-            ("topic", LocalizedLiveSnippetChooserBlock("cms.BlogTopic")),
-            ("tag", LocalizedLiveSnippetChooserBlock("cms.BlogTag")),
+            ("topic", LocalizedLiveSnippetChooserBlock("blog.BlogTopic")),
+            ("tag", LocalizedLiveSnippetChooserBlock("blog.BlogTag")),
         ],
         use_json_field=True,
         null=True,
@@ -489,12 +489,12 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     Served by BlogIndexPage.topic_route at topics/<slug>/ in place of the plain topic
     heading. The automatic article list still renders below it."""
 
-    parent_page_types = ["cms.BlogIndexPage"]
+    parent_page_types = ["blog.BlogIndexPage"]
     subpage_types = []
     ftl_files = ["cms/blog"]
 
     topic = models.ForeignKey(
-        "cms.BlogTopic",
+        "blog.BlogTopic",
         on_delete=models.PROTECT,
         related_name="topic_pages",
     )
@@ -590,7 +590,7 @@ MAX_RELATED_ARTICLES = 4
 class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
-    parent_page_types = ["cms.BlogIndexPage"]
+    parent_page_types = ["blog.BlogIndexPage"]
     ftl_files = ["cms/blog"]
 
     description = RichTextField(
@@ -625,12 +625,12 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     # Null so rows without a topic remain valid; blank stays False (the
     # default) so the Wagtail admin form still requires one.
     topic = models.ForeignKey(
-        "cms.BlogTopic",
+        "blog.BlogTopic",
         null=True,
         on_delete=models.PROTECT,
         related_name="blog_articles",
     )
-    tags = LocalizedClusterTaggableManager(through="cms.TaggedBlogArticle", blank=True)
+    tags = LocalizedClusterTaggableManager(through="blog.TaggedBlogArticle", blank=True)
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,

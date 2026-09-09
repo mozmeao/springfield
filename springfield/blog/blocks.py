@@ -12,11 +12,10 @@ from wagtail import blocks
 from wagtail.templatetags.wagtailcore_tags import richtext
 
 from springfield.cms.blocks import HEADING_TEXT_FEATURES, ImageVariantsBlock, LocalizedLiveSnippetChooserBlock
+from springfield.cms.templatetags.cms_tags import remove_p_tag
 
 if TYPE_CHECKING:
     from springfield.blog.models import BlogArticlePage
-
-
 
 
 class BlockArticleValue(blocks.StructValue):
@@ -33,8 +32,6 @@ class BlockArticleValue(blocks.StructValue):
         return article_page.url if article_page else ""
 
     def get_title(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
         if title := self.get("overrides").get("title"):
             return remove_p_tag(richtext(title))
         article_page = self.get_article()
@@ -108,7 +105,7 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
 class BlogArticleBlock(blocks.StructBlock):
     """Picks a blog article with optional field overrides for display on the index page."""
 
-    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+    article = blocks.PageChooserBlock(target_model="blog.BlogArticlePage")
     overrides = BlogArticleOverrideBlock(required=False)
 
     class Meta:
@@ -121,7 +118,7 @@ class BlogArticleBlock(blocks.StructBlock):
 class BlogRelatedArticleBlock(blocks.StructBlock):
     """Picks a blog article."""
 
-    article = blocks.PageChooserBlock(target_model="cms.BlogArticlePage")
+    article = blocks.PageChooserBlock(target_model="blog.BlogArticlePage")
 
     class Meta:
         label = "Blog Article"
@@ -146,8 +143,8 @@ class BlogCardsListSourceBlock(blocks.StreamBlock):
     A single-child StreamBlock enforces that structurally, so the parent needs no
     clean()."""
 
-    topic = LocalizedLiveSnippetChooserBlock("cms.BlogTopic")
-    tag = LocalizedLiveSnippetChooserBlock("cms.BlogTag")
+    topic = LocalizedLiveSnippetChooserBlock("blog.BlogTopic")
+    tag = LocalizedLiveSnippetChooserBlock("blog.BlogTag")
 
     class Meta:
         min_num = 1
@@ -164,7 +161,7 @@ class BlogLatestArticlesBlock(blocks.StructBlock):
     class Meta:
         label = "Latest Articles"
         icon = "time"
-        template = "cms/blocks/blog-latest-articles-section.html"
+        template = "blog/blocks/blog-latest-articles-section.html"
         value_class = BlogArticleSectionValue
 
     def get_source(self, value):
@@ -190,7 +187,7 @@ class BlogCardsListBlock(blocks.StructBlock):
     class Meta:
         label = "Blog Cards List"
         icon = "list-ul"
-        template = "cms/blocks/blog-article-section.html"
+        template = "blog/blocks/blog-article-section.html"
         value_class = BlogArticleSectionValue
 
     def get_source(self, value):
