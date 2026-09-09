@@ -21,8 +21,9 @@ from django.utils import translation
 
 import pytest
 from wagtail.models import Locale, Site
+from wagtail_localize.fields import get_translatable_fields
 
-from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models import SimpleRichTextPage, WhatsNewPage2026
 from springfield.cms.tests.factories import (
     BetaWhatsNewPage2026Factory,
     DeveloperWhatsNewPage2026Factory,
@@ -322,6 +323,47 @@ def test_beta_wnp_url_served_directly_without_loop(beta_wnp, client):
 # ---------------------------------------------------------------------------
 # What's New Index page redirects
 # ---------------------------------------------------------------------------
+
+
+def test_whats_new_version_cannot_be_overridden_per_locale():
+    """The version identifies the Firefox release, so translators must not be able to
+    override it in the translation editor."""
+    version_field = next(field for field in get_translatable_fields(WhatsNewPage2026) if field.field_name == "version")
+
+    assert version_field.is_synchronized(WhatsNewPage2026)
+    assert not version_field.is_overridable(WhatsNewPage2026)
+
+
+def test_whats_new_index_page_redirects_to_latest_whats_new(
+    minimal_site,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
+    v123_page.save()
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
+    v124_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v124_page.url)
+
+    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
+    v125_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v125_page.url)
 
 
 def test_whats_new_index_page_excludes_general_page_from_latest_redirect(

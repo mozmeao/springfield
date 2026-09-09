@@ -31,8 +31,6 @@ from springfield.cms.tests.factories import (
     LocaleFactory,
     SimpleRichTextPageFactory,
     StructuralPageFactory,
-    WhatsNewIndexPageFactory,
-    WhatsNewPage2026Factory,
 )
 
 pytestmark = [
@@ -202,38 +200,6 @@ def test_get_active_locale_url_returns_original_url_if_active_language_not_in_fa
         url = fr_page.get_active_locale_url()
     assert "/fr/" in url
     assert "/pt-BR/" not in url
-
-
-def test_whats_new_index_page_redirects_to_latest_whats_new(
-    minimal_site,
-    rf,
-):
-    root_page = SimpleRichTextPage.objects.first()
-    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
-    index_page.save()
-
-    _relative_url = index_page.relative_url(minimal_site)
-    assert _relative_url == "/en-US/whatsnew/"
-
-    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
-    v123_page.save()
-    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
-    v124_page.save()
-
-    request = rf.get(_relative_url)
-
-    response = index_page.specific.serve(request)
-    assert response.status_code == 302
-    assert response.headers["location"].endswith(v124_page.url)
-
-    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
-    v125_page.save()
-
-    request = rf.get(_relative_url)
-
-    response = index_page.specific.serve(request)
-    assert response.status_code == 302
-    assert response.headers["location"].endswith(v125_page.url)
 
 
 def test_freeform_page(minimal_site, rf):
