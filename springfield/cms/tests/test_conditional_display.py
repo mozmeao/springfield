@@ -41,6 +41,47 @@ def make_intro(block_id, heading, show_to):
     }
 
 
+def make_media_content(block_id, heading, show_to):
+    return {
+        "type": "media_content",
+        "value": {
+            "settings": {
+                "media_after": False,
+                "narrow": False,
+                "show_to": show_to,
+                "remove_border_radius": False,
+            },
+            "media": [],
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="{block_id}">{heading}</p>',
+                "subheading_text": "",
+            },
+            "content": [],
+        },
+        "id": f"{block_id}-0000-0000-0000-000000000002",
+    }
+
+
+def make_kit_intro(block_id, heading, show_to):
+    return {
+        "type": "kit_intro",
+        "value": {
+            "settings": {
+                "slim": False,
+                "show_to": show_to,
+            },
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="{block_id}">{heading}</p>',
+                "subheading_text": "",
+            },
+            "buttons": [],
+        },
+        "id": f"{block_id}-0000-0000-0000-000000000003",
+    }
+
+
 def get_conditional_wrappers(element):
     return [el for el in element.parents if "conditional-display" in (el.get("class") or [])]
 
@@ -219,6 +260,32 @@ def test_conditional_display_blocks(index_page, rf):
             )
 
 
+@pytest.fixture
+def media_content_conditional_page(minimal_site) -> FreeFormPage2026:
+    """A page whose Media + Content blocks mix conditional and unconditional."""
+    page = FreeFormPage2026(slug="test-media-content-conditional", title="Test Media Content Conditional")
+    minimal_site.root_page.add_child(instance=page)
+    page.content = [
+        make_media_content("mcfx1", "Firefox only", make_show_to(firefox="is-firefox")),
+        make_media_content("mcall1", "Everyone", make_show_to()),
+    ]
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def kit_intro_conditional_page(minimal_site) -> FreeFormPage2026:
+    """Kit Intro is only offered in upper content, so both blocks live there."""
+    page = FreeFormPage2026(slug="test-kit-intro-conditional", title="Test Kit Intro Conditional")
+    minimal_site.root_page.add_child(instance=page)
+    page.upper_content = [
+        make_kit_intro("kifx1", "Firefox only", make_show_to(firefox="is-firefox")),
+        make_kit_intro("kiall1", "Everyone", make_show_to()),
+    ]
+    page.save_revision().publish()
+    return page
+
+
 @pytest.mark.django_db
 def test_intro_block_conditional_display(intro_conditional_page, rf):
     response = intro_conditional_page.serve(rf.get(intro_conditional_page.get_full_url()))
@@ -252,6 +319,42 @@ def test_bind_to_uitour_section_wraps_uitour_button(index_page, rf):
     # The UI Tour button must live inside the wrapper so the CSS
     # `:has(.ui-tour:not(.is-hidden))` rule can reveal the block.
     assert wrapper.find("div", class_="ui-tour") is not None, "wrapper must contain the .ui-tour button"
+
+
+@pytest.mark.django_db
+def test_media_content_block_conditional_display(media_content_conditional_page, rf):
+    page = media_content_conditional_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    conditional, unconditional = soup.find_all("div", class_="fl-mediacontent")
+
+    wrappers = get_conditional_wrappers(conditional)
+    assert len(wrappers) == 1
+    assert "condition-is-firefox" in wrappers[0]["class"]
+
+    assert wrappers[0].find("section", class_="fl-section") is not None
+
+    assert get_conditional_wrappers(unconditional) == []
+
+
+@pytest.mark.django_db
+def test_kit_intro_block_conditional_display(kit_intro_conditional_page, rf):
+    page = kit_intro_conditional_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    conditional, unconditional = soup.find_all("div", class_="fl-home-intro")
+
+    wrappers = get_conditional_wrappers(conditional)
+    assert len(wrappers) == 1
+    assert "condition-is-firefox" in wrappers[0]["class"]
+
+    assert wrappers[0].find("section", class_="fl-section") is not None
+
+    assert get_conditional_wrappers(unconditional) == []
 
 
 @pytest.mark.django_db

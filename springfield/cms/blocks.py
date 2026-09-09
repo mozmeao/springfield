@@ -1991,13 +1991,17 @@ class MediaContentSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Narrow the media element",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
     remove_border_radius = blocks.BooleanBlock(required=False, default=False, help_text="Remove rounded borders from media.")
 
     class Meta:
         icon = "cog"
         collapsed = True
         label = "Settings"
-        label_format = "Media After: {media_after}"
+        label_format = "Media After: {media_after} - Show to: {show_to}"
         form_classname = "compact-form struct-block"
 
 
@@ -3342,6 +3346,17 @@ class KitBlockSettings(blocks.StructBlock):
         inline_form=True,
         help_text="Use a more compact layout with reduced spacing.",
     )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Slim: {slim} - Show to: {show_to}"
+        form_classname = "compact-form struct-block"
 
 
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):

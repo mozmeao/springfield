@@ -5932,6 +5932,37 @@ def conditional_intro_blocks():
     return [intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_INTROS]
 
 
+# Kit Intro is only offered in upper content, and only by the two page types below.
+KIT_INTRO_PAGE_TYPES = [
+    pytest.param(FreeFormPage2026, id="free_form_page"),
+    pytest.param(WhatsNewPage2026, id="whats_new_page"),
+]
+
+
+def kit_intro_block(heading_text, platforms=None):
+    """Kit Intro carrying only a heading, shown to `platforms` if given and to everyone otherwise."""
+    return {
+        "type": "kit_intro",
+        "value": {
+            "settings": {"show_to": {"platforms": platforms or []}},
+            "heading": {"heading_text": f"<p>{heading_text}</p>"},
+        },
+    }
+
+
+def publish_freeform_upper_content_page(page_model, slug, parent, upper_content):
+    """Publish a page whose *upper* content stream holds `upper_content`."""
+    defaults = {"title": slug.replace("-", " ").capitalize()}
+    if page_model is WhatsNewPage2026:
+        parent = get_whatsnew_index_page()
+        defaults["version"] = "151"
+
+    page = get_or_create_page(page_model, slug=f"{slug}-{page_model._meta.model_name}", parent=parent, defaults=defaults)
+    page.upper_content = upper_content
+    page.save_revision().publish()
+    return page
+
+
 def section_and_banner_blocks():
     """The two blocks that follow the intros in the heading-level tests: a section
     holding a media + content block, and a banner."""
@@ -6028,6 +6059,22 @@ def test_heading_levels_consider_conditional_display(page_model, index_page, rf)
         assert_intro_heading(main, condition_class, heading_text, "h1")
 
     assert_section_and_banner_heading_levels(main)
+
+
+@pytest.mark.parametrize("page_model", KIT_INTRO_PAGE_TYPES)
+def test_kit_intro_heading_levels_consider_conditional_display(page_model, index_page, rf):
+    """Kit Intro carries display conditions too, so a run of them each keeps its h1."""
+    page = publish_freeform_upper_content_page(
+        page_model,
+        slug="platform-kit-intros",
+        parent=index_page,
+        upper_content=[kit_intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_INTROS],
+    )
+
+    main = render_main_element(page, rf)
+
+    for condition_class, heading_text, _ in PLATFORM_INTROS:
+        assert_intro_heading(main, condition_class, heading_text, "h1")
 
 
 @pytest.mark.parametrize("notification_headline", ["", "<p>Your Firefox is up to date.</p>"], ids=["message_only", "with_headline"])
