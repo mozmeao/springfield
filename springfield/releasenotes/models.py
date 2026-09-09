@@ -329,7 +329,15 @@ class ProductReleaseManager(models.Manager):
 
 class ProductRelease(models.Model):
     CHANNELS = ("Nightly", "Aurora", "Beta", "Release", "ESR")
-    PRODUCTS = ("Firefox", "Firefox for Android", "Firefox Extended Support Release", "Firefox OS", "Thunderbird", "Firefox for iOS")
+    PRODUCTS = (
+        "Firefox",
+        "Firefox Enterprise",
+        "Firefox Extended Support Release",
+        "Firefox for Android",
+        "Firefox for iOS",
+        "Firefox OS",
+        "Thunderbird",
+    )
 
     product = models.CharField(max_length=50)
     channel = models.CharField(max_length=50)
@@ -359,6 +367,8 @@ class ProductRelease(models.Model):
             urlname = "firefox.android.releasenotes"
         elif self.product == "Firefox for iOS":
             urlname = "firefox.ios.releasenotes"
+        elif self.product == "Firefox Enterprise":
+            urlname = "firefox.enterprise.releasenotes"
         else:
             urlname = "firefox.desktop.releasenotes"
 
@@ -386,6 +396,8 @@ class ProductRelease(models.Model):
             urlname = "firefox.android.system_requirements"
         elif self.product == "Firefox for iOS":
             urlname = "firefox.ios.system_requirements"
+        elif self.product == "Firefox Enterprise":
+            urlname = "firefox.enterprise.system_requirements"
         else:
             urlname = "firefox.system_requirements"
 
