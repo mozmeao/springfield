@@ -61,6 +61,9 @@
      "Firefox Enterprise Release". Enterprise builds are not served by the generic
      download button either, so both CTAs point at the enterprise download page. #}
   {% set product_name = 'Firefox Enterprise' %}
+  {# The CTA points at the enterprise download page, not a consumer build, so it
+     stays visible for the admins evaluating Enterprise, who are on Firefox already. #}
+  {% set download_cta_class = 'fl-force-download-cta' %}
   {% set download_button_primary %}
     <include:button
       id="download-enterprise-primary"
