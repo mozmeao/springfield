@@ -288,22 +288,22 @@ const DOWNLOAD_OPTION_GROUPS = {
 class FirefoxDownloadFormElement extends HTMLElement {
     // ── Layer 1: sources ───────────────────────────────────────────────────
 
-    #os = signal('');
-    #release = signal(RELEASES.STABLE);
-    #language = signal('en-US');
-    #provenance = signal(PROVENANCE.PRISTINE);
+    _os = signal('');
+    _release = signal(RELEASES.STABLE);
+    _language = signal('en-US');
+    _provenance = signal(PROVENANCE.PRISTINE);
 
     get os() {
-        return this.#os.value;
+        return this._os.value;
     }
     get release() {
-        return this.#release.value;
+        return this._release.value;
     }
     get language() {
-        return this.#language.value;
+        return this._language.value;
     }
     get provenance() {
-        return this.#provenance.value;
+        return this._provenance.value;
     }
 
     // ── Layer 2: the provenance machine ────────────────────────────────────
@@ -313,85 +313,85 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * current state are ignored, so the repeated EDIT events every keystroke
      * produces are a no-op write after the first one and wake nothing up.
      */
-    #send(event) {
-        const next = TRANSITIONS[this.#provenance.value][event];
-        if (next) this.#provenance.value = next;
+    _send(event) {
+        const next = TRANSITIONS[this._provenance.value][event];
+        if (next) this._provenance.value = next;
     }
 
     // ── Layer 3: derived state ─────────────────────────────────────────────
 
-    #platformFamily = computed(() => platformFamily(this.#os.value));
+    _platformFamily = computed(() => platformFamily(this._os.value));
 
-    #isMobile = computed(() => isMobileFamily(this.#platformFamily.value));
+    _isMobile = computed(() => isMobileFamily(this._platformFamily.value));
 
-    #isCompatible = computed(() =>
-        releaseSupportsPlatform(this.#release.value, this.#os.value)
+    _isCompatible = computed(() =>
+        releaseSupportsPlatform(this._release.value, this._os.value)
     );
 
-    #view = computed(() => {
-        if (!this.#os.value) return VIEW.EMPTY;
-        return this.#isCompatible.value ? VIEW.OPTIONS : VIEW.CONFLICT;
+    _view = computed(() => {
+        if (!this._os.value) return VIEW.EMPTY;
+        return this._isCompatible.value ? VIEW.OPTIONS : VIEW.CONFLICT;
     });
 
-    #downloadHref = computed(() =>
-        downloadURL(this.#os.value, this.#release.value, this.#language.value)
+    _downloadHref = computed(() =>
+        downloadURL(this._os.value, this._release.value, this._language.value)
     );
 
     // Neither of these reads the language, so changing it leaves them alone.
-    #releaseNotesHref = computed(() =>
-        releaseNotesURL(this.#os.value, this.#release.value)
+    _releaseNotesHref = computed(() =>
+        releaseNotesURL(this._os.value, this._release.value)
     );
-    #systemRequirementsHref = computed(() =>
-        systemRequirementsURL(this.#os.value, this.#release.value)
+    _systemRequirementsHref = computed(() =>
+        systemRequirementsURL(this._os.value, this._release.value)
     );
 
-    #primary = computed(() =>
+    _primary = computed(() =>
         resolvePrimaryAction(
-            this.#os.value,
-            this.#release.value,
-            this.#downloadHref.value
+            this._os.value,
+            this._release.value,
+            this._downloadHref.value
         )
     );
 
-    #isESR = computed(() => this.#release.value === RELEASES.ESR);
+    _isESR = computed(() => this._release.value === RELEASES.ESR);
 
-    #hasApt = computed(() => this.#platformFamily.value === PLATFORM.LINUX);
+    _hasApt = computed(() => this._platformFamily.value === PLATFORM.LINUX);
 
     // Gated on the server saying a second ESR exists, the same as
     // get_esr_next_download_url() is. Between ESR cycles there is no next
     // version and no option, on either side.
-    #hasESRNext = computed(
+    _hasESRNext = computed(
         () =>
-            this.#isESR.value &&
+            this._isESR.value &&
             DATA.options.esrNext.available &&
-            releaseSupportsPlatform(RELEASES.ESR_NEXT, this.#os.value)
+            releaseSupportsPlatform(RELEASES.ESR_NEXT, this._os.value)
     );
 
     // The only download option gated on language: ESR 115 predates a couple of
     // locales and has no build for them, so offering it would link to a 404.
-    #hasESR115 = computed(
+    _hasESR115 = computed(
         () =>
-            this.#isESR.value &&
-            releaseSupportsPlatform(RELEASES.ESR_115, this.#os.value) &&
-            !ESR_115_UNAVAILABLE_LOCALES.has(this.#language.value)
+            this._isESR.value &&
+            releaseSupportsPlatform(RELEASES.ESR_115, this._os.value) &&
+            !ESR_115_UNAVAILABLE_LOCALES.has(this._language.value)
     );
 
     // Keyed on the exact OS rather than the family: the MSI builds are Windows
     // but have no Store listing, and that distinction is the whole point here.
     // Which releases have a listing is not a second list to keep in step —
     // `hrefs` already says, by having an entry or a null.
-    #hasMicrosoftStore = computed(
+    _hasMicrosoftStore = computed(
         () =>
-            MICROSOFT_STORE_OS.has(this.#os.value) &&
-            Boolean(DATA.options.microsoftStore.hrefs[this.#release.value])
+            MICROSOFT_STORE_OS.has(this._os.value) &&
+            Boolean(DATA.options.microsoftStore.hrefs[this._release.value])
     );
 
     // Nightly APK URLs contain a build timestamp product details does not carry,
     // so the server serializes `null` for them and there is no option to show.
-    #hasApk = computed(
+    _hasApk = computed(
         () =>
-            this.#os.value === PLATFORM.ANDROID &&
-            Boolean(DATA.options.apk.hrefs[this.#release.value])
+            this._os.value === PLATFORM.ANDROID &&
+            Boolean(DATA.options.apk.hrefs[this._release.value])
     );
 
     /**
@@ -402,8 +402,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * same options on screen — never re-runs the reconciler. What each option
      * says is separate, and lives in the options' own content computeds.
      */
-    #structure = computed(() => {
-        switch (this.#view.value) {
+    _structure = computed(() => {
+        switch (this._view.value) {
             case VIEW.EMPTY:
                 return DOWNLOAD_OPTION.FALLBACK;
             case VIEW.CONFLICT:
@@ -412,12 +412,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 // Same order as all_form.get_download_option_list(), so the
                 // server-rendered list and this one agree.
                 return [
-                    this.#hasApt.value && DOWNLOAD_OPTION.APT,
-                    this.#hasESRNext.value && DOWNLOAD_OPTION.ESR_NEXT,
+                    this._hasApt.value && DOWNLOAD_OPTION.APT,
+                    this._hasESRNext.value && DOWNLOAD_OPTION.ESR_NEXT,
                     DOWNLOAD_OPTION.PRIMARY,
-                    this.#hasESR115.value && DOWNLOAD_OPTION.ESR_115,
-                    this.#hasApk.value && DOWNLOAD_OPTION.APK,
-                    this.#hasMicrosoftStore.value &&
+                    this._hasESR115.value && DOWNLOAD_OPTION.ESR_115,
+                    this._hasApk.value && DOWNLOAD_OPTION.APK,
+                    this._hasMicrosoftStore.value &&
                         DOWNLOAD_OPTION.MICROSOFT_STORE
                 ]
                     .filter(Boolean)
@@ -427,33 +427,33 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     // ── Element references, captured once ──────────────────────────────────
 
-    #form;
-    #resultsPane;
-    #downloadOptionsPane;
-    #incompatiblePane;
-    #supportLinksPane;
-    #languageMessage;
+    _form;
+    _resultsPane;
+    _downloadOptionsPane;
+    _incompatiblePane;
+    _supportLinksPane;
+    _languageMessage;
 
     /** Download option key -> its element. Built once; reconciled, never rebuilt. */
-    #downloadOptions = new Map();
+    _downloadOptions = new Map();
     /** `or` dividers, cached by the option key they precede. */
-    #dividers = new Map();
+    _dividers = new Map();
     /**
      * Release value -> { option, placeholder }, so swapping an unavailable
      * release out of the select is a map lookup rather than a childNodes scan
      * on every input event.
      */
-    #releaseOptions = new Map();
+    _releaseOptions = new Map();
 
     /** The selects, in DOM order. */
-    #fields = [];
+    _fields = [];
     /**
      * Control -> the error message currently rendered for it, so showing an
      * error is idempotent and clearing one knows what to undo.
      */
-    #fieldErrors = new Map();
+    _fieldErrors = new Map();
 
-    #disposers = [];
+    _disposers = [];
 
     constructor() {
         super();
@@ -463,25 +463,25 @@ class FirefoxDownloadFormElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const dispose of this.#disposers) dispose();
-        this.#disposers.length = 0;
+        for (const dispose of this._disposers) dispose();
+        this._disposers.length = 0;
     }
 
     /** Register an effect and keep its disposer so teardown is possible. */
-    #effect(fn) {
-        this.#disposers.push(effect(fn));
+    _effect(fn) {
+        this._disposers.push(effect(fn));
     }
 
     handleEvent(event) {
         switch (event.type) {
             case 'slotchange':
-                this.#handleSlotChange(event);
+                this._handleSlotChange(event);
                 break;
             case 'input':
-                this.#handleInput(event);
+                this._handleInput(event);
                 break;
             case 'invalid':
-                this.#handleInvalid(event);
+                this._handleInvalid(event);
                 break;
             case 'submit':
                 event.preventDefault();
@@ -491,31 +491,31 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     // ── Setup ──────────────────────────────────────────────────────────────
 
-    #handleSlotChange() {
+    _handleSlotChange() {
         const form = this.querySelector(':scope > form:first-child');
         if (!form) return;
 
-        this.#form = form;
+        this._form = form;
 
         // Seed the machine before anything can rewrite the query string.
-        this.#seedProvenance();
+        this._seedProvenance();
 
         batch(() => {
-            this.#os.value = this.#form.elements.os.value;
-            this.#release.value = this.#form.elements.release.value;
-            this.#language.value = this.#form.elements.language.value;
+            this._os.value = this._form.elements.os.value;
+            this._release.value = this._form.elements.release.value;
+            this._language.value = this._form.elements.language.value;
         });
 
-        this.#collectElements();
-        this.#removeNoJSReleaseHint();
-        this.#collectReleaseOptions();
-        this.#createDownloadOptions();
-        this.#createSupportLinks();
-        this.#registerEffects();
+        this._collectElements();
+        this._removeNoJSReleaseHint();
+        this._collectReleaseOptions();
+        this._createDownloadOptions();
+        this._createSupportLinks();
+        this._registerEffects();
 
-        this.#form.addEventListener('submit', this);
-        this.#form.addEventListener('input', this);
-        this.#form.addEventListener('invalid', this, true);
+        this._form.addEventListener('submit', this);
+        this._form.addEventListener('input', this);
+        this._form.addEventListener('invalid', this, true);
 
         this.shadowRoot.removeEventListener('slotchange', this);
     }
@@ -527,33 +527,33 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * base.html gates itself the same way, so the two agree on which fields the
      * visitor actually asked for.
      */
-    #seedProvenance() {
+    _seedProvenance() {
         const params = new URLSearchParams(window.location.search);
         if (
             params.has('os') ||
             params.has('release') ||
             params.has('language')
         ) {
-            this.#send(EVENT.PREFILL);
-        } else if (this.#form.dataset.autoDetectedOs) {
-            this.#send(EVENT.DETECT);
+            this._send(EVENT.PREFILL);
+        } else if (this._form.dataset.autoDetectedOs) {
+            this._send(EVENT.DETECT);
         }
     }
 
-    #collectElements() {
-        const { os, release, language } = this.#form.elements;
-        this.#fields = [os, release, language];
+    _collectElements() {
+        const { os, release, language } = this._form.elements;
+        this._fields = [os, release, language];
 
-        this.#resultsPane = this.querySelector('.c-results');
-        this.#downloadOptionsPane = this.#resultsPane.querySelector(
+        this._resultsPane = this.querySelector('.c-results');
+        this._downloadOptionsPane = this._resultsPane.querySelector(
             '.c-download-options'
         );
-        this.#incompatiblePane = this.#resultsPane.querySelector(
+        this._incompatiblePane = this._resultsPane.querySelector(
             '.c-incompatible-choices'
         );
 
         // Server-rendered, and already showing if the page loaded on a store app.
-        this.#languageMessage = language
+        this._languageMessage = language
             .closest('.fl-field-wrap')
             .querySelector('.c-language-message');
     }
@@ -561,11 +561,11 @@ class FirefoxDownloadFormElement extends HTMLElement {
     /**
      * Remove the no-JS release hint.
      */
-    #removeNoJSReleaseHint() {
-        const hint = this.querySelector('#release-no-js-hint');
+    _removeNoJSReleaseHint() {
+        const hint = this.querySelector('_release-no-js-hint');
         if (!hint) return;
 
-        const control = this.#form.elements.release;
+        const control = this._form.elements.release;
 
         // Preserve the server error message association if it’s present.
         const describedBy = control
@@ -597,9 +597,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * `replaceWith`, instead of re-deriving the pairing from the DOM every time
      * the platform changes.
      */
-    #collectReleaseOptions() {
-        for (const option of this.#form.elements.release.options) {
-            this.#releaseOptions.set(option.value, {
+    _collectReleaseOptions() {
+        for (const option of this._form.elements.release.options) {
+            this._releaseOptions.set(option.value, {
                 option,
                 placeholder: new Comment(
                     `${option.value}:${option.textContent}`
@@ -610,29 +610,29 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     /**
      * Build every option element once. They are reconciled from here on, never
-     * rebuilt, and stay detached until #structure asks for them.
+     * rebuilt, and stay detached until _structure asks for them.
      *
      * Every label, icon, and class comes from DATA.options — the same table
      * all_form.get_download_option_list() renders the result page from, so the
      * list this builds and the list that page shows are the same list.
      */
-    #createDownloadOptions() {
+    _createDownloadOptions() {
         const { apt, esrNext, esr115, apk, microsoftStore } = DATA.options;
 
         // The server-rendered submit button, which is the whole results pane
         // until we get here: it is the right prompt before anything is chosen and
         // the only working affordance without JS. Kept and treated as one more
         // entry in the list rather than destroyed on upgrade.
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.FALLBACK,
-            this.#downloadOptionsPane.querySelector(
+            this._downloadOptionsPane.querySelector(
                 `[data-download-option="${DOWNLOAD_OPTION.FALLBACK}"]`
             )
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.APT,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.APT,
                 label: apt.label,
                 href: apt.href,
@@ -641,72 +641,72 @@ class FirefoxDownloadFormElement extends HTMLElement {
             })
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.ESR_NEXT,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_NEXT,
                 label: esrNext.label,
                 icon: esrNext.icon,
                 additionalClasses: esrNext.classes,
                 href: () =>
                     downloadURL(
-                        this.#os.value,
+                        this._os.value,
                         RELEASES.ESR_NEXT,
-                        this.#language.value
+                        this._language.value
                     )
             })
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.PRIMARY,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.PRIMARY,
                 additionalClasses: ['button-primary'],
                 // Each field gets its own computed, so a change that only moves
                 // the href leaves the label's text node untouched.
-                label: () => this.#primary.value.label,
-                icon: () => this.#primary.value.icon,
-                href: () => this.#primary.value.href
+                label: () => this._primary.value.label,
+                icon: () => this._primary.value.icon,
+                href: () => this._primary.value.href
             })
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.ESR_115,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_115,
                 label: esr115.label,
                 icon: esr115.icon,
                 additionalClasses: esr115.classes,
                 href: () =>
                     downloadURL(
-                        this.#os.value,
+                        this._os.value,
                         RELEASES.ESR_115,
-                        this.#language.value
+                        this._language.value
                     ),
                 recommendation: () =>
-                    esr115.recommendations[this.#platformFamily.value] ?? ''
+                    esr115.recommendations[this._platformFamily.value] ?? ''
             })
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.APK,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.APK,
                 label: apk.label,
                 icon: apk.icon,
                 additionalClasses: apk.classes,
-                href: () => apk.hrefs[this.#release.value] ?? ''
+                href: () => apk.hrefs[this._release.value] ?? ''
             })
         );
 
-        this.#downloadOptions.set(
+        this._downloadOptions.set(
             DOWNLOAD_OPTION.MICROSOFT_STORE,
-            this.#createDownloadButton({
+            this._createDownloadButton({
                 name: DOWNLOAD_OPTION.MICROSOFT_STORE,
                 label: microsoftStore.label,
                 icon: microsoftStore.icon,
                 additionalClasses: microsoftStore.classes,
-                href: () => microsoftStore.hrefs[this.#release.value] ?? ''
+                href: () => microsoftStore.hrefs[this._release.value] ?? ''
             })
         );
     }
@@ -716,59 +716,59 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * reason as the options: it describes one selection, and the form page is
      * where the selection changes.
      */
-    #createSupportLinks() {
+    _createSupportLinks() {
         const { releaseNotes, systemRequirements, privacy } = DATA.supportLinks;
 
-        this.#supportLinksPane = document.createElement('div');
-        this.#supportLinksPane.classList.add('c-support-links');
-        this.#supportLinksPane.append(
-            this.#createSupportLink({
+        this._supportLinksPane = document.createElement('div');
+        this._supportLinksPane.classList.add('c-support-links');
+        this._supportLinksPane.append(
+            this._createSupportLink({
                 label: releaseNotes.label,
-                href: () => this.#releaseNotesHref.value
+                href: () => this._releaseNotesHref.value
             }),
-            this.#createSupportLink({
+            this._createSupportLink({
                 label: systemRequirements.label,
-                href: () => this.#systemRequirementsHref.value
+                href: () => this._systemRequirementsHref.value
             }),
-            this.#createSupportLink({
+            this._createSupportLink({
                 label: privacy.label,
                 href: privacy.url
             })
         );
-        this.#resultsPane.append(this.#supportLinksPane);
+        this._resultsPane.append(this._supportLinksPane);
     }
 
     // ── Layer 4: effects ───────────────────────────────────────────────────
 
-    #registerEffects() {
+    _registerEffects() {
         // Reflect the state machine onto the host, so it is inspectable in
         // devtools and available to CSS. Nothing visual depends on these — the
         // logo follows the release select itself.
-        this.#effect(() => {
-            this.dataset.view = this.#view.value;
+        this._effect(() => {
+            this.dataset.view = this._view.value;
         });
-        this.#effect(() => {
-            this.dataset.provenance = this.#provenance.value;
+        this._effect(() => {
+            this.dataset.provenance = this._provenance.value;
         });
-        this.#effect(() => {
-            this.dataset.os = this.#os.value;
+        this._effect(() => {
+            this.dataset.os = this._os.value;
         });
-        this.#effect(() => {
-            this.dataset.release = this.#release.value;
+        this._effect(() => {
+            this.dataset.release = this._release.value;
         });
-        this.#effect(() => {
-            this.dataset.language = this.#language.value;
+        this._effect(() => {
+            this.dataset.language = this._language.value;
         });
 
         // Keep the query string in step with what the visitor chose. Gated on
         // an actual edit: a detected platform is a guess, and writing it to the
         // URL would make the next reload look like a deliberate prefill.
-        this.#effect(() => {
-            if (this.#provenance.value !== PROVENANCE.EDITED) return;
+        this._effect(() => {
+            if (this._provenance.value !== PROVENANCE.EDITED) return;
             const params = {
-                os: this.#os.value,
-                release: this.#release.value,
-                language: this.#language.value
+                os: this._os.value,
+                release: this._release.value,
+                language: this._language.value
             };
             const url = new URL(window.location);
             url.search = new URLSearchParams(params);
@@ -776,12 +776,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
         });
 
         // Which releases the platform can actually offer.
-        this.#effect(() => {
-            const os = this.#os.value;
-            const selected = this.#release.value;
+        this._effect(() => {
+            const os = this._os.value;
+            const selected = this._release.value;
 
             for (const [release, { option, placeholder }] of this
-                .#releaseOptions) {
+                ._releaseOptions) {
                 const supported = releaseSupportsPlatform(release, os);
 
                 // An unavailable option that is currently selected stays in the
@@ -797,121 +797,121 @@ class FirefoxDownloadFormElement extends HTMLElement {
         });
 
         // Mobile builds are multi-locale, so the language choice does not apply.
-        this.#effect(() => {
-            this.#form.elements.language.disabled = this.#isMobile.value;
-            this.#languageMessage.hidden = !this.#isMobile.value;
+        this._effect(() => {
+            this._form.elements.language.disabled = this._isMobile.value;
+            this._languageMessage.hidden = !this._isMobile.value;
         });
 
         // Compatibility is expressed as a native constraint, so the browser
         // stays the single source of validity and everything downstream —
         // `:user-invalid`, `validationMessage`, submit blocking — comes along
         // for free. Reporting it is a separate, event-driven step: see
-        // #report and #handleInvalid.
-        this.#effect(() => {
-            this.#form.elements.release.setCustomValidity(
-                this.#isCompatible.value ? '' : MESSAGES.releaseUnavailable
+        // _report and _handleInvalid.
+        this._effect(() => {
+            this._form.elements.release.setCustomValidity(
+                this._isCompatible.value ? '' : MESSAGES.releaseUnavailable
             );
         });
 
         // The server-rendered error describes the selection the page loaded
         // with. Once the visitor edits, it is stale.
-        this.#effect(() => {
-            if (this.#provenance.value !== PROVENANCE.EDITED) return;
-            const serverError = this.querySelector('#server-release-error');
+        this._effect(() => {
+            if (this._provenance.value !== PROVENANCE.EDITED) return;
+            const serverError = this.querySelector('_server-release-error');
             if (!serverError) return;
             serverError.remove();
-            this.#form.elements.release.removeAttribute('aria-describedby');
+            this._form.elements.release.removeAttribute('aria-describedby');
         });
 
-        this.#effect(() => {
-            const view = this.#view.value;
-            this.#downloadOptionsPane.hidden = view === VIEW.CONFLICT;
-            this.#supportLinksPane.hidden = view !== VIEW.OPTIONS;
-            this.#incompatiblePane.hidden = view !== VIEW.CONFLICT;
+        this._effect(() => {
+            const view = this._view.value;
+            this._downloadOptionsPane.hidden = view === VIEW.CONFLICT;
+            this._supportLinksPane.hidden = view !== VIEW.OPTIONS;
+            this._incompatiblePane.hidden = view !== VIEW.CONFLICT;
         });
 
         // Structure only. Content updates happen in each option's own effects
         // and never reach this far.
-        this.#effect(() => {
-            this.#renderDownloadOptions(
-                this.#structure.value ? this.#structure.value.split(' ') : []
+        this._effect(() => {
+            this._renderDownloadOptions(
+                this._structure.value ? this._structure.value.split(' ') : []
             );
         });
     }
 
     /**
-     * Lay out the visible download options in the order #structure declares.
+     * Lay out the visible download options in the order _structure declares.
      *
      * Order lives in one place instead of emerging from several effects
      * inserting themselves relative to each other, and dividers fall out of
      * adjacency rather than being tracked as siblings.
      */
-    #renderDownloadOptions(keys) {
+    _renderDownloadOptions(keys) {
         const children = [];
         let previousGroup = null;
 
         for (const key of keys) {
             const group = DOWNLOAD_OPTION_GROUPS[key];
             if (previousGroup === GROUP.DOWNLOAD && group === GROUP.DOWNLOAD) {
-                children.push(this.#divider(key));
+                children.push(this._divider(key));
             }
-            children.push(this.#downloadOptions.get(key));
+            children.push(this._downloadOptions.get(key));
             previousGroup = group;
         }
 
-        this.#downloadOptionsPane.replaceChildren(...children);
+        this._downloadOptionsPane.replaceChildren(...children);
     }
 
-    #divider(key) {
-        if (!this.#dividers.has(key)) {
+    _divider(key) {
+        if (!this._dividers.has(key)) {
             const divider = document.createElement('div');
             divider.classList.add('c-or-divider');
             divider.textContent = MESSAGES.divider;
-            this.#dividers.set(key, divider);
+            this._dividers.set(key, divider);
         }
-        return this.#dividers.get(key);
+        return this._dividers.get(key);
     }
 
     // ── Event handlers ─────────────────────────────────────────────────────
 
-    #handleInput(event) {
+    _handleInput(event) {
         if (!(event.target instanceof HTMLSelectElement)) return;
 
         batch(() => {
-            this.#send(EVENT.EDIT);
-            this.#os.value = this.#form.elements.os.value;
-            this.#release.value = this.#form.elements.release.value;
-            this.#language.value = this.#form.elements.language.value;
+            this._send(EVENT.EDIT);
+            this._os.value = this._form.elements.os.value;
+            this._release.value = this._form.elements.release.value;
+            this._language.value = this._form.elements.language.value;
         });
 
         // Custom validity has already been synced by the batch above, so the
         // browser's answer is current by the time we ask for it.
-        this.#report();
+        this._report();
     }
 
     /**
      * Our own constraint reporting.
      *
      * The native bubble is transient — it vanishes on the next interaction and
-     * a screen reader gets one shot at it — so #handleInvalid cancels it and we
+     * a screen reader gets one shot at it — so _handleInvalid cancels it and we
      * render a message that stays put instead. `checkValidity()` is the right
      * primitive for that: it raises `invalid` for whatever fails and shows no UI
      * of its own.
      *
      * Clearing first, rather than diffing, is deliberate. It restarts the
-     * deferred announcement in #setFieldError, which is the whole point of the
+     * deferred announcement in _setFieldError, which is the whole point of the
      * deferral: while someone is still working through the selects, a message
      * must not be announced into the middle of their next interaction.
      */
-    #report() {
-        for (const field of this.#fields) this.#setFieldError(field, '');
+    _report() {
+        for (const field of this._fields) this._setFieldError(field, '');
 
         // Only the release field reports as you edit. It carries the one
         // constraint of ours — compatibility — and it is where the explanation
         // for a conflict belongs, whichever select produced it. `required` on a
         // field left empty is not something to complain about mid-flow; native
-        // submit raises that, and #handleInvalid renders it then.
-        this.#form.elements.release.checkValidity();
+        // submit raises that, and _handleInvalid renders it then.
+        this._form.elements.release.checkValidity();
     }
 
     /**
@@ -920,7 +920,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * Fires for our `checkValidity()` above and for the browser's own pass over
      * the form on submit, so both routes produce the same message.
      */
-    #handleInvalid(event) {
+    _handleInvalid(event) {
         // Suppress the native bubble; we report this ourselves.
         event.preventDefault();
 
@@ -931,12 +931,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // choosing Linux 32-bit is what makes the release unavailable, and the
         // release select is where that has to be explained.
         if (
-            this.#provenance.value !== PROVENANCE.EDITED &&
+            this._provenance.value !== PROVENANCE.EDITED &&
             !event.target.matches(':user-invalid')
         )
             return;
 
-        this.#setFieldError(event.target, event.target.validationMessage);
+        this._setFieldError(event.target, event.target.validationMessage);
     }
 
     /**
@@ -946,8 +946,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * whether the trigger was our own `checkValidity()` or the browser
      * validating the form on submit.
      */
-    #setFieldError(control, message) {
-        const current = this.#fieldErrors.get(control);
+    _setFieldError(control, message) {
+        const current = this._fieldErrors.get(control);
         const fieldWrap = control.closest('.fl-field-wrap');
 
         if (!message) {
@@ -956,7 +956,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             current.element.remove();
             fieldWrap.classList.remove('fl-field-error');
             control.removeAttribute('aria-describedby');
-            this.#fieldErrors.delete(control);
+            this._fieldErrors.delete(control);
             return;
         }
 
@@ -996,7 +996,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         fieldWrap.classList.add('fl-field-error');
         fieldWrap.append(element);
 
-        this.#fieldErrors.set(control, { element, message, announcement });
+        this._fieldErrors.set(control, { element, message, announcement });
 
         control.setAttribute('aria-describedby', element.id);
     }
@@ -1008,7 +1008,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
     // when it recomputes to the same string, so the effect that writes the DOM
     // never runs.
 
-    #bind(source) {
+    _bind(source) {
         return typeof source === 'function'
             ? computed(source)
             : signal(source ?? '');
@@ -1020,7 +1020,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * The structure matches firefox/all-form/_download-options.html, which the
      * result page renders the same list from, so one set of styles covers both.
      */
-    #createDownloadButton({
+    _createDownloadButton({
         name,
         label,
         href,
@@ -1041,13 +1041,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const text = document.createTextNode('');
         link.append(text);
 
-        const labelSource = this.#bind(label);
-        this.#effect(() => {
+        const labelSource = this._bind(label);
+        this._effect(() => {
             text.data = labelSource.value;
         });
 
-        const hrefSource = this.#bind(href);
-        this.#effect(() => {
+        const hrefSource = this._bind(href);
+        this._effect(() => {
             link.href = hrefSource.value;
         });
 
@@ -1056,8 +1056,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
             iconElement.setAttribute('aria-hidden', 'true');
             link.append(iconElement);
 
-            const iconSource = this.#bind(icon);
-            this.#effect(() => {
+            const iconSource = this._bind(icon);
+            this._effect(() => {
                 iconElement.className = `fl-icon fl-icon-${iconSource.value}`;
             });
         }
@@ -1069,8 +1069,8 @@ class FirefoxDownloadFormElement extends HTMLElement {
             recommendationElement.classList.add('c-recommendation');
             element.append(recommendationElement);
 
-            const recommendationSource = this.#bind(recommendation);
-            this.#effect(() => {
+            const recommendationSource = this._bind(recommendation);
+            this._effect(() => {
                 recommendationElement.textContent = recommendationSource.value;
             });
         }
@@ -1078,16 +1078,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
         return element;
     }
 
-    #createSupportLink({ label, href } = {}) {
+    _createSupportLink({ label, href } = {}) {
         const element = document.createElement('a');
 
-        const labelSource = this.#bind(label);
-        this.#effect(() => {
+        const labelSource = this._bind(label);
+        this._effect(() => {
             element.textContent = labelSource.value;
         });
 
-        const hrefSource = this.#bind(href);
-        this.#effect(() => {
+        const hrefSource = this._bind(href);
+        this._effect(() => {
             element.href = hrefSource.value;
         });
 
