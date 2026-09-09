@@ -325,6 +325,7 @@ def test_kit_intro_block_conditional_display(kit_intro_conditional_page, rf):
     assert get_conditional_wrappers(unconditional) == []
 
 
+@pytest.mark.django_db
 def test_experiment_sample_rate_finds_rate_nested_inside_a_block():
     """experiment_sample_rate finds a rate however deep it is nested — here, a card's
     settings inside a cards list."""
