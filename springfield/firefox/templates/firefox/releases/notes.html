@@ -56,6 +56,10 @@
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox for Android' and equivalent_release_url else url('firefox.notes'),
     },
     {
+      'text': ftl('sub-navigation-enterprise'),
+      'href': url('firefox.enterprise.notes'),
+    },
+    {
       'text': ftl('sub-navigation-desktop-beta-and-developer'),
       'href': url('firefox.notes', channel='beta'),
     },
