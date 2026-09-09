@@ -38,8 +38,6 @@ class BlockArticleValue(blocks.StructValue):
         return article_page.title if article_page else ""
 
     def get_description(self) -> str:
-        from springfield.cms.templatetags.cms_tags import remove_p_tag
-
         if description := self.get("overrides").get("description"):
             description = remove_p_tag(richtext(description))
             if description:
