@@ -13,6 +13,8 @@ from wagtail.admin.forms.tags import TagField, validate_tag_length
 from wagtail.admin.widgets import AdminTagWidget
 from wagtail.models import Locale
 
+from springfield.cms.slug_updates import find_sibling_with_slug
+
 
 class SpringfieldCopyForm(CopyForm):
     """Wagtail's page copy form plus a "Keep analytics IDs" opt-out.
@@ -74,3 +76,52 @@ class LocaleTagField(TagField):
                 % {"names": ", ".join(unknown), "tag_model": self.tag_model._meta.verbose_name}
             )
         return tags
+
+
+class UpdateSlugForm(forms.Form):
+    """The slug an editor wants a page to move to."""
+
+    slug = forms.SlugField(
+        label=_("New slug"),
+        help_text=_("The page and all of its translations will move to this slug."),
+    )
+
+
+class ConfirmUpdateSlugForm(forms.Form):
+    """Confirmation of a slug update, including what to do with the page that
+    currently holds the target slug.
+
+    ``conflicting_page_slug`` is not displayed when no page holds the slug.
+    """
+
+    slug = forms.SlugField(widget=forms.HiddenInput)
+    conflicting_page_slug = forms.SlugField(
+        label=_("New slug for the existing page"),
+        help_text=_("The page currently using the target slug moves here, and is unpublished along with its translations."),
+    )
+    publish = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_("Publish"),
+        help_text=_("Publish the page and its translations once the slug has been updated."),
+    )
+
+    def __init__(self, *args, conflicting_page, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.conflicting_page = conflicting_page
+
+        if conflicting_page is None:
+            del self.fields["conflicting_page_slug"]
+        else:
+            self.fields["conflicting_page_slug"].initial = f"{self['slug'].value()}-old"
+
+    def clean_conflicting_page_slug(self):
+        conflicting_page_slug = self.cleaned_data["conflicting_page_slug"]
+
+        if conflicting_page_slug == self.cleaned_data.get("slug"):
+            raise ValidationError(_("This must differ from the new slug, otherwise the existing page keeps it."))
+
+        if find_sibling_with_slug(self.conflicting_page, conflicting_page_slug):
+            raise ValidationError(_("Another page already uses this slug."))
+
+        return conflicting_page_slug
