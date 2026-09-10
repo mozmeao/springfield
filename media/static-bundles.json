@@ -332,7 +332,7 @@
     },
     {
       "files": [
-        "css/cms/pages/flare-blog.css"
+        "css/blog/pages/flare-blog.css"
       ],
       "name": "flare-blog"
     },
@@ -792,6 +792,7 @@
         "js/base/mozilla-fxa.js",
         "js/base/mozilla-fxa-init.js",
         "js/cms/flare.es6.js",
+        "js/blog/flare.es6.js",
         "js/base/base-page-init.js"
       ],
       "name": "firefox-cms-flare"

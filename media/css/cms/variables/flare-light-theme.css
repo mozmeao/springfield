@@ -23,7 +23,6 @@
 /* Background colors */
 --fl-theme-background: var(--token-color-white);
 --fl-theme-color-icon-wrap: var(--token-color-purple);
---fl-theme-blog-body-background: var(--token-color-white);
 
 /* Surface colors */
 --fl-theme-surface-card-gradient: var(--token-gradient-light);
@@ -121,12 +120,6 @@
 --notification-light-purple-color: var(--token-color-white);
 --notification-light-purple-border-color: var(--token-color-grey-2);
 --notification-light-purple-icon-bg: var(--token-color-black-4);
-
-/* blog topic */
---notification-blog-topic-bg: var(--token-color-grey-1);
---notification-blog-topic-color: var(--token-color-black-4);
---notification-blog-topic-border-color: var(--token-color-grey-2);
---notification-blog-topic-hover-border-color: var(--token-color-black-4);
 
 /* selected state (inverted) */
 --notification-selected-bg: var(--notification-stacked-color);

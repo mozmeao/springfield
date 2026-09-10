@@ -81,9 +81,9 @@ def convert_button_label(data):
 def _models_with_streamfields():
     """
     Yield ``(Model, [stream_field_names], [(inherited_field, parent_class_name)])``
-    for every concrete ``cms`` model in the LIVE model registry that declares one or
-    more StreamFields. Includes both pages and snippets, and picks up StreamFields
-    inherited from abstract base classes.
+    for every concrete ``blog`` and ``cms`` model in the LIVE model registry that
+    declares one or more StreamFields. Includes both pages and snippets, and picks
+    up StreamFields inherited from abstract base classes.
 
     Walks the live model state — NOT historical migration state — so it must not be
     called from a RunPython op against a historical apps registry.
@@ -91,7 +91,7 @@ def _models_with_streamfields():
     # wagtail.fields.StreamField is the base class; the project's
     # springfield.cms.fields.StreamField alias is a subclass, so the base catches both.
     for model in apps.get_models():
-        if model._meta.app_label != "cms":
+        if model._meta.app_label not in ("blog", "cms"):
             continue
         names = []
         inherited = []
