@@ -6,6 +6,32 @@
 
 @import 'variables/flare-media-query-tokens.css';
 
+/* stylelint-disable no-duplicate-at-import-rules, no-invalid-position-at-import-rule */
+
+/* Blog theme variables. Import paths are relative to media/css/cms/, where the webpack
+   loader resolves them from. */
+@layer theme {
+    :root {
+        @import '../blog/variables/flare-blog-light-theme.css';
+    }
+
+    .fl-split-page-upper .fl-force-light-theme,
+    .fl-force-light-theme {
+        @import '../blog/variables/flare-blog-light-theme.css';
+    }
+
+    .fl-split-page-upper,
+    .fl-force-dark-theme {
+        @import '../blog/variables/flare-blog-dark-theme.css';
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            @import '../blog/variables/flare-blog-dark-theme.css';
+        }
+    }
+}
+
 @layer page {
     .fl-page-blog .fl-main {
         max-inline-size: var(--token-width-desktop-content);
@@ -189,15 +215,34 @@
     text-decoration: underline;
 }
 
-.fl-tag.fl-tag-blog-topic.is-selected {
-    @container style(--lang-supports-uppercase: true) {
-        text-transform: uppercase;
+@layer components {
+    .fl-tag.fl-tag-blog-topic {
+        background: var(--notification-blog-topic-bg);
+        border: 1px solid var(--notification-blog-topic-border-color);
+        color: var(--notification-blog-topic-color);
+        font-size: var(--fl-theme-label-xs);
     }
-}
 
-.fl-tag.fl-tag-blog-topic.is-selected .close-button {
-    color: var(--token-color-white);
-    margin-block-end: 1px;
+    a.fl-tag.fl-tag-blog-topic:hover {
+        background-color: transparent;
+        border-color: var(--notification-blog-topic-hover-border-color);
+        color: var(--notification-blog-topic-color);
+    }
+
+    .fl-tag.fl-tag-blog-topic.is-selected {
+        background: var(--token-color-link-purple);
+        border-color: var(--token-color-link-purple);
+        color: var(--token-color-white);
+
+        @container style(--lang-supports-uppercase: true) {
+            text-transform: uppercase;
+        }
+    }
+
+    .fl-tag.fl-tag-blog-topic.is-selected .close-button {
+        color: var(--token-color-white);
+        margin-block-end: 1px;
+    }
 }
 
 .fl-blog-topics-filter {
