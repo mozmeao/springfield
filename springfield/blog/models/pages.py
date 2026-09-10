@@ -127,7 +127,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     """A page that lists blog posts."""
 
     subpage_types = ["blog.BlogArticlePage", "blog.BlogTopicPage"]
-    ftl_files = ["cms/blog"]
+    ftl_files = ["blog/blog"]
 
     page_heading = StreamField(
         [("heading", HeadingBlock())],
@@ -491,7 +491,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     parent_page_types = ["blog.BlogIndexPage"]
     subpage_types = []
-    ftl_files = ["cms/blog"]
+    ftl_files = ["blog/blog"]
 
     topic = models.ForeignKey(
         "blog.BlogTopic",
@@ -591,7 +591,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
     parent_page_types = ["blog.BlogIndexPage"]
-    ftl_files = ["cms/blog"]
+    ftl_files = ["blog/blog"]
 
     description = RichTextField(
         blank=True,
