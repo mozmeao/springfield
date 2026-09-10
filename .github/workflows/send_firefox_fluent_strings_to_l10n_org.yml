@@ -24,7 +24,7 @@ jobs:
       # All zeros, because this is never actually used, just needs to be present
       REFERRAL_INVITE_CODE_KEY_V1: "0000000000000000000000000000000000000000000000000000000000000000"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.HEAD_SHA }}
       - name: Run PR-opening script
