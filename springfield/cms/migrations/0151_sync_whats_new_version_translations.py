@@ -44,7 +44,7 @@ def sync_versions_from_source(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0150_merge_20260904_1724"),
+        ("cms", "0151_merge_20260904_2119"),
     ]
 
     operations = [
