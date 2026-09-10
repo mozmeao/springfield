@@ -80,7 +80,14 @@
     padding-block-start: 0;
 }
 
-.fl-freeform-page .fl-split-page-upper > .fl-section:first-child {
+.fl-freeform-page .fl-split-page-upper > .fl-section:first-child,
+.fl-freeform-page
+    .fl-split-page-upper
+    > :where(
+        .conditional-display:first-child,
+        .conditional-display:first-child ~ .conditional-display
+    )
+    .fl-section:first-child {
     padding-block-start: 0;
 }
 

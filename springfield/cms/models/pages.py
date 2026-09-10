@@ -1343,8 +1343,8 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             self.get_children()
             .live()
             .public()
-            .exclude(slug="general")
             .annotate(version=F("whatsnewpage2026__version"))
+            .exclude(version__icontains="general")
             .order_by("-version")
             .specific()
             .first()
@@ -1411,7 +1411,7 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
-        SynchronizedField("version"),
+        SynchronizedField("version", overridable=False),
         SynchronizedField("pre_footer_image"),
     ]
 
