@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # Moves cms_* blog tables into the blog app in migration state only.
-# The next migration renames the tables and moves their content types.
+# The next two migrations rename the tables and move their content types.
 
 import uuid
 
@@ -627,7 +627,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("cms", "0151_move_blog_models_to_blog_app"),
+        ("cms", "0152_move_blog_models_to_blog_app"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 

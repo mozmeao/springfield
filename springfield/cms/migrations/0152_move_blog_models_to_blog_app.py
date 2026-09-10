@@ -3,15 +3,15 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # Removes blog models from the cms app's migration state only.
-# `blog.0001_initial` and `blog.0002_rename_tables_and_content_types`
-# complete the rest of the `blog` model migration.
+# `blog.0001`, `blog.0002`, and `blog.0003` complete the rest
+# of the `blog` model migration.
 
 from django.db import migrations
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0150_merge_20260904_1724"),
+        ("cms", "0151_sync_whats_new_version_translations"),
     ]
 
     operations = [
