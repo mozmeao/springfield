@@ -99,6 +99,7 @@ from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
+from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
@@ -1339,7 +1340,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return f"WhatsNewIndexPage: {self.title} - {self.locale}"
 
     def serve(self, request):
-        latest_whats_new = (
+        queryset = (
             self.get_children()
             .live()
             .public()
@@ -1347,8 +1348,11 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .exclude(version__icontains="general")
             .order_by("-version")
             .specific()
-            .first()
         )
+        latest_version = firefox_desktop.latest_major_version("release")
+        if latest_version:
+            queryset = queryset.filter(version__lte=latest_version)
+        latest_whats_new = queryset.first()
         if latest_whats_new:
             url = request.build_absolute_uri(latest_whats_new.get_url())
             if request.GET.get("from_main_nav"):

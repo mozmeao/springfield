@@ -32,6 +32,7 @@ from springfield.cms.tests.factories import (
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
 )
+from springfield.firefox.firefox_details import firefox_desktop
 
 pytestmark = [pytest.mark.django_db]
 
@@ -73,6 +74,17 @@ def beta_wnp(wnp_index_page):
     page = BetaWhatsNewPage2026Factory(parent=wnp_index_page)
     page.save_revision().publish()
     return page
+
+
+LATEST_RELEASE_VERSION = 200
+
+
+@pytest.fixture
+def latest_release_version(mocker):
+    """Pin the latest Firefox release version so index redirect tests do not drift
+    as product details advance."""
+    mocker.patch.object(firefox_desktop, "latest_major_version", return_value=LATEST_RELEASE_VERSION)
+    return LATEST_RELEASE_VERSION
 
 
 # ---------------------------------------------------------------------------
@@ -336,6 +348,7 @@ def test_whats_new_version_cannot_be_overridden_per_locale():
 
 def test_whats_new_index_page_redirects_to_latest_whats_new(
     minimal_site,
+    latest_release_version,
     rf,
 ):
     root_page = SimpleRichTextPage.objects.first()
@@ -368,6 +381,7 @@ def test_whats_new_index_page_redirects_to_latest_whats_new(
 
 def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
     minimal_site,
+    latest_release_version,
     rf,
 ):
     """General WNP (version='general') must not be treated as the 'latest' version.
@@ -394,6 +408,7 @@ def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
 
 def test_whats_new_index_page_redirects_to_home_if_no_children(
     minimal_site,
+    latest_release_version,
     rf,
 ):
     root_page = SimpleRichTextPage.objects.first()
@@ -414,6 +429,7 @@ def test_whats_new_index_page_redirects_to_home_if_no_children(
 
 def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     tiny_localized_site,
+    latest_release_version,
     rf,
 ):
     site = Site.objects.get(is_default_site=True)
@@ -463,3 +479,63 @@ def test_whats_new_index_page_redirects_to_locale_appropriate_child(
     response = pt_br_index_page.specific.serve(pt_br_request)
     assert response.status_code == 302
     assert response.headers["location"].endswith(pt_br_v124_page.url)
+
+
+def test_whats_new_index_page_ignores_versions_newer_than_the_latest_release(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    """WNPs are published ahead of the Firefox release they belong to, so the index
+    must redirect to the newest page whose version has actually shipped."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    shipped_page = WhatsNewPage2026Factory(parent=index_page, slug="199", version="199")
+    shipped_page.save()
+    unreleased_page = WhatsNewPage2026Factory(parent=index_page, slug="201", version="201")
+    unreleased_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(shipped_page.url)
+
+
+def test_whats_new_index_page_redirects_to_current_release_page(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    current_page = WhatsNewPage2026Factory(parent=index_page, slug="200", version=str(LATEST_RELEASE_VERSION))
+    current_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(current_page.url)
+
+
+def test_whats_new_index_page_ignores_the_release_filter_when_version_is_unknown(
+    minimal_site,
+    mocker,
+    rf,
+):
+    mocker.patch.object(firefox_desktop, "latest_major_version", return_value=0)
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    unreleased_page = WhatsNewPage2026Factory(parent=index_page, slug="201", version="201")
+    unreleased_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(unreleased_page.url)
