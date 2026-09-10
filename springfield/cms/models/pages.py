@@ -495,6 +495,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
 
     ftl_files = [
+        "cms/download",
         "firefox/download/download",
         "firefox/browsers/mobile/android",
         "firefox/browsers/mobile/ios",
