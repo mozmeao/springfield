@@ -594,7 +594,7 @@ class LocaleDefaultingIndexView(IndexView):
     """
     Snippet IndexView that defaults to the default locale (en-US) when the
     `locale` query parameter is absent from the URL, matching the page tree's
-    behavior.
+    behaviour.
 
     When `locale` is present in the request, we treat it as an explicit editor
     decision, so we do NOT redirect. This includes the 'locale=' value Wagtail's

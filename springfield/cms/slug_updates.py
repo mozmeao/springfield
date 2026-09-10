@@ -98,6 +98,9 @@ def update_page_slug(page, new_slug, conflicting_page=None, conflicting_page_slu
     redirect suppression wraps the transaction rather than sitting inside it, because
     the signal it suppresses is sent on commit — that is, as the atomic block exits.
     """
+    if conflicting_page and conflicting_page_slug is None:
+        raise ValueError("conflicting_page_slug is required when conflicting_page is provided")
+
     with automatic_redirect_creation_disabled():
         with transaction.atomic():
             if conflicting_page is not None:
