@@ -2,12 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from io import BytesIO
 from unittest.mock import Mock, patch
 
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.test import TestCase, override_settings
 
 import pytest
+from bs4 import BeautifulSoup
+from markupsafe import escape
+from PIL import Image as PillowImage
 from wagtail.images.forms import get_image_form
+from wagtail.images.jinja2tags import image as render_image, srcset_image as render_srcset_image
 
 from springfield.cms.fields import SanitizingWagtailImageField
 from springfield.cms.models.images import SpringfieldImage, _make_renditions
@@ -119,3 +126,112 @@ class SpringfieldImageTestCase(TestCase):
             form.fields["file"],
             SanitizingWagtailImageField,
         )
+
+
+def test_image_form_does_not_fill_the_title_from_the_file_name():
+    form = get_image_form(SpringfieldImage)()
+
+    file_attrs = form.fields["file"].widget.attrs
+
+    assert "data-controller" not in file_attrs
+    assert form.fields["title"].required
+    assert not form["title"].value()
+
+
+@pytest.fixture
+def make_image():
+    """Build one saved SpringfieldImage, with the rendition pre-generation stubbed out."""
+
+    def build(**fields):
+        buffer = BytesIO()
+        PillowImage.new("RGB", (400, 300), (117, 79, 224)).save(buffer, format="PNG")
+        buffer.seek(0)
+        with patch.object(SpringfieldImage, "_pre_generate_expected_renditions"):
+            return SpringfieldImage.objects.create(
+                file=ContentFile(buffer.read(), "placeholder.png"),
+                **{"title": "Firefox logo", "description": "The Firefox logo", **fields},
+            )
+
+    return build
+
+
+def find_img(rendered):
+    """The <img> element a tag's return value produces, rendered the way Jinja renders it."""
+    return BeautifulSoup(str(escape(rendered)), "html.parser").find("img")
+
+
+def test_decorative_image_renders_an_empty_alt_attribute(make_image):
+    """An empty alt is what drops an image out of the accessibility tree; an absent one
+    makes screen readers announce the file name instead.
+    """
+    decorative_image = make_image(is_decorative=True)
+
+    srcset_tag = find_img(render_srcset_image(decorative_image, "width-{200,400}"))
+    assert srcset_tag.has_attr("srcset")
+    assert srcset_tag["alt"] == ""
+
+    assert find_img(render_image(decorative_image, "width-400"))["alt"] == ""
+
+
+def test_image_renders_alt_from_its_description(make_image):
+    described_image = make_image()
+
+    assert find_img(render_srcset_image(described_image, "width-{200,400}"))["alt"] == "The Firefox logo"
+    assert find_img(render_image(described_image, "width-400"))["alt"] == "The Firefox logo"
+
+
+def test_alt_passed_by_a_template_wins_over_the_decorative_flag(make_image):
+    decorative_image = make_image(is_decorative=True)
+
+    rendered = render_image(decorative_image, "width-400", alt="Chosen for this one use")
+
+    assert find_img(rendered)["alt"] == "Chosen for this one use"
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "fx_blog_header_extensions_writing",
+        "Monitor-1000x542.jpg",
+        "Disconnect-Study-Blog-Post-Graph-01-1-300x150",
+        "hero.png",
+        "  hero.png  ",
+        "firefox-enterprise",
+    ],
+)
+def test_full_clean_rejects_titles_that_name_a_file(title):
+    unsaved_image = SpringfieldImage(title=title, description="The Firefox logo", width=1, height=1)
+
+    with pytest.raises(ValidationError) as raised:
+        unsaved_image.full_clean(exclude=["file"])
+
+    assert "title" in raised.value.error_dict
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Firefox logo",
+        "A menu button in Firefox",
+        "Firefox",
+        "Monitor 1000x542",
+    ],
+)
+def test_full_clean_accepts_titles_that_describe_the_image(title):
+    unsaved_image = SpringfieldImage(title=title, description="The Firefox logo", width=1, height=1)
+
+    unsaved_image.full_clean(exclude=["file"])
+
+
+def test_decorative_image_needs_no_description():
+    unsaved_image = SpringfieldImage(title="A decorative image", is_decorative=True, width=1, height=1)
+
+    unsaved_image.full_clean(exclude=["file"])
+
+
+def test_non_decorative_image_requires_description():
+    unsaved_image = SpringfieldImage(title="Not a decorative image", width=1, height=1)
+    with pytest.raises(ValidationError) as raised:
+        unsaved_image.full_clean(exclude=["file"])
+
+    assert "description" in raised.value.error_dict

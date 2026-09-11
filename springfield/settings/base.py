@@ -1549,6 +1549,8 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
 
+WAGTAILIMAGES_IMAGE_FORM_BASE = "springfield.cms.image_forms.SpringfieldImageForm"
+
 WAGTAILIMAGES_EXTENSIONS = [
     "gif",
     "jpg",

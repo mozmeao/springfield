@@ -59,6 +59,7 @@ from springfield.cms.models import (
     HeroStyle,
     SpringfieldImage,
 )
+from springfield.cms.models.images import looks_like_filename
 
 # Older WordPress posts wrap inline images with a `[caption ...]<img ...> caption text[/caption]`
 # shortcode, while newer (Gutenberg) ones use `<figure><img ...><figcaption>...</figcaption></figure>`.
@@ -152,16 +153,9 @@ MEDIA_FILE_SUFFIXES = (".avif", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".webp"
 # nearest of these around an image, not the outermost layout wrapper.
 INLINE_IMAGE_CONTAINERS = ("a", "li", "p", "h2", "h3", "h4", "h5", "h6", "blockquote", "td")
 
-# Wagtail's own accessibility check rejects alt text that ends in an image extension or contains
-# an underscore (see AccessibilityItem.axe_custom_checks). Trailing pixel dimensions and text with
-# no spaces at all are the other two shapes the WordPress media library produces.
-FILENAME_LIKE_PATTERNS = (
-    re.compile(r"\.(avif|gif|jpg|jpeg|png|svg|webp)$", re.IGNORECASE),
-    re.compile(r"_"),
-    re.compile(r"[-_]\d{2,4}x\d{2,4}\b"),
-    re.compile(r"^\S+$"),
-)
-
+# Text with no spaces in it at all describes nothing, so it is no use as alt text. A title is
+# held to the shared file-name rules instead, where a single word like 'Firefox' is legitimate.
+SINGLE_WORD_PATTERN = re.compile(r"^\S+$")
 
 # ---------------------------------------------------------------------------
 # Reading the export's fields
@@ -308,7 +302,7 @@ def image_description(text):
     dropped instead of being passed on.
     """
     text = (text or "").strip()
-    if any(pattern.search(text) for pattern in FILENAME_LIKE_PATTERNS):
+    if looks_like_filename(text) or SINGLE_WORD_PATTERN.match(text):
         return ""
     return text
 
