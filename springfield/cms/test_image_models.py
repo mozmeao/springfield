@@ -128,6 +128,16 @@ class SpringfieldImageTestCase(TestCase):
         )
 
 
+def test_image_form_does_not_fill_the_title_from_the_file_name():
+    form = get_image_form(SpringfieldImage)()
+
+    file_attrs = form.fields["file"].widget.attrs
+
+    assert "data-controller" not in file_attrs
+    assert form.fields["title"].required
+    assert not form["title"].value()
+
+
 @pytest.fixture
 def make_image():
     """Build one saved SpringfieldImage, with the rendition pre-generation stubbed out."""
@@ -183,6 +193,7 @@ def test_alt_passed_by_a_template_wins_over_the_decorative_flag(make_image):
         "Disconnect-Study-Blog-Post-Graph-01-1-300x150",
         "hero.png",
         "  hero.png  ",
+        "firefox-enterprise",
     ],
 )
 def test_full_clean_rejects_titles_that_name_a_file(title):

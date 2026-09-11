@@ -29,6 +29,7 @@ FILENAME_LIKE_PATTERNS = (
     re.compile(r"\.(avif|gif|jpg|jpeg|png|svg|webp)$", re.IGNORECASE),
     re.compile(r"_"),
     re.compile(r"[-_]\d{2,4}x\d{2,4}\b"),
+    re.compile(r"^\S+-\S+$"),
 )
 
 
