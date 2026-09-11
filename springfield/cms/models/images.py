@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import re
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from wagtail.images.models import AbstractImage, AbstractRendition, Image
@@ -22,6 +25,18 @@ AUTOMATIC_RENDITION_FILTER_SPECS = [
 ]
 
 
+FILENAME_LIKE_PATTERNS = (
+    re.compile(r"\.(avif|gif|jpg|jpeg|png|svg|webp)$", re.IGNORECASE),
+    re.compile(r"_"),
+    re.compile(r"[-_]\d{2,4}x\d{2,4}\b"),
+)
+
+
+def looks_like_filename(text):
+    text = (text or "").strip()
+    return any(pattern.search(text) for pattern in FILENAME_LIKE_PATTERNS)
+
+
 def _make_renditions(image_id, filter_specs):
     image = SpringfieldImage.objects.get(id=image_id)
     image.get_renditions(*filter_specs)
@@ -39,7 +54,26 @@ class SpringfieldImage(AbstractImage):
     should have fields for such things.
     """
 
-    admin_form_fields = Image.admin_form_fields
+    is_decorative = models.BooleanField(
+        default=False,
+        verbose_name="Image is decorative",
+        help_text="Purely visual, rendered with no alt attribute.",
+    )
+
+    admin_form_fields = Image.admin_form_fields + ("is_decorative",)
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if looks_like_filename(self.title):
+            errors["title"] = "This looks like a file name. Describe the image in a few words instead, so the next editor can tell what it is."
+        if not self.is_decorative and not self.description.strip():
+            errors["description"] = (
+                "Describe what this image shows, so it can be read out to someone who cannot see it. "
+                "If it shows nothing worth describing, tick 'Image is decorative' instead."
+            )
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -84,6 +118,13 @@ class SpringfieldRendition(AbstractRendition):
         on_delete=models.CASCADE,
         related_name="renditions",
     )
+
+    @property
+    def alt(self):
+        """The alt text for the rendered <img>, or None to leave the attribute off entirely."""
+        if self.image.is_decorative:
+            return None
+        return super().alt
 
     class Meta:
         unique_together = (("image", "filter_spec", "focal_point_key"),)
