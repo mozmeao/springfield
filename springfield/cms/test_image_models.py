@@ -160,14 +160,17 @@ def find_img(rendered):
     return BeautifulSoup(str(escape(rendered)), "html.parser").find("img")
 
 
-def test_decorative_image_renders_no_alt_attribute(make_image):
+def test_decorative_image_renders_an_empty_alt_attribute(make_image):
+    """An empty alt is what drops an image out of the accessibility tree; an absent one
+    makes screen readers announce the file name instead.
+    """
     decorative_image = make_image(is_decorative=True)
 
     srcset_tag = find_img(render_srcset_image(decorative_image, "width-{200,400}"))
     assert srcset_tag.has_attr("srcset")
-    assert not srcset_tag.has_attr("alt")
+    assert srcset_tag["alt"] == ""
 
-    assert not find_img(render_image(decorative_image, "width-400")).has_attr("alt")
+    assert find_img(render_image(decorative_image, "width-400"))["alt"] == ""
 
 
 def test_image_renders_alt_from_its_description(make_image):

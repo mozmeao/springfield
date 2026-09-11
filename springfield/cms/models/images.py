@@ -58,7 +58,7 @@ class SpringfieldImage(AbstractImage):
     is_decorative = models.BooleanField(
         default=False,
         verbose_name="Image is decorative",
-        help_text="Purely visual, rendered with no alt attribute.",
+        help_text="Purely visual, with nothing a description could convey. Rendered with an empty alt attribute, so screen readers skip it.",
     )
 
     admin_form_fields = Image.admin_form_fields + ("is_decorative",)
@@ -122,9 +122,13 @@ class SpringfieldRendition(AbstractRendition):
 
     @property
     def alt(self):
-        """The alt text for the rendered <img>, or None to leave the attribute off entirely."""
+        """The alt text for the rendered <img>, empty for a decorative image.
+
+        An empty alt attribute is what drops an image out of the accessibility tree. Leaving
+        the attribute off instead makes screen readers fall back to announcing the file name.
+        """
         if self.image.is_decorative:
-            return None
+            return ""
         return super().alt
 
     class Meta:
