@@ -6,6 +6,8 @@
 
 {# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", min_days_since_last_session="", max_days_since_last_session="", ai_controls_condition="", bind_to_uitour=False, sample_rate="", condition_settings={} #}
 
+{# The preview label is an attribute rendered via ::before, never a child element, so preview DOM matches production. #}
+
 {% set condition_settings = condition_settings or {} %}
 {% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
 {% set firefox_condition = firefox_condition or condition_settings.get("firefox") %}
@@ -21,82 +23,58 @@
 {% set sample_rate = sample_rate or condition_settings.get("sample_rate") %}
 
 {% if sample_rate %}
-  <div class="conditional-display condition-sample-rate {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: {{ sample_rate }}% sample</span>
-    {% endif %}
+  <div class="conditional-display condition-sample-rate {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: {{ sample_rate }}% sample"{% endif %}>
 {% endif %}
 
 {% if platform_conditions %}
-  <div class="conditional-display {% for condition in platform_conditions %}condition-{{ condition }} {% endfor %} {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Conditions: {{ platform_conditions | join(", ") }}</span>
-    {% endif %}
+  <div class="conditional-display {% for condition in platform_conditions %}condition-{{ condition }} {% endfor %} {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Conditions: {{ platform_conditions | join(", ") }}"{% endif %}>
 {% endif %}
 
 {% if firefox_condition %}
-  <div class="conditional-display condition-{{ firefox_condition }} {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: {{ firefox_condition }}</span>
-    {% endif %}
+  <div class="conditional-display condition-{{ firefox_condition }} {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: {{ firefox_condition }}"{% endif %}>
 {% endif %}
 
 {% if auth_state_condition %}
-  <div class="conditional-display condition-{{ auth_state_condition }} {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: {{ auth_state_condition }}</span>
-    {% endif %}
+  <div class="conditional-display condition-{{ auth_state_condition }} {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: {{ auth_state_condition }}"{% endif %}>
 {% endif %}
 
 {% if default_browser_condition %}
-  <div class="conditional-display condition-{{ default_browser_condition }} {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: {{ default_browser_condition }}</span>
-    {% endif %}
+  <div class="conditional-display condition-{{ default_browser_condition }} {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: {{ default_browser_condition }}"{% endif %}>
 {% endif %}
 
 {% if geo_conditions %}
   <div class="conditional-display condition-geo {% if is_preview %}is-preview{% endif %}"
-    data-geo-conditions="{{ ','.join(geo_conditions) }}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: {{ geo_conditions }}</span>
-    {% endif %}
+    data-geo-conditions="{{ ','.join(geo_conditions) }}"
+    {% if is_preview %}data-preview-conditions="Condition: {{ geo_conditions | join(", ") }}"{% endif %}>
 {% endif %}
 
 {% if ai_controls_condition %}
-  <div class="conditional-display condition-ai-controls-{{ ai_controls_condition }} {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: AI Controls {{ ai_controls_condition }}</span>
-    {% endif %}
+  <div class="conditional-display condition-ai-controls-{{ ai_controls_condition }} {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: AI Controls {{ ai_controls_condition }}"{% endif %}>
 {% endif %}
 
 {% if min_version or max_version %}
   <div class="conditional-display condition-fx-version {% if is_preview %}is-preview{% endif %}"
     {% if min_version %}data-min-version="{{ min_version }}"{% endif %}
-    {% if max_version %}data-max-version="{{ max_version }}"{% endif %}>
-    {% if is_preview %}
-      <span class="preview-indicator">Condition:
-        {% if min_version %}FX version >= {{ min_version }}{% endif %}
-        {% if max_version %}FX version <= {{ max_version }}{% endif %}</span>
-    {% endif %}
+    {% if max_version %}data-max-version="{{ max_version }}"{% endif %}
+    {% if is_preview %}data-preview-conditions="Condition:{% if min_version %} FX version >= {{ min_version }}{% endif %}{% if max_version %} FX version <= {{ max_version }}{% endif %}"{% endif %}>
 {% endif %}
 
 {% if min_days_since_last_session or max_days_since_last_session %}
   <div class="conditional-display condition-last-session {% if is_preview %}is-preview{% endif %}"
     {% if min_days_since_last_session %}data-min-days-since-session="{{ min_days_since_last_session }}"{% endif %}
-    {% if max_days_since_last_session %}data-max-days-since-session="{{ max_days_since_last_session }}"{% endif %}>
-    {% if is_preview %}
-      <span class="preview-indicator">Condition:
-        {% if min_days_since_last_session %}Last session >= {{ min_days_since_last_session }} days ago{% endif %}
-        {% if max_days_since_last_session %}Last session <= {{ max_days_since_last_session }} days ago{% endif %}</span>
-    {% endif %}
+    {% if max_days_since_last_session %}data-max-days-since-session="{{ max_days_since_last_session }}"{% endif %}
+    {% if is_preview %}data-preview-conditions="Condition:{% if min_days_since_last_session %} Last session >= {{ min_days_since_last_session }} days ago{% endif %}{% if max_days_since_last_session %} Last session <= {{ max_days_since_last_session }} days ago{% endif %}"{% endif %}>
 {% endif %}
 
 {% if bind_to_uitour %}
-  <div class="conditional-display condition-bind-uitour {% if is_preview %}is-preview{% endif %}">
-    {% if is_preview %}
-      <span class="preview-indicator">Condition: bound to UI Tour</span>
-    {% endif %}
+  <div class="conditional-display condition-bind-uitour {% if is_preview %}is-preview{% endif %}"
+    {% if is_preview %}data-preview-conditions="Condition: bound to UI Tour"{% endif %}>
 {% endif %}
 
 {{ contents }}

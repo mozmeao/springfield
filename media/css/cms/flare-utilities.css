@@ -202,14 +202,24 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
 .conditional-display.is-preview {
     display: block;
     display: revert;
-    outline: red dashed 2px;
-    outline-offset: -2px;
     position: relative;
 }
 
-.conditional-display.is-preview .preview-indicator {
+/* Generated content, not outline: Firefox paints outlines under clipped descendants. */
+.conditional-display.is-preview::after {
+    border: 2px dashed red;
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 9;
+}
+
+/* Generated content, not a child element, so preview DOM matches production. */
+.conditional-display.is-preview::before {
     background: red;
     color: black;
+    content: attr(data-preview-conditions);
     font-size: 10px;
     inset-block-start: 0;
     inset-inline-start: 0;
@@ -217,6 +227,15 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     position: absolute;
     text-wrap: nowrap;
     z-index: 10;
+}
+
+/* All but the last stacked hero clip their kit; the last keeps its bleed, as in production. */
+.fl-main
+    .conditional-display.is-preview:has(.fl-home-intro):has(
+        ~ .conditional-display.is-preview .fl-home-intro
+    ) {
+    overflow: hidden;
+    overflow: clip;
 }
 
 .is-firefox .conditional-display.condition-is-firefox {
