@@ -43,6 +43,23 @@ class TestReleaseNotesURL(TestCase):
         assert release.get_absolute_url() == mock_reverse.return_value
         mock_reverse.assert_called_with("firefox.desktop.releasenotes", args=["42.0", "release"])
 
+    def test_enterprise_releasenotes_url(self, mock_reverse):
+        """
+        Should not fall through to the desktop route
+        """
+        release = models.ProductRelease(version="145.0", product="Firefox Enterprise")
+        assert release.get_absolute_url() == mock_reverse.return_value
+        mock_reverse.assert_called_with("firefox.enterprise.releasenotes", args=["145.0", "release"])
+
+    def test_enterprise_sysreq_url(self, mock_reverse):
+        """
+        Should not fall through to the desktop route, which the sitemap would
+        then advertise as a 404 for any version Firefox itself never shipped.
+        """
+        release = models.ProductRelease(version="145.0", product="Firefox Enterprise")
+        assert release.get_sysreq_url() == mock_reverse.return_value
+        mock_reverse.assert_called_with("firefox.enterprise.system_requirements", args=["145.0"])
+
 
 @override_settings(RELEASE_NOTES_PATH=RELEASES_PATH, DEV=False)
 class TestReleaseModel(TestCase):
