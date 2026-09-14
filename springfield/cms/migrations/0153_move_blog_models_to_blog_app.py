@@ -11,7 +11,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0151_sync_whats_new_version_translations"),
+        ("cms", "0152_merge_20260910_1400"),
     ]
 
     operations = [
