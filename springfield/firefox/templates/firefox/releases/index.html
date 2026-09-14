@@ -56,7 +56,7 @@
       </li>
       {% endfor -%}
       <li>
-        <strong><a class="fl-c-pill fl-t-pill-primary" href="/firefox/releases/0.1.html">0.1.0</a></strong>
+        <strong><a class="fl-c-pill fl-t-pill-primary" href="/firefox/releases/0.1.html">0.1</a></strong>
         <ol class="fl-c-releases-list-minor">
           <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.2.html">0.2</a></li>
           <li><a class="fl-c-pill fl-t-pill-secondary" href="/firefox/releases/0.3.html">0.3</a></li>
@@ -87,10 +87,9 @@
 {% endmacro %}
 
 {% macro get_flare_link(int_version, version, theme, is_esr=False) %}
-  <!-- Add .0 for primary (Major) release text. Link must remain in versions.major format -->
   {%- if int_version < 2 -%}
-    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/releases/{{ version }}.html">{{ version }}{% if theme == 'primary' %}.0{% endif %}</a>
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/releases/{{ version }}.html">{{ version }}</a>
   {%- else -%}
-    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version.replace('esr', '') }}{% if theme == 'primary' %}.0{% endif %}{% if is_esr %} ESR{% endif %}</a>
+    <a class="fl-c-pill fl-t-pill-{{ theme }}" href="/firefox/{{ version }}/releasenotes/">{{ version.replace('esr', '') }}{% if is_esr %} ESR{% endif %}</a>
   {%- endif -%}
 {% endmacro %}
