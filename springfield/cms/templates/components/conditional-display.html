@@ -6,8 +6,6 @@
 
 {# platform_conditions=[], firefox_condition="", auth_state_condition="", default_browser_condition="", geo_conditions="", min_version="", max_version="", min_days_since_last_session="", max_days_since_last_session="", ai_controls_condition="", bind_to_uitour=False, sample_rate="", condition_settings={} #}
 
-{# The preview label is an attribute rendered via ::before, never a child element, so preview DOM matches production. #}
-
 {% set condition_settings = condition_settings or {} %}
 {% set platform_conditions = platform_conditions or condition_settings.get("platforms") %}
 {% set firefox_condition = firefox_condition or condition_settings.get("firefox") %}

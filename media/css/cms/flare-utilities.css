@@ -194,7 +194,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     display: none;
 }
 
-/* This attempts to allow the conditional-display to act as a passthrough when condition is 'all' */
 .conditional-passthrough {
     display: contents;
 }
@@ -205,7 +204,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     position: relative;
 }
 
-/* Generated content, not outline: Firefox paints outlines under clipped descendants. */
 .conditional-display.is-preview::after {
     border: 2px dashed red;
     content: '';
@@ -215,7 +213,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     z-index: 9;
 }
 
-/* Generated content, not a child element, so preview DOM matches production. */
 .conditional-display.is-preview::before {
     background: red;
     color: black;
@@ -229,7 +226,6 @@ style rules should have any fallbacks needed for IE8+ and Safari 12.1+
     z-index: 10;
 }
 
-/* All but the last stacked hero clip their kit; the last keeps its bleed, as in production. */
 .fl-main
     .conditional-display.is-preview:has(.fl-home-intro):has(
         ~ .conditional-display.is-preview .fl-home-intro
