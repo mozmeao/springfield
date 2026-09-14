@@ -60,6 +60,7 @@ from springfield.cms.blocks import (
     CheckboxGroupFieldBlock,
     CodeBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -1119,6 +1120,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("comparison_table", ComparisonTableBlock(group="Main")),
         ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
+        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",

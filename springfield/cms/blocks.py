@@ -2022,6 +2022,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
                 ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                ("contact_form", ContactFormBlock()),
                 (
                     "buttons",
                     MixedButtonsBlock(
@@ -4002,6 +4003,36 @@ class CountrySelectFieldBlock(BaseField):
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
+
+
+class ContactFormBlock(blocks.StructBlock):
+    """Renders a chosen contact page's form inline on another page.
+
+    The form posts to the contact page itself, which owns the submission handling.
+    """
+
+    contact_page = blocks.PageChooserBlock(target_model="cms.ContactPage")
+
+    class Meta:
+        icon = "mail"
+        template = "cms/blocks/contact-form.html"
+        label = "Contact Form"
+        label_format = "Contact Form - {contact_page}"
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        request = (parent_context or {}).get("request")
+        contact_page = value.get("contact_page")
+        if not (request and contact_page):
+            return context
+
+        contact_page = contact_page.localized
+        # The contact page reads its form off the request, the same way its own serve() supplies it.
+        request.form = contact_page.get_form(request)
+        # The rendered form carries a per-visitor CSRF token, so the host page must not be cached.
+        request.needs_fresh_csrf = True
+        context.update(contact_page.get_context(request))
+        return context
 
 
 # Navigation

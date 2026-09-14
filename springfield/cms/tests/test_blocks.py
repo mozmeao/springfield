@@ -174,6 +174,7 @@ from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_
 from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import (
     ArticleDetailPage,
+    ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
     SmartWindowExplainerPage,
@@ -6101,3 +6102,107 @@ def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notif
         assert_intro_heading(main, condition_class, heading_text, "h1")
 
     assert_section_and_banner_heading_levels(main)
+
+
+# Contact Form Block
+
+
+@pytest.fixture
+def contact_page_for_block(index_page):
+    """A published contact page with two form fields, enough to show the block renders them."""
+    page = ContactPage(
+        title="Contact Us",
+        slug="contact-us",
+        to_email_address="contact@example.com",
+        thank_you_message='<p data-block-key="cfbty1">Thanks for reaching out!</p>',
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "contact-form-block-field-1",
+            },
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "email", "label": "Email Address", "required": True},
+                "id": "contact-form-block-field-2",
+            },
+        ],
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def contact_form_block(contact_page):
+    return {"type": "contact_form", "value": {"contact_page": contact_page.pk}}
+
+
+def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block, index_page, rf):
+    """The block renders the chosen contact page's own form, aimed at that page's URL."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    form = main.find("section", class_="fl-section").find("form", class_="contact-form")
+    assert form["method"] == "post"
+    # The real target is parked in data-actn and swapped in by JS after a delay; see media/js/cms/contact-form.js
+    assert form["data-actn"] == contact_page_for_block.url
+    assert form["action"] == "/page-not-found/"
+    assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+    assert form.find("input", attrs={"name": "office_fax"}) is not None
+
+    # Required fields carry a trailing marker in their label
+    assert form.find("label", attrs={"for": "full_name"}).get_text(strip=True) == "Full Name*"
+    assert form.find("input", attrs={"name": "full_name"})["type"] == "text"
+    assert form.find("label", attrs={"for": "email"}).get_text(strip=True) == "Email Address*"
+    assert form.find("input", attrs={"name": "email"})["type"] == "email"
+
+    # The contact strings are Fluent, so they have to resolve on the host page too
+    assert form.find("button", attrs={"type": "submit"}).get_text(strip=True) == "Submit"
+
+
+def test_contact_form_block_stops_its_host_page_being_cached(contact_page_for_block, index_page, rf):
+    """The form carries a per-visitor CSRF token, so a shared cache must not keep the host page."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-caching",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    response = page.serve(rf.get(page.get_full_url()))
+
+    assert "no-store" in response.get("Cache-Control", "")
+
+
+def test_contact_form_block_renders_inside_a_media_content_block(contact_page_for_block, index_page, rf):
+    """The block is also offered within Media + Content, where it carries no section of its own."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-in-media-content",
+        parent=index_page,
+        content=[
+            {
+                "type": "media_content",
+                "value": {
+                    "heading": {"heading_text": "<p>Talk to our team</p>"},
+                    "content": [contact_form_block(contact_page_for_block)],
+                },
+            }
+        ],
+    )
+
+    main = render_main_element(page, rf)
+
+    media_content = main.find("div", class_="fl-mediacontent")
+    # Nested, the block uses the bare template, so it brings no section of its own
+    assert media_content.find("section") is None
+
+    form = media_content.find("form", class_="contact-form")
+    assert form["data-actn"] == contact_page_for_block.url
+    assert form.find("input", attrs={"name": "full_name"}) is not None

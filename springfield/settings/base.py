@@ -324,6 +324,7 @@ FLUENT_DEFAULT_FILES = [
     "mozilla-account-promo",
     "components",
     "firefox/enterprise",
+    "cms/contact",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
