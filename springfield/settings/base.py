@@ -1094,6 +1094,19 @@ ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
 
 GTM_CONTAINER_ID = config("GTM_CONTAINER_ID", default="")
 
+
+def _normalize_gtm_server_url(url):
+    # Coerce to an https:// origin so the front-end can append a path and CSP
+    # gets a valid source. A bare hostname is the likely mistake here, since the
+    # adjacent CSP entries and CSP_CONNECT_SRC are all written that way, and it
+    # would resolve page-relative in the browser and 404 without a CSP warning.
+    host = url.removeprefix("https://").removeprefix("http://").removeprefix("//").rstrip("/")
+    return f"https://{host}" if host else ""
+
+
+# When empty, our own tagging server isn't receiving hits and CSP doesn't need to allow it.
+GTM_SERVER_URL = _normalize_gtm_server_url(config("GTM_SERVER_URL", default=""))
+
 # The site identifier events are attributed to (rendered as `data-domain`), not
 # where the tracker is hosted. See PLAUSIBLE_SCRIPT_URL for the tracker origin.
 PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")

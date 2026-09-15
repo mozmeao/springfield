@@ -17,11 +17,13 @@ locale), the static evergreen page is rendered instead.
 """
 
 from django.test import override_settings
+from django.utils import translation
 
 import pytest
 from wagtail.models import Locale, Site
+from wagtail_localize.fields import get_translatable_fields
 
-from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models import SimpleRichTextPage, WhatsNewPage2026
 from springfield.cms.tests.factories import (
     BetaWhatsNewPage2026Factory,
     DeveloperWhatsNewPage2026Factory,
@@ -30,6 +32,7 @@ from springfield.cms.tests.factories import (
     WhatsNewIndexPageFactory,
     WhatsNewPage2026Factory,
 )
+from springfield.firefox.firefox_details import firefox_desktop
 
 pytestmark = [pytest.mark.django_db]
 
@@ -73,8 +76,19 @@ def beta_wnp(wnp_index_page):
     return page
 
 
+LATEST_RELEASE_VERSION = 200
+
+
+@pytest.fixture
+def latest_release_version(mocker):
+    """Pin the latest Firefox release version so index redirect tests do not drift
+    as product details advance."""
+    mocker.patch.object(firefox_desktop, "latest_major_version", return_value=LATEST_RELEASE_VERSION)
+    return LATEST_RELEASE_VERSION
+
+
 # ---------------------------------------------------------------------------
-# Core redirect behaviour
+# Core redirect behavior
 # ---------------------------------------------------------------------------
 
 
@@ -316,3 +330,212 @@ def test_beta_wnp_url_served_directly_without_loop(beta_wnp, client):
     """/LOCALE/whatsnew/beta/ does not match the version URL patterns."""
     response = client.get("/en-US/whatsnew/beta/")
     assert response.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# What's New Index page redirects
+# ---------------------------------------------------------------------------
+
+
+def test_whats_new_version_cannot_be_overridden_per_locale():
+    """The version identifies the Firefox release, so translators must not be able to
+    override it in the translation editor."""
+    version_field = next(field for field in get_translatable_fields(WhatsNewPage2026) if field.field_name == "version")
+
+    assert version_field.is_synchronized(WhatsNewPage2026)
+    assert not version_field.is_overridable(WhatsNewPage2026)
+
+
+def test_whats_new_index_page_redirects_to_latest_whats_new(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    v123_page = WhatsNewPage2026Factory(parent=index_page, slug="123", version="123")
+    v123_page.save()
+    v124_page = WhatsNewPage2026Factory(parent=index_page, slug="124", version="124")
+    v124_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v124_page.url)
+
+    v125_page = WhatsNewPage2026Factory(parent=index_page, slug="125", version="125")
+    v125_page.save()
+
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v125_page.url)
+
+
+def test_whats_new_index_page_excludes_general_page_from_latest_redirect(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    """General WNP (version='general') must not be treated as the 'latest' version.
+    The index page should redirect to the highest numeric version."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew-2")
+
+    v150_page = WhatsNewPage2026Factory(parent=index_page, slug="150", version="150")
+    v150_page.save()
+
+    general_page = GeneralWhatsNewPage2026Factory(parent=index_page)
+    general_page.save()
+    # Multiple general pages exist simultaneously when new content is being experimented with.
+    general_page_2 = GeneralWhatsNewPage2026Factory(parent=index_page, slug="general-2")
+    general_page_2.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    request = rf.get(_relative_url)
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(v150_page.url)
+
+
+def test_whats_new_index_page_redirects_to_home_if_no_children(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+    index_page.save()
+
+    _relative_url = index_page.relative_url(minimal_site)
+    assert _relative_url == "/en-US/whatsnew/"
+
+    request = rf.get(_relative_url)
+
+    # No WhatsNewPage exists yet, so should redirect to the locale home page
+    with translation.override("en-US"):
+        response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"] == "/en-US/"
+
+
+def test_whats_new_index_page_redirects_to_locale_appropriate_child(
+    tiny_localized_site,
+    latest_release_version,
+    rf,
+):
+    site = Site.objects.get(is_default_site=True)
+    en_us_root_page = site.root_page
+
+    pt_br_locale = Locale.objects.get(language_code="pt-BR")
+    pt_br_root_page = en_us_root_page.get_translation(pt_br_locale)
+
+    assert pt_br_root_page
+
+    en_us_index_page = WhatsNewIndexPageFactory(parent=en_us_root_page, slug="whatsnew")
+    en_us_index_page.save()
+
+    pt_br_index_page = en_us_index_page.copy_for_translation(pt_br_locale)
+    pt_br_index_page.title = "O que há de novo no Firefox"
+    pt_br_index_page.save()
+    pt_br_index_page.save_revision().publish()
+
+    _en_us_relative_url = en_us_index_page.relative_url(tiny_localized_site)
+    assert _en_us_relative_url == "/en-US/whatsnew/"
+
+    _pt_br_relative_url = pt_br_index_page.relative_url(tiny_localized_site)
+    assert _pt_br_relative_url == "/pt-BR/whatsnew/"
+
+    en_us_v123_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="123", version="123")
+    en_us_v123_page.save()
+    en_us_v124_page = WhatsNewPage2026Factory(parent=en_us_index_page, slug="124", version="124")
+    en_us_v124_page.save()
+
+    pt_br_v123_page = en_us_v123_page.copy_for_translation(pt_br_locale)
+    pt_br_v123_page.title = "O que tem de novo no Firefox 123"
+    pt_br_v123_page.save_revision().publish()
+
+    pt_br_v124_page = en_us_v124_page.copy_for_translation(pt_br_locale)
+    pt_br_v124_page.title = "O que tem de novo no Firefox 124"
+    pt_br_v124_page.save_revision().publish()
+
+    pt_br_index_page.refresh_from_db()
+
+    en_us_request = rf.get(_en_us_relative_url)
+
+    response = en_us_index_page.specific.serve(en_us_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(en_us_v124_page.url)
+
+    pt_br_request = rf.get(_pt_br_relative_url)
+    response = pt_br_index_page.specific.serve(pt_br_request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(pt_br_v124_page.url)
+
+
+def test_whats_new_index_page_ignores_versions_newer_than_the_latest_release(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    """WNPs are published ahead of the Firefox release they belong to, so the index
+    must redirect to the newest page whose version has actually shipped."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    shipped_page = WhatsNewPage2026Factory(parent=index_page, slug="199", version="199")
+    shipped_page.save()
+    unreleased_page = WhatsNewPage2026Factory(parent=index_page, slug="201", version="201")
+    unreleased_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(shipped_page.url)
+
+
+def test_whats_new_index_page_redirects_to_current_release_page(
+    minimal_site,
+    latest_release_version,
+    rf,
+):
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    current_page = WhatsNewPage2026Factory(parent=index_page, slug="200", version=str(LATEST_RELEASE_VERSION))
+    current_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(current_page.url)
+
+
+def test_whats_new_index_page_ignores_the_release_filter_when_version_is_unknown(
+    minimal_site,
+    mocker,
+    rf,
+):
+    mocker.patch.object(firefox_desktop, "latest_major_version", return_value=0)
+
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = WhatsNewIndexPageFactory(parent=root_page, slug="whatsnew")
+
+    unreleased_page = WhatsNewPage2026Factory(parent=index_page, slug="201", version="201")
+    unreleased_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+
+    response = index_page.specific.serve(request)
+    assert response.status_code == 302
+    assert response.headers["location"].endswith(unreleased_page.url)

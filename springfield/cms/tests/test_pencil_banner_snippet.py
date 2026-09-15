@@ -12,7 +12,7 @@ from springfield.cms.fixtures.article_page_fixtures import get_article_theme_pag
 from springfield.cms.fixtures.freeformpage import get_freeform_page_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet
-from springfield.cms.models import ArticleDetailPage
+from springfield.cms.models import ArticleDetailPage, PencilBannerSnippet
 from springfield.cms.models.pages import (
     ArticleDetailPagePencilBannerPlacement,
     ArticleThemePagePencilBannerPlacement,
@@ -146,3 +146,11 @@ def test_page_renders_pencil_banner(page_factory, minimal_site, rf):
 
     soup = BeautifulSoup(response.content, "html.parser")
     assert soup.find("div", class_="fl-pencil-banner"), f"Pencil banner should render on {page.__class__.__name__}"
+
+
+def test_pencil_banner_show_to_has_no_sample_rate_field():
+    """A pencil banner is reached via a placement relation, not a page's own StreamField,
+    so Page.experiment_sample_rate can never see a rate set on one - it would render
+    permanently hidden. The field must not be offered here at all."""
+    show_to_block = PencilBannerSnippet._meta.get_field("settings").stream_block.child_blocks["show_to"]
+    assert "sample_rate" not in show_to_block.child_blocks

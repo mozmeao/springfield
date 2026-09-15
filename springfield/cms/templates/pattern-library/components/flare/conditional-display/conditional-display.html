@@ -14,10 +14,13 @@
         auth_state_condition="{{ variant.auth_state_condition }}"
         min_version="{{ variant.min_version }}"
         max_version="{{ variant.max_version }}"
+        min_days_since_last_session="{{ variant.min_days_since_last_session }}"
+        max_days_since_last_session="{{ variant.max_days_since_last_session }}"
         geo_conditions="{{ variant.geo_conditions }}"
         ai_controls_condition="{{ variant.ai_controls_condition }}"
         default_browser_condition="{{ variant.default_browser_condition }}"
         bind_to_uitour="{{ variant.bind_to_uitour }}"
+        sample_rate="{{ variant.sample_rate }}"
       >
         {{ variant.contents }}
       </include:conditional-display>

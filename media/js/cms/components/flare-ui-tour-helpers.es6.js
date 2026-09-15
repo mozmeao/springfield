@@ -20,3 +20,16 @@ export const isUITourEnabled = function (timeout) {
         });
     });
 };
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// `previousSessionEnd` is 0 for a profile with no recorded session, and a future
+// timestamp is possible under clock skew — both treated as unavailable, not as 0 days.
+export function daysSinceLastSession(config, now) {
+    const previousSessionEnd = config.previousSessionEnd;
+    if (typeof previousSessionEnd !== 'number' || previousSessionEnd <= 0) {
+        return undefined;
+    }
+    const days = Math.floor((now - previousSessionEnd) / MS_PER_DAY);
+    return days < 0 ? undefined : days;
+}

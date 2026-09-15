@@ -3,12 +3,16 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import transaction
 from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils.http import urlencode
 from django.views.decorators.http import require_POST
+from django.views.generic import FormView
 
+from wagtail.admin import messages
 from wagtail.admin.views.pages.listing import IndexView
 from wagtail.admin.views.tags import TAGS_AUTOCOMPLETE_LIMIT
 from wagtail.models import Locale, Page
@@ -16,7 +20,9 @@ from wagtail_localize.models import Translation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
 from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions
+from springfield.cms.forms import ConfirmUpdateSlugForm, UpdateSlugForm
 from springfield.cms.models import BlogTag
+from springfield.cms.slug_updates import find_sibling_with_slug, page_with_translations, update_page_slug
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +57,94 @@ def blog_tag_autocomplete(request):
         .values_list("name", flat=True)[:TAGS_AUTOCOMPLETE_LIMIT]
     )
     return JsonResponse(list(names), safe=False)
+
+
+class UpdateSlugView(FormView):
+    """Step one of the update-slug action: choose the slug the page should move to."""
+
+    template_name = "wagtailadmin/pages/update_slug.html"
+    form_class = UpdateSlugForm
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.page_to_update = get_object_or_404(Page, id=kwargs["page_id"])
+        if not self.page_to_update.permissions_for_user(request.user).can_publish():
+            raise PermissionDenied
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_to_update"] = self.page_to_update
+        return context
+
+    def form_valid(self, form):
+        confirm_url = reverse("cms_page_update_slug_confirm", args=[self.page_to_update.id])
+        return redirect(f"{confirm_url}?{urlencode({'slug': form.cleaned_data['slug']})}")
+
+
+class UpdateSlugConfirmView(FormView):
+    """Step two of the update-slug action: show what the change affects, then do it."""
+
+    template_name = "wagtailadmin/pages/confirm_update_slug.html"
+    form_class = ConfirmUpdateSlugForm
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.page_to_update = get_object_or_404(Page, id=kwargs["page_id"])
+        if not self.page_to_update.permissions_for_user(request.user).can_publish():
+            raise PermissionDenied
+
+        source = request.POST if request.method == "POST" else request.GET
+        self.new_slug = source.get("slug")
+        self.conflicting_page = find_sibling_with_slug(self.page_to_update, self.new_slug) if self.new_slug else None
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.new_slug:
+            return redirect("cms_page_update_slug", self.page_to_update.id)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs["conflicting_page"] = self.conflicting_page
+        form_kwargs["initial"] = {**form_kwargs.get("initial", {}), "slug": self.new_slug}
+        return form_kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_to_update"] = self.page_to_update
+        context["new_slug"] = self.new_slug
+        context["translation_count"] = len(page_with_translations(self.page_to_update)) - 1
+        context["conflicting_page"] = self.conflicting_page
+        if self.conflicting_page is not None:
+            context["conflicting_page_translation_count"] = len(page_with_translations(self.conflicting_page)) - 1
+        return context
+
+    def form_valid(self, form):
+        try:
+            update_page_slug(
+                self.page_to_update,
+                form.cleaned_data["slug"],
+                conflicting_page=self.conflicting_page,
+                conflicting_page_slug=form.cleaned_data.get("conflicting_page_slug"),
+                publish=form.cleaned_data["publish"],
+                user=self.request.user,
+            )
+        except ValidationError as error:
+            form.add_error(None, " ".join(error.messages))
+            return self.form_invalid(form)
+
+        # Re-fetch: the operation changed the slug, and with it the page's URL and
+        # possibly its published state, none of which the instance held here reflects.
+        updated_page = Page.objects.get(pk=self.page_to_update.pk)
+        message_buttons = [messages.button(reverse("wagtailadmin_pages:edit", args=[updated_page.id]), "Edit")]
+        if updated_page.live and updated_page.url:
+            message_buttons.append(messages.button(updated_page.url, "View live"))
+
+        messages.success(
+            self.request,
+            f"Page “{updated_page.get_admin_display_title()}” now uses the slug “{form.cleaned_data['slug']}”.",
+            buttons=message_buttons,
+        )
+        return redirect("wagtailadmin_explore", updated_page.get_parent().id)
 
 
 @require_POST

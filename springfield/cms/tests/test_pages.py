@@ -5,12 +5,20 @@
 from unittest import mock
 
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.messages import get_messages
+from django.contrib.messages.middleware import MessageMiddleware
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail import hooks
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -18,7 +26,9 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_test_page,
     get_smart_window_testimonial_cards,
 )
-from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage
+from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
+from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
+from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
 
 @pytest.fixture
@@ -193,6 +203,40 @@ def test_get_utm_campaign_uses_stub_value(free_form_page: FreeFormPage2026):
 def test_get_utm_campaign_falls_back_to_slug(free_form_page: FreeFormPage2026):
     page = free_form_page
     assert page.get_utm_campaign() == page.slug
+
+
+# Experiment Sample Rate
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_html_attributes_and_bundle(free_form_page: FreeFormPage2026, rf):
+    """A page with a sample rate gets the data attributes on <html> and loads the
+    sample-rate JS bundle in the head."""
+    page = free_form_page
+    page.content = [make_notification("samp0001", "Sample rate test", make_show_to(sample_rate=10))]
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    html_el = soup.find("html")
+    assert html_el.get("data-experiment-sample-rate") == "10"
+    assert html_el.get("data-experiment-id") == page.slug
+    assert soup.find("script", src=lambda src: src and "flare-sample-rate" in src)
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_not_rendered_without_a_rate(free_form_page: FreeFormPage2026, rf):
+    page = free_form_page
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    html_el = soup.find("html")
+    assert html_el.get("data-experiment-sample-rate") is None
+    assert html_el.get("data-experiment-id") is None
+    assert not soup.find("script", src=lambda src: src and "flare-sample-rate" in src)
 
 
 # Smart Window Page
@@ -544,6 +588,71 @@ def test_smart_window_marketing_attribution_off_by_default(smart_window_page: Sm
     assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
 
 
+# ThanksPage notification field
+
+
+@pytest.mark.django_db
+def test_thanks_page_renders_notification_field_above_content(minimal_site, rf):
+    """The notification field renders between the auto-download notification and
+    content, and its headline doesn't consume the page's first heading level."""
+    page = ThanksPage(
+        slug="test-thanks-notification",
+        title="Test Thanks Notification",
+        notification=[make_notification("thnot001", "Your download should begin shortly.", make_show_to(), headline="Thanks!")],
+        content=[
+            {
+                "type": "section",
+                "value": {
+                    "settings": {"show_to": make_show_to()},
+                    "heading": {"heading_text": "<p>Set up Firefox</p>"},
+                    "content": [],
+                    "cta": [],
+                },
+            },
+            get_download_support(),
+        ],
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    main = soup.find("div", class_="fl-main")
+
+    # ThanksPage always renders its own hardcoded auto-download notification above the
+    # notification field, so this looks for the one built from the notification field.
+    notifications = main.find_all("div", class_="fl-notification")
+    notification = next((div for div in notifications if "Your download should begin shortly." in div.get_text()), None)
+    assert notification, "Notification field should render on ThanksPage"
+    assert "Thanks!" in notification.get_text()
+
+    heading = main.find("h1")
+    assert heading and heading.get_text(strip=True) == "Set up Firefox", "Notification's headline must not take the h1 slot"
+
+    rendered_main = str(main)
+    assert rendered_main.index("Your download should begin shortly.") < rendered_main.index("Set up Firefox")
+
+
+@pytest.mark.django_db
+def test_thanks_page_allows_at_most_two_notifications():
+    """ThanksPage.notification is capped at two blocks by the field's max_num."""
+    notification_field = ThanksPage.get_edit_handler().get_form_class().base_fields["notification"]
+
+    def notifications(count):
+        page = ThanksPage()
+        page.notification = [make_notification(f"cap{index:04d}", f"Notice {index}.", make_show_to()) for index in range(count)]
+        return page.notification
+
+    notification_field.clean(notifications(0))
+    notification_field.clean(notifications(1))
+    notification_field.clean(notifications(2))
+
+    with pytest.raises(ValidationError):
+        notification_field.clean(notifications(3))
+
+
 @pytest.mark.django_db
 def test_smart_window_marketing_attribution_renders_promoted_markup(smart_window_page: SmartWindowPage, rf):
     page = smart_window_page
@@ -595,3 +704,99 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
         assert label.find_parent("div", class_="fl-download-firefox-button")
         assert "hidden" in label.get("class", [])
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+
+# Leading conditional blocks warning
+
+
+def conditional_intro_block(heading_text, platforms):
+    """Intro block carrying only a heading, shown to `platforms` alone."""
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {"show_to": {"platforms": platforms}},
+            "heading": {"heading_text": f"<p>{heading_text}</p>"},
+        },
+    }
+
+
+def build_page_save_request(rf, page):
+    """POST request for `page`'s edit view in the CMS admin.
+
+    RequestFactory runs no middleware, so session and message storage are attached by
+    hand — without them a hook cannot add a message.
+    """
+    request = rf.post(reverse("wagtailadmin_pages:edit", args=[page.id]))
+    SessionMiddleware(get_response=lambda incoming_request: None).process_request(request)
+    MessageMiddleware(get_response=lambda incoming_request: None).process_request(request)
+    return request
+
+
+def save_page_and_collect_warnings(page, content, rf):
+    """Publish `content` on `page` the way the admin would, and return the warnings the
+    save hook shows the editor."""
+    page.content = content
+    page.save_revision().publish()
+
+    request = build_page_save_request(rf, page)
+    warn_about_leading_conditional_blocks(request, page)
+    return [str(message) for message in get_messages(request) if message.level == messages.WARNING]
+
+
+@pytest.mark.django_db
+def test_editor_is_warned_when_a_page_leads_with_conditional_blocks(free_form_page: FreeFormPage2026, rf):
+    assert warn_about_leading_conditional_blocks in hooks.get_hooks("after_edit_page")
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_intro_block("Firefox for macOS", ["osx"]),
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+    assert "h1" in warnings[0]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("notification_headline", ["", "<p>Your Firefox is up to date.</p>"], ids=["message_only", "with_headline"])
+def test_editor_is_warned_when_a_notification_precedes_the_conditional_blocks(free_form_page: FreeFormPage2026, notification_headline, rf):
+    notification = {
+        "type": "notification",
+        "value": {"headline": notification_headline, "message": "<p>Firefox has been updated.</p>"},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            notification,
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_intro_block("Firefox for macOS", ["osx"]),
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+
+
+@pytest.mark.django_db
+def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(free_form_page: FreeFormPage2026, rf):
+    unconditional_intro = {
+        "type": "intro",
+        "value": {"heading": {"heading_text": "<p>Firefox for everyone</p>"}},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            unconditional_intro,
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+        ],
+        rf,
+    )
+
+    assert warnings == []

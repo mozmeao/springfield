@@ -25,6 +25,7 @@ import {
     normalizeVersion
 } from './evaluator.es6';
 import { detectBrowser, isBrave } from '../components/flare-browser-detect.es6';
+import { daysSinceLastSession } from '../components/flare-ui-tour-helpers.es6';
 
 // Source identifiers, mirroring the Python Source enum values.
 export const SOURCE_CDN_GEO = 'cdn_geo';
@@ -198,8 +199,6 @@ export function aiControlsPosture(config) {
     return 'neutral';
 }
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
 // Per-signal extraction from a UITour getConfiguration() payload. Firefox-specific and
 // therefore quarantined here. Field names verified against UITour.sys.mjs in
 // mozilla-central. Extractors are called with the config object and the current time
@@ -221,20 +220,9 @@ const UITOUR_EXTRACTORS = {
             ? config.profileCreatedWeeksAgo
             : undefined;
     },
-    // `previousSessionEnd` is a ms timestamp written only when Firefox fully quits, and
-    // defaults to `0` when no previous session was ever recorded. `0` is treated as
-    // unavailable rather than computed through, which would otherwise read as decades
-    // lapsed for a brand-new profile. A timestamp in the future (clock skew, bad data)
-    // is unavailable too: a negative day count would still count as a real value and
-    // could satisfy a `less than` rule.
-    days_since_last_session: function (config, now) {
-        const previousSessionEnd = config.previousSessionEnd;
-        if (typeof previousSessionEnd !== 'number' || previousSessionEnd <= 0) {
-            return undefined;
-        }
-        const days = Math.floor((now - previousSessionEnd) / MS_PER_DAY);
-        return days < 0 ? undefined : days;
-    },
+    // Shared with the Conditional Display block's last-session condition — see
+    // flare-ui-tour-helpers.es6 for the "0 means unavailable" reasoning.
+    days_since_last_session: daysSinceLastSession,
     // Whole weeks, reported directly, mirroring profile_age_weeks. `null` means the
     // profile has never been reset.
     profile_reset_weeks_ago: function (config) {

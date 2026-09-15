@@ -4,7 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { isUITourEnabled } from './flare-ui-tour-helpers.es6';
+import {
+    isUITourEnabled,
+    daysSinceLastSession
+} from './flare-ui-tour-helpers.es6';
 
 const client = Mozilla.Client;
 
@@ -99,9 +102,37 @@ function initAiControlsConditionalDisplay() {
         });
 }
 
+function initLastSessionConditionalDisplay() {
+    isUITourEnabled()
+        .then(() => {
+            Mozilla.UITour.getConfiguration('appinfo', (config) => {
+                const days = daysSinceLastSession(config || {}, Date.now());
+                if (days === undefined) {
+                    return;
+                }
+                document
+                    .querySelectorAll('.condition-last-session')
+                    .forEach((el) => {
+                        const min = el.dataset.minDaysSinceSession;
+                        const max = el.dataset.maxDaysSinceSession;
+                        if (
+                            (!min || days >= Number(min)) &&
+                            (!max || days <= Number(max))
+                        ) {
+                            el.classList.add('last-session-match');
+                        }
+                    });
+            });
+        })
+        .catch(() => {
+            /* UITour not available */
+        });
+}
+
 export default function setupConditionalDisplay() {
     initFirefoxVersionConditionalDisplay();
     initGeoConditionalDisplay();
     initDefaultBrowserConditionalDisplay();
     initAiControlsConditionalDisplay();
+    initLastSessionConditionalDisplay();
 }

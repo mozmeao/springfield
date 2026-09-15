@@ -2,9 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
+
 import pytest
 from bs4 import BeautifulSoup
 
+from springfield.cms.blocks import ConditionalDisplayBlock
 from springfield.cms.fixtures.conditional_display_fixtures import (
     get_bind_to_uitour_section,
     get_conditional_display_test_page,
@@ -36,8 +41,77 @@ def make_intro(block_id, heading, show_to):
     }
 
 
+def make_media_content(block_id, heading, show_to):
+    return {
+        "type": "media_content",
+        "value": {
+            "settings": {
+                "media_after": False,
+                "narrow": False,
+                "show_to": show_to,
+                "remove_border_radius": False,
+            },
+            "media": [],
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="{block_id}">{heading}</p>',
+                "subheading_text": "",
+            },
+            "content": [],
+        },
+        "id": f"{block_id}-0000-0000-0000-000000000002",
+    }
+
+
+def make_kit_intro(block_id, heading, show_to):
+    return {
+        "type": "kit_intro",
+        "value": {
+            "settings": {
+                "slim": False,
+                "show_to": show_to,
+            },
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="{block_id}">{heading}</p>',
+                "subheading_text": "",
+            },
+            "buttons": [],
+        },
+        "id": f"{block_id}-0000-0000-0000-000000000003",
+    }
+
+
 def get_conditional_wrappers(element):
     return [el for el in element.parents if "conditional-display" in (el.get("class") or [])]
+
+
+def make_cards_list(sample_rates):
+    """A cards_list block with one card per given sample rate, for exercising
+    sample-rate discovery several levels deep inside a top-level block
+    (cards_list -> card -> settings -> show_to), and across multiple such cards."""
+    return {
+        "type": "cards_list",
+        "value": {
+            "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
+            "cards": [
+                {
+                    "type": "card",
+                    "value": {
+                        "settings": {
+                            "variant": "",
+                            "align": "start",
+                            "expand_link": False,
+                            "show_to": make_show_to(sample_rate=sample_rate),
+                        },
+                        "media": [],
+                        "content": [],
+                    },
+                }
+                for sample_rate in sample_rates
+            ],
+        },
+    }
 
 
 @pytest.fixture
@@ -84,11 +158,28 @@ def test_conditional_display_blocks(index_page, rf):
         geo = show_to.get("geo") or []
         min_version = show_to.get("min_version")
         max_version = show_to.get("max_version")
+        min_days_since_last_session = show_to.get("min_days_since_last_session")
+        max_days_since_last_session = show_to.get("max_days_since_last_session")
         ai_controls = show_to.get("ai_controls")
+        sample_rate = show_to.get("sample_rate")
 
         wrappers = [el for el in notification.parents if "conditional-display" in (el.get("class") or [])]
 
-        has_any_condition = any([platforms, firefox, auth_state, default_browser, geo, min_version, max_version, ai_controls])
+        has_any_condition = any(
+            [
+                platforms,
+                firefox,
+                auth_state,
+                default_browser,
+                geo,
+                min_version,
+                max_version,
+                min_days_since_last_session,
+                max_days_since_last_session,
+                ai_controls,
+                sample_rate,
+            ]
+        )
 
         if not has_any_condition:
             assert wrappers == [], f"Block {index}: expected no conditional-display wrappers, got {len(wrappers)}"
@@ -142,6 +233,58 @@ def test_conditional_display_blocks(index_page, rf):
             if max_version:
                 assert version_wrapper.get("data-max-version") == str(max_version), f"Block {index}: expected data-max-version='{max_version}'"
 
+        # Last session — wrapper has condition-last-session class with data attributes
+        if min_days_since_last_session or max_days_since_last_session:
+            last_session_wrapper = next(
+                (w for w in wrappers if "condition-last-session" in (w.get("class") or [])),
+                None,
+            )
+            assert last_session_wrapper is not None, f"Block {index}: no last-session wrapper found"
+            if min_days_since_last_session:
+                assert last_session_wrapper.get("data-min-days-since-session") == str(min_days_since_last_session), (
+                    f"Block {index}: expected data-min-days-since-session='{min_days_since_last_session}'"
+                )
+            if max_days_since_last_session:
+                assert last_session_wrapper.get("data-max-days-since-session") == str(max_days_since_last_session), (
+                    f"Block {index}: expected data-max-days-since-session='{max_days_since_last_session}'"
+                )
+
+        # Sample rate — outermost wrapper, so it contains every other condition wrapper
+        if sample_rate:
+            assert wrappers[-1].get("class") and "condition-sample-rate" in wrappers[-1]["class"], (
+                f"Block {index}: expected the outermost wrapper to carry 'condition-sample-rate'"
+            )
+        else:
+            assert not any("condition-sample-rate" in (w.get("class") or []) for w in wrappers), (
+                f"Block {index}: unexpected 'condition-sample-rate' wrapper"
+            )
+
+
+@pytest.fixture
+def media_content_conditional_page(minimal_site) -> FreeFormPage2026:
+    """A page whose Media + Content blocks mix conditional and unconditional."""
+    page = FreeFormPage2026(slug="test-media-content-conditional", title="Test Media Content Conditional")
+    minimal_site.root_page.add_child(instance=page)
+    page.content = [
+        make_media_content("mcfx1", "Firefox only", make_show_to(firefox="is-firefox")),
+        make_media_content("mcall1", "Everyone", make_show_to()),
+    ]
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def kit_intro_conditional_page(minimal_site) -> FreeFormPage2026:
+    """Kit Intro is only offered in upper content, so both blocks live there."""
+    page = FreeFormPage2026(slug="test-kit-intro-conditional", title="Test Kit Intro Conditional")
+    minimal_site.root_page.add_child(instance=page)
+    page.upper_content = [
+        make_kit_intro("kifx1", "Firefox only", make_show_to(firefox="is-firefox")),
+        make_kit_intro("kiall1", "Everyone", make_show_to()),
+    ]
+    page.save_revision().publish()
+    return page
+
 
 @pytest.mark.django_db
 def test_intro_block_conditional_display(intro_conditional_page, rf):
@@ -176,3 +319,121 @@ def test_bind_to_uitour_section_wraps_uitour_button(index_page, rf):
     # The UI Tour button must live inside the wrapper so the CSS
     # `:has(.ui-tour:not(.is-hidden))` rule can reveal the block.
     assert wrapper.find("div", class_="ui-tour") is not None, "wrapper must contain the .ui-tour button"
+
+
+@pytest.mark.django_db
+def test_media_content_block_conditional_display(media_content_conditional_page, rf):
+    page = media_content_conditional_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    conditional, unconditional = soup.find_all("div", class_="fl-mediacontent")
+
+    wrappers = get_conditional_wrappers(conditional)
+    assert len(wrappers) == 1
+    assert "condition-is-firefox" in wrappers[0]["class"]
+
+    assert wrappers[0].find("section", class_="fl-section") is not None
+
+    assert get_conditional_wrappers(unconditional) == []
+
+
+@pytest.mark.django_db
+def test_kit_intro_block_conditional_display(kit_intro_conditional_page, rf):
+    page = kit_intro_conditional_page
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    conditional, unconditional = soup.find_all("div", class_="fl-home-intro")
+
+    wrappers = get_conditional_wrappers(conditional)
+    assert len(wrappers) == 1
+    assert "condition-is-firefox" in wrappers[0]["class"]
+
+    assert wrappers[0].find("section", class_="fl-section") is not None
+
+    assert get_conditional_wrappers(unconditional) == []
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_finds_rate_nested_inside_a_block():
+    """experiment_sample_rate finds a rate however deep it is nested — here, a card's
+    settings inside a cards list."""
+    page = FreeFormPage2026(title="Nested Sample Rate", slug="test-nested-sample-rate")
+    page.content = [make_cards_list(sample_rates=[10])]
+    assert page.experiment_sample_rate == Decimal("10")
+
+
+@pytest.mark.django_db
+def test_experiment_sample_rate_is_none_without_a_rate():
+    page = FreeFormPage2026(title="No Sample Rate", slug="test-no-sample-rate")
+    page.content = [make_intro("introa1", "Everyone", make_show_to())]
+    assert page.experiment_sample_rate is None
+
+
+@pytest.mark.django_db
+def test_clean_passes_when_sample_rates_match():
+    """Blocks in different StreamFields (upper_content and content) may repeat the same
+    rate without error."""
+    page = FreeFormPage2026(title="Matching Sample Rate", slug="test-matching-sample-rate")
+    page.upper_content = [make_intro("introa1", "Upper", make_show_to(sample_rate=10))]
+    page.content = [make_intro("introa2", "Lower", make_show_to(sample_rate=10))]
+    page.clean()
+    assert page.experiment_sample_rate == Decimal("10")
+
+
+@pytest.mark.django_db
+def test_clean_rejects_mismatched_sample_rates_across_streamfields():
+    """A mismatch between upper_content and content is caught even though the two
+    StreamFields are otherwise validated independently."""
+    page = FreeFormPage2026(title="Mismatched Sample Rate", slug="test-mismatched-sample-rate")
+    page.upper_content = [make_intro("introa1", "Upper", make_show_to(sample_rate=10))]
+    page.content = [make_intro("introa2", "Lower", make_show_to(sample_rate=5))]
+
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+
+    assert set(exc_info.value.message_dict) == {"upper_content", "content"}
+    message = exc_info.value.message_dict["upper_content"][0]
+    assert "5%: block 1 (intro)" in message
+    assert "10%: block 1 (intro)" in message
+
+
+@pytest.mark.django_db
+def test_iter_sample_rated_blocks_deduplicates_repeated_rate_within_one_block():
+    """A single top-level block containing several nested Conditional Display blocks
+    with the same rate (e.g. three cards in one cards list) contributes only one entry,
+    not one per nested occurrence."""
+    page = FreeFormPage2026(title="Repeated Rate In One Block", slug="test-repeated-rate-one-block")
+    page.content = [make_cards_list(sample_rates=[10, 10, 10])]
+    assert list(page.iter_sample_rated_blocks()) == [("content", 0, "cards_list", Decimal("10"))]
+
+
+@pytest.mark.django_db
+def test_clean_error_message_does_not_repeat_a_block_with_several_matching_rates():
+    """A mismatch elsewhere on the page must not multiply-list a block whose own several
+    nested rates already agree with each other."""
+    page = FreeFormPage2026(title="Repeated Rate Mismatch", slug="test-repeated-rate-mismatch")
+    page.content = [
+        make_cards_list(sample_rates=[10, 10, 10]),
+        make_intro("introa1", "Everyone", make_show_to(sample_rate=5)),
+    ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+
+    message = exc_info.value.message_dict["content"][0]
+    assert message.count("cards_list") == 1
+
+
+def test_conditional_display_block_can_omit_sample_rate():
+    """ConditionalDisplayBlock(include_sample_rate=False) is for usages that aren't a
+    page's own StreamField content (e.g. PencilBannerSnippet), where a sample rate can
+    never be revealed: Page.experiment_sample_rate only looks at sample rates set on the
+    page's own StreamFields, so a rate set anywhere else would render permanently
+    hidden."""
+    block = ConditionalDisplayBlock(include_sample_rate=False)
+    assert "sample_rate" not in block.child_blocks
+    assert "{sample_rate}" not in block.meta.label_format

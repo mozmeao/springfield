@@ -99,6 +99,7 @@ from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
+from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
@@ -628,6 +629,16 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     ftl_files = ["firefox/download/desktop"]
 
+    notification = StreamField(
+        [
+            ("notification", NotificationBlock()),
+        ],
+        max_num=2,
+        use_json_field=True,
+        null=True,
+        blank=True,
+        help_text="Up to two notifications shown above the page's main content.",
+    )
     content = StreamField(
         [
             ("section", SectionBlock(allow_uitour=False)),
@@ -645,6 +656,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("notification"),
         FieldPanel("content"),
         *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
@@ -652,6 +664,7 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("notification"),
         index.SearchField("content"),
     ]
 
@@ -664,6 +677,9 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
     def clean(self):
         super().clean()
+        max_notifications = self.notification.stream_block.meta.max_num
+        if max_notifications is not None and len(self.notification) > max_notifications:
+            raise ValidationError(f"Up to {max_notifications} notifications are allowed.")
         content_block_types = [block.block_type for block in self.content]
         if "download_support" not in content_block_types:
             raise ValidationError("The 'Download Support Message' block is required.")
@@ -1339,16 +1355,19 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return f"WhatsNewIndexPage: {self.title} - {self.locale}"
 
     def serve(self, request):
-        latest_whats_new = (
+        queryset = (
             self.get_children()
             .live()
             .public()
-            .exclude(slug="general")
             .annotate(version=F("whatsnewpage2026__version"))
+            .exclude(version__icontains="general")
             .order_by("-version")
             .specific()
-            .first()
         )
+        latest_version = firefox_desktop.latest_major_version("release")
+        if latest_version:
+            queryset = queryset.filter(version__lte=latest_version)
+        latest_whats_new = queryset.first()
         if latest_whats_new:
             url = request.build_absolute_uri(latest_whats_new.get_url())
             if request.GET.get("from_main_nav"):
@@ -1411,7 +1430,7 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
 
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
-        SynchronizedField("version"),
+        SynchronizedField("version", overridable=False),
         SynchronizedField("pre_footer_image"),
     ]
 

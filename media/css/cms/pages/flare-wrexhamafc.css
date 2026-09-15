@@ -1,0 +1,111 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+  WARNING! This file is referenced in the CMS directly.
+  Before altering, ensure you have an up-to-date database and check for pages that have
+  body_class="flare26-wrexhamafc" to avoid breaking the page layout.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+@layer page {
+    /*
+      Pitch markings behind the closing banner. The noise gradient comes first so it
+      stays on top of the markings, matching the component's own background stack.
+      Scoped to is-last-visible because that is the banner the layout affixes to the
+      bottom of the page; other banners keep the plain gradient.
+    */
+    .flare26-wrexhamafc
+        .fl-banner-container.is-last-visible
+        .fl-banner-dark-purple-gradient {
+        background-image:
+            var(--token-noise-gradient),
+            url('/media/img/firefox/wrexhamafc/pitch-lines-bg.png');
+        background-position:
+            center bottom,
+            center top;
+        background-repeat: no-repeat, no-repeat;
+        background-size:
+            cover,
+            80% auto;
+    }
+
+    /* The banner artwork is supplied at a larger size than the layout wants. */
+    .flare26-wrexhamafc
+        .fl-banner-container.is-last-visible
+        .fl-banner-media
+        img {
+        max-inline-size: 320px;
+    }
+
+    .flare26-wrexhamafc .fl-banner-container.is-last-visible .fl-banner-layout {
+        max-inline-size: var(--token-width-desktop-content-lg);
+    }
+
+    /*
+      Replaces the Intro eyebrow text with the Firefox + Wrexham AFC lockup. Scoped to
+      Intro only so Banner eyebrows elsewhere on the page keep their own text.
+
+      The text is collapsed rather than removed so assistive tech still announces it — set
+      the block's superheading to describe the lockup. The lockup itself is drawn on an
+      inline-block ::before, which means it inherits whatever text-align the component sets
+      (centred on small screens, inline-start at md-up) and this file never has to repeat
+      the component's breakpoints.
+    */
+    .flare26-wrexhamafc .fl-intro .fl-superheading {
+        font-size: 0;
+        line-height: 0;
+
+        /* the lockup is taller than the text it replaces, so it needs more breathing room */
+        margin-block-end: var(--token-spacing-2xl);
+    }
+
+    /*
+      aspect-ratio is the SVG's own viewBox, so the box can never drift out of sync with
+      the artwork — to resize, change block-size only. The lockup packs a crest, a
+      separator and the wordmark into a 2:1 box, so it needs real height: below ~56px the
+      crest's banner text stops resolving.
+    */
+    .flare26-wrexhamafc .fl-intro .fl-superheading::before {
+        aspect-ratio: 667.89 / 331.15;
+        background: url('/media/img/firefox/wrexhamafc/firefox-wrexhamafc-lockup.svg')
+            no-repeat center / contain;
+        block-size: 80px;
+        content: '';
+        display: inline-block;
+    }
+
+    /* Full size once there is room for it; tablet and below keep the 80px lockup. */
+    @media (--viewport-md-up) {
+        .flare26-wrexhamafc .fl-intro .fl-superheading::before {
+            block-size: 112px;
+        }
+    }
+
+    /* Forced colors drops background images, so fall back to the original text. */
+    @media (forced-colors: active) {
+        .flare26-wrexhamafc .fl-intro .fl-superheading {
+            font-size: var(--fl-theme-font-size-subheading-xs);
+            line-height: normal;
+        }
+
+        .flare26-wrexhamafc .fl-intro .fl-superheading::before {
+            content: none;
+        }
+    }
+
+    /*
+      At desktop the lockup puts 144px of artwork above the heading (112px plus its own
+      margin), on top of the component's 128px first-child top padding. Only block-start
+      is overridden, because .fl-home-intro sets its own block-end. This is a no-op below
+      600px, where the component already uses this value.
+    */
+    .flare26-wrexhamafc .fl-intro:first-child {
+        padding-block-start: var(--token-layout-md);
+    }
+}

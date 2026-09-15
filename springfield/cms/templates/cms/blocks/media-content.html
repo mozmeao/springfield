@@ -7,31 +7,36 @@
 
 {% set block_level = block_level or 2 %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{% set show_to = none if conditional_display_handled else value.settings.show_to %}
 
-<include:media-content
-  media_after="{{ value.settings.media_after }}"
-  narrow="{{ value.settings.narrow }}"
-  remove_border_radius="{{ value.settings.remove_border_radius }}"
->
-  <content:heading>
-    {% with heading_size="fl-heading-sm" %}
-      {% include_block value.heading %}
-    {% endwith %}
-  </content:heading>
+<include:conditional-display condition_settings={{ show_to }}>
 
-  <content:content>
-    {% for block in value.content %}
-      {# Make sure that any inner block with a heading uses the correct block level #}
-      {% set block_level = block_level + 1 %}
-      {% include_block block %}
-    {% endfor %}
-  </content:content>
+  <include:media-content
+    media_after="{{ value.settings.media_after }}"
+    narrow="{{ value.settings.narrow }}"
+    remove_border_radius="{{ value.settings.remove_border_radius }}"
+  >
+    <content:heading>
+      {% with heading_size="fl-heading-sm" %}
+        {% include_block value.heading %}
+      {% endwith %}
+    </content:heading>
 
-  {% if value.media %}
-    <content:media>
-      {% for block in value.media %}
+    <content:content>
+      {% for block in value.content %}
+        {# Make sure that any inner block with a heading uses the correct block level #}
+        {% set block_level = block_level + 1 %}
         {% include_block block %}
       {% endfor %}
-    </content:media>
-  {% endif %}
-</include:media-content>
+    </content:content>
+
+    {% if value.media %}
+      <content:media>
+        {% for block in value.media %}
+          {% include_block block %}
+        {% endfor %}
+      </content:media>
+    {% endif %}
+  </include:media-content>
+
+</include:conditional-display>

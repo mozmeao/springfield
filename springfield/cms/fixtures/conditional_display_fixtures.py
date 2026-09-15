@@ -35,6 +35,9 @@ def make_show_to(
     geo=None,
     ai_controls="",
     bind_to_uitour=False,
+    min_days_since_last_session=None,
+    max_days_since_last_session=None,
+    sample_rate=None,
 ):
     return {
         "platforms": platforms or [],
@@ -46,6 +49,9 @@ def make_show_to(
         "geo": geo or [],
         "ai_controls": ai_controls,
         "bind_to_uitour": bind_to_uitour,
+        "min_days_since_last_session": min_days_since_last_session,
+        "max_days_since_last_session": max_days_since_last_session,
+        "sample_rate": sample_rate,
     }
 
 
@@ -239,6 +245,23 @@ def get_conditional_display_variants() -> list[dict]:
             color="purple",
             icon="information",
         ),
+        # Last-session conditions
+        make_notification(
+            "cdlast01",
+            "Visible to lapsed users — last Firefox session ended 28+ days ago.",
+            make_show_to(min_days_since_last_session=28),
+            headline="Lapsed: last session 28+ days ago",
+            color="orange",
+            icon="warning",
+        ),
+        make_notification(
+            "cdlast02",
+            "Visible to active users — last Firefox session ended within the past 27 days.",
+            make_show_to(max_days_since_last_session=27),
+            headline="Active: last session within 27 days",
+            color="green",
+            icon="checkmark-circle-fill",
+        ),
         # Geo conditions
         make_notification(
             "cdgeo01",
@@ -272,6 +295,23 @@ def get_conditional_display_variants() -> list[dict]:
             headline="AI Controls: unavailable",
             color="red",
             icon="sparkles",
+        ),
+        # Sample rate conditions
+        make_notification(
+            "cdsamp01",
+            "Visible to a random 10% sample of eligible visitors.",
+            make_show_to(sample_rate=10),
+            headline="Sample rate: 10%",
+            color="purple",
+            icon="experiments",
+        ),
+        make_notification(
+            "cdsamp02",
+            "Visible to Windows users in the same 10% sample as above — every sample-rated block on a page shares one roll, so both reveal together.",
+            make_show_to(platforms=["windows"], sample_rate=10),
+            headline="Windows + Sample rate: 10% (combined)",
+            color="purple",
+            icon="experiments",
         ),
         # Combinations
         make_notification(

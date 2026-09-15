@@ -4,15 +4,14 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer' %}
+
 <footer class="fl-footer">
     <div class="fl-footer-inner">
         <div class="fl-footer-top">
             <p class="fl-footer-copy">
-                {% set mozilla_link_attrs = 'class="fl-footer-link"
-                href="https://www.mozilla.org/"'|safe %}
-                {% set mozilla_foundation_link_attrs = 'class="fl-footer-link"
-                href="https://foundation.mozilla.org/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer"'|safe
-                %}
+                {% set mozilla_link_attrs %}class="fl-footer-link" href="https://www.mozilla.org/{{ params }}"{% endset %}
+                {% set mozilla_foundation_link_attrs %}class="fl-footer-link" href="https://foundation.mozilla.org/{{ params }}"{% endset %}
                 {% set footer_years = "©1998–" ~ current_year|string %}
                 {{ ftl('footer-visit-mozilla',
                 mozilla_link_attrs=mozilla_link_attrs,
@@ -20,9 +19,8 @@
                 <br />
                 {{ ftl('footer-contributors', years=footer_years) }}
                 <br />
-                {% set license_attrs = 'class="fl-footer-link"
-                href="https://www.mozilla.org/en-US/foundation/licensing/website-content/"'|safe
-                %} {{ ftl('footer-license', license_attrs=license_attrs) }}
+                {% set license_attrs %}class="fl-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/{{ params }}"{% endset %}
+                {{ ftl('footer-license', license_attrs=license_attrs) }}
             </p>
             <nav class="fl-footer-links" aria-label="Footer">
                 <ul>
@@ -88,7 +86,9 @@
 
         <div class="fl-footer-bottom">
             <div class="fl-footer-brand">
-                <h3 class="fl-footer-title">{{ ftl('footer-powdered-by') }}</h3>
+                <h3 class="fl-footer-title">
+                    <a href="https://www.mozilla.org/{{ params }}" data-link-position="footer" data-link-text="Powered by Mozilla">{{ ftl('footer-powdered-by') }}</a>
+                </h3>
                 <p class="fl-footer-subtitle">
                     {{ ftl('footer-putting-people') }}
                 </p>

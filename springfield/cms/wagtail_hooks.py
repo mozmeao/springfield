@@ -6,6 +6,7 @@ import json
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import path, reverse
@@ -21,6 +22,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     InlineEntityElementHandler,
     PageLinkElementHandler,
 )
+from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -33,7 +35,13 @@ from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.templatetags.helpers import css_bundle
-from springfield.cms.admin_views import ContentSearchView, blog_tag_autocomplete, create_translation_sharing_link
+from springfield.cms.admin_views import (
+    ContentSearchView,
+    UpdateSlugConfirmView,
+    UpdateSlugView,
+    blog_tag_autocomplete,
+    create_translation_sharing_link,
+)
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -41,6 +49,7 @@ from springfield.cms.models import (
     BlogAuthor,
     BlogTag,
     BlogTopic,
+    FreeFormPage2026,
     NavigationSnippet,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
@@ -50,7 +59,9 @@ from springfield.cms.models import (
     QRCodeSnippet,
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
+    SmartWindowExplainerPage,
     Tag,
+    WhatsNewPage2026,
 )
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
@@ -63,12 +74,35 @@ def register_cms_admin_urls():
         path("content-search/", ContentSearchView.as_view(), name="cms_content_search"),
         path("content-search/results/", ContentSearchView.as_view(results_only=True), name="cms_content_search_results"),
         path("blog-tag-autocomplete/", blog_tag_autocomplete, name="cms_blog_tag_autocomplete"),
+        path("pages/<int:page_id>/update-slug/", UpdateSlugView.as_view(), name="cms_page_update_slug"),
+        path("pages/<int:page_id>/update-slug/confirm/", UpdateSlugConfirmView.as_view(), name="cms_page_update_slug_confirm"),
         path(
             "translation-draftsharing/<int:translation_id>/",
             create_translation_sharing_link,
             name="cms_translation_draftsharing_create",
         ),
     ]
+
+
+class PageUpdateSlugButton(PageMenuItem):
+    label = "Update slug"
+    icon_name = "link"
+    url_name = "cms_page_update_slug"
+
+    def is_shown(self, user):
+        return self.page.permissions_for_user(user).can_publish()
+
+
+@hooks.register("register_page_listing_more_buttons")
+def register_update_slug_listing_button(page, user, next_url=None):
+    # Priority 15 sits between Wagtail's Move (10) and Copy (20).
+    yield PageUpdateSlugButton(page=page, priority=15)
+
+
+@hooks.register("register_page_header_buttons")
+def register_update_slug_header_button(page, user, view_name, next_url=None):
+    # Priority 25 sits between Wagtail's Move (20) and Copy (30).
+    yield PageUpdateSlugButton(page=page, priority=25)
 
 
 @hooks.register("register_admin_menu_item")
@@ -769,3 +803,70 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
                 revision.publish(user=user)
             else:
                 revision.publish()
+
+
+# The page types whose free form content stream supplies the page's h1. SmartWindowPage
+# is absent on purpose: it renders the same blocks below its own h1, starting at h2.
+FREEFORM_H1_PAGE_TYPES = (FreeFormPage2026, SmartWindowExplainerPage, WhatsNewPage2026)
+
+
+def block_renders_a_heading(block):
+    """True when the block carries heading text, and so occupies a level in the page's
+    heading hierarchy.
+
+    Notifications are excluded: they have a headline field, but render it as plain text
+    inside the notification body rather than as a heading element.
+    """
+    if block.block_type == "notification" or not isinstance(block.value, dict):
+        return False
+    heading = block.value.get("heading")
+    return bool((heading and heading.get("heading_text")) or block.value.get("headline"))
+
+
+def block_has_display_conditions(block):
+    if not isinstance(block.value, dict):
+        return False
+    block_settings = block.value.get("settings")
+    show_to = block_settings.get("show_to") if block_settings else None
+    return bool(show_to and show_to.has_conditions)
+
+
+def leading_conditional_blocks(page):
+    """The conditional heading blocks at the top of `page`, each of which renders as an h1.
+
+    The run ends at the first heading block shown to everyone, since that block takes
+    the page's only h1 and every heading block after it drops to h2.
+    """
+    leading = []
+    blocks = list(page.upper_content) + list(page.content)
+    for block in blocks:
+        if not block_renders_a_heading(block):
+            continue
+        if not block_has_display_conditions(block):
+            break
+        leading.append(block)
+    return leading
+
+
+@hooks.register("after_create_page")
+@hooks.register("after_edit_page")
+def warn_about_leading_conditional_blocks(request, page):
+    """Warn the editor when the blocks at the top of the page are all conditional.
+
+    Each of them renders as an h1, so overlapping conditions show a visitor more than
+    one h1 and gaps leave a visitor with none. The check cannot tell the two apart, so
+    it flags the shape and leaves the judgement to the editor.
+    """
+    if not isinstance(page, FREEFORM_H1_PAGE_TYPES):
+        return
+
+    count = len(leading_conditional_blocks(page))
+    if not count:
+        return
+
+    messages.warning(
+        request,
+        f"This page leads with {count} conditional {'block' if count == 1 else 'blocks'}, so each one renders as an h1. "
+        "Check that their display conditions cover every visitor exactly once — overlapping conditions show more than "
+        "one h1, and gaps leave visitors with none.",
+    )
