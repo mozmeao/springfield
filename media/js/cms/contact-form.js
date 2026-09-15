@@ -23,8 +23,17 @@
         }
     }
 
+    function startDocumentDownload() {
+        var link = document.querySelector('.contact-form-download');
+        if (link) {
+            link.click();
+            link.classList.add('hidden');
+        }
+    }
+
     function init() {
         window.setTimeout(setCorrectFormAction, 3000);
+        startDocumentDownload();
     }
 
     if (document.readyState !== 'loading') {

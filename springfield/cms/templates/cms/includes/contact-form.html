@@ -14,6 +14,11 @@
 {% if form_success %}
   <include:notification color="green" icon="checkmark">
     {{ page.thank_you_message | richtext }}
+    {% if page.document_download %}
+      <a class="contact-form-download" href="{{ page.document_download.url }}" download>
+        {{ page.document_download_label }}
+      </a>
+    {% endif %}
   </include:notification>
 {% else %}
   {% set action = page.url ~ '?' ~ request.GET.urlencode() if request.GET else page.url %}

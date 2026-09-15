@@ -8,10 +8,13 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.test import Client, RequestFactory
 
 import pytest
 import responses
+from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
@@ -112,6 +115,29 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
     assert exc_info.value.message_dict == {
         "redirect_to": ["Set either a redirect page or a thank you message."],
         "thank_you_message": ["Set either a redirect page or a thank you message."],
+    }
+
+
+def test_contact_page_clean_requires_link_text_for_the_document_download(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a document is chosen without text for its link."""
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "unlabelled-guide.pdf"),
+    )
+    page = ContactPage(
+        title="Clean Document Label Test",
+        slug="clean-document-label-test",
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {
+        "document_download_label": ["Set the text for the download link."],
     }
 
 
@@ -2105,6 +2131,127 @@ def test_contact_page_post_valid_shows_thank_you_message(
 
     assert resp.status_code == 200
     assert "Thanks for reaching out!" in resp.content.decode()
+
+
+def post_valid_submission(page, minimal_site, rf):
+    """POST a complete, valid submission to `page` and return the response."""
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+    )
+    return page.serve(request)
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_offers_the_document_download(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A valid submission renders the thank you message with a link to the chosen document."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "deployment-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Document Download Test",
+        slug="document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+
+    link = soup.find("a", class_="contact-form-download")
+    assert link["href"] == document.url
+    assert link.get_text(strip=True) == "Download the deployment guide"
+    # The link is the no-JS fallback: contact-form.js clicks it and then hides it
+    assert link.has_attr("download")
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_without_a_document_shows_only_the_thank_you_message(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """With no document chosen, the success state carries no download link."""
+    index_page = minimal_site.root_page
+
+    page = ContactPage(
+        title="No Document Download Test",
+        slug="no-document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+    assert soup.find("a", class_="contact-form-download") is None
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_offers_no_document_download_before_submitting(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The document is gated behind a submission, so a plain GET renders the form without it."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "gated-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Gated Document Test",
+        slug="gated-document-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = page.serve(rf.get(page.relative_url(minimal_site)))
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("form", class_="contact-form") is not None
+    assert soup.find("a", class_="contact-form-download") is None
 
 
 # Basket API payload and email message formatting
