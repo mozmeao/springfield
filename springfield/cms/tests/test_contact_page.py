@@ -236,21 +236,21 @@ def test_contact_page_clean_rejects_enterprise_only_fields_on_the_basic_endpoint
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} does not accept these fields: timeline."]}
 
 
-def test_contact_page_clean_requires_opt_in_on_the_basic_endpoint(
+def test_contact_page_clean_requires_accepted_terms_on_the_basic_endpoint(
     minimal_site: Site,
 ) -> None:
-    """The basic endpoint requires opt_in, unlike enterprise where it is optional."""
-    form_fields = [field for field in get_basic_form_field_variants() if field["value"]["internal_identifier"] != "opt_in"]
+    """accepted_terms is the one field the basic endpoint requires that enterprise does not."""
+    form_fields = [field for field in get_basic_form_field_variants() if field["value"]["internal_identifier"] != "accepted_terms"]
     page = ContactPage(
-        title="Basic Basket Opt In Test",
-        slug="basic-basket-opt-in-test",
+        title="Basic Basket Accepted Terms Test",
+        slug="basic-basket-accepted-terms-test",
         basket_api_path=BASKET_CONTACT_BASIC_PATH,
         form_fields=form_fields,
         thank_you_message="<p>Thank you!</p>",
     )
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
-    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} requires these fields: opt_in."]}
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} requires these fields: accepted_terms."]}
 
 
 def test_contact_page_clean_requires_endpoint_required_fields_to_be_marked_required(

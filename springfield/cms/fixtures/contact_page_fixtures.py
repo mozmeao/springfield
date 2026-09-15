@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_test_document
 from springfield.cms.models import ContactPage
 from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH
 
@@ -196,16 +196,26 @@ def get_basic_form_field_variants() -> list[dict]:
     """
     Returns the form field variants accepted by basket's basic contact endpoint.
     """
-    shared_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country", "opt_in"}
-    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in shared_identifiers] + [
+    contact_detail_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country"}
+    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in contact_detail_identifiers] + [
         {
             "type": "checkbox_field",
             "value": {
-                "internal_identifier": "communications_opt_in",
-                "label": '<p data-block-key="ctpcomms1">Send me news and updates about Firefox for organizations.</p>',
+                "internal_identifier": "accepted_terms",
+                "label": '<p data-block-key="ctpterms1">By checking this box, you agree to the '
+                '<a href="/terms-and-conditions/">terms and conditions</a>.</p>',
+                "required": True,
+            },
+            "id": "checkbox-field-accepted-terms",
+        },
+        {
+            "type": "checkbox_field",
+            "value": {
+                "internal_identifier": "opt_in",
+                "label": '<p data-block-key="ctpoptin2">Send me news and updates about Firefox for organizations.</p>',
                 "required": False,
             },
-            "id": "checkbox-field-communications-opt-in",
+            "id": "checkbox-field-opt-in",
         },
     ]
 
@@ -223,6 +233,8 @@ def get_contact_test_page() -> ContactPage:
             "basket_api_path": BASKET_CONTACT_BASIC_PATH,
             "form_fields": get_basic_form_field_variants(),
             "thank_you_message": '<p data-block-key="ctpty1">Thanks for reaching out!</p>',
+            "document_download": get_test_document(),
+            "document_download_label": "Download the Firefox deployment guide",
         },
     )
 
@@ -257,5 +269,7 @@ def get_contact_test_page() -> ContactPage:
     page.form_fields = get_basic_form_field_variants()
     page.basket_api_path = BASKET_CONTACT_BASIC_PATH
     page.thank_you_message = '<p data-block-key="ctpty1">Thanks for reaching out!</p>'
+    page.document_download = get_test_document()
+    page.document_download_label = "Download the Firefox deployment guide"
     page.save_revision().publish()
     return page

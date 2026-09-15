@@ -2723,10 +2723,12 @@ BASKET_ENDPOINT_FIELDS = {
             "job_title",
             "business_email",
             "country",
-            "opt_in",
+            "accepted_terms",
         },
         "optional": {
-            "communications_opt_in",
+            "opt_in",
+            "lead_source",
+            "cta",
         },
     },
 }

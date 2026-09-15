@@ -10,7 +10,7 @@ from springfield.cms.models import FreeFormPage2026
 
 
 def get_contact_form_variants() -> list[dict]:
-    """The block on its own and nested in a media + content block, its two placements."""
+    """An intro, then the block on its own and nested in a media + content block, its two placements."""
     contact_page = get_contact_test_page()
     contact_form = {
         "type": "contact_form",
@@ -18,6 +18,24 @@ def get_contact_form_variants() -> list[dict]:
         "id": "cf000001-0000-0000-0000-000000000001",
     }
     return [
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": '<p data-block-key="cfin01">Contact Form</p>',
+                    "heading_text": '<p data-block-key="cfin02">Embed a contact page\'s form anywhere</p>',
+                    "subheading_text": (
+                        '<p data-block-key="cfin03">The block renders the form belonging to the contact page it points at, '
+                        "and submissions post back to that page. Below it appears on its own and nested in a media + "
+                        "content block.</p>"
+                    ),
+                },
+                "content": [],
+            },
+            "id": "cf000003-0000-0000-0000-000000000001",
+        },
         contact_form,
         {
             "type": "media_content",
