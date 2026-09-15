@@ -8,15 +8,18 @@ from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.test import Client, RequestFactory
 
 import pytest
 import responses
+from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
+from springfield.cms.fixtures.contact_page_fixtures import get_basic_form_field_variants, get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
 
 pytestmark = [
     pytest.mark.django_db,
@@ -115,6 +118,29 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
     }
 
 
+def test_contact_page_clean_requires_link_text_for_the_document_download(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a document is chosen without text for its link."""
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "unlabelled-guide.pdf"),
+    )
+    page = ContactPage(
+        title="Clean Document Label Test",
+        slug="clean-document-label-test",
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {
+        "document_download_label": ["Set the text for the download link."],
+    }
+
+
 def test_contact_page_clean_rejects_unknown_basket_path(
     minimal_site: Site,
 ) -> None:
@@ -166,6 +192,65 @@ def test_contact_page_clean_rejects_form_fields_the_endpoint_does_not_accept(
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} does not accept these fields: favourite_colour."]}
+
+
+def test_contact_page_clean_accepts_form_fields_matching_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() passes for the basic endpoint's own set of fields."""
+    page = ContactPage(
+        title="Basic Basket Fields Test",
+        slug="basic-basket-fields-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=get_basic_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_rejects_enterprise_only_fields_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """The two contact endpoints take different fields, so enterprise's extras are refused here."""
+    form_fields = get_basic_form_field_variants() + [
+        {
+            "type": "select_field",
+            "value": {
+                "internal_identifier": "timeline",
+                "label": "Timeline",
+                "required": True,
+                "options": [{"type": "item", "value": {"label": "1-3 months", "value": "1_3_months"}, "id": "basic-timeline-option"}],
+            },
+            "id": "basic-timeline-field",
+        },
+    ]
+    page = ContactPage(
+        title="Basic Basket Extra Field Test",
+        slug="basic-basket-extra-field-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} does not accept these fields: timeline."]}
+
+
+def test_contact_page_clean_requires_accepted_terms_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """accepted_terms is the one field the basic endpoint requires that enterprise does not."""
+    form_fields = [field for field in get_basic_form_field_variants() if field["value"]["internal_identifier"] != "accepted_terms"]
+    page = ContactPage(
+        title="Basic Basket Accepted Terms Test",
+        slug="basic-basket-accepted-terms-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} requires these fields: accepted_terms."]}
 
 
 def test_contact_page_clean_requires_endpoint_required_fields_to_be_marked_required(
@@ -303,6 +388,37 @@ def test_contact_page_serve(
     assert "Contact Serve Test" in page_content
     assert "Full Name" in page_content
     assert "Phone Number" in page_content
+
+
+def test_contact_page_renders_its_own_form_wrapper(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The page wraps its form in .fl-contact-form-wrapper, same as the Contact Form block.
+
+    JS posts to the form's data-actn and swaps the response's own wrapper in place; see
+    media/js/cms/components/flare-contact-form-block.es6.js. A POST response must carry the
+    same wrapper as the initial GET, since that's what gets parsed out and swapped in.
+    """
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact Wrapper Test",
+        slug="contact-wrapper-test",
+        thank_you_message="<p>Thanks!</p>",
+        to_email_address="test@example.com",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    url = page.relative_url(minimal_site)
+
+    get_soup = BeautifulSoup(page.serve(rf.get(url)).text, "html.parser")
+    wrapper = get_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["data-actn"] == page.url
+
+    post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
+    wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["data-actn"] == page.url
 
 
 def test_contact_page_get_is_never_cached(
@@ -2105,6 +2221,127 @@ def test_contact_page_post_valid_shows_thank_you_message(
 
     assert resp.status_code == 200
     assert "Thanks for reaching out!" in resp.content.decode()
+
+
+def post_valid_submission(page, minimal_site, rf):
+    """POST a complete, valid submission to `page` and return the response."""
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+    )
+    return page.serve(request)
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_offers_the_document_download(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A valid submission renders the thank you message with a link to the chosen document."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "deployment-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Document Download Test",
+        slug="document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+
+    link = soup.find("a", class_="contact-form-download")
+    assert link["href"] == document.url
+    assert link.get_text(strip=True) == "Download the deployment guide"
+    # The link is the no-JS fallback: contact-form.js clicks it and then hides it
+    assert link.has_attr("download")
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_without_a_document_shows_only_the_thank_you_message(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """With no document chosen, the success state carries no download link."""
+    index_page = minimal_site.root_page
+
+    page = ContactPage(
+        title="No Document Download Test",
+        slug="no-document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+    assert soup.find("a", class_="contact-form-download") is None
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_offers_no_document_download_before_submitting(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The document is gated behind a submission, so a plain GET renders the form without it."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "gated-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Gated Document Test",
+        slug="gated-document-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = page.serve(rf.get(page.relative_url(minimal_site)))
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("form", class_="contact-form") is not None
+    assert soup.find("a", class_="contact-form-download") is None
 
 
 # Basket API payload and email message formatting

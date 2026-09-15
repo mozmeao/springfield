@@ -60,6 +60,7 @@ from springfield.cms.blocks import (
     CheckboxGroupFieldBlock,
     CodeBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -1119,6 +1120,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("comparison_table", ComparisonTableBlock(group="Main")),
         ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
+        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -2685,6 +2687,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+BASKET_CONTACT_BASIC_PATH = "/api/v1/contact/basic/"
 
 # The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
 # Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
@@ -2710,6 +2713,22 @@ BASKET_ENDPOINT_FIELDS = {
             "lead_source",
             "cta",
             "message",
+        },
+    },
+    BASKET_CONTACT_BASIC_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "accepted_terms",
+        },
+        "optional": {
+            "opt_in",
+            "lead_source",
+            "cta",
         },
     },
 }
@@ -2802,6 +2821,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
     )
 
+    document_download = models.ForeignKey(
+        "wagtaildocs.Document",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text="File offered for download alongside the thank you message, once the form has been submitted.",
+    )
+
+    document_download_label = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Fallback text for the download link in case JavaScript is disabled. Required if a file is set.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("intro"),
         FieldPanel("form_fields"),
@@ -2820,6 +2854,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
                 FieldPanel("redirect_to"),
+                FieldPanel("document_download"),
+                FieldPanel("document_download_label"),
             ],
             heading="Form Submission Settings",
         ),
@@ -2829,6 +2865,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         index.SearchField("intro"),
         index.SearchField("form_fields"),
         index.SearchField("thank_you_message"),
+        index.SearchField("document_download_label"),
     ]
 
     override_translatable_fields = [
@@ -2884,6 +2921,9 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             msg = "Set either a redirect page or a thank you message."
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
+
+        if self.document_download and not self.document_download_label:
+            errors["document_download_label"] = "Set the text for the download link."
 
         if errors:
             raise ValidationError(errors)
