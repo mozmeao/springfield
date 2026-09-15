@@ -84,6 +84,8 @@ def check_url(product, version):
             return settings.FIREFOX_MOBILE_SYSREQ_URL
     elif product == "Firefox for iOS":
         return reverse("firefox.ios.system_requirements", args=[version])
+    elif product == "Firefox Enterprise":
+        return reverse("firefox.enterprise.system_requirements", args=[version])
     else:
         return reverse("firefox.system_requirements", args=[version])
 
@@ -175,7 +177,7 @@ def release_notes(request, version, product="Firefox"):
         raise Http404
 
     # Show a "coming soon" page for any unpublished Firefox releases
-    include_drafts = product in ["Firefox", "Firefox for Android", "Firefox for iOS"]
+    include_drafts = product in ["Firefox", "Firefox Enterprise", "Firefox for Android", "Firefox for iOS"]
 
     try:
         release = get_release_or_404(version, product, include_drafts)
@@ -221,6 +223,13 @@ def release_notes(request, version, product="Firefox"):
 @require_safe
 def system_requirements(request, version, product="Firefox"):
     release = get_release_or_404(version, product)
+    # Enterprise ships from the same desktop build, so when nucleus carries no
+    # requirements of its own send people to the desktop page instead of an empty
+    # one. Filling the field in still wins, and so does having no desktop release
+    # of that version to fall back to.
+    if product == "Firefox Enterprise" and not release.system_requirements and get_release("Firefox", version):
+        return HttpResponseRedirect(reverse("firefox.system_requirements", args=[version]))
+
     dir = "firefox"
     return l10n_utils.render(request, f"{dir}/releases/system_requirements.html", {"release": release, "version": version})
 
