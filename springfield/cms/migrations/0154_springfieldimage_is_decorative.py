@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0152_merge_20260910_1400"),
+        ("cms", "0153_create_welsh_locale"),
     ]
 
     operations = [
