@@ -8,6 +8,10 @@
 // request immediately on page load still hits the decoy form action.
 const readyAt = Date.now() + 3000;
 
+/**
+ * @param {HTMLElement} wrapper
+ * @returns {void}
+ */
 function startDocumentDownload(wrapper) {
     const link = wrapper.querySelector('.contact-form-download');
     if (link) {
@@ -19,11 +23,20 @@ function startDocumentDownload(wrapper) {
 // `window.location` is unforgeable (can't be stubbed via spyOnProperty in a real
 // browser), so the redirect is routed through this plain, stubbable object instead.
 export const browserNav = {
+    /**
+     * @param {string} url
+     * @returns {void}
+     */
     redirectTo(url) {
         window.location.href = url;
     }
 };
 
+/**
+ * @param {HTMLFormElement} form
+ * @param {HTMLElement} wrapper
+ * @returns {Promise<void>}
+ */
 async function handleSubmit(form, wrapper) {
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton) {
@@ -77,6 +90,9 @@ async function handleSubmit(form, wrapper) {
     }
 }
 
+/**
+ * @returns {void}
+ */
 function initSubmitHandler() {
     document.addEventListener('submit', (e) => {
         const wrapper = e.target.closest('.fl-contact-form-wrapper');
@@ -88,12 +104,18 @@ function initSubmitHandler() {
     });
 }
 
+/**
+ * @returns {void}
+ */
 function initDocumentDownloads() {
     document
         .querySelectorAll('.fl-contact-form-wrapper')
         .forEach(startDocumentDownload);
 }
 
+/**
+ * @returns {void}
+ */
 export default function setupContactForms() {
     initSubmitHandler();
     initDocumentDownloads();
