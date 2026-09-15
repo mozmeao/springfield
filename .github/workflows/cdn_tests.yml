@@ -26,7 +26,7 @@ jobs:
     if: github.repository == 'mozmeao/springfield'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/actions/slack
       - name: Notify via Slack that tests are starting
@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Fetch codebase
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run CDN tests
         run: ./bin/integration_tests/functional_tests.sh
@@ -98,7 +98,7 @@ jobs:
     needs: cdn-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/actions/slack
       - name: Notify via Slack of test-run outcome

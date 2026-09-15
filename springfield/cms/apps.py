@@ -16,6 +16,9 @@ class CmsConfig(AppConfig):
         # Replace Wagtail's formfield_for_dbfield with our SVG-sanitizing version
         self._patch_image_form_field()
 
+        # Sort hand-translated locales last on the "Translate" locale checkboxes
+        self._patch_submit_translation_locale_order()
+
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
 
@@ -46,6 +49,49 @@ class CmsConfig(AppConfig):
         # Replace the classmethod on the base Locale class
         # We need to use the descriptor protocol properly for classmethods
         Locale.get_active = classmethod(SpringfieldLocale.get_active.__func__)
+
+    @staticmethod
+    def _patch_submit_translation_locale_order():
+        """
+        Sort hand-translated locales last on wagtail-localize's "Translate" form,
+        keeping Wagtail's ordering for everything else.
+
+        Wagtail orders locales by `language_code`, which puts Welsh first even though
+        an editor rarely picks it. wagtail-localize offers no hook for this, so the
+        form is patched here alongside the other startup patches.
+        """
+
+        # Imported inline because wagtail-localize's form module pulls in Wagtail
+        # models, which cannot be imported while the app registry is still loading.
+        from django.conf import settings
+        from django.db.models import Case, IntegerField, Value, When
+
+        from wagtail_localize.views.submit_translations import SubmitTranslationForm
+
+        original_init = SubmitTranslationForm.__init__
+
+        def __init__(self, instance, *args, **kwargs):
+            original_init(self, instance, *args, **kwargs)
+
+            # Alias locales are excluded from Smartling because they serve another
+            # locale's content rather than because anyone translates them by hand,
+            # so they keep their usual position.
+            all_excluded = getattr(settings, "SMARTLING_EXCLUDED_LOCALES", [])
+            hand_translated = [code for code in all_excluded if code not in settings.FALLBACK_LOCALES]
+            if not hand_translated:
+                return
+
+            locales = self.fields["locales"]
+            locales.queryset = locales.queryset.order_by(
+                Case(
+                    When(language_code__in=hand_translated, then=Value(1)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ),
+                "language_code",
+            )
+
+        SubmitTranslationForm.__init__ = __init__
 
     @staticmethod
     def _patch_image_form_field():
