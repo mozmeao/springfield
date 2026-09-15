@@ -11,7 +11,7 @@ from springfield.base.config_manager import config
 WELSH_LANGUAGE_CODE = "cy"
 
 
-def _should_skip():
+def should_skip():
     # Skip in test environments — test fixtures create the locale records they need.
     return (
         "pytest" in sys.modules
@@ -21,7 +21,7 @@ def _should_skip():
 
 
 def create_welsh_locale(apps, schema_editor):
-    if _should_skip():
+    if should_skip():
         return
 
     # Imported inline because the migration needs Wagtail's tree and translation
@@ -51,7 +51,7 @@ def create_welsh_locale(apps, schema_editor):
 
 
 def remove_welsh_locale(apps, schema_editor):
-    if _should_skip():
+    if should_skip():
         return
 
     # See the note in create_welsh_locale about why these are imported inline.

@@ -61,6 +61,8 @@ class CmsConfig(AppConfig):
         form is patched here alongside the other startup patches.
         """
 
+        # Imported inline because wagtail-localize's form module pulls in Wagtail
+        # models, which cannot be imported while the app registry is still loading.
         from django.conf import settings
         from django.db.models import Case, IntegerField, Value, When
 

@@ -19,12 +19,15 @@ from springfield.settings.base import lazy_wagtail_langs
 pytestmark = [pytest.mark.django_db]
 
 PAGE_PATH = "/test-page/child-page/"
+WELSH_CHILD_TITLE = "Tudalen Gymraeg"
 
 
-def _build_welsh_tree(live_child=True):
+def build_welsh_tree(live_child=True):
     """Give the site a Welsh page tree: a live locale root plus a child page.
 
     The locale root has to be live or Wagtail resolves /cy/ against the en-US tree.
+    The Welsh child gets a distinct title, because copy_for_translation() copies the
+    English one and the tests need to tell the two trees apart in the response.
     """
     site = Site.objects.get(is_default_site=True)
     en_us_root_page = site.root_page
@@ -43,6 +46,7 @@ def _build_welsh_tree(live_child=True):
     welsh_test_page.save_revision().publish()
 
     welsh_child = en_us_child.copy_for_translation(welsh_locale)
+    welsh_child.title = WELSH_CHILD_TITLE
     welsh_child.live = live_child
     welsh_child.save()
     if live_child:
@@ -54,13 +58,16 @@ def _build_welsh_tree(live_child=True):
 @override_settings(FALLBACK_LOCALES={})
 def test_welsh_page_is_served_at_its_own_url(client, tiny_localized_site):
     """Welsh is a real locale, so its pages are served directly and indexed as their own."""
-    _, welsh_child = _build_welsh_tree()
+    en_us_child, _ = build_welsh_tree()
 
     response = client.get(f"/cy{PAGE_PATH}")
 
     assert response.status_code == 200
     html = response.content.decode("utf-8")
-    assert welsh_child.title in html
+    # The English page would also render at this URL if routing fell back to the
+    # en-US tree, so assert on the title only the Welsh page carries.
+    assert WELSH_CHILD_TITLE in html
+    assert en_us_child.title not in html
     assert f'rel="canonical" href="{settings.CANONICAL_URL}/cy{PAGE_PATH}"' in html
     assert '<meta name="robots" content="noindex,follow">' not in html
     # Nothing should be treated as fallback content — that is what alias locales do.
@@ -69,7 +76,7 @@ def test_welsh_page_is_served_at_its_own_url(client, tiny_localized_site):
 
 @override_settings(FALLBACK_LOCALES={})
 def test_welsh_listed_as_hreflang_alternate_on_english_page(client, tiny_localized_site):
-    en_us_child, _ = _build_welsh_tree()
+    en_us_child, _ = build_welsh_tree()
 
     response = client.get(en_us_child.url)
 
@@ -81,7 +88,7 @@ def test_welsh_listed_as_hreflang_alternate_on_english_page(client, tiny_localiz
 @override_settings(FALLBACK_LOCALES={})
 def test_unpublishing_welsh_page_withdraws_the_locale(client, tiny_localized_site):
     """Unpublishing is how Welsh gets withdrawn: no locale option, and /cy/ redirects away."""
-    en_us_child, welsh_child = _build_welsh_tree(live_child=False)
+    en_us_child, welsh_child = build_welsh_tree(live_child=False)
 
     assert "cy" not in get_locales_for_cms_page(en_us_child)
 
@@ -137,7 +144,7 @@ def welsh_migration():
     be imported by string.
     """
     module = import_module("springfield.cms.migrations.0153_create_welsh_locale")
-    with mock.patch.object(module, "_should_skip", return_value=False):
+    with mock.patch.object(module, "should_skip", return_value=False):
         yield module
 
 
