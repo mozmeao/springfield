@@ -76,7 +76,8 @@ class CmsConfig(AppConfig):
             # Alias locales are excluded from Smartling because they serve another
             # locale's content rather than because anyone translates them by hand,
             # so they keep their usual position.
-            hand_translated = [code for code in getattr(settings, "SMARTLING_EXCLUDED_LOCALES", []) if code not in settings.FALLBACK_LOCALES]
+            all_excluded = getattr(settings, "SMARTLING_EXCLUDED_LOCALES", [])
+            hand_translated = [code for code in all_excluded if code not in settings.FALLBACK_LOCALES]
             if not hand_translated:
                 return
 

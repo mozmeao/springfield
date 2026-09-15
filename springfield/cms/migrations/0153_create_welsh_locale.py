@@ -69,11 +69,17 @@ def remove_welsh_locale(apps, schema_editor):
     # Once it has been promoted to a real translation (`alias_of` cleared) it holds
     # Welsh content, which a rollback must not destroy.
     welsh_homepage = site.root_page.get_translation_or_none(locale)
-    if welsh_homepage is not None and welsh_homepage.alias_of_id is not None and not welsh_homepage.get_children().exists():
-        locale_root = welsh_homepage.get_parent()
-        welsh_homepage.delete()
-        if locale_root is not None and locale_root.depth == 2 and not locale_root.get_children().exists():
-            locale_root.delete()
+    if welsh_homepage is not None:
+        is_untouched_alias = welsh_homepage.alias_of_id is not None
+        homepage_has_no_children = not welsh_homepage.get_children().exists()
+
+        if is_untouched_alias and homepage_has_no_children:
+            locale_root = welsh_homepage.get_parent()
+            welsh_homepage.delete()
+
+            is_locale_root = locale_root is not None and locale_root.depth == 2
+            if is_locale_root and not locale_root.get_children().exists():
+                locale_root.delete()
 
     if not Page.objects.filter(locale=locale).exists():
         locale.delete()
