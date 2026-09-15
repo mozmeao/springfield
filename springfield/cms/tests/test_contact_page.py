@@ -390,6 +390,37 @@ def test_contact_page_serve(
     assert "Phone Number" in page_content
 
 
+def test_contact_page_renders_its_own_form_wrapper(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The page wraps its form in .fl-contact-form-wrapper, same as the Contact Form block.
+
+    JS posts to the form's data-actn and swaps the response's own wrapper in place; see
+    media/js/cms/components/flare-contact-form-block.es6.js. A POST response must carry the
+    same wrapper as the initial GET, since that's what gets parsed out and swapped in.
+    """
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact Wrapper Test",
+        slug="contact-wrapper-test",
+        thank_you_message="<p>Thanks!</p>",
+        to_email_address="test@example.com",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    url = page.relative_url(minimal_site)
+
+    get_soup = BeautifulSoup(page.serve(rf.get(url)).text, "html.parser")
+    wrapper = get_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["data-actn"] == page.url
+
+    post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
+    wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["data-actn"] == page.url
+
+
 def test_contact_page_get_is_never_cached(
     minimal_site: Site,
     rf: RequestFactory,

@@ -6148,9 +6148,13 @@ def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block
 
     main = render_main_element(page, rf)
 
-    form = main.find("section", class_="fl-section").find("form", class_="contact-form")
+    section = main.find("section", class_="fl-section")
+    wrapper = section.find("div", class_="fl-contact-form-wrapper")
+    form = wrapper.find("form", class_="contact-form")
     assert form["method"] == "post"
-    # The real target is parked in data-actn and swapped in by JS after a delay; see media/js/cms/contact-form.js
+    # The real target is parked in data-actn; JS posts there and swaps the response's own
+    # wrapper in place, see media/js/cms/components/flare-contact-form-block.es6.js. The
+    # visible `action` is a decoy for the anti-bot delay in the same JS file.
     assert form["data-actn"] == contact_page_for_block.url
     assert form["action"] == "/page-not-found/"
     assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
@@ -6203,6 +6207,7 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
     # Nested, the block uses the bare template, so it brings no section of its own
     assert media_content.find("section") is None
 
-    form = media_content.find("form", class_="contact-form")
+    wrapper = media_content.find("div", class_="fl-contact-form-wrapper")
+    form = wrapper.find("form", class_="contact-form")
     assert form["data-actn"] == contact_page_for_block.url
     assert form.find("input", attrs={"name": "full_name"}) is not None
