@@ -34,4 +34,14 @@ class Migration(migrations.Migration):
                 blank=True, help_text="Fallback text for the download link in case JavaScript is disabled. Required if a file is set.", max_length=255
             ),
         ),
+        migrations.AlterField(
+            model_name="contactpage",
+            name="basket_api_path",
+            field=models.CharField(
+                blank=True,
+                choices=[("/api/v1/contact/enterprise/", "/api/v1/contact/enterprise/"), ("/api/v1/contact/basic/", "/api/v1/contact/basic/")],
+                help_text="Basket endpoint the form posts to. Required if Email Address is unset. Form fields must match what it accepts.",
+                max_length=255,
+            ),
+        ),
     ]

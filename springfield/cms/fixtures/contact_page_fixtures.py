@@ -4,7 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.models import ContactPage
-from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH
 
 
 def get_form_field_variants() -> list[dict]:
@@ -192,6 +192,24 @@ def get_form_field_variants() -> list[dict]:
     ]
 
 
+def get_basic_form_field_variants() -> list[dict]:
+    """
+    Returns the form field variants accepted by basket's basic contact endpoint.
+    """
+    shared_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country", "opt_in"}
+    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in shared_identifiers] + [
+        {
+            "type": "checkbox_field",
+            "value": {
+                "internal_identifier": "communications_opt_in",
+                "label": '<p data-block-key="ctpcomms1">Send me news and updates about Firefox for organizations.</p>',
+                "required": False,
+            },
+            "id": "checkbox-field-communications-opt-in",
+        },
+    ]
+
+
 def get_contact_test_page() -> ContactPage:
     index_page = get_flare_pages_docs_page()
 
@@ -202,8 +220,8 @@ def get_contact_test_page() -> ContactPage:
         parent=index_page,
         defaults={
             "title": "Test Contact Page",
-            "basket_api_path": BASKET_CONTACT_ENTERPRISE_PATH,
-            "form_fields": get_form_field_variants(),
+            "basket_api_path": BASKET_CONTACT_BASIC_PATH,
+            "form_fields": get_basic_form_field_variants(),
             "thank_you_message": '<p data-block-key="ctpty1">Thanks for reaching out!</p>',
         },
     )
@@ -222,12 +240,11 @@ def get_contact_test_page() -> ContactPage:
                 "media": [],
                 "heading": {
                     "superheading_text": "",
-                    "heading_text": '<p data-block-key="ctph1">Talk to our team about a support plan</p>',
+                    "heading_text": '<p data-block-key="ctph1">Get in touch about Firefox for your organization</p>',
                     "subheading_text": (
-                        '<p data-block-key="ctph2">Tell us about your organization and we\'ll help you '
-                        "scope a Firefox Professional Support plan — dedicated, private support for "
-                        "large-scale deployments, with defined escalation paths and closer access to "
-                        "Mozilla's engineering and product teams.</p>"
+                        '<p data-block-key="ctph2">Tell us who you are and we\'ll point you to the right team. '
+                        "This shorter form asks only for your contact details, so it suits any enquiry that "
+                        "does not need a full support-plan conversation.</p>"
                         '<p data-block-key="ctph3">Looking for help with Firefox itself? Visit '
                         '<a href="https://support.mozilla.org">Mozilla Support</a>.</p>'
                     ),
@@ -237,8 +254,8 @@ def get_contact_test_page() -> ContactPage:
             "id": "ctp00001-0000-0000-0000-000000000001",
         }
     ]
-    page.form_fields = get_form_field_variants()
-    page.basket_api_path = BASKET_CONTACT_ENTERPRISE_PATH
+    page.form_fields = get_basic_form_field_variants()
+    page.basket_api_path = BASKET_CONTACT_BASIC_PATH
     page.thank_you_message = '<p data-block-key="ctpty1">Thanks for reaching out!</p>'
     page.save_revision().publish()
     return page

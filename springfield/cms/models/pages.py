@@ -2687,6 +2687,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+BASKET_CONTACT_BASIC_PATH = "/api/v1/contact/basic/"
 
 # The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
 # Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
@@ -2712,6 +2713,20 @@ BASKET_ENDPOINT_FIELDS = {
             "lead_source",
             "cta",
             "message",
+        },
+    },
+    BASKET_CONTACT_BASIC_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "opt_in",
+        },
+        "optional": {
+            "communications_opt_in",
         },
     },
 }

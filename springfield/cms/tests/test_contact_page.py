@@ -17,9 +17,9 @@ from bs4 import BeautifulSoup
 from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
+from springfield.cms.fixtures.contact_page_fixtures import get_basic_form_field_variants, get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
 
 pytestmark = [
     pytest.mark.django_db,
@@ -192,6 +192,65 @@ def test_contact_page_clean_rejects_form_fields_the_endpoint_does_not_accept(
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} does not accept these fields: favourite_colour."]}
+
+
+def test_contact_page_clean_accepts_form_fields_matching_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() passes for the basic endpoint's own set of fields."""
+    page = ContactPage(
+        title="Basic Basket Fields Test",
+        slug="basic-basket-fields-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=get_basic_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_rejects_enterprise_only_fields_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """The two contact endpoints take different fields, so enterprise's extras are refused here."""
+    form_fields = get_basic_form_field_variants() + [
+        {
+            "type": "select_field",
+            "value": {
+                "internal_identifier": "timeline",
+                "label": "Timeline",
+                "required": True,
+                "options": [{"type": "item", "value": {"label": "1-3 months", "value": "1_3_months"}, "id": "basic-timeline-option"}],
+            },
+            "id": "basic-timeline-field",
+        },
+    ]
+    page = ContactPage(
+        title="Basic Basket Extra Field Test",
+        slug="basic-basket-extra-field-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} does not accept these fields: timeline."]}
+
+
+def test_contact_page_clean_requires_opt_in_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """The basic endpoint requires opt_in, unlike enterprise where it is optional."""
+    form_fields = [field for field in get_basic_form_field_variants() if field["value"]["internal_identifier"] != "opt_in"]
+    page = ContactPage(
+        title="Basic Basket Opt In Test",
+        slug="basic-basket-opt-in-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} requires these fields: opt_in."]}
 
 
 def test_contact_page_clean_requires_endpoint_required_fields_to_be_marked_required(
