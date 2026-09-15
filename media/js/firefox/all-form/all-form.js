@@ -5,6 +5,8 @@
  */
 
 import { batch, computed, effect, signal } from '@preact/signals-core';
+import TrackProductDownload from '../../base/datalayer-productdownload.es6';
+import DownloadAttribution from '../../base/download-attribution/download-attribution.es6';
 
 // State in this module is organized in four layers, and each layer only
 // depends on the one above it:
@@ -486,6 +488,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
             case 'submit':
                 event.preventDefault();
                 break;
+            case 'click':
+                this._handleClick(event);
+                break;
         }
     }
 
@@ -516,6 +521,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this._form.addEventListener('submit', this);
         this._form.addEventListener('input', this);
         this._form.addEventListener('invalid', this, true);
+        this._form.addEventListener('click', this);
 
         this.shadowRoot.removeEventListener('slotchange', this);
     }
@@ -874,6 +880,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
     // ── Event handlers ─────────────────────────────────────────────────────
 
+    _handleClick(event) {
+        if (!event.target.closest('.c-download-option a')) return;
+
+        TrackProductDownload.handleLink(event);
+    }
+
     _handleInput(event) {
         if (!(event.target instanceof HTMLSelectElement)) return;
 
@@ -882,6 +894,11 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._os.value = this._form.elements.os.value;
             this._release.value = this._form.elements.release.value;
             this._language.value = this._form.elements.language.value;
+
+            // Apply download attribution to potentially new links.
+            requestAnimationFrame(() => {
+                DownloadAttribution.applyAttributionDataToLinks();
+            });
         });
 
         // Custom validity has already been synced by the batch above, so the
@@ -1033,7 +1050,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         element.dataset.downloadOption = name;
 
         const link = document.createElement('a');
-        link.classList.add('fl-button');
+        link.classList.add('download-link', 'fl-button');
         if (additionalClasses) link.classList.add(...additionalClasses);
 
         // The label lives in its own text node so writing it cannot disturb the
@@ -1049,6 +1066,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const hrefSource = this._bind(href);
         this._effect(() => {
             link.href = hrefSource.value;
+        });
+
+        this._effect(() => {
+            link.dataset.downloadVersion = this.os;
         });
 
         if (icon) {
