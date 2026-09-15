@@ -24,12 +24,6 @@ export const browserNav = {
     }
 };
 
-function focusWrapper(wrapper) {
-    wrapper.tabIndex = -1;
-    wrapper.focus();
-    wrapper.scrollIntoView({ block: 'nearest' });
-}
-
 async function handleSubmit(form, wrapper) {
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton) {
@@ -66,7 +60,7 @@ async function handleSubmit(form, wrapper) {
         }
 
         wrapper.innerHTML = newWrapper.innerHTML;
-        focusWrapper(wrapper);
+        wrapper.scrollIntoView({ block: 'start' });
         startDocumentDownload(wrapper);
     } catch (err) {
         // Network error, or a response shape the client-side swap can't
