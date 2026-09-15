@@ -806,6 +806,7 @@ INSTALLED_APPS = [
     # Should be loaded after Wagtail for hooks like springfield.cms.wagtail_hooks.register_uid_link_handlers
     "springfield.base",
     "springfield.cms",  # Wagtail-based CMS bases
+    "springfield.blog",  # needs to be loaded after springfield.cms
     "springfield.firefox",
     "springfield.newsletter",
     "springfield.privacy",
@@ -1606,9 +1607,9 @@ _allowed_page_models = [
     "cms.DownloadIndexPage",
     "cms.DownloadPage",
     "cms.ThanksPage",
-    "cms.BlogIndexPage",
-    "cms.BlogArticlePage",
-    "cms.BlogTopicPage",
+    "blog.BlogIndexPage",
+    "blog.BlogArticlePage",
+    "blog.BlogTopicPage",
     "cms.RoadmapPage",
     "cms.ContactPage",
     "cms.ReferralHubPage",
