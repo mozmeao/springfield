@@ -26,6 +26,7 @@ from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
+from django_htmx.http import HttpResponseClientRedirect
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -2953,7 +2954,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             request.form_success = success
 
             if success and self.redirect_to:
-                return redirect(self.redirect_to.localized.url)
+                url = self.redirect_to.localized.url
+                if getattr(request, "htmx", False):
+                    # A 302 gets swapped into the wrapper by htmx; HX-Redirect
+                    # navigates the whole window instead.
+                    return HttpResponseClientRedirect(url)
+                return redirect(url)
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)

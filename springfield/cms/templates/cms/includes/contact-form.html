@@ -23,7 +23,16 @@
       {% endif %}
     </include:notification>
   {% else %}
-    <form method="post" action="/page-not-found/" data-actn="{{ action or '' }}" class="fl-form-page contact-form">
+    <form
+      method="post"
+      action="/page-not-found/"
+      hx-post="{{ action or '' }}"
+      hx-select=".fl-contact-form-wrapper"
+      hx-target="closest .fl-contact-form-wrapper"
+      hx-swap="outerHTML"
+      hx-disabled-elt="find button[type=submit]"
+      class="fl-form-page contact-form"
+    >
       {% csrf_token %}
 
       {% if form.non_field_errors() %}

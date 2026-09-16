@@ -396,9 +396,8 @@ def test_contact_page_renders_its_own_form_wrapper(
 ) -> None:
     """The page wraps its form in .fl-contact-form-wrapper, same as the Contact Form block.
 
-    JS posts to the form's data-actn and swaps the response's own wrapper in place; see
-    media/js/cms/components/flare-contact-form-block.es6.js. A POST response must carry the
-    same wrapper as the initial GET, since that's what gets parsed out and swapped in.
+    htmx (hx-select/hx-target on the form) swaps this wrapper in from each POST response,
+    so a POST must carry the same wrapper as the initial GET.
     """
     index_page = minimal_site.root_page
     page = ContactPage(
@@ -414,11 +413,11 @@ def test_contact_page_renders_its_own_form_wrapper(
 
     get_soup = BeautifulSoup(page.serve(rf.get(url)).text, "html.parser")
     wrapper = get_soup.find("div", class_="fl-contact-form-wrapper")
-    assert wrapper.find("form")["data-actn"] == page.url
+    assert wrapper.find("form")["hx-post"] == page.url
 
     post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
     wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")
-    assert wrapper.find("form")["data-actn"] == page.url
+    assert wrapper.find("form")["hx-post"] == page.url
 
 
 def test_contact_page_get_is_never_cached(
@@ -1858,6 +1857,54 @@ def test_contact_page_sends_email_and_redirects_on_valid_post(
     assert call_args[0][0] == "Contact form submission: Contact Post Test"
     assert call_args[0][3] == ["recipient@example.com"]
     mock_email_class.return_value.send.assert_called_once()
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_htmx_valid_post_gets_hx_redirect(
+    mock_email_class,
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """An htmx request gets HX-Redirect, not a 302, so it navigates instead of swapping in
+    the redirected page's markup. Uses the client, not rf, since request.htmx needs middleware."""
+    index_page = minimal_site.root_page
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Contact HTMX Redirect Test",
+        slug="contact-htmx-redirect-test",
+        form_fields=form_field_variants,
+        to_email_address="recipient@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(
+        page.full_url,
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+        HTTP_HX_REQUEST="true",
+    )
+
+    assert resp.status_code == 200
+    assert resp["HX-Redirect"] == thank_you_page.url
 
 
 @patch("springfield.cms.models.pages.EmailMessage")

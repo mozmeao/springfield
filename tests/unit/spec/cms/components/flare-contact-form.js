@@ -4,162 +4,99 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import setupContactFormBlocks, {
-    browserNav
-} from '../../../../../media/js/cms/components/flare-contact-form.es6';
+import setupContactForms from '../../../../../media/js/cms/components/flare-contact-form.es6';
 
-describe('flare-contact-form-block.es6.js', function () {
+// The request/swap itself is htmx's job (see contact-form.html) and isn't retested here.
+// This covers what this module bolts on via htmx's events: the anti-bot delay, the error fallback, and the download re-click.
+describe('flare-contact-form.es6.js', function () {
     let container;
-    let originalFetch;
-    // Every test form targets this hidden iframe, so a real (un-prevented) native
-    // submit — the exact case the "before the delay" test needs to exercise —
-    // navigates the iframe instead of away from the test runner page.
-    let sink;
 
-    function flush() {
-        return new Promise((resolve) => setTimeout(resolve, 0));
-    }
+    beforeAll(function () {
+        setupContactForms();
+    });
 
-    function addWrapper(action, formHtml) {
+    beforeEach(function () {
+        container = document.createElement('div');
+        document.body.appendChild(container);
+    });
+
+    afterEach(function () {
+        container.remove();
+    });
+
+    function addWrapper(action, innerHtml) {
         container.innerHTML = `
       <div class="fl-contact-form-wrapper">
-        <form method="post" action="/page-not-found/" data-actn="${action}" class="fl-form-page contact-form" target="${sink.name}">
-          ${formHtml || '<button type="submit">Submit</button>'}
+        <form method="post" action="/page-not-found/" hx-post="${action}" class="fl-form-page contact-form">
+          ${innerHtml || '<button type="submit">Submit</button>'}
         </form>
       </div>
     `;
         return container.querySelector('.fl-contact-form-wrapper');
     }
 
-    function submitForm(wrapper) {
-        const form = wrapper.querySelector('form');
-        const event = new Event('submit', { bubbles: true, cancelable: true });
-        form.dispatchEvent(event);
-        return event;
-    }
-
-    // The submit listener is delegated on `document` and meant to be attached once for
-    // the page's lifetime, so it's set up once here rather than per test.
-    beforeAll(function () {
-        sink = document.createElement('iframe');
-        sink.name = 'contact-form-test-sink';
-        sink.style.display = 'none';
-        document.body.appendChild(sink);
-        setupContactFormBlocks();
-    });
-
-    afterAll(function () {
-        sink.remove();
-    });
-
-    beforeEach(function () {
-        container = document.createElement('div');
-        document.body.appendChild(container);
-        originalFetch = window.fetch;
-    });
-
-    afterEach(function () {
-        container.remove();
-        window.fetch = originalFetch;
-    });
-
-    it('ignores submits fired before the anti-bot delay elapses', function () {
-        // Force "now" well before the module's readyAt cutoff, rather than relying on
-        // this test running within 3s of module import. Spying on Date.now (rather than
-        // jasmine's fake clock) leaves the real setTimeout alone, which flush() relies on.
-        spyOn(Date, 'now').and.returnValue(0);
-
-        const wrapper = addWrapper('/contact/');
-        window.fetch = jasmine.createSpy('fetch');
-
-        const event = submitForm(wrapper);
-
-        expect(event.defaultPrevented).toBe(false);
-        expect(window.fetch).not.toHaveBeenCalled();
-    });
-
-    describe('once the anti-bot delay has elapsed', function () {
-        beforeEach(function () {
-            const now = Date.now();
-            spyOn(Date, 'now').and.returnValue(now + 10000);
-        });
-
-        it('swaps in the response wrapper on an HTML response', async function () {
-            const wrapper = addWrapper('/contact/');
-            window.fetch = jasmine.createSpy('fetch').and.returnValue(
-                Promise.resolve({
-                    redirected: false,
-                    headers: { get: () => 'text/html; charset=utf-8' },
-                    text: () =>
-                        Promise.resolve(
-                            '<div class="fl-contact-form-wrapper"><p>Thanks!</p></div>'
-                        )
-                })
-            );
-
-            const event = submitForm(wrapper);
-            await flush();
-            await flush();
-
-            expect(event.defaultPrevented).toBe(true);
-            expect(window.fetch).toHaveBeenCalledWith(
-                '/contact/',
-                jasmine.objectContaining({ method: 'POST' })
-            );
-            expect(wrapper.innerHTML).toContain('Thanks!');
-        });
-
-        it('navigates the browser when the response was redirected', async function () {
-            const wrapper = addWrapper('/contact/');
-            window.fetch = jasmine.createSpy('fetch').and.returnValue(
-                Promise.resolve({
-                    redirected: true,
-                    url: '/thank-you/'
-                })
-            );
-            spyOn(browserNav, 'redirectTo');
-
-            submitForm(wrapper);
-            await flush();
-
-            expect(browserNav.redirectTo).toHaveBeenCalledWith('/thank-you/');
-        });
-
-        it('falls back to a real submit when the response is unusable', async function () {
+    describe('anti-bot delay', function () {
+        it('sends an early submit to the decoy action instead of htmx', function () {
+            spyOn(Date, 'now').and.returnValue(0);
             const wrapper = addWrapper('/contact/');
             const form = wrapper.querySelector('form');
             spyOn(form, 'submit');
-            window.fetch = jasmine
-                .createSpy('fetch')
-                .and.returnValue(Promise.reject(new Error('network down')));
 
-            submitForm(wrapper);
-            await flush();
-            await flush();
+            const event = new Event('htmx:confirm', {
+                bubbles: true,
+                cancelable: true
+            });
+            form.dispatchEvent(event);
 
-            expect(form.action).toContain('/contact/');
+            expect(event.defaultPrevented).toBe(true);
             expect(form.submit).toHaveBeenCalled();
+            expect(form.action).toContain('/page-not-found/');
         });
 
-        it('clicks the download link once it appears after a swap', async function () {
+        it('leaves htmx:confirm and the form alone once the delay has elapsed', function () {
+            spyOn(Date, 'now').and.returnValue(Date.now() + 10000);
             const wrapper = addWrapper('/contact/');
-            window.fetch = jasmine.createSpy('fetch').and.returnValue(
-                Promise.resolve({
-                    redirected: false,
-                    headers: { get: () => 'text/html' },
-                    text: () =>
-                        Promise.resolve(
-                            '<div class="fl-contact-form-wrapper"><a class="contact-form-download" href="/file.pdf" download>Download</a></div>'
-                        )
-                })
+            const form = wrapper.querySelector('form');
+            spyOn(form, 'submit');
+
+            const event = new Event('htmx:confirm', {
+                bubbles: true,
+                cancelable: true
+            });
+            form.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(false);
+            expect(form.submit).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('error fallback', function () {
+        ['htmx:sendError', 'htmx:responseError'].forEach((eventName) => {
+            it(`falls back to a real submit on ${eventName}`, function () {
+                const wrapper = addWrapper('/contact/');
+                const form = wrapper.querySelector('form');
+                spyOn(form, 'submit');
+
+                form.dispatchEvent(new Event(eventName, { bubbles: true }));
+
+                expect(form.action).toContain('/contact/');
+                expect(form.submit).toHaveBeenCalled();
+            });
+        });
+    });
+
+    describe('after a swap', function () {
+        it('clicks the download link the new wrapper carries', function () {
+            const wrapper = addWrapper(
+                '/contact/',
+                '<a class="contact-form-download" href="/file.pdf" download>Download</a>'
             );
-            // Spy on the prototype, not the (not-yet-existing) swapped-in link, and avoid
-            // a real navigation/download attempt in the test browser.
+            // Spy on the prototype to avoid a real navigation/download in the test browser.
             spyOn(HTMLAnchorElement.prototype, 'click');
 
-            submitForm(wrapper);
-            await flush();
-            await flush();
+            wrapper.dispatchEvent(
+                new Event('htmx:afterSwap', { bubbles: true })
+            );
 
             const link = wrapper.querySelector('.contact-form-download');
             expect(link.click).toHaveBeenCalled();

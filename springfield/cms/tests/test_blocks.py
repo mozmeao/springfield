@@ -6152,10 +6152,9 @@ def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block
     wrapper = section.find("div", class_="fl-contact-form-wrapper")
     form = wrapper.find("form", class_="contact-form")
     assert form["method"] == "post"
-    # The real target is parked in data-actn; JS posts there and swaps the response's own
-    # wrapper in place, see media/js/cms/components/flare-contact-form-block.es6.js. The
-    # visible `action` is a decoy for the anti-bot delay in the same JS file.
-    assert form["data-actn"] == contact_page_for_block.url
+    # hx-post carries the real target; the visible `action` is a decoy for the
+    # anti-bot delay in flare-contact-form.es6.js.
+    assert form["hx-post"] == contact_page_for_block.url
     assert form["action"] == "/page-not-found/"
     assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
     assert form.find("input", attrs={"name": "office_fax"}) is not None
@@ -6209,5 +6208,5 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     wrapper = media_content.find("div", class_="fl-contact-form-wrapper")
     form = wrapper.find("form", class_="contact-form")
-    assert form["data-actn"] == contact_page_for_block.url
+    assert form["hx-post"] == contact_page_for_block.url
     assert form.find("input", attrs={"name": "full_name"}) is not None
