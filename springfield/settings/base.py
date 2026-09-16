@@ -762,6 +762,7 @@ MIDDLEWARE = [
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ENABLE_CSP_MIDDLEWARE = config("ENABLE_CSP_MIDDLEWARE", default="true", parser=bool)
@@ -780,6 +781,7 @@ INSTALLED_APPS = [
     # L10n
     "product_details",
     # third-party apps
+    "django_htmx",
     "django_jinja_markdown",
     "django_jinja",
     "waffle",

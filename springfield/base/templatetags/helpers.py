@@ -12,6 +12,7 @@ from django.urls import NoReverseMatch
 from django.utils.encoding import smart_str
 
 import jinja2
+from django_htmx.jinja import htmx_script
 from django_jinja import library
 from markupsafe import Markup
 from sentry_sdk import capture_exception, new_scope
@@ -161,6 +162,9 @@ def js_bundle(name):
     if path is None:
         return Markup("")
     return Markup(JS_TEMPLATE % path)
+
+
+library.global_function(htmx_script)
 
 
 @library.global_function
