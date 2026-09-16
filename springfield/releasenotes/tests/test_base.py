@@ -133,10 +133,7 @@ class TestReleaseViews(TestCase):
         assert self.mock_render.call_args[0][1] == "firefox/releases/system_requirements.html"
 
     def test_enterprise_release_notes_route(self):
-        """
-        Enterprise notes are linked by exact path from the release notes
-        source, so pin the path rather than only reversing and resolving it.
-        """
+        """Enterprise release-note URLs resolve to the Enterprise release-notes view."""
         url = reverse("firefox.enterprise.releasenotes", args=["145.0", "release"])
         assert url == "/en-US/firefox/enterprise/145.0/releasenotes/"
 
@@ -145,10 +142,7 @@ class TestReleaseViews(TestCase):
         assert match.kwargs == {"version": "145.0", "product": "Firefox Enterprise"}
 
     def test_enterprise_system_requirements_route(self):
-        """
-        The intro text on every notes page links here, and the sitemap lists
-        it alongside the notes URL, so both need it to resolve.
-        """
+        """Enterprise system-requirement URLs resolve to the Enterprise view."""
         url = reverse("firefox.enterprise.system_requirements", args=["145.0"])
         assert url == "/en-US/firefox/enterprise/145.0/system-requirements/"
 
@@ -180,27 +174,26 @@ class TestReleaseViews(TestCase):
             template_name="firefox/releases/release-notes.html",
             context={"release_notes": [], "release": enterprise_release()},
         )
-        soup = BeautifulSoup(rendered, "html.parser")
-        assert soup.select_one("h1").get_text(" ", strip=True) == "Firefox Enterprise Release Notes"
-        for dom_id in ("download-enterprise-primary", "download-enterprise-secondary"):
-            button = soup.select_one(f"#{dom_id}")
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        assert release_notes_document.select_one("h1").get_text(" ", strip=True) == "Firefox Enterprise Release Notes"
+        for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
+            button = release_notes_document.select_one(f"#{element_id}")
             assert button["href"] == reverse("firefox.enterprise.index")
             assert button.get_text(strip=True) == "Download Firefox for Enterprise"
 
     def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):
-        """
-        The subnav decides which entry is current by rebuilding a `.../notes/`
-        path from the request, so the enterprise link has to reverse to that
-        same path to light up.
-        """
+        """Enterprise release notes mark Enterprise as the current subnavigation entry."""
         rendered = render_to_string(
             request=RequestFactory().get("/en-US/firefox/enterprise/145.0/releasenotes/"),
             template_name="firefox/releases/release-notes.html",
             context={"release_notes": [], "release": enterprise_release()},
         )
-        soup = BeautifulSoup(rendered, "html.parser")
-        entries = [(link.get_text(strip=True), link.get("aria-current")) for link in soup.select(".fl-subnav-list a")]
-        assert entries == [
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        subnav_entries = [
+            (link.get_text(strip=True), link.get("aria-current"))
+            for link in release_notes_document.select(".fl-subnav-list a")
+        ]
+        assert subnav_entries == [
             ("Desktop", None),
             ("Enterprise", "page"),
             ("Desktop Beta & Developer Edition", None),

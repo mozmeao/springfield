@@ -57,9 +57,7 @@
   {% endset %}
   {% set download_all_link = firefox_url('desktop', 'all', channel='release') %}
 {% elif release.product == 'Firefox Enterprise' %}
-  {# Without `product_name` the default in `notes.html` appends the channel, giving
-     "Firefox Enterprise Release". Enterprise builds are not served by the generic
-     download button either, so both CTAs point at the enterprise download page. #}
+  {# Set the product name explicitly so the default does not append the Release channel. #}
   {% set product_name = 'Firefox Enterprise' %}
   {# The CTA points at the enterprise download page, not a consumer build, so it
      stays visible for the admins evaluating Enterprise, who are on Firefox already. #}
