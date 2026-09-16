@@ -396,7 +396,7 @@ def test_contact_page_renders_its_own_form_wrapper(
 ) -> None:
     """The page wraps its form in .fl-contact-form-wrapper, same as the Contact Form block.
 
-    htmx (hx-select/hx-target on the form) swaps this wrapper in from each POST response,
+    htmx (hx-target on the form) swaps this wrapper in from each POST response,
     so a POST must carry the same wrapper as the initial GET.
     """
     index_page = minimal_site.root_page
@@ -418,6 +418,76 @@ def test_contact_page_renders_its_own_form_wrapper(
     post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
     wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")
     assert wrapper.find("form")["hx-post"] == page.url
+
+
+def test_contact_page_htmx_post_renders_only_the_form(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Partial Test",
+        slug="contact-htmx-partial-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {}, headers={"hx-request": "true"})
+    content = resp.content.decode()
+    soup = BeautifulSoup(content, "html.parser")
+
+    assert soup.find("div", class_="fl-contact-form-wrapper") is not None
+    assert soup.find("form", class_="contact-form") is not None
+    assert "<html" not in content
+    assert soup.find("nav") is None
+    assert soup.find("footer") is None
+
+
+def test_contact_page_htmx_response_is_never_cached(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Cache Test",
+        slug="contact-htmx-cache-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {}, headers={"hx-request": "true"})
+
+    assert "no-store" in resp.get("Cache-Control", "")
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+
+
+def test_contact_page_non_htmx_post_still_renders_the_whole_page(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact No HTMX Test",
+        slug="contact-no-htmx-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {})
+    content = resp.content.decode()
+
+    assert "<html" in content
+    assert BeautifulSoup(content, "html.parser").find("div", class_="fl-contact-form-wrapper") is not None
 
 
 def test_contact_page_get_is_never_cached(

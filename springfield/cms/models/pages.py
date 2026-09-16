@@ -2936,6 +2936,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             context["form_success"] = True
         return context
 
+    def get_template(self, request, *args, **kwargs):
+        """Serve only the form to htmx since it only needs that portion of the page."""
+        if getattr(request, "htmx", False):
+            return "cms/includes/contact-form.html"
+        return super().get_template(request, *args, **kwargs)
+
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)
         success = None
