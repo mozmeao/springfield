@@ -71,9 +71,10 @@
 
 /* badge styles */
 .fl-badge {
-    --badge-border-size: 1px;
+    --badge-locked-border-size: 1px;
+    --badge-border-size: var(--badge-locked-border-size);
     --badge-connector-fill: var(--token-color-light-purple);
-    --badge-connector-size: 1px;
+    --badge-connector-size: var(--badge-border-size);
     --badge-gradient-end: #5327ff;
     --badge-gradient-start: #e752ff;
     --badge-image-filter: grayscale(0.2);
@@ -91,7 +92,6 @@
 
 .fl-badge.is-achieved {
     --badge-border-size: 2px;
-    --badge-connector-size: var(--badge-border-size);
     --badge-image-filter: none;
     --badge-image-opacity: 1;
     --badge-connector-fill: linear-gradient(
@@ -127,11 +127,30 @@
 }
 
 .fl-badge.is-achieved:has(+ .fl-badge:not(.is-achieved))::after {
-    background: linear-gradient(
-        to bottom,
-        var(--badge-gradient-end),
-        var(--token-color-light-purple) 50%
-    );
+    background-image:
+        radial-gradient(
+            circle closest-side,
+            var(--badge-gradient-start) 100%,
+            transparent
+        ),
+        linear-gradient(
+            to bottom,
+            var(--badge-gradient-end),
+            var(--badge-gradient-start)
+        ),
+        linear-gradient(
+            var(--token-color-light-purple),
+            var(--token-color-light-purple)
+        );
+    background-position:
+        center calc(50% - var(--badge-connector-size) / 2),
+        center top,
+        center bottom;
+    background-repeat: no-repeat;
+    background-size:
+        100% var(--badge-connector-size),
+        100% calc(50% - var(--badge-connector-size) / 2),
+        var(--badge-locked-border-size) 50%;
 }
 
 .fl-badge-media {
@@ -214,11 +233,29 @@
     }
 
     .fl-badge.is-achieved:has(+ .fl-badge:not(.is-achieved))::after {
-        background: linear-gradient(
-            to right,
-            var(--badge-gradient-start),
-            var(--token-color-light-purple) 50%
-        );
+        background-image:
+            radial-gradient(
+                circle closest-side,
+                var(--badge-gradient-end) 100%,
+                transparent
+            ),
+            linear-gradient(
+                to right,
+                var(--badge-gradient-start),
+                var(--badge-gradient-end)
+            ),
+            linear-gradient(
+                var(--token-color-light-purple),
+                var(--token-color-light-purple)
+            );
+        background-position:
+            calc(50% - var(--badge-connector-size) / 2) center,
+            left center,
+            right center;
+        background-size:
+            var(--badge-connector-size) 100%,
+            calc(50% - var(--badge-connector-size) / 2) 100%,
+            50% var(--badge-locked-border-size);
     }
 
     .fl-badge.has-media:has(+ .fl-badge.has-media)::after {
