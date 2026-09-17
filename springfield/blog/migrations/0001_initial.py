@@ -627,7 +627,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("cms", "0153_move_blog_models_to_blog_app"),
+        ("cms", "0154_move_blog_models_to_blog_app"),
         ("wagtailcore", "0097_baselogentry_uuid_action_timestamp_indexes"),
     ]
 
