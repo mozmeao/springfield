@@ -5435,7 +5435,7 @@ def test_tab_block_renders_badge_image(placeholder_images):
     assert "srcset" in img.attrs
 
 
-def test_tab_block_renders_badge_name_below_the_number_and_label():
+def test_tab_block_renders_badge_name_above_the_number_and_label():
     badges = _badge_elements(_render_impact_dash(numbers=(5,), install_count=0))
 
     name = badges[0].find("p", class_="fl-badge-name")
@@ -5444,7 +5444,7 @@ def test_tab_block_renders_badge_name_below_the_number_and_label():
     description = badges[0].find("div", class_="fl-badge-description")
     children = description.find_all(["p", "div"], recursive=False)
     classes = [c for el in children for c in (el.get("class") or [])]
-    assert classes.index("fl-badge-value") < classes.index("fl-badge-name")
+    assert classes.index("fl-badge-name") < classes.index("fl-badge-value")
 
 
 def test_tab_block_renders_distinct_badge_name_per_badge():
