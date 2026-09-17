@@ -1,0 +1,20 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# Minimal template for testing that meta text is HTML-escaped exactly once.
+   `base_template` picks which base to exercise.
+
+   The `*_source` context vars cover every way a value reaches a meta tag: pass
+   a plain str, pass Markup (what ftl() returns), or pass nothing and fall
+   through to the literal text below, which Jinja treats as trusted markup. #}
+{% extends base_template %}
+
+{% block page_title %}{% if title_source %}{{ title_source }}{% else %}A "quoted" title & co{% endif %}{% endblock %}
+{% block page_og_title %}{% if title_source %}{{ title_source }}{% else %}A "quoted" title & co{% endif %}{% endblock %}
+{% block page_desc %}{% if desc_source %}{{ desc_source }}{% else %}A "quoted" desc & co{% endif %}{% endblock %}
+{% block page_og_desc %}{% if desc_source %}{{ desc_source }}{% else %}A "quoted" desc & co{% endif %}{% endblock %}
+
+{% block content %}<p>test</p>{% endblock %}

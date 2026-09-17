@@ -3,10 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import html as html_library
-import os
 
 from django.conf import settings
-from django.template import engines
 from django.test import override_settings
 from django.urls import path
 
@@ -27,8 +25,6 @@ from springfield.cms.tests.factories import (
 from springfield.urls import urlpatterns as springfield_urlpatterns
 
 pytestmark = [pytest.mark.django_db]
-
-TEST_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 
 def _hreflang_test_view(request):
@@ -441,22 +437,6 @@ def test_homepage_fallback_for_alias_locale(client):
     assert f'rel="canonical" href="{settings.CANONICAL_URL}/pt-PT/"' not in html
     # Since content (pt-BR) differs from the URL locale (pt-PT), should be noindexed.
     assert '<meta name="robots" content="noindex,follow">' in html
-
-
-@pytest.fixture()
-def _add_test_templates_dir():
-    """Temporarily add the test templates directory to the Jinja2 FileSystemLoader.
-
-    Modifies the loader's searchpath directly instead of resetting
-    engines._engines, which would invalidate module-level references
-    to the Jinja2 environment used by other tests' mock patches.
-    """
-    jinja2_loader = engines["jinja2"].env.loader
-    jinja2_loader.searchpath.insert(0, TEST_TEMPLATES_DIR)
-    try:
-        yield
-    finally:
-        jinja2_loader.searchpath.remove(TEST_TEMPLATES_DIR)
 
 
 @pytest.mark.urls(__name__)
