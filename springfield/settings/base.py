@@ -395,6 +395,10 @@ FALLBACK_LOCALES = {
     "en-CA": "en-US",
 }
 
+# Locales that must never be sent to Smartling. Alias locales qualify because they
+# serve another locale's content, and Welsh is translated outside Smartling.
+SMARTLING_EXCLUDED_LOCALES = [*FALLBACK_LOCALES.keys(), "cy"]
+
 
 def lazy_lang_group():
     """Groups languages with a common prefix into a map keyed on said prefix"""
@@ -1444,6 +1448,7 @@ def lazy_wagtail_langs():
         ("zh-CN", "Chinese (China-Simplified)"),
         ("id", "Indonesian"),
         ("tr", "Turkish"),
+        ("cy", "Welsh"),
     ]
     enabled_language_codes = [x[0] for x in LANGUAGES]
     retval = [wagtail_lang for wagtail_lang in enabled_wagtail_langs if wagtail_lang[0] in enabled_language_codes]
@@ -1511,7 +1516,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     ),
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
-    "EXCLUDE_LOCALES": list(FALLBACK_LOCALES.keys()),
+    "EXCLUDE_LOCALES": SMARTLING_EXCLUDED_LOCALES,
 }
 
 WAGTAILDRAFTSHARING = {

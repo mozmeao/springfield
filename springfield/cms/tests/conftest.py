@@ -1,9 +1,11 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+import os
 from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
+from django.template import engines
 from django.test import override_settings
 
 import pytest
@@ -18,6 +20,24 @@ from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
+
+TEST_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
+
+
+@pytest.fixture()
+def _add_test_templates_dir():
+    """Temporarily add the test templates directory to the Jinja2 FileSystemLoader.
+
+    Modifies the loader's searchpath directly instead of resetting
+    engines._engines, which would invalidate module-level references
+    to the Jinja2 environment used by other tests' mock patches.
+    """
+    jinja2_loader = engines["jinja2"].env.loader
+    jinja2_loader.searchpath.insert(0, TEST_TEMPLATES_DIR)
+    try:
+        yield
+    finally:
+        jinja2_loader.searchpath.remove(TEST_TEMPLATES_DIR)
 
 
 @pytest.fixture

@@ -149,23 +149,28 @@ def relative_url_link_block_js():
 
 @hooks.register("insert_global_admin_js")
 def mark_locale_roles_in_admin():
-    """Adds 'alias → X' badges next to alias locale names on the locales list page.
+    """Adds role badges next to locale names on the locales list page.
 
-    Injects the alias map as window.WAGTAIL_LOCALE_ALIAS_MAP, then loads the
-    static JS file that reads it and applies the badges to the DOM.
+    Injects two maps for the static JS file to read: WAGTAIL_LOCALE_ALIAS_MAP for
+    alias locales ('alias → X'), and WAGTAIL_LOCALE_NOTE_MAP for locales no vendor
+    translates, so editors know not to queue a Smartling job for them. A locale can
+    carry both badges: the two facts are independent.
     """
 
     fallback_locales = getattr(settings, "FALLBACK_LOCALES", {})
-    if not fallback_locales:
-        return ""
-
     alias_rows = WagtailLocale.objects.filter(language_code__in=fallback_locales.keys()).values_list("id", "language_code")
     alias_id_map = {id: fallback_locales[code] for id, code in alias_rows}
-    if not alias_id_map:
+
+    excluded_codes = getattr(settings, "SMARTLING_EXCLUDED_LOCALES", [])
+    excluded_ids = WagtailLocale.objects.filter(language_code__in=excluded_codes).values_list("id", flat=True)
+    note_id_map = {locale_id: "not sent to Smartling" for locale_id in excluded_ids}
+
+    if not alias_id_map and not note_id_map:
         return ""
 
     return mark_safe(
-        f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};</script>"
+        f"<script>window.WAGTAIL_LOCALE_ALIAS_MAP = {json.dumps(alias_id_map)};"
+        f"window.WAGTAIL_LOCALE_NOTE_MAP = {json.dumps(note_id_map)};</script>"
         f'<script src="{static("js/wagtailadmin-locale-badges.js")}"></script>'
     )
 

@@ -6,6 +6,13 @@
 
 @import 'components/flare-icon.css';
 
+/* Role badges the mark_locale_roles_in_admin hook injects after a locale name.
+   Chained with .w-status to outrank Wagtail's own `.w-status { margin-inline: 0 }`,
+   which ties on specificity and would otherwise win on load order. */
+.w-status.locale-role-badge {
+    margin-inline-start: 0.5rem;
+}
+
 /* IconChoiceBlock sets thumbnail_is_one_color, so ThumbnailChoiceBlock tints
    every picker thumbnail by masking the wrapper and painting it a single color.
    The browser logos in icons/mobile-24/browsers/ are full-color brand artwork,
