@@ -932,6 +932,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("video", VideoBlock()),
             ("button_row", ButtonRowBlock()),
             ("comparison_table", ComparisonTableBlock()),
+            ("browser_comparison_table", BrowserComparisonTableBlock()),
         ],
         use_json_field=True,
     )
