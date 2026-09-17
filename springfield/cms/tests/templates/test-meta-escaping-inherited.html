@@ -1,0 +1,17 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# As test-meta-escaping.html, but deliberately leaves page_og_title and
+   page_og_desc alone so they fall through to the base's defaults. On
+   base-protocol those are {{ self.page_title() }} / {{ self.page_desc() }} —
+   the path almost every non-CMS page takes, where the block output is captured
+   twice and so has two chances to be escaped once too often. #}
+{% extends base_template %}
+
+{% block page_title %}{% if title_source %}{{ title_source }}{% else %}A "quoted" title & co{% endif %}{% endblock %}
+{% block page_desc %}{% if desc_source %}{{ desc_source }}{% else %}A "quoted" desc & co{% endif %}{% endblock %}
+
+{% block content %}<p>test</p>{% endblock %}

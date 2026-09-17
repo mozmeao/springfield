@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import datetime
+import html
 import logging
 import urllib.parse
 
@@ -10,6 +11,7 @@ from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import NoReverseMatch
 from django.utils.encoding import smart_str
+from django.utils.html import strip_tags
 
 import jinja2
 from django_htmx.jinja import htmx_script
@@ -100,6 +102,18 @@ def _urlencode(items):
         return urllib.parse.urlencode(items)
     except UnicodeEncodeError:
         return urllib.parse.urlencode([(k, smart_str(v)) for k, v in items])
+
+
+@library.filter
+def plain_text(value):
+    """Unescape entities and remove real markup, leaving whitespace untouched.
+
+    For captured meta-tag text, so autoescaping the result escapes it exactly
+    once. Django's `striptags` leaves entities to be escaped a second time;
+    Jinja's unescapes but also collapses whitespace, which would downgrade the
+    non-breaking spaces French copy uses before punctuation.
+    """
+    return html.unescape(strip_tags(str(value)))
 
 
 @library.filter
