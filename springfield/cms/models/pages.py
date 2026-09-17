@@ -931,6 +931,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             ("text", RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL)),
             ("video", VideoBlock()),
             ("button_row", ButtonRowBlock()),
+            ("comparison_table", ComparisonTableBlock()),
         ],
         use_json_field=True,
     )
