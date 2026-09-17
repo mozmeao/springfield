@@ -77,11 +77,11 @@
     margin-inline: calc((100% - 100vw) / 2);
     max-inline-size: 100vw;
     padding-block: var(--token-layout-sm);
+}
 
-    .fl-comparison-table {
-        margin-inline: auto;
-        max-inline-size: var(--token-width-desktop-content-lg);
-    }
+.fl-article-main .fl-comparison-table-wrapper .fl-comparison-table {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
 }
 
 @media (--viewport-sm-up) {
