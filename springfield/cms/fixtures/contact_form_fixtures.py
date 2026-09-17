@@ -12,11 +12,6 @@ from springfield.cms.models import FreeFormPage2026
 def get_contact_form_variants() -> list[dict]:
     """An intro, then the block on its own and nested in a media + content block, its two placements."""
     contact_page = get_contact_test_page()
-    contact_form = {
-        "type": "contact_form",
-        "value": {"contact_page": contact_page.pk},
-        "id": "cf000001-0000-0000-0000-000000000001",
-    }
     return [
         {
             "type": "intro",
@@ -36,7 +31,11 @@ def get_contact_form_variants() -> list[dict]:
             },
             "id": "cf000003-0000-0000-0000-000000000001",
         },
-        contact_form,
+        {
+            "type": "contact_form",
+            "value": {"contact_page": contact_page.pk, "two_column": False},
+            "id": "cf000001-0000-0000-0000-000000000001",
+        },
         {
             "type": "media_content",
             "value": {
@@ -57,11 +56,17 @@ def get_contact_form_variants() -> list[dict]:
                 "heading": {
                     "heading_text": '<p data-block-key="cfmc01">A contact form beside an image</p>',
                     "subheading_text": (
-                        '<p data-block-key="cfmc02">Nested in a media + content block, the form drops its own '
-                        "section wrapper and takes the layout of whatever holds it.</p>"
+                        '<p data-block-key="cfmc02">Nested in a Media + Content block. The two-column layout option helps '
+                        "organize the form fields side by side on larger screens.</p>"
                     ),
                 },
-                "content": [contact_form],
+                "content": [
+                    {
+                        "type": "contact_form",
+                        "value": {"contact_page": contact_page.pk, "two_column": True},
+                        "id": "cf000001-0000-0000-0000-000000000002",
+                    }
+                ],
             },
             "id": "cf000002-0000-0000-0000-000000000001",
         },

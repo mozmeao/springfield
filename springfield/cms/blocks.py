@@ -4012,12 +4012,22 @@ class ContactFormBlock(blocks.StructBlock):
     """
 
     contact_page = blocks.PageChooserBlock(target_model="cms.ContactPage")
+    two_column = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Two Column Layout",
+        help_text="Render the form fields in two columns on large screens.",
+    )
 
     class Meta:
         icon = "mail"
         template = "cms/blocks/contact-form.html"
         label = "Contact Form"
         label_format = "Contact Form - {contact_page}"
+        form_layout = blocks.BlockGroup(
+            children=["contact_page"],
+            settings=["two_column"],
+        )
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)

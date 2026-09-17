@@ -27,7 +27,7 @@ describe('flare-contact-form.es6.js', function () {
     function addWrapper(action, innerHtml) {
         container.innerHTML = `
       <div class="fl-contact-form-wrapper">
-        <form method="post" action="/page-not-found/" hx-post="${action}" class="fl-form-page contact-form">
+        <form method="post" action="/page-not-found/" hx-post="${action}" class="fl-form contact-form">
           ${innerHtml || '<button type="submit">Submit</button>'}
         </form>
       </div>

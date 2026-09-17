@@ -30,7 +30,7 @@
       hx-target="closest .fl-contact-form-wrapper"
       hx-swap="outerHTML"
       hx-disabled-elt="find button[type=submit]"
-      class="fl-form-page contact-form"
+      class="fl-form contact-form {% if two_column %}fl-form-two-column{% endif %}"
     >
       {% csrf_token %}
 

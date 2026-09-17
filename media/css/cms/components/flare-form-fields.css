@@ -4,10 +4,10 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-form-page {
-    display: flex;
-    flex-direction: column;
+.fl-form {
+    display: grid;
     gap: var(--token-spacing-2xl);
+    grid-template-columns: 1fr;
     inline-size: 100%;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-content);
@@ -92,4 +92,18 @@ fieldset.fl-field-wrap {
 .fl-field-error-message {
     color: var(--theme-form-error-message-color);
     font-size: var(--fl-theme-label-sm);
+}
+
+@media (--viewport-lg-up) {
+    .fl-form.fl-form-two-column {
+        grid-template-columns: 1fr 1fr;
+
+        .fl-buttons {
+            grid-column: span 2;
+
+            .fl-button {
+                inline-size: 100%;
+            }
+        }
+    }
 }
