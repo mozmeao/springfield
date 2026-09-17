@@ -5350,6 +5350,17 @@ def test_tab_block_marks_only_achieved_badges():
     assert ["is-achieved" in b["class"] for b in badges] == [True, True, False]
 
 
+@pytest.mark.parametrize(("install_count", "at_milestone"), [(5, True), (7, False)])
+def test_tab_block_marks_badge_whose_connector_has_no_progress(install_count, at_milestone):
+    """Exactly on a badge's number, the connector after it shows no gradient.
+
+    Anywhere between two numbers, it keeps its default half fill.
+    """
+    badges = _badge_elements(_render_impact_dash(numbers=(1, 5, 10), install_count=install_count))
+
+    assert ["is-at-milestone" in b["class"] for b in badges] == [False, at_milestone, False]
+
+
 def test_tab_block_impact_dash_locked_when_install_count_absent_from_context():
     """TabBlock is reachable from MediaBlock on pages that never set the count."""
     soup = _render_impact_dash(numbers=(1, 5), install_count=_UNSET)
@@ -5427,7 +5438,7 @@ def test_tab_block_renders_badge_image(placeholder_images):
     assert "srcset" in img.attrs
 
 
-def test_tab_block_renders_badge_name_below_the_number_and_label():
+def test_tab_block_renders_badge_name_above_the_number_and_label():
     badges = _badge_elements(_render_impact_dash(numbers=(5,), install_count=0))
 
     name = badges[0].find("p", class_="fl-badge-name")
@@ -5436,7 +5447,7 @@ def test_tab_block_renders_badge_name_below_the_number_and_label():
     description = badges[0].find("div", class_="fl-badge-description")
     children = description.find_all(["p", "div"], recursive=False)
     classes = [c for el in children for c in (el.get("class") or [])]
-    assert classes.index("fl-badge-value") < classes.index("fl-badge-name")
+    assert classes.index("fl-badge-name") < classes.index("fl-badge-value")
 
 
 def test_tab_block_renders_distinct_badge_name_per_badge():
