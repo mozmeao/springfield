@@ -30,15 +30,19 @@
     {% block extra_meta %}{% endblock %}
 
     {% block shared_meta %}
-    <title>{% filter striptags %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox.com{% endblock %}{% endfilter %}</title>
-    <meta name="description" content="{% filter striptags %}{% block page_desc %}{% endblock %}{% endfilter %}">
+    {% set page_title_content %}{% block page_title_full %}{% block page_title_prefix %}{% endblock %}{% block page_title %}{% endblock %}{% endblock page_title_full %}{% block page_title_suffix %} — Firefox.com{% endblock %}{% endset %}
+    <title>{{ page_title_content|plain_text|trim }}</title>
+    {% set page_desc_content %}{% block page_desc %}{% endblock %}{% endset %}
+    <meta name="description" content="{{ page_desc_content|plain_text|trim }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Firefox">
     <meta property="og:locale" content="{{ LANG|replace("-", "_") }}">
     <meta property="og:url" content="{% filter trim|absolute_url %}{% block page_og_url %}{{ settings.CANONICAL_URL + '/' + LANG + canonical_path }}{% endblock %}{% endfilter %}">
     <meta property="og:image" content="{% filter trim|absolute_url %}{% block page_image %}{{ static('img/firefox/flare/og.png') }}{% endblock %}{% endfilter %}">
-    <meta property="og:title" content="{% filter striptags %}{% block page_og_title %}{{ self.page_title() }}{% endblock %}{% endfilter %}">
-    <meta property="og:description" content="{% filter striptags %}{% block page_og_desc %}{{ self.page_desc() }}{% endblock %}{% endfilter %}">
+    {% set page_og_title_content %}{% block page_og_title %}{{ self.page_title() }}{% endblock %}{% endset %}
+    <meta property="og:title" content="{{ page_og_title_content|plain_text|trim }}">
+    {% set page_og_desc_content %}{% block page_og_desc %}{{ self.page_desc() }}{% endblock %}{% endset %}
+    <meta property="og:description" content="{{ page_og_desc_content|plain_text|trim }}">
     <meta property="fb:page_id" content="{% block facebook_id %}14696440021{# facebook.com/firefox #}{% endblock %}">
     <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
     <meta name="twitter:site" content="@{% block twitter_id %}firefox{% endblock %}">
