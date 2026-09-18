@@ -26,6 +26,22 @@
         /* two-card color deviations */
         --two-column-light-light-first-card-bg: var(--token-color-grey-2);
         --two-column-light-light-second-card-bg: var(--token-color-grey-1);
+
+        /* font sizes – no overrides on mobile yet.  */
+    }
+
+    /* typography overrides */
+    .fl-heading-size-1,
+    .fl-rich-text h1,
+    .fl-heading-size-2,
+    .fl-heading-lg,
+    .fl-pre-footer-cta-button,
+    .fl-heading-condensed,
+    .fl-heading-xl,
+    .fl-heading-md {
+        font-variation-settings:
+            'wght' 400,
+            'wdth' 100;
     }
 
     .fl-main.has-gradient-bottom::before {
@@ -53,13 +69,57 @@
     }
 
     .has-gradient-bottom::before {
-        --gradient-height: 250vh;
-        background-image: linear-gradient(
-            0deg,
-            rgba(139, 135, 220, 1) 0%,
-            #8accff00 64%
-        );
-        content: '';
+        content: none;
+    }
+
+    .fl-scallop-decoration {
+        display: none;
+    }
+
+    /* default backgrounds. */
+    .has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-subpage-1.svg');
+        background-position: bottom 119% center;
+        background-repeat: no-repeat;
+        background-size: 112vw auto;
+    }
+
+    .fl-main.has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-footer-tail-1.svg');
+        background-position: bottom -24vw right -12vw;
+    }
+
+    /* homepage overrides. Requires body class to be added in CMS page-level settings. */
+    .ent-home .has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
+        background-position: bottom center;
+    }
+
+    .ent-home .fl-main.has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
+    }
+
+    /* homepage overrides. Requires body class to be added in CMS page-level settings. */
+    .ent-bgs-alt-1 .has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-subpage-2.svg');
+        background-position: top 68% right -166.6%;
+        background-size: 86vw auto;
+    }
+
+    .ent-bgs-alt-1 .fl-main.has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-footer-tail-2.svg');
+        background-position: bottom -15vw right -8vw;
+        background-size: 108vw auto;
+    }
+
+    .fl-fx-logo {
+        background-image: url('/media/img/firefox/enterprise/firefox-enterprise-icon.png');
+    }
+
+    .fl-featured-image-section-heading .fl-fx-logo {
+        block-size: 1.2em;
+        inline-size: 1.2em;
+        margin-block-end: 1rem;
     }
 
     .fl-logo-fx {
@@ -68,12 +128,15 @@
     }
 
     .fl-featured-image-section {
+        background-color: transparent;
+        background-image: none;
         padding-block-start: var(--token-layout-md);
     }
 
-    .fl-featured-image-section,
+    .fl-featured-image-section:not(.has-gradient-bottom),
     .fl-featured-image-section::before {
         background: none;
+        background-color: transparent;
         border-radius: 0;
     }
 
@@ -103,22 +166,6 @@
     }
 
     /* footer overrides  */
-
-    body {
-        background: var(--token-color-black-4);
-    }
-
-    .fl-newsletterform-cta.fl-force-dark-theme,
-    .fl-footer {
-        --fl-theme-color-text: var(--token-color-white);
-        --fl-theme-background: var(--token-color-black-4);
-        background: var(--fl-theme-background);
-    }
-
-    .fl-footer a:link:not(.fl-button),
-    .fl-footer a:visited:not(.fl-button) {
-        color: var(--fl-theme-color-text);
-    }
 
     .fl-language-switcher::before,
     .fl-language-switcher-select-wrapper {
@@ -157,5 +204,26 @@
             background-size: 237px 36px;
             inline-size: 237px;
         }
+    }
+}
+
+@media (--viewport-sm-up) {
+    :root {
+        /* note: 80% smaller for now. */
+        --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
+        --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
+        --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
+        --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
+        --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
+    }
+}
+
+@media (--viewport-md-up) {
+    :root {
+        --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
+        --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
+        --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
+        --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
+        --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
     }
 }
