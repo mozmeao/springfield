@@ -10,7 +10,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0153_create_welsh_locale"),
+        ("cms", "0154_move_blog_models_to_blog_app"),
         ("wagtaildocs", "0014_alter_document_file_size"),
     ]
 
