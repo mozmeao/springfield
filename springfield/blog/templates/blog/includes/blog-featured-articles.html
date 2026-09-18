@@ -1,0 +1,65 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Renders a curated featured-articles header.
+  Requires: featured_articles (a StreamField value of BlogArticleBlock).
+#}
+
+{% from "blog/includes/blog-card-media.html" import illustration_card_media, featured_sizes with context %}
+
+{% if featured_articles %}
+  <div class="fl-blog-featured">
+
+    <div class="fl-blog-featured-row">
+      {% set first_block = featured_articles[0] %}
+
+      <div class="fl-blog-featured-main">
+        <div class="fl-blog-featured-main-media">
+          {{ illustration_card_media(first_block.value, sizes_override=featured_sizes) }}
+        </div>
+        <include:heading
+          level="h2"
+          heading_text="{{ first_block.value.get_title() }}"
+          superheading_text="{{ first_block.value.get_topic() }}"
+          heading_size="fl-heading-lg fl-heading-condensed"
+        />
+        <p class="fl-body">{{ first_block.value.get_description() }}</p>
+        <div>
+          <include:button
+            label="{{ ftl('blog-read-more') }}"
+            link="{{ first_block.value.get_url() }}"
+          />
+        </div>
+      </div>
+
+      {% if featured_articles|length > 1 %}
+        <div class="fl-blog-article-list">
+          {% for block in featured_articles[1:] %}
+            {% set description = block.value.get_description() %}
+            {% set image = block.value.get_image() %}
+            <include:blog-article-list-item with_image="{{ image }}">
+              {% if image %}
+                <content:image>{{ illustration_card_media(block.value, sizes_override=featured_sizes) }}</content:image>
+              {% endif %}
+
+              <content:heading>
+                <include:heading
+                  level="h2"
+                  heading_text="{{ block.value.get_title() }}"
+                  superheading_text="{{ block.value.get_topic() }}"
+                  link="{{ block.value.get_url() }}"
+                />
+              </content:heading>
+              <content:body>{{ description|richtext }}</content:body>
+            </include:blog-article-list-item>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+{% endif %}

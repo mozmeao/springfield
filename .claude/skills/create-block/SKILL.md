@@ -18,13 +18,13 @@ If a block uses multiple components, all of those need to be represented individ
 
 ## Fixtures
 
-Fixtures are located at `springfield/cms/fixtures/`.
+Fixtures are located in `springfield/<app>/fixtures/` packages (notable, the `blog` and `cms` apps).
 When new blocks use other inner blocks that already have fixtures, use data from those other fixtures so that the fixtures file corresponding to the external block only has code that's easier to follow. For example, get buttons from the buttons fixture.
 Use the block's text fields, such as headings and content, to describe the block's options and behaviors. Be concise and objective. When the field is intended for slightly longer text use the space to be a bit more descriptive.
 Add enough variations to cover all the block's options - not necessarily all the possible combinations because there might be too many for a comprehensive page.
 For blocks available to the `FreeFormPage2026`, the block variants should be added both to the upper and lower content fields of the page.
 
-Page fixtures should be added to the `springfield/cms/management/commands/load_page_fixtures.py` command.
+Page fixtures should be added to the `springfield/base/management/commands/load_page_fixtures.py` command.
 
 ## Tests
 
