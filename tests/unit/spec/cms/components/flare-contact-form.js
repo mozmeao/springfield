@@ -40,7 +40,7 @@ describe('flare-contact-form.es6.js', function () {
             spyOn(Date, 'now').and.returnValue(0);
             const wrapper = addWrapper('/contact/');
             const form = wrapper.querySelector('form');
-            spyOn(form, 'submit');
+            spyOn(HTMLFormElement.prototype, 'submit');
 
             const event = new Event('htmx:confirm', {
                 bubbles: true,
@@ -49,15 +49,17 @@ describe('flare-contact-form.es6.js', function () {
             form.dispatchEvent(event);
 
             expect(event.defaultPrevented).toBe(true);
-            expect(form.submit).toHaveBeenCalled();
+            expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
             expect(form.action).toContain('/page-not-found/');
         });
 
         it('leaves htmx:confirm and the form alone once the delay has elapsed', function () {
-            spyOn(Date, 'now').and.returnValue(Date.now() + 10000);
+            // Read the clock before the spy replaces it, or the configured value is NaN.
+            const afterTheDelay = Date.now() + 10000;
+            spyOn(Date, 'now').and.returnValue(afterTheDelay);
             const wrapper = addWrapper('/contact/');
             const form = wrapper.querySelector('form');
-            spyOn(form, 'submit');
+            spyOn(HTMLFormElement.prototype, 'submit');
 
             const event = new Event('htmx:confirm', {
                 bubbles: true,
@@ -66,7 +68,23 @@ describe('flare-contact-form.es6.js', function () {
             form.dispatchEvent(event);
 
             expect(event.defaultPrevented).toBe(false);
-            expect(form.submit).not.toHaveBeenCalled();
+            expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
+        });
+
+        it('submits natively even when a field is named "submit"', function () {
+            spyOn(Date, 'now').and.returnValue(0);
+            const wrapper = addWrapper(
+                '/contact/',
+                '<input name="submit"><button type="submit">Submit</button>'
+            );
+            const form = wrapper.querySelector('form');
+            spyOn(HTMLFormElement.prototype, 'submit');
+
+            form.dispatchEvent(
+                new Event('htmx:confirm', { bubbles: true, cancelable: true })
+            );
+
+            expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
         });
     });
 
@@ -75,12 +93,12 @@ describe('flare-contact-form.es6.js', function () {
             it(`falls back to a real submit on ${eventName}`, function () {
                 const wrapper = addWrapper('/contact/');
                 const form = wrapper.querySelector('form');
-                spyOn(form, 'submit');
+                spyOn(HTMLFormElement.prototype, 'submit');
 
                 form.dispatchEvent(new Event(eventName, { bubbles: true }));
 
                 expect(form.action).toContain('/contact/');
-                expect(form.submit).toHaveBeenCalled();
+                expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
             });
         });
     });

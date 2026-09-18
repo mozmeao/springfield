@@ -12,6 +12,17 @@
 const readyAt = Date.now() + 3000;
 
 /**
+ * A form control named `submit` shadows `HTMLFormElement.submit`, so go through
+ * the prototype instead of calling the property off the element.
+ *
+ * @param {HTMLFormElement} form
+ * @returns {void}
+ */
+function submitNatively(form) {
+    HTMLFormElement.prototype.submit.call(form);
+}
+
+/**
  * @param {HTMLElement} wrapper
  * @returns {void}
  */
@@ -36,13 +47,13 @@ function initDocumentDownloads() {
  * @returns {void}
  */
 function initAntiBotGate() {
-    document.body.addEventListener('htmx:confirm', (e) => {
-        const form = e.target;
+    document.body.addEventListener('htmx:confirm', (event) => {
+        const form = event.target;
         if (form.closest('.fl-contact-form-wrapper') && Date.now() < readyAt) {
-            e.preventDefault();
-            // htmx already blocked the native submit; call submit() directly so the
+            event.preventDefault();
+            // htmx already blocked the native submit; submit directly so the
             // bot lands on the decoy action instead of the click doing nothing.
-            form.submit();
+            submitNatively(form);
         }
     });
 }
@@ -53,10 +64,10 @@ function initAntiBotGate() {
 function initErrorFallback() {
     // Network error or an unswappable response (e.g. stale-CSRF 403). Falls through to a
     // real submit, losing in-progress field values; revisit with an inline error if this gets common.
-    const fallback = (e) => {
-        const form = e.target;
+    const fallback = (event) => {
+        const form = event.target;
         form.action = form.getAttribute('hx-post');
-        form.submit();
+        submitNatively(form);
     };
     document.body.addEventListener('htmx:sendError', fallback);
     document.body.addEventListener('htmx:responseError', fallback);
@@ -68,8 +79,8 @@ function initErrorFallback() {
 export default function setupContactForms() {
     initAntiBotGate();
     initErrorFallback();
-    document.body.addEventListener('htmx:afterSwap', (e) => {
-        const wrapper = e.target.closest('.fl-contact-form-wrapper');
+    document.body.addEventListener('htmx:afterSwap', (event) => {
+        const wrapper = event.target.closest('.fl-contact-form-wrapper');
         if (wrapper) {
             startDocumentDownload(wrapper);
         }
