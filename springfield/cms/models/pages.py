@@ -23,6 +23,7 @@ from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
+from django_htmx.http import HttpResponseClientRedirect
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -51,6 +52,7 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -1104,6 +1106,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("comparison_table", ComparisonTableBlock(group="Main")),
         ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
+        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -1774,6 +1777,7 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+BASKET_CONTACT_BASIC_PATH = "/api/v1/contact/basic/"
 
 # The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
 # Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
@@ -1799,6 +1803,22 @@ BASKET_ENDPOINT_FIELDS = {
             "lead_source",
             "cta",
             "message",
+        },
+    },
+    BASKET_CONTACT_BASIC_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "accepted_terms",
+        },
+        "optional": {
+            "opt_in",
+            "lead_source",
+            "cta",
         },
     },
 }
@@ -1891,6 +1911,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
     )
 
+    document_download = models.ForeignKey(
+        "wagtaildocs.Document",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text="File offered for download alongside the thank you message, once the form has been submitted.",
+    )
+
+    document_download_label = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Fallback text for the download link in case JavaScript is disabled. Required if a file is set.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("intro"),
         FieldPanel("form_fields"),
@@ -1909,6 +1944,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
                 FieldPanel("redirect_to"),
+                FieldPanel("document_download"),
+                FieldPanel("document_download_label"),
             ],
             heading="Form Submission Settings",
         ),
@@ -1918,6 +1955,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         index.SearchField("intro"),
         index.SearchField("form_fields"),
         index.SearchField("thank_you_message"),
+        index.SearchField("document_download_label"),
     ]
 
     override_translatable_fields = [
@@ -1974,6 +2012,15 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
 
+        if self.document_download and not self.document_download_label:
+            errors["document_download_label"] = "Set the text for the download link."
+
+        if self.document_download and self.redirect_to:
+            # A redirect replaces the success template the download link lives in.
+            msg = "Set either a redirect page or a document download, not both."
+            errors["redirect_to"] = msg
+            errors["document_download"] = msg
+
         if errors:
             raise ValidationError(errors)
 
@@ -1983,6 +2030,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         if getattr(request, "form_success", False):
             context["form_success"] = True
         return context
+
+    def get_template(self, request, *args, **kwargs):
+        """Serve only the form to htmx since it only needs that portion of the page."""
+        if getattr(request, "htmx", False):
+            return "cms/includes/contact-form.html"
+        return super().get_template(request, *args, **kwargs)
 
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)
@@ -2002,7 +2055,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             request.form_success = success
 
             if success and self.redirect_to:
-                return redirect(self.redirect_to.localized.url)
+                url = self.redirect_to.localized.url
+                if getattr(request, "htmx", False):
+                    # A 302 gets swapped into the wrapper by htmx; HX-Redirect
+                    # navigates the whole window instead.
+                    return HttpResponseClientRedirect(url)
+                return redirect(url)
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
@@ -2049,11 +2107,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                     raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
                 return _self.cleaned_data
 
-        # auto_id="%s" keeps the rendered ids equal to the author-defined internal identifiers
-        # instead of Django's "id_" prefixed defaults.
-        if request.method == "POST":
-            return ContactForm(request.POST, auto_id="%s")
-        return ContactForm(auto_id="%s")
+        # Ensure that each form instance gets a unique number for its element ids.
+        number = self.next_form_number(request)
+        form = ContactForm(request.POST if request.method == "POST" else None, auto_id=f"contact-{number}-%s")
+        form.number = number
+        form.id_prefix = f"contact-{number}-"
+        return form
+
+    @staticmethod
+    def next_form_number(request) -> int:
+        """Return the number identifying the form about to be rendered for this request."""
+        submitted = request.POST.get("form_instance", "") if request.method == "POST" else ""
+        if submitted.isdigit():
+            return int(submitted)
+        request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
+        return request.contact_form_count
 
     def _collect_field_values(self, form):
         """Return submitted values keyed by internal_identifier, normalized to the

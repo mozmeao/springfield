@@ -1,0 +1,71 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  A contact page's form, or its thank-you message once the form has been submitted.
+
+  Rendered by the contact page itself and by the Contact Form block on another
+  page, so `page` must be the contact page in both cases.
+#}
+
+{% set action = page.url ~ '?' ~ request.GET.urlencode() if request.GET else page.url %}
+<div class="fl-contact-form-wrapper">
+  {% if form_success %}
+    <include:notification color="green" icon="checkmark" role="status">
+      {{ page.thank_you_message | richtext }}
+      {% if page.document_download %}
+        <a class="contact-form-download" href="{{ page.document_download.url }}" download>
+          {{ page.document_download_label }}
+        </a>
+      {% endif %}
+    </include:notification>
+  {% else %}
+    <noscript>
+      <include:notification color="orange">
+        {{ ftl("ui-please-turn-on-javascript", ftl_files=["ui"]) }}
+      </include:notification>
+    </noscript>
+
+    <form
+      method="post"
+      action="/page-not-found/"
+      hx-post="{{ action or '' }}"
+      hx-target="closest .fl-contact-form-wrapper"
+      hx-swap="outerHTML"
+      hx-disabled-elt="find button[type=submit]"
+      class="fl-form contact-form {% if two_column %}fl-form-two-column{% endif %}"
+    >
+      {% csrf_token %}
+      {# Keep track of the form instance number so that htmx re-renders maintain unique element ids #}
+      <input type="hidden" name="form_instance" value="{{ form.number }}">
+
+      {% if form.non_field_errors() %}
+        <include:notification color="red" icon="warning" role="alert">
+          {% for error in form.non_field_errors() %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </include:notification>
+      {% elif form.errors %}
+        <include:notification color="red" icon="warning" role="alert">
+          {{ ftl("contact-form-correct-errors") }}
+        </include:notification>
+      {% endif %}
+
+      {% for field in page.form_fields %}
+        {% include_block field %}
+      {% endfor %}
+
+      <div class="hidden">
+        <label for="{{ form.id_prefix }}office-fax">Leave this field empty</label>
+        <input type="text" name="office_fax" id="{{ form.id_prefix }}office-fax" autocomplete="off" tabindex="-1">
+      </div>
+
+      <div class="fl-buttons">
+        <button type="submit" class="fl-button">{{ ftl("contact-form-submit") }}</button>
+      </div>
+    </form>
+  {% endif %}
+</div>

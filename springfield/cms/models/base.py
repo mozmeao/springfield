@@ -210,7 +210,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
         response = self._render_with_fluent_string_support(request, *args, **kwargs)
 
-        if len(self.get_view_restrictions()):
+        # `needs_fresh_csrf` is set during rendering by blocks whose markup carries a
+        # CSRF token, which a shared cache would hand to every subsequent visitor.
+        if len(self.get_view_restrictions()) or getattr(request, "needs_fresh_csrf", False):
             add_never_cache_headers(response)
         return response
 

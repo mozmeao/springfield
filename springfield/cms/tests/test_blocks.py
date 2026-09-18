@@ -7,6 +7,7 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -18,7 +19,7 @@ from wagtail import blocks
 from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.blog.fixtures.blog_fixtures import (
@@ -45,6 +46,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
@@ -57,6 +59,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TabBlock,
     TabsBlock,
+    TextFieldBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -170,6 +173,7 @@ from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_
 from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import (
     ArticleDetailPage,
+    ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
     SmartWindowExplainerPage,
@@ -5994,3 +5998,196 @@ def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notif
         assert_intro_heading(main, condition_class, heading_text, "h1")
 
     assert_section_and_banner_heading_levels(main)
+
+
+# Contact Form Block
+
+
+@pytest.fixture
+def contact_page_for_block(index_page):
+    """A published contact page with two form fields, enough to show the block renders them."""
+    page = ContactPage(
+        title="Contact Us",
+        slug="contact-us",
+        to_email_address="contact@example.com",
+        thank_you_message='<p data-block-key="cfbty1">Thanks for reaching out!</p>',
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "contact-form-block-field-1",
+            },
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "email", "label": "Email Address", "required": True},
+                "id": "contact-form-block-field-2",
+            },
+        ],
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def contact_form_block(contact_page):
+    return {"type": "contact_form", "value": {"contact_page": contact_page.pk}}
+
+
+def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block, index_page, rf):
+    """The block renders the chosen contact page's own form, aimed at that page's URL.
+
+    The same contact page is embedded twice, so each copy has to get its own element ids.
+    """
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block), contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    forms = main.find_all("form", class_="contact-form")
+    assert len(forms) == 2
+    for number, form in enumerate(forms, start=1):
+        assert form.find_parent("div", class_="fl-contact-form-wrapper").find_parent("section", class_="fl-section")
+        assert form["method"] == "post"
+        # hx-post carries the real target; the visible `action` is a decoy for the
+        # anti-bot delay in flare-contact-form.es6.js.
+        assert form["hx-post"] == contact_page_for_block.url
+        assert form["action"] == "/page-not-found/"
+        assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+        assert form.find("input", attrs={"name": "office_fax"}) is not None
+        # The form tells the contact page which number to re-render it with
+        assert form.find("input", attrs={"name": "form_instance"})["value"] == str(number)
+
+        # Element ids are numbered per form
+        # Required fields carry a trailing marker in their label.
+        assert form.find("label", attrs={"for": f"contact-{number}-full_name"}).get_text(strip=True) == "Full Name*"
+        assert form.find("input", attrs={"name": "full_name"})["type"] == "text"
+        assert form.find("label", attrs={"for": f"contact-{number}-email"}).get_text(strip=True) == "Email Address*"
+        assert form.find("input", attrs={"name": "email"})["type"] == "email"
+
+        # The contact strings are Fluent, so they have to resolve on the host page too
+        assert form.find("button", attrs={"type": "submit"}).get_text(strip=True) == "Submit"
+
+
+@pytest.mark.parametrize("identifier", ["office_fax", "form_instance"])
+def test_form_field_clean_rejects_a_reserved_internal_identifier(identifier):
+    """The contact form markup posts these names itself, so an author's field cannot claim them."""
+    with pytest.raises(ValidationError, match=f"'{identifier}' is reserved"):
+        TextFieldBlock().clean({"label": "Whatever", "internal_identifier": identifier, "required": False})
+
+
+def test_contact_form_block_clean_accepts_a_published_contact_page(contact_page_for_block):
+    block = ContactFormBlock()
+
+    cleaned = block.clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert cleaned["contact_page"] == contact_page_for_block
+
+
+def test_contact_form_block_clean_rejects_an_unpublished_contact_page(contact_page_for_block):
+    contact_page_for_block.unpublish()
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_restricted_contact_page(contact_page_for_block):
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_warns_when_javascript_is_off(contact_page_for_block, index_page, rf):
+    """Submission runs through htmx, so a visitor without JavaScript is told the form will not work."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-noscript",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    noscript = main.find("div", class_="fl-contact-form-wrapper").find("noscript")
+    assert "Please turn on JavaScript" in noscript.get_text()
+
+
+def test_contact_form_block_hides_a_restricted_contact_page(contact_page_for_block, index_page, rf):
+    """A host page anyone can read must not expose a form from a contact page behind a restriction."""
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-restricted",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    assert main.find("div", class_="fl-contact-form-wrapper") is None
+
+
+def test_contact_form_block_hides_an_unpublished_contact_page(contact_page_for_block, index_page, rf):
+    """An unpublished contact page has no served form, so the block renders nothing."""
+    contact_page_for_block.unpublish()
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-unpublished",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    assert main.find("div", class_="fl-contact-form-wrapper") is None
+
+
+def test_contact_form_block_stops_its_host_page_being_cached(contact_page_for_block, index_page, rf):
+    """The form carries a per-visitor CSRF token, so a shared cache must not keep the host page."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-caching",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    response = page.serve(rf.get(page.get_full_url()))
+
+    assert "no-store" in response.get("Cache-Control", "")
+
+
+def test_contact_form_block_renders_inside_a_media_content_block(contact_page_for_block, index_page, rf):
+    """The block is also offered within Media + Content, where it carries no section of its own."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-in-media-content",
+        parent=index_page,
+        content=[
+            {
+                "type": "media_content",
+                "value": {
+                    "heading": {"heading_text": "<p>Talk to our team</p>"},
+                    "content": [contact_form_block(contact_page_for_block)],
+                },
+            }
+        ],
+    )
+
+    main = render_main_element(page, rf)
+
+    media_content = main.find("div", class_="fl-mediacontent")
+    # Nested, the block uses the bare template, so it brings no section of its own
+    assert media_content.find("section") is None
+
+    wrapper = media_content.find("div", class_="fl-contact-form-wrapper")
+    form = wrapper.find("form", class_="contact-form")
+    assert form["hx-post"] == contact_page_for_block.url
+    assert form.find("input", attrs={"name": "full_name"}) is not None
