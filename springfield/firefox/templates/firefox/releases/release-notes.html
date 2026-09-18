@@ -56,4 +56,24 @@
     {{ download_firefox(dom_id='download-release-secondary') }}
   {% endset %}
   {% set download_all_link = firefox_url('desktop', 'all', channel='release') %}
+{% elif release.product == 'Firefox Enterprise' %}
+  {# Set the product name explicitly so the default does not append the Release channel. #}
+  {% set product_name = 'Firefox Enterprise' %}
+  {# The CTA points at the enterprise download page, not a consumer build, so it
+     stays visible for the admins evaluating Enterprise, who are on Firefox already. #}
+  {% set download_cta_class = 'fl-force-download-cta' %}
+  {% set download_button_primary %}
+    <include:button
+      id="download-enterprise-primary"
+      label="{{ ftl('Download Firefox Enterprise') }}"
+      link="{{ url('firefox.enterprise.index') }}"
+    />
+  {% endset %}
+  {% set download_button_secondary %}
+    <include:button
+      id="download-enterprise-secondary"
+      label="{{ ftl('Download Firefox Enterprise') }}"
+      link="{{ url('firefox.enterprise.index') }}"
+    />
+  {% endset %}
 {% endif %}
