@@ -9,8 +9,8 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
-from springfield.cms.models.pages import HeroStyle
+from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
+from springfield.blog.models.pages import HeroStyle
 from springfield.cms.tests.factories import (
     LocaleFactory,
     ReferralGetFirefoxPageFactory,

@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
+from io import StringIO
 from pathlib import Path
 from unittest.mock import DEFAULT, patch
 
@@ -8,8 +9,13 @@ from django.core import mail
 from django.core.management import call_command
 from django.test import TestCase as DjangoTestCase, override_settings
 
+import pytest
+from wagtail.models import Page
+
+from springfield.base.fixtures.registry import PAGE_FIXTURES
 from springfield.base.management.commands import update_product_details_files
 from springfield.base.tests import TestCase
+from springfield.cms.models import FreeFormPage2026
 
 
 class CheckEmailDeliverabilityTestCase(DjangoTestCase):
@@ -93,3 +99,19 @@ class TestUpdateProductDetailsFiles(TestCase):
             self.command.handle(**options)
             assert not self.command.file_storage.all_json_files.called
             assert not self.command.repo.set_db_latest.called
+
+
+@pytest.mark.django_db
+def test_load_page_fixtures_loads_registry_pages():
+    """The load_page_fixtures command seeds every page fixture in the registry."""
+    call_command("load_page_fixtures", stdout=StringIO())
+
+    # The command actually ran the fixtures (representative page exists).
+    assert FreeFormPage2026.objects.filter(slug="test-buttons").exists()
+
+    # Every registry fixture is get-or-create, so re-running them all after the
+    # command must create no new pages — proving the command loaded them all.
+    page_count = Page.objects.count()
+    for fixture in PAGE_FIXTURES:
+        fixture()
+    assert Page.objects.count() == page_count
