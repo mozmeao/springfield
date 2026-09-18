@@ -130,6 +130,7 @@
     .fl-featured-image-section {
         background-color: transparent;
         background-image: none;
+        border-radius: 0;
         padding-block-start: var(--token-layout-md);
     }
 
