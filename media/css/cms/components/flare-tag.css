@@ -80,20 +80,6 @@ a.fl-tag:hover .fl-tag {
     color: var(--notification-blog-topic-color);
 }
 
-/* blog topic */
-.fl-tag.fl-tag-blog-topic {
-    background: var(--notification-blog-topic-bg);
-    border: 1px solid var(--notification-blog-topic-border-color);
-    color: var(--notification-blog-topic-color);
-    font-size: var(--fl-theme-label-xs);
-}
-
-a.fl-tag.fl-tag-blog-topic:hover {
-    background-color: transparent;
-    border-color: var(--notification-blog-topic-hover-border-color);
-    color: var(--notification-blog-topic-color);
-}
-
 /* Selected state */
 
 .fl-tag.is-selected {
