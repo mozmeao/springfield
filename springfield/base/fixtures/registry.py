@@ -53,6 +53,7 @@ from springfield.cms.fixtures.kit_intro_fixtures import get_kit_intro_test_page
 from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
+from springfield.cms.fixtures.resources_fixtures import get_resources_test_page
 from springfield.cms.fixtures.roadmap_list_fixtures import get_roadmap_list_test_page
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
@@ -90,6 +91,7 @@ PAGE_FIXTURES = [
     get_icon_list_with_image_test_page,
     get_line_cards_test_page,
     get_two_column_cards_test_page,
+    get_resources_test_page,
     get_roadmap_list_test_page,
     get_showcase_test_page,
     get_card_gallery_test_page,

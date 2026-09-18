@@ -144,6 +144,10 @@ from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_variants,
 )
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
+from springfield.cms.fixtures.resources_fixtures import (
+    get_resources_column_variants,
+    get_resources_test_page,
+)
 from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_section_variants,
     get_roadmap_list_test_page,
@@ -2631,6 +2635,96 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                             cta_position=cta_position,
                             cta_text=cta_text,
                         )
+
+
+def test_resources_block(index_page, placeholder_images, rf):
+    column_variants = get_resources_column_variants()
+    page = get_resources_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    # block-1: section containing resources (2 columns), block-2: standalone resources (3 columns)
+    # Upper: section at block_level=1 (children h2), standalone at block_level=2 (h2)
+    # Lower: section at block_level=2 (children h3), standalone at block_level=2 (h2)
+    for region_name, region, in_section_heading_tag in [("upper", upper, "h2"), ("lower", lower, "h3")]:
+        blocks_under_test = [
+            {
+                "columns": column_variants[:2],
+                "position_prefix": f"{region_name}-block-1-section.item-1-resources",
+                "heading_tag": in_section_heading_tag,
+            },
+            {
+                "columns": column_variants,
+                "position_prefix": f"{region_name}-block-2-resources",
+                "heading_tag": "h2",
+            },
+        ]
+
+        grids = region.find_all("div", class_="fl-resources")
+        assert len(grids) == 2
+
+        for grid, block_info in zip(grids, blocks_under_test):
+            heading_tag = block_info["heading_tag"]
+            subheading_tag = f"h{int(heading_tag[1:]) + 1}"
+            column_els = grid.find_all("div", class_="fl-resources-column")
+            assert len(column_els) == len(block_info["columns"])
+
+            for column_index, column_data in enumerate(block_info["columns"]):
+                column_el = column_els[column_index]
+                list_items = column_data["value"]["list_items"]
+
+                headline_text = BeautifulSoup(column_data["value"]["headline"], "html.parser").get_text().strip()
+                headline_el = column_el.find(heading_tag, class_="fl-heading")
+                assert headline_el and headline_text in headline_el.get_text()
+
+                # Consecutive links share one <ul>; a subheading closes the open list so the
+                # links after it start a new one, and a subheading with no links adds no list.
+                expected_subheadings = []
+                expected_link_groups = []
+                for item in list_items:
+                    if item["type"] == "subheading":
+                        expected_subheadings.append(BeautifulSoup(item["value"], "html.parser").get_text().strip())
+                        expected_link_groups.append([])
+                    else:
+                        if not expected_link_groups:
+                            expected_link_groups.append([])
+                        expected_link_groups[-1].append(item)
+                expected_link_groups = [group for group in expected_link_groups if group]
+
+                subheading_els = column_el.find_all(subheading_tag, class_="fl-heading")
+                assert [subheading_el.get_text().strip() for subheading_el in subheading_els] == expected_subheadings
+
+                list_els = column_el.find_all("ul", class_="fl-resources-list")
+                assert len(list_els) == len(expected_link_groups)
+
+                link_index = 0
+                for list_el, link_group in zip(list_els, expected_link_groups):
+                    link_item_els = list_el.find_all("li", class_="fl-resources-list-item")
+                    assert len(link_item_els) == len(link_group)
+
+                    for link_item_el, link_data in zip(link_item_els, link_group):
+                        link_index += 1
+                        link_value = link_data["value"]
+                        anchor = link_item_el.find("a", class_="fl-resources-link")
+                        assert anchor["href"] == add_utm_parameters(context, link_value["link"]["custom_url"])
+                        assert anchor.get_text().strip() == link_value["label"]
+                        assert anchor["data-cta-text"] == f"{headline_text} - {link_value['label']}"
+                        assert anchor["data-cta-position"] == f"{block_info['position_prefix']}.column-{column_index + 1}.link-{link_index}"
+                        assert anchor["data-cta-uid"] == link_value["settings"]["analytics_id"]
+                        if link_value["link"]["new_window"]:
+                            assert anchor["target"] == "_blank"
+                            assert anchor["rel"] == ["external", "noopener"]
+                        else:
+                            assert not anchor.has_attr("target")
 
 
 def test_icon_list_with_image_block(index_page, placeholder_images, rf):
