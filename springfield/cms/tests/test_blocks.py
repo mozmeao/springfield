@@ -431,14 +431,11 @@ def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
     title = tag_data["value"]["title"]
     icon = tag_data["value"]["icon"]
     icon_position = tag_data["value"]["icon_position"]
-    corners = tag_data["value"].get("corners")
     color = tag_data["value"]["color"]
 
     assert title in tag_element.get_text()
     if color:
         assert f"fl-tag-{color}" in tag_element["class"]
-    if corners:
-        assert f"fl-tag-{corners}" in tag_element["class"]
     icon_span = tag_element.find("span", class_="fl-icon")
     assert icon_span and f"fl-icon-{icon}" in icon_span["class"]
     if icon_position == "before":

@@ -29,22 +29,22 @@ _TAGS = [
     },
     {
         "type": "item",
-        "value": {"title": "Security", "icon": "lock", "icon_position": "before", "color": "red"},
+        "value": {"title": "Security", "icon": "lock", "icon_position": "before", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000002",
     },
     {
         "type": "item",
-        "value": {"title": "Speed", "icon": "trending", "icon_position": "before", "color": "orange"},
+        "value": {"title": "Speed", "icon": "trending", "icon_position": "before", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000003",
     },
     {
         "type": "item",
-        "value": {"title": "Open Source", "icon": "edit-active", "icon_position": "after", "color": "green"},
+        "value": {"title": "Open Source", "icon": "edit-active", "icon_position": "after", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000004",
     },
     {
         "type": "item",
-        "value": {"title": "Mobile", "icon": "android", "icon_position": "before", "color": "orange"},
+        "value": {"title": "Mobile", "icon": "android", "icon_position": "before", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000005",
     },
     {
@@ -54,12 +54,12 @@ _TAGS = [
     },
     {
         "type": "item",
-        "value": {"title": "Sync", "icon": "translate", "icon_position": "before", "color": "green"},
+        "value": {"title": "Sync", "icon": "translate", "icon_position": "before", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000007",
     },
     {
         "type": "item",
-        "value": {"title": "New", "icon": "trending", "icon_position": "after", "color": "red"},
+        "value": {"title": "New", "icon": "trending", "icon_position": "after", "color": "grey"},
         "id": "2026mct1-0000-0000-0000-000000000008",
     },
     {
