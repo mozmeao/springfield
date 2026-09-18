@@ -2376,6 +2376,36 @@ class LineCardsBlock(blocks.StructBlock):
         label_format = "Line Cards"
 
 
+# Resources
+
+
+class ResourcesColumnBlock(blocks.StructBlock):
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    list_items = blocks.StreamBlock(
+        [
+            ("subheading", RichTextBlock(features=HEADING_TEXT_FEATURES)),
+            ("link", CTABlock(template="cms/blocks/resources-link.html")),
+        ],
+        min_num=1,
+        label="Items",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Resources Column"
+        label_format = "{headline}"
+
+
+class ResourcesBlock(blocks.StructBlock):
+    columns = blocks.ListBlock(ResourcesColumnBlock(), min_num=1)
+
+    class Meta:
+        template = "cms/blocks/resources.html"
+        icon = "list-ul"
+        label = "Resources"
+        label_format = "Resources"
+
+
 # Article Cards
 
 
@@ -2887,6 +2917,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("resources", ResourcesBlock()),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
