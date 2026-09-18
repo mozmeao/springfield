@@ -136,7 +136,8 @@ services:
       - ./l10n/:/app/l10n:delegated
 
   playwright-visual-regression:
-    image: mcr.microsoft.com/playwright:v1.61.1-noble
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    platform: linux/amd64
     network_mode: host
     working_dir: /app/tests/playwright
     volumes:
@@ -147,7 +148,8 @@ services:
     command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js"
 
   playwright-visual-regression-ui:
-    image: mcr.microsoft.com/playwright:v1.61.1-noble
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    platform: linux/amd64
     network_mode: host
     working_dir: /app/tests/playwright
     volumes:
@@ -158,7 +160,8 @@ services:
     command: sh -c "npm install && npx playwright test --config playwright.visual-regression.config.js --ui --ui-host=0.0.0.0 --ui-port=8085"
 
   playwright-update-snapshots:
-    image: mcr.microsoft.com/playwright:v1.61.1-noble
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    platform: linux/amd64
     network_mode: host
     working_dir: /app/tests/playwright
     volumes:
