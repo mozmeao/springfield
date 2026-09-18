@@ -102,8 +102,8 @@
 }
 
 .fl-card-tag {
-    --notification-bg: var(--token-color-light-purple);
-    --notification-stacked-color: var(--token-color-white);
+    --tag-purple-bg: var(--token-color-light-purple);
+    --tag-purple-color: var(--token-color-white);
     inset-block-start: calc(var(--token-spacing-md) * -1);
     inset-inline-start: 50%;
     position: absolute;
