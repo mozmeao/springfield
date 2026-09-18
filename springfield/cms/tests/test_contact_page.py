@@ -141,6 +141,32 @@ def test_contact_page_clean_requires_link_text_for_the_document_download(
     }
 
 
+def test_contact_page_clean_rejects_a_document_download_alongside_a_redirect(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a redirect would replace the page carrying the download link."""
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "redirected-guide.pdf"),
+    )
+    thank_you_page = _create_thank_you_page(minimal_site.root_page)
+    page = ContactPage(
+        title="Clean Document Redirect Test",
+        slug="clean-document-redirect-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    message = "Set either a redirect page or a document download, not both."
+    assert exc_info.value.message_dict == {
+        "redirect_to": [message],
+        "document_download": [message],
+    }
+
+
 def test_contact_page_clean_rejects_unknown_basket_path(
     minimal_site: Site,
 ) -> None:

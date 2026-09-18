@@ -2015,6 +2015,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         if self.document_download and not self.document_download_label:
             errors["document_download_label"] = "Set the text for the download link."
 
+        if self.document_download and self.redirect_to:
+            # A redirect replaces the success template the download link lives in.
+            msg = "Set either a redirect page or a document download, not both."
+            errors["redirect_to"] = msg
+            errors["document_download"] = msg
+
         if errors:
             raise ValidationError(errors)
 
