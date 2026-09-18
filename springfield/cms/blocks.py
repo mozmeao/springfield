@@ -1199,9 +1199,7 @@ class TagBlock(blocks.StructBlock):
     color = blocks.ChoiceBlock(
         choices=[
             ("purple", "Purple"),
-            ("red", "Red"),
-            ("orange", "Orange"),
-            ("green", "Green"),
+            ("grey", "Grey"),
         ],
         default="purple",
         required=False,

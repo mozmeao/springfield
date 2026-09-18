@@ -141,7 +141,6 @@
 }
 
 .fl-blog-topic-link {
-    --notification-stacked-color: var(--fl-theme-color-text);
     align-items: center;
     display: flex;
     font-size: var(--fl-theme-font-size-body-xs);

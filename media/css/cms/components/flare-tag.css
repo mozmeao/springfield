@@ -4,12 +4,12 @@
 * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-/* base/purple */
 .fl-tag {
     align-items: center;
-    background: var(--notification-bg);
+    background: var(--tag-purple-bg);
+    border: 1px solid var(--tag-purple-border-color);
     border-radius: var(--token-spacing-lg);
-    color: var(--notification-stacked-color);
+    color: var(--tag-purple-color);
     display: inline-flex;
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--fl-theme-label-xs);
@@ -47,12 +47,20 @@ a.fl-tag:hover {
     text-decoration: none;
 }
 
-a.fl-tag:hover {
-    background-color: var(--notification-link-hover-bg);
-    color: var(--notification-link-hover-color);
+a.fl-tag:hover,
+a.fl-tag:focus-visible,
+a.fl-tag:active {
+    background-color: transparent;
+    border-color: var(--tag-purple-hover-border-color);
     transition:
         background-color 0.3s ease,
-        color 0.3s ease;
+        border-color 0.3s ease;
+}
+
+a.fl-tag.fl-tag-grey:hover,
+a.fl-tag.fl-tag-grey:focus-visible,
+a.fl-tag.fl-tag-grey:active {
+    border-color: var(--notification-blog-topic-hover-border-color);
 }
 
 a.fl-tag:hover .fl-tag {
@@ -65,33 +73,11 @@ a.fl-tag:hover .fl-tag {
     }
 }
 
-/* red */
-.fl-tag.fl-tag-red {
-    background: var(--notification-red-bg);
-    color: var(--notification-red-color);
-}
-
-/* orange */
-.fl-tag.fl-tag-orange {
-    background: var(--notification-orange-bg);
-    color: var(--notification-orange-color);
-}
-
-/* green */
-.fl-tag.fl-tag-green {
-    background: var(--notification-green-bg);
-    color: var(--notification-green-color);
-}
-
-/* white */
-.fl-tag.fl-tag-white {
-    background: var(--notification-white-bg);
-    color: var(--notification-white-color);
-}
-
-.fl-tag.fl-tag-light-purple {
-    background: var(--notification-light-purple-bg);
-    color: var(--notification-light-purple-color);
+/* grey */
+.fl-tag.fl-tag-grey {
+    background: var(--notification-blog-topic-bg);
+    border-color: transparent;
+    color: var(--notification-blog-topic-color);
 }
 
 /* blog topic */
@@ -111,35 +97,12 @@ a.fl-tag.fl-tag-blog-topic:hover {
 /* Selected state */
 
 .fl-tag.is-selected {
-    background: var(--notification-selected-bg);
-    color: var(--notification-selected-color);
+    background: var(--tag-purple-selected-bg);
+    border-color: var(--tag-purple-selected-bg);
+    color: var(--tag-purple-selected-color);
 }
 
-.fl-tag.fl-tag-red.is-selected {
-    background: var(--notification-red-selected-bg);
-    color: var(--notification-red-selected-color);
-}
-
-.fl-tag.fl-tag-orange.is-selected {
-    background: var(--notification-orange-selected-bg);
-    color: var(--notification-orange-selected-color);
-}
-
-.fl-tag.fl-tag-green.is-selected {
-    background: var(--notification-green-selected-bg);
-    color: var(--notification-green-selected-color);
-}
-
-.fl-tag.fl-tag-white.is-selected {
-    background: var(--notification-white-selected-bg);
-    color: var(--notification-white-selected-color);
-}
-
-.fl-tag.fl-tag-light-purple.is-selected {
-    background: var(--notification-light-purple-selected-bg);
-    color: var(--notification-light-purple-selected-color);
-}
-
+.fl-tag.fl-tag-grey.is-selected,
 .fl-tag.fl-tag-blog-topic.is-selected {
     background: var(--token-color-link-purple);
     border-color: var(--token-color-link-purple);
