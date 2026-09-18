@@ -8,7 +8,6 @@ from django.core.management import call_command
 from django.db import migrations
 
 from springfield.base.config_manager import config
-from springfield.cms.management.commands.create_main_navigation_snippet import SNIPPET_TRANSLATION_KEY
 
 
 def should_skip():
@@ -22,20 +21,9 @@ def create_main_navigation_snippet(apps, schema_editor):
     call_command("create_main_navigation_snippet", verbosity=1)
 
 
-def delete_main_navigation_snippet(apps, schema_editor):
-    if should_skip():
-        return
-
-    # Inline import: migration modules load before the app registry is ready.
-    from springfield.cms.models import NavigationSnippet
-
-    # Deletes the English snippet and every translation of it, which share a translation_key.
-    NavigationSnippet.objects.filter(translation_key=SNIPPET_TRANSLATION_KEY).delete()
-
-
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0153_create_welsh_locale"),
+        ("cms", "0154_move_blog_models_to_blog_app"),
         # Required because save_target() may interact with wagtail_localize_smartling
         # which has a handler that queries LandedTranslationTask / JobTranslation.
         ("wagtail_localize_smartling", "0008_jobtranslation_content_hash"),
@@ -48,6 +36,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             create_main_navigation_snippet,
-            delete_main_navigation_snippet,
+            migrations.RunPython.noop,
         ),
     ]
