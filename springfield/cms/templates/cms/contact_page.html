@@ -16,12 +16,6 @@
 
 {% block content %}
 <div class="fl-main has-gradient-bottom {% if page.theme == "enterprise" %}fl-force-light-theme{% endif %}">
-  <noscript>
-    <include:notification color="orange">
-      {{ ftl("ui-please-turn-on-javascript") }}
-    </include:notification>
-  </noscript>
-
   {% if page.intro %}
     {% for block in page.intro %}
       {% set block_level = 1 %}
