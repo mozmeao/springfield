@@ -12,12 +12,12 @@
     <div class="fl-badge-media" aria-hidden="true">{{ contents.media }}</div>
   {% endif %}
   <div class="fl-badge-description">
+    {% if badge_name %}
+      <p class="fl-badge-name">{{ badge_name }}</p>
+    {% endif %}
     <p class="fl-badge-value">
       <span class="fl-badge-number">{{ number }}</span>
       <span class="fl-badge-label">{{ label }}</span>
     </p>
-    {% if badge_name %}
-      <p class="fl-badge-name">{{ badge_name }}</p>
-    {% endif %}
   </div>
 </li>
