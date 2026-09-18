@@ -4,7 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# `page` here is the chosen contact page, put in place by ContactFormBlock.get_context #}
+{# `page` and `form` here come from the chosen contact page, put in place by
+   ContactFormBlock.get_context. They are absent when that page may not be shown. #}
 
-{% set two_column = value.two_column %}
-{% include "cms/includes/contact-form.html" %}
+{% if form %}
+  {% set two_column = value.two_column %}
+  {% include "cms/includes/contact-form.html" %}
+{% endif %}

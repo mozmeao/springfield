@@ -472,6 +472,65 @@ def test_contact_page_htmx_post_renders_only_the_form(
     assert soup.find("footer") is None
 
 
+def test_contact_page_htmx_post_keeps_the_number_the_form_was_rendered_with(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """The swapped-in markup reuses the submitting form's number, so it cannot take over the
+    element ids of another form still on the page."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Numbering Test",
+        slug="contact-htmx-numbering-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {"form_instance": "2"}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("label", attrs={"for": "contact-2-full_name"}) is not None
+    assert soup.find("input", attrs={"name": "form_instance"})["value"] == "2"
+
+
+def test_contact_page_htmx_post_ignores_a_junk_form_number(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """A submitted number that is not a plain integer never reaches the rendered ids."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Junk Number Test",
+        slug="contact-htmx-junk-number-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {"form_instance": '1"><script>'}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("label", attrs={"for": "contact-1-full_name"}) is not None
+    assert soup.find("input", attrs={"name": "form_instance"})["value"] == "1"
+
+
 def test_contact_page_htmx_response_is_never_cached(
     minimal_site: Site,
     client: Client,
@@ -801,9 +860,10 @@ def test_contact_page_field_error_message_is_linked_to_its_widget(
 
     content = page.serve(rf.post(page.relative_url(minimal_site), {})).content.decode()
 
+    # "contact-1-" numbers the first form rendered for this request
     assert 'aria-invalid="true"' in content
-    assert 'aria-describedby="first_name_error"' in content
-    assert 'id="first_name_error"' in content
+    assert 'aria-describedby="contact-1-first_name_error"' in content
+    assert 'id="contact-1-first_name_error"' in content
 
 
 def test_contact_page_textarea_field_renders_correctly(
@@ -840,7 +900,7 @@ def test_contact_page_textarea_field_renders_correctly(
 
     assert "<textarea" in content
     assert 'name="message"' in content
-    assert 'id="message"' in content
+    assert 'id="contact-1-message"' in content
     assert 'rows="6"' in content
     assert "cols=" not in content
     assert "maxlength=" not in content
@@ -2425,7 +2485,7 @@ def test_contact_page_success_offers_the_document_download(
     link = soup.find("a", class_="contact-form-download")
     assert link["href"] == document.url
     assert link.get_text(strip=True) == "Download the deployment guide"
-    # The link is the no-JS fallback: contact-form.js clicks it and then hides it
+    # The link is the no-JS fallback: flare-contact-form.es6.js clicks it and then hides it
     assert link.has_attr("download")
 
 

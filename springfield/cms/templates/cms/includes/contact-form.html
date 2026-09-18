@@ -39,6 +39,8 @@
       class="fl-form contact-form {% if two_column %}fl-form-two-column{% endif %}"
     >
       {% csrf_token %}
+      {# Keep track of the form instance number so that htmx re-renders maintain unique element ids #}
+      <input type="hidden" name="form_instance" value="{{ form.number }}">
 
       {% if form.non_field_errors() %}
         <include:notification color="red" icon="warning" role="alert">
@@ -57,8 +59,8 @@
       {% endfor %}
 
       <div class="hidden">
-        <label for="office-fax">Leave this field empty</label>
-        <input type="text" name="office_fax" id="office-fax" autocomplete="off" tabindex="-1">
+        <label for="{{ form.id_prefix }}office-fax">Leave this field empty</label>
+        <input type="text" name="office_fax" id="{{ form.id_prefix }}office-fax" autocomplete="off" tabindex="-1">
       </div>
 
       <div class="fl-buttons">

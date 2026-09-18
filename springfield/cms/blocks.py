@@ -3541,6 +3541,11 @@ class BaseFieldValue(blocks.StructValue):
         return None
 
 
+# Names the contact form markup already posts: the honeypot and the number that keeps
+# several forms on one page from sharing element ids.
+RESERVED_FIELD_IDENTIFIERS = ("office_fax", "form_instance")
+
+
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
     internal_identifier = UntranslatableCharBlock(
@@ -3556,8 +3561,8 @@ class BaseField(blocks.StructBlock):
     def clean(self, value):
         value = super().clean(value)
         internal_identifier = value.get("internal_identifier", "")
-        if internal_identifier == "office_fax":
-            raise ValidationError("The internal identifier 'office_fax' is reserved and cannot be used.")
+        if internal_identifier in RESERVED_FIELD_IDENTIFIERS:
+            raise ValidationError(f"The internal identifier '{internal_identifier}' is reserved and cannot be used.")
         return value
 
 
@@ -3799,6 +3804,21 @@ class ContactFormBlock(blocks.StructBlock):
             settings=["two_column"],
         )
 
+    def contact_page_is_invalid(self, contact_page):
+        if not contact_page.live:
+            return "The selected contact page is not published."
+        elif contact_page.get_view_restrictions():
+            return "The selected contact page is private, so its form cannot be shown on another page."
+        return None
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        contact_page = cleaned["contact_page"]
+        error = self.contact_page_is_invalid(contact_page)
+        if error:
+            raise StructBlockValidationError(block_errors={"contact_page": ValidationError(error)})
+        return cleaned
+
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
         request = (parent_context or {}).get("request")
@@ -3807,6 +3827,9 @@ class ContactFormBlock(blocks.StructBlock):
             return context
 
         contact_page = contact_page.localized
+        if self.contact_page_is_invalid(contact_page):
+            return context
+
         # The contact page reads its form off the request, the same way its own serve() supplies it.
         request.form = contact_page.get_form(request)
         # The rendered form carries a per-visitor CSRF token, so the host page must not be cached.

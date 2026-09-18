@@ -2107,11 +2107,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                     raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
                 return _self.cleaned_data
 
-        # auto_id="%s" keeps the rendered ids equal to the author-defined internal identifiers
-        # instead of Django's "id_" prefixed defaults.
-        if request.method == "POST":
-            return ContactForm(request.POST, auto_id="%s")
-        return ContactForm(auto_id="%s")
+        # Ensure that each form instance gets a unique number for its element ids.
+        number = self.next_form_number(request)
+        form = ContactForm(request.POST if request.method == "POST" else None, auto_id=f"contact-{number}-%s")
+        form.number = number
+        form.id_prefix = f"contact-{number}-"
+        return form
+
+    @staticmethod
+    def next_form_number(request) -> int:
+        """Return the number identifying the form about to be rendered for this request."""
+        submitted = request.POST.get("form_instance", "") if request.method == "POST" else ""
+        if submitted.isdigit():
+            return int(submitted)
+        request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
+        return request.contact_form_count
 
     def _collect_field_values(self, form):
         """Return submitted values keyed by internal_identifier, normalized to the
