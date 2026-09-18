@@ -6,7 +6,6 @@
 
 import setupAnimations from './components/flare-animations.es6';
 import setupFlareDropdown from './components/flare-dropdown.es6';
-import setupBlogTopicsScroll from './components/flare-blog-topics-scroll.es6';
 import setupCarousels from './components/flare-carousel.es6';
 import setupCopyToClipboardButtons from './components/flare-copy-to-clipboard.es6';
 import setupDialogs, { initDialogs } from './components/flare-dialogs.es6';
@@ -36,7 +35,6 @@ window.cms.Flare = { typewriter, initDialogs };
 
 function setupComponents() {
     setupFlareDropdown();
-    setupBlogTopicsScroll();
     setupNewsletter();
     setupNotificationClose();
     setupVideo();

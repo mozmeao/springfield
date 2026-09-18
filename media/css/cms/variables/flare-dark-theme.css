@@ -11,7 +11,6 @@
 */
 
 /* Main theme */
---fl-theme-blog-body-background: var(--token-color-dark-purple-3);
 --fl-theme-color-text: var(--token-color-white);
 --fl-theme-color-text-inverse: var(--token-color-dark-purple);
 --fl-theme-background: var(--token-color-dark-purple);
@@ -112,12 +111,6 @@
 --notification-white-color: var(--token-color-white);
 --notification-white-border-color: var(--token-color-black-1);
 --notification-white-icon-bg: var(--token-color-white);
-
-/* blog topic */
---notification-blog-topic-bg: var(--token-color-black-2);
---notification-blog-topic-color: var(--token-color-white);
---notification-blog-topic-border-color: var(--token-color-black-1);
---notification-blog-topic-hover-border-color: var(--token-color-white);
 
 /* selected state (inverted) */
 --notification-selected-bg: var(--notification-stacked-color);
