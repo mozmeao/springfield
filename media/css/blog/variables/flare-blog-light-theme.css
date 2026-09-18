@@ -1,0 +1,20 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+  This file contains pure CSS variables that will be inlined
+  by webpack. Since it's technically not valid CSS, your
+  code editor might flag everything as syntax errors.
+*/
+
+/* Background colors */
+--fl-theme-blog-body-background: var(--token-color-white);
+
+/* blog topic */
+--notification-blog-topic-bg: var(--token-color-grey-1);
+--notification-blog-topic-color: var(--token-color-black-4);
+--notification-blog-topic-border-color: var(--token-color-grey-2);
+--notification-blog-topic-hover-border-color: var(--token-color-black-4);
