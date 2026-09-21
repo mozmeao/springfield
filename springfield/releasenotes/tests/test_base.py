@@ -179,7 +179,7 @@ class TestReleaseViews(TestCase):
         for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
             button = release_notes_document.select_one(f"#{element_id}")
             assert button["href"] == reverse("firefox.enterprise.index")
-            assert button.get_text(strip=True) == "Download Firefox for Enterprise"
+            assert button.get_text(strip=True) == "Download Firefox Enterprise"
 
     def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):
         """Enterprise release notes mark Enterprise as the current subnavigation entry."""
@@ -189,10 +189,7 @@ class TestReleaseViews(TestCase):
             context={"release_notes": [], "release": enterprise_release()},
         )
         release_notes_document = BeautifulSoup(rendered, "html.parser")
-        subnav_entries = [
-            (link.get_text(strip=True), link.get("aria-current"))
-            for link in release_notes_document.select(".fl-subnav-list a")
-        ]
+        subnav_entries = [(link.get_text(strip=True), link.get("aria-current")) for link in release_notes_document.select(".fl-subnav-list a")]
         assert subnav_entries == [
             ("Desktop", None),
             ("Enterprise", "page"),
