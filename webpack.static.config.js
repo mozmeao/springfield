@@ -34,7 +34,9 @@ module.exports = {
                             // Copying them raw would expose @import paths that are resolved by
                             // the custom webpack loader (relative to media/css/cms/) but are
                             // invalid when Django's ManifestStaticFilesStorage post-processes
-                            // them relative to their own directory (css/cms/pages/).
+                            // them relative to their own directory (css/cms/pages/ or
+                            // css/blog/pages).
+                            '**/css/blog/pages/**',
                             '**/css/cms/pages/**',
                             '**/css/cms/themes/**'
                         ]

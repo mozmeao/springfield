@@ -6,7 +6,7 @@
 
 from django.db import migrations
 
-import springfield.cms.fields
+import springfield.blog.fields
 
 
 class Migration(migrations.Migration):
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="blogarticlepage",
             name="tags",
-            field=springfield.cms.fields.LocalizedClusterTaggableManager(
+            field=springfield.blog.fields.LocalizedClusterTaggableManager(
                 blank=True, help_text="A comma-separated list of tags.", through="cms.TaggedBlogArticle", to="cms.BlogTag", verbose_name="Tags"
             ),
         ),

@@ -100,7 +100,6 @@
 .fl-browser-comparison-table tbody tr:last-child td.highlighted {
     border-end-end-radius: var(--token-spacing-lg);
     border-end-start-radius: var(--token-spacing-lg);
-    padding-block: 0;
 }
 
 /* Cell contents. The comparison result and image header components bring their
