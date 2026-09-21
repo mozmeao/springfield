@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from collections import defaultdict
+
 from django.apps import AppConfig
 
 
@@ -18,6 +20,9 @@ class CmsConfig(AppConfig):
 
         # Sort hand-translated locales last on the "Translate" locale checkboxes
         self._patch_submit_translation_locale_order()
+
+        # Extend every group page permission to the page's other locales
+        self._patch_page_permission_policy()
 
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
@@ -92,6 +97,46 @@ class CmsConfig(AppConfig):
             )
 
         SubmitTranslationForm.__init__ = __init__
+
+    @staticmethod
+    def _patch_page_permission_policy():
+        """
+        Extend each of a group's page permissions to every translation of the page it names.
+
+        Wagtail scopes a permission to one page and its descendants, and each locale gets
+        its own page tree, so a permission below the root reaches a single locale and leaves
+        the same page in every other locale unreachable.
+
+        Patching this one method covers the whole admin: the page permission policy,
+        ``PagePermissionTester`` and the page explorer all reach their decisions through
+        ``get_cached_permissions_for_user``, which reads it. The permissions it adds are
+        unsaved, so a group's stored rows stay as the editor entered them.
+        """
+
+        # Imported inline because these modules pull in Wagtail models, which cannot be
+        # imported while the app registry is still loading.
+        from wagtail.models import GroupPagePermission, Page
+        from wagtail.permission_policies.pages import PagePermissionPolicy
+
+        original_get_all_permissions_for_user = PagePermissionPolicy.get_all_permissions_for_user
+
+        def get_all_permissions_for_user(self, user):
+            stored_permissions = original_get_all_permissions_for_user(self, user)
+            if not stored_permissions:
+                return stored_permissions
+
+            translation_keys = {permission.page.translation_key for permission in stored_permissions}
+            pages_by_translation_key = defaultdict(list)
+            for page in Page.objects.filter(translation_key__in=translation_keys):
+                pages_by_translation_key[page.translation_key].append(page)
+
+            return [
+                GroupPagePermission(group_id=permission.group_id, page=page, permission=permission.permission)
+                for permission in stored_permissions
+                for page in pages_by_translation_key[permission.page.translation_key]
+            ]
+
+        PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
 
     @staticmethod
     def _patch_image_form_field():
