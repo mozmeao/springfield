@@ -47,6 +47,7 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "type": "icon_list_with_image",
             "value": {
                 "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
                     _list_item("checkmark", "Block harmful trackers automatically", "il2026i1a"),
                     _list_item("lock", "Keep your passwords safe and synced", "il2026i1b"),
@@ -59,6 +60,7 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "type": "icon_list_with_image",
             "value": {
                 "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
                     _list_item("bookmark", "Save pages and sync across devices", "il2026i2a"),
                     _list_item("history", "Access your browsing history anywhere", "il2026i2b"),

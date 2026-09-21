@@ -40,6 +40,7 @@ def get_mobile_store_qr_code():
             },
             "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
             "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+            "mobile_image_alt": "A numbered grid, standing in for a real image",
         },
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     }

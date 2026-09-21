@@ -2094,8 +2094,15 @@ class IconListItemBlock(blocks.StructBlock):
         value_class = IconListItemValue
 
 
-class IconListWithImageBlock(blocks.StructBlock):
+class IconListWithImageBlock(RequireAltTextMixin, blocks.StructBlock):
+    alt_text_fields = ("image",)
+
     image = ImageChooserBlock()
+    image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        help_text="Text for screen readers describing the image.",
+    )
     list_items = blocks.ListBlock(IconListItemBlock())
 
     class Meta:
@@ -2979,7 +2986,9 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
 
 
 def TopicBlock(allow_uitour=False, *args, **kwargs):
-    class _TopicBlock(blocks.StructBlock):
+    class _TopicBlock(RequireAltTextMixin, blocks.StructBlock):
+        alt_text_fields = ("image",)
+
         short_title = blocks.CharBlock(
             label="Short Title",
             help_text="Text to be used on the sidebar link.",
@@ -2990,6 +2999,11 @@ def TopicBlock(allow_uitour=False, *args, **kwargs):
         image = ImageChooserBlock(
             label="Image",
             help_text="Image shown at the top of the topic heading.",
+        )
+        image_alt = blocks.CharBlock(
+            label="Alt Text",
+            required=False,
+            help_text="Text for screen readers describing the image.",
         )
         heading = HeadingBlock()
         content = RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -3361,8 +3375,10 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 # Mobile
 
 
-class MobileStoreQRCodeBlock(blocks.StructBlock):
+class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     """Block for displaying mobile app store buttons with a QR code."""
+
+    alt_text_fields = ("mobile_image",)
 
     heading = HeadingBlock()
     qr_code_data = blocks.CharBlock(
@@ -3372,6 +3388,11 @@ class MobileStoreQRCodeBlock(blocks.StructBlock):
     mobile_image = ImageChooserBlock(
         label="Mobile Image",
         help_text="Image shown on mobile instead of the QR code.",
+    )
+    mobile_image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        help_text="Text for screen readers describing the image.",
     )
 
     class Meta:

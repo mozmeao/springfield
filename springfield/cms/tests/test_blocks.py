@@ -49,8 +49,10 @@ from springfield.cms.blocks import (
     FXAccountButtonBlock,
     IconChoiceBlock,
     IconListItemValue,
+    IconListWithImageBlock,
     ImageVariantsBlock,
     ImpactDashBlock,
+    MobileStoreQRCodeBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -58,6 +60,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TabBlock,
     TabsBlock,
+    TopicBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -810,6 +813,64 @@ def test_image_variants_block_accepts_a_blank_alt_for_a_decorative_image(placeho
     block = ImageVariantsBlock()
     cleaned = block.clean(block.to_python({"image": decorative_image.pk, "image_alt": "", "settings": {}}))
     assert cleaned["image_alt"] == ""
+
+
+def test_icon_list_with_image_block_renders_its_alt(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python(
+        {
+            "image": settings.PLACEHOLDER_IMAGE_ID,
+            "image_alt": "A checklist beside the Firefox logo",
+            "list_items": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A checklist beside the Firefox logo"
+
+
+def test_icon_list_with_image_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python({"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "", "list_items": []})
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_mobile_store_qr_code_block_renders_its_alt(placeholder_images, rf):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "https://example.com/",
+            "mobile_image": settings.PLACEHOLDER_IMAGE_ID,
+            "mobile_image_alt": "Firefox in the app store",
+        }
+    )
+    # The store buttons need request and fluent_l10n in context, normally
+    # injected by the page they render on; _render_context supplies both.
+    rendered = block.render(value, context=_render_context(rf.get("/")))
+    soup = BeautifulSoup(rendered, "html.parser")
+    # The store buttons render their own icons first, so scope the search to
+    # the mobile image container rather than matching the first img on the page.
+    mobile_image_div = soup.find("div", class_="fl-mobile-store-mobile-image")
+    assert mobile_image_div.find("img")["alt"] == "Firefox in the app store"
+
+
+def test_topic_block_renders_its_alt(placeholder_images):
+    block = TopicBlock()
+    value = block.to_python(
+        {
+            "short_title": "Privacy",
+            "anchor_id": "privacy-online",
+            "image": settings.PLACEHOLDER_IMAGE_ID,
+            "image_alt": "A padlock over a browser window",
+            "heading": {"heading_text": '<p data-block-key="h">Privacy online</p>'},
+            "content": '<p data-block-key="c">How Firefox protects you.</p>',
+            "buttons": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A padlock over a browser window"
 
 
 class TestDownloadFirefoxButtonBlock:
