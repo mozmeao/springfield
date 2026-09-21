@@ -72,6 +72,22 @@
     max-inline-size: 100%;
 }
 
+.fl-article-main .fl-comparison-table-wrapper,
+.fl-article-main .fl-browser-comparison-table-wrapper {
+    inline-size: 100vw;
+    margin-inline: calc((100% - 100vw) / 2);
+    max-inline-size: 100vw;
+    padding-block: var(--token-layout-sm);
+}
+
+.fl-article-main .fl-comparison-table-wrapper .fl-comparison-table,
+.fl-article-main
+    .fl-browser-comparison-table-wrapper
+    .fl-browser-comparison-table {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
+}
+
 @media (--viewport-sm-up) {
     .fl-article-page .fl-main {
         padding-block-start: var(--token-layout-lg);
