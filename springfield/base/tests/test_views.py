@@ -110,4 +110,6 @@ class TestSecurityDotTxt(TestCase):
         response = self.client.get("/.well-known/security.txt", headers={"host": "www.mozilla.org"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get("Content-Type"), "text/plain")
-        self.assertContains(response, "security@mozilla.org")
+        self.assertContains(response, "Contact: mailto:security@mozilla.org")
+        self.assertContains(response, "Expires: ")
+        self.assertContains(response, "Canonical: https://www.firefox.com/.well-known/security.txt")
