@@ -293,8 +293,12 @@ def _testimonial_card(card_id, content, attribution, attribution_role, attributi
 def get_smart_window_testimonial_cards() -> dict:
     img = settings.PLACEHOLDER_IMAGE_ID
     dark = settings.PLACEHOLDER_DARK_IMAGE_ID
-    _image = {"image": img, "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None}}
-    _no_image = {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
+    _image = {
+        "image": img,
+        "image_alt": "A numbered grid, standing in for a real image",
+        "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None},
+    }
+    _no_image = {"image": None, "image_alt": "", "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
     cards = [
         _testimonial_card(
             card_id="swptc01-0000-0000-0000-000000000001",

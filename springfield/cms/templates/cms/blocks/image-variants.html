@@ -9,6 +9,7 @@
 {% set break_at = break_at or "sm" %}
 
 {% set classes = image_variant_classes(value.settings.dark_mode_image, value.settings.mobile_image, value.settings.dark_mode_mobile_image, break_at=break_at) %}
+{% set image_alt = alt_text(value.image_alt, value.image) %}
 
 <div class="image-variants-display">
 {# Default/desktop light mode image #}
@@ -19,6 +20,7 @@
     width=value.image.width,
     height=value.image.height,
     loading="lazy",
+    alt=image_alt,
     class=classes.primary,
 ) }}
 
@@ -31,6 +33,7 @@
       width=value.settings.mobile_image.width,
       height=value.settings.mobile_image.height,
       loading="lazy",
+      alt=image_alt,
       class=classes.mobile,
   ) }}
 {% endif %}
@@ -44,6 +47,7 @@
       width=value.settings.dark_mode_mobile_image.width,
       height=value.settings.dark_mode_mobile_image.height,
       loading="lazy",
+      alt=image_alt,
       class=classes.dark_mode_mobile,
   ) }}
 {% endif %}
@@ -57,6 +61,7 @@
       width=value.settings.dark_mode_image.width,
       height=value.settings.dark_mode_image.height,
       loading="lazy",
+      alt=image_alt,
       class=classes.dark_mode,
   ) }}
 {% endif %}

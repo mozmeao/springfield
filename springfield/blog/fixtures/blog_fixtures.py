@@ -120,6 +120,7 @@ def get_blog_article_content(image, image_caption: str = "") -> list:
     """
     image_value = {
         "image": image.id,
+        "image_alt": "A placeholder image used for testing purposes",
         "settings": {
             "dark_mode_image": None,
             "mobile_image": None,
@@ -184,6 +185,7 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
             "overrides": {
                 "image": {
                     "image": None,
+                    "image_alt": "",
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,

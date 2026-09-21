@@ -49,6 +49,7 @@ from springfield.cms.blocks import (
     FXAccountButtonBlock,
     IconChoiceBlock,
     IconListItemValue,
+    ImageVariantsBlock,
     ImpactDashBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
@@ -177,7 +178,7 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
-from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.cms.templatetags.cms_tags import add_utm_parameters, alt_text
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.misc import app_store_url, fxa_button, play_store_url
@@ -478,6 +479,9 @@ def assert_image_variants_attributes(
     assert images_element
 
     settings = images_value.get("settings", {})
+    # The alt field pairs with the primary image; every variant reuses that one
+    # computed string, since only one of the four is ever visible at a time.
+    expected_alt = alt_text(images_value.get("image_alt", ""), image)
 
     default_display_classes = "display-light" if settings.get("dark_mode_image") else ""
     if settings.get("mobile_image") or settings.get("dark_mode_mobile_image"):
@@ -494,6 +498,7 @@ def assert_image_variants_attributes(
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": expected_alt,
                 "class": classes,
             },
         )
@@ -769,6 +774,44 @@ def assert_media_block(element: BeautifulSoup, block_data: dict):
     elif first_item["type"] == "video":
         video_el = element.find("div", class_="fl-video")
         assert_video_attributes(video_element=video_el, video_data=first_item)
+
+
+def test_image_variants_block_renders_one_alt_on_every_variant(placeholder_images):
+    block = ImageVariantsBlock()
+    value = block.to_python(
+        {
+            "image": settings.PLACEHOLDER_IMAGE_ID,
+            "image_alt": "Firefox running on a laptop",
+            "settings": {
+                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+            },
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    rendered_images = soup.find_all("img")
+    assert len(rendered_images) == 4
+    for rendered_image in rendered_images:
+        assert rendered_image["alt"] == "Firefox running on a laptop"
+
+
+def test_image_variants_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = ImageVariantsBlock()
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(block.to_python({"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "", "settings": {}}))
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_image_variants_block_accepts_a_blank_alt_for_a_decorative_image(placeholder_images):
+    decorative_image = SpringfieldImage.objects.get(pk=settings.PLACEHOLDER_IMAGE_ID)
+    decorative_image.is_decorative = True
+    decorative_image.save()
+
+    block = ImageVariantsBlock()
+    cleaned = block.clean(block.to_python({"image": decorative_image.pk, "image_alt": "", "settings": {}}))
+    assert cleaned["image_alt"] == ""
 
 
 class TestDownloadFirefoxButtonBlock:
@@ -4694,6 +4737,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             "value": {
                 "image": {
                     "image": image.id,
+                    "image_alt": "An image with dark mode and mobile variants",
                     "settings": {
                         "dark_mode_image": dark_image.id,
                         "mobile_image": mobile_image.id,

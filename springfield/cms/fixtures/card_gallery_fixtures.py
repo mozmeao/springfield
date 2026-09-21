@@ -10,6 +10,7 @@ from springfield.cms.models import FreeFormPage2026
 
 _IMAGE_VARIANTS = {
     "image": settings.PLACEHOLDER_IMAGE_ID,
+    "image_alt": "A numbered grid, standing in for a real image",
     "settings": {
         "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
         "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,

@@ -150,6 +150,7 @@ def get_theme_page_intro():
                     "type": "image",
                     "value": {
                         "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image_alt": "A person shielded by a protective glow",
                         "settings": {
                             "dark_mode_image": None,
                             "mobile_image": None,
