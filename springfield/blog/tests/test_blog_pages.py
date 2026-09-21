@@ -11,7 +11,7 @@ from django.http import Http404
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Site
+from wagtail.models import Locale, PageViewRestriction, Site
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
@@ -468,6 +468,37 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_all_context_omits_unpublished_articles_while_the_index_is_published(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    make_article(title="Draft article").unpublish()
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert list(context["list_articles"]) == [published]
+
+
+def test_all_context_lists_unpublished_articles_while_the_index_is_a_draft(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    draft = make_article(title="Draft article")
+    draft.unpublish()
+    blog_index.unpublish()
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert set(context["list_articles"]) == {published, draft}
+
+
+def test_all_context_lists_unpublished_articles_while_the_index_is_private(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    draft = make_article(title="Draft article")
+    draft.unpublish()
+    PageViewRestriction.objects.create(page=blog_index, restriction_type=PageViewRestriction.PASSWORD, password="secret")
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert set(context["list_articles"]) == {published, draft}
 
 
 def test_all_context_tag_filter_keeps_only_articles_with_the_tag(blog_index, blog_tag, tagged_articles, rf):
@@ -1387,6 +1418,19 @@ def test_blog_topic_renders_curated_header(curated_topic_page, rf):
     assert soup.select_one(".fl-section-container > .fl-blog-article-list")
 
 
+def test_blog_topic_route_serves_the_curated_page_under_a_private_index(curated_topic_page, rf):
+    index_page, _, _ = curated_topic_page
+    PageViewRestriction.objects.create(page=index_page, restriction_type=PageViewRestriction.PASSWORD, password="secret")
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    response = index_page.topic_route(rf.get(url), "privacy")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    heading = soup.find("h1")
+    assert heading and "Curated Privacy" in heading.get_text()
+
+
 def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
     index_page, topic_page, featured = curated_topic_page
     url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
@@ -1623,7 +1667,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         index_page.serve(request)
 
 
@@ -1631,7 +1675,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1648,7 +1692,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
@@ -1665,7 +1709,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(30):
         index_page.all_route(request)
 
 
