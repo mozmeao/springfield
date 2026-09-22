@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import os
 import sys
 
 from django.core.management import call_command
@@ -12,7 +13,8 @@ from springfield.base.config_manager import config
 
 def should_skip():
     """Whether this environment builds its own content and should not run the command."""
-    return "pytest" in sys.modules or config("SQLITE_EXPORT_MODE", parser=bool, default="false")
+    is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
+    return "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false")
 
 
 def create_main_navigation_snippet(apps, schema_editor):
