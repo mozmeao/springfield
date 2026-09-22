@@ -152,6 +152,12 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def image_alt_prefill_js():
+    """Script that prefills an image's alt text field from its description."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-alt-prefill.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def mark_locale_roles_in_admin():
     """Adds role badges next to locale names on the locales list page.
 
