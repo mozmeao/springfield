@@ -139,10 +139,10 @@ class ImageChooserResponseTestCase(TestCase):
             password="adminpass",
         )
 
-    def test_chosen_response_includes_is_decorative_attribute(self):
+    def test_chosen_response_offers_no_default_alt_text_for_a_decorative_image(self):
         image = SpringfieldImage.objects.create(
-            title="A purple fox",
-            description="A purple fox",
+            title="Swirl-2400x1200.png",
+            description="",
             is_decorative=True,
             file=get_test_image_file(),
         )
@@ -150,7 +150,19 @@ class ImageChooserResponseTestCase(TestCase):
 
         response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
 
-        assert response.json()["result"]["is_decorative"] is True
+        assert response.json()["result"]["default_alt_text"] == ""
+
+    def test_chosen_response_offers_the_description_for_a_described_image(self):
+        image = SpringfieldImage.objects.create(
+            title="A purple fox",
+            description="A purple fox on a laptop",
+            file=get_test_image_file(),
+        )
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
+
+        assert response.json()["result"]["default_alt_text"] == "A purple fox on a laptop"
 
 
 def test_image_form_does_not_fill_the_title_from_the_file_name():

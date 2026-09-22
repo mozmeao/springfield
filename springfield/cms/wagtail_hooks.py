@@ -728,26 +728,28 @@ for _viewset in (
 
 class SpringfieldImageChosenView(ImageChosenView):
     def get_chosen_response_data(self, image, preview_image_filter="max-165x165"):
-        """Adds is_decorative, which the admin uses to decide whether to prefill alt text."""
+        """Sends no default alt text for a decorative image.
+
+        Wagtail falls back to the image's title when its description is blank.
+        Offering a title as alt text invites an editor to accept a file name as
+        a description, so a decorative image offers nothing instead.
+        """
         response_data = super().get_chosen_response_data(image, preview_image_filter)
-        response_data["is_decorative"] = image.is_decorative
+        if image.is_decorative:
+            response_data["default_alt_text"] = ""
         return response_data
 
 
 # Wagtail's `register_admin_viewset` hook appends viewsets rather than replacing
 # ones registered under the same name, so re-registering "wagtailimages_chooser"
 # here would add a second, unreachable chooser instead of overriding the built-in
-# one. Swapping the view class on Wagtail's existing viewset instance instead
-# keeps the single registration Wagtail already wires up everywhere (menu,
+# one. Swapping the view class on Wagtail's existing viewset instance
+# keeps the registration Wagtail already wires up everywhere (menu,
 # widget, StreamField chooser block) and only changes the response it returns.
 #
 # `chosen_view_class` is a third-party attribute name we don't control. If a
-# future Wagtail upgrade renamed it outright, reading it below would raise
-# AttributeError at import and fail loudly. The narrower risk this guard
-# catches is Wagtail keeping the name but changing what it points to, which
-# would otherwise swap in our override silently while the chooser quietly
-# stopped sending is_decorative. Checking the attribute's current value first
-# turns that into a loud startup log instead.
+# future Wagtail upgrade renamed it, reading it below would raise
+# AttributeError at import and fail loudly.
 if image_chooser_viewset.chosen_view_class is not ImageChosenView:
     logger.error(
         "Expected wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "
