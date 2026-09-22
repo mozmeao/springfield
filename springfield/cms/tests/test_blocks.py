@@ -6072,7 +6072,7 @@ def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block
         assert form.find("button", attrs={"type": "submit"}).get_text(strip=True) == "Submit"
 
 
-@pytest.mark.parametrize("identifier", ["office_fax", "form_instance"])
+@pytest.mark.parametrize("identifier", ["office_fax", "form_instance", "two_column"])
 def test_form_field_clean_rejects_a_reserved_internal_identifier(identifier):
     """The contact form markup posts these names itself, so an author's field cannot claim them."""
     with pytest.raises(ValidationError, match=f"'{identifier}' is reserved"):

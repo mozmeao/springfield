@@ -2029,7 +2029,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         context["form"] = getattr(request, "form", None)
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        if request.GET.get("two_column") == "True":
+        if request.POST.get("two_column"):
             context["two_column"] = True
         return context
 
@@ -2120,11 +2120,9 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     def next_form_number(request) -> int:
         """Return the number identifying the form about to be rendered for this request."""
         submitted = request.POST.get("form_instance", "") if request.method == "POST" else ""
-        if submitted.isdigit():
-            try:
-                return int(submitted)
-            except ValueError:
-                pass
+        # isdecimal() rejects digits int() can't parse (e.g. "²"); the length cap stays under int()'s digit limit.
+        if submitted.isdecimal() and len(submitted) <= 4:
+            return int(submitted)
         request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
         return request.contact_form_count
 

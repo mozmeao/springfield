@@ -32,7 +32,7 @@
     <form
       method="post"
       action="/page-not-found/"
-      hx-post="{{ action or '' }}?two_column={{ two_column }}"
+      hx-post="{{ action or '' }}"
       hx-target="closest .fl-contact-form-wrapper"
       hx-swap="outerHTML"
       hx-disabled-elt="find button[type=submit]"
@@ -41,6 +41,10 @@
       {% csrf_token %}
       {# Keep track of the form instance number so that htmx re-renders maintain unique element ids #}
       <input type="hidden" name="form_instance" value="{{ form.number }}">
+      {% if two_column %}
+        {# Keep the layout when htmx swaps in a re-rendered form #}
+        <input type="hidden" name="two_column" value="1">
+      {% endif %}
 
       {% if form.non_field_errors() %}
         <include:notification color="red" icon="warning" role="alert">

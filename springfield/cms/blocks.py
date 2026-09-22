@@ -3541,9 +3541,9 @@ class BaseFieldValue(blocks.StructValue):
         return None
 
 
-# Names the contact form markup already posts: the honeypot and the number that keeps
-# several forms on one page from sharing element ids.
-RESERVED_FIELD_IDENTIFIERS = ("office_fax", "form_instance")
+# Names the contact form markup already posts: the honeypot, the number that keeps
+# several forms on one page from sharing element ids, and the layout flag.
+RESERVED_FIELD_IDENTIFIERS = ("office_fax", "form_instance", "two_column")
 
 
 class BaseField(blocks.StructBlock):
@@ -3834,8 +3834,6 @@ class ContactFormBlock(blocks.StructBlock):
         request.form = contact_page.get_form(request)
         context["form"] = request.form
         context["page"] = contact_page
-        # The rendered form carries a per-visitor CSRF token, so the host page must not be cached.
-        request.needs_fresh_csrf = True
         return context
 
 

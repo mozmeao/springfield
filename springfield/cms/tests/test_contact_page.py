@@ -502,9 +502,11 @@ def test_contact_page_htmx_post_keeps_the_number_the_form_was_rendered_with(
     assert soup.find("input", attrs={"name": "form_instance"})["value"] == "2"
 
 
+@pytest.mark.parametrize("junk_number", ['1"><script>', "²", "9" * 5000])
 def test_contact_page_htmx_post_ignores_a_junk_form_number(
     minimal_site: Site,
     client: Client,
+    junk_number: str,
 ) -> None:
     """A submitted number that is not a plain integer never reaches the rendered ids."""
     index_page = minimal_site.root_page
@@ -524,11 +526,41 @@ def test_contact_page_htmx_post_ignores_a_junk_form_number(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = client.post(page.url, {"form_instance": '1"><script>'}, headers={"hx-request": "true"})
+    resp = client.post(page.url, {"form_instance": junk_number}, headers={"hx-request": "true"})
 
     soup = BeautifulSoup(resp.content, "html.parser")
     assert soup.find("label", attrs={"for": "contact-1-full_name"}) is not None
     assert soup.find("input", attrs={"name": "form_instance"})["value"] == "1"
+
+
+def test_contact_page_htmx_post_keeps_the_two_column_layout(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Two Column Test",
+        slug="contact-htmx-two-column-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {"two_column": "1"}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    form = soup.find("form", class_="contact-form")
+    assert "fl-form-two-column" in form["class"]
+    assert form.find("input", attrs={"name": "two_column"})["value"] == "1"
+    assert form["hx-post"] == page.url
 
 
 def test_contact_page_htmx_response_is_never_cached(

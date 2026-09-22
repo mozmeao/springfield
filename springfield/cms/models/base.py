@@ -210,9 +210,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
         response = self._render_with_fluent_string_support(request, *args, **kwargs)
 
-        # `needs_fresh_csrf` is set during rendering by blocks whose markup carries a
-        # CSRF token, which a shared cache would hand to every subsequent visitor.
-        if len(self.get_view_restrictions()) or getattr(request, "needs_fresh_csrf", False):
+        # Django flags the request whenever a CSRF token is rendered; a shared cache
+        # would hand that per-visitor token to every subsequent visitor.
+        if len(self.get_view_restrictions()) or request.META.get("CSRF_COOKIE_NEEDS_UPDATE"):
             add_never_cache_headers(response)
         return response
 
