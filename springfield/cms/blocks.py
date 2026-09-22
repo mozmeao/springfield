@@ -1381,6 +1381,7 @@ class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
     image_alt = blocks.CharBlock(
         label="Alt Text",
         required=False,
+        default="",
         help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
     )
     label = blocks.CharBlock(help_text="Text displayed below the image.")
@@ -1516,6 +1517,7 @@ def ImageVariantsBlock(required=True, *args, **kwargs):
         image_alt = blocks.CharBlock(
             label="Alt Text",
             required=False,
+            default="",
             help_text="Text for screen readers describing the image.",
         )
         settings = ImageVariantsBlockSettings()
@@ -2103,6 +2105,7 @@ class IconListWithImageBlock(RequireAltTextMixin, blocks.StructBlock):
     image_alt = blocks.CharBlock(
         label="Alt Text",
         required=False,
+        default="",
         help_text="Text for screen readers describing the image.",
     )
     list_items = blocks.ListBlock(IconListItemBlock())
@@ -2419,10 +2422,18 @@ class LineCardsBlock(blocks.StructBlock):
 # Article Cards
 
 
-class BaseArticleOverridesBlock(blocks.StructBlock):
+class BaseArticleOverridesBlock(RequireAltTextMixin, blocks.StructBlock):
+    alt_text_fields = ("image",)
+
     image = ImageChooserBlock(
         required=False,
         help_text="Optional custom image to override the article's featured image.",
+    )
+    image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        default="",
+        help_text="Text for screen readers describing the image. Used only when a custom image is chosen above.",
     )
     sticker = ImageChooserBlock(
         required=False,
@@ -2521,6 +2532,20 @@ class BaseArticleValue(blocks.StructValue):
             if hasattr(article_page, "featured_image"):
                 return article_page.featured_image
         return None
+
+    def get_featured_image_alt(self) -> str:
+        """Alt text for whichever image get_featured_image() returned.
+
+        The override's alt only applies when the override supplied the image;
+        otherwise the article's own alt describes the article's own picture.
+        """
+        overrides = self.get("overrides", {})
+        if overrides.get("image"):
+            return overrides.get("image_alt", "")
+        article_page = self.get_article()
+        if article_page:
+            return getattr(article_page.specific, "featured_image_alt", "")
+        return ""
 
     def get_pictogram(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
@@ -3005,6 +3030,7 @@ def TopicBlock(allow_uitour=False, *args, **kwargs):
         image_alt = blocks.CharBlock(
             label="Alt Text",
             required=False,
+            default="",
             help_text="Text for screen readers describing the image.",
         )
         heading = HeadingBlock()
@@ -3394,6 +3420,7 @@ class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     mobile_image_alt = blocks.CharBlock(
         label="Alt Text",
         required=False,
+        default="",
         help_text="Text for screen readers describing the image.",
     )
 

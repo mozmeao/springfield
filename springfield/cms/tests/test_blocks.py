@@ -54,6 +54,7 @@ from springfield.cms.blocks import (
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
     QRCodeModalButtonBlock,
+    RelatedArticleBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -813,6 +814,13 @@ def test_image_variants_block_accepts_a_blank_alt_for_a_decorative_image(placeho
     block = ImageVariantsBlock()
     cleaned = block.clean(block.to_python({"image": decorative_image.pk, "image_alt": "", "settings": {}}))
     assert cleaned["image_alt"] == ""
+
+
+def test_image_variants_block_decodes_legacy_content_without_an_alt_key(placeholder_images):
+    # Existing content predates this field, so its stored JSON has no key for it.
+    block = ImageVariantsBlock()
+    value = block.to_python({"image": settings.PLACEHOLDER_IMAGE_ID, "settings": {}})
+    assert value["image_alt"] == ""
 
 
 def test_icon_list_with_image_block_renders_its_alt(placeholder_images):
@@ -1799,6 +1807,7 @@ def test_theme_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1807,6 +1816,7 @@ def test_theme_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1880,7 +1890,7 @@ def test_theme_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_icon = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
 
@@ -1946,6 +1956,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1954,6 +1965,7 @@ def test_theme_hub_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1994,7 +2006,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_pictogram = image(img, "width-400").img_tag()
+        rendered_pictogram = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_pictogram, "html.parser").find("img").prettify()
 
@@ -2036,6 +2048,7 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
             "width": expected_img.width,
             "height": expected_img.height,
             "loading": "lazy",
+            "alt": alt_text(article.featured_image_alt, expected_img),
         },
     )
     image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
@@ -2076,9 +2089,10 @@ def test_pictogram_row_renders_pictogram_without_override(index_page, rf):
     # Should NOT be the Firefox logo placeholder
     assert pictogram_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
 
-    # Should match the article's pictogram rendered with image()
+    # Should match the article's pictogram rendered with image(); pictograms
+    # are decorative by their role on a card, so their alt is always empty.
     expected_img = image_ids[article.sticker.id]
-    rendered_icon = image(expected_img, "width-400").img_tag()
+    rendered_icon = image(expected_img, "width-400").img_tag(extra_attributes={"alt": ""})
     expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
     assert pictogram_element.prettify() == expected_soup.prettify()
 
@@ -4274,6 +4288,57 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
 
     assert result.id == pt_br_article.id
     assert result.locale == pt_br_locale
+
+
+@pytest.fixture
+def article_detail_page():
+    """A minimal published ArticleDetailPage with a featured image and a sticker."""
+    image, dark_image, _mobile_image, _dark_mobile_image = get_placeholder_images()
+    root_page = Site.objects.get(is_default_site=True).root_page
+    return ArticleDetailPageFactory(
+        parent=root_page,
+        featured_image=image,
+        sticker=dark_image,
+    )
+
+
+
+def test_article_card_uses_the_override_alt_when_the_override_supplies_the_image(article_detail_page):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": settings.PLACEHOLDER_DARK_IMAGE_ID, "image_alt": "A custom card image"},
+        }
+    )
+    assert value.get_featured_image_alt() == "A custom card image"
+
+
+def test_article_card_uses_the_article_alt_when_the_override_has_no_image(article_detail_page):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": None, "image_alt": "", "title": "A custom title"},
+        }
+    )
+    assert value.get_featured_image_alt() == "The article's own hero"
+
+
+def test_article_card_pictogram_renders_an_empty_alt(article_detail_page):
+    block = RelatedArticleBlock()
+    value = block.to_python({"article": article_detail_page.pk, "overrides": {"sticker": settings.PLACEHOLDER_DARK_IMAGE_ID}})
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    pictogram = soup.select_one(".fl-card-media-pictogram img")
+    assert pictogram is not None
+    assert pictogram["alt"] == ""
 
 
 def _make_button_row_value(count, allow_uitour=False):

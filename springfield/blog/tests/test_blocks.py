@@ -2,13 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 import pytest
 from wagtail.blocks import StreamBlockValidationError
 from wagtail.models import Locale
 
-from springfield.blog.blocks import BlogCardsListBlock, BlogCardsListSourceBlock, BlogLatestArticlesBlock
+from springfield.blog.blocks import BlogArticleBlock, BlogCardsListBlock, BlogCardsListSourceBlock, BlogLatestArticlesBlock
 from springfield.blog.models.snippets import BlogTag, BlogTopic
 
 
@@ -112,3 +113,31 @@ def test_topic_section_exempts_its_own_topic():
 
     assert topic_keys == {topic.translation_key}
     assert tag_keys == set()
+
+
+@pytest.mark.django_db
+def test_blog_card_uses_the_override_alt_when_the_override_supplies_the_image(blog_article):
+    block = BlogArticleBlock()
+    value = block.to_python(
+        {
+            "article": blog_article.pk,
+            "overrides": {"image": {"image": settings.PLACEHOLDER_DARK_IMAGE_ID, "image_alt": "A custom card image", "settings": {}}},
+        }
+    )
+    assert value.get_image_alt() == "A custom card image"
+
+
+@pytest.mark.django_db
+def test_blog_card_uses_the_article_alt_when_the_override_has_no_image(blog_article):
+    blog_article.image_alt = "The article's own hero"
+    blog_article.listing_image = None
+    blog_article.save()
+
+    block = BlogArticleBlock()
+    value = block.to_python(
+        {
+            "article": blog_article.pk,
+            "overrides": {"image": {"image": None, "image_alt": "", "settings": {}}, "title": "A custom title"},
+        }
+    )
+    assert value.get_image_alt() == "The article's own hero"

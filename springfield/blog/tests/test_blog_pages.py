@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import itertools
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
@@ -11,7 +10,7 @@ from django.http import Http404
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Site
+from wagtail.models import Locale
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
@@ -44,23 +43,6 @@ pytestmark = [pytest.mark.django_db]
 
 
 @pytest.fixture
-def blog_index(minimal_site):
-    root_page = Site.objects.get(is_default_site=True).root_page
-    index_page = BlogIndexPage(
-        title="Blog",
-        slug="test-unit-blog",
-        locale=Locale.objects.get(language_code="en-US"),
-    )
-    root_page.add_child(instance=index_page)
-    return index_page
-
-
-@pytest.fixture
-def blog_topic(blog_index):
-    return BlogTopic.objects.create(name="Privacy", slug="test-unit-privacy", locale=blog_index.locale)
-
-
-@pytest.fixture
 def blog_tag(blog_index):
     return BlogTag.objects.create(name="VPN", slug="test-unit-vpn", locale=blog_index.locale)
 
@@ -74,30 +56,6 @@ def excluded_index(blog_index, blog_topic, blog_tag):
     ]
     blog_index.save()
     return blog_index
-
-
-@pytest.fixture
-def make_article(blog_index, blog_topic):
-    slug_numbers = itertools.count(1)
-
-    def make_article(**fields):
-        fields.setdefault("topic", blog_topic)
-        if fields.get("image"):
-            fields.setdefault("image_alt", "Test image alt text")
-        else:
-            fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
-        if fields.get("listing_image"):
-            fields.setdefault("listing_image_alt", "Test listing image alt text")
-        article = BlogArticlePage(
-            title=fields.pop("title", "Test article"),
-            slug=f"test-unit-article-{next(slug_numbers)}",
-            locale=blog_index.locale,
-            **fields,
-        )
-        blog_index.add_child(instance=article)
-        return article
-
-    return make_article
 
 
 @pytest.fixture
@@ -245,13 +203,6 @@ def stub_images(db):
             ]
         )
     )
-
-
-@pytest.fixture
-def real_images(db):
-    """Two image rows with real files, for tests that render an `<img>`."""
-    image, dark_image, _, _ = get_placeholder_images()
-    return image, dark_image
 
 
 @pytest.fixture
@@ -1735,6 +1686,17 @@ def test_blog_article_listing_image_suppresses_the_featured_image_variants(bare_
     assert variants.dark_mode is None
     assert variants.mobile is None
     assert variants.dark_mode_mobile is None
+
+
+def test_get_listing_image_alt_follows_get_listing_image(blog_article):
+    blog_article.image_alt = "The featured image"
+    blog_article.listing_image_alt = "The listing image"
+
+    blog_article.listing_image = None
+    assert blog_article.get_listing_image_alt() == "The featured image"
+
+    blog_article.listing_image = blog_article.image
+    assert blog_article.get_listing_image_alt() == "The listing image"
 
 
 @pytest.mark.parametrize("hero_style", [HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE])

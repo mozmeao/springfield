@@ -862,6 +862,10 @@ class BlogArticlePage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSP
         """The image for cards and list items. Fall back to the featured image."""
         return self.listing_image or self.image
 
+    def get_listing_image_alt(self):
+        """Alt text for whichever image get_listing_image() returned."""
+        return self.listing_image_alt if self.listing_image_id else self.image_alt
+
     def get_listing_image_variants(self):
         """Dark and mobile variants for the listing image. Only available for the featured image."""
         if self.listing_image_id:
