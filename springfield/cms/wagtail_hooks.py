@@ -741,11 +741,13 @@ class SpringfieldImageChosenView(ImageChosenView):
 # keeps the single registration Wagtail already wires up everywhere (menu,
 # widget, StreamField chooser block) and only changes the response it returns.
 #
-# `chosen_view_class` is a third-party attribute name we don't control: if a
-# future Wagtail upgrade renames or restructures it, this assignment would
-# silently create an unused attribute instead of erroring, and the chooser
-# would keep working but quietly stop sending is_decorative. Checking the
-# attribute's current value first turns that into a loud startup log instead.
+# `chosen_view_class` is a third-party attribute name we don't control. If a
+# future Wagtail upgrade renamed it outright, reading it below would raise
+# AttributeError at import and fail loudly. The narrower risk this guard
+# catches is Wagtail keeping the name but changing what it points to, which
+# would otherwise swap in our override silently while the chooser quietly
+# stopped sending is_decorative. Checking the attribute's current value first
+# turns that into a loud startup log instead.
 if image_chooser_viewset.chosen_view_class is not ImageChosenView:
     logger.error(
         "Expected wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "

@@ -38,7 +38,7 @@ def smart_window_page(index_page, placeholder_images) -> SmartWindowPage:
 
 
 @pytest.fixture
-def article_detail_page(minimal_site, placeholder_images) -> ArticleDetailPage:
+def article_detail_page_with_body_image(minimal_site, placeholder_images) -> ArticleDetailPage:
     """An ArticleDetailPage with two image groups (featured_image and image)."""
     image, *_ = placeholder_images
     page = ArticleDetailPage(
@@ -844,27 +844,27 @@ def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(fr
 
 
 @pytest.mark.django_db
-def test_article_detail_page_requires_alt_for_a_non_decorative_featured_image(article_detail_page):
-    article_detail_page.featured_image_alt = ""
+def test_article_detail_page_requires_alt_for_a_non_decorative_featured_image(article_detail_page_with_body_image):
+    article_detail_page_with_body_image.featured_image_alt = ""
     with pytest.raises(ValidationError) as excinfo:
-        article_detail_page.clean()
+        article_detail_page_with_body_image.clean()
     assert "featured_image_alt" in excinfo.value.error_dict
 
 
 @pytest.mark.django_db
-def test_article_detail_page_accepts_a_blank_alt_for_a_decorative_featured_image(article_detail_page):
-    article_detail_page.featured_image.is_decorative = True
-    article_detail_page.featured_image.save()
-    article_detail_page.featured_image_alt = ""
-    article_detail_page.clean()
+def test_article_detail_page_accepts_a_blank_alt_for_a_decorative_featured_image(article_detail_page_with_body_image):
+    article_detail_page_with_body_image.featured_image.is_decorative = True
+    article_detail_page_with_body_image.featured_image.save()
+    article_detail_page_with_body_image.featured_image_alt = ""
+    article_detail_page_with_body_image.clean()
 
 
 @pytest.mark.django_db
-def test_article_detail_page_renders_its_image_alt(client, article_detail_page):
-    article_detail_page.image_alt = "Firefox on a laptop"
-    article_detail_page.save_revision().publish()
+def test_article_detail_page_renders_its_image_alt(client, article_detail_page_with_body_image):
+    article_detail_page_with_body_image.image_alt = "Firefox on a laptop"
+    article_detail_page_with_body_image.save_revision().publish()
 
-    soup = BeautifulSoup(client.get(article_detail_page.url).content, "html.parser")
+    soup = BeautifulSoup(client.get(article_detail_page_with_body_image.url).content, "html.parser")
     assert soup.find("img", alt="Firefox on a laptop")
 
 

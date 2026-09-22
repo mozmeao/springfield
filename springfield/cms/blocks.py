@@ -1382,7 +1382,7 @@ class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
         label="Alt Text",
         required=False,
         default="",
-        help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
+        help_text="Text for screen readers describing the image.",
     )
     label = blocks.CharBlock(help_text="Text displayed below the image.")
 
@@ -1565,7 +1565,7 @@ class VideoBlock(blocks.StructBlock):
         help_text="Link to a video from YouTube or assets.mozilla.net.",
         validators=[validate_video_url],
     )
-    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
+    alt = blocks.CharBlock(label="Alt Text", default="", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
@@ -1591,6 +1591,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         )
         alt = blocks.CharBlock(
             required=required,
+            default="",
             label="Alt Text",
             help_text="Text for screen readers describing the video.",
         )
@@ -2541,7 +2542,7 @@ class BaseArticleValue(blocks.StructValue):
         """
         overrides = self.get("overrides", {})
         if overrides.get("image"):
-            return overrides.get("image_alt", "")
+            return overrides.get("image_alt") or ""
         article_page = self.get_article()
         if article_page:
             return getattr(article_page.specific, "featured_image_alt", "")

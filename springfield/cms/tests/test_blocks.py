@@ -1888,7 +1888,7 @@ def test_theme_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
         rendered_icon = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")

@@ -54,7 +54,7 @@ def image_header_cell(label, cell_id="", dark_mode_image=None):
                 "value": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "dark_mode_image": dark_mode_image,
-                    "image_alt": "",
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "label": label,
                 },
                 "id": f"{cell_id}-oc",

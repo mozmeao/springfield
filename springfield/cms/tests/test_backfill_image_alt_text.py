@@ -11,12 +11,15 @@ from django.conf import settings
 import pytest
 from wagtail.models import Locale, Site
 
+from springfield.blog.models.pages import BlogArticlePage
+from springfield.blog.models.snippets import BlogTopic
 from springfield.cms.models.images import SpringfieldImage
 from springfield.cms.models.pages import ArticleDetailPage
 from springfield.cms.tests.factories import ArticleDetailPageFactory
 
 backfill_migration = importlib.import_module("springfield.cms.migrations.0158_backfill_image_alt_text")
 backfill_stream_alt_text = backfill_migration.backfill_stream_alt_text
+blog_backfill_migration = importlib.import_module("springfield.blog.migrations.0005_backfill_image_alt_text")
 
 
 def test_backfill_fills_a_blank_alt_from_the_image_description():
@@ -182,3 +185,46 @@ def test_backfill_fills_source_locale_objects_and_their_revisions(monkeypatch, p
     revised_header = json.loads(revision.content["content"])[0]["value"]["header_row"][0]["value"]
     assert revised_header["image_alt"] == "A purple fox"
     assert "alt" not in revised_header
+
+
+@pytest.mark.django_db
+def test_blog_backfill_fills_source_locale_articles_and_leaves_translations_blank(monkeypatch, placeholder_images):
+    """The blog migration imports the cms walker through importlib and runs it over blog
+    models. This exercises that path end to end, rather than the walker itself."""
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+
+    image = placeholder_images[0]
+    SpringfieldImage.objects.filter(pk=image.pk).update(description="A purple fox")
+    root_page = Site.objects.get(is_default_site=True).root_page
+    source_locale = Locale.objects.get(language_code="en-US")
+    french_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    topic = BlogTopic.objects.create(name="Privacy", slug="test-backfill-privacy", locale=source_locale)
+
+    english_article = BlogArticlePage(
+        title="Test blog article",
+        slug="test-blog-article",
+        locale=source_locale,
+        topic=topic,
+        image=image,
+        image_alt="Placeholder alt text written before the backfill ran",
+    )
+    root_page.add_child(instance=english_article)
+    french_article = BlogArticlePage(
+        title="Test blog article (fr)",
+        slug="test-blog-article-fr",
+        locale=french_locale,
+        topic=topic,
+        image=image,
+        image_alt="Placeholder alt text written before the backfill ran",
+    )
+    root_page.add_child(instance=french_article)
+    # Content saved before the alt fields existed has them blank, which page validation now refuses.
+    BlogArticlePage.objects.filter(pk__in=(english_article.pk, french_article.pk)).update(image_alt="")
+
+    blog_backfill_migration.backfill_blog_alt_text(apps, schema_editor=None)
+
+    english_article.refresh_from_db()
+    french_article.refresh_from_db()
+
+    assert english_article.image_alt == "A purple fox"
+    assert french_article.image_alt == ""
