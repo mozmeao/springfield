@@ -47,6 +47,7 @@ class SpringfieldImage(AbstractImage):
     # search result set by it raises an error until we add it here.
     search_fields = AbstractImage.search_fields + [
         index.FilterField("file_size"),
+        index.AutocompleteField("filename"),
     ]
 
     def save(self, *args, **kwargs):
