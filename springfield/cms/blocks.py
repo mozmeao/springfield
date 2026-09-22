@@ -353,6 +353,32 @@ class LabelSourceMixin(blocks.StructBlock):
         return items
 
 
+class RequireAltTextMixin(blocks.StructBlock):
+    """Requires alt text for each image field listed in `alt_text_fields`.
+
+    Each entry is the name of an image chooser field; its alt text lives in a
+    sibling field of the same name with the `_alt` suffix. A decorative image
+    may be left without alt text.
+    """
+
+    alt_text_fields = ()
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        errors = {}
+        for image_field_name in self.alt_text_fields:
+            image = cleaned.get(image_field_name)
+            alt_field_name = f"{image_field_name}_alt"
+            if image and not image.is_decorative and not cleaned.get(alt_field_name, "").strip():
+                errors[alt_field_name] = ValidationError(
+                    "Describe what this image shows, so it can be read out to someone who cannot see it. "
+                    "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
+                )
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+
 class IconChoiceBlock(ThumbnailChoiceBlock):
     def __init__(self, thumbnail_size=20, **kwargs):
         super().__init__(
@@ -1345,12 +1371,14 @@ class ComparisonResultBlock(blocks.StructBlock):
         value_class = ComparisonResultValue
 
 
-class ComparisonImageHeaderBlock(blocks.StructBlock):
+class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
     """An image with a label underneath it, for browser comparison table headers."""
+
+    alt_text_fields = ("image",)
 
     image = ImageChooserBlock(help_text="Image displayed above the label, such as a product logo.")
     dark_mode_image = ImageChooserBlock(required=False, help_text="Optional dark mode image variant.")
-    alt = blocks.CharBlock(
+    image_alt = blocks.CharBlock(
         label="Alt Text",
         required=False,
         help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
@@ -1453,32 +1481,6 @@ class BrowserComparisonTableBlock(blocks.StructBlock):
 
 
 # Media
-
-
-class RequireAltTextMixin(blocks.StructBlock):
-    """Requires alt text for each image field named in `alt_text_fields`.
-
-    Each entry is the name of an image chooser field; its alt text lives in a
-    sibling field of the same name with `_alt` suffix. A decorative image
-    may be left without alt text.
-    """
-
-    alt_text_fields = ()
-
-    def clean(self, value):
-        cleaned = super().clean(value)
-        errors = {}
-        for image_field_name in self.alt_text_fields:
-            image = cleaned.get(image_field_name)
-            alt_field_name = f"{image_field_name}_alt"
-            if image and not image.is_decorative and not cleaned.get(alt_field_name, "").strip():
-                errors[alt_field_name] = ValidationError(
-                    "Describe what this image shows, so it can be read out to someone who cannot see it. "
-                    "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
-                )
-        if errors:
-            raise StructBlockValidationError(block_errors=errors)
-        return cleaned
 
 
 class ImageVariantsBlockSettings(blocks.StructBlock):

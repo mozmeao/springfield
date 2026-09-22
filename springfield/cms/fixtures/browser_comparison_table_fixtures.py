@@ -54,7 +54,7 @@ def image_header_cell(label, cell_id="", dark_mode_image=None):
                 "value": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
                     "dark_mode_image": dark_mode_image,
-                    "alt": "",
+                    "image_alt": "",
                     "label": label,
                 },
                 "id": f"{cell_id}-oc",

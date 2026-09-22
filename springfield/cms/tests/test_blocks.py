@@ -3801,8 +3801,12 @@ def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: di
     img_els = wrapper_el.find("span", class_="fl-comparison-image-header-media").find_all("img")
     has_dark_mode = bool(image_header_data.get("dark_mode_image"))
     assert len(img_els) == (2 if has_dark_mode else 1)
+    # The alt field pairs with the primary image; the dark-mode variant reuses
+    # that one computed string, since only one of the two is ever visible at a time.
+    primary_image = SpringfieldImage.objects.get(pk=image_header_data["image"])
+    expected_alt = alt_text(image_header_data["image_alt"], primary_image)
     for img_el in img_els:
-        assert img_el.get("alt") == image_header_data["alt"]
+        assert img_el.get("alt") == expected_alt
         assert img_el.get("loading") == "lazy"
         assert img_el.get("srcset")
     if has_dark_mode:
@@ -4041,7 +4045,7 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     header_cell = image_header_cell("Firefox", cell_id="h1")
-    header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
+    header_cell["value"]["optional_content"][0]["value"]["image_alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
         header_cells=[browser_comparison_cell(""), header_cell],
         content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
