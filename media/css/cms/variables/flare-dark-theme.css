@@ -79,9 +79,7 @@
 
 /* base/purple */
 --notification-bg: var(--token-color-purple);
---notification-link-hover-bg: var(--token-color-light-purple-60);
 --notification-color: var(--token-color-white);
---notification-link-hover-color: var(--token-color-black-1);
 --notification-border-color: var(--token-color-link-purple);
 --notification-icon-bg: var(--token-color-soft-purple);
 --notification-icon-color: var(--token-color-black-4);
@@ -112,19 +110,19 @@
 --notification-white-border-color: var(--token-color-black-1);
 --notification-white-icon-bg: var(--token-color-white);
 
-/* selected state (inverted) */
---notification-selected-bg: var(--notification-stacked-color);
---notification-selected-color: var(--notification-bg);
---notification-red-selected-bg: var(--notification-red-color);
---notification-red-selected-color: var(--notification-red-bg);
---notification-orange-selected-bg: var(--notification-orange-color);
---notification-orange-selected-color: var(--notification-orange-bg);
---notification-green-selected-bg: var(--notification-green-color);
---notification-green-selected-color: var(--notification-green-bg);
---notification-white-selected-bg: var(--token-color-white);
---notification-white-selected-color: var(--notification-white-bg);
---notification-light-purple-selected-bg: var(--notification-light-purple-color);
---notification-light-purple-selected-color: var(--notification-light-purple-bg);
+/* blog topic */
+--notification-blog-topic-bg: var(--token-color-black-2);
+--notification-blog-topic-color: var(--token-color-white);
+--notification-blog-topic-border-color: var(--token-color-black-1);
+--notification-blog-topic-hover-border-color: var(--token-color-white);
+
+/* tag - purple */
+--tag-purple-bg: var(--token-color-medium-purple);
+--tag-purple-color: var(--token-color-white);
+--tag-purple-border-color: transparent;
+--tag-purple-hover-border-color: var(--token-color-white);
+--tag-purple-selected-bg: var(--token-color-white);
+--tag-purple-selected-color: var(--token-color-medium-purple);
 
 /* form fields. */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);

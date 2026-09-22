@@ -12,17 +12,17 @@ def get_tag_variants():
         },
         "red": {
             "type": "item",
-            "value": {"title": "Security", "icon": "warning", "icon_position": "before", "color": "red"},
+            "value": {"title": "Security", "icon": "warning", "icon_position": "before", "color": "grey"},
             "id": "2026tag1-0000-0000-0000-000000000002",
         },
         "orange": {
             "type": "item",
-            "value": {"title": "Mobile", "icon": "android", "icon_position": "before", "color": "orange"},
+            "value": {"title": "Mobile", "icon": "android", "icon_position": "before", "color": "grey"},
             "id": "2026tag1-0000-0000-0000-000000000003",
         },
         "green": {
             "type": "item",
-            "value": {"title": "Open Source", "icon": "edit-active", "icon_position": "after", "color": "green"},
+            "value": {"title": "Open Source", "icon": "edit-active", "icon_position": "after", "color": "grey"},
             "id": "2026tag1-0000-0000-0000-000000000004",
         },
     }

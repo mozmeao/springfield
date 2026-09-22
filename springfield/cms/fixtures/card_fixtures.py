@@ -236,7 +236,7 @@ def get_card_variants() -> list[dict]:
                         "type": "tags_list",
                         "value": [
                             {"title": "Privacy", "icon": "eye-false", "icon_position": "before", "color": "purple"},
-                            {"title": "Security", "icon": "lock", "icon_position": "before", "color": "green"},
+                            {"title": "Security", "icon": "lock", "icon_position": "before", "color": "grey"},
                         ],
                         "id": "card0001-0000-0000-0000-000000000061",
                     },

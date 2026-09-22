@@ -119,3 +119,19 @@ class SpringfieldImageTestCase(TestCase):
             form.fields["file"],
             SanitizingWagtailImageField,
         )
+
+
+@override_settings(TASK_QUEUE_AVAILABLE=False)
+class SpringfieldImageSearchFieldsTestCase(TestCase):
+    def test_search_results_can_be_sorted_by_file_size(self):
+        # The image listing offers "File size" as a sort option. Without file_size
+        # registered as a FilterField, ordering a search by it raises FilterFieldError.
+        # Saving an image pre-generates renditions, which would try to open these
+        # fake files from disk when no task queue is available.
+        with patch("springfield.cms.models.images._make_renditions"):
+            for name, size in (("small.png", 10), ("large.png", 20)):
+                SpringfieldImage.objects.create(title=name, width=1, height=1, file=name, file_size=size)
+
+        results = SpringfieldImage.objects.order_by("-file_size").search("png", order_by_relevance=False)
+
+        self.assertEqual([image.title for image in results], ["large.png", "small.png"])
