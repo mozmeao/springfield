@@ -5,6 +5,7 @@
 from django.db import models
 
 from wagtail.images.models import AbstractImage, AbstractRendition, Image
+from wagtail.search import index
 
 from springfield.base.tasks import defer_task
 
@@ -40,6 +41,14 @@ class SpringfieldImage(AbstractImage):
     """
 
     admin_form_fields = Image.admin_form_fields
+
+    # Wagtail's image listing offers "File size" as a sort option, but the base
+    # model does not register file_size as a filterable field, so sorting a
+    # search result set by it raises an error until we add it here.
+    search_fields = AbstractImage.search_fields + [
+        index.FilterField("file_size"),
+        index.AutocompleteField("filename"),
+    ]
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
