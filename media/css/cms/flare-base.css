@@ -23,7 +23,7 @@ NOTE: This stylesheet supports the following browsers:
 Syntax that is not supported in these browsers can be used but it
 should have necessary fallbacks and not cause any invalid CSS errors.
 
-See https://mozmeao.github.io/platform-docs/browser-support/
+See https://mozmeao.github.io/platform-docs/development/browser-support/
 ===================================================================== */
 
 /* stylelint-disable property-no-vendor-prefix */

@@ -82,9 +82,7 @@
 
 /* base/purple */
 --notification-bg: var(--token-color-soft-purple);
---notification-link-hover-bg: var(--token-color-dark-purple);
 --notification-color: var(--token-color-black-1);
---notification-link-hover-color: var(--token-color-white);
 --notification-border-color: var(--token-color-soft-purple-2);
 --notification-icon-bg: var(--token-color-dark-purple);
 --notification-icon-color: var(--token-color-white);
@@ -115,25 +113,19 @@
 --notification-white-border-color: var(--token-color-grey-2);
 --notification-white-icon-bg: var(--token-color-black-4);
 
-/* light purple */
---notification-light-purple-bg: var(--token-color-light-purple);
---notification-light-purple-color: var(--token-color-white);
---notification-light-purple-border-color: var(--token-color-grey-2);
---notification-light-purple-icon-bg: var(--token-color-black-4);
+/* blog topic */
+--notification-blog-topic-bg: var(--token-color-grey-1);
+--notification-blog-topic-color: var(--token-color-black-4);
+--notification-blog-topic-border-color: var(--token-color-grey-2);
+--notification-blog-topic-hover-border-color: var(--token-color-black-4);
 
-/* selected state (inverted) */
---notification-selected-bg: var(--notification-stacked-color);
---notification-selected-color: var(--notification-bg);
---notification-red-selected-bg: var(--token-color-secondary-red-3);
---notification-red-selected-color: var(--token-color-white);
---notification-orange-selected-bg: var(--token-color-secondary-orange-3);
---notification-orange-selected-color: var(--token-color-white);
---notification-green-selected-bg: var(--token-color-secondary-green-3);
---notification-green-selected-color: var(--token-color-white);
---notification-white-selected-bg: var(--token-color-black);
---notification-white-selected-color: var(--token-color-white);
---notification-light-purple-selected-bg: var(--token-color-purple);
---notification-light-purple-selected-color: var(--token-color-white);
+/* tag - purple */
+--tag-purple-bg: var(--token-color-soft-purple);
+--tag-purple-color: var(--token-color-dark-purple);
+--tag-purple-border-color: transparent;
+--tag-purple-hover-border-color: var(--token-color-dark-purple);
+--tag-purple-selected-bg: var(--token-color-dark-purple);
+--tag-purple-selected-color: var(--token-color-soft-purple);
 
 /* form fields */
 --fl-theme-form-field-background: rgba(255, 255, 255, 0.92);

@@ -1227,7 +1227,7 @@ def test_blog_topics_shows_article_count_badge(blog_setup, rf):
     response = index_page.topics_route(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    badges = soup.find_all("span", class_="fl-tag-light-purple")
+    badges = soup.find_all("span", class_="fl-tag-purple")
     assert len(badges) == len(topics), "Each topic link should show an article count badge, visible on hover."
     for badge in badges:
         assert badge.get_text(strip=True).isdigit()
