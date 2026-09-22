@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+import logging
 from uuid import uuid4
 
 from django.conf import settings
@@ -26,6 +27,7 @@ from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
+from wagtail.images.views.chooser import ImageChosenView, viewset as image_chooser_viewset
 from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -61,6 +63,8 @@ from springfield.cms.models import (
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
+
+logger = logging.getLogger(__name__)
 
 
 @hooks.register("register_admin_urls")
@@ -714,6 +718,35 @@ for _viewset in (
     NavigationSnippetViewSet,
 ):
     register_snippet(_viewset)
+
+
+class SpringfieldImageChosenView(ImageChosenView):
+    def get_chosen_response_data(self, image, preview_image_filter="max-165x165"):
+        """Adds is_decorative, which the admin uses to decide whether to prefill alt text."""
+        response_data = super().get_chosen_response_data(image, preview_image_filter)
+        response_data["is_decorative"] = image.is_decorative
+        return response_data
+
+
+# Wagtail's `register_admin_viewset` hook appends viewsets rather than replacing
+# ones registered under the same name, so re-registering "wagtailimages_chooser"
+# here would add a second, unreachable chooser instead of overriding the built-in
+# one. Swapping the view class on Wagtail's existing viewset instance instead
+# keeps the single registration Wagtail already wires up everywhere (menu,
+# widget, StreamField chooser block) and only changes the response it returns.
+#
+# `chosen_view_class` is a third-party attribute name we don't control: if a
+# future Wagtail upgrade renames or restructures it, this assignment would
+# silently create an unused attribute instead of erroring, and the chooser
+# would keep working but quietly stop sending is_decorative. Checking the
+# attribute's current value first turns that into a loud startup log instead.
+if image_chooser_viewset.chosen_view_class is not ImageChosenView:
+    logger.error(
+        "Expected wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "
+        "The is_decorative override below is not being applied.",
+        image_chooser_viewset.chosen_view_class,
+    )
+image_chooser_viewset.chosen_view_class = SpringfieldImageChosenView
 
 
 @hooks.register("after_copy_page")
