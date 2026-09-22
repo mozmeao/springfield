@@ -100,7 +100,8 @@ fieldset.fl-field-wrap {
         grid-template-columns: 1fr 1fr;
     }
 
-    .fl-form.fl-form-two-column .fl-buttons {
+    .fl-form.fl-form-two-column .fl-buttons,
+    .fl-form.fl-form-two-column .fl-notification-wrapper {
         grid-column: span 2;
     }
 

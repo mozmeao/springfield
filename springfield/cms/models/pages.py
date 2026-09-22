@@ -2029,6 +2029,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         context["form"] = getattr(request, "form", None)
         if getattr(request, "form_success", False):
             context["form_success"] = True
+        if request.GET.get("two_column") == "True":
+            context["two_column"] = True
         return context
 
     def get_template(self, request, *args, **kwargs):
@@ -2119,7 +2121,10 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         """Return the number identifying the form about to be rendered for this request."""
         submitted = request.POST.get("form_instance", "") if request.method == "POST" else ""
         if submitted.isdigit():
-            return int(submitted)
+            try:
+                return int(submitted)
+            except ValueError:
+                pass
         request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
         return request.contact_form_count
 

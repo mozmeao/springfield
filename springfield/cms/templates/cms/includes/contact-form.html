@@ -32,7 +32,7 @@
     <form
       method="post"
       action="/page-not-found/"
-      hx-post="{{ action or '' }}"
+      hx-post="{{ action or '' }}?two_column={{ two_column }}"
       hx-target="closest .fl-contact-form-wrapper"
       hx-swap="outerHTML"
       hx-disabled-elt="find button[type=submit]"
