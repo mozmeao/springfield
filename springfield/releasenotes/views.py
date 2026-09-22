@@ -84,6 +84,8 @@ def check_url(product, version):
             return settings.FIREFOX_MOBILE_SYSREQ_URL
     elif product == "Firefox for iOS":
         return reverse("firefox.ios.system_requirements", args=[version])
+    elif product == "Firefox Enterprise":
+        return reverse("firefox.enterprise.system_requirements", args=[version])
     else:
         return reverse("firefox.system_requirements", args=[version])
 
@@ -175,7 +177,7 @@ def release_notes(request, version, product="Firefox"):
         raise Http404
 
     # Show a "coming soon" page for any unpublished Firefox releases
-    include_drafts = product in ["Firefox", "Firefox for Android", "Firefox for iOS"]
+    include_drafts = product in ["Firefox", "Firefox Enterprise", "Firefox for Android", "Firefox for iOS"]
 
     try:
         release = get_release_or_404(version, product, include_drafts)

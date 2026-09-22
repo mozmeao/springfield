@@ -18,9 +18,11 @@ channel_re = "(?P<channel>beta|aurora|developer|nightly|organizations)"
 releasenotes_re = latest_re % (version_re, r"(aurora|release)notes")
 android_releasenotes_re = releasenotes_re.replace(r"firefox", "firefox/android")
 ios_releasenotes_re = releasenotes_re.replace(r"firefox", "firefox/ios")
+enterprise_releasenotes_re = releasenotes_re.replace(r"firefox", "firefox/enterprise")
 sysreq_re = latest_re % (version_re, "system-requirements")
 android_sysreq_re = sysreq_re.replace(r"firefox", "firefox/android")
 ios_sysreq_re = sysreq_re.replace(r"firefox", "firefox/ios")
+enterprise_sysreq_re = sysreq_re.replace(r"firefox", "firefox/enterprise")
 
 
 urlpatterns = (
@@ -73,17 +75,36 @@ urlpatterns = (
     re_path("firefox/(?:latest/)?releasenotes/$", springfield.releasenotes.views.latest_notes, {"product": "firefox"}),
     path("firefox/android/releasenotes/", springfield.releasenotes.views.latest_notes, {"product": "Firefox for Android"}),
     path("firefox/ios/releasenotes/", springfield.releasenotes.views.latest_notes, {"product": "Firefox for iOS"}),
+    path(
+        "firefox/enterprise/notes/", springfield.releasenotes.views.latest_notes, {"product": "Firefox Enterprise"}, name="firefox.enterprise.notes"
+    ),
+    path("firefox/enterprise/releasenotes/", springfield.releasenotes.views.latest_notes, {"product": "Firefox Enterprise"}),
     re_path(
         f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?system-requirements/$",
         springfield.releasenotes.views.latest_sysreq,
         {"product": "firefox"},
         name="firefox.sysreq",
     ),
+    # `platform_re` above covers only android and ios, so enterprise needs its own
+    # entry. It has to precede `enterprise_sysreq_re`, whose version group is optional
+    # and would otherwise match this path with no version and look up every release.
+    path(
+        "firefox/enterprise/system-requirements/",
+        springfield.releasenotes.views.latest_sysreq,
+        {"product": "Firefox Enterprise"},
+        name="firefox.enterprise.sysreq",
+    ),
     re_path(releasenotes_re, springfield.releasenotes.views.release_notes, name="firefox.desktop.releasenotes"),
     re_path(
         android_releasenotes_re, springfield.releasenotes.views.release_notes, {"product": "Firefox for Android"}, name="firefox.android.releasenotes"
     ),
     re_path(ios_releasenotes_re, springfield.releasenotes.views.release_notes, {"product": "Firefox for iOS"}, name="firefox.ios.releasenotes"),
+    re_path(
+        enterprise_releasenotes_re,
+        springfield.releasenotes.views.release_notes,
+        {"product": "Firefox Enterprise"},
+        name="firefox.enterprise.releasenotes",
+    ),
     re_path(sysreq_re, springfield.releasenotes.views.system_requirements, name="firefox.system_requirements"),
     re_path(
         android_sysreq_re,
@@ -93,6 +114,12 @@ urlpatterns = (
     ),
     re_path(
         ios_sysreq_re, springfield.releasenotes.views.system_requirements, {"product": "Firefox for iOS"}, name="firefox.ios.system_requirements"
+    ),
+    re_path(
+        enterprise_sysreq_re,
+        springfield.releasenotes.views.system_requirements,
+        {"product": "Firefox Enterprise"},
+        name="firefox.enterprise.system_requirements",
     ),
     path("releases/", springfield.releasenotes.views.releases_index, {"product": "Firefox"}, name="firefox.releases.index"),
     path("stub_attribution_code/", views.stub_attribution_code, name="firefox.stub_attribution_code"),
