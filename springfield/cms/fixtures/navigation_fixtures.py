@@ -234,6 +234,7 @@ def get_navigation_snippet() -> NavigationSnippet:
             "name": "Main navigation",
             "items": get_navigation_variants(),
             "logo": build_logo_image("Placeholder Navigation Logo", (117, 79, 224)),
+            "logo_alt": "Firefox",
             "logo_dark": build_logo_image("Placeholder Navigation Logo (Dark)", (255, 138, 80)),
             "logo_link": [("link", build_link(link_to="relative_url", relative_url="/"))],
             "cta_button": [("button", [get_button_variants()["primary"]])],

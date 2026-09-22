@@ -35,7 +35,7 @@ from springfield.cms.blocks import (
     get_button_types,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.models.base import QROpenBehavior
+from springfield.cms.models.base import ImageAltTextMixin, QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
@@ -521,12 +521,14 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return "cms/snippets/pencil-banner-snippet-preview.html"
 
 
-class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+class NavigationSnippet(ImageAltTextMixin, FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet defining a site navigation menu, editable in the CMS.
 
     The ``items`` stream holds top-level links (a label + link rendered directly
     in the nav bar) and folders (a label + a dropdown of grouped links).
     """
+
+    image_alt_fields = ("logo",)
 
     name = models.CharField(max_length=255, help_text="Internal name for this navigation menu.")
     is_default = models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")
@@ -545,6 +547,11 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
+    )
+    logo_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     logo_dark = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -575,6 +582,7 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         MultiFieldPanel(
             [
                 FieldPanel("logo"),
+                FieldPanel("logo_alt"),
                 FieldPanel("logo_dark"),
                 FieldPanel("logo_link"),
             ],
@@ -590,6 +598,11 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     @classmethod
     def get_default(cls):
