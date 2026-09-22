@@ -82,8 +82,12 @@ def make_article(blog_index, blog_topic):
 
     def make_article(**fields):
         fields.setdefault("topic", blog_topic)
-        if not fields.get("image"):
+        if fields.get("image"):
+            fields.setdefault("image_alt", "Test image alt text")
+        else:
             fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
+        if fields.get("listing_image"):
+            fields.setdefault("listing_image_alt", "Test listing image alt text")
         article = BlogArticlePage(
             title=fields.pop("title", "Test article"),
             slug=f"test-unit-article-{next(slug_numbers)}",
@@ -253,6 +257,13 @@ def real_images(db):
 @pytest.fixture
 def bare_article(make_article):
     return make_article(title="Bare article")
+
+
+@pytest.fixture
+def blog_article(make_article, real_images):
+    """An article with a non-decorative featured image and its alt text."""
+    image, _ = real_images
+    return make_article(image=image, image_alt="A laptop showing the Firefox home page")
 
 
 @pytest.fixture
@@ -1749,6 +1760,20 @@ def test_blog_article_text_only_hero_style_needs_no_assets(bare_article):
     bare_article.hero_style = HeroStyle.TEXT_ONLY
 
     bare_article.clean()  # does not raise
+
+
+def test_blog_article_page_requires_alt_for_a_non_decorative_image(blog_article):
+    blog_article.image_alt = ""
+    with pytest.raises(ValidationError) as excinfo:
+        blog_article.clean()
+    assert "image_alt" in excinfo.value.error_dict
+
+
+def test_blog_article_page_accepts_a_blank_alt_for_a_decorative_image(blog_article):
+    blog_article.image.is_decorative = True
+    blog_article.image.save()
+    blog_article.image_alt = ""
+    blog_article.clean()  # does not raise
 
 
 def test_blog_article_hero_renders_in_the_split_page_upper(make_article, real_images, rf):

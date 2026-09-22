@@ -862,11 +862,11 @@ class Command(BaseCommand):
         # the image by definition, so it comes next; the title only occasionally describes it
         # rather than naming the file, so it comes last.
         hero_fields = [element_text(post, field).split("|")[0].strip() for field in ("ImageAltText", "ImageDescription")]
-        image = self.get_or_create_image(
-            hero_url,
-            image_title,
-            description=next((image_description(value) for value in [*hero_fields, image_title] if image_description(value)), ""),
-        )
+        image_description_text = next((image_description(value) for value in [*hero_fields, image_title] if image_description(value)), "")
+        image = self.get_or_create_image(hero_url, image_title, description=image_description_text)
+        # The page's own alt text is required whenever it holds an image, so it needs a fallback
+        # the image's description does not: the post title, which is never a bare file name.
+        hero_image_alt = image_description_text or title
         # The hero has no caption field on the page, so a caption in the export has nowhere to go.
         hero_caption = element_text(post, "ImageCaption").split("|")[0].strip()
         if hero_caption:
@@ -879,6 +879,7 @@ class Command(BaseCommand):
             locale=locale,
             topic=topic,
             image=image,
+            image_alt=hero_image_alt,
             # An image hero style would fail validation for a post the export gave no featured image.
             hero_style=HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY,
             content=content,
