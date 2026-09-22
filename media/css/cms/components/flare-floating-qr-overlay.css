@@ -25,6 +25,7 @@
         opacity 300ms ease,
         transform 300ms ease;
     transition-behavior: allow-discrete;
+    visibility: hidden;
     z-index: 5;
 
     @media (forced-colors: active) {
