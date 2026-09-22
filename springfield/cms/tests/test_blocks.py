@@ -479,8 +479,6 @@ def assert_image_variants_attributes(
     assert images_element
 
     settings = images_value.get("settings", {})
-    # The alt field pairs with the primary image; every variant reuses that one
-    # computed string, since only one of the four is ever visible at a time.
     expected_alt = alt_text(images_value.get("image_alt", ""), image)
 
     default_display_classes = "display-light" if settings.get("dark_mode_image") else ""

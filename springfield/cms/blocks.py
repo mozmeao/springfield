@@ -1456,10 +1456,10 @@ class BrowserComparisonTableBlock(blocks.StructBlock):
 
 
 class RequireAltTextMixin(blocks.StructBlock):
-    """Requires alt text for each image field named in ``alt_text_fields``.
+    """Requires alt text for each image field named in `alt_text_fields`.
 
     Each entry is the name of an image chooser field; its alt text lives in a
-    sibling field of the same name with ``_alt`` appended. A decorative image
+    sibling field of the same name with `_alt` suffix. A decorative image
     may be left without alt text.
     """
 
@@ -1473,7 +1473,7 @@ class RequireAltTextMixin(blocks.StructBlock):
             alt_field_name = f"{image_field_name}_alt"
             if image and not image.is_decorative and not cleaned.get(alt_field_name, "").strip():
                 errors[alt_field_name] = ValidationError(
-                    "Describe what this image shows here, so it can be read out to someone who cannot see it. "
+                    "Describe what this image shows, so it can be read out to someone who cannot see it. "
                     "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
                 )
         if errors:
