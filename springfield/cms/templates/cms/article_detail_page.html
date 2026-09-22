@@ -23,6 +23,7 @@
         {% if page.image %}
         <div class="article-featured-image">
           {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+          {% set image_alt = alt_text(page.image_alt, page.image) %}
           <div class="image-variants-display">
             {{ srcset_image(
                 page.image,
@@ -30,6 +31,7 @@
                 sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                 width=page.image.width,
                 loading="lazy",
+                alt=image_alt,
                 class=classes.primary,
             ) }}
             {% if page.image_mobile %}
@@ -39,6 +41,7 @@
                   sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                   width=page.image_mobile.width,
                   loading="lazy",
+                  alt=image_alt,
                   class=classes.mobile,
               ) }}
             {% endif %}
@@ -49,6 +52,7 @@
                   sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                   width=page.image_dark_mode_mobile.width,
                   loading="lazy",
+                  alt=image_alt,
                   class=classes.dark_mode_mobile,
               ) }}
             {% endif %}
@@ -59,6 +63,7 @@
                   sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                   width=page.image_dark_mode.width,
                   loading="lazy",
+                  alt=image_alt,
                   class=classes.dark_mode,
               ) }}
             {% endif %}

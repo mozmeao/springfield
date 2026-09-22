@@ -392,12 +392,14 @@ def get_smart_window_test_page() -> SmartWindowPage:
             "heading_text": '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
             "subheading_text": '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
             "image": image,
+            "image_alt": "A numbered grid, standing in for a real image",
         },
     )
 
     page.heading_text = '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>'
     page.subheading_text = '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>'
     page.image = image
+    page.image_alt = "A numbered grid, standing in for a real image"
     page.image_dark_mode = dark_image
     page.animation = _ANIMATION_URL
     page.animation_alt = "Lorem ipsum animation."
