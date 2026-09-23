@@ -158,6 +158,35 @@ def test_default_related_articles(get_related_articles, make_related_article, re
     ]
 
 
+def test_related_articles_of_a_draft_article_include_unpublished_ones(article, make_related_article, related_articles_pool, topic):
+    unpublished_pick = make_related_article("Unpublished pick", topic=topic)
+    unpublished_pick.unpublish()
+    unpublished_match = make_related_article("Unpublished match", topic=topic, first_published_at=datetime(2026, 1, 8, tzinfo=UTC))
+    unpublished_match.unpublish()
+    set_related_articles(article, unpublished_pick)
+    article.unpublish()
+
+    assert [related.title for related in article.get_related_articles()] == [
+        "Unpublished pick",
+        "Topic and tag",
+        "Older topic and tag",
+        "Unpublished match",
+    ]
+
+
+def test_related_articles_of_an_article_in_a_private_blog_include_unpublished_ones(article, make_related_article, related_articles_pool, topic):
+    unpublished_match = make_related_article("Unpublished match", topic=topic, first_published_at=datetime(2026, 1, 8, tzinfo=UTC))
+    unpublished_match.unpublish()
+    restrict_page(article.get_parent())
+
+    assert [related.title for related in article.get_related_articles()] == [
+        "Topic and tag",
+        "Older topic and tag",
+        "Unpublished match",
+        "Topic only",
+    ]
+
+
 def test_default_related_articles_for_article_with_null_topic_matches_by_tag_only(article, get_related_articles, related_articles_pool):
     BlogArticlePage.objects.filter(pk=article.pk).update(topic=None)
 

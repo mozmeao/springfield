@@ -123,6 +123,16 @@ def prefetch_article_blocks(values):
             value._article_cache = articles_by_pk[page.pk]
 
 
+def lists_every_article(page):
+    """Whether listings on this page take in unpublished and restricted articles.
+    Allow listings to include unpublished and restricted articles so that editors
+    can preview all content before it goes public.
+    """
+    if not hasattr(page, "_lists_every_article_cache"):
+        page._lists_every_article_cache = not page.live or page.get_view_restrictions().exists()
+    return page._lists_every_article_cache
+
+
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
 
@@ -233,7 +243,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         for block in sections:
             exempt_topic_keys, exempt_tag_keys = block.block.get_exempt_exclusions(block.value)
             block_queryset = block.block.filter_articles(
-                self.exclude_from_feed(self.live_articles(), exempt_topic_keys, exempt_tag_keys),
+                self.exclude_from_feed(self.listed_articles(), exempt_topic_keys, exempt_tag_keys),
                 block.value,
             ).exclude(translation_key__in=seen_translation_keys)
             section_articles = list(block_queryset.values_list("pk", "translation_key")[: block.value["count"]])
@@ -265,14 +275,15 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     # Queries and filtering
 
-    def live_articles(self):
-        """Published, publicly visible articles under this index."""
-        return BlogArticlePage.objects.child_of(self).live().public()
+    def listed_articles(self):
+        """Articles listed by this index. A draft or private index lists every article below it."""
+        articles = BlogArticlePage.objects.child_of(self)
+        return articles if lists_every_article(self) else articles.live().public()
 
     def get_all_topics(self):
-        """Topics that have at least one live article here, most-populated first."""
+        """Topics that have at least one listed article here, most-populated first."""
         return (
-            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=self.live_articles().values("pk"))
+            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=self.listed_articles().values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .live()
             .order_by("-article_count")
@@ -326,8 +337,8 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     # Context for routes
 
     def get_all_context(self, request):
-        """Context for the all/ route: every live article, narrowed by ?topic= and ?tag=."""
-        articles = article_list_queryset(self.live_articles())
+        """Context for the all/ route: every listed article, narrowed by ?topic= and ?tag=."""
+        articles = article_list_queryset(self.listed_articles())
 
         topic = None
         topic_slug = request.GET.get("topic")
@@ -363,7 +374,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         """Context for the topics/<slug>/ route, shared by the plain listing and by
         BlogTopicPage. Articles already shown in a curated header are dropped from the
         list before pagination, so the count matches what is rendered."""
-        articles = article_list_queryset(self.live_articles()).filter(topic=topic)
+        articles = article_list_queryset(self.listed_articles()).filter(topic=topic)
 
         if topic_page:
             featured_values = [block.value for block in (topic_page.featured_articles or [])]
@@ -459,7 +470,10 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if topic is None:
             raise Http404
 
-        topic_page = BlogTopicPage.objects.child_of(self).live().public().filter(topic=topic).first()
+        topic_pages = BlogTopicPage.objects.child_of(self).filter(topic=topic)
+        if not lists_every_article(self):
+            topic_pages = topic_pages.live().public()
+        topic_page = topic_pages.first()
         if topic_page:
             return topic_page.serve(request)
 
@@ -858,8 +872,8 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         )
 
     def get_related_articles(self):
-        """Up to MAX_RELATED_ARTICLES published, publicly-visible articles
-        shown below the article:
+        """Up to MAX_RELATED_ARTICLES publicly-visible articles shown below the
+        article:
 
         - `related_articles` in their chosen order,
         - then siblings sharing this article's topic and one of its tags,
@@ -867,16 +881,19 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         - then one of its tags.
 
         Each automatic group is ordered by publication date, descending. No
-        article is shown twice, and an article never shows itself."""
+        article is shown twice, and an article never shows itself. A draft or
+        private article doesn't restrict the listing.
+        """
         related = []
         related_ids = {self.pk}
+        lists_everything = lists_every_article(self)
         for block in self.related_articles:
             article = block.value.get_article()
-            if article is None or not article.live or article.pk in related_ids:
+            if article is None or article.pk in related_ids or (not article.live and not lists_everything):
                 continue
             related.append(article)
             related_ids.add(article.pk)
-        if related:
+        if related and not lists_everything:
             # Apply potential page view restrictions
             public_article_ids = set(BlogArticlePage.objects.public().filter(pk__in=[article.pk for article in related]).values_list("pk", flat=True))
             related = [article for article in related if article.pk in public_article_ids]
@@ -886,11 +903,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         tag_ids = [tag.pk for tag in self.tags.all()]
         shares_topic = Q(topic_id=self.topic_id) if self.topic_id else Q(topic_id__in=[])
         shares_tag = Q(carries_a_matching_tag=True)
+        candidate_siblings = BlogArticlePage.objects.sibling_of(self)
+        if not lists_everything:
+            candidate_siblings = candidate_siblings.live().public()
         matching_siblings = (
-            BlogArticlePage.objects.sibling_of(self)
-            .live()
-            .public()
-            .exclude(pk__in=related_ids)
+            candidate_siblings.exclude(pk__in=related_ids)
             .annotate(carries_a_matching_tag=Exists(BlogArticlePage.objects.filter(pk=OuterRef("pk"), tags__in=tag_ids)))
             .filter(shares_topic | shares_tag)
             .annotate(
