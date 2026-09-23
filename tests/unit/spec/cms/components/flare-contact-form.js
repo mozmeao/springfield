@@ -7,7 +7,8 @@
 import setupContactForms from '../../../../../media/js/cms/components/flare-contact-form.es6';
 
 // The request/swap itself is htmx's job (see contact-form.html) and isn't retested here.
-// This covers what this module bolts on via htmx's events: the anti-bot delay, the error fallback, and the download re-click.
+// This covers what this module bolts on via htmx's events: the anti-bot delay, the error handling,
+// and the download re-click and focus after a swap.
 describe('flare-contact-form.es6.js', function () {
     let container;
 
@@ -29,6 +30,7 @@ describe('flare-contact-form.es6.js', function () {
       <div class="fl-contact-form-wrapper">
         <form method="post" action="/page-not-found/" hx-post="${action}" class="fl-form contact-form">
           ${innerHtml || '<button type="submit">Submit</button>'}
+          <div class="contact-form-request-error hidden" role="alert">Error sending</div>
         </form>
       </div>
     `;
@@ -71,6 +73,23 @@ describe('flare-contact-form.es6.js', function () {
             expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
         });
 
+        it('lets the block placeholder load its form straight away', function () {
+            spyOn(Date, 'now').and.returnValue(0);
+            container.innerHTML =
+                '<div class="fl-contact-form-wrapper" hx-get="/contact/"></div>';
+            const placeholder = container.querySelector(
+                '.fl-contact-form-wrapper'
+            );
+
+            const event = new Event('htmx:confirm', {
+                bubbles: true,
+                cancelable: true
+            });
+            placeholder.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(false);
+        });
+
         it('submits natively even when a field is named "submit"', function () {
             spyOn(Date, 'now').and.returnValue(0);
             const wrapper = addWrapper(
@@ -88,18 +107,31 @@ describe('flare-contact-form.es6.js', function () {
         });
     });
 
-    describe('error fallback', function () {
-        ['htmx:sendError', 'htmx:responseError'].forEach((eventName) => {
-            it(`falls back to a real submit on ${eventName}`, function () {
-                const wrapper = addWrapper('/contact/');
-                const form = wrapper.querySelector('form');
-                spyOn(HTMLFormElement.prototype, 'submit');
+    describe('error handling', function () {
+        it('falls back to a real submit when the request cannot be sent', function () {
+            const wrapper = addWrapper('/contact/');
+            const form = wrapper.querySelector('form');
+            spyOn(HTMLFormElement.prototype, 'submit');
 
-                form.dispatchEvent(new Event(eventName, { bubbles: true }));
+            form.dispatchEvent(new Event('htmx:sendError', { bubbles: true }));
 
-                expect(form.action).toContain('/contact/');
-                expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
-            });
+            expect(form.action).toContain('/contact/');
+            expect(HTMLFormElement.prototype.submit).toHaveBeenCalled();
+        });
+
+        it('shows an inline error instead of resubmitting when the server fails', function () {
+            const wrapper = addWrapper('/contact/');
+            const form = wrapper.querySelector('form');
+            spyOn(HTMLFormElement.prototype, 'submit');
+
+            form.dispatchEvent(
+                new Event('htmx:responseError', { bubbles: true })
+            );
+
+            const error = form.querySelector('.contact-form-request-error');
+            expect(error.classList.contains('hidden')).toBe(false);
+            expect(document.activeElement).toBe(error);
+            expect(HTMLFormElement.prototype.submit).not.toHaveBeenCalled();
         });
     });
 
@@ -119,6 +151,21 @@ describe('flare-contact-form.es6.js', function () {
             const link = wrapper.querySelector('.contact-form-download');
             expect(link.click).toHaveBeenCalled();
             expect(link.classList.contains('hidden')).toBe(true);
+        });
+
+        it('moves focus to the notification the new wrapper carries', function () {
+            const wrapper = addWrapper(
+                '/contact/',
+                '<div role="status">Thanks!</div>'
+            );
+
+            wrapper.dispatchEvent(
+                new Event('htmx:afterSwap', { bubbles: true })
+            );
+
+            expect(document.activeElement).toBe(
+                wrapper.querySelector('[role="status"]')
+            );
         });
     });
 });

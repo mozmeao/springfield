@@ -2031,7 +2031,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         context["form"] = getattr(request, "form", None)
         if getattr(request, "form_success", False):
             context["form_success"] = True
-        if request.POST.get("two_column"):
+        if request.GET.get("two_column"):
             context["two_column"] = True
         return context
 
@@ -2111,20 +2111,20 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                     raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
                 return _self.cleaned_data
 
-        # Ensure that each form instance gets a unique number for its element ids.
-        number = self.next_form_number(request)
+        # A form loaded into another page is told its number, so its element ids stay unique there.
+        submitted = request.GET.get("form_instance", "")
+        # isdecimal() rejects digits int() can't parse (e.g. "²"); the length cap stays under int()'s digit limit.
+        if submitted.isdecimal() and len(submitted) <= 4:
+            number = int(submitted)
+        else:
+            number = self.next_form_number(request)
         form = ContactForm(request.POST if request.method == "POST" else None, auto_id=f"contact-{number}-%s")
-        form.number = number
         form.id_prefix = f"contact-{number}-"
         return form
 
     @staticmethod
     def next_form_number(request) -> int:
-        """Return the number identifying the form about to be rendered for this request."""
-        submitted = request.POST.get("form_instance", "") if request.method == "POST" else ""
-        # isdecimal() rejects digits int() can't parse (e.g. "²"); the length cap stays under int()'s digit limit.
-        if submitted.isdecimal() and len(submitted) <= 4:
-            return int(submitted)
+        """Return a form number not yet used by another contact form in this request."""
         request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
         return request.contact_form_count
 

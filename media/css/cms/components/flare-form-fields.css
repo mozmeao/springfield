@@ -95,6 +95,10 @@ fieldset.fl-field-wrap {
     font-size: var(--fl-theme-label-sm);
 }
 
+.fl-mediacontent:has(.fl-contact-form-wrapper) {
+    align-items: start;
+}
+
 @media (--viewport-lg-up) {
     .fl-form.fl-form-two-column {
         grid-template-columns: 1fr 1fr;

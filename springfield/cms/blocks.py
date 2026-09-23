@@ -3539,11 +3539,6 @@ class BaseFieldValue(blocks.StructValue):
         return None
 
 
-# Names the contact form markup already posts: the honeypot, the number that keeps
-# several forms on one page from sharing element ids, and the layout flag.
-RESERVED_FIELD_IDENTIFIERS = ("office_fax", "form_instance", "two_column")
-
-
 class BaseField(blocks.StructBlock):
     label = blocks.CharBlock(label="Field Label")
     internal_identifier = UntranslatableCharBlock(
@@ -3559,8 +3554,8 @@ class BaseField(blocks.StructBlock):
     def clean(self, value):
         value = super().clean(value)
         internal_identifier = value.get("internal_identifier", "")
-        if internal_identifier in RESERVED_FIELD_IDENTIFIERS:
-            raise ValidationError(f"The internal identifier '{internal_identifier}' is reserved and cannot be used.")
+        if internal_identifier == "office_fax":
+            raise ValidationError("The internal identifier 'office_fax' is reserved and cannot be used.")
         return value
 
 
@@ -3779,9 +3774,11 @@ class CountrySelectFieldBlock(BaseField):
 
 
 class ContactFormBlock(blocks.StructBlock):
-    """Renders a chosen contact page's form inline on another page.
+    """Loads a chosen contact page's form into another page.
 
-    The form posts to the contact page itself, which owns the submission handling.
+    The form is fetched from the contact page with htmx after the host page loads, so
+    the host page carries no per-visitor CSRF token and stays cacheable. The contact
+    page owns rendering and submission handling.
     """
 
     contact_page = blocks.PageChooserBlock(target_model="cms.ContactPage")
@@ -3807,6 +3804,8 @@ class ContactFormBlock(blocks.StructBlock):
             return "The selected contact page is not published."
         elif contact_page.get_view_restrictions():
             return "The selected contact page is private, so its form cannot be shown on another page."
+        elif not contact_page.url:
+            return "The selected contact page has no public URL."
         return None
 
     def clean(self, value):
@@ -3819,7 +3818,9 @@ class ContactFormBlock(blocks.StructBlock):
 
     def get_context(self, value, parent_context=None):
         context = super().get_context(value, parent_context=parent_context)
-        request = (parent_context or {}).get("request")
+        # Set on every render so a `form_url` from the parent context never leaks in.
+        context["form_url"] = None
+        request = context.get("request")
         contact_page = value.get("contact_page")
         if not (request and contact_page):
             return context
@@ -3828,10 +3829,14 @@ class ContactFormBlock(blocks.StructBlock):
         if self.contact_page_is_invalid(contact_page):
             return context
 
-        # The contact page reads its form off the request, the same way its own serve() supplies it.
-        request.form = contact_page.get_form(request)
-        context["form"] = request.form
-        context["page"] = contact_page
+        # Host query params feed hidden fields' query_param_override on the contact page.
+        params = request.GET.copy()
+        params["form_instance"] = contact_page.next_form_number(request)
+        if value.get("two_column"):
+            params["two_column"] = "1"
+        else:
+            params.pop("two_column", None)
+        context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
         return context
 
 

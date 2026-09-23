@@ -495,11 +495,11 @@ def test_contact_page_htmx_post_keeps_the_number_the_form_was_rendered_with(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = client.post(page.url, {"form_instance": "2"}, headers={"hx-request": "true"})
+    resp = client.post(f"{page.url}?form_instance=2", {}, headers={"hx-request": "true"})
 
     soup = BeautifulSoup(resp.content, "html.parser")
     assert soup.find("label", attrs={"for": "contact-2-full_name"}) is not None
-    assert soup.find("input", attrs={"name": "form_instance"})["value"] == "2"
+    assert soup.find("form", class_="contact-form")["hx-post"] == f"{page.url}?form_instance=2"
 
 
 @pytest.mark.parametrize("junk_number", ['1"><script>', "²", "9" * 5000])
@@ -526,11 +526,10 @@ def test_contact_page_htmx_post_ignores_a_junk_form_number(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = client.post(page.url, {"form_instance": junk_number}, headers={"hx-request": "true"})
+    resp = client.post(page.url, {}, query_params={"form_instance": junk_number}, headers={"hx-request": "true"})
 
     soup = BeautifulSoup(resp.content, "html.parser")
     assert soup.find("label", attrs={"for": "contact-1-full_name"}) is not None
-    assert soup.find("input", attrs={"name": "form_instance"})["value"] == "1"
 
 
 def test_contact_page_htmx_post_keeps_the_two_column_layout(
@@ -554,13 +553,49 @@ def test_contact_page_htmx_post_keeps_the_two_column_layout(
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
-    resp = client.post(page.url, {"two_column": "1"}, headers={"hx-request": "true"})
+    resp = client.post(f"{page.url}?two_column=1", {}, headers={"hx-request": "true"})
 
     soup = BeautifulSoup(resp.content, "html.parser")
     form = soup.find("form", class_="contact-form")
     assert "fl-form-two-column" in form["class"]
-    assert form.find("input", attrs={"name": "two_column"})["value"] == "1"
-    assert form["hx-post"] == page.url
+    assert form["hx-post"] == f"{page.url}?two_column=1"
+
+
+def test_contact_page_htmx_get_renders_the_form_a_contact_form_block_loads(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """The Contact Form block fetches this fragment, numbered and laid out as it asks."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Fragment Test",
+        slug="contact-htmx-fragment-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.get(page.url, {"form_instance": "2", "two_column": "1"}, headers={"hx-request": "true"})
+
+    assert "no-store" in resp.get("Cache-Control", "")
+    content = resp.content.decode()
+    assert "<html" not in content
+    soup = BeautifulSoup(content, "html.parser")
+    form = soup.find("form", class_="contact-form")
+    assert "fl-form-two-column" in form["class"]
+    assert form["hx-post"] == f"{page.url}?form_instance=2&two_column=1"
+    assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+    assert form.find("label", attrs={"for": "contact-2-full_name"}) is not None
+    # Unbound, so the only alert is the hidden one for a failed request
+    assert [alert["class"] for alert in soup.find_all(attrs={"role": "alert"})] == [["contact-form-request-error", "hidden"]]
 
 
 def test_contact_page_htmx_response_is_never_cached(

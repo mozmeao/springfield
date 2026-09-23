@@ -7,8 +7,9 @@
 {#
   A contact page's form, or its thank-you message once the form has been submitted.
 
-  Rendered by the contact page itself and by the Contact Form block on another
-  page, so `page` must be the contact page in both cases.
+  Rendered by the contact page itself, and as the fragment the Contact Form block
+  loads into another page. The query string carries the fragment's `form_instance`
+  and `two_column` through to `hx-post`, so a re-rendered form keeps both.
 #}
 
 {% set action = page.url ~ '?' ~ request.GET.urlencode() if request.GET else page.url %}
@@ -39,12 +40,6 @@
       class="fl-form contact-form {% if two_column %}fl-form-two-column{% endif %}"
     >
       {% csrf_token %}
-      {# Keep track of the form instance number so that htmx re-renders maintain unique element ids #}
-      <input type="hidden" name="form_instance" value="{{ form.number }}">
-      {% if two_column %}
-        {# Keep the layout when htmx swaps in a re-rendered form #}
-        <input type="hidden" name="two_column" value="1">
-      {% endif %}
 
       {% if form.non_field_errors() %}
         <include:notification color="red" icon="warning" role="alert">
@@ -65,6 +60,13 @@
       <div class="hidden">
         <label for="{{ form.id_prefix }}office-fax">Leave this field empty</label>
         <input type="text" name="office_fax" id="{{ form.id_prefix }}office-fax" autocomplete="off" tabindex="-1">
+      </div>
+
+      {# Shown by flare-contact-form.es6.js when the server fails to answer a submission #}
+      <div class="contact-form-request-error hidden" role="alert">
+        <include:notification color="red" icon="warning">
+          {{ ftl("contact-form-error-sending") }}
+        </include:notification>
       </div>
 
       <div class="fl-buttons">

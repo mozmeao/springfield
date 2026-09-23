@@ -4,10 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# `page` and `form` here come from the chosen contact page, put in place by
-   ContactFormBlock.get_context. They are absent when that page may not be shown. #}
+{# htmx swaps this placeholder for the contact page's form once the page loads.
+   `form_url` is unset when that contact page may not be shown. #}
 
-{% if form %}
-  {% set two_column = value.two_column %}
-  {% include "cms/includes/contact-form.html" %}
+{% if form_url %}
+  <div class="fl-contact-form-wrapper" hx-get="{{ form_url }}" hx-trigger="load" hx-swap="outerHTML">
+    <noscript>
+      <include:notification color="orange">
+        {{ ftl("ui-please-turn-on-javascript", ftl_files=["ui"]) }}
+      </include:notification>
+    </noscript>
+  </div>
 {% endif %}

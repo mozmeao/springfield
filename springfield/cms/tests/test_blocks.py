@@ -6030,50 +6030,44 @@ def contact_form_block(contact_page):
     return {"type": "contact_form", "value": {"contact_page": contact_page.pk}}
 
 
-def test_contact_form_block_renders_the_chosen_pages_form(contact_page_for_block, index_page, rf):
-    """The block renders the chosen contact page's own form, aimed at that page's URL.
+def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, index_page, rf):
+    """The block renders a placeholder that htmx swaps for the contact page's form.
 
-    The same contact page is embedded twice, so each copy has to get its own element ids.
+    The same contact page is embedded twice, so each copy asks for its own form number.
+    Host query params are forwarded for the contact page's hidden field overrides.
     """
     page = publish_freeform_content_page(
         FreeFormPage2026,
         slug="contact-form-block",
         parent=index_page,
-        content=[contact_form_block(contact_page_for_block), contact_form_block(contact_page_for_block)],
+        content=[
+            contact_form_block(contact_page_for_block),
+            {"type": "contact_form", "value": {"contact_page": contact_page_for_block.pk, "two_column": True}},
+        ],
     )
 
-    main = render_main_element(page, rf)
+    response = page.serve(rf.get(page.get_full_url(), {"utm_source": "test", "form_instance": "9", "two_column": "1"}))
+    main = BeautifulSoup(response.content, "html.parser").find(class_="fl-main")
 
-    forms = main.find_all("form", class_="contact-form")
-    assert len(forms) == 2
-    for number, form in enumerate(forms, start=1):
-        assert form.find_parent("div", class_="fl-contact-form-wrapper").find_parent("section", class_="fl-section")
-        assert form["method"] == "post"
-        # hx-post carries the real target; the visible `action` is a decoy for the
-        # anti-bot delay in flare-contact-form.es6.js.
-        assert form["hx-post"] == contact_page_for_block.url
-        assert form["action"] == "/page-not-found/"
-        assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
-        assert form.find("input", attrs={"name": "office_fax"}) is not None
-        # The form tells the contact page which number to re-render it with
-        assert form.find("input", attrs={"name": "form_instance"})["value"] == str(number)
-
-        # Element ids are numbered per form
-        # Required fields carry a trailing marker in their label.
-        assert form.find("label", attrs={"for": f"contact-{number}-full_name"}).get_text(strip=True) == "Full Name*"
-        assert form.find("input", attrs={"name": "full_name"})["type"] == "text"
-        assert form.find("label", attrs={"for": f"contact-{number}-email"}).get_text(strip=True) == "Email Address*"
-        assert form.find("input", attrs={"name": "email"})["type"] == "email"
-
-        # The contact strings are Fluent, so they have to resolve on the host page too
-        assert form.find("button", attrs={"type": "submit"}).get_text(strip=True) == "Submit"
+    placeholders = main.find_all("div", class_="fl-contact-form-wrapper")
+    assert [placeholder["hx-get"] for placeholder in placeholders] == [
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=1",
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=2&two_column=1",
+    ]
+    for placeholder in placeholders:
+        assert placeholder.find_parent("section", class_="fl-section")
+        assert placeholder["hx-trigger"] == "load"
+        assert placeholder["hx-swap"] == "outerHTML"
+        assert placeholder.find("form") is None
+    # No per-visitor CSRF token on the host page, so a shared cache may keep it
+    assert main.find("input", attrs={"name": "csrfmiddlewaretoken"}) is None
+    assert "no-store" not in response.get("Cache-Control", "")
 
 
-@pytest.mark.parametrize("identifier", ["office_fax", "form_instance", "two_column"])
-def test_form_field_clean_rejects_a_reserved_internal_identifier(identifier):
-    """The contact form markup posts these names itself, so an author's field cannot claim them."""
-    with pytest.raises(ValidationError, match=f"'{identifier}' is reserved"):
-        TextFieldBlock().clean({"label": "Whatever", "internal_identifier": identifier, "required": False})
+def test_form_field_clean_rejects_the_honeypot_internal_identifier():
+    """The contact form posts the `office_fax` honeypot itself, so an author's field cannot claim it."""
+    with pytest.raises(ValidationError, match="'office_fax' is reserved"):
+        TextFieldBlock().clean({"label": "Whatever", "internal_identifier": "office_fax", "required": False})
 
 
 def test_contact_form_block_clean_accepts_a_published_contact_page(contact_page_for_block):
@@ -6100,6 +6094,15 @@ def test_contact_form_block_clean_rejects_a_restricted_contact_page(contact_page
         ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
 
     assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_contact_page_without_a_url(contact_page_for_block):
+    """A contact page outside every site's tree has no URL for the form to be loaded from."""
+    with mock.patch.object(ContactPage, "url", new_callable=mock.PropertyMock, return_value=None):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "no public URL" in str(exc_info.value.block_errors["contact_page"])
 
 
 def test_contact_form_block_warns_when_javascript_is_off(contact_page_for_block, index_page, rf):
@@ -6147,20 +6150,6 @@ def test_contact_form_block_hides_an_unpublished_contact_page(contact_page_for_b
     assert main.find("div", class_="fl-contact-form-wrapper") is None
 
 
-def test_contact_form_block_stops_its_host_page_being_cached(contact_page_for_block, index_page, rf):
-    """The form carries a per-visitor CSRF token, so a shared cache must not keep the host page."""
-    page = publish_freeform_content_page(
-        FreeFormPage2026,
-        slug="contact-form-block-caching",
-        parent=index_page,
-        content=[contact_form_block(contact_page_for_block)],
-    )
-
-    response = page.serve(rf.get(page.get_full_url()))
-
-    assert "no-store" in response.get("Cache-Control", "")
-
-
 def test_contact_form_block_renders_inside_a_media_content_block(contact_page_for_block, index_page, rf):
     """The block is also offered within Media + Content, where it carries no section of its own."""
     page = publish_freeform_content_page(
@@ -6184,7 +6173,5 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
     # Nested, the block uses the bare template, so it brings no section of its own
     assert media_content.find("section") is None
 
-    wrapper = media_content.find("div", class_="fl-contact-form-wrapper")
-    form = wrapper.find("form", class_="contact-form")
-    assert form["hx-post"] == contact_page_for_block.url
-    assert form.find("input", attrs={"name": "full_name"}) is not None
+    placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
