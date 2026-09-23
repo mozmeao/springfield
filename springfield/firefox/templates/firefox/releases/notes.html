@@ -130,6 +130,15 @@
                       "loading": "eager"
                     }
                   ) }}
+                  {% elif brand_product == 'enterprise' %}
+                  {{ resp_img(
+                    url='img/logos/firefox/firefox-logo-enterprise.svg',
+                    optional_attributes={
+                      "width": 55,
+                      "height": 55,
+                      "loading": "eager"
+                    }
+                  ) }}
                   {% endif %}
                 </div>
                 {% if not primary_heading %}
