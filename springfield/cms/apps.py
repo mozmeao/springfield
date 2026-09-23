@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from collections import defaultdict
+from uuid import UUID
 
 from django.apps import AppConfig
 
@@ -21,7 +22,7 @@ class CmsConfig(AppConfig):
         # Sort hand-translated locales last on the "Translate" locale checkboxes
         self._patch_submit_translation_locale_order()
 
-        # Extend every group page permission to the page's other locales
+        # Extend group page permissions to the other locales at their "Translated pages" levels
         self._patch_page_permission_policy()
 
         # Populate the User Routing signal registry with the v1 signals.
@@ -101,7 +102,8 @@ class CmsConfig(AppConfig):
     @staticmethod
     def _patch_page_permission_policy():
         """
-        Extend each of a group's page permissions to every translation of the page it names.
+        Extend a group's page permissions to every translation of the pages they name, at the
+        levels the group holds in its "Translated pages" permissions.
 
         Wagtail scopes a permission to one page and its descendants, and each locale gets
         its own page tree, so a permission below the root reaches a single locale and leaves
@@ -115,25 +117,58 @@ class CmsConfig(AppConfig):
 
         # Imported inline because these modules pull in Wagtail models, which cannot be
         # imported while the app registry is still loading.
+        from django.contrib.auth.base_user import AbstractBaseUser
+        from django.contrib.auth.models import Permission
+        from django.contrib.contenttypes.models import ContentType
+
         from wagtail.models import GroupPagePermission, Page
+        from wagtail.models.pages import PAGE_PERMISSION_CODENAMES
         from wagtail.permission_policies.pages import PagePermissionPolicy
+
+        from springfield.base.models import TranslatedPagePermission, page_codename
 
         original_get_all_permissions_for_user = PagePermissionPolicy.get_all_permissions_for_user
 
-        def get_all_permissions_for_user(self, user):
-            stored_permissions = original_get_all_permissions_for_user(self, user)
+        def get_all_permissions_for_user(self: PagePermissionPolicy, user: AbstractBaseUser) -> list[GroupPagePermission]:
+            stored_permissions: list[GroupPagePermission] = list(original_get_all_permissions_for_user(self, user))
             if not stored_permissions:
                 return stored_permissions
 
-            translation_keys = {permission.page.translation_key for permission in stored_permissions}
-            pages_by_translation_key = defaultdict(list)
+            # Page permission codenames ("publish_page") each group has as "Translated pages" levels
+            # {group_id: {"change_page", "publish_page", ...}}
+            translated_codenames_by_group: defaultdict[int, set[str]] = defaultdict(set)
+            for group_id, translated_codename in Permission.objects.filter(
+                group__in={permission.group_id for permission in stored_permissions},
+                content_type=ContentType.objects.get_for_model(TranslatedPagePermission),
+            ).values_list("group", "codename"):
+                translated_codenames_by_group[group_id].add(page_codename(translated_codename))
+            if not translated_codenames_by_group:
+                return stored_permissions
+
+            page_permissions_by_codename: dict[str, Permission] = {
+                permission.codename: permission
+                for permission in Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)
+            }
+
+            # The group's own pages keep exactly the levels stored for them, so only the
+            # other pages sharing their translation key are extended.
+            # { (group_id, translation_key): {fr_page_id, de_page_id, ...} }
+            stored_page_ids_by_group_and_key: defaultdict[tuple[int, UUID], set[int]] = defaultdict(set)
+            for permission in stored_permissions:
+                if permission.group_id in translated_codenames_by_group:
+                    stored_page_ids_by_group_and_key[(permission.group_id, permission.page.translation_key)].add(permission.page_id)
+
+            translation_keys: set[UUID] = {translation_key for _group_id, translation_key in stored_page_ids_by_group_and_key}
+            pages_by_translation_key: defaultdict[UUID, list[Page]] = defaultdict(list)
             for page in Page.objects.filter(translation_key__in=translation_keys):
                 pages_by_translation_key[page.translation_key].append(page)
 
-            return [
-                GroupPagePermission(group_id=permission.group_id, page=page, permission=permission.permission)
-                for permission in stored_permissions
-                for page in pages_by_translation_key[permission.page.translation_key]
+            return stored_permissions + [
+                GroupPagePermission(group_id=group_id, page=page, permission=page_permissions_by_codename[codename])
+                for (group_id, translation_key), stored_page_ids in stored_page_ids_by_group_and_key.items()
+                for page in pages_by_translation_key[translation_key]
+                if page.pk not in stored_page_ids
+                for codename in translated_codenames_by_group[group_id]
             ]
 
         PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
