@@ -16,7 +16,7 @@
 
 <div class="fl-main">
   <div class="fl-section c-section">
-    <h1 id="firefox-download-options" class="fl-heading fl-text-align-center">Download Firefox</h1>
+    <h1 id="firefox-download-options" class="fl-heading c-page-title">Download Firefox</h1>
 
     {% if has_errors %}
     <include:notification icon="error" color="red">
@@ -204,6 +204,15 @@
             switching costs no network fetch.
           #}
           <div class="c-logo">
+            <img class="c-logo-image" data-logo="no-download" src="{{ static("img/firefox/flare/fox-brand-confused.svg") }}" alt="" width="353" height="160">
+            <img class="c-logo-image" data-logo="windows" src="{{
+            static("img/firefox/download/all-form/windows.svg") }}" alt="Windows" width="100" height="100">
+            <img class="c-logo-image" data-logo="apple" src="{{
+            static("img/firefox/download/all-form/apple.svg") }}" alt="Apple" width="100" height="100">
+            <img class="c-logo-image" data-logo="linux" src="{{
+            static("img/firefox/download/all-form/linux.svg") }}" alt="Linux" width="100" height="100">
+            <img class="c-logo-image" data-logo="android" src="{{
+            static("img/firefox/download/all-form/android.svg") }}" alt="Android" width="100" height="100">
             {%- for logo in logos %}
             <img class="c-logo-image" data-logo="{{ logo.key }}" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
             {%- endfor %}
@@ -236,6 +245,11 @@
         </div>
       </form>
     </firefox-download-form>
+    <div class="c-need-help">
+      {% set campaign = "firefox-all" %}
+      {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
+      <a href="https://support.mozilla.org/products/{{ params }}&utm_content=need-help-link">{{ ftl('firefox-all-need-help') }}</a>
+    </div>
   </div>
 </div>
 
