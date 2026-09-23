@@ -90,6 +90,7 @@
         display: flex;
         justify-content: center;
         gap: 8px;
+        margin-block-end: var(--token-spacing-md);
     }
 
     .c-form:valid .c-no-download-image { display: none; }
@@ -110,6 +111,7 @@
         block-size: 100px;
         background-repeat: no-repeat;
         background-size: contain;
+        background-position: center;
     }
 
     .c-platform-logo {
