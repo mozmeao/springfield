@@ -124,3 +124,8 @@ a.fl-tag:hover .fl-tag {
 .fl-tags .fl-tag {
     margin: 0;
 }
+
+.fl-certification-list a.fl-tag:hover,
+.fl-certification-list a.fl-tag:focus-visible {
+    text-decoration: underline;
+}

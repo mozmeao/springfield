@@ -1,0 +1,16 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="fl-tags fl-certification-list center">
+  {% for item in value.list_items %}
+    {% set url = item.link.get_url() %}
+    {% if url %}
+      <a class="fl-tag" href="{{ url|add_utm_parameters }}"{% if item.link.new_window %} target="_blank" rel="external noopener"{% endif %}>{{ item.text }}</a>
+    {% else %}
+      <span class="fl-tag">{{ item.text }}</span>
+    {% endif %}
+  {% endfor %}
+</div>

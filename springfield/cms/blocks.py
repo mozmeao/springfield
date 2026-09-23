@@ -1224,6 +1224,26 @@ class TagsBlock(blocks.ListBlock):
         label_format = "Tags"
 
 
+class CertificationItemBlock(blocks.StructBlock):
+    text = blocks.CharBlock()
+    link = SpringfieldLinkBlock(required=False)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification"
+        label_format = "{text}"
+
+
+class CertificationListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(CertificationItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification List"
+        label_format = "Certification List"
+        template = "cms/blocks/certification-list.html"
+
+
 # Comparison Table
 
 
@@ -2889,6 +2909,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
+                ("certification_list", CertificationListBlock()),
             ],
             required=False,
         )
