@@ -568,7 +568,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * Remove the no-JS release hint.
      */
     _removeNoJSReleaseHint() {
-        const hint = this.querySelector('_release-no-js-hint');
+        const hint = this.querySelector('#release-no-js-hint');
         if (!hint) return;
 
         const control = this._form.elements.release;
@@ -819,14 +819,21 @@ class FirefoxDownloadFormElement extends HTMLElement {
             );
         });
 
-        // The server-rendered error describes the selection the page loaded
+        // The server-rendered errors describes the selection the page loaded
         // with. Once the visitor edits, it is stale.
         this._effect(() => {
             if (this._provenance.value !== PROVENANCE.EDITED) return;
-            const serverError = this.querySelector('_server-release-error');
-            if (!serverError) return;
-            serverError.remove();
-            this._form.elements.release.removeAttribute('aria-describedby');
+
+            const serverError = this.querySelector('#server-release-error');
+            if (serverError) {
+                serverError.remove();
+                this._form.elements.release.removeAttribute('aria-describedby');
+            }
+
+            const serverNotification = this.closest('.fl-main').querySelector(
+                '.fl-notification-wrapper'
+            );
+            if (serverNotification) serverNotification.remove();
         });
 
         this._effect(() => {

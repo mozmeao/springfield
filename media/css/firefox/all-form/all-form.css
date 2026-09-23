@@ -229,47 +229,33 @@
         }
     }
 
-    /* Only until the element upgrades; after that the content sets the height. */
-    firefox-download-form:not(:defined) .c-results {
-        min-block-size: var(--c-results-reserve);
-    }
-
     /*
      * Without JS the release select keeps every option, so the hint under it
      * says which ones the chosen platform actually has. These are the only rules
      * here that need `.no-js`: everything else the server rendered is already
      * correct for the selection it rendered.
      */
-    .no-js .c-form {
+    .no-js {
         &:has(option[value='ios']:checked) [data-hint-for='ios'],
         &:has(option[value='android']:checked) [data-hint-for='android'],
-        &:has(option[value='linux']:checked) [data-hint-for='linux'] {
-            display: revert;
-        }
-
+        &:has(option[value='linux']:checked) [data-hint-for='linux'],
         /*
          * Same idea for the note that the language does not apply to a store
          * app. With JS the script shows and hides it; without, this does, and
          * follows the select rather than whatever was selected at load.
          */
-        &:has(#os option[value='ios']:checked) .c-language-message,
-        &:has(#os option[value='android']:checked) .c-language-message {
+        &:has(#os option:where([value='ios'], [value='android']):checked) .c-language-message {
             display: revert;
         }
-    }
 
-    /*
-     * The server-rendered error describes the selection the page loaded with.
-     * Once the visitor has touched the release select it is stale, and the
-     * script removes it — these hide it in the gap before that happens.
-     */
-    :has([name='release']:where(:user-invalid, :user-valid))
-        .fl-notification-wrapper {
-        display: none;
-    }
-
-    form:has([name='release']:where(:user-invalid, :user-valid))
-        #server-release-error {
-        content-visibility: hidden;
+        /*
+         * Hide the serialized error messages once the form is dirty.
+         */
+        &:has([name='release']:where(:user-invalid, :user-valid)) :is(
+            .fl-notification-wrapper,
+            #server-release-error
+        ) {
+            display: none;
+        }
     }
 }
