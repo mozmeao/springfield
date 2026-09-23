@@ -203,19 +203,10 @@
             means it stays right when the select changes, with or without JS, and
             switching costs no network fetch.
           #}
-          <div class="c-logo">
-            <img class="c-logo-image" data-logo="no-download" src="{{ static("img/firefox/flare/fox-brand-confused.svg") }}" alt="" width="353" height="160">
-            <img class="c-logo-image" data-logo="windows" src="{{
-            static("img/firefox/download/all-form/windows.svg") }}" alt="Windows" width="100" height="100">
-            <img class="c-logo-image" data-logo="apple" src="{{
-            static("img/firefox/download/all-form/apple.svg") }}" alt="Apple" width="100" height="100">
-            <img class="c-logo-image" data-logo="linux" src="{{
-            static("img/firefox/download/all-form/linux.svg") }}" alt="Linux" width="100" height="100">
-            <img class="c-logo-image" data-logo="android" src="{{
-            static("img/firefox/download/all-form/android.svg") }}" alt="Android" width="100" height="100">
-            {%- for logo in logos %}
-            <img class="c-logo-image" data-logo="{{ logo.key }}" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
-            {%- endfor %}
+          <div class="c-results-logos">
+            <img class="c-no-download-image" src="{{ static("img/firefox/flare/fox-brand-confused.svg") }}" alt="" width="353" height="160">
+            <div class="c-platform-logo"></div>
+            <div class="c-release-logo"></div>
           </div>
 
           {#
