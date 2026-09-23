@@ -1824,6 +1824,8 @@ class ImpactDashBlock(blocks.StructBlock):
             "label": singular if number == 1 else plural,
             "badge_name": (badge.get("badge_name") or "").strip(),
             "is_achieved": install_count >= number,
+            # Exactly on this milestone, the connector to the next badge shows no progress.
+            "is_at_milestone": install_count == number,
             # Read by _summary_source, not by the badge itself: only the highest
             # achieved badge's pair is rendered, above the badge array.
             "heading": (badge.get("heading") or "").strip(),

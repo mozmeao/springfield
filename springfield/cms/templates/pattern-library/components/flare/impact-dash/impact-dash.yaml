@@ -1,12 +1,13 @@
 name: Impact Dashboard
 context:
-  # Matches a referrer with 5 installs, so the 1 and 5 badges are achieved.
-  install_count: 5
+  # Matches a referrer with 10 installs, so the 1 and 5 badges are achieved.
+  # 10 is between 5 and 25, so the connector joining them is half filled.
+  install_count: 10
   # As ImpactDashBlock.get_context hands them over: the pair belonging to the
   # furthest badge unlocked (Supporter, at 5), with the editor's {install count}
   # token already replaced by install_count.
   summary_heading: "You are a Supporter!"
-  summary_content: "You have helped 5 people switch to Firefox."
+  summary_content: "You have helped 10 people switch to Firefox."
   badges:
     - number: 1
       label: "person"
