@@ -121,9 +121,12 @@
 
         /* Adjustments since the logo files aren’t great */
         .c-form:has(
-            option[value^="win"]:checked,
-            option[value^="osx"]:checked,
-            option[value^="android"]:checked
+            option:is(
+                [value^="win"],
+                [value^="osx"],
+                [value="ios"],
+                [value="android"]
+            ):checked
         ) & { filter: brightness(100); }
 
         .c-form:has(option[value^="linux"]:checked) & { filter: invert(1); }
