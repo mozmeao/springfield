@@ -393,10 +393,19 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-tiny-icon-button {
+    aspect-ratio: 1;
     background: transparent;
+    block-size: 1em;
     color: var(--fl-theme-color-link);
+    line-height: 1;
     margin: 0;
     padding: 0;
+    vertical-align: middle;
+}
+
+/* This is handled in the button to help avoid extra space in the focus ring. */
+.fl-tiny-icon-button > .fl-icon {
+    vertical-align: unset;
 }
 
 .fl-tiny-icon-button:hover,
