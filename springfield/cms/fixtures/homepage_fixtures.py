@@ -35,6 +35,7 @@ def get_home_intro():
 def _pictogram_card(card_id, superheading, headline, content, image_id, dark_image_id):
     _image = {
         "image": image_id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {"dark_mode_image": dark_image_id, "mobile_image": None, "dark_mode_mobile_image": None},
     }
     return {
@@ -119,6 +120,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Download Firefox</p>',
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                                 "mobile_image": None,
@@ -134,6 +136,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Select what you want to bring with you</p>',
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                                 "mobile_image": None,
@@ -149,6 +152,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Click import</p>',
                         "image": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                                 "mobile_image": None,
@@ -176,6 +180,7 @@ def get_showcase_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                                 "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
@@ -202,6 +207,7 @@ def get_showcase_variants():
                         "type": "image",
                         "value": {
                             "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                                 "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
@@ -240,6 +246,7 @@ def get_card_gallery():
                 "buttons": [buttons["primary"]],
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                         "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
@@ -254,6 +261,7 @@ def get_card_gallery():
                 "buttons": [buttons["primary"]],
                 "image": {
                     "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                         "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,

@@ -17,6 +17,7 @@ _IMAGE_MEDIA = [
         "type": "image",
         "value": {
             "image": settings.PLACEHOLDER_IMAGE_ID,
+            "image_alt": "A numbered grid, standing in for a real image",
             "settings": {
                 "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
                 "mobile_image": None,
@@ -167,6 +168,7 @@ def get_download_page(platform) -> DownloadPage:
     )
     page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
     page.featured_image = image
+    page.featured_image_alt = "A numbered grid, standing in for a real image"
     page.content = with_fresh_ids([get_cards_list_section()])
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()

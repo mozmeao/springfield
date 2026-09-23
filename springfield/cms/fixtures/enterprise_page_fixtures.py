@@ -34,6 +34,7 @@ DOWNLOAD_URL = "/enterprise/download/"
 def image_value():
     return {
         "image": settings.PLACEHOLDER_IMAGE_ID,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {
             "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
             "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
@@ -1182,6 +1183,7 @@ def get_enterprise_navigation_snippet(parent, product_page, support_page, contac
                 nav_top_level_link("ent-nav-support", "Support", support_page, "c5000000-0000-0000-0000-000000000002"),
             ],
             "logo": get_enterprise_logo("Firefox Enterprise Logo", "firefox-enterprise-orange.svg"),
+            "logo_alt": "Firefox Enterprise",
             "logo_dark": None,
             "logo_link": [{"type": "link", "value": link_value(page=parent), "id": "ent-nav-logolink"}],
             "cta_button": [

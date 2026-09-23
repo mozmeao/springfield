@@ -5,9 +5,11 @@
 from io import BytesIO
 from unittest.mock import Mock, patch
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
@@ -15,6 +17,7 @@ from markupsafe import escape
 from PIL import Image as PillowImage
 from wagtail.images.forms import get_image_form
 from wagtail.images.jinja2tags import image as render_image, srcset_image as render_srcset_image
+from wagtail.images.tests.utils import get_test_image_file
 
 from springfield.cms.fields import SanitizingWagtailImageField
 from springfield.cms.models.images import SpringfieldImage, _make_renditions
@@ -126,6 +129,40 @@ class SpringfieldImageTestCase(TestCase):
             form.fields["file"],
             SanitizingWagtailImageField,
         )
+
+
+class ImageChooserResponseTestCase(TestCase):
+    def setUp(self):
+        self.superuser = get_user_model().objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+        )
+
+    def test_chosen_response_offers_no_default_alt_text_for_a_decorative_image(self):
+        image = SpringfieldImage.objects.create(
+            title="Swirl-2400x1200.png",
+            description="",
+            is_decorative=True,
+            file=get_test_image_file(),
+        )
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
+
+        assert response.json()["result"]["default_alt_text"] == ""
+
+    def test_chosen_response_offers_the_description_for_a_described_image(self):
+        image = SpringfieldImage.objects.create(
+            title="A purple fox",
+            description="A purple fox on a laptop",
+            file=get_test_image_file(),
+        )
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
+
+        assert response.json()["result"]["default_alt_text"] == "A purple fox on a laptop"
 
 
 def test_image_form_does_not_fill_the_title_from_the_file_name():

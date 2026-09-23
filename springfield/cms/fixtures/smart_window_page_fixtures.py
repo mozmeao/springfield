@@ -293,8 +293,12 @@ def _testimonial_card(card_id, content, attribution, attribution_role, attributi
 def get_smart_window_testimonial_cards() -> dict:
     img = settings.PLACEHOLDER_IMAGE_ID
     dark = settings.PLACEHOLDER_DARK_IMAGE_ID
-    _image = {"image": img, "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None}}
-    _no_image = {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
+    _image = {
+        "image": img,
+        "image_alt": "A numbered grid, standing in for a real image",
+        "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None},
+    }
+    _no_image = {"image": None, "image_alt": "", "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
     cards = [
         _testimonial_card(
             card_id="swptc01-0000-0000-0000-000000000001",
@@ -388,12 +392,14 @@ def get_smart_window_test_page() -> SmartWindowPage:
             "heading_text": '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
             "subheading_text": '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
             "image": image,
+            "image_alt": "A numbered grid, standing in for a real image",
         },
     )
 
     page.heading_text = '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>'
     page.subheading_text = '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>'
     page.image = image
+    page.image_alt = "A numbered grid, standing in for a real image"
     page.image_dark_mode = dark_image
     page.animation = _ANIMATION_URL
     page.animation_alt = "Lorem ipsum animation."

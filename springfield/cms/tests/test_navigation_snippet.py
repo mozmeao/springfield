@@ -5,6 +5,7 @@
 from io import BytesIO
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils import translation
@@ -19,6 +20,7 @@ from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.navigation_fixtures import (
     build_column,
     build_folder,
+    build_logo_image,
     build_nav_link,
     build_separator,
     build_top_level_link,
@@ -45,6 +47,19 @@ UTM_PARAMETERS = {
     "utm_medium": "referral",
     "utm_campaign": "nav",
 }
+
+
+@pytest.fixture
+def navigation_snippet():
+    """A NavigationSnippet with a logo and a dark-mode logo variant."""
+    return NavigationSnippet.objects.create(
+        locale=Locale.get_default(),
+        name="Test navigation",
+        items=[],
+        logo=build_logo_image("Test logo", (117, 79, 224)),
+        logo_alt="Firefox",
+        logo_dark=build_logo_image("Test logo dark", (255, 138, 80)),
+    )
 
 
 def render_navigation(snippet, request, language="en-US"):
@@ -472,6 +487,7 @@ def test_page_header_overrides_logo_and_button(minimal_site, rf):
     override_button["value"]["custom_label"] = "Buy now"
     snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
     snippet.logo = logo
+    snippet.logo_alt = "Page logo"
     snippet.logo_dark = logo_dark
     snippet.cta_button = [("button", [override_button])]
     snippet.logo_link = [("link", {"link_to": "custom_url", "custom_url": "https://example.com/campaign/"})]
@@ -501,6 +517,7 @@ def test_page_header_dark_logo_omitted_when_unset(minimal_site, rf):
     logo = make_image(240, 80, title="light-only")
     snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
     snippet.logo = logo
+    snippet.logo_alt = "Light-only logo"
     snippet.save_revision().publish()
     snippet.refresh_from_db()
 
@@ -512,6 +529,36 @@ def test_page_header_dark_logo_omitted_when_unset(minimal_site, rf):
     assert len(images) == 1
     assert logo.get_rendition("width-400").url in images[0]["src"]
     assert logo_anchor.find("img", class_="display-dark") is None
+
+
+def test_navigation_snippet_requires_alt_for_a_non_decorative_logo(navigation_snippet):
+    navigation_snippet.logo_alt = ""
+    with pytest.raises(ValidationError) as excinfo:
+        navigation_snippet.clean()
+    assert "logo_alt" in excinfo.value.error_dict
+
+
+def test_navigation_snippet_accepts_a_blank_alt_for_a_decorative_logo(navigation_snippet):
+    navigation_snippet.logo.is_decorative = True
+    navigation_snippet.logo.save()
+    navigation_snippet.logo_alt = ""
+    navigation_snippet.clean()  # does not raise
+
+
+def test_site_header_renders_the_logo_alt_on_both_variants(minimal_site, rf, navigation_snippet):
+    site = Site.objects.get(is_default_site=True)
+    navigation_snippet.logo_alt = "Firefox"
+    navigation_snippet.save_revision().publish()
+    navigation_snippet.refresh_from_db()
+
+    page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=navigation_snippet)
+    soup = serve_page_soup(page, site, rf)
+
+    logo_anchor = soup.find("a", class_="fl-logo-fx")
+    logo_images = logo_anchor.find_all("img")
+    assert logo_images
+    for logo_image in logo_images:
+        assert logo_image["alt"] == "Firefox"
 
 
 def make_default_snippet(name="Default nav", items=None):

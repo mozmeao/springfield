@@ -873,6 +873,13 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-image-alt-prefill.es6.js",
+        "js/cms/wagtailadmin-image-alt-prefill-init.es6.js"
+      ],
+      "name": "wagtailadmin-image-alt-prefill"
+    },
+    {
+      "files": [
         "js/cms/wagtailadmin-link-block.js"
       ],
       "name": "wagtailadmin-link-block"

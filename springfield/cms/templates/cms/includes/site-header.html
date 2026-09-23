@@ -34,11 +34,12 @@
   {% if page_navigation and page_navigation.logo %}
     {% set logo_href = page_navigation.logo_link[0].value.get_url() if page_navigation.logo_link else "/" + LANG + "/" %}
     {% set logo_classes = image_variant_classes(page_navigation.logo_dark) %}
+    {% set logo_alt = alt_text(page_navigation.logo_alt, page_navigation.logo) %}
     <content:custom_logo>
       <a href="{{ logo_href }}" class="fl-logo-fx fl-logo-fx-custom" aria-label="Firefox">
-        {{ image(page_navigation.logo, "width-400", class=logo_classes.primary) }}
+        {{ image(page_navigation.logo, "width-400", class=logo_classes.primary, alt=logo_alt) }}
         {% if page_navigation.logo_dark %}
-          {{ image(page_navigation.logo_dark, "width-400", class=logo_classes.dark_mode) }}
+          {{ image(page_navigation.logo_dark, "width-400", class=logo_classes.dark_mode, alt=logo_alt) }}
         {% endif %}
       </a>
     </content:custom_logo>

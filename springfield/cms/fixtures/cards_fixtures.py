@@ -18,6 +18,7 @@ _SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_brows
 
 _IMAGE_VARIANTS = {
     "image": settings.PLACEHOLDER_IMAGE_ID,
+    "image_alt": "A numbered grid, standing in for a real image",
     "settings": {
         "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
         "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
@@ -27,6 +28,7 @@ _IMAGE_VARIANTS = {
 
 _EMPTY_IMAGE_VARIANTS = {
     "image": None,
+    "image_alt": "",
     "settings": {
         "dark_mode_image": None,
         "mobile_image": None,

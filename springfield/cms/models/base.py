@@ -55,6 +55,33 @@ def _sample_rates_in_raw_block_data(data):
             yield from _sample_rates_in_raw_block_data(item)
 
 
+class ImageAltTextMixin:
+    """Validation for models with images that have a sibling alt text field.
+
+    Each item in `image_alt_fields` is an image field with a corresponding
+    alt text field with the `_alt` suffix. Call `clean_image_alt_text()`
+    from `clean()` and raise its errors.
+    """
+
+    image_alt_fields = ()
+
+    def clean_image_alt_text(self):
+        """Errors for each image field left without alt text, keyed by alt field name.
+
+        A decorative image may be left without alt text.
+        """
+        errors = {}
+        for image_field_name in self.image_alt_fields:
+            image = getattr(self, image_field_name, None)
+            alt_field_name = f"{image_field_name}_alt"
+            if image and not image.is_decorative and not (getattr(self, alt_field_name, "") or "").strip():
+                errors[alt_field_name] = (
+                    "Describe what this image shows, so it can be read out to someone who cannot see it. "
+                    "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
+                )
+        return errors
+
+
 class PromotedPageMixin(models.Model):
     """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
 

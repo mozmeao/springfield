@@ -40,6 +40,7 @@ def get_mobile_store_qr_code():
             },
             "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
             "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+            "mobile_image_alt": "A numbered grid, standing in for a real image",
         },
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     }
@@ -52,6 +53,7 @@ def get_mobile_browsers_cards():
             "type": "image",
             "value": {
                 "image": image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "settings": {
                     "dark_mode_image": None,
                     "mobile_image": None,
@@ -464,6 +466,7 @@ def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
                     "type": "image",
                     "value": {
                         "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image_alt": "A numbered grid, standing in for a real image",
                         "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                     },
                     "id": "ssm00001-0000-0000-0000-000000000001",

@@ -15,6 +15,7 @@ def _image(image_id, dark_mode_image_id=None, block_id=None):
         "type": "image",
         "value": {
             "image": image_id,
+            "image_alt": "A numbered grid, standing in for a real image",
             "settings": {
                 "dark_mode_image": dark_mode_image_id,
                 "mobile_image": None,

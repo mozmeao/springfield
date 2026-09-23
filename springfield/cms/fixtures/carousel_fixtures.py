@@ -14,6 +14,7 @@ SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browse
 def _image(image_id, dark_mode_image_id=None):
     return {
         "image": image_id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {
             "dark_mode_image": dark_mode_image_id,
             "mobile_image": None,

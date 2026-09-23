@@ -35,6 +35,7 @@ def create_article(
     featured_image: SpringfieldImage,
 ) -> ArticleDetailPage:
     index_page = get_article_index_test_page()
+    placeholder_alt = "A numbered grid, standing in for a real image"
 
     article = get_or_create_page(
         ArticleDetailPage,
@@ -43,12 +44,15 @@ def create_article(
         defaults={
             "title": title,
             "image": image,
+            "image_alt": placeholder_alt,
         },
     )
 
     article.featured = featured
     article.image = image
+    article.image_alt = placeholder_alt
     article.featured_image = featured_image
+    article.featured_image_alt = placeholder_alt
     article.icon = icon
     article.sticker = sticker
     article.tag = tag
@@ -150,6 +154,7 @@ def get_theme_page_intro():
                     "type": "image",
                     "value": {
                         "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image_alt": "A person shielded by a protective glow",
                         "settings": {
                             "dark_mode_image": None,
                             "mobile_image": None,

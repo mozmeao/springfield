@@ -279,6 +279,7 @@ def related_listing_image():
 def full_related_article(minimal_related_article, related_listing_image, topic):
     minimal_related_article.topic = topic
     minimal_related_article.listing_image = related_listing_image
+    minimal_related_article.listing_image_alt = "A related article's listing image"
     minimal_related_article.save()
     return minimal_related_article
 

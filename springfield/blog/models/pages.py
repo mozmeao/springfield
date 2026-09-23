@@ -35,7 +35,7 @@ from springfield.cms.blocks import (
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.models.base import AbstractSpringfieldCMSPage
+from springfield.cms.models.base import AbstractSpringfieldCMSPage, ImageAltTextMixin
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.pages import UTMParamsMixin
 from springfield.cms.rich_text import RichTextBlock, RichTextField
@@ -587,11 +587,12 @@ class HeroStyle(models.TextChoices):
 MAX_RELATED_ARTICLES = 4
 
 
-class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class BlogArticlePage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
     parent_page_types = ["blog.BlogIndexPage"]
     ftl_files = ["blog/blog"]
+    image_alt_fields = ("image", "listing_image")
 
     description = RichTextField(
         blank=True,
@@ -638,6 +639,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
+    )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.SET_NULL,
@@ -669,6 +675,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         related_name="+",
         help_text="Optional image for article cards and lists. Falls back to the featured image.",
+    )
+    listing_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     content = StreamField(
         [
@@ -732,6 +743,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("image"),
+                FieldPanel("image_alt"),
                 FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
@@ -740,6 +752,7 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                     ]
                 ),
                 FieldPanel("listing_image"),
+                FieldPanel("listing_image_alt"),
             ],
             heading="Featured Image",
         ),
@@ -802,12 +815,14 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def clean(self):
         """Reject a hero style whose asset is missing, keyed to the field the editor
-        has to fill in."""
+        has to fill in, and require alt text for any non-decorative image."""
         super().clean()
         if self.hero_style in (HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE) and not self.image_id:
             raise ValidationError({"image": "This hero style needs a featured image."})
         if self.hero_style == HeroStyle.VIDEO and not self.hero_video:
             raise ValidationError({"hero_video": "This hero style needs a video."})
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -846,6 +861,10 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_listing_image(self):
         """The image for cards and list items. Fall back to the featured image."""
         return self.listing_image or self.image
+
+    def get_listing_image_alt(self):
+        """Alt text for whichever image get_listing_image() returned."""
+        return self.listing_image_alt if self.listing_image_id else self.image_alt
 
     def get_listing_image_variants(self):
         """Dark and mobile variants for the listing image. Only available for the featured image."""
