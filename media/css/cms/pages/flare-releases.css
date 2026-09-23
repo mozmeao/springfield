@@ -112,7 +112,7 @@ NOTE: this should be refactored to remove float layout */
             strong {
                 display: block;
                 flex-shrink: 0;
-                min-inline-size: 6em;
+                min-inline-size: 5em;
             }
 
             ol {
