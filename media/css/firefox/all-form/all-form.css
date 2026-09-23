@@ -108,7 +108,7 @@
     .c-release-logo,
     .c-platform-logo {
         aspect-ratio: 1;
-        block-size: 100px;
+        block-size: 80px;
         background-repeat: no-repeat;
         background-size: contain;
         background-position: center;
