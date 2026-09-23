@@ -2376,6 +2376,10 @@ def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
+    pictogram = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom pictogram image to be displayed on the left of the headings.",
+    )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
     content = RichTextBlock(features=HEADING_TEXT_FEATURES)

@@ -2605,6 +2605,13 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                 heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
+                # Pictogram (optional)
+                header = card_el.find("header", class_="fl-article-item-header")
+                if value.get("pictogram"):
+                    assert header.find("img")
+                else:
+                    assert header.find("img") is None
+
                 # Superheading (optional)
                 if value.get("superheading"):
                     superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()

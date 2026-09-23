@@ -11,6 +11,9 @@
     {% set block_text =  card.headline|richtext|remove_tags %}
     <include:line-card>
       <content:heading>
+        {% if card.pictogram %}
+          <img src="{{ card.pictogram.file.url }}" role="presentation" />
+        {% endif %}
         <include:heading
           level="{{ heading_level }}"
           heading_size="fl-heading-size-3"
