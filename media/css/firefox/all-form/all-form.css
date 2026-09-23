@@ -86,59 +86,71 @@
         justify-items: center;
     }
 
-    .c-logo {
+    .c-results-logos {
         display: flex;
+        justify-content: center;
         gap: 8px;
-        block-size: 80px;
-
-        &:is(:invalid .c-logo) {
-            block-size: unset;
-        }
     }
 
-    .c-logo-image {
-        block-size: 100%;
-        display: none;
-        inline-size: 100%;
+    .c-form:valid .c-no-download-image { display: none; }
 
-        &[data-logo='windows'],
-        &[data-logo='apple'],
-        &[data-logo='android'] {
-            filter: brightness(100);
-        }
-
-        &[data-logo='linux'] {
-            filter: invert(1);
-        }
-
-        &[data-logo='no-download'] {
-            block-size: 100px;
-            inline-size: auto;
-            margin-block-end: 0;
-        }
-    }
-
-    /*
-     * Which logo shows follows the release select itself, rather than an
-     * attribute someone has to keep in step with it. So it is right on first
-     * paint, right after UA detection, right when the visitor picks something,
-     * and right with no JS at all — one rule set, no `:defined` variant.
-     */
-    .c-form:invalid [data-logo='no-download'],
-    .c-form:valid:has(#os option[value^='win']:checked) [data-logo='windows'],
-    .c-form:valid:has(#os option:is([value^='osx'],[value='ios']):checked) [data-logo='apple'],
-    .c-form:valid:has(#os option[value^='linux']:checked) [data-logo='linux'],
-    .c-form:valid:has(#os option[value='android']:checked) [data-logo='android'],
-
-    .c-form:valid:has(#release option[value='stable']:checked) [data-logo='firefox'],
-    .c-form:valid:has(#release option[value='esr']:checked) [data-logo='firefox'],
-    .c-form:valid:has(#release option[value='beta']:checked)
-        [data-logo='firefox-beta'],
-    .c-form:valid:has(#release option[value='dev']:checked)
-        [data-logo='firefox-developer'],
-    .c-form:valid:has(#release option[value='nightly']:checked)
-        [data-logo='firefox-nightly'] {
+    .c-form:invalid .c-no-download-image {
         display: block;
+        block-size: 150px;
+        margin-block: 0;
+    }
+
+    .c-form:invalid :is(.c-release-logo, .c-platform-logo) {
+        display: none;
+    }
+
+    .c-release-logo,
+    .c-platform-logo {
+        aspect-ratio: 1;
+        block-size: 100px;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .c-platform-logo {
+        background-image: var(--c-platform-logo);
+
+        .c-form:invalid & {
+            display: none;
+        }
+
+        /* Adjustments since the logo files aren’t great */
+        .c-form:has(
+            option[value^="win"]:checked,
+            option[value^="osx"]:checked,
+            option[value^="android"]:checked
+        ) & { filter: brightness(100); }
+
+        .c-form:has(option[value^="linux"]:checked) & { filter: invert(1); }
+    }
+
+    .c-release-logo {
+        background-image: var(--c-release-logo);
+    }
+
+    .c-form:valid {
+        /* Firefox release logos */
+        &:has(option:is([value='stable'], [value='esr']):checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo.svg'); }
+
+        &:has(option[value='beta']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-beta.svg'); }
+
+        &:has(option[value='dev']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-developer.svg'); }
+
+        &:has(option[value='nightly']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-nightly.svg'); }
+
+        /* Platform logos */
+        &:has(option[value^='win']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/windows.svg'); }
+
+        &:has(option:is([value^='osx'], [value='ios']):checked) { --c-platform-logo: url('../img/firefox/download/all-form/apple.svg'); }
+
+        &:has(option[value^='linux']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/linux.svg'); }
+
+        &:has(option[value='android']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/android.svg'); }
     }
 
     .c-download-options:not([hidden]) {
