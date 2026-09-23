@@ -64,10 +64,6 @@
         align-items: center;
         display: flex;
         gap: 4px;
-
-        .fl-dialog-trigger {
-            margin-block-start: -3px;
-        }
     }
 
     .c-field-description p {
