@@ -7,7 +7,7 @@
 @import 'variables/flare-media-query-tokens.css';
 
 @layer page {
-    .c-section {
+    .c-page {
         /* One measure for the heading and the form, so they line up. */
         --c-measure: 56rem;
         --c-choices-inline-size: 20rem;
