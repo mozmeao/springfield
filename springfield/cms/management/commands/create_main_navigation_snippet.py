@@ -7,6 +7,8 @@ Management command to create the main navigation snippet and its translations.
 
 Reproduces the hardcoded Browser / Features / Resources header navigation
 (``cms/includes/flare-menus/*.html``) as a CMS-editable NavigationSnippet.
+Re-running it resets the snippet and its translated labels to these defaults,
+overwriting any edits made in the CMS.
 """
 
 from pathlib import Path
@@ -343,7 +345,8 @@ class Command(BaseCommand):
             if po:
                 translation.import_po(
                     po,
-                    delete=False,  # idempotent: don't wipe existing translations
+                    # Keeps segments missing from the PO; segments in it are overwritten.
+                    delete=False,
                     translation_type="manual",
                     tool_name="ftl_import",
                 )

@@ -441,7 +441,7 @@ NAVIGATION_TRANSLATIONS = {
         "navigation-protection": "Diogelwch",
         "navigation-control": "Rheoli",
         "navigation-focus": "Focus",
-        "navigation-about-firefox-features": "Ynghylch nodweddion  Firefox",
+        "navigation-about-firefox-features": "Ynghylch nodweddion Firefox",
         "navigation-features-all": "Gweld pob un o Nodweddion Firefox",
         "navigation-resources": "Adnoddau",
         "navigation-data-protection": "Diogelu Data",

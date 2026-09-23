@@ -35,6 +35,9 @@ class Migration(migrations.Migration):
         ("wagtailsearch", "0005_create_indexentry"),
     ]
 
+    # Forward-only, like the other content migrations: reversing leaves the snippet,
+    # its translations and the wagtail_localize records in place, so editor
+    # changes are never lost on rollback.
     operations = [
         migrations.RunPython(
             create_main_navigation_snippet,
