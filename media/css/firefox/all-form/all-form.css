@@ -20,9 +20,14 @@
         --c-results-reserve: 0;
     }
 
-    .c-section > .fl-heading {
+    .c-page-title {
         margin-inline: auto;
         max-inline-size: var(--c-measure);
+        text-align: center;
+    }
+
+    .c-need-help {
+        text-align: center;
     }
 
     /*
@@ -30,7 +35,8 @@
      * level with the first field label rather than floating against nothing.
      */
     .c-form {
-        align-items: start;
+        block-size: 32rem;
+        align-items: center;
         display: grid;
         gap: var(--c-column-gap);
         grid-template-columns: var(--c-choices-inline-size) minmax(0, 1fr);
@@ -41,6 +47,7 @@
 
     @media (--viewport-below-md) {
         .c-form {
+            block-size: unset;
             gap: var(--token-spacing-lg, 32px);
             grid-template-columns: minmax(0, 1fr);
             max-inline-size: var(--c-choices-inline-size);
@@ -88,19 +95,35 @@
     }
 
     .c-logo {
-        /*
-         * A fixed box for a stack of four logos of which exactly one is shown,
-         * so swapping release never resizes anything and the images have
-         * somewhere to land before they load.
-         */
-        block-size: 100px;
-        inline-size: 100px;
+        display: flex;
+        gap: 8px;
+        block-size: 80px;
+
+        &:is(:invalid .c-logo) {
+            block-size: unset;
+        }
     }
 
     .c-logo-image {
         block-size: 100%;
         display: none;
         inline-size: 100%;
+
+        &[data-logo='windows'],
+        &[data-logo='apple'],
+        &[data-logo='android'] {
+            filter: brightness(100);
+        }
+
+        &[data-logo='linux'] {
+            filter: invert(1);
+        }
+
+        &[data-logo='no-download'] {
+            block-size: 100px;
+            inline-size: auto;
+            margin-block-end: 0;
+        }
     }
 
     /*
@@ -109,13 +132,19 @@
      * paint, right after UA detection, right when the visitor picks something,
      * and right with no JS at all — one rule set, no `:defined` variant.
      */
-    .c-form:has(#release option[value='stable']:checked) [data-logo='firefox'],
-    .c-form:has(#release option[value='esr']:checked) [data-logo='firefox'],
-    .c-form:has(#release option[value='beta']:checked)
+    .c-form:invalid [data-logo='no-download'],
+    .c-form:valid:has(#os option[value^='win']:checked) [data-logo='windows'],
+    .c-form:valid:has(#os option:is([value^='osx'],[value='ios']):checked) [data-logo='apple'],
+    .c-form:valid:has(#os option[value^='linux']:checked) [data-logo='linux'],
+    .c-form:valid:has(#os option[value='android']:checked) [data-logo='android'],
+
+    .c-form:valid:has(#release option[value='stable']:checked) [data-logo='firefox'],
+    .c-form:valid:has(#release option[value='esr']:checked) [data-logo='firefox'],
+    .c-form:valid:has(#release option[value='beta']:checked)
         [data-logo='firefox-beta'],
-    .c-form:has(#release option[value='dev']:checked)
+    .c-form:valid:has(#release option[value='dev']:checked)
         [data-logo='firefox-developer'],
-    .c-form:has(#release option[value='nightly']:checked)
+    .c-form:valid:has(#release option[value='nightly']:checked)
         [data-logo='firefox-nightly'] {
         display: block;
     }
