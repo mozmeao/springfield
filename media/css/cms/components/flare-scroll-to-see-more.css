@@ -9,6 +9,7 @@
     display: flex;
     inline-size: 100%;
     inset-block-end: 0;
+    inset-inline: 0;
     justify-content: center;
     position: absolute;
 }
