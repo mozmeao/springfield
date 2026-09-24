@@ -44,6 +44,7 @@ from springfield.cms.blocks import (
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
+    CertificationListBlock,
     ComparisonTableBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
@@ -2604,6 +2605,13 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                 heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
+                # Pictogram (optional)
+                header = card_el.find("header", class_="fl-article-item-header")
+                if value.get("pictogram"):
+                    assert header.find("img")
+                else:
+                    assert header.find("img") is None
+
                 # Superheading (optional)
                 if value.get("superheading"):
                     superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
@@ -5042,6 +5050,26 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
     soup = BeautifulSoup(html, "html.parser")
     panel = soup.find("div", id="fl-tab-panel-hub-1")
     assert panel.find("video") is not None
+
+
+def test_certification_list_block_renders_link_and_plain_items():
+    raw = {
+        "list_items": [
+            {"text": "DORA", "link": _BTN_LINK},
+            {"text": "GDPR"},
+        ]
+    }
+    block = CertificationListBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={})
+    tags = BeautifulSoup(html, "html.parser").select(".fl-certification-list .fl-tag")
+
+    assert tags[0].name == "a"
+    assert tags[0]["href"] == "https://mozilla.org"
+    assert tags[0].get_text() == "DORA"
+
+    assert tags[1].name == "span"
+    assert tags[1].get_text() == "GDPR"
 
 
 def _email_href(html):

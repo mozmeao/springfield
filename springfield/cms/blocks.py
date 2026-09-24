@@ -1227,6 +1227,26 @@ class TagsBlock(blocks.ListBlock):
         label_format = "Tags"
 
 
+class CertificationItemBlock(blocks.StructBlock):
+    text = blocks.CharBlock()
+    link = SpringfieldLinkBlock(required=False)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification"
+        label_format = "{text}"
+
+
+class CertificationListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(CertificationItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification List"
+        label_format = "Certification List"
+        template = "cms/blocks/certification-list.html"
+
+
 # Comparison Table
 
 
@@ -2359,9 +2379,13 @@ def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
+    pictogram = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom pictogram image to be displayed on the left of the headings.",
+    )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=0,
@@ -2894,6 +2918,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
+                ("certification_list", CertificationListBlock()),
             ],
             required=False,
         )
