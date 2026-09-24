@@ -155,6 +155,7 @@ VIDEO_ASPECT_RATIO_CHOICES = [
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_NEW_TAB_CUSTOMIZE = "open_new_tab_customize"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
@@ -169,6 +170,7 @@ UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
@@ -188,6 +190,7 @@ UITOUR_BUTTON_CHOICES = (
 
 UI_TOUR_CLASSES = {
     UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_NEW_TAB_CUSTOMIZE: "ui-tour-open-new-tab-customize",
     UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
     UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
