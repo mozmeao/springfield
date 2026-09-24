@@ -950,6 +950,8 @@ PATTERN_LIBRARY = {
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
 BASKET_API_KEY = config("BASKET_API_KEY", default="")
+# Signs requests to basket's intake endpoint, paired with BASKET_API_KEY.
+BASKET_INTAKE_HMAC_SECRET = config("BASKET_INTAKE_HMAC_SECRET", default="")
 BASKET_TIMEOUT = config("BASKET_TIMEOUT", parser=int, default="10")
 BASKET_SUBSCRIBE_URL = f"{BASKET_URL}/news/subscribe/"
 

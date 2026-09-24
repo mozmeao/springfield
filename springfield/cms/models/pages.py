@@ -5,7 +5,11 @@
 from __future__ import annotations
 
 import functools
+import hashlib
+import hmac
+import json
 import re
+import time
 import uuid
 from typing import TYPE_CHECKING
 
@@ -1781,6 +1785,8 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
 BASKET_CONTACT_BASIC_PATH = "/api/v1/contact/basic/"
+# Accepts any form fields and routes them by form id to destinations configured in basket.
+BASKET_INTAKE_PATH = "/api/v1/intake/"
 
 # The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
 # Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
@@ -1826,7 +1832,7 @@ BASKET_ENDPOINT_FIELDS = {
     },
 }
 
-BASKET_API_PATH_CHOICES = [(path, path) for path in BASKET_ENDPOINT_FIELDS]
+BASKET_API_PATH_CHOICES = [(path, path) for path in [*BASKET_ENDPOINT_FIELDS, BASKET_INTAKE_PATH]]
 
 
 class ContactPageForm(WagtailAdminPageForm):
@@ -1900,6 +1906,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         help_text="Basket endpoint the form posts to. Required if Email Address is unset. Form fields must match what it accepts.",
     )
 
+    basket_form_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=f"Form id basket routes the submission by. Required for {BASKET_INTAKE_PATH}.",
+    )
+
     redirect_to = models.ForeignKey(
         "wagtailcore.Page",
         on_delete=models.PROTECT,
@@ -1946,6 +1958,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
+                FieldPanel("basket_form_id"),
                 FieldPanel("redirect_to"),
                 FieldPanel("document_download"),
                 FieldPanel("document_download_label"),
@@ -1988,7 +2001,13 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["to_email_address"] = msg
             errors["basket_api_path"] = msg
 
-        if has_basket and not has_email:
+        if self.basket_api_path == BASKET_INTAKE_PATH:
+            if not self.basket_form_id:
+                errors["basket_form_id"] = f"{BASKET_INTAKE_PATH} requires a form id."
+        elif self.basket_form_id:
+            errors["basket_form_id"] = f"Only {BASKET_INTAKE_PATH} uses a form id."
+
+        if has_basket and not has_email and self.basket_api_path != BASKET_INTAKE_PATH:
             allowed_fields = BASKET_ENDPOINT_FIELDS.get(self.basket_api_path)
             if allowed_fields is None:
                 errors["basket_api_path"] = f"{self.basket_api_path} is not a basket endpoint."
@@ -2182,10 +2201,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
         success = None
         form_data = self._collect_field_values(request.form)
+        # Serialized here rather than via requests' json= so the intake signature covers the exact bytes sent.
+        headers = {"Content-Type": "application/json"}
+        if self.basket_api_path == BASKET_INTAKE_PATH:
+            body = json.dumps({"form_id": self.basket_form_id, "data": form_data, "source_url": self.full_url}).encode()
+            timestamp = int(time.time())
+            signature = hmac.new(settings.BASKET_INTAKE_HMAC_SECRET.encode(), f"{timestamp}.".encode() + body, hashlib.sha256).hexdigest()
+            headers["X-Api-Key"] = settings.BASKET_API_KEY
+            headers["X-Basket-Signature"] = f"t={timestamp},v1={signature}"
+        else:
+            body = json.dumps(form_data).encode()
         try:
             api_response = requests.post(
                 f"{settings.BASKET_URL}{self.basket_api_path}",
-                json=form_data,
+                data=body,
+                headers=headers,
                 timeout=settings.BASKET_TIMEOUT,
             )
             if api_response.ok:
