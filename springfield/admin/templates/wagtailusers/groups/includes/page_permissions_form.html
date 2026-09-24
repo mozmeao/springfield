@@ -1,0 +1,27 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Overrides Wagtail's group page permission row so the "Page" cell says that the
+permission reaches every locale's version of the chosen page at the "Translated pages" levels.
+{% endcomment %}
+
+{% load i18n wagtailadmin_tags %}
+
+<td>
+    {% formattedfield field=form.page sr_only_label=True %}
+    <p class="help">{% trans 'Also applies to this page in all locales, at the levels chosen under "Translated pages".' %}</p>
+    {{ form.DELETE }}
+</td>
+
+{% for option in form.permissions %}
+    <td><label for="{{ option.id_for_label }}" class="w-sr-only">{{ option.choice_label }}</label>{{ option.tag }}</td>
+{% endfor %}
+
+<td>
+    <button class="button button-small no" type="button" id="{{ form.DELETE.id_for_label }}-button" data-action="w-formset#delete">{% trans "Delete" %}</button>
+</td>

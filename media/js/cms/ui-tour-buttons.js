@@ -54,14 +54,10 @@ function init() {
                 false
             );
 
-            // If the button exists in a .fl-card element with an .expand-link class,
-            // then the link is meant to expand to the entire .fl-card, so we add
-            // the same event listener to the .fl-card.expand-link element.
-            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
-            let card = button.closest('.fl-card.expand-link');
-            if (!card) {
-                card = button.closest('.fl-card-expand-link');
-            }
+            // If the button exists in a .fl-card-expand-link element, then the
+            // link is meant to expand to the entire .fl-card, so we add the
+            // same event listener to that element.
+            const card = button.closest('.fl-card-expand-link');
             if (card) {
                 card.addEventListener(
                     'click',
@@ -72,6 +68,53 @@ function init() {
                     },
                     false
                 );
+            }
+        });
+
+        // Find any buttons that should open a new tab with the customization panel.
+        const openNewTabCustomizeButtons = document.querySelectorAll(
+            '.ui-tour-open-new-tab-customize'
+        );
+
+        Mozilla.UITour.getConfiguration('appinfo', (data) => {
+            if (data && data.version && parseFloat(data.version) < 157) {
+                openNewTabCustomizeButtons.forEach((button) => {
+                    const wrapper = button.closest('.ui-tour');
+                    if (wrapper) {
+                        wrapper.classList.add('is-hidden');
+                    }
+                });
+                return;
+            } else {
+                // Clicking any of the openNewTabCustomizeButtons should open a new tab
+                // with the customization panel.
+                openNewTabCustomizeButtons.forEach((button) => {
+                    button.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
+
+                            Mozilla.UITour.showHome('customize');
+                        },
+                        false
+                    );
+
+                    // If the button exists in a .fl-card-expand-link element, then the
+                    // link is meant to expand to the entire .fl-card, so we add the
+                    // same event listener to that element.
+                    const card = button.closest('.fl-card-expand-link');
+                    if (card) {
+                        card.addEventListener(
+                            'click',
+                            (e) => {
+                                e.preventDefault();
+
+                                Mozilla.UITour.showHome('customize');
+                            },
+                            false
+                        );
+                    }
+                });
             }
         });
 
@@ -110,14 +153,10 @@ function init() {
                 },
                 false
             );
-            // If the button exists in a .fl-card element with an .expand-link class,
-            // then the link is meant to expand to the entire .fl-card, so we add
-            // the same event listener to the .fl-card.expand-link element.
-            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
-            let card = button.closest('.fl-card.expand-link');
-            if (!card) {
-                card = button.closest('.fl-card-expand-link');
-            }
+            // If the button exists in a .fl-card-expand-link element, then the
+            // link is meant to expand to the entire .fl-card, so we add the
+            // same event listener to that element.
+            const card = button.closest('.fl-card-expand-link');
             if (card) {
                 card.addEventListener(
                     'click',
@@ -164,14 +203,10 @@ function init() {
                 },
                 false
             );
-            // If the button exists in a .fl-card element with an .expand-link class,
-            // then the link is meant to expand to the entire .fl-card, so we add
-            // the same event listener to the .fl-card.expand-link element.
-            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
-            let card = button.closest('.fl-card.expand-link');
-            if (!card) {
-                card = button.closest('.fl-card-expand-link');
-            }
+            // If the button exists in a .fl-card-expand-link element, then the
+            // link is meant to expand to the entire .fl-card, so we add the
+            // same event listener to that element.
+            const card = button.closest('.fl-card-expand-link');
             if (card) {
                 card.addEventListener(
                     'click',
@@ -214,10 +249,7 @@ function init() {
                         false
                     );
 
-                    let card = button.closest('.fl-card.expand-link');
-                    if (!card) {
-                        card = button.closest('.fl-card-expand-link');
-                    }
+                    const card = button.closest('.fl-card-expand-link');
                     if (card) {
                         card.addEventListener(
                             'click',
@@ -261,14 +293,10 @@ function init() {
                 },
                 false
             );
-            // If the button exists in a .fl-card element with an .expand-link class,
-            // then the link is meant to expand to the entire .fl-card, so we add
-            // the same event listener to the .fl-card.expand-link element.
-            // TODO: remove the alternative class name when 2025 designs are fully rolled out.
-            let card = button.closest('.fl-card.expand-link');
-            if (!card) {
-                card = button.closest('.fl-card-expand-link');
-            }
+            // If the button exists in a .fl-card-expand-link element, then the
+            // link is meant to expand to the entire .fl-card, so we add the
+            // same event listener to that element.
+            const card = button.closest('.fl-card-expand-link');
             if (card) {
                 card.addEventListener(
                     'click',
