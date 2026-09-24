@@ -3132,6 +3132,12 @@ class KitBlockSettings(blocks.StructBlock):
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet",
+            label="Scroll To See More Snippet",
+            required=False,
+            help_text="Only shown when the block has media.",
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
@@ -3139,11 +3145,21 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             max_num=2,
             required=False,
         )
+        media = MediaBlock(
+            max_num=1,
+            min_num=0,
+            required=False,
+            help_text="Sits below the buttons, flush with the bottom edge of the section.",
+        )
 
         class Meta:
             template = "cms/blocks/kit-intro.html"
             label = "Kit Intro"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "buttons", "media"],
+                settings=["settings", "scroll_to_see_more_snippet"],
+            )
 
     return _KitIntroBlock(*args, **kwargs)
 
