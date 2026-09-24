@@ -75,34 +75,46 @@ function init() {
         const openNewTabCustomizeButtons = document.querySelectorAll(
             '.ui-tour-open-new-tab-customize'
         );
-        // Clicking any of the openNewTabCustomizeButtons should open a new tab
-        // with the customization panel.
-        openNewTabCustomizeButtons.forEach((button) => {
-            // Add an event listener to the button.
-            button.addEventListener(
-                'click',
-                (e) => {
-                    e.preventDefault();
 
-                    Mozilla.UITour.showHome('customize');
-                },
-                false
-            );
+        Mozilla.UITour.getConfiguration('appinfo', (data) => {
+            if (data && data.version && parseFloat(data.version) < 157) {
+                openNewTabCustomizeButtons.forEach((button) => {
+                    const wrapper = button.closest('.ui-tour');
+                    if (wrapper) {
+                        wrapper.classList.add('is-hidden');
+                    }
+                });
+                return;
+            } else {
+                // Clicking any of the openNewTabCustomizeButtons should open a new tab
+                // with the customization panel.
+                openNewTabCustomizeButtons.forEach((button) => {
+                    button.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
 
-            // If the button exists in a .fl-card-expand-link element, then the
-            // link is meant to expand to the entire .fl-card, so we add the
-            // same event listener to that element.
-            const card = button.closest('.fl-card-expand-link');
-            if (card) {
-                card.addEventListener(
-                    'click',
-                    (e) => {
-                        e.preventDefault();
+                            Mozilla.UITour.showHome('customize');
+                        },
+                        false
+                    );
 
-                        Mozilla.UITour.showHome('customize');
-                    },
-                    false
-                );
+                    // If the button exists in a .fl-card-expand-link element, then the
+                    // link is meant to expand to the entire .fl-card, so we add the
+                    // same event listener to that element.
+                    const card = button.closest('.fl-card-expand-link');
+                    if (card) {
+                        card.addEventListener(
+                            'click',
+                            (e) => {
+                                e.preventDefault();
+
+                                Mozilla.UITour.showHome('customize');
+                            },
+                            false
+                        );
+                    }
+                });
             }
         });
 
