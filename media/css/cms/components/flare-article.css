@@ -206,6 +206,7 @@ Related articles
 
 @media (--viewport-md-up) {
     .fl-stacked-article-list .fl-article-item {
+        align-items: start;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-block: var(--token-spacing-lg) var(--token-layout-xs);
     }

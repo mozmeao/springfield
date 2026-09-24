@@ -8,9 +8,9 @@
   {% for item in value.list_items %}
     {% set url = item.link.get_url() %}
     {% if url %}
-      <a class="fl-tag" href="{{ url|add_utm_parameters }}"{% if item.link.new_window %} target="_blank" rel="external noopener"{% endif %}>{{ item.text }}</a>
+      <a class="fl-tag is-large" href="{{ url|add_utm_parameters }}"{% if item.link.new_window %} target="_blank" rel="external noopener"{% endif %}>{{ item.text }}</a>
     {% else %}
-      <span class="fl-tag">{{ item.text }}</span>
+      <span class="fl-tag is-large">{{ item.text }}</span>
     {% endif %}
   {% endfor %}
 </div>

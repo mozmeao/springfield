@@ -86,17 +86,8 @@
 
     .fl-main.has-gradient-bottom {
         background-image: url('/media/img/firefox/enterprise/ent-footer-tail-1.svg');
-        background-position: bottom -24vw right -12vw;
-    }
-
-    /* homepage overrides. Requires body class to be added in CMS page-level settings. */
-    .ent-home .has-gradient-bottom {
-        background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
-        background-position: bottom center;
-    }
-
-    .ent-home .fl-main.has-gradient-bottom {
-        background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
+        background-position: bottom -30vw right 0;
+        background-size: 100vw auto;
     }
 
     /* homepage overrides. Requires body class to be added in CMS page-level settings. */
@@ -116,10 +107,11 @@
         background-image: url('/media/img/firefox/enterprise/firefox-enterprise-icon.png');
     }
 
-    .fl-featured-image-section-heading .fl-fx-logo {
-        block-size: 1.2em;
-        inline-size: 1.2em;
-        margin-block-end: 1rem;
+    .fl-featured-image-section-heading .fl-fx-logo,
+    .fl-intro-content .fl-fx-logo {
+        block-size: 1.7em;
+        inline-size: 1.7em;
+        margin-block-end: 3rem;
     }
 
     .fl-logo-fx {
@@ -191,6 +183,97 @@
 
     .mzp-c-button-download-privacy-link a {
         color: var(--fl-theme-color-text);
+    }
+
+    .fl-banner.fl-banner-outlined {
+        background: linear-gradient(258.47deg, #fcf5f0 43.78%, #f9f9f9 91.31%);
+        border: 0 none;
+        border-radius: var(--token-border-radius-lg);
+    }
+
+    #sovereignty .fl-superheading,
+    #security .fl-superheading,
+    #resilience .fl-superheading {
+        color: var(--fl-theme-color-link);
+    }
+
+    #sovereignty .fl-superheading::before,
+    #security .fl-superheading::before,
+    #resilience .fl-superheading::before,
+    #trust .fl-heading::before {
+        align-items: center;
+        background-image: url('/media/img/firefox/enterprise/sovereignty-pictogram.svg');
+        background-repeat: no-repeat;
+        background-size: contain;
+        block-size: 100px;
+        content: '';
+        display: flex;
+        inline-size: 100px;
+        justify-content: center;
+        margin-block-end: var(--fl-section-v-padding);
+        margin-inline: auto;
+    }
+
+    #security .fl-superheading::before {
+        background-image: url('/media/img/firefox/enterprise/security-pictogram.svg');
+    }
+
+    #resilience .fl-superheading::before {
+        background-image: url('/media/img/firefox/enterprise/resilience-pictogram.svg');
+    }
+
+    #trust .fl-heading::before {
+        background-image: url('/media/img/firefox/enterprise/shield-lock.svg');
+        block-size: 60px;
+        inline-size: 60px;
+    }
+
+    #sovereignty .fl-card .fl-card-top-media .fl-card-media-icon {
+        background: radial-gradient(
+            192.02% 122.89% at 50% -19.16%,
+            #e8ddf6 25%,
+            #f2e7f8 100%
+        );
+    }
+
+    #security .fl-card .fl-card-top-media .fl-card-media-icon {
+        background: radial-gradient(
+            192.02% 122.89% at 50% -19.16%,
+            #f0e2ec 25%,
+            #f9edee 100%
+        );
+    }
+
+    #resilience .fl-card .fl-card-top-media .fl-card-media-icon {
+        background: radial-gradient(
+            192.02% 122.89% at 50% -19.16%,
+            #fcefe8 25%,
+            #fdf4ec 100%
+        );
+    }
+
+    .fl-banner-container.is-last-visible {
+        margin-inline: auto;
+        max-width: var(--token-width-desktop-content-sm);
+        padding: var(--token-layout-lg) 0;
+    }
+
+    .fl-button.button-link {
+        color: var(--fl-theme-color-text);
+        font-weight: var(--token-font-weight-semibold);
+    }
+
+    .fl-article-item-header {
+        align-items: center;
+    }
+
+    .fl-article-item-header img {
+        block-size: 60px;
+        inline-size: 60px;
+    }
+
+    .fl-article-item-description ul li::marker {
+        color: var(--token-color-light-purple);
     }
 
     /* No space for the CTA button on mobile */
