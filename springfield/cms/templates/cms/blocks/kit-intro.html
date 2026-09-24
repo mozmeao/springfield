@@ -10,7 +10,7 @@
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
 
-  <section class="fl-section has-gradient-bottom-100-always">
+  <section class="fl-section has-gradient-bottom-100-always{% if value.media %} has-home-intro-media{% endif %}">
     <div class="fl-section-container">
       <div class="fl-home-intro fl-force-dark-theme">
         <include:intro slim="{{ value.settings.slim }}">
@@ -30,6 +30,18 @@
         </include:intro>
       </div>
     </div>
+    {% if value.media %}
+      <div class="fl-home-intro-media">
+        {% with widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 934px) 934px, 100vw" %}
+          {% include_block value.media %}
+        {% endwith %}
+      </div>
+    {% endif %}
+    {% if value.media and value.scroll_to_see_more_snippet %}
+      {% with object = value.scroll_to_see_more_snippet %}
+        {% include "cms/snippets/scroll-to-see-more-snippet.html" %}
+      {% endwith %}
+    {% endif %}
   </section>
 
 </include:conditional-display>
