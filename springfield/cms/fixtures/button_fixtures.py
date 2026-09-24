@@ -725,8 +725,9 @@ def get_button_blocks() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "uitour01-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox. '
-                        "Only works in Firefox Desktop — the button is hidden on other browsers.</p>",
+                        "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox, '
+                        "or <code>Mozilla.UITour.showHome('customize')</code> to open a new tab with the customization panel. "
+                        "Only works in Firefox Desktop — the buttons are hidden on other browsers.</p>",
                     },
                     {
                         "type": "buttons",
@@ -746,6 +747,21 @@ def get_button_blocks() -> list[dict]:
                                     "custom_label": "Open New Tab",
                                 },
                                 "id": "uitour01-0000-0000-0000-000000000010",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "open-tabs",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour01-0000-0000-0000-000000000011",
+                                    },
+                                    "button_type": "open_new_tab_customize",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open New Tab (Customize Panel)",
+                                },
+                                "id": "uitour01-0000-0000-0000-000000000011",
                             },
                         ],
                     },
