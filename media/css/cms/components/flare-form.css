@@ -99,6 +99,11 @@ fieldset.fl-field-wrap {
     align-items: start;
 }
 
+.fl-intro + .fl-section:has(.fl-contact-form-wrapper) {
+    margin-block-start: calc(var(--token-layout-sm) * -1);
+    padding-block-start: 0;
+}
+
 @media (--viewport-lg-up) {
     .fl-form.fl-form-two-column {
         grid-template-columns: 1fr 1fr;

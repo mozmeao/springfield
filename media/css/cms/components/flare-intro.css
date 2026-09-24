@@ -269,10 +269,6 @@
     padding-block: 0;
 }
 
-.fl-contact-page .fl-intro:first-child {
-    padding-block-end: var(--token-spacing-lg);
-}
-
 @media (--viewport-sm-up) {
     :where(:not(.conditional-display)) > .fl-intro:first-child,
     :where(.conditional-display:first-child) > .fl-intro:first-child,
