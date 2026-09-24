@@ -2382,7 +2382,7 @@ class CardLineItemBlock(blocks.StructBlock):
     )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=0,
