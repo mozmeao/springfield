@@ -152,7 +152,7 @@ class CmsConfig(AppConfig):
 
             # The group's own pages keep exactly the levels stored for them, so only the
             # other pages sharing their translation key are extended.
-            # { (group_id, translation_key): {fr_page_id, de_page_id, ...} }
+            # { (group_id, translation_key): {page_id, ...} }
             stored_page_ids_by_group_and_key: defaultdict[tuple[int, UUID], set[int]] = defaultdict(set)
             for permission in stored_permissions:
                 if permission.group_id in translated_codenames_by_group:
@@ -163,13 +163,19 @@ class CmsConfig(AppConfig):
             for page in Page.objects.filter(translation_key__in=translation_keys):
                 pages_by_translation_key[page.translation_key].append(page)
 
-            return stored_permissions + [
-                GroupPagePermission(group_id=group_id, page=page, permission=page_permissions_by_codename[codename])
-                for (group_id, translation_key), stored_page_ids in stored_page_ids_by_group_and_key.items()
-                for page in pages_by_translation_key[translation_key]
-                if page.pk not in stored_page_ids
-                for codename in translated_codenames_by_group[group_id]
-            ]
+            translation_permissions: list[GroupPagePermission] = []
+            for (group_id, translation_key), stored_page_ids in stored_page_ids_by_group_and_key.items():
+                for page in pages_by_translation_key[translation_key]:
+                    if page.pk in stored_page_ids:
+                        continue
+                    for codename in translated_codenames_by_group[group_id]:
+                        if codename not in page_permissions_by_codename:
+                            continue
+                        translation_permissions.append(
+                            GroupPagePermission(group_id=group_id, page=page, permission=page_permissions_by_codename[codename])
+                        )
+
+            return stored_permissions + translation_permissions
 
         PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
 
