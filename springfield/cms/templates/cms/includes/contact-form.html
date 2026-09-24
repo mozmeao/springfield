@@ -63,11 +63,9 @@
       </div>
 
       {# Shown by flare-contact-form.es6.js when the server fails to answer a submission #}
-      <div class="contact-form-request-error hidden" role="alert">
-        <include:notification color="red" icon="warning">
-          {{ ftl("contact-form-error-sending") }}
-        </include:notification>
-      </div>
+      <include:notification color="red" icon="warning" extra_class="contact-form-request-error hidden" role="alert">
+        {{ ftl("contact-form-error-sending") }}
+      </include:notification>
 
       <div class="fl-buttons">
         <button type="submit" class="fl-button">{{ ftl("contact-form-submit") }}</button>
