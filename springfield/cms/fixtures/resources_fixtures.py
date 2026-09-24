@@ -5,7 +5,7 @@
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def make_link(block_id, label, analytics_id, new_window=False):
