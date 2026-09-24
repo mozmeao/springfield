@@ -595,7 +595,9 @@ def test_contact_page_htmx_get_renders_the_form_a_contact_form_block_loads(
     assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
     assert form.find("label", attrs={"for": "contact-2-full_name"}) is not None
     # Unbound, so the only alert is the hidden one for a failed request
-    assert [alert["class"] for alert in soup.find_all(attrs={"role": "alert"})] == [["contact-form-request-error", "hidden"]]
+    assert [alert["class"] for alert in soup.find_all(attrs={"role": "alert"})] == [
+        ["fl-notification-wrapper", "contact-form-request-error", "hidden"]
+    ]
 
 
 def test_contact_page_htmx_response_is_never_cached(
