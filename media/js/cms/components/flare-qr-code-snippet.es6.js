@@ -92,6 +92,10 @@ function initQRCodeSnippet() {
         return;
     }
 
+    const isReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion)'
+    ).matches;
+
     const cookiesEnabled =
         typeof window.Mozilla.Cookies !== 'undefined' &&
         window.Mozilla.Cookies.enabled();
@@ -99,9 +103,11 @@ function initQRCodeSnippet() {
     // Don't show if previously dismissed.
     const wasDismissed = cookiesEnabled && Mozilla.Cookies.hasItem(COOKIE_ID);
 
-    if (wasDismissed && oldSnippet) {
+    if (wasDismissed && (oldSnippet || isReducedMotion)) {
         return;
     }
+
+    qrCodeSnippetEl.style.visibility = 'visible';
 
     if (wasDismissed) {
         closeSnippet(qrCodeSnippetEl);
@@ -141,6 +147,10 @@ function initQRCodeSnippet() {
                 if (qrCodeSnippetEl.classList.contains('is-open')) {
                     closeSnippet(qrCodeSnippetEl);
                     dismiss(cookiesEnabled);
+
+                    if (isReducedMotion) {
+                        qrCodeSnippetEl.style.visibility = 'hidden';
+                    }
                 } else {
                     openSnippet(qrCodeSnippetEl);
                 }
