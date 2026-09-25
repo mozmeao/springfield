@@ -440,6 +440,7 @@ def test_contact_page_renders_its_own_form_wrapper(
     get_soup = BeautifulSoup(page.serve(rf.get(url)).text, "html.parser")
     wrapper = get_soup.find("div", class_="fl-contact-form-wrapper")
     assert wrapper.find("form")["hx-post"] == page.url
+    assert get_soup.find("script", src="/media/django_htmx/htmx-2.min.js")
 
     post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
     wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")

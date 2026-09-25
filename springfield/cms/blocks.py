@@ -3875,6 +3875,7 @@ class ContactFormBlock(blocks.StructBlock):
         if self.contact_page_is_invalid(contact_page):
             return context
 
+        request.needs_htmx = True
         # Host query params feed hidden fields' query_param_override on the contact page.
         params = request.GET.copy()
         params["form_instance"] = contact_page.next_form_number(request)

@@ -2030,6 +2030,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["form"] = getattr(request, "form", None)
+        request.needs_htmx = True
         if getattr(request, "form_success", False):
             context["form_success"] = True
         if request.GET.get("two_column"):

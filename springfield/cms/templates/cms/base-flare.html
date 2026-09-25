@@ -263,7 +263,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block site_js %}
+    {% if request.needs_htmx %}
     {{ htmx_script() }}
+    {% endif %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
     {{ js_bundle('firefox-cms-flare') }}

@@ -6107,7 +6107,9 @@ def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, 
     )
 
     response = page.serve(rf.get(page.get_full_url(), {"utm_source": "test", "form_instance": "9", "two_column": "1"}))
-    main = BeautifulSoup(response.content, "html.parser").find(class_="fl-main")
+    soup = BeautifulSoup(response.content, "html.parser")
+    main = soup.find(class_="fl-main")
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js")
 
     placeholders = main.find_all("div", class_="fl-contact-form-wrapper")
     assert [placeholder["hx-get"] for placeholder in placeholders] == [
@@ -6190,9 +6192,11 @@ def test_contact_form_block_hides_a_restricted_contact_page(contact_page_for_blo
         content=[contact_form_block(contact_page_for_block)],
     )
 
-    main = render_main_element(page, rf)
+    soup = BeautifulSoup(page.serve(rf.get(page.get_full_url())).content, "html.parser")
 
-    assert main.find("div", class_="fl-contact-form-wrapper") is None
+    assert soup.find("div", class_="fl-contact-form-wrapper") is None
+    # With no form to load, the page skips the htmx script
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js") is None
 
 
 def test_contact_form_block_hides_an_unpublished_contact_page(contact_page_for_block, index_page, rf):
