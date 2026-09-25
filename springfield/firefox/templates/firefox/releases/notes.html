@@ -52,6 +52,10 @@
    `fl-force-download-cta` so the CTA survives that rule. #}
 {% set download_cta_class = download_cta_class|default('') %}
 
+{# The Kit illustration in the page header. Products can pick another kit class, such as
+   `has-sitting-kit`, or set this to an empty string to show no Kit. #}
+{% set kit_class = kit_class|default('has-curious-kit') %}
+
 {% block sub_navigation %}
   <include:subnav
     heading_text="{{ ftl('sub-navigation-release-notes') }}"
@@ -96,7 +100,7 @@
   <div class="fl-main has-gradient-bottom">
     <article id="main-content">
 
-      <div class="fl-split-page-upper has-gradient-bottom has-curious-kit">
+      <div class="fl-split-page-upper has-gradient-bottom {{ kit_class }}">
         <section class="fl-section">
           <div class="fl-section-container">
 
