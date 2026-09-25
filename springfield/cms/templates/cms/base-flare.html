@@ -270,6 +270,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% if switch('easter-egg-logo') %}
     {{ js_bundle('easter-egg-logo') }}
     {% endif %}
+    {% if switch('easter-egg-emoji-rain') %}
+    {{ js_bundle('easter-egg-emoji-rain') }}
+    {% endif %}
     {% endblock %}
 
     {% block consent_banner_js %}
