@@ -155,6 +155,7 @@ VIDEO_ASPECT_RATIO_CHOICES = [
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_NEW_TAB_CUSTOMIZE = "open_new_tab_customize"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
@@ -169,6 +170,7 @@ UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
@@ -188,6 +190,7 @@ UITOUR_BUTTON_CHOICES = (
 
 UI_TOUR_CLASSES = {
     UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_NEW_TAB_CUSTOMIZE: "ui-tour-open-new-tab-customize",
     UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
     UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
@@ -1222,6 +1225,26 @@ class TagsBlock(blocks.ListBlock):
         template = "cms/blocks/tags-list.html"
         label = "Tags"
         label_format = "Tags"
+
+
+class CertificationItemBlock(blocks.StructBlock):
+    text = blocks.CharBlock()
+    link = SpringfieldLinkBlock(required=False)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification"
+        label_format = "{text}"
+
+
+class CertificationListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(CertificationItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification List"
+        label_format = "Certification List"
+        template = "cms/blocks/certification-list.html"
 
 
 # Comparison Table
@@ -2357,9 +2380,13 @@ def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
+    pictogram = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom pictogram image to be displayed on the left of the headings.",
+    )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=0,
@@ -2892,6 +2919,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
+                ("certification_list", CertificationListBlock()),
             ],
             required=False,
         )
@@ -3133,6 +3161,12 @@ class KitBlockSettings(blocks.StructBlock):
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet",
+            label="Scroll To See More Snippet",
+            required=False,
+            help_text="Only shown when the block has media.",
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
@@ -3140,11 +3174,21 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             max_num=2,
             required=False,
         )
+        media = MediaBlock(
+            max_num=1,
+            min_num=0,
+            required=False,
+            help_text="Sits below the buttons, flush with the bottom edge of the section.",
+        )
 
         class Meta:
             template = "cms/blocks/kit-intro.html"
             label = "Kit Intro"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "buttons", "media"],
+                settings=["settings", "scroll_to_see_more_snippet"],
+            )
 
     return _KitIntroBlock(*args, **kwargs)
 

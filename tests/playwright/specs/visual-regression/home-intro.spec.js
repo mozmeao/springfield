@@ -24,5 +24,21 @@ test.describe(
         test('base variant', async ({ page }) => {
             await expectComponentScreenshot(page, 'home-intro');
         });
+
+        test('with media', async ({ page }) => {
+            await expectComponentScreenshot(page, 'home-intro-with-media');
+        });
+
+        test.describe('dark mode', () => {
+            test.use({ colorScheme: 'dark' });
+
+            test('with media', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'home-intro-with-media',
+                    'home-intro-with-media-dark'
+                );
+            });
+        });
     }
 );

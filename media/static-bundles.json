@@ -481,6 +481,18 @@
     },
     {
       "files": [
+        "css/cms/themes/enterprise-bgs-alt-1.css"
+      ],
+      "name": "enterprise-bgs-alt-1"
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise-home.css"
+      ],
+      "name": "enterprise-home"
+    },
+    {
+      "files": [
         "css/cms/routing/resolver.scss"
       ],
       "name": "cms_routing_resolver"

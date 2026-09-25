@@ -45,6 +45,7 @@ from springfield.cms.blocks import (
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
+    CertificationListBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
@@ -162,7 +163,7 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_set_as_default_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_scroll_to_see_more_snippet, get_set_as_default_snippet
 from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_sections,
     get_testimonial_cards_test_page,
@@ -2608,6 +2609,13 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                 heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
+                # Pictogram (optional)
+                header = card_el.find("header", class_="fl-article-item-header")
+                if value.get("pictogram"):
+                    assert header.find("img")
+                else:
+                    assert header.find("img") is None
+
                 # Superheading (optional)
                 if value.get("superheading"):
                     superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
@@ -2946,9 +2954,10 @@ def _springfield_link_data(link_to, **fields):
     return data
 
 
-def test_kit_intro_block(index_page, rf):
+def test_kit_intro_block(index_page, placeholder_images, rf):
     variants = get_kit_intro_variants()
     page = get_kit_intro_test_page()
+    scroll_to_see_more_text = get_scroll_to_see_more_snippet().text
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -2966,11 +2975,31 @@ def test_kit_intro_block(index_page, rf):
 
     for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
         value = variant["value"]
+        section = intro_el.find_parent("section")
 
         heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-        # Kit intro is first block in upper (h1)
-        heading = intro_el.find("h1", class_="fl-heading")
+        # The first Kit Intro on the page is the h1; the ones after it are h2.
+        heading_tag = "h1" if index == 0 else "h2"
+        heading = intro_el.find(heading_tag, class_="fl-heading")
         assert heading and heading_text in heading.get_text()
+
+        media_element = section.find("div", class_="fl-home-intro-media")
+        if value.get("media"):
+            assert "has-home-intro-media" in section["class"]
+            assert_image_variants_attributes(
+                images_element=media_element,
+                images_value=value["media"][0]["value"],
+                sizes="(min-width: 934px) 934px, 100vw",
+            )
+        else:
+            assert "has-home-intro-media" not in section["class"]
+            assert media_element is None
+
+        scroll_to_see_more_element = section.find("div", class_="fl-scroll-to-see-more-wrapper")
+        if value.get("media") and value.get("scroll_to_see_more_snippet"):
+            assert scroll_to_see_more_element and scroll_to_see_more_text in scroll_to_see_more_element.get_text()
+        else:
+            assert scroll_to_see_more_element is None
 
         if value["heading"]["superheading_text"]:
             superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
@@ -5025,6 +5054,26 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
     soup = BeautifulSoup(html, "html.parser")
     panel = soup.find("div", id="fl-tab-panel-hub-1")
     assert panel.find("video") is not None
+
+
+def test_certification_list_block_renders_link_and_plain_items():
+    raw = {
+        "list_items": [
+            {"text": "DORA", "link": _BTN_LINK},
+            {"text": "GDPR"},
+        ]
+    }
+    block = CertificationListBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={})
+    tags = BeautifulSoup(html, "html.parser").select(".fl-certification-list .fl-tag")
+
+    assert tags[0].name == "a"
+    assert tags[0]["href"] == "https://mozilla.org"
+    assert tags[0].get_text() == "DORA"
+
+    assert tags[1].name == "span"
+    assert tags[1].get_text() == "GDPR"
 
 
 def _email_href(html):

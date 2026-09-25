@@ -149,9 +149,16 @@
     position: relative;
 }
 
+/* The enclosing section already provides the side gutter. */
 .fl-home-intro .fl-intro,
 .fl-home-intro .fl-intro:first-child {
     padding-block-end: var(--token-layout-sm);
+    padding-inline: 0;
+}
+
+/* Slim keeps the intro component's own even padding. */
+.fl-home-intro .fl-intro:not(.is-slim) {
+    padding-block-start: var(--token-layout-xs);
 }
 
 .fl-home-intro .fl-intro-content {
@@ -176,6 +183,47 @@
     inset-inline-end: var(--banner-kit-right-position, calc(50% - 85px));
     position: absolute;
     z-index: 0;
+}
+
+/* With media, the home intro closes itself off: the image sits flush on a rounded
+   bottom edge and the gradient glow is clipped there instead of spilling into the
+   blocks below. */
+.fl-section.has-home-intro-media {
+    border-end-end-radius: var(--fl-theme-main-border-radius);
+    border-end-start-radius: var(--fl-theme-main-border-radius);
+    contain: paint;
+    padding-block-end: 0;
+    position: relative;
+}
+
+/* The glow is brightest at its centre, so it is centred on the bottom edge
+   where the clip turns it into the lit, rounded end of the panel. */
+.has-home-intro-media.has-gradient-bottom-100-always::before {
+    --gradient-height: 60vh;
+    inset: auto -40vw calc(var(--gradient-height) / -2);
+}
+
+/* With media below, Kit is resized and repositioned per breakpoint so the head sits
+   by the buttons and peeks over the top of the image. The artwork hangs from its
+   bottom edge, so the offset changes along with the width. */
+.has-home-intro-media .fl-home-intro {
+    --banner-kit-right-position: calc(50% - 15px);
+    --banner-kit-bottom-position: -152px;
+    --banner-kit-width: 440px;
+}
+
+/* Positioned so it paints over the glow; no z-index, so the scroll pill that
+   follows it in the section still paints on top of the image. */
+.fl-home-intro-media {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-lg);
+    position: relative;
+}
+
+.fl-home-intro-media img,
+.fl-home-intro-media video {
+    margin-block-end: 0;
+    margin-inline: auto;
 }
 
 .superheading-is-pill .fl-superheading {
@@ -294,6 +342,20 @@
         --banner-kit-bottom-position: -364px;
         --banner-kit-width: 800px;
     }
+
+    .fl-home-intro .fl-intro:not(.is-slim) {
+        padding-block-start: var(--token-layout-sm);
+    }
+
+    .has-home-intro-media .fl-home-intro {
+        --banner-kit-right-position: calc(50% - 15px);
+        --banner-kit-bottom-position: -240px;
+        --banner-kit-width: 600px;
+    }
+
+    .has-home-intro-media .fl-home-intro-media {
+        margin-block-start: var(--token-spacing-2xl);
+    }
 }
 
 @media (--viewport-md-up) {
@@ -312,6 +374,16 @@
         --banner-kit-right-position: calc(50% - 134px);
         --banner-kit-bottom-position: -414px;
         --banner-kit-width: 940px;
+    }
+
+    .fl-home-intro .fl-intro:not(.is-slim) {
+        padding-block-start: var(--token-layout-lg);
+    }
+
+    .has-home-intro-media .fl-home-intro {
+        --banner-kit-right-position: calc(50% + 20px);
+        --banner-kit-bottom-position: -282px;
+        --banner-kit-width: 700px;
     }
 
     .fl-home-intro .fl-subheading {
