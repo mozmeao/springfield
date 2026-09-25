@@ -7,16 +7,21 @@
 {% set block_position = block_position or "intro" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 {% set block_level = block_level or 2 %}
-{% if value.settings.layout != "vertical" %}
+{% set is_flush_bottom = value.settings.layout == "flush-bottom" %}
+{% set is_stacked_layout = value.settings.layout == "vertical" or is_flush_bottom %}
+{% set media_position = "after" if is_stacked_layout else value.settings.layout %}
+{% set media_sizes = "(min-width: 1170px) 1170px, 100vw" if is_flush_bottom else "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
+{% if not is_stacked_layout %}
 {% set heading_size = 'fl-heading-lg fl-heading-condensed' %}
 {% endif %}
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
 
   <include:intro
-    {% if value.settings.layout != "vertical" %}media_position="{{ value.settings.layout }}"{% endif %}
+    media_position="{{ media_position }}"
     anchor_id="{{ value.settings.anchor_id }}"
-    vertical="{{ value.settings.layout == 'vertical' }}"
+    vertical="{{ is_stacked_layout }}"
+    flush_bottom="{{ is_flush_bottom }}"
     slim="{{ value.settings.slim }}"
     remove_border_radius="{{ value.settings.remove_border_radius }}"
     full_width="{{ value.settings.full_width }}"
@@ -31,10 +36,17 @@
     {% endif %}
     {% if value.media %}
       <content:media>
-        {% set sizes = "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw" %}
+        {% set sizes = media_sizes %}
         {% set widths = "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}" %}
         {% include_block value.media %}
       </content:media>
+      {% if is_flush_bottom and value.scroll_to_see_more_snippet %}
+        <content:after_media>
+          {% with object = value.scroll_to_see_more_snippet %}
+            {% include "cms/snippets/scroll-to-see-more-snippet.html" %}
+          {% endwith %}
+        </content:after_media>
+      {% endif %}
     {% endif %}
   </include:intro>
 

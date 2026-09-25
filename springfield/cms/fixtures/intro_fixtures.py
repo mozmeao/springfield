@@ -6,6 +6,7 @@ from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
@@ -14,6 +15,7 @@ from springfield.cms.models import FreeFormPage2026
 def get_intro_variants() -> list[dict]:
     buttons = get_button_variants()
     videos = get_video_variants()
+    scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
     tags = get_tag_variants()
     return [
         # Vertical layout (default), no media
@@ -215,6 +217,46 @@ def get_intro_variants() -> list[dict]:
             },
             "id": "2026int1-0000-0000-0000-000000000008",
         },
+        # Media flush bottom layout, with image
+        {
+            "type": "intro",
+            "value": {
+                "settings": {
+                    "layout": "flush-bottom",
+                    "slim": False,
+                    "anchor_id": "",
+                },
+                "scroll_to_see_more_snippet": scroll_to_see_more_snippet.id,
+                "media": [
+                    {
+                        "type": "image",
+                        "value": {
+                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "settings": {
+                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                            },
+                        },
+                        "id": "2026int1-0000-0000-0000-000000000010",
+                    }
+                ],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="i26h7">Intro with image (flush bottom)</p>',
+                    "subheading_text": "",
+                },
+                "content": [
+                    {
+                        "type": "rich_text",
+                        "id": "cc260007-0000-0000-0000-000000000001",
+                        "value": '<p data-block-key="i26b7">The image widens and sits on the bottom edge of the section.</p>',
+                    },
+                    {"type": "buttons", "id": "cc260007-0000-0000-0000-000000000002", "value": [buttons["secondary"]]},
+                ],
+            },
+            "id": "2026int1-0000-0000-0000-000000000011",
+        },
     ]
 
 
@@ -238,7 +280,8 @@ def get_intro_test_page() -> FreeFormPage2026:
     page.docs = (
         "<p>The Intro block is the introductory section for a page: it holds an eyebrow superheading, main heading, optional "
         "subheading, tags, body content, buttons, and optional media. Choose the &lsquo;vertical&rsquo; layout for centered "
-        "intros, or &lsquo;left&rsquo; / &lsquo;right&rsquo; to place media beside the text.</p>"
+        "intros, &lsquo;left&rsquo; / &lsquo;right&rsquo; to place media beside the text, or &lsquo;flush bottom&rsquo; "
+        "to centre the text and sit wider media on the bottom edge of the section.</p>"
         "<p>Use the slim option when the intro needs to be compact. Always set the anchor_id when the intro is linked from elsewhere.</p>"
     )
     page.save_revision().publish()

@@ -1,0 +1,120 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+  WARNING! This file is referenced in the CMS directly.
+  Before altering, ensure you have an up-to-date database and check for pages that have
+  body_class="flare26-whatsnew-nova" to avoid breaking the page layout.
+*/
+
+/* Nova hero: an upper panel whose Intro uses the Media Flush Bottom layout.
+
+   The panel fades in from the navigation's dark purple, then holds a
+   slightly lighter purple behind all of the text. Both keep the pale
+   superheading and white copy at a readable contrast however long a
+   locale's copy runs.
+
+   Across the rounded bottom corners the panel switches to the lavender that
+   the gradient layer ends on. Firefox anti-aliases the panel and the layer
+   as two separate clips, so any other panel colour there shows as a thin
+   rim along the curve. */
+.flare26-whatsnew-nova .fl-split-page-upper:has(.fl-intro-media-flush-bottom) {
+    background: linear-gradient(
+        180deg,
+        var(--token-color-dark-purple) 0,
+        var(--token-color-purple) 240px,
+        var(--token-color-purple)
+            calc(100% - var(--fl-theme-main-border-radius)),
+        var(--token-color-soft-purple)
+            calc(100% - var(--fl-theme-main-border-radius))
+    );
+}
+
+/* The standard glow is replaced by the one in the gradient layer below. It
+   reaches higher than that layer on phones, so it would otherwise show as a
+   purple edge above it. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper.has-gradient-bottom:has(
+        .fl-intro-media-flush-bottom
+    )::before {
+    content: none;
+}
+
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-intro-media-flush-bottom
+    .fl-intro-media {
+    position: relative;
+}
+
+/* The fade to lavender and the pale pink glow start above the image, in a
+   layer that spans the full panel width; the panel clips it. The extra
+   stops ease the purple into the lavender, so the change reads as a
+   feather rather than a line. The glow is capped at 2000px wide so it stays
+   a centred ellipse instead of stretching with the layer, and it never
+   grows taller than the layer, or it would cut off at the layer's top edge
+   on small screens. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-intro-media-flush-bottom
+    .fl-intro-media::before {
+    background:
+        radial-gradient(
+                50% 90% at 50% 100%,
+                #fff1f8 0%,
+                rgba(255, 241, 248, 0) 100%
+            )
+            bottom center / min(2000px, 100%) 100% no-repeat,
+        linear-gradient(
+            180deg,
+            var(--token-color-purple) 0%,
+            #40147a 10%,
+            #4f2197 22%,
+            #6333c0 34%,
+            var(--token-color-light-purple) 46%,
+            #a888ee 64%,
+            #dccef9 80%,
+            var(--token-color-soft-purple) 100%
+        );
+    content: '';
+    inset-block: -120px 0;
+    inset-inline: -50vw;
+    position: absolute;
+    z-index: -1;
+}
+
+/* The scroll pill sits over the light bottom edge of the art, where the
+   standard translucent pill leaves its white text unreadable. A darker,
+   mostly opaque link purple keeps the text readable over the lightest part
+   of the art while letting a little of it show through. It is also a step
+   smaller, so it covers less of the art. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-intro-media-flush-bottom
+    .fl-scroll-to-see-more {
+    background-color: rgba(97, 50, 188, 0.8);
+    font-size: var(--fl-theme-font-size-body-xs);
+    padding: var(--token-spacing-sm) var(--token-spacing-xl);
+}
+
+/* The pill stays pinned to the bottom of the screen while the hero's bottom
+   edge is below the fold, then settles onto that edge once it scrolls into
+   view. Sticky positioning is bounded by the intro, so the pill never
+   travels past the hero. Its wrapper has no height and cancels the intro's
+   gap, so its resting place is the hero's bottom edge; the pill rises out
+   of it rather than adding space below the image. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-intro-media-flush-bottom
+    > .fl-scroll-to-see-more-wrapper {
+    align-items: flex-end;
+    block-size: 0;
+    inset-block-end: 0;
+    inset-inline: auto;
+    margin-block-start: calc(var(--token-layout-2xs) * -1);
+    position: sticky;
+    z-index: 1;
+}

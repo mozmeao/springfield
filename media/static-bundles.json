@@ -468,6 +468,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-whatsnew-nova.css"
+      ],
+      "name": "flare26-whatsnew-nova",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='flare26-whatsnew-nova' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
         "css/cms/pages/flare-wrexhamafc.css"
       ],
       "name": "flare26-wrexhamafc",
