@@ -2472,7 +2472,8 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
     variant = variants[0]
     value = variant["value"]
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    # Lower content alternates the Featured Image block with plain text sections, so it lands at position 2.
+    for region_name, region, block_index in [("upper", upper, 1), ("lower", lower, 2)]:
         sections = region.find_all("section", class_="fl-featured-image-section")
         assert len(sections) == 1
         section = sections[0]
@@ -2495,7 +2496,7 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
         card_els = section.find_all("article", class_="fl-card")
         assert len(card_els) == len(icon_cards)
 
-        block_position_prefix = f"{region_name}-block-1-featured_image_section.item-1-cards_list"
+        block_position_prefix = f"{region_name}-block-{block_index}-featured_image_section.item-1-cards_list"
 
         for card_index, card_data in enumerate(icon_cards):
             card_el = card_els[card_index]

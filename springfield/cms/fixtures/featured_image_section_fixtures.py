@@ -18,6 +18,26 @@ _IMAGE_VARIANTS = {
     },
 }
 
+_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
+
+def _text_section(heading_text: str, subheading_text: str, section_id: str) -> dict:
+    """A plain section with only a heading, used to show the Featured Image block's rounded corners against a neighboring block."""
+    return {
+        "type": "section",
+        "value": {
+            "settings": {"show_to": _SHOW_TO_ALL, "anchor_id": ""},
+            "heading": {
+                "superheading_text": "",
+                "heading_text": f'<p data-block-key="fists1h">{heading_text}</p>',
+                "subheading_text": f'<p data-block-key="fists1s">{subheading_text}</p>',
+            },
+            "content": [],
+            "cta": [],
+        },
+        "id": section_id,
+    }
+
 
 def get_featured_image_section_variants() -> list[dict]:
     icon_cards = get_icon_card_variants()
@@ -98,15 +118,30 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
         },
     )
 
-    variants = get_featured_image_section_variants()
-    page.upper_content = variants
-    page.content = variants
+    featured_image_section = get_featured_image_section_variants()[0]
+    page.upper_content = [featured_image_section]
+    page.content = [
+        _text_section(
+            "Something before the block",
+            "This shows how the Featured Image block adds the rounded corners to the bottom of the previous block.",
+            "fis00003-0000-0000-0000-000000000001",
+        ),
+        {**featured_image_section, "id": "fis00003-0000-0000-0000-000000000002"},
+        _text_section(
+            "Something after the block",
+            "Another block under the featured image creates this alternating effect on the page layout.",
+            "fis00003-0000-0000-0000-000000000003",
+        ),
+    ]
     page.docs = (
         "<p>The Featured Image Section block pairs a prominent image with a heading and body copy. "
         "It is great for setting the mood and theme for a page, "
         "and emphasizes editorial storytelling over CTA-driven hero treatment.</p>"
         "<p>Choose imagery that adds context to the surrounding copy. The image&rsquo;s aspect ratio drives the section&rsquo;s vertical "
         "rhythm, so test on mobile before publishing.</p>"
+        "<p>Use it either as a single block in the upper content section, or alternated with other blocks in the lower "
+        "content section &mdash; consecutive Featured Image blocks against a contrasting block create the rounded-corner, "
+        "alternating rhythm shown on this page.</p>"
     )
     page.save_revision().publish()
     return page
