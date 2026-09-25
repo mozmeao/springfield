@@ -1,0 +1,34 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<h2>Resources</h2>
+
+<section data-testid="resources">
+  <div class="fl-section-container">
+    <include:resources>
+      {% for column in columns %}
+        <include:resources-column>
+          <content:heading>
+            <include:heading level="h3" heading_size="fl-heading-size-3" heading_text="{{ column.headline }}" />
+          </content:heading>
+          {% set links = namespace(list_open=false) %}
+          {% for item in column.list_items %}
+            {% if item.type == "subheading" %}
+              {% if links.list_open %}</ul>{% set links.list_open = false %}{% endif %}
+              <include:heading level="h4" heading_size="fl-heading-size-4" heading_text="{{ item.text }}" />
+            {% else %}
+              {% if not links.list_open %}<ul class="fl-resources-list">{% set links.list_open = true %}{% endif %}
+              <li class="fl-resources-list-item">
+                <a class="fl-resources-link" href="#">{{ item.label }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+          {% if links.list_open %}</ul>{% endif %}
+        </include:resources-column>
+      {% endfor %}
+    </include:resources>
+  </div>
+</section>

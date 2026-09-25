@@ -1,0 +1,33 @@
+name: "Resources"
+context:
+  columns:
+    - headline: "Products"
+      list_items:
+        - type: "link"
+          label: "Firefox Browser"
+        - type: "link"
+          label: "Firefox Focus"
+        - type: "subheading"
+          text: "For developers"
+        - type: "link"
+          label: "Firefox Developer Edition"
+        - type: "link"
+          label: "Firefox Nightly"
+    - headline: "Support"
+      list_items:
+        - type: "link"
+          label: "Help centre"
+        - type: "link"
+          label: "Report a broken site"
+    - headline: "About"
+      list_items:
+        - type: "subheading"
+          text: "The organisation"
+        - type: "link"
+          label: "Mozilla Foundation"
+        - type: "link"
+          label: "Careers"
+        - type: "subheading"
+          text: "Get involved"
+        - type: "link"
+          label: "Contribute"
