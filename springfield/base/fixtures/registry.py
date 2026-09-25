@@ -28,6 +28,7 @@ from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
 from springfield.cms.fixtures.certification_list_fixtures import get_certification_list_test_page
 from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
+from springfield.cms.fixtures.contact_form_fixtures import get_contact_form_test_page
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
@@ -113,6 +114,7 @@ PAGE_FIXTURES = [
     get_enterprise_pages,
     get_thanks_page,
     get_contact_test_page,
+    get_contact_form_test_page,
     get_article_index_test_page,
     get_article_pages,
     get_article_theme_page,

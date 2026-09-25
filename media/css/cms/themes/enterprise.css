@@ -50,7 +50,7 @@
 
     .fl-split-page-lower,
     .fl-showcase,
-    .fl-section {
+    main:not(.fl-contact-page) .fl-section {
         padding-block: var(--token-layout-md);
     }
 

@@ -48,6 +48,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
      {% include 'includes/transcend-consent.html' %}
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# htmx otherwise injects an inline <style>, which our CSP blocks #}
+    <meta name="htmx-config" content='{"includeIndicatorStyles": false}'>
     {% block extra_meta %}{% endblock %}
 
     {% block shared_meta %}
@@ -261,6 +263,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block site_js %}
+    {% if request.needs_htmx %}
+    {{ htmx_script() }}
+    {% endif %}
     {{ js_bundle('lib') }}
     {{ js_bundle('data') }}
     {{ js_bundle('firefox-cms-flare') }}
