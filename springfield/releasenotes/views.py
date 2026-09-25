@@ -185,10 +185,10 @@ def release_notes(request, version, product="Firefox"):
         release = get_release_or_404(version + "beta", product, include_drafts)
         return HttpResponseRedirect(release.get_absolute_url())
 
-    # add MDN link to all non-iOS releases. bug 1553566
+    # add MDN link to all non-iOS (bug 1553566) and non-Enterprise releases
     # avoid adding duplicate notes
     release_notes = copy(release.get_notes())
-    if release.product != "Firefox for iOS":
+    if release.product not in ("Firefox for iOS", "Firefox Enterprise"):
         release_notes.insert(
             0,
             {

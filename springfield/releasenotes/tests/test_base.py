@@ -107,6 +107,18 @@ class TestReleaseViews(TestCase):
         mock_release_notes_template.assert_called_with(mock_release.channel, "Firefox", 34)
 
     @patch("springfield.releasenotes.views.get_release_or_404")
+    def test_enterprise_release_notes_skips_mdn_note(self, get_release_or_404):
+        """Enterprise releases must not receive the injected MDN Developer Information note."""
+        mock_release = get_release_or_404.return_value
+        mock_release.product = "Firefox Enterprise"
+        mock_release.major_version = "145"
+        mock_release.get_notes.return_value = []
+
+        views.release_notes(self.request, "145.0", product="Firefox Enterprise")
+
+        assert not any(note.get("id") == "mdn" for note in self.last_ctx["release_notes"])
+
+    @patch("springfield.releasenotes.views.get_release_or_404")
     def test_release_notes_beta_redirect(self, get_release_or_404):
         """
         Should redirect to url for beta release
@@ -179,7 +191,7 @@ class TestReleaseViews(TestCase):
         for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
             button = release_notes_document.select_one(f"#{element_id}")
             assert button["href"] == reverse("firefox.enterprise.index")
-            assert button.get_text(strip=True) == "Download Firefox Enterprise"
+            assert button.get_text(strip=True) == "Request Early Access"
 
     def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):
         """Enterprise release notes mark Enterprise as the current subnavigation entry."""
