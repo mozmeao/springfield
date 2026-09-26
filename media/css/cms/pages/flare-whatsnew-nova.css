@@ -1,0 +1,182 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/*
+  WARNING! This file is referenced in the CMS directly.
+  Before altering, ensure you have an up-to-date database and check for pages that have
+  body_class="flare26-whatsnew-nova" to avoid breaking the page layout.
+*/
+
+/* Nova hero: a Featured Image Section in the upper panel. */
+
+/* The section fades in from the navigation's dark purple, then holds a
+   slightly lighter purple behind all of the text. Both keep the pale
+   eyebrow and white copy at a readable contrast however long a locale's
+   copy runs.
+
+   Across the rounded bottom corners, the panel and the section both switch
+   to the lavender that the gradient layer ends on. Firefox anti-aliases
+   each separately clipped layer on its own, so any other colour beneath the
+   gradient layer shows as a thin rim along the curve. */
+.flare26-whatsnew-nova .fl-split-page-upper:has(.fl-featured-image-section) {
+    background: linear-gradient(
+        180deg,
+        var(--upper-page-theme-color, var(--token-color-dark-purple))
+            calc(100% - var(--fl-theme-main-border-radius)),
+        var(--token-color-soft-purple)
+            calc(100% - var(--fl-theme-main-border-radius))
+    );
+}
+
+.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section {
+    background: linear-gradient(
+        180deg,
+        var(--token-color-dark-purple) 0,
+        var(--token-color-purple) 240px,
+        var(--token-color-purple)
+            calc(100% - var(--fl-theme-main-border-radius)),
+        var(--token-color-soft-purple)
+            calc(100% - var(--fl-theme-main-border-radius))
+    );
+}
+
+/* The standard glow is replaced by the one in the gradient layer below. It
+   reaches higher than that layer on phones, so it would otherwise show as a
+   purple edge above it. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section.has-gradient-bottom::before {
+    content: none;
+}
+
+/* The section lifts each of its children into its own layer, so the media,
+   and the gradient layer inside it, would otherwise paint over the copy
+   where they overlap. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section
+    .fl-section {
+    z-index: 2;
+}
+
+/* A plain eyebrow rather than the section's usual pill. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-heading
+    .fl-superheading {
+    background: none;
+    border-radius: 0;
+    display: block;
+    font-weight: var(--token-font-weight-regular);
+    line-height: normal;
+    margin-block-end: var(--token-spacing-lg);
+    padding: 0;
+}
+
+/* Wide enough for the heading to sit on one line at desktop widths, with
+   the body copy held to a readable measure. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-heading
+    .fl-heading-group {
+    max-inline-size: 848px;
+}
+
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-heading
+    .fl-subheading {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-sm);
+}
+
+.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media {
+    max-inline-size: calc(
+        var(--token-width-desktop-wide-banner) +
+            (var(--fl-section-h-padding) * 2)
+    );
+    position: relative;
+}
+
+/* The site's base reset sizes images at width: auto, so before it loads
+   the image has no size, and Chrome never lazy-loads it. A full width also
+   reserves its height from the width and height attributes. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-media
+    img {
+    inline-size: 100%;
+}
+
+/* The fade to lavender and the pale pink glow start above the image, in a
+   layer that spans the full panel width; the panel clips it. The extra
+   stops ease the purple into the lavender, so the change reads as a
+   feather rather than a line. The glow is capped at 2000px wide so it stays
+   a centred ellipse instead of stretching with the layer, and it never
+   grows taller than the layer, or it would cut off at the layer's top edge
+   on small screens. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-media::before {
+    background:
+        radial-gradient(
+                50% 90% at 50% 100%,
+                #fff1f8 0%,
+                rgba(255, 241, 248, 0) 100%
+            )
+            bottom center / min(2000px, 100%) 100% no-repeat,
+        linear-gradient(
+            180deg,
+            var(--token-color-purple) 0%,
+            #40147a 10%,
+            #4f2197 22%,
+            #6333c0 34%,
+            var(--token-color-light-purple) 46%,
+            #a888ee 64%,
+            #dccef9 80%,
+            var(--token-color-soft-purple) 100%
+        );
+    content: '';
+    inset-block: -120px 0;
+    inset-inline: -50vw;
+    position: absolute;
+    z-index: -1;
+}
+
+/* The scroll pill sits over the light bottom edge of the art, where the
+   standard translucent pill leaves its white text unreadable. A darker,
+   mostly opaque link purple keeps the text readable over the lightest part
+   of the art while letting a little of it show through. It is also a step
+   smaller, so it covers less of the art. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section
+    .fl-scroll-to-see-more {
+    background-color: rgba(97, 50, 188, 0.8);
+    font-size: var(--fl-theme-font-size-body-xs);
+    padding: var(--token-spacing-sm) var(--token-spacing-xl);
+}
+
+/* The pill stays pinned to the bottom of the screen while the hero's bottom
+   edge is below the fold, then settles onto that edge once it scrolls into
+   view. Sticky positioning is bounded by the section, so the pill never
+   travels past the hero. Its wrapper has no height, so its resting place
+   is the hero's bottom edge; the pill rises out of it rather than adding
+   space below the image. It sits above the copy's layer, and only pins on
+   screens tall enough that it won't cover the copy on the way down. */
+@media (min-height: 700px) {
+    .flare26-whatsnew-nova
+        .fl-split-page-upper
+        .fl-featured-image-section
+        > .fl-scroll-to-see-more-wrapper {
+        align-items: flex-end;
+        block-size: 0;
+        inset-block-end: 0;
+        inset-inline: auto;
+        position: sticky;
+        z-index: 3;
+    }
+}
