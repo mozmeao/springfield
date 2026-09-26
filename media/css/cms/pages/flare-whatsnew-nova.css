@@ -10,18 +10,28 @@
   body_class="flare26-whatsnew-nova" to avoid breaking the page layout.
 */
 
-/* Nova hero: an upper panel whose Intro uses the Media Flush Bottom layout.
+/* Nova hero: a Featured Image Section in the upper panel. */
 
-   The panel fades in from the navigation's dark purple, then holds a
+/* The section fades in from the navigation's dark purple, then holds a
    slightly lighter purple behind all of the text. Both keep the pale
-   superheading and white copy at a readable contrast however long a
-   locale's copy runs.
+   eyebrow and white copy at a readable contrast however long a locale's
+   copy runs.
 
-   Across the rounded bottom corners the panel switches to the lavender that
-   the gradient layer ends on. Firefox anti-aliases the panel and the layer
-   as two separate clips, so any other panel colour there shows as a thin
-   rim along the curve. */
-.flare26-whatsnew-nova .fl-split-page-upper:has(.fl-intro-media-flush-bottom) {
+   Across the rounded bottom corners, the panel and the section both switch
+   to the lavender that the gradient layer ends on. Firefox anti-aliases
+   each separately clipped layer on its own, so any other colour beneath the
+   gradient layer shows as a thin rim along the curve. */
+.flare26-whatsnew-nova .fl-split-page-upper:has(.fl-featured-image-section) {
+    background: linear-gradient(
+        180deg,
+        var(--upper-page-theme-color, var(--token-color-dark-purple))
+            calc(100% - var(--fl-theme-main-border-radius)),
+        var(--token-color-soft-purple)
+            calc(100% - var(--fl-theme-main-border-radius))
+    );
+}
+
+.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section {
     background: linear-gradient(
         180deg,
         var(--token-color-dark-purple) 0,
@@ -37,17 +47,68 @@
    reaches higher than that layer on phones, so it would otherwise show as a
    purple edge above it. */
 .flare26-whatsnew-nova
-    .fl-split-page-upper.has-gradient-bottom:has(
-        .fl-intro-media-flush-bottom
-    )::before {
+    .fl-split-page-upper
+    .fl-featured-image-section.has-gradient-bottom::before {
     content: none;
+}
+
+/* The section lifts each of its children into its own layer, so the media,
+   and the gradient layer inside it, would otherwise paint over the copy
+   where they overlap. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section
+    .fl-section {
+    z-index: 2;
+}
+
+/* A plain eyebrow rather than the section's usual pill. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-heading
+    .fl-superheading {
+    background: none;
+    border-radius: 0;
+    display: block;
+    font-weight: var(--token-font-weight-regular);
+    line-height: normal;
+    margin-block-end: var(--token-spacing-lg);
+    padding: 0;
+}
+
+/* Wide enough for the heading to sit on one line at desktop widths, with
+   the body copy held to a readable measure. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-heading
+    .fl-heading-group {
+    max-inline-size: 848px;
 }
 
 .flare26-whatsnew-nova
     .fl-split-page-upper
-    .fl-intro-media-flush-bottom
-    .fl-intro-media {
+    .fl-featured-image-section-heading
+    .fl-subheading {
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content-sm);
+}
+
+.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media {
+    max-inline-size: calc(
+        var(--token-width-desktop-wide-banner) +
+            (var(--fl-section-h-padding) * 2)
+    );
     position: relative;
+}
+
+/* The site's base reset sizes images at width: auto, so before it loads
+   the image has no size, and Chrome never lazy-loads it. A full width also
+   reserves its height from the width and height attributes. */
+.flare26-whatsnew-nova
+    .fl-split-page-upper
+    .fl-featured-image-section-media
+    img {
+    inline-size: 100%;
 }
 
 /* The fade to lavender and the pale pink glow start above the image, in a
@@ -59,8 +120,7 @@
    on small screens. */
 .flare26-whatsnew-nova
     .fl-split-page-upper
-    .fl-intro-media-flush-bottom
-    .fl-intro-media::before {
+    .fl-featured-image-section-media::before {
     background:
         radial-gradient(
                 50% 90% at 50% 100%,
@@ -93,7 +153,7 @@
    smaller, so it covers less of the art. */
 .flare26-whatsnew-nova
     .fl-split-page-upper
-    .fl-intro-media-flush-bottom
+    .fl-featured-image-section
     .fl-scroll-to-see-more {
     background-color: rgba(97, 50, 188, 0.8);
     font-size: var(--fl-theme-font-size-body-xs);
@@ -102,19 +162,21 @@
 
 /* The pill stays pinned to the bottom of the screen while the hero's bottom
    edge is below the fold, then settles onto that edge once it scrolls into
-   view. Sticky positioning is bounded by the intro, so the pill never
-   travels past the hero. Its wrapper has no height and cancels the intro's
-   gap, so its resting place is the hero's bottom edge; the pill rises out
-   of it rather than adding space below the image. */
-.flare26-whatsnew-nova
-    .fl-split-page-upper
-    .fl-intro-media-flush-bottom
-    > .fl-scroll-to-see-more-wrapper {
-    align-items: flex-end;
-    block-size: 0;
-    inset-block-end: 0;
-    inset-inline: auto;
-    margin-block-start: calc(var(--token-layout-2xs) * -1);
-    position: sticky;
-    z-index: 1;
+   view. Sticky positioning is bounded by the section, so the pill never
+   travels past the hero. Its wrapper has no height, so its resting place
+   is the hero's bottom edge; the pill rises out of it rather than adding
+   space below the image. It sits above the copy's layer, and only pins on
+   screens tall enough that it won't cover the copy on the way down. */
+@media (min-height: 700px) {
+    .flare26-whatsnew-nova
+        .fl-split-page-upper
+        .fl-featured-image-section
+        > .fl-scroll-to-see-more-wrapper {
+        align-items: flex-end;
+        block-size: 0;
+        inset-block-end: 0;
+        inset-inline: auto;
+        position: sticky;
+        z-index: 3;
+    }
 }

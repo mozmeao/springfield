@@ -9,7 +9,6 @@
   anchor_id=""
   vertical=""
   full_width=""
-  flush_bottom=""
   slim=""
   superheading_is_pill=False
   remove_border_radius=False
@@ -22,7 +21,6 @@
     {% if contents.media and media_position %} fl-intro-media-{{ media_position }}{% endif %}
     {% if vertical %}fl-intro-vertical{% endif %}
     {% if full_width %}fl-intro-full-width{% endif %}
-    {% if flush_bottom %}fl-intro-media-flush-bottom{% endif %}
     {% if slim %}is-slim{% endif %}
     {% if remove_border_radius %}remove-border-radius-from-media{% endif %}
     {% if superheading_is_pill %}superheading-is-pill{% endif %}
@@ -43,5 +41,4 @@
       {{ contents.media }}
     </div>
   {% endif %}
-  {{ contents.after_media }}
 </div>

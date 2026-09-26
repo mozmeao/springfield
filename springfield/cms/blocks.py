@@ -2814,12 +2814,10 @@ class IntroBlockSettings(blocks.StructBlock):
             ("vertical", "Vertical"),
             ("right", "Media Right"),
             ("left", "Media Left"),
-            ("flush-bottom", "Media Flush Bottom"),
         ),
         default="vertical",
         label="Layout",
         inline_form=True,
-        help_text="Media Flush Bottom stacks the content like Vertical, then widens the media and sits it flush on the bottom edge of the section.",
     )
     full_width = blocks.BooleanBlock(
         required=False,
@@ -2863,12 +2861,6 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
 
     class _IntroBlock(blocks.StructBlock):
         settings = IntroBlockSettings()
-        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
-            "cms.ScrollToSeeMoreSnippet",
-            label="Scroll To See More Snippet",
-            required=False,
-            help_text="Only shown with the Media Flush Bottom layout, when the block has media.",
-        )
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
         content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
@@ -2877,10 +2869,6 @@ def IntroBlock(allow_uitour=False, *args, **kwargs):
             template = "cms/blocks/sections/intro.html"
             label = "Intro"
             label_format = "{heading}"
-            form_layout = blocks.BlockGroup(
-                children=["media", "heading", "content"],
-                settings=["settings", "scroll_to_see_more_snippet"],
-            )
 
     return _IntroBlock(*args, **kwargs)
 

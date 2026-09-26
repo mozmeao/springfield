@@ -2152,7 +2152,6 @@ def test_freeform_page_single_column_layout(index_page, rf):
 def test_intro_block(index_page, placeholder_images, rf):
     variants = get_intro_variants()
     page = get_intro_test_page()
-    scroll_to_see_more_text = get_scroll_to_see_more_snippet().text
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -2187,9 +2186,6 @@ def test_intro_block(index_page, placeholder_images, rf):
             layout = value["settings"]["layout"]
             if layout == "vertical":
                 assert "fl-intro-vertical" in intro_classes
-            elif layout == "flush-bottom":
-                assert "fl-intro-vertical" in intro_classes
-                assert "fl-intro-media-flush-bottom" in intro_classes
             elif layout == "right" and value["media"]:
                 assert "fl-intro-media-right" in intro_classes
             elif layout == "left" and value["media"]:
@@ -2223,11 +2219,7 @@ def test_intro_block(index_page, placeholder_images, rf):
                     assert_image_variants_attributes(
                         images_element=media_el,
                         images_value=media_block["value"],
-                        sizes=(
-                            "(min-width: 1170px) 1170px, 100vw"
-                            if layout == "flush-bottom"
-                            else "(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw"
-                        ),
+                        sizes="(min-width: 1200px) 934px, (min-width: 600px) 50vw, 100vw",
                         widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
                     )
                 elif media_block["type"] == "video":
@@ -2242,13 +2234,6 @@ def test_intro_block(index_page, placeholder_images, rf):
                         assert qr_div.find("img")
             else:
                 assert not intro_el.find("div", class_="fl-intro-media")
-
-            # Scroll to see more pill
-            scroll_to_see_more_element = intro_el.find("div", class_="fl-scroll-to-see-more-wrapper")
-            if layout == "flush-bottom" and media and value.get("scroll_to_see_more_snippet"):
-                assert scroll_to_see_more_element and scroll_to_see_more_text in scroll_to_see_more_element.get_text()
-            else:
-                assert scroll_to_see_more_element is None
 
 
 # Cards
