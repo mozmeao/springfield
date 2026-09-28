@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
@@ -1349,6 +1350,14 @@ def privacy_topic_page(index_page):
 def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
     index_page, topic_page, _ = privacy_topic_page
     assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+
+@override_settings(WAGTAIL_ENABLE_ADMIN=False, CMS_PROD_DOMAIN="cms.example.com")
+def test_private_blog_topic_page_url_uses_cms_prod_domain(privacy_topic_page):
+    index_page, topic_page, _ = privacy_topic_page
+    PageViewRestriction.objects.create(page=topic_page, restriction_type=PageViewRestriction.LOGIN)
+
+    assert topic_page.url == "https://cms.example.com" + index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
 
 
 def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):

@@ -10,7 +10,7 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
@@ -73,6 +73,32 @@ def test_cache_control_headers_on_pages_with_view_restrictions(
     response = client.get(_relative_url)
 
     assert response.get("Cache-Control") == expected_headers
+
+
+@pytest.mark.parametrize(
+    "admin_enabled, cms_prod_domain, is_private, expected_url",
+    (
+        (False, "cms.example.com", True, "https://cms.example.com/en-US/test-page/"),
+        (False, "cms.example.com", False, "/en-US/test-page/"),
+        (True, "cms.example.com", True, "/en-US/test-page/"),
+        (False, "", True, "/en-US/test-page/"),
+    ),
+    ids=[
+        "Private page without admin links to the CMS domain",
+        "Public page keeps the site URL",
+        "Private page with admin keeps the site URL",
+        "Private page without a CMS domain keeps the site URL",
+    ],
+)
+def test_private_page_urls_use_cms_prod_domain(admin_enabled, cms_prod_domain, is_private, expected_url, minimal_site):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    if is_private:
+        PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+
+    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_PROD_DOMAIN=cms_prod_domain):
+        assert page.url == expected_url
+        assert page.full_url.endswith("/en-US/test-page/")
+        assert page.full_url.startswith("https://cms.example.com") == expected_url.startswith("https://cms.example.com")
 
 
 def test_StructuralPage_serve_methods(
