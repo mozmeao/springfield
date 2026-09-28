@@ -122,4 +122,10 @@ def wagtail_serve_with_locale_fallback(request, path=""):
             if response is not None:
                 return response
         raise
+    except AttributeError:
+        # Without the admin there is no session middleware, so Wagtail's check for
+        # private pages fails on request.session. Those pages can't be viewed here.
+        if settings.WAGTAIL_ENABLE_ADMIN:
+            raise
+        raise Http404
     return wagtail_response
