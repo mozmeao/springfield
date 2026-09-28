@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import hashlib
+import hmac
 import json
 import re
 from unittest.mock import patch
@@ -19,7 +21,7 @@ from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.contact_page_fixtures import get_basic_form_field_variants, get_form_field_variants
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, BASKET_INTAKE_PATH, ContactPage
 
 pytestmark = [
     pytest.mark.django_db,
@@ -316,6 +318,60 @@ def test_contact_page_clean_requires_the_fields_the_endpoint_requires(
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} requires these fields: company, timeline."]}
+
+
+def test_contact_page_clean_accepts_any_form_fields_on_the_intake_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() passes the intake endpoint with any form fields once a form id is set."""
+    page = ContactPage(
+        title="Intake Fields Test",
+        slug="intake-fields-test",
+        basket_api_path=BASKET_INTAKE_PATH,
+        basket_form_id="event-signup",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "favourite_colour", "label": "Favourite colour", "required": False},
+                "id": "intake-text-field",
+            },
+        ],
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_requires_a_form_id_on_the_intake_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if the intake endpoint is chosen without a form id."""
+    page = ContactPage(
+        title="Intake Form Id Test",
+        slug="intake-form-id-test",
+        basket_api_path=BASKET_INTAKE_PATH,
+        form_fields=get_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"basket_form_id": [f"{BASKET_INTAKE_PATH} requires a form id."]}
+
+
+def test_contact_page_clean_rejects_a_form_id_on_other_endpoints(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a form id is set for an endpoint that does not use it."""
+    page = ContactPage(
+        title="Form Id Test",
+        slug="form-id-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        basket_form_id="event-signup",
+        form_fields=get_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"basket_form_id": [f"Only {BASKET_INTAKE_PATH} uses a form id."]}
 
 
 def test_contact_page_slug_validated_when_publishing(
@@ -2296,6 +2352,50 @@ def test_contact_page_calls_basket_api_on_valid_post(
     body = json.loads(responses.calls[0].request.body)
     assert body["first_name"] == "Jane"
     assert body["business_email"] == "jane@acme.com"
+
+
+@responses.activate
+def test_contact_page_posts_signed_submission_to_basket_intake(
+    minimal_site: Site,
+    rf: RequestFactory,
+    settings,
+) -> None:
+    """Valid POST to the intake endpoint sends the form id and field values, signed with the intake secret."""
+    settings.BASKET_API_KEY = "intake-key"
+    settings.BASKET_INTAKE_HMAC_SECRET = "intake-secret"
+    responses.add(responses.POST, f"{django_settings.BASKET_URL}{BASKET_INTAKE_PATH}", status=200)
+
+    page = ContactPage(
+        title="Basket Intake Test",
+        slug="basket-intake-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "favourite_colour", "label": "Favourite colour", "required": True},
+                "id": "intake-text-field",
+            },
+        ],
+        basket_api_path=BASKET_INTAKE_PATH,
+        basket_form_id="event-signup",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = page.serve(rf.post(page.relative_url(minimal_site), {"favourite_colour": "Orange"}))
+
+    assert resp.status_code == 200
+    assert len(responses.calls) == 1
+    sent_request = responses.calls[0].request
+    assert json.loads(sent_request.body) == {
+        "form_id": "event-signup",
+        "data": {"favourite_colour": "Orange"},
+        "source_url": page.full_url,
+    }
+    assert sent_request.headers["X-Api-Key"] == "intake-key"
+    timestamp, signature = re.fullmatch(r"t=(\d+),v1=([0-9a-f]+)", sent_request.headers["X-Basket-Signature"]).groups()
+    expected_signature = hmac.new(b"intake-secret", f"{timestamp}.".encode() + sent_request.body, hashlib.sha256).hexdigest()
+    assert signature == expected_signature
 
 
 @responses.activate
