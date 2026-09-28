@@ -4,4 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<include:enterprise-download />
+<include:enterprise-download
+  heading="{{ value.heading|richtext|remove_p_tag if value.heading else '' }}"
+  rich_text="{{ value.rich_text|richtext }}"
+  center_content="{{ value.settings.center_content }}"
+/>

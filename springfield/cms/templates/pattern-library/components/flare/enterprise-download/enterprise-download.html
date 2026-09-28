@@ -5,5 +5,9 @@
 #}
 
 <div data-testid="enterprise-download">
-  <include:enterprise-download />
+  <include:enterprise-download heading="{{ heading }}" rich_text="{{ rich_text|safe }}" />
+</div>
+
+<div data-testid="enterprise-download-centered">
+  <include:enterprise-download heading="{{ heading }}" rich_text="{{ rich_text|safe }}" center_content="{{ true }}" />
 </div>

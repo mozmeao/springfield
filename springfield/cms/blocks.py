@@ -3524,13 +3524,36 @@ class DownloadSupportBlock(blocks.StaticBlock):
         label = "Download Support Message"
 
 
-class EnterpriseDownloadBlock(blocks.StaticBlock):
-    """Static placeholder block for the Firefox Enterprise download section.
+class EnterpriseDownloadSettings(blocks.StructBlock):
+    center_content = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Center content",
+        help_text="Center the heading and the content below it.",
+    )
 
-    No editable fields by design: it renders the existing enterprise
-    download markup/FTL strings as-is while the Enterprise page's
-    redesign is in progress.
-    """
+    class Meta:
+        icon = "cog"
+        collapsed = True
+        label = "Settings"
+        label_format = "Center content: {center_content}"
+        form_classname = "compact-form struct-block"
+
+
+class EnterpriseDownloadBlock(blocks.StructBlock):
+    """Enterprise download section."""
+
+    settings = EnterpriseDownloadSettings()
+    heading = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Heading for the content below the download menus.",
+    )
+    rich_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        help_text="Content below the heading. Leave this and the heading blank to hide the section.",
+    )
 
     class Meta:
         template = "cms/blocks/enterprise-download.html"

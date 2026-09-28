@@ -4,7 +4,11 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=enterprise' %}
+{# A props declaration would isolate this component's context and drop ftl, LANG and firefox_url. #}
+{% set heading = heading|default("") %}
+{% set rich_text = rich_text|default("") %}
+{% set center_content = center_content|default(false) %}
+
 {% set win_download_lang = LANG %}
 {% set mac_download_lang = "ja-JP-mac" if LANG == "ja" else LANG %}
 
@@ -112,14 +116,12 @@
 
   </div>
 
-  <div class="fl-enterprise-download-resources">
-    <h3 class="fl-enterprise-download-resources-title">{{ ftl('firefox-enterprise-resources') }}</h3>
-    <ul>
-      <li><a href="https://firefox-admin-docs.mozilla.org/">{{ ftl('firefox-enterprise-documentation') }}</a></li>
-      <li><a href="https://github.com/mozilla/policy-templates/releases">{{ ftl('firefox-enterprise-policy-templates') }}</a></li>
-      <li><a href="https://support.mozilla.org/products/firefox-enterprise/whats-new-firefox-enterprise/{{ params }}">{{ ftl('firefox-enterprise-release-notes-v2', fallback='firefox-enterprise-release-notes') }}</a></li>
-    </ul>
-  </div>
+  {% if heading or rich_text %}
+    <div class="fl-enterprise-download-resources{% if center_content %} text-center{% endif %}">
+      {% if heading %}<h3 class="fl-enterprise-download-resources-title">{{ heading }}</h3>{% endif %}
+      {{ rich_text }}
+    </div>
+  {% endif %}
 
   <p class="fl-body text-center fl-body-md">
     {{ ftl('firefox-enterprise-download-firefox-or-esr', firefox_all = 'href="' ~ firefox_url('desktop', 'all', 'esr') ~ '"') }}

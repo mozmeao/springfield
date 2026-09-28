@@ -108,7 +108,7 @@ from springfield.cms.fixtures.comparison_table_fixtures import (
     get_comparison_table_variants,
     row as comparison_row,
 )
-from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
@@ -2097,11 +2097,70 @@ def test_enterprise_download_block(index_page, rf):
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
 
         resources = download_section.find("div", class_="fl-enterprise-download-resources")
-        assert resources, "Resources block should render"
-        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
+        assert resources, "Resources region should render"
+        heading = resources.find("h3", class_="fl-enterprise-download-resources-title")
+        assert heading, "The heading renders from its own field"
+        assert heading.get_text(strip=True) == "Resources"
+
+        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/"), "Documentation link should render"
         assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
 
+        release_notes_link = resources.find("a", href=lambda href: href and href.startswith("https://support.mozilla.org/"))
+        assert release_notes_link, "Release notes link should render"
+        assert release_notes_link["href"].endswith("?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=test-enterprise-download-page"), (
+            "The richtext filter appends the page's UTM parameters to Mozilla links"
+        )
+
         assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
+
+    upper_resources = upper.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" not in upper_resources["class"], "The upper block leaves Center content off, so the region is not centered"
+
+    lower_resources = lower.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" in lower_resources["class"], "The lower block turns Center content on, so the region is centered"
+
+    def docs_link_uid(region):
+        return region.find("a", href="https://firefox-admin-docs.mozilla.org/")["data-cta-uid"]
+
+    assert docs_link_uid(upper_resources) == "ed260000-0001-0001-0001-000000000001", (
+        "The fixture's uid reaches the rendered link as data-cta-uid, which analytics reads"
+    )
+    assert docs_link_uid(lower_resources) == "ed260000-0002-0002-0002-000000000001", "Each block on the page carries its own analytics uids"
+
+
+def test_enterprise_download_block_hides_empty_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000003-0000-0000-0000-000000000003", heading="", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    download_section = upper.find("section", id="download")
+    assert download_section.find("div", class_="fl-enterprise-download-lists"), "The download menus still render"
+    assert download_section.find("div", class_="fl-enterprise-download-resources") is None, (
+        "A blank heading and blank Resources render no region at all, rather than an empty bordered band"
+    )
+
+
+def test_enterprise_download_block_renders_heading_without_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000004-0000-0000-0000-000000000004", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    region = upper.find("section", id="download").find("div", class_="fl-enterprise-download-resources")
+    assert region, "A heading on its own still renders the region"
+    assert region.find("h3", class_="fl-enterprise-download-resources-title")
+    assert region.find("ul") is None
 
 
 def test_freeform_page_split_layout(index_page, rf):
