@@ -831,6 +831,12 @@
     },
     {
       "files": [
+        "js/cms/easter-egg-emoji-rain.es6.js"
+      ],
+      "name": "easter-egg-emoji-rain"
+    },
+    {
+      "files": [
         "js/firefox/landing/init.es6.js"
       ],
       "name": "firefox_landing"
