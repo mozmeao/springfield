@@ -32,7 +32,6 @@ const EMOJIS = [
     '🫎', // Moose
     '☕', // Coffee, a Tim Hortons nod
     '🍩', // Donut, another Tim Hortons nod
-    '🍟', // Fries, the closest thing to poutine
     '❄️', // Snowflake
     // Firefox
     '🦊', // Fox
