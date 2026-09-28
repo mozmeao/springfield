@@ -690,6 +690,9 @@ class SpringfieldLinkBlockURLValue(URLValue):
         if link_to == "page":
             page = self.get("page")
             if page:
+                # The chooser returns a plain wagtail Page; URLs must come from the specific
+                # class so our page URL overrides apply. Deferred, so it adds no query.
+                page = page.specific_deferred
                 try:
                     locale = SpringfieldLocale.get_active()
                     # Get the active language, so we can use it to determine the URL to return.

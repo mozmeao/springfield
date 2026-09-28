@@ -8,6 +8,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -172,11 +173,13 @@ from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_va
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.icon_utils import icon_value_fn
+from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import (
     ArticleDetailPage,
     ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
+    SimpleRichTextPage,
     SmartWindowExplainerPage,
     SpringfieldImage,
     WhatsNewPage2026,
@@ -3240,6 +3243,19 @@ def test_springfield_link_block_clean_locale_validation_only_applies_to_relative
 def _springfield_link_value(link_to, **fields):
     """Build a SpringfieldLinkBlockURLValue via SpringfieldLinkBlock.to_python()."""
     return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
+
+
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_PROD_DOMAIN="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_springfield_link_block_links_a_private_page_on_the_cms_domain(minimal_site, rf):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    link_value = _springfield_link_value("page", page=page.pk)
+    middleware = CurrentRequestMiddleware(get_response=lambda request: HttpResponse(link_value.get_url()))
+
+    with translation.override("en-US"):
+        response = middleware(rf.get("/", HTTP_HOST="cms.example.com"))
+
+    assert response.content.decode() == "http://cms.example.com/en-US/test-page/"
 
 
 def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
