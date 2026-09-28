@@ -7,7 +7,7 @@
 /*
   WARNING! This file is referenced in the CMS directly.
   Before altering, ensure you have an up-to-date database and check for pages that have
-  body_class="flare26-whatsnew-nova" to avoid breaking the page layout.
+  body_class="whatsnew-nova" to avoid breaking the page layout.
 */
 
 /* Nova hero: a Featured Image Section in the upper panel. */
@@ -21,7 +21,7 @@
    to the lavender that the gradient layer ends on. Firefox anti-aliases
    each separately clipped layer on its own, so any other colour beneath the
    gradient layer shows as a thin rim along the curve. */
-.flare26-whatsnew-nova .fl-split-page-upper:has(.fl-featured-image-section) {
+.whatsnew-nova .fl-split-page-upper:has(.fl-featured-image-section) {
     background: linear-gradient(
         180deg,
         var(--upper-page-theme-color, var(--token-color-dark-purple))
@@ -31,7 +31,7 @@
     );
 }
 
-.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section {
+.whatsnew-nova .fl-split-page-upper .fl-featured-image-section {
     background: linear-gradient(
         180deg,
         var(--token-color-dark-purple) 0,
@@ -46,7 +46,7 @@
 /* The standard glow is replaced by the one in the gradient layer below. It
    reaches higher than that layer on phones, so it would otherwise show as a
    purple edge above it. */
-.flare26-whatsnew-nova
+.whatsnew-nova
     .fl-split-page-upper
     .fl-featured-image-section.has-gradient-bottom::before {
     content: none;
@@ -55,15 +55,12 @@
 /* The section lifts each of its children into its own layer, so the media,
    and the gradient layer inside it, would otherwise paint over the copy
    where they overlap. */
-.flare26-whatsnew-nova
-    .fl-split-page-upper
-    .fl-featured-image-section
-    .fl-section {
+.whatsnew-nova .fl-split-page-upper .fl-featured-image-section .fl-section {
     z-index: 2;
 }
 
 /* A plain eyebrow rather than the section's usual pill. */
-.flare26-whatsnew-nova
+.whatsnew-nova
     .fl-split-page-upper
     .fl-featured-image-section-heading
     .fl-superheading {
@@ -78,14 +75,14 @@
 
 /* Wide enough for the heading to sit on one line at desktop widths, with
    the body copy held to a readable measure. */
-.flare26-whatsnew-nova
+.whatsnew-nova
     .fl-split-page-upper
     .fl-featured-image-section-heading
     .fl-heading-group {
     max-inline-size: 848px;
 }
 
-.flare26-whatsnew-nova
+.whatsnew-nova
     .fl-split-page-upper
     .fl-featured-image-section-heading
     .fl-subheading {
@@ -93,7 +90,7 @@
     max-inline-size: var(--token-width-desktop-content-sm);
 }
 
-.flare26-whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media {
+.whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media {
     max-inline-size: calc(
         var(--token-width-desktop-wide-banner) +
             (var(--fl-section-h-padding) * 2)
@@ -104,10 +101,7 @@
 /* The site's base reset sizes images at width: auto, so before it loads
    the image has no size, and Chrome never lazy-loads it. A full width also
    reserves its height from the width and height attributes. */
-.flare26-whatsnew-nova
-    .fl-split-page-upper
-    .fl-featured-image-section-media
-    img {
+.whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media img {
     inline-size: 100%;
 }
 
@@ -118,9 +112,7 @@
    a centred ellipse instead of stretching with the layer, and it never
    grows taller than the layer, or it would cut off at the layer's top edge
    on small screens. */
-.flare26-whatsnew-nova
-    .fl-split-page-upper
-    .fl-featured-image-section-media::before {
+.whatsnew-nova .fl-split-page-upper .fl-featured-image-section-media::before {
     background:
         radial-gradient(
                 50% 90% at 50% 100%,
@@ -151,7 +143,7 @@
    mostly opaque link purple keeps the text readable over the lightest part
    of the art while letting a little of it show through. It is also a step
    smaller, so it covers less of the art. */
-.flare26-whatsnew-nova
+.whatsnew-nova
     .fl-split-page-upper
     .fl-featured-image-section
     .fl-scroll-to-see-more {
@@ -168,7 +160,7 @@
    space below the image. It sits above the copy's layer, and only pins on
    screens tall enough that it won't cover the copy on the way down. */
 @media (min-height: 700px) {
-    .flare26-whatsnew-nova
+    .whatsnew-nova
         .fl-split-page-upper
         .fl-featured-image-section
         > .fl-scroll-to-see-more-wrapper {
