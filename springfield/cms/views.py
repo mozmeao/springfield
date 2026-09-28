@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponseRedirect
 from wagtail.models import Locale as WagtailLocale, Site
 from wagtail.views import serve as wagtail_serve
 
-from springfield.cms.utils import find_fallback_page_for_locale
+from springfield.cms.utils import find_fallback_page_for_locale, mark_locale_fallback_exempt
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
@@ -124,8 +124,10 @@ def wagtail_serve_with_locale_fallback(request, path=""):
         raise
     except AttributeError:
         # Without the admin there is no session middleware, so Wagtail's check for
-        # private pages fails on request.session. Those pages can't be viewed here.
+        # private pages fails on request.session. Those pages can't be viewed here, and
+        # the locale fallback must not redirect back to the same page.
         if settings.WAGTAIL_ENABLE_ADMIN:
             raise
+        mark_locale_fallback_exempt(request)
         raise Http404
     return wagtail_response

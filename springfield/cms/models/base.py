@@ -23,7 +23,7 @@ from lib import l10n_utils
 from springfield.base.i18n import normalize_language
 from springfield.cms.fields import StreamField
 from springfield.cms.forms import SpringfieldCopyForm
-from springfield.cms.utils import compute_cms_page_locales
+from springfield.cms.utils import compute_cms_page_locales, current_request
 
 
 class QROpenBehavior(models.TextChoices):
@@ -171,34 +171,45 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # pages always reflect their current public title.
         return self.internal_title or super().get_admin_display_title()
 
-    def _links_to_cms_domain(self, request):
-        """Whether this page's URLs should point at the CMS deployment: a private page on a
-        deployment without the admin, which can't authenticate visitors, requested through
-        the CMS domain."""
-        return (
-            not settings.WAGTAIL_ENABLE_ADMIN
+    def _cms_domain_request(self, request):
+        """The request to build this page's URLs when pointing at the CMS domain:
+        a private page, viewed on a deployment with the admin through the CMS domain."""
+        request = request or current_request.get()
+        if (
+            settings.WAGTAIL_ENABLE_ADMIN
             and settings.CMS_PROD_DOMAIN
             and request is not None
             and request.get_host() == settings.CMS_PROD_DOMAIN
             and self.get_view_restrictions().exists()
-        )
+        ):
+            return request
+        return None
 
     def _on_cms_domain_if_private(self, url_parts, request):
         """Swap the site root URL in a get_url_parts() tuple for the CMS domain when this page is private."""
-        if url_parts is None or url_parts[1] is None or not self._links_to_cms_domain(request):
+        if url_parts is None or url_parts[1] is None:
+            return url_parts
+        cms_domain_request = self._cms_domain_request(request)
+        if cms_domain_request is None:
             return url_parts
         site_id, root_url, page_path = url_parts
-        return (site_id, f"https://{settings.CMS_PROD_DOMAIN}", page_path)
+        return (site_id, f"{cms_domain_request.scheme}://{settings.CMS_PROD_DOMAIN}", page_path)
 
     def get_url_parts(self, request=None):
         return self._on_cms_domain_if_private(super().get_url_parts(request), request)
 
     def get_url(self, request=None, current_site=None):
-        """Always return a full URL for pages served from the CMS domain, since a relative
-        link would resolve against the public site."""
-        if self._links_to_cms_domain(request):
+        """Always return a full URL for private pages linked from the CMS domain.
+
+        When an admin user is viewing a private page through the CMS domain,
+        they should remain on the same domain since the CMS admin is necessary for
+        the private page authentication.
+        """
+        if self._cms_domain_request(request):
             return self.get_full_url(request)
         return super().get_url(request, current_site)
+
+    url = property(get_url)
 
     def _patch_request_for_springfield(self, request):
         "Add hints that help us integrate CMS pages with core Springfield logic"

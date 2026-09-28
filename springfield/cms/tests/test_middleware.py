@@ -9,8 +9,9 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.middleware import CMSLocaleFallbackMiddleware, mark_locale_fallback_exempt
+from springfield.cms.middleware import CMSLocaleFallbackMiddleware
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+from springfield.cms.utils import mark_locale_fallback_exempt
 
 pytestmark = [pytest.mark.django_db]
 

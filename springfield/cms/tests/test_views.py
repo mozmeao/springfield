@@ -9,6 +9,7 @@ import pytest
 from wagtail.models import PageViewRestriction
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.utils import LOCALE_FALLBACK_EXEMPT_ATTR
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 pytestmark = [pytest.mark.django_db]
@@ -23,8 +24,12 @@ def private_page(minimal_site):
 
 @override_settings(WAGTAIL_ENABLE_ADMIN=False)
 def test_private_page_without_admin_is_not_found(private_page, rf):
+    request = rf.get("/en-US/test-page/")
+
     with pytest.raises(Http404):
-        wagtail_serve_with_locale_fallback(rf.get("/en-US/test-page/"), "test-page/")
+        wagtail_serve_with_locale_fallback(request, "test-page/")
+    # Otherwise the locale fallback finds this same page and redirects to it in a loop.
+    assert getattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, False)
 
 
 @override_settings(WAGTAIL_ENABLE_ADMIN=True)
