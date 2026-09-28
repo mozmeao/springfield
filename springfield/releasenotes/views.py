@@ -19,6 +19,7 @@ from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
     LONG_RN_CACHE_TIMEOUT,
     ProductRelease,
+    get_latest_release,
     get_latest_release_or_404,
     get_release,
     get_release_or_404,
@@ -171,6 +172,16 @@ def get_adjacent_major_releases(release):
     return result
 
 
+def has_enterprise_notes():
+    """Whether at least one Firefox Enterprise release is live.
+
+    The Enterprise sub-navigation link points at the latest Enterprise release,
+    which 404s until one is published, so the link is only shown once this is true.
+    Firefox Enterprise ships on the Release channel only.
+    """
+    return get_latest_release("Firefox Enterprise", "release") is not None
+
+
 @require_safe
 def release_notes(request, version, product="Firefox"):
     if not version:
@@ -216,6 +227,7 @@ def release_notes(request, version, product="Firefox"):
             "release_notes": release_notes,
             "equivalent_release_url": equivalent_release_url(release),
             "pagination": pagination,
+            "has_enterprise_notes": has_enterprise_notes(),
         },
     )
 

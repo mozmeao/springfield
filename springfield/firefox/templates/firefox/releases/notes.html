@@ -57,17 +57,19 @@
 {% set kit_class = kit_class|default('has-curious-kit') %}
 
 {% block sub_navigation %}
+  {# The Enterprise link redirects to the latest Enterprise release, which 404s until
+     one has been published, so the view only sets this once there is one to show. #}
+  {% set enterprise_links = [{
+      'text': ftl('sub-navigation-enterprise'),
+      'href': url('firefox.enterprise.notes'),
+    }] if has_enterprise_notes else [] %}
   <include:subnav
     heading_text="{{ ftl('sub-navigation-release-notes') }}"
     links="{{ [
     {
       'text': ftl('sub-navigation-desktop'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox for Android' and equivalent_release_url else url('firefox.notes'),
-    },
-    {
-      'text': ftl('sub-navigation-enterprise'),
-      'href': url('firefox.enterprise.notes'),
-    },
+    }] + enterprise_links + [
     {
       'text': ftl('sub-navigation-desktop-beta-and-developer'),
       'href': url('firefox.notes', channel='beta'),
