@@ -1352,12 +1352,13 @@ def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
     assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
 
 
-@override_settings(WAGTAIL_ENABLE_ADMIN=False, CMS_PROD_DOMAIN="cms.example.com")
-def test_private_blog_topic_page_url_uses_cms_prod_domain(privacy_topic_page):
+@override_settings(WAGTAIL_ENABLE_ADMIN=False, CMS_PROD_DOMAIN="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_private_blog_topic_page_url_uses_cms_prod_domain(privacy_topic_page, rf):
     index_page, topic_page, _ = privacy_topic_page
     PageViewRestriction.objects.create(page=topic_page, restriction_type=PageViewRestriction.LOGIN)
+    request = rf.get("/", HTTP_HOST="cms.example.com")
 
-    assert topic_page.url == "https://cms.example.com" + index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+    assert topic_page.get_url(request) == "https://cms.example.com" + index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
 
 
 def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):

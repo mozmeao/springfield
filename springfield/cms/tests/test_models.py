@@ -76,29 +76,30 @@ def test_cache_control_headers_on_pages_with_view_restrictions(
 
 
 @pytest.mark.parametrize(
-    "admin_enabled, cms_prod_domain, is_private, expected_url",
+    "admin_enabled, cms_prod_domain, is_private, request_host, expected_url",
     (
-        (False, "cms.example.com", True, "https://cms.example.com/en-US/test-page/"),
-        (False, "cms.example.com", False, "/en-US/test-page/"),
-        (True, "cms.example.com", True, "/en-US/test-page/"),
-        (False, "", True, "/en-US/test-page/"),
+        (False, "cms.example.com", True, "cms.example.com", "https://cms.example.com/en-US/test-page/"),
+        (False, "cms.example.com", True, "testserver", "/en-US/test-page/"),
+        (False, "cms.example.com", False, "cms.example.com", "/en-US/test-page/"),
+        (True, "cms.example.com", True, "cms.example.com", "/en-US/test-page/"),
+        (False, "", True, "cms.example.com", "/en-US/test-page/"),
     ),
     ids=[
-        "Private page without admin links to the CMS domain",
+        "Private page requested from the CMS domain links to the CMS domain",
+        "Private page requested from another domain keeps the site URL",
         "Public page keeps the site URL",
         "Private page with admin keeps the site URL",
         "Private page without a CMS domain keeps the site URL",
     ],
 )
-def test_private_page_urls_use_cms_prod_domain(admin_enabled, cms_prod_domain, is_private, expected_url, minimal_site):
+def test_private_page_urls_use_cms_prod_domain(admin_enabled, cms_prod_domain, is_private, request_host, expected_url, minimal_site, rf):
     page = SimpleRichTextPage.objects.get(slug="test-page")
     if is_private:
         PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    request = rf.get("/", HTTP_HOST=request_host)
 
-    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_PROD_DOMAIN=cms_prod_domain):
-        assert page.url == expected_url
-        assert page.full_url.endswith("/en-US/test-page/")
-        assert page.full_url.startswith("https://cms.example.com") == expected_url.startswith("https://cms.example.com")
+    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_PROD_DOMAIN=cms_prod_domain, ALLOWED_HOSTS=["*"]):
+        assert page.get_url(request) == expected_url
 
 
 def test_StructuralPage_serve_methods(

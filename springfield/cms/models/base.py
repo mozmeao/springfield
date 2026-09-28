@@ -171,29 +171,34 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # pages always reflect their current public title.
         return self.internal_title or super().get_admin_display_title()
 
-    def _links_to_cms_domain(self):
-        """Whether this page's URLs should point at the CMS deployment. Deployments without
-        the admin can't authenticate visitors, so private pages are only viewable on the CMS."""
-        return not settings.WAGTAIL_ENABLE_ADMIN and settings.CMS_PROD_DOMAIN and self.get_view_restrictions().exists()
+    def _links_to_cms_domain(self, request):
+        """Whether this page's URLs should point at the CMS deployment: a private page on a
+        deployment without the admin, which can't authenticate visitors, requested through
+        the CMS domain."""
+        return (
+            not settings.WAGTAIL_ENABLE_ADMIN
+            and settings.CMS_PROD_DOMAIN
+            and request is not None
+            and request.get_host() == settings.CMS_PROD_DOMAIN
+            and self.get_view_restrictions().exists()
+        )
 
-    def _on_cms_domain_if_private(self, url_parts):
+    def _on_cms_domain_if_private(self, url_parts, request):
         """Swap the site root URL in a get_url_parts() tuple for the CMS domain when this page is private."""
-        if url_parts is None or url_parts[1] is None or not self._links_to_cms_domain():
+        if url_parts is None or url_parts[1] is None or not self._links_to_cms_domain(request):
             return url_parts
         site_id, root_url, page_path = url_parts
         return (site_id, f"https://{settings.CMS_PROD_DOMAIN}", page_path)
 
     def get_url_parts(self, request=None):
-        return self._on_cms_domain_if_private(super().get_url_parts(request))
+        return self._on_cms_domain_if_private(super().get_url_parts(request), request)
 
     def get_url(self, request=None, current_site=None):
         """Always return a full URL for pages served from the CMS domain, since a relative
         link would resolve against the public site."""
-        if self._links_to_cms_domain():
+        if self._links_to_cms_domain(request):
             return self.get_full_url(request)
         return super().get_url(request, current_site)
-
-    url = property(get_url)
 
     def _patch_request_for_springfield(self, request):
         "Add hints that help us integrate CMS pages with core Springfield logic"
