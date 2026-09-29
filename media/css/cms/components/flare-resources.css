@@ -6,7 +6,7 @@
 
 .fl-resources {
     display: grid;
-    gap: var(--token-spacing-xl);
+    gap: var(--token-spacing-3xl);
     grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
     inline-size: 100%;
     margin-inline: auto;
@@ -15,7 +15,8 @@
 
 .fl-resources-list {
     list-style: none;
-    margin-block: var(--token-spacing-md);
+    margin-block: var(--token-spacing-md) var(--token-spacing-3xl);
+    margin-inline: 0;
     padding: 0;
 }
 
@@ -25,10 +26,20 @@
 
 .fl-resources-link {
     color: var(--fl-theme-color-text);
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .fl-resources-link:hover,
 .fl-resources-link:focus {
-    text-decoration: none;
+    text-decoration: underline;
+}
+
+.fl-resources-column .fl-heading-sm {
+    border-block-end: 1px solid var(--fl-subtle-border-color);
+}
+
+.fl-resources-column .fl-heading-2xs {
+    font-size: var(
+        --token-font-size-lg
+    ); /* system deviation to force 18px size at all sizes */
 }

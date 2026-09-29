@@ -4,11 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{# props heading_text="" level="h2" #}
+
 <div class="fl-resources-column">
-  {{ contents.heading }}
-  <include:card variant="outline">
-    <content:body>
-      {{ contents }}
-    </content:body>
-  </include:card>
+  <include:heading
+    level="{{ level }}"
+    heading_size="fl-heading-sm"
+    heading_text="{{ heading_text }}"
+  />
+  {{ contents }}
 </div>
