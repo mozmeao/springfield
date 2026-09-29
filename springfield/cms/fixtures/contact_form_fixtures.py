@@ -33,7 +33,11 @@ def get_contact_form_variants() -> list[dict]:
         },
         {
             "type": "contact_form",
-            "value": {"contact_page": contact_page.pk, "two_column": False},
+            "value": {
+                "contact_page": contact_page.pk,
+                "two_column": False,
+                "query_params": [{"key": "ls", "value": "contact-form-block-lead-submission"}],
+            },
             "id": "cf000001-0000-0000-0000-000000000001",
         },
         {
