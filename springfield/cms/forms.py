@@ -78,3 +78,43 @@ class ConfirmUpdateSlugForm(forms.Form):
             raise ValidationError(_("Another page already uses this slug."))
 
         return conflicting_page_slug
+
+
+class SelectTranslationsForm(forms.Form):
+    """The locales of one translation source an editor wants to act on."""
+
+    translations = forms.ModelMultipleChoiceField(
+        queryset=None,
+        widget=forms.CheckboxSelectMultiple,
+        error_messages={"required": _("Choose at least one locale.")},
+    )
+
+    def __init__(self, *args, translations, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["translations"].queryset = translations
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    """A file field accepting several files, per Django's documented pattern."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput(attrs={"accept": ".po"}))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        # An empty selection arrives as [], which would otherwise skip the required check.
+        if isinstance(data, list | tuple) and data:
+            return [single_file_clean(item, initial) for item in data]
+        return [single_file_clean(data or None, initial)]
+
+
+class UploadTranslationsForm(forms.Form):
+    files = MultipleFileField(
+        label=_("PO files"),
+        help_text=_("Select the .po files to import. Each one is matched to its locale by the ID inside it, so file names don't matter."),
+    )

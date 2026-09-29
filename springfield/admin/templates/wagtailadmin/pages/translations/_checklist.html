@@ -1,0 +1,85 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Locale checklist for the "Manage translations" screen.
+{% endcomment %}
+
+{% load i18n %}
+
+<div data-translation-checklist>
+  <p>
+    <button type="button" class="button button-small button-secondary" data-checklist-select="all">{% trans "Select all" %}</button>
+    <button type="button" class="button button-small button-secondary" data-checklist-select="non-alias">{% trans "Select all except aliases" %}</button>
+    <button type="button" class="button button-small button-secondary" data-checklist-select="none">{% trans "Clear" %}</button>
+  </p>
+
+  {% if form.translations.errors %}
+    <div class="help-block help-critical">{{ form.translations.errors }}</div>
+  {% endif %}
+
+  <table class="listing">
+    <thead>
+      <tr>
+        <th><span class="w-sr-only">{% trans "Include" %}</span></th>
+        <th>{% trans "Locale" %}</th>
+        <th>{% trans "Translated" %}</th>
+        <th>{% trans "Page status" %}</th>
+        <th>{% trans "Translated via" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>
+            <input type="checkbox" name="translations" value="{{ row.translation.pk }}" aria-label="{{ row.translation.target_locale.get_display_name }}"{% if row.alias_of %} data-alias{% endif %}{% if row.checked %} checked{% endif %}>
+          </td>
+          <td>
+            {% if row.target_page %}
+              <a href="{% url 'wagtailadmin_pages:edit' row.target_page.pk %}">{{ row.translation.target_locale.get_display_name }}</a>
+            {% else %}
+              {{ row.translation.target_locale.get_display_name }}
+            {% endif %}
+            {% if row.alias_of %}<span class="w-status w-status--label locale-role-badge">alias → {{ row.alias_of }}</span>{% endif %}
+          </td>
+          <td class="translation-progress translation-progress--{{ row.progress_state }}">
+            {% blocktrans trimmed with percent=row.percent_translated translated=row.translated_segments total=row.total_segments %}
+              {{ percent }}% ({{ translated }} of {{ total }})
+            {% endblocktrans %}
+          </td>
+          <td>
+            {% if row.target_page is None %}
+              {% trans "Not created yet" %}
+            {% elif row.target_page.live %}
+              {% trans "Live" %}
+            {% else %}
+              {% trans "Draft" %}
+            {% endif %}
+          </td>
+          <td>
+            {% for label, count in row.translated_via %}
+              {{ label }} ({{ count }}){% if not forloop.last %}<br>{% endif %}
+            {% empty %}
+              {% if not row.open_smartling_job %}{% trans "Not translated yet" %}{% endif %}
+            {% endfor %}
+            {% if row.open_smartling_job %}
+              {% if row.translated_via %}<br>{% endif %}
+              <a href="{% url 'wagtail_localize_smartling_jobs:inspect' row.open_smartling_job.pk %}">
+                {% blocktrans trimmed with status=row.open_smartling_job.get_status_display %}Smartling: {{ status }}{% endblocktrans %}
+              </a>
+            {% elif row.smartling_outdated %}
+              {% if row.translated_via %}<br>{% endif %}
+              <a href="{% url 'wagtail_localize_smartling_jobs:inspect' row.smartling_job.pk %}" class="translation-progress--partial">
+                {% trans "Source changed since last sent to Smartling" %}
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -39,11 +39,13 @@ from springfield.base.models import TranslatedPagePermission
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.admin_views import (
     ContentSearchView,
+    ManageTranslationsView,
     UpdateSlugConfirmView,
     UpdateSlugView,
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
+from springfield.cms.bulk_translations import has_translations
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
@@ -83,6 +85,7 @@ def register_cms_admin_urls():
             create_translation_sharing_link,
             name="cms_translation_draftsharing_create",
         ),
+        path("pages/<int:page_id>/translations/", ManageTranslationsView.as_view(), name="cms_page_translations"),
     ]
 
 
@@ -105,6 +108,20 @@ def register_update_slug_listing_button(page, user, next_url=None):
 def register_update_slug_header_button(page, user, view_name, next_url=None):
     # Priority 25 sits between Wagtail's Move (20) and Copy (30).
     yield PageUpdateSlugButton(page=page, priority=25)
+
+
+def manage_translations_button(page, user, *args, **kwargs):
+    """A "Manage translations" button for a page that has translations in other locales."""
+    if page.is_root() or not user.has_perm("wagtail_localize.submit_translation"):
+        return
+    if not page.permissions_for_user(user).can_edit() or not has_translations(page):
+        return
+    # Priority 61 follows wagtail-localize's own "Translate this page" / "Sync translated pages" (60).
+    yield PageMenuItem("Manage translations", reverse("cms_page_translations", args=[page.id]), "globe", 61, page=page)
+
+
+hooks.register("register_page_listing_more_buttons", manage_translations_button)
+hooks.register("register_page_header_buttons", manage_translations_button)
 
 
 @hooks.register("register_admin_menu_item")
@@ -234,6 +251,16 @@ def translation_draftsharing_js():
     button template.
     """
     return format_html('<script type="module" src="{}"></script>', static("js/wagtailadmin-translation-draftsharing.js"))
+
+
+@hooks.register("insert_global_admin_js")
+def translation_checklist_js():
+    """Deliver the "Select all except aliases" script for locale checkboxes.
+
+    Global because wagtail-localize's "Translate" form doesn't render form media; the
+    script does nothing on pages without its checkboxes.
+    """
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-translation-checklist.js"))
 
 
 class FXAEntityElementHandler(InlineEntityElementHandler):

@@ -910,6 +910,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-translation-checklist.js"
+      ],
+      "name": "wagtailadmin-translation-checklist"
+    },
+    {
+      "files": [
         "js/cms/flare-docs.js"
       ],
       "name": "flare-docs"

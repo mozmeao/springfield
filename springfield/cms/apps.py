@@ -22,6 +22,9 @@ class CmsConfig(AppConfig):
         # Sort hand-translated locales last on the "Translate" locale checkboxes
         self._patch_submit_translation_locale_order()
 
+        # Open "Manage translations" after submitting a page for translation
+        self._patch_submit_page_translation_redirect()
+
         # Extend group page permissions to the other locales at their "Translated pages" levels
         self._patch_page_permission_policy()
 
@@ -60,24 +63,53 @@ class CmsConfig(AppConfig):
     def _patch_submit_translation_locale_order():
         """
         Sort hand-translated locales last on wagtail-localize's "Translate" form,
-        keeping Wagtail's ordering for everything else.
+        keeping Wagtail's ordering for everything else, and badge alias locales.
 
         Wagtail orders locales by `language_code`, which puts Welsh first even though
-        an editor rarely picks it. wagtail-localize offers no hook for this, so the
-        form is patched here alongside the other startup patches.
+        an editor rarely picks it. Alias locales get an "alias → X" badge, plus a
+        "Select all except aliases" option, so a "select all" doesn't sweep them in
+        unnoticed. wagtail-localize offers no hook for either, so the form is patched
+        here alongside the other startup patches.
         """
 
         # Imported inline because wagtail-localize's form module pulls in Wagtail
         # models, which cannot be imported while the app registry is still loading.
+        from django import forms
         from django.conf import settings
         from django.db.models import Case, IntegerField, Value, When
+        from django.utils.html import format_html
 
         from wagtail_localize.views.submit_translations import SubmitTranslationForm
 
         original_init = SubmitTranslationForm.__init__
 
+        def is_alias(locale):
+            return locale.language_code in settings.FALLBACK_LOCALES
+
+        def label_locale(locale):
+            if not is_alias(locale):
+                return locale.get_display_name()
+            return format_html(
+                '{} <span class="w-status w-status--label locale-role-badge">alias → {}</span>',
+                locale.get_display_name(),
+                settings.FALLBACK_LOCALES[locale.language_code],
+            )
+
         def __init__(self, instance, *args, **kwargs):
             original_init(self, instance, *args, **kwargs)
+
+            locales = self.fields["locales"]
+            locales.label_from_instance = label_locale
+
+            # Offered alongside "Select all" only when there are both aliases to leave out
+            # and other locales to select. The script finds aliases by the badge in their label.
+            alias_flags = [is_alias(locale) for locale in locales.queryset]
+            if not isinstance(self.fields["select_all"].widget, forms.HiddenInput) and any(alias_flags) and not all(alias_flags):
+                self.fields = {
+                    "select_all": self.fields.pop("select_all"),
+                    "select_all_except_aliases": forms.BooleanField(label="Select all except aliases", required=False),
+                    **self.fields,
+                }
 
             # Alias locales are excluded from Smartling because they serve another
             # locale's content rather than because anyone translates them by hand,
@@ -87,7 +119,6 @@ class CmsConfig(AppConfig):
             if not hand_translated:
                 return
 
-            locales = self.fields["locales"]
             locales.queryset = locales.queryset.order_by(
                 Case(
                     When(language_code__in=hand_translated, then=Value(1)),
@@ -98,6 +129,31 @@ class CmsConfig(AppConfig):
             )
 
         SubmitTranslationForm.__init__ = __init__
+
+    @staticmethod
+    def _patch_submit_page_translation_redirect():
+        """
+        Send editors who submit a page for translation to its "Manage translations"
+        screen, rather than to its parent's page listing or the new translation.
+
+        An editor who can't edit the source page keeps wagtail-localize's redirect.
+        """
+
+        # Imported inline because wagtail-localize's view module pulls in Wagtail
+        # models, which cannot be imported while the app registry is still loading.
+        from django.urls import reverse
+
+        from wagtail_localize.views.submit_translations import SubmitPageTranslationView
+
+        original_get_default_success_url = SubmitPageTranslationView.get_default_success_url
+
+        def get_default_success_url(self, translated_page=None):
+            # "Manage translations" needs edit rights on the source page.
+            if not self.object.permissions_for_user(self.request.user).can_edit():
+                return original_get_default_success_url(self, translated_page)
+            return reverse("cms_page_translations", args=[self.object.id])
+
+        SubmitPageTranslationView.get_default_success_url = get_default_success_url
 
     @staticmethod
     def _patch_page_permission_policy():

@@ -76,3 +76,58 @@
     flex-basis: 100%;
 }
 /* stylelint-enable */
+
+/* Translation progress on the "Manage translations" checklist. */
+.translation-progress--complete {
+    color: var(--w-color-positive-100);
+}
+
+.translation-progress--partial {
+    color: var(--w-color-warning-100);
+}
+
+.translation-progress--none {
+    color: var(--w-color-critical-200);
+}
+
+/* Collapsed-by-default help on the "Manage translations" screen. Wagtail hides
+   the native disclosure marker, so a chevron shows it can be opened. */
+.translation-help summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    font-weight: 600;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.translation-help summary::-webkit-details-marker {
+    display: none;
+}
+
+.translation-help__chevron {
+    block-size: 1rem;
+    flex-shrink: 0;
+    inline-size: 1rem;
+    transition: transform 150ms ease;
+}
+
+.translation-help[open] .translation-help__chevron {
+    transform: rotate(90deg);
+}
+
+.translation-help[open] summary {
+    margin-block-end: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .translation-help__chevron {
+        transition: none;
+    }
+}
+
+.translation-section-divider {
+    border: 0;
+    border-block-start: 1px solid var(--w-color-border-furniture);
+    margin-block: 2.5rem 1.5rem;
+}

@@ -1,0 +1,135 @@
+{% extends "wagtailadmin/base.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}{% blocktrans trimmed with title=page.get_admin_display_title %}Manage translations for {{ title }}{% endblocktrans %}{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title=_("Manage translations") subtitle=page.get_admin_display_title icon="globe" %}
+
+  <div class="nice-padding">
+    <details class="help-block help-info translation-help">
+      <summary>{% icon name="arrow-right" classname="translation-help__chevron" %}{% trans "How these actions work" %}</summary>
+      <p>{% trans "Work on every locale of this page at once. Select locales, then:" %}</p>
+      <ul>
+        <li>{% trans "Download selected: one .po file per locale, zipped together. Translate them and upload them below." %}</li>
+        <li>{% trans "Publish selected: publishes each locale's current translations. It doesn't change the source page, or pull in source changes that haven't been synced with “Sync translated pages”. Untranslated text appears in the source language, and a published alias locale stops following the locale it falls back to." %}</li>
+        <li>{% trans "Send selected to Smartling: creates a Smartling translation job for the source as last synced, the same as ticking Smartling on the Translate form. When Smartling's translations arrive they replace the locale's current text, including uploaded or edited placeholders, and are imported without being published. Welsh and alias locales are never sent." %}</li>
+        <li>{% trans "Unpublish selected: takes those locales' pages offline. Alias locales go back to showing the locale they fall back to." %}</li>
+        <li>{% trans "Stop syncing selected: turns those locales into independent pages, edited in the normal page editor. Their content isn't changed, but source changes no longer reach them and they leave this list. Undo it with “Start Synced translation” in the page's editor." %}</li>
+      </ul>
+    </details>
+
+    {% if sync_url %}
+      <div class="help-block help-warning">
+        <p>{% trans "The source page's published content has changed since its translations were last synced, so the locales below are behind. Sync them before downloading or publishing to include the changes." %}</p>
+        <p><a href="{{ sync_url }}" class="button">{% trans "Sync translated pages" %}</a></p>
+      </div>
+    {% endif %}
+
+    <p>
+      <a href="{% url 'wagtailadmin_pages:edit' page.id %}" class="button button-secondary">
+        {% blocktrans trimmed with locale=page.locale.get_display_name %}Edit {{ locale }} page{% endblocktrans %}
+      </a>
+      {% if translate_more_url %}
+        <a href="{{ translate_more_url }}" class="button button-secondary">{% trans "Translate into more locales" %}</a>
+      {% endif %}
+    </p>
+
+    {% if rows %}
+      <form action="{% url 'cms_page_translations' page.id %}" method="POST" novalidate>
+        {% csrf_token %}
+        {% include "wagtailadmin/pages/translations/_checklist.html" %}
+        <p>
+          <button type="submit" name="action" value="download" class="button button-secondary">{% trans "Download selected" %}</button>
+          <button type="submit" name="action" value="smartling" class="button button-secondary" data-translation-confirm="{% trans 'Send the selected locales to Smartling for translation? This creates a Smartling job for the source as last synced. Welsh and alias locales are skipped.' %}">{% trans "Send selected to Smartling" %}</button>
+          {% if can_publish %}
+            <button type="submit" name="action" value="publish" class="button">{% trans "Publish selected" %}</button>
+            <button type="submit" name="action" value="unpublish" class="button button-secondary no" data-translation-confirm="{% trans 'Unpublish the selected locales? Their pages will go offline.' %}">{% trans "Unpublish selected" %}</button>
+          {% endif %}
+          <button type="submit" name="action" value="stop" class="button button-secondary no" data-translation-confirm="{% trans 'Stop syncing the selected locales? They become independent pages that source changes no longer reach.' %}">{% trans "Stop syncing selected" %}</button>
+        </p>
+      </form>
+
+      <h2>{% trans "Upload translated .po files" %}</h2>
+      <p>{% trans "Imports translations into their locales. Nothing is published until you use “Publish selected” above." %}</p>
+
+      <form action="{% url 'cms_page_translations' page.id %}" method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="upload">
+        <ul class="fields">
+          <li>{% formattedfield upload_form.files %}</li>
+        </ul>
+        <p>
+          <button type="submit" class="button button-secondary">{% trans "Upload" %}</button>
+        </p>
+      </form>
+    {% else %}
+      <p>{% trans "No locales are syncing with this page. Restart one below, or translate into more locales." %}</p>
+    {% endif %}
+
+    {% if not_syncing_rows %}
+      <hr class="translation-section-divider">
+      <h2>{% trans "Not syncing" %}</h2>
+      <p>{% trans "These translated pages exist but don't receive changes from the source page. Live ones may be showing out-of-date content." %}</p>
+      <table class="listing">
+        <thead>
+          <tr>
+            <th>{% trans "Locale" %}</th>
+            <th>{% trans "Page status" %}</th>
+            <th>{% trans "Why" %}</th>
+            <th><span class="w-sr-only">{% trans "Actions" %}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in not_syncing_rows %}
+            <tr>
+              <td>
+                {% if row.page %}
+                  <a href="{% url 'wagtailadmin_pages:edit' row.page.pk %}">{{ row.locale.get_display_name }}</a>
+                {% else %}
+                  {{ row.locale.get_display_name }}
+                {% endif %}
+                {% if row.alias_of %}<span class="w-status w-status--label locale-role-badge">alias → {{ row.alias_of }}</span>{% endif %}
+              </td>
+              <td>
+                {% if row.page is None %}
+                  {% trans "Not created yet" %}
+                {% elif row.page.live %}
+                  <span class="translation-progress--none">{% trans "Live, but not receiving source changes" %}</span>
+                  {% if row.page.last_published_at %}<br>{% blocktrans trimmed with date=row.page.last_published_at|date:"j M Y" %}Last published {{ date }}{% endblocktrans %}{% endif %}
+                {% else %}
+                  {% trans "Draft" %}
+                {% endif %}
+              </td>
+              <td>
+                {% if row.stopped_translation %}
+                  {% trans "Syncing was stopped" %}
+                {% else %}
+                  {% trans "Never synced: created outside the translation workflow" %}
+                {% endif %}
+              </td>
+              <td>
+                {% if row.stopped_translation %}
+                  <form action="{% url 'cms_page_translations' page.id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="restart">
+                    <input type="hidden" name="translation" value="{{ row.stopped_translation.pk }}">
+                    <button type="submit" class="button button-small button-secondary" data-translation-confirm="{% trans 'Restart syncing this locale? It will open in the translation editor again, and edits made to it while it was not syncing may be replaced the next time it is published.' %}">{% trans "Restart syncing" %}</button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endblock %}
