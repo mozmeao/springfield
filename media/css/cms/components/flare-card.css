@@ -321,6 +321,12 @@ Filled Card variant
     }
 }
 
+.fl-card.fl-card-filled.fl-form-card {
+    background: white;
+    min-block-size: 0;
+    padding: var(--token-layout-xs);
+}
+
 /* Pictogram in filled card: no squircle bg */
 .fl-card.fl-card-filled .fl-card-media-pictogram,
 .fl-card.fl-card-outline > *:not(.fl-card-top-media) .fl-card-media-pictogram {

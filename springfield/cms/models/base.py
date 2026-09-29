@@ -251,6 +251,30 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
             add_never_cache_headers(response)
         return response
 
+    def serve_password_required_response(self, request, form, action_url):
+        """
+        Serve Wagtail's password-required response (for pages locked via the CMS's
+        "Restrict access" privacy option) through l10n_utils.render(), same as
+        serve()/serve_preview(), so its template can use Fluent strings and other
+        context CMS templates expect (e.g. base-flare.html).
+        """
+        request = self._patch_request_for_springfield(request)
+
+        if not hasattr(request, "is_preview"):
+            request.is_preview = False
+        if not hasattr(request, "preview_mode"):
+            request.preview_mode = None
+
+        template = self.password_required_template or getattr(
+            settings,
+            "WAGTAIL_PASSWORD_REQUIRED_TEMPLATE",
+            "wagtailcore/password_required.html",
+        )
+        context = self.get_context(request)
+        context["form"] = form
+        context["action_url"] = action_url
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
+
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)
         hide_preview = request.GET.get("hide_preview", False)
