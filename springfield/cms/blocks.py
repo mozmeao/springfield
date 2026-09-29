@@ -3189,7 +3189,27 @@ class KitBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, *args, **kwargs):
+    """Kit Intro hero section.
+
+    Args:
+        allow_media_above_buttons: If True, adds an optional media field rendered
+            between the heading and the buttons. Only used in ShareFirefoxPage.
+    """
+    local_blocks = []
+    if allow_media_above_buttons:
+        local_blocks.append(
+            (
+                "media_above_buttons",
+                MediaBlock(
+                    max_num=1,
+                    min_num=0,
+                    required=False,
+                    help_text="Sits between the heading and the buttons.",
+                ),
+            )
+        )
+
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
@@ -3217,11 +3237,11 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             label = "Kit Intro"
             label_format = "{heading}"
             form_layout = blocks.BlockGroup(
-                children=["heading", "buttons", "media"],
+                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "media"],
                 settings=["settings", "scroll_to_see_more_snippet"],
             )
 
-    return _KitIntroBlock(*args, **kwargs)
+    return _KitIntroBlock(local_blocks or None, *args, **kwargs)
 
 
 class CarouselSlide(blocks.StructBlock):
