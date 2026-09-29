@@ -2992,7 +2992,7 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             assert_image_variants_attributes(
                 images_element=media_element,
                 images_value=value["media"][0]["value"],
-                sizes="(min-width: 934px) 934px, 100vw",
+                sizes="(min-width: 1170px) 1170px, 100vw",
             )
         else:
             assert "has-home-intro-media" not in section["class"]
