@@ -1392,7 +1392,7 @@ WAGTAIL_ENABLE_UPDATE_CHECK = False
 # Custom setting (not a Wagtail core one) that we use to plug in/unplug the admin UI entirely
 WAGTAIL_ENABLE_ADMIN = config("WAGTAIL_ENABLE_ADMIN", default="false", parser=bool)
 # The production domain for the CMS admin interface
-CMS_PROD_DOMAIN = config("CMS_PROD_DOMAIN", default="")
+CMS_HOSTNAME = config("CMS_HOSTNAME", default="")
 
 if WAGTAIL_ENABLE_ADMIN:
     # Enable Middleware essential for admin

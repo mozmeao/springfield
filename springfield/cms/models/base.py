@@ -176,9 +176,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         on a deployment with the admin through the CMS domain."""
         return (
             settings.WAGTAIL_ENABLE_ADMIN
-            and settings.CMS_PROD_DOMAIN
+            and settings.CMS_HOSTNAME
             and request is not None
-            and request.get_host() == settings.CMS_PROD_DOMAIN
+            and request.get_host() == settings.CMS_HOSTNAME
             and self.get_view_restrictions().exists()
         )
 
@@ -188,7 +188,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         if url_parts is None or url_parts[1] is None or not self._is_cms_domain_request(request):
             return url_parts
         site_id, root_url, page_path = url_parts
-        return (site_id, f"{request.scheme}://{settings.CMS_PROD_DOMAIN}", page_path)
+        return (site_id, f"{request.scheme}://{settings.CMS_HOSTNAME}", page_path)
 
     def get_url_parts(self, request=None):
         return self._switch_to_cms_domain_if_private(super().get_url_parts(request), request)

@@ -3340,7 +3340,7 @@ def _springfield_link_value(link_to, **fields):
     return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
 
 
-@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_PROD_DOMAIN="cms.example.com", ALLOWED_HOSTS=["*"])
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
 def test_springfield_link_block_links_a_private_page_on_the_cms_domain(minimal_site, rf):
     page = SimpleRichTextPage.objects.get(slug="test-page")
     PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)

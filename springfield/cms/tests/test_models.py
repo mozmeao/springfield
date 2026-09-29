@@ -78,7 +78,7 @@ def test_cache_control_headers_on_pages_with_view_restrictions(
 
 
 @pytest.mark.parametrize(
-    "admin_enabled, cms_prod_domain, is_private, request_host, expected_url",
+    "admin_enabled, CMS_HOSTNAME, is_private, request_host, expected_url",
     (
         (True, "cms.example.com", True, "cms.example.com", "http://cms.example.com/en-US/test-page/"),
         (True, "cms.example.com", True, "testserver", "/en-US/test-page/"),
@@ -94,17 +94,17 @@ def test_cache_control_headers_on_pages_with_view_restrictions(
         "Private page without a CMS domain keeps the site URL",
     ],
 )
-def test_private_page_urls_use_cms_prod_domain(admin_enabled, cms_prod_domain, is_private, request_host, expected_url, minimal_site, rf):
+def test_private_page_urls_use_CMS_HOSTNAME(admin_enabled, CMS_HOSTNAME, is_private, request_host, expected_url, minimal_site, rf):
     page = SimpleRichTextPage.objects.get(slug="test-page")
     if is_private:
         PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
     request = rf.get("/", HTTP_HOST=request_host)
 
-    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_PROD_DOMAIN=cms_prod_domain, ALLOWED_HOSTS=["*"]):
+    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_HOSTNAME=CMS_HOSTNAME, ALLOWED_HOSTS=["*"]):
         assert page.get_url(request) == expected_url
 
 
-@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_PROD_DOMAIN="cms.example.com", ALLOWED_HOSTS=["*"])
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
 def test_private_page_url_without_a_request_uses_the_current_request(minimal_site, rf):
     page = SimpleRichTextPage.objects.get(slug="test-page")
     PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
