@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
+
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 
@@ -9,6 +11,8 @@ from wagtail.models import Locale as WagtailLocale, Site
 from wagtail.views import serve as wagtail_serve
 
 from springfield.cms.utils import find_fallback_page_for_locale, mark_locale_fallback_exempt
+
+logger = logging.getLogger(__name__)
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):
@@ -122,12 +126,13 @@ def wagtail_serve_with_locale_fallback(request, path=""):
             if response is not None:
                 return response
         raise
-    except AttributeError:
-        # Without the admin there is no session middleware, so Wagtail's check for
-        # private pages fails on request.session. Those pages can't be viewed here, and
-        # the locale fallback must not redirect back to the same page.
-        if settings.WAGTAIL_ENABLE_ADMIN:
+    except AttributeError as error:
+        # Without the admin there is no session or auth middleware, so Wagtail's check for
+        # private pages fails reading request.session or request.user. Those pages can't
+        # be viewed here, and the locale fallback must not redirect back to the same page.
+        if settings.WAGTAIL_ENABLE_ADMIN or error.obj is not request or error.name not in ("session", "user"):
             raise
+        logger.warning("Private page requested without the admin enabled: %s", request.path)
         mark_locale_fallback_exempt(request)
         raise Http404
     return wagtail_response

@@ -171,32 +171,27 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # pages always reflect their current public title.
         return self.internal_title or super().get_admin_display_title()
 
-    def _cms_domain_request(self, request):
-        """The request to build this page's URLs when pointing at the CMS domain:
-        a private page, viewed on a deployment with the admin through the CMS domain."""
-        request = request or current_request.get()
-        if (
+    def _is_cms_domain_request(self, request):
+        """Whether this page's URLs should point at the CMS domain: a private page, viewed
+        on a deployment with the admin through the CMS domain."""
+        return (
             settings.WAGTAIL_ENABLE_ADMIN
             and settings.CMS_PROD_DOMAIN
             and request is not None
             and request.get_host() == settings.CMS_PROD_DOMAIN
             and self.get_view_restrictions().exists()
-        ):
-            return request
-        return None
+        )
 
-    def _on_cms_domain_if_private(self, url_parts, request):
+    def _switch_to_cms_domain_if_private(self, url_parts, request):
         """Swap the site root URL in a get_url_parts() tuple for the CMS domain when this page is private."""
-        if url_parts is None or url_parts[1] is None:
-            return url_parts
-        cms_domain_request = self._cms_domain_request(request)
-        if cms_domain_request is None:
+        request = request or current_request.get()
+        if url_parts is None or url_parts[1] is None or not self._is_cms_domain_request(request):
             return url_parts
         site_id, root_url, page_path = url_parts
-        return (site_id, f"{cms_domain_request.scheme}://{settings.CMS_PROD_DOMAIN}", page_path)
+        return (site_id, f"{request.scheme}://{settings.CMS_PROD_DOMAIN}", page_path)
 
     def get_url_parts(self, request=None):
-        return self._on_cms_domain_if_private(super().get_url_parts(request), request)
+        return self._switch_to_cms_domain_if_private(super().get_url_parts(request), request)
 
     def get_url(self, request=None, current_site=None):
         """Always return a full URL for private pages linked from the CMS domain.
@@ -205,7 +200,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         they should remain on the same domain since the CMS admin is necessary for
         the private page authentication.
         """
-        if self._cms_domain_request(request):
+        if self._is_cms_domain_request(request or current_request.get()):
             return self.get_full_url(request)
         return super().get_url(request, current_site)
 

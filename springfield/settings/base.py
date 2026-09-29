@@ -761,8 +761,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
     "springfield.cms.middleware.CurrentRequestMiddleware",
+    "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
 ]
 

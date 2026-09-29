@@ -3486,7 +3486,7 @@ def test_springfield_link_block_page_handles_absolute_page_url(tiny_localized_si
     with (
         mock.patch("django.utils.translation.get_language", return_value="es-AR"),
         mock.patch.object(
-            type(en_us_page),
+            type(en_us_page.specific),
             "url",
             new_callable=lambda: property(lambda self: "http://localhost:8000/en-US/test-page/"),
         ),
