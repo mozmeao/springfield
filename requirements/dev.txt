@@ -17,6 +17,7 @@ asgiref==3.12.1 \
     #   -r requirements/prod.txt
     #   django
     #   django-cors-headers
+    #   django-htmx
 attrs==26.1.0 \
     --hash=sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309 \
     --hash=sha256:d03ceb89cb322a8fd706d4fb91940737b6642aa36998fe130a9bc96c985eff32
@@ -574,6 +575,7 @@ django==5.2.16 \
     #   django-csp
     #   django-extensions
     #   django-filter
+    #   django-htmx
     #   django-includecontents
     #   django-jinja
     #   django-memoize
@@ -619,6 +621,10 @@ django-filter==26.1 \
     # via
     #   -r requirements/prod.txt
     #   wagtail
+django-htmx==1.29.0 \
+    --hash=sha256:0ec5be1645ed71e6787bd75e0250624f00274ac3bb1730f07b6629a95688929b \
+    --hash=sha256:337dfa35b8da13fd68bf968f2b9cc9a4144a4e71f06c204d7ff10f7343988102
+    # via -r requirements/prod.txt
 django-includecontents==4.0.2 \
     --hash=sha256:cb6e9917c4ab9a73ae0a94c66c66b25c068031c0a919588f69b2a870203b31b4 \
     --hash=sha256:ec7fbb506a6ba97aa5aec9d5f456582a12c06693ad88c021c48135b6599d5633

@@ -1,0 +1,18 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# htmx swaps this placeholder for the contact page's form once the page loads.
+   `form_url` is unset when that contact page may not be shown. #}
+
+{% if form_url %}
+  <div class="fl-contact-form-wrapper" hx-get="{{ form_url }}" hx-trigger="load" hx-swap="outerHTML">
+    <noscript>
+      <include:notification color="orange">
+        {{ ftl("ui-please-turn-on-javascript", ftl_files=["ui"]) }}
+      </include:notification>
+    </noscript>
+  </div>
+{% endif %}
