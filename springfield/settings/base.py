@@ -761,6 +761,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "springfield.cms.middleware.CurrentRequestMiddleware",
     "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
 ]
@@ -1390,6 +1391,8 @@ WAGTAIL_ENABLE_UPDATE_CHECK = False
 
 # Custom setting (not a Wagtail core one) that we use to plug in/unplug the admin UI entirely
 WAGTAIL_ENABLE_ADMIN = config("WAGTAIL_ENABLE_ADMIN", default="false", parser=bool)
+# The production domain for the CMS admin interface
+CMS_HOSTNAME = config("CMS_HOSTNAME", default="")
 
 if WAGTAIL_ENABLE_ADMIN:
     # Enable Middleware essential for admin

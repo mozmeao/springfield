@@ -89,10 +89,10 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.middleware import mark_locale_fallback_exempt
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
+from springfield.cms.utils import mark_locale_fallback_exempt
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData

@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
+from contextvars import ContextVar
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +14,22 @@ from wagtail.models import Locale, Page, Site
 from springfield.base.i18n import split_path_and_normalize_language
 
 logger = logging.getLogger(__name__)
+
+# Request attribute a page can set to say "my 404 is deliberate -- do not try to
+# locale-fall-back it". Needed because CMSLocaleFallbackMiddleware treats a 404 as "no page
+# matched this path", which is false for a page that rejects its own request; the
+# fallback lookup would rediscover that page and redirect to it in a loop.
+# Set it via mark_locale_fallback_exempt() before raising Http404.
+LOCALE_FALLBACK_EXEMPT_ATTR = "cms_locale_fallback_exempt"
+
+# The request being served, for code that builds page URLs without one (e.g. page.url
+# in templates and blocks). Set by CurrentRequestMiddleware.
+current_request = ContextVar("current_request", default=None)
+
+
+def mark_locale_fallback_exempt(request):
+    """Exempt this request's 404 from CMS locale-fallback redirection."""
+    setattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, True)
 
 
 def get_page_for_request(*, request):

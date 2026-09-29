@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.urls import Resolver404, resolve
@@ -23,7 +23,6 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -690,6 +689,9 @@ class SpringfieldLinkBlockURLValue(URLValue):
         if link_to == "page":
             page = self.get("page")
             if page:
+                # The chooser returns a plain wagtail Page; URLs must come from the specific
+                # class so our page URL overrides apply. Deferred, so it adds no query.
+                page = page.specific_deferred
                 try:
                     locale = SpringfieldLocale.get_active()
                     # Get the active language, so we can use it to determine the URL to return.
@@ -703,7 +705,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # The translated page does not match the active language;
                         # we reconstruct the URL using the URL-facing locale prefix.
                         return self._with_locale_prefix(translated_page.url, active_lang)
-                    except Page.DoesNotExist:
+                    except ObjectDoesNotExist:
                         # This means that this page has no translation for this locale.
                         # In case this is rendered as a fallback page (the user
                         # requested /es-AR/somepage, but that page doesn't exist

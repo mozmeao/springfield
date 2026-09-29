@@ -5,16 +5,18 @@
 from unittest import mock
 
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
 from django.test import override_settings
 from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
+from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     FreeFormPage2026,
@@ -73,6 +75,45 @@ def test_cache_control_headers_on_pages_with_view_restrictions(
     response = client.get(_relative_url)
 
     assert response.get("Cache-Control") == expected_headers
+
+
+@pytest.mark.parametrize(
+    "admin_enabled, CMS_HOSTNAME, is_private, request_host, expected_url",
+    (
+        (True, "cms.example.com", True, "cms.example.com", "http://cms.example.com/en-US/test-page/"),
+        (True, "cms.example.com", True, "testserver", "/en-US/test-page/"),
+        (True, "cms.example.com", False, "cms.example.com", "/en-US/test-page/"),
+        (False, "cms.example.com", True, "cms.example.com", "/en-US/test-page/"),
+        (True, "", True, "cms.example.com", "/en-US/test-page/"),
+    ),
+    ids=[
+        "Private page requested from the CMS domain links to the CMS domain",
+        "Private page requested from another domain keeps the site URL",
+        "Public page keeps the site URL",
+        "Private page without admin keeps the site URL",
+        "Private page without a CMS domain keeps the site URL",
+    ],
+)
+def test_private_page_urls_use_CMS_HOSTNAME(admin_enabled, CMS_HOSTNAME, is_private, request_host, expected_url, minimal_site, rf):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    if is_private:
+        PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    request = rf.get("/", HTTP_HOST=request_host)
+
+    with override_settings(WAGTAIL_ENABLE_ADMIN=admin_enabled, CMS_HOSTNAME=CMS_HOSTNAME, ALLOWED_HOSTS=["*"]):
+        assert page.get_url(request) == expected_url
+
+
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_private_page_url_without_a_request_uses_the_current_request(minimal_site, rf):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    middleware = CurrentRequestMiddleware(get_response=lambda request: HttpResponse(page.url))
+
+    response = middleware(rf.get("/", HTTP_HOST="cms.example.com"))
+
+    assert response.content.decode() == "http://cms.example.com/en-US/test-page/"
+    assert page.url == "/en-US/test-page/"
 
 
 def test_StructuralPage_serve_methods(

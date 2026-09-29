@@ -573,7 +573,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         if parent_parts is None:
             return super().get_url_parts(request)
         site_id, root_url, parent_path = parent_parts
-        return (site_id, root_url, f"{parent_path}topics/{self.topic.slug}/")
+        return self._switch_to_cms_domain_if_private((site_id, root_url, f"{parent_path}topics/{self.topic.slug}/"), request)
 
     def route(self, request, path_components):
         """Refuse to serve at this page's own tree path, so topics/<slug>/ is the only URL
