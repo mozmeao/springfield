@@ -34,7 +34,7 @@
     text-decoration: underline;
 }
 
-.fl-resources-column .fl-heading-sm {
+.fl-resources-column .fl-heading-xs {
     border-block-end: 1px solid var(--fl-subtle-border-color);
 }
 
