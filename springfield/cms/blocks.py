@@ -2901,6 +2901,10 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
 
     class _SectionBlock(blocks.StructBlock):
         settings = SectionBlockSettings()
+        pictogram = ImageChooserBlock(
+            required=False,
+            help_text=("Optional small (100px) image displayed centered above the heading."),
+        )
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [

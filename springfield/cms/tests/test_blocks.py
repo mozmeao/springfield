@@ -8,6 +8,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -114,6 +115,7 @@ from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
+    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -4301,6 +4303,95 @@ def test_section_block_accepts_button_row():
     block = SectionBlock(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
+
+
+def test_section_block_pictogram_is_optional():
+    block = SectionBlock(require_heading=False)
+
+    assert block.child_blocks["pictogram"].field.required is False
+
+
+def test_section_block_without_pictogram_key_defaults_to_none():
+    block = SectionBlock(require_heading=False)
+
+    value = block.to_python({"heading": {"heading_text": '<p data-block-key="sec1">Section</p>'}})
+
+    assert value["pictogram"] is None
+
+
+def test_section_block_renders_decorative_svg_pictogram(index_page, rf):
+    pictogram = SpringfieldImage.objects.create(
+        title="Sovereignty pictogram",
+        is_decorative=True,
+        file=ContentFile(
+            b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40"/></svg>',
+            name="sovereignty-pictogram.svg",
+        ),
+    )
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "pictogram": pictogram.pk,
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic1">Sovereignty</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00001-0000-0000-0000-000000000001",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "Pictogram wrapper should render when an image is set"
+
+    rendered = wrapper.find("img")
+    assert rendered, "Pictogram should render an img element"
+    assert rendered["src"].endswith(".svg"), "An SVG pictogram should stay an SVG"
+    assert rendered["alt"] == "", "A decorative pictogram should render an empty alt attribute"
+
+
+def test_section_block_without_pictogram_renders_no_wrapper(index_page, rf):
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic2">No pictogram</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00002-0000-0000-0000-000000000002",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("div", class_="fl-section-pictogram") is None
+
+
+def test_freeform_page_fixture_section_renders_a_pictogram(index_page, rf):
+    page = get_freeform_page_test_page()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "The fixture page shows a section with a pictogram"
+    image = wrapper.find("img")
+    assert image, "Pictogram should render an img element"
+    assert image["alt"] == "", "The fixture pictogram is decorative, so its alt is empty"
 
 
 def test_two_column_card_accepts_button_row():

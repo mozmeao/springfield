@@ -197,37 +197,6 @@
         color: var(--fl-theme-color-link);
     }
 
-    #sovereignty .fl-superheading::before,
-    #security .fl-superheading::before,
-    #resilience .fl-superheading::before,
-    #trust .fl-heading::before {
-        align-items: center;
-        background-image: url('/media/img/firefox/enterprise/sovereignty-pictogram.svg');
-        background-repeat: no-repeat;
-        background-size: contain;
-        block-size: 100px;
-        content: '';
-        display: flex;
-        inline-size: 100px;
-        justify-content: center;
-        margin-block-end: var(--fl-section-v-padding);
-        margin-inline: auto;
-    }
-
-    #security .fl-superheading::before {
-        background-image: url('/media/img/firefox/enterprise/security-pictogram.svg');
-    }
-
-    #resilience .fl-superheading::before {
-        background-image: url('/media/img/firefox/enterprise/resilience-pictogram.svg');
-    }
-
-    #trust .fl-heading::before {
-        background-image: url('/media/img/firefox/enterprise/shield-lock.svg');
-        block-size: 60px;
-        inline-size: 60px;
-    }
-
     #sovereignty .fl-card .fl-card-top-media .fl-card-media-icon {
         background: radial-gradient(
             192.02% 122.89% at 50% -19.16%,

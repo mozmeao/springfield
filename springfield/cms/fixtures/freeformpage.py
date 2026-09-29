@@ -2,7 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from pathlib import Path
+
 from django.conf import settings
+from django.core.files.base import ContentFile
 
 from springfield.cms.fixtures.base_fixtures import (
     get_flare_blocks_docs_page,
@@ -23,7 +26,7 @@ from springfield.cms.fixtures.snippet_fixtures import (
     get_scroll_to_see_more_snippet,
     get_set_as_default_snippet,
 )
-from springfield.cms.models import FreeFormPage2026
+from springfield.cms.models import FreeFormPage2026, SpringfieldImage
 from springfield.cms.models.pages import PencilBannerPlacement
 
 SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
@@ -164,6 +167,22 @@ def get_mobile_store_qr_code_test_page() -> FreeFormPage2026:
     return page
 
 
+def get_sovereignty_pictogram() -> SpringfieldImage:
+    """Load (idempotently) the sovereignty pictogram from the media directory."""
+    title = "Sovereignty pictogram"
+    image = SpringfieldImage.objects.filter(title=title).first()
+    if image:
+        return image
+    filename = "sovereignty-pictogram.svg"
+    file_path = Path(settings.ROOT) / "media" / "img" / "firefox" / "enterprise" / filename
+    with file_path.open("rb") as pictogram_file:
+        return SpringfieldImage.objects.create(
+            title=title,
+            is_decorative=True,
+            file=ContentFile(pictogram_file.read(), name=filename),
+        )
+
+
 def get_freeform_page_test_page() -> FreeFormPage2026:
     index_page = get_flare_pages_docs_page()
 
@@ -177,6 +196,8 @@ def get_freeform_page_test_page() -> FreeFormPage2026:
         },
     )
 
+    pictogram = get_sovereignty_pictogram()
+
     page.upper_content = [get_mobile_store_qr_code()]
     page.content = with_fresh_ids(
         [
@@ -184,6 +205,7 @@ def get_freeform_page_test_page() -> FreeFormPage2026:
                 "type": "section",
                 "value": {
                     "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                    "pictogram": pictogram.pk,
                     "heading": {
                         "superheading_text": "",
                         "heading_text": '<p data-block-key="sh1ff">Find the Firefox that fits you.</p>',
