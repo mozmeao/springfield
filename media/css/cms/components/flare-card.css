@@ -323,6 +323,9 @@ Filled Card variant
 
 .fl-card.fl-card-filled.fl-form-card {
     background: white;
+    margin-block-start: var(--token-layout-md);
+    margin-inline: auto;
+    max-block-size: var(--token-width-desktop-content-sm);
     min-block-size: 0;
     padding: var(--token-layout-xs);
 }
