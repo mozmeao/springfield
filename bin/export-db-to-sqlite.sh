@@ -185,6 +185,7 @@ python manage.py dumpdata \
     cms.ContactPage \
     cms.ReferralHubPage \
     cms.ReferralGetFirefoxPage \
+    cms.ShareFirefoxPage \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
