@@ -15,3 +15,7 @@ context:
       external: false
       icon_name: ""
       icon_position: "right"
+  media:
+    url: /media/img/firefox/flare/placeholder.png
+    alt: Firefox browser window
+  scroll_to_see_more_text: Scroll to see more

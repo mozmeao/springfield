@@ -5,7 +5,11 @@
 from __future__ import annotations
 
 import functools
+import hashlib
+import hmac
+import json
 import re
+import time
 import uuid
 from typing import TYPE_CHECKING
 
@@ -23,6 +27,7 @@ from django.utils import translation
 from django.utils.cache import add_never_cache_headers
 
 import requests
+from django_htmx.http import HttpResponseClientRedirect
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
@@ -51,6 +56,7 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
@@ -1109,6 +1115,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("comparison_table", ComparisonTableBlock(group="Main")),
         ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
         ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
+        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
         ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
         (
             "banner_snippet",
@@ -1779,6 +1786,9 @@ class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 BASKET_CONTACT_ENTERPRISE_PATH = "/api/v1/contact/enterprise/"
+BASKET_CONTACT_BASIC_PATH = "/api/v1/contact/basic/"
+# Accepts any form fields and routes them by form id to destinations configured in basket.
+BASKET_INTAKE_PATH = "/api/v1/intake/"
 
 # The form field identifiers each basket endpoint accepts, mirroring basket's request schemas.
 # Basket's honeypot fields are deliberately absent: the contact page renders its own honeypot
@@ -1806,9 +1816,25 @@ BASKET_ENDPOINT_FIELDS = {
             "message",
         },
     },
+    BASKET_CONTACT_BASIC_PATH: {
+        "required": {
+            "first_name",
+            "last_name",
+            "company",
+            "job_title",
+            "business_email",
+            "country",
+            "accepted_terms",
+        },
+        "optional": {
+            "opt_in",
+            "lead_source",
+            "cta",
+        },
+    },
 }
 
-BASKET_API_PATH_CHOICES = [(path, path) for path in BASKET_ENDPOINT_FIELDS]
+BASKET_API_PATH_CHOICES = [(path, path) for path in [*BASKET_ENDPOINT_FIELDS, BASKET_INTAKE_PATH]]
 
 
 class ContactPageForm(WagtailAdminPageForm):
@@ -1882,6 +1908,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         help_text="Basket endpoint the form posts to. Required if Email Address is unset. Form fields must match what it accepts.",
     )
 
+    basket_form_id = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text=f"Form id basket routes the submission by. Required for {BASKET_INTAKE_PATH}.",
+    )
+
     redirect_to = models.ForeignKey(
         "wagtailcore.Page",
         on_delete=models.PROTECT,
@@ -1894,6 +1926,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     thank_you_message = RichTextField(
         blank=True,
         help_text="Message shown in place of the form after a successful submission. Required if Redirect To is not set.",
+    )
+
+    document_download = models.ForeignKey(
+        "wagtaildocs.Document",
+        on_delete=models.PROTECT,
+        related_name="+",
+        null=True,
+        blank=True,
+        help_text="File offered for download alongside the thank you message, once the form has been submitted.",
+    )
+
+    document_download_label = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Fallback text for the download link in case JavaScript is disabled. Required if a file is set.",
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
@@ -1913,7 +1960,10 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("to_email_address"),
                 FieldPanel("basket_api_path"),
+                FieldPanel("basket_form_id"),
                 FieldPanel("redirect_to"),
+                FieldPanel("document_download"),
+                FieldPanel("document_download_label"),
             ],
             heading="Form Submission Settings",
         ),
@@ -1923,6 +1973,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         index.SearchField("intro"),
         index.SearchField("form_fields"),
         index.SearchField("thank_you_message"),
+        index.SearchField("document_download_label"),
     ]
 
     override_translatable_fields = [
@@ -1952,7 +2003,13 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["to_email_address"] = msg
             errors["basket_api_path"] = msg
 
-        if has_basket and not has_email:
+        if self.basket_api_path == BASKET_INTAKE_PATH:
+            if not self.basket_form_id:
+                errors["basket_form_id"] = f"{BASKET_INTAKE_PATH} requires a form id."
+        elif self.basket_form_id:
+            errors["basket_form_id"] = f"Only {BASKET_INTAKE_PATH} uses a form id."
+
+        if has_basket and not has_email and self.basket_api_path != BASKET_INTAKE_PATH:
             allowed_fields = BASKET_ENDPOINT_FIELDS.get(self.basket_api_path)
             if allowed_fields is None:
                 errors["basket_api_path"] = f"{self.basket_api_path} is not a basket endpoint."
@@ -1979,15 +2036,33 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             errors["redirect_to"] = msg
             errors["thank_you_message"] = msg
 
+        if self.document_download and not self.document_download_label:
+            errors["document_download_label"] = "Set the text for the download link."
+
+        if self.document_download and self.redirect_to:
+            # A redirect replaces the success template the download link lives in.
+            msg = "Set either a redirect page or a document download, not both."
+            errors["redirect_to"] = msg
+            errors["document_download"] = msg
+
         if errors:
             raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["form"] = getattr(request, "form", None)
+        request.needs_htmx = True
         if getattr(request, "form_success", False):
             context["form_success"] = True
+        if request.GET.get("two_column"):
+            context["two_column"] = True
         return context
+
+    def get_template(self, request, *args, **kwargs):
+        """Serve only the form to htmx since it only needs that portion of the page."""
+        if getattr(request, "htmx", False):
+            return "cms/includes/contact-form.html"
+        return super().get_template(request, *args, **kwargs)
 
     def serve(self, request, *args, **kwargs):
         request.form = self.get_form(request)
@@ -2007,7 +2082,12 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             request.form_success = success
 
             if success and self.redirect_to:
-                return redirect(self.redirect_to.localized.url)
+                url = self.redirect_to.localized.url
+                if getattr(request, "htmx", False):
+                    # A 302 gets swapped into the wrapper by htmx; HX-Redirect
+                    # navigates the whole window instead.
+                    return HttpResponseClientRedirect(url)
+                return redirect(url)
 
         response = super().serve(request, *args, **kwargs)
         add_never_cache_headers(response)
@@ -2054,11 +2134,22 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
                     raise forms.ValidationError(ftl_lazy("contact-form-error-empty", ftl_files=self.ftl_files))
                 return _self.cleaned_data
 
-        # auto_id="%s" keeps the rendered ids equal to the author-defined internal identifiers
-        # instead of Django's "id_" prefixed defaults.
-        if request.method == "POST":
-            return ContactForm(request.POST, auto_id="%s")
-        return ContactForm(auto_id="%s")
+        # A form loaded into another page is told its number, so its element ids stay unique there.
+        submitted = request.GET.get("form_instance", "")
+        # isdecimal() rejects digits int() can't parse (e.g. "²"); the length cap stays under int()'s digit limit.
+        if submitted.isdecimal() and len(submitted) <= 4:
+            number = int(submitted)
+        else:
+            number = self.next_form_number(request)
+        form = ContactForm(request.POST if request.method == "POST" else None, auto_id=f"contact-{number}-%s")
+        form.id_prefix = f"contact-{number}-"
+        return form
+
+    @staticmethod
+    def next_form_number(request) -> int:
+        """Return a form number not yet used by another contact form in this request."""
+        request.contact_form_count = getattr(request, "contact_form_count", 0) + 1
+        return request.contact_form_count
 
     def _collect_field_values(self, form):
         """Return submitted values keyed by internal_identifier, normalized to the
@@ -2112,10 +2203,21 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
         success = None
         form_data = self._collect_field_values(request.form)
+        # Serialized here rather than via requests' json= so the intake signature covers the exact bytes sent.
+        headers = {"Content-Type": "application/json"}
+        if self.basket_api_path == BASKET_INTAKE_PATH:
+            body = json.dumps({"form_id": self.basket_form_id, "data": form_data, "source_url": self.full_url}).encode()
+            timestamp = int(time.time())
+            signature = hmac.new(settings.BASKET_INTAKE_HMAC_SECRET.encode(), f"{timestamp}.".encode() + body, hashlib.sha256).hexdigest()
+            headers["X-Api-Key"] = settings.BASKET_API_KEY
+            headers["X-Basket-Signature"] = f"t={timestamp},v1={signature}"
+        else:
+            body = json.dumps(form_data).encode()
         try:
             api_response = requests.post(
                 f"{settings.BASKET_URL}{self.basket_api_path}",
-                json=form_data,
+                data=body,
+                headers=headers,
                 timeout=settings.BASKET_TIMEOUT,
             )
             if api_response.ok:

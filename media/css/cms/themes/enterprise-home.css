@@ -1,0 +1,21 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+/* Enterprise theme styles */
+@layer page {
+    .enterprise-home .has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
+        background-position: bottom center;
+    }
+
+    .enterprise-home .fl-main.has-gradient-bottom {
+        background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
+        background-position: bottom right;
+    }
+}

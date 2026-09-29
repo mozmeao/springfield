@@ -155,6 +155,7 @@ VIDEO_ASPECT_RATIO_CHOICES = [
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_NEW_TAB_CUSTOMIZE = "open_new_tab_customize"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
@@ -169,6 +170,7 @@ UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
@@ -188,6 +190,7 @@ UITOUR_BUTTON_CHOICES = (
 
 UI_TOUR_CLASSES = {
     UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_NEW_TAB_CUSTOMIZE: "ui-tour-open-new-tab-customize",
     UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
     UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
@@ -1224,6 +1227,26 @@ class TagsBlock(blocks.ListBlock):
         label_format = "Tags"
 
 
+class CertificationItemBlock(blocks.StructBlock):
+    text = blocks.CharBlock()
+    link = SpringfieldLinkBlock(required=False)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification"
+        label_format = "{text}"
+
+
+class CertificationListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(CertificationItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification List"
+        label_format = "Certification List"
+        template = "cms/blocks/certification-list.html"
+
+
 # Comparison Table
 
 
@@ -2021,6 +2044,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
                 ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                ("contact_form", ContactFormBlock()),
                 (
                     "buttons",
                     MixedButtonsBlock(
@@ -2356,9 +2380,13 @@ def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
+    pictogram = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom pictogram image to be displayed on the left of the headings.",
+    )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=0,
@@ -2922,6 +2950,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
+                ("certification_list", CertificationListBlock()),
             ],
             required=False,
         )
@@ -3163,6 +3192,12 @@ class KitBlockSettings(blocks.StructBlock):
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet",
+            label="Scroll To See More Snippet",
+            required=False,
+            help_text="Only shown when the block has media.",
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
@@ -3170,11 +3205,21 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             max_num=2,
             required=False,
         )
+        media = MediaBlock(
+            max_num=1,
+            min_num=0,
+            required=False,
+            help_text="Sits below the buttons, flush with the bottom edge of the section.",
+        )
 
         class Meta:
             template = "cms/blocks/kit-intro.html"
             label = "Kit Intro"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "buttons", "media"],
+                settings=["settings", "scroll_to_see_more_snippet"],
+            )
 
     return _KitIntroBlock(*args, **kwargs)
 
@@ -3803,6 +3848,74 @@ class CountrySelectFieldBlock(BaseField):
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
+
+
+class ContactFormBlock(blocks.StructBlock):
+    """Loads a chosen contact page's form into another page.
+
+    The form is fetched from the contact page with htmx after the host page loads, so
+    the host page carries no per-visitor CSRF token and stays cacheable. The contact
+    page owns rendering and submission handling.
+    """
+
+    contact_page = blocks.PageChooserBlock(target_model="cms.ContactPage")
+    two_column = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Two Column Layout",
+        help_text="Render the form fields in two columns on large screens.",
+    )
+
+    class Meta:
+        icon = "mail"
+        template = "cms/blocks/contact-form.html"
+        label = "Contact Form"
+        label_format = "Contact Form - {contact_page}"
+        form_layout = blocks.BlockGroup(
+            children=["contact_page"],
+            settings=["two_column"],
+        )
+
+    def contact_page_is_invalid(self, contact_page):
+        if not contact_page.live:
+            return "The selected contact page is not published."
+        elif contact_page.get_view_restrictions():
+            return "The selected contact page is private, so its form cannot be shown on another page."
+        elif not contact_page.url:
+            return "The selected contact page has no public URL."
+        return None
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        contact_page = cleaned["contact_page"]
+        error = self.contact_page_is_invalid(contact_page)
+        if error:
+            raise StructBlockValidationError(block_errors={"contact_page": ValidationError(error)})
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # Set on every render so a `form_url` from the parent context never leaks in.
+        context["form_url"] = None
+        request = context.get("request")
+        contact_page = value.get("contact_page")
+        if not (request and contact_page):
+            return context
+
+        contact_page = contact_page.localized
+        if self.contact_page_is_invalid(contact_page):
+            return context
+
+        request.needs_htmx = True
+        # Host query params feed hidden fields' query_param_override on the contact page.
+        params = request.GET.copy()
+        params["form_instance"] = contact_page.next_form_number(request)
+        if value.get("two_column"):
+            params["two_column"] = "1"
+        else:
+            params.pop("two_column", None)
+        context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
+        return context
 
 
 # Navigation

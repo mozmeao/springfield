@@ -4,7 +4,7 @@
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False, anchor_id=None, extra_class="" #}
+{# props icon=None, color=None, theme=None, closable=False, stacked=False, reverse_icon=False, anchor_id=None, role=None, extra_class="" #}
 
 {% set closable = false if stacked else closable %}
 
@@ -14,6 +14,7 @@
   {% if theme and theme == 'dark' %}fl-force-dark-theme{% endif %}
   {% if extra_class %} {{ extra_class }}{% endif %}"
   {% if anchor_id %}id="{{ anchor_id }}"{% endif %}
+  {% if role %}role="{{ role }}"{% endif %}
 >
   <div class="
     fl-notification

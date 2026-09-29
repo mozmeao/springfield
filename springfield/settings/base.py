@@ -324,6 +324,7 @@ FLUENT_DEFAULT_FILES = [
     "mozilla-account-promo",
     "components",
     "firefox/enterprise",
+    "cms/contact",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -761,6 +762,7 @@ MIDDLEWARE = [
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
     "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ENABLE_CSP_MIDDLEWARE = config("ENABLE_CSP_MIDDLEWARE", default="true", parser=bool)
@@ -779,6 +781,7 @@ INSTALLED_APPS = [
     # L10n
     "product_details",
     # third-party apps
+    "django_htmx",
     "django_jinja_markdown",
     "django_jinja",
     "waffle",
@@ -947,6 +950,8 @@ PATTERN_LIBRARY = {
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
 BASKET_API_KEY = config("BASKET_API_KEY", default="")
+# Signs requests to basket's intake endpoint, paired with BASKET_API_KEY.
+BASKET_INTAKE_HMAC_SECRET = config("BASKET_INTAKE_HMAC_SECRET", default="")
 BASKET_TIMEOUT = config("BASKET_TIMEOUT", parser=int, default="10")
 BASKET_SUBSCRIBE_URL = f"{BASKET_URL}/news/subscribe/"
 

@@ -107,6 +107,51 @@ class TestReleaseViews(TestCase):
         mock_release_notes_template.assert_called_with(mock_release.channel, "Firefox", 34)
 
     @patch("springfield.releasenotes.views.get_release_or_404")
+    def test_enterprise_release_notes_skips_mdn_note(self, get_release_or_404):
+        """Enterprise releases must not receive the injected MDN Developer Information note."""
+        mock_release = get_release_or_404.return_value
+        mock_release.product = "Firefox Enterprise"
+        mock_release.major_version = "145"
+        mock_release.get_notes.return_value = []
+
+        views.release_notes(self.request, "145.0", product="Firefox Enterprise")
+
+        assert not any(note.get("id") == "mdn" for note in self.last_ctx["release_notes"])
+
+    @patch("springfield.releasenotes.views.get_latest_release")
+    @patch("springfield.releasenotes.views.get_release_or_404")
+    def test_release_notes_flags_whether_enterprise_notes_are_live(self, get_release_or_404, get_latest_release):
+        """The context says whether any Enterprise release is live, so the subnav can hide a link that would 404."""
+        get_release_or_404.return_value.major_version = "145"
+        get_release_or_404.return_value.get_notes.return_value = []
+
+        get_latest_release.return_value = None
+        views.release_notes(self.request, "145.0")
+        assert self.last_ctx["has_enterprise_notes"] is False
+
+        get_latest_release.return_value = enterprise_release()
+        views.release_notes(self.request, "145.0")
+        assert self.last_ctx["has_enterprise_notes"] is True
+        get_latest_release.assert_called_with("Firefox Enterprise", "release")
+
+    @override_settings(DEV=False)
+    def test_has_enterprise_notes_ignores_unpublished_releases(self):
+        """An Enterprise release that is not yet public must not make the link appear."""
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is False
+
+        release = enterprise_release()
+        release.is_public = False
+        release.save()
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is False
+
+        release.is_public = True
+        release.save()
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is True
+
+    @patch("springfield.releasenotes.views.get_release_or_404")
     def test_release_notes_beta_redirect(self, get_release_or_404):
         """
         Should redirect to url for beta release
@@ -179,14 +224,14 @@ class TestReleaseViews(TestCase):
         for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
             button = release_notes_document.select_one(f"#{element_id}")
             assert button["href"] == reverse("firefox.enterprise.index")
-            assert button.get_text(strip=True) == "Download Firefox Enterprise"
+            assert button.get_text(strip=True) == "Request Early Access"
 
     def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):
         """Enterprise release notes mark Enterprise as the current subnavigation entry."""
         rendered = render_to_string(
             request=RequestFactory().get("/en-US/firefox/enterprise/145.0/releasenotes/"),
             template_name="firefox/releases/release-notes.html",
-            context={"release_notes": [], "release": enterprise_release()},
+            context={"release_notes": [], "release": enterprise_release(), "has_enterprise_notes": True},
         )
         release_notes_document = BeautifulSoup(rendered, "html.parser")
         subnav_entries = [(link.get_text(strip=True), link.get("aria-current")) for link in release_notes_document.select(".fl-subnav-list a")]
@@ -197,6 +242,23 @@ class TestReleaseViews(TestCase):
             ("Desktop Nightly", None),
             ("Android", None),
             ("iOS", None),
+        ]
+
+    def test_enterprise_subnav_entry_hidden_until_enterprise_notes_are_live(self):
+        """Without a live Enterprise release the subnav omits the Enterprise link, which would 404."""
+        rendered = render_to_string(
+            request=RequestFactory().get("/en-US/firefox/145.0/releasenotes/"),
+            template_name="firefox/releases/release-notes.html",
+            context={"release_notes": [], "release": enterprise_release(), "has_enterprise_notes": False},
+        )
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        subnav_entries = [link.get_text(strip=True) for link in release_notes_document.select(".fl-subnav-list a")]
+        assert subnav_entries == [
+            "Desktop",
+            "Desktop Beta & Developer Edition",
+            "Desktop Nightly",
+            "Android",
+            "iOS",
         ]
 
     def test_notes_template_includes_progressive_rollout_indicator_if_appropriate(self):

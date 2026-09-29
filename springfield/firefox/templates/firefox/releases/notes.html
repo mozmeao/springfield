@@ -52,18 +52,24 @@
    `fl-force-download-cta` so the CTA survives that rule. #}
 {% set download_cta_class = download_cta_class|default('') %}
 
+{# The Kit illustration in the page header. Products can pick another kit class, such as
+   `has-sitting-kit`, or set this to an empty string to show no Kit. #}
+{% set kit_class = kit_class|default('has-curious-kit') %}
+
 {% block sub_navigation %}
+  {# The Enterprise link redirects to the latest Enterprise release, which 404s until
+     one has been published, so the view only sets this once there is one to show. #}
+  {% set enterprise_links = [{
+      'text': ftl('sub-navigation-enterprise'),
+      'href': url('firefox.enterprise.notes'),
+    }] if has_enterprise_notes else [] %}
   <include:subnav
     heading_text="{{ ftl('sub-navigation-release-notes') }}"
     links="{{ [
     {
       'text': ftl('sub-navigation-desktop'),
       'href': equivalent_release_url if release.channel == 'Release' and release.product == 'Firefox for Android' and equivalent_release_url else url('firefox.notes'),
-    },
-    {
-      'text': ftl('sub-navigation-enterprise'),
-      'href': url('firefox.enterprise.notes'),
-    },
+    }] + enterprise_links + [
     {
       'text': ftl('sub-navigation-desktop-beta-and-developer'),
       'href': url('firefox.notes', channel='beta'),
@@ -96,7 +102,7 @@
   <div class="fl-main has-gradient-bottom">
     <article id="main-content">
 
-      <div class="fl-split-page-upper has-gradient-bottom has-curious-kit">
+      <div class="fl-split-page-upper has-gradient-bottom {{ kit_class }}">
         <section class="fl-section">
           <div class="fl-section-container">
 

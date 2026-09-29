@@ -48,4 +48,134 @@
             --section-border-radius: var(--token-border-radius-xl);
         }
     }
+
+    /* Homepage hero: a Kit Intro carrying media. The rules below only apply to
+       that combination, so the block renders as before until an image is set.
+       The illustration includes the fox, so the tail is dropped, and the
+       standard glow gives way to the custom fade and highlight below. */
+    .fl-home-body .has-home-intro-media .fl-home-intro::before,
+    .fl-home-body .has-home-intro-media.has-gradient-bottom-100-always::before {
+        content: none;
+    }
+
+    /* The panel darkens behind the copy for contrast, then holds a lighter
+       purple down to its edge. The bottom band, the height of the corner
+       radius, matches the lavender the fade below ends on, so Firefox's
+       anti-aliasing of the rounded corners shows no rim of another colour. */
+    .fl-home-body .fl-section.has-home-intro-media {
+        background: linear-gradient(
+            180deg,
+            var(--token-color-dark-purple) 0,
+            var(--token-color-purple) 240px,
+            var(--token-color-purple)
+                calc(100% - var(--fl-theme-main-border-radius)),
+            var(--token-color-soft-purple)
+                calc(100% - var(--fl-theme-main-border-radius))
+        );
+    }
+
+    /* The fade to lavender and the pale pink highlight start above the image,
+       in a layer wider than the panel that the panel clips. The extra stops
+       ease purple into lavender so the change reads as a feather, not a line.
+       The highlight is capped at 2000px wide so it stays a centred ellipse on
+       very wide screens. The colours are the current custom treatment for
+       this page rather than tokens. */
+    .fl-home-body .has-home-intro-media .fl-home-intro-media::before {
+        background:
+            radial-gradient(
+                    50% 90% at 50% 100%,
+                    #fff1f8 0%,
+                    rgba(255, 241, 248, 0) 100%
+                )
+                bottom center / min(2000px, 100%) 100% no-repeat,
+            linear-gradient(
+                180deg,
+                var(--token-color-purple) 0%,
+                #40147a 10%,
+                #4f2197 22%,
+                #6333c0 34%,
+                var(--token-color-light-purple) 46%,
+                #a888ee 64%,
+                #dccef9 80%,
+                var(--token-color-soft-purple) 100%
+            );
+        content: '';
+        inset-block: -120px 0;
+        inset-inline: -50vw;
+        position: absolute;
+        z-index: -1;
+    }
+
+    .fl-home-body .has-home-intro-media .fl-home-intro-media {
+        margin-block-start: 0;
+        max-inline-size: var(--token-width-desktop-wide-banner);
+    }
+
+    /* A full width reserves the image's height from its width and height
+       attributes before it loads, so the hero does not shift, and gives Chrome
+       a size to lazy-load against. */
+    .fl-home-body .has-home-intro-media .fl-home-intro-media img {
+        inline-size: 100%;
+    }
+
+    /* The pill sits over the lightest part of the art, where the standard
+       translucent pill leaves its white text unreadable. A darker, mostly
+       opaque purple keeps it legible while letting a little art through, and
+       it is a step smaller so it covers less of the image. */
+    .fl-home-body .has-home-intro-media .fl-scroll-to-see-more {
+        background-color: rgba(97, 50, 188, 0.8);
+        font-size: var(--fl-theme-font-size-body-xs);
+        padding: var(--token-spacing-sm) var(--token-spacing-xl);
+    }
+
+    /* The copy stack is tightened from tablet width up, where the heading is
+       large enough to carry it; phones keep the block's own spacing. */
+    @media (--viewport-sm-up) {
+        /* The eyebrow sits close above the heading, and the subcopy close
+           below it. The heading's bottom margin and the subcopy's top margin
+           collapse, so both are set to the same value. */
+        .fl-home-body .has-home-intro-media .fl-home-intro .fl-heading {
+            margin-block: var(--token-spacing-lg) var(--token-spacing-xl);
+        }
+
+        .fl-home-body .has-home-intro-media .fl-home-intro .fl-subheading {
+            margin-block: var(--token-spacing-xl) var(--token-spacing-2xl);
+        }
+
+        /* Below the subcopy, three margins collapse into one gap: the
+           subcopy's, the heading group's and the button row's. The group's is
+           dropped and the other two match, leaving the button a little more
+           air than the heading has above the subcopy. */
+        .fl-home-body .has-home-intro-media .fl-home-intro .fl-heading-group {
+            margin-block-end: 0;
+        }
+
+        .fl-home-body .has-home-intro-media .fl-home-intro .fl-buttons {
+            margin-block-start: var(--token-spacing-2xl);
+        }
+
+        /* A shorter run between the buttons and the art than the intro's
+           usual bottom padding. */
+        .fl-home-body .has-home-intro-media .fl-home-intro .fl-intro {
+            padding-block-end: var(--token-layout-2xs);
+        }
+    }
+
+    /* While the hero's edge is below the fold the pill stays pinned to the
+       bottom of the viewport, then settles onto that edge as it scrolls into
+       view. Sticky positioning is bounded by the section, so it never travels
+       past the hero, and the zero-height wrapper means the pill rises out of
+       the edge rather than adding space beneath the image. It pins only where
+       it cannot cover the copy on the way down: screens at least 700px tall,
+       and not phones, where the copy stack runs taller than that. */
+    @media (--viewport-sm-up) and (min-height: 700px) {
+        .fl-home-body .has-home-intro-media > .fl-scroll-to-see-more-wrapper {
+            align-items: flex-end;
+            block-size: 0;
+            inset-block-end: 0;
+            inset-inline: auto;
+            position: sticky;
+            z-index: 3;
+        }
+    }
 }

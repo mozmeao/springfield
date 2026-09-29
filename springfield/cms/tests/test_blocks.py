@@ -7,6 +7,7 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -18,7 +19,7 @@ from wagtail import blocks
 from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.blog.fixtures.blog_fixtures import (
@@ -44,7 +45,9 @@ from springfield.cms.blocks import (
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
+    CertificationListBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
@@ -57,6 +60,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TabBlock,
     TabsBlock,
+    TextFieldBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -163,7 +167,7 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_set_as_default_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_scroll_to_see_more_snippet, get_set_as_default_snippet
 from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_sections,
     get_testimonial_cards_test_page,
@@ -174,6 +178,7 @@ from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_
 from springfield.cms.icon_utils import icon_value_fn
 from springfield.cms.models import (
     ArticleDetailPage,
+    ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
     SmartWindowExplainerPage,
@@ -2608,6 +2613,13 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                 heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
+                # Pictogram (optional)
+                header = card_el.find("header", class_="fl-article-item-header")
+                if value.get("pictogram"):
+                    assert header.find("img")
+                else:
+                    assert header.find("img") is None
+
                 # Superheading (optional)
                 if value.get("superheading"):
                     superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
@@ -3036,9 +3048,10 @@ def _springfield_link_data(link_to, **fields):
     return data
 
 
-def test_kit_intro_block(index_page, rf):
+def test_kit_intro_block(index_page, placeholder_images, rf):
     variants = get_kit_intro_variants()
     page = get_kit_intro_test_page()
+    scroll_to_see_more_text = get_scroll_to_see_more_snippet().text
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -3056,11 +3069,31 @@ def test_kit_intro_block(index_page, rf):
 
     for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
         value = variant["value"]
+        section = intro_el.find_parent("section")
 
         heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-        # Kit intro is first block in upper (h1)
-        heading = intro_el.find("h1", class_="fl-heading")
+        # The first Kit Intro on the page is the h1; the ones after it are h2.
+        heading_tag = "h1" if index == 0 else "h2"
+        heading = intro_el.find(heading_tag, class_="fl-heading")
         assert heading and heading_text in heading.get_text()
+
+        media_element = section.find("div", class_="fl-home-intro-media")
+        if value.get("media"):
+            assert "has-home-intro-media" in section["class"]
+            assert_image_variants_attributes(
+                images_element=media_element,
+                images_value=value["media"][0]["value"],
+                sizes="(min-width: 1170px) 1170px, 100vw",
+            )
+        else:
+            assert "has-home-intro-media" not in section["class"]
+            assert media_element is None
+
+        scroll_to_see_more_element = section.find("div", class_="fl-scroll-to-see-more-wrapper")
+        if value.get("media") and value.get("scroll_to_see_more_snippet"):
+            assert scroll_to_see_more_element and scroll_to_see_more_text in scroll_to_see_more_element.get_text()
+        else:
+            assert scroll_to_see_more_element is None
 
         if value["heading"]["superheading_text"]:
             superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
@@ -5117,6 +5150,26 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
     assert panel.find("video") is not None
 
 
+def test_certification_list_block_renders_link_and_plain_items():
+    raw = {
+        "list_items": [
+            {"text": "DORA", "link": _BTN_LINK},
+            {"text": "GDPR"},
+        ]
+    }
+    block = CertificationListBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={})
+    tags = BeautifulSoup(html, "html.parser").select(".fl-certification-list .fl-tag")
+
+    assert tags[0].name == "a"
+    assert tags[0]["href"] == "https://mozilla.org"
+    assert tags[0].get_text() == "DORA"
+
+    assert tags[1].name == "span"
+    assert tags[1].get_text() == "GDPR"
+
+
 def _email_href(html):
     return BeautifulSoup(html, "html.parser").find("a", class_="fl-referral-controls-share-email")["href"]
 
@@ -6096,3 +6149,187 @@ def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notif
         assert_intro_heading(main, condition_class, heading_text, "h1")
 
     assert_section_and_banner_heading_levels(main)
+
+
+# Contact Form Block
+
+
+@pytest.fixture
+def contact_page_for_block(index_page):
+    """A published contact page with two form fields, enough to show the block renders them."""
+    page = ContactPage(
+        title="Contact Us",
+        slug="contact-us",
+        to_email_address="contact@example.com",
+        thank_you_message='<p data-block-key="cfbty1">Thanks for reaching out!</p>',
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "contact-form-block-field-1",
+            },
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "email", "label": "Email Address", "required": True},
+                "id": "contact-form-block-field-2",
+            },
+        ],
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def contact_form_block(contact_page):
+    return {"type": "contact_form", "value": {"contact_page": contact_page.pk}}
+
+
+def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, index_page, rf):
+    """The block renders a placeholder that htmx swaps for the contact page's form.
+
+    The same contact page is embedded twice, so each copy asks for its own form number.
+    Host query params are forwarded for the contact page's hidden field overrides.
+    """
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block",
+        parent=index_page,
+        content=[
+            contact_form_block(contact_page_for_block),
+            {"type": "contact_form", "value": {"contact_page": contact_page_for_block.pk, "two_column": True}},
+        ],
+    )
+
+    response = page.serve(rf.get(page.get_full_url(), {"utm_source": "test", "form_instance": "9", "two_column": "1"}))
+    soup = BeautifulSoup(response.content, "html.parser")
+    main = soup.find(class_="fl-main")
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js")
+
+    placeholders = main.find_all("div", class_="fl-contact-form-wrapper")
+    assert [placeholder["hx-get"] for placeholder in placeholders] == [
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=1",
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=2&two_column=1",
+    ]
+    for placeholder in placeholders:
+        assert placeholder.find_parent("section", class_="fl-section")
+        assert placeholder["hx-trigger"] == "load"
+        assert placeholder["hx-swap"] == "outerHTML"
+        assert placeholder.find("form") is None
+    # No per-visitor CSRF token on the host page, so a shared cache may keep it
+    assert main.find("input", attrs={"name": "csrfmiddlewaretoken"}) is None
+    assert "no-store" not in response.get("Cache-Control", "")
+
+
+def test_form_field_clean_rejects_the_honeypot_internal_identifier():
+    """The contact form posts the `office_fax` honeypot itself, so an author's field cannot claim it."""
+    with pytest.raises(ValidationError, match="'office_fax' is reserved"):
+        TextFieldBlock().clean({"label": "Whatever", "internal_identifier": "office_fax", "required": False})
+
+
+def test_contact_form_block_clean_accepts_a_published_contact_page(contact_page_for_block):
+    block = ContactFormBlock()
+
+    cleaned = block.clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert cleaned["contact_page"] == contact_page_for_block
+
+
+def test_contact_form_block_clean_rejects_an_unpublished_contact_page(contact_page_for_block):
+    contact_page_for_block.unpublish()
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_restricted_contact_page(contact_page_for_block):
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_contact_page_without_a_url(contact_page_for_block):
+    """A contact page outside every site's tree has no URL for the form to be loaded from."""
+    with mock.patch.object(ContactPage, "url", new_callable=mock.PropertyMock, return_value=None):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "no public URL" in str(exc_info.value.block_errors["contact_page"])
+
+
+def test_contact_form_block_warns_when_javascript_is_off(contact_page_for_block, index_page, rf):
+    """Submission runs through htmx, so a visitor without JavaScript is told the form will not work."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-noscript",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    noscript = main.find("div", class_="fl-contact-form-wrapper").find("noscript")
+    assert "Please turn on JavaScript" in noscript.get_text()
+
+
+def test_contact_form_block_hides_a_restricted_contact_page(contact_page_for_block, index_page, rf):
+    """A host page anyone can read must not expose a form from a contact page behind a restriction."""
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-restricted",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.get_full_url())).content, "html.parser")
+
+    assert soup.find("div", class_="fl-contact-form-wrapper") is None
+    # With no form to load, the page skips the htmx script
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js") is None
+
+
+def test_contact_form_block_hides_an_unpublished_contact_page(contact_page_for_block, index_page, rf):
+    """An unpublished contact page has no served form, so the block renders nothing."""
+    contact_page_for_block.unpublish()
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-unpublished",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    assert main.find("div", class_="fl-contact-form-wrapper") is None
+
+
+def test_contact_form_block_renders_inside_a_media_content_block(contact_page_for_block, index_page, rf):
+    """The block is also offered within Media + Content, where it carries no section of its own."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-in-media-content",
+        parent=index_page,
+        content=[
+            {
+                "type": "media_content",
+                "value": {
+                    "heading": {"heading_text": "<p>Talk to our team</p>"},
+                    "content": [contact_form_block(contact_page_for_block)],
+                },
+            }
+        ],
+    )
+
+    main = render_main_element(page, rf)
+
+    media_content = main.find("div", class_="fl-mediacontent")
+    # Nested, the block uses the bare template, so it brings no section of its own
+    assert media_content.find("section") is None
+
+    placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
