@@ -1,0 +1,45 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-resources {
+    display: grid;
+    gap: var(--token-spacing-3xl);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    inline-size: 100%;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
+.fl-resources-list {
+    list-style: none;
+    margin-block: var(--token-spacing-md) var(--token-spacing-3xl);
+    margin-inline: 0;
+    padding: 0;
+}
+
+.fl-resources-list-item {
+    margin-block-end: var(--token-spacing-sm);
+}
+
+.fl-resources-link {
+    color: var(--fl-theme-color-text);
+    text-decoration: none;
+}
+
+.fl-resources-link:hover,
+.fl-resources-link:focus {
+    text-decoration: underline;
+}
+
+.fl-resources-column .fl-heading-xs {
+    border-block-end: 1px solid var(--fl-subtle-border-color);
+}
+
+.fl-resources-column .fl-heading-2xs {
+    font-size: var(
+        --token-font-size-lg
+    ); /* system deviation to force 18px size at all sizes */
+}
