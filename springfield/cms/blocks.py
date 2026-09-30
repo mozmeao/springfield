@@ -3880,7 +3880,8 @@ class ContactFormBlock(blocks.StructBlock):
         QueryParamBlock(),
         default=[],
         label="Query Params",
-        help_text="Sent with the form to set hidden fields' query param overrides. The same params on the page's URL take precedence.",
+        help_text="Sent with the form to set hidden fields' query param overrides. "
+        "The same params on the page's URL take precedence over anything set here.",
     )
 
     class Meta:
