@@ -765,6 +765,9 @@ class SpringfieldLinkBlock(LinkBlock):
 
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
+        # Default text fields to "" instead of None to allow a link block to be optional
+        # wagtail-localize can't extract None, so blocks without a link would fail translation.
+        default = {"custom_url": "", "relative_url": "", "anchor": "", "phone": ""}
 
     def __init__(self, *args, **kwargs):
         """Override __init__() to put relative_url field right after custom_url field."""
