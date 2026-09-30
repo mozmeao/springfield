@@ -56,6 +56,8 @@ class SpringfieldImage(AbstractImage):
     should have fields for such things.
     """
 
+    # Wagtail sets max_length=255 to the description field
+    description = models.TextField(blank=True, default="", verbose_name="description")
     is_decorative = models.BooleanField(
         default=False,
         verbose_name="Image is decorative",
