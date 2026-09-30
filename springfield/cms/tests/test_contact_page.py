@@ -3265,13 +3265,25 @@ def test_contact_page_fieldset_is_absent_from_the_basket_payload(
                 "business_email": "jane@acme.com",
                 "country": "US",
                 "accepted_terms": True,
+                # To be valid, the POST data also need the hidden "lead_source" field.
+                "lead_source": "techrider.de",
             },
         )
     )
 
     assert response.status_code == 302
     payload = json.loads(responses.calls[0].request.body)
-    assert set(payload) == {"first_name", "last_name", "company", "job_title", "business_email", "country", "accepted_terms", "opt_in"}
+    assert set(payload) == {
+        "first_name",
+        "last_name",
+        "company",
+        "job_title",
+        "business_email",
+        "country",
+        "accepted_terms",
+        "opt_in",
+        "lead_source",
+    }
 
 
 def test_contact_page_clean_ignores_fieldsets_when_validating_the_endpoint(
@@ -3404,6 +3416,8 @@ def test_contact_page_built_from_the_fieldset_variants_submits_cleanly(
                 "business_email": "jane@acme.com",
                 "country": "US",
                 "accepted_terms": True,
+                # To be valid, the POST data also need the hidden "lead_source" field.
+                "lead_source": "techrider.de",
             },
         )
     )
