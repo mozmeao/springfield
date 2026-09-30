@@ -12,9 +12,10 @@ from uuid import uuid4
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
+from django.http import QueryDict
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -23,7 +24,6 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -690,6 +690,9 @@ class SpringfieldLinkBlockURLValue(URLValue):
         if link_to == "page":
             page = self.get("page")
             if page:
+                # The chooser returns a plain wagtail Page; URLs must come from the specific
+                # class so our page URL overrides apply. Deferred, so it adds no query.
+                page = page.specific_deferred
                 try:
                     locale = SpringfieldLocale.get_active()
                     # Get the active language, so we can use it to determine the URL to return.
@@ -703,7 +706,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # The translated page does not match the active language;
                         # we reconstruct the URL using the URL-facing locale prefix.
                         return self._with_locale_prefix(translated_page.url, active_lang)
-                    except Page.DoesNotExist:
+                    except ObjectDoesNotExist:
                         # This means that this page has no translation for this locale.
                         # In case this is rendered as a fallback page (the user
                         # requested /es-AR/somepage, but that page doesn't exist
@@ -762,6 +765,9 @@ class SpringfieldLinkBlock(LinkBlock):
 
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
+        # Default text fields to "" instead of None to allow a link block to be optional
+        # wagtail-localize can't extract None, so blocks without a link would fail translation.
+        default = {"custom_url": "", "relative_url": "", "anchor": "", "phone": ""}
 
     def __init__(self, *args, **kwargs):
         """Override __init__() to put relative_url field right after custom_url field."""
@@ -1524,6 +1530,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label="Caption",
         help_text="Text displayed below the image.",
     )
+    link = SpringfieldLinkBlock(required=False, label="Image Link", help_text="Optional destination when the image is clicked.")
     layout = blocks.ChoiceBlock(
         choices=[
             ("default", "Default"),
@@ -1540,7 +1547,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
         form_layout = blocks.BlockGroup(
-            children=["image", "caption"],
+            children=["image", "caption", "link"],
             settings=["layout"],
         )
 
@@ -2404,6 +2411,36 @@ class LineCardsBlock(blocks.StructBlock):
         label_format = "Line Cards"
 
 
+# Resources
+
+
+class ResourcesColumnBlock(blocks.StructBlock):
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    list_items = blocks.StreamBlock(
+        [
+            ("subheading", RichTextBlock(features=HEADING_TEXT_FEATURES)),
+            ("link", CTABlock(template="cms/blocks/resources-link.html")),
+        ],
+        min_num=1,
+        label="Items",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Resources Column"
+        label_format = "{headline}"
+
+
+class ResourcesBlock(blocks.StructBlock):
+    columns = blocks.ListBlock(ResourcesColumnBlock(), min_num=1)
+
+    class Meta:
+        template = "cms/blocks/resources.html"
+        icon = "list-ul"
+        label = "Resources"
+        label_format = "Resources"
+
+
 # Article Cards
 
 
@@ -2919,6 +2956,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("resources", ResourcesBlock()),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
@@ -3846,6 +3884,14 @@ class CountrySelectFieldBlock(BaseField):
         value_class = CountrySelectFieldValue
 
 
+class QueryParamBlock(blocks.StructBlock):
+    key = UntranslatableCharBlock(label="Key")
+    value = UntranslatableCharBlock(label="Value")
+
+    class Meta:
+        label_format = "{key}={value}"
+
+
 class FieldsetAndLegendBlock(blocks.StructBlock):
     """
     A block for a fieldgroup around the form fields that follow it.
@@ -3889,6 +3935,13 @@ class ContactFormBlock(blocks.StructBlock):
         label="Two Column Layout",
         help_text="Render the form fields in two columns on large screens.",
     )
+    query_params = blocks.ListBlock(
+        QueryParamBlock(),
+        default=[],
+        label="Query Params",
+        help_text="Sent with the form to set hidden fields' query param overrides. "
+        "The same params on the page's URL take precedence over anything set here.",
+    )
 
     class Meta:
         icon = "mail"
@@ -3897,7 +3950,7 @@ class ContactFormBlock(blocks.StructBlock):
         label_format = "Contact Form - {contact_page}"
         form_layout = blocks.BlockGroup(
             children=["contact_page"],
-            settings=["two_column"],
+            settings=["two_column", "query_params"],
         )
 
     def contact_page_is_invalid(self, contact_page):
@@ -3931,8 +3984,12 @@ class ContactFormBlock(blocks.StructBlock):
             return context
 
         request.needs_htmx = True
-        # Host query params feed hidden fields' query_param_override on the contact page.
-        params = request.GET.copy()
+        # Query params feed hidden fields' query_param_override on the contact page.
+        params = QueryDict(mutable=True)
+        for query_param in value.get("query_params", []):
+            params[query_param["key"]] = query_param["value"]
+        for key in request.GET:
+            params.setlist(key, request.GET.getlist(key))
         params["form_instance"] = contact_page.next_form_number(request)
         if value.get("two_column"):
             params["two_column"] = "1"

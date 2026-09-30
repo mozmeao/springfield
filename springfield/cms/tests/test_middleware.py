@@ -9,8 +9,9 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.cms.middleware import CMSLocaleFallbackMiddleware, mark_locale_fallback_exempt
+from springfield.cms.middleware import CMSLocaleFallbackMiddleware
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
+from springfield.cms.utils import mark_locale_fallback_exempt
 
 pytestmark = [pytest.mark.django_db]
 
@@ -632,3 +633,14 @@ def test_CMSLocaleFallbackMiddleware_respects_the_locale_fallback_exemption(rf):
 
     assert response.status_code == 404
     assert "Location" not in response
+
+
+def test_CurrentRequestMiddleware_wraps_CMSLocaleFallbackMiddleware():
+    """CMSLocaleFallbackMiddleware renders fallback pages itself after an inner 404, so the
+    current request must still be set for SpringfieldLinkBlockURLValue to build URLs correctly.
+    CurrentRequestMiddleware resets the current request variable after getting the response,
+    so it must wrap CMSLocaleFallbackMiddleware."""
+    current_request_position = settings.MIDDLEWARE.index("springfield.cms.middleware.CurrentRequestMiddleware")
+    locale_fallback_position = settings.MIDDLEWARE.index("springfield.cms.middleware.CMSLocaleFallbackMiddleware")
+
+    assert current_request_position < locale_fallback_position

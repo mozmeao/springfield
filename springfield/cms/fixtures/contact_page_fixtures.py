@@ -196,8 +196,8 @@ def get_basic_form_field_variants() -> list[dict]:
     """
     Returns the form field variants accepted by basket's basic contact endpoint.
     """
-    contact_detail_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country"}
-    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in contact_detail_identifiers] + [
+    shared_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country", "lead_source"}
+    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in shared_identifiers] + [
         {
             "type": "checkbox_field",
             "value": {

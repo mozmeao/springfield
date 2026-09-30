@@ -78,6 +78,7 @@ from springfield.cms.blocks import (
     NotificationBlock,
     PhoneFieldBlock,
     RelatedArticlesListBlock,
+    ResourcesBlock,
     RoadmapListSectionBlock,
     SectionBlock,
     SelectFieldBlock,
@@ -90,10 +91,10 @@ from springfield.cms.blocks import (
     validate_animation_url,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.middleware import mark_locale_fallback_exempt
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
+from springfield.cms.utils import mark_locale_fallback_exempt
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
@@ -1111,6 +1112,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
         ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
         ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
+        ("resources", ResourcesBlock(template="cms/blocks/sections/resources-section.html", group="Main")),
         ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
         ("comparison_table", ComparisonTableBlock(group="Main")),
         ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),

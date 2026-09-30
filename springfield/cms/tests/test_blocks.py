@@ -9,6 +9,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -150,6 +151,10 @@ from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_variants,
 )
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
+from springfield.cms.fixtures.resources_fixtures import (
+    get_resources_column_variants,
+    get_resources_test_page,
+)
 from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_section_variants,
     get_roadmap_list_test_page,
@@ -174,11 +179,13 @@ from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_va
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.icon_utils import icon_value_fn
+from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import (
     ArticleDetailPage,
     ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
+    SimpleRichTextPage,
     SmartWindowExplainerPage,
     SpringfieldImage,
     WhatsNewPage2026,
@@ -2537,7 +2544,8 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
     variant = variants[0]
     value = variant["value"]
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    # Lower content alternates the Featured Image block with plain text sections, so it lands at position 2.
+    for region_name, region, block_index in [("upper", upper, 1), ("lower", lower, 2)]:
         sections = region.find_all("section", class_="fl-featured-image-section")
         assert len(sections) == 1
         section = sections[0]
@@ -2560,7 +2568,7 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
         card_els = section.find_all("article", class_="fl-card")
         assert len(card_els) == len(icon_cards)
 
-        block_position_prefix = f"{region_name}-block-1-featured_image_section.item-1-cards_list"
+        block_position_prefix = f"{region_name}-block-{block_index}-featured_image_section.item-1-cards_list"
 
         for card_index, card_data in enumerate(icon_cards):
             card_el = card_els[card_index]
@@ -2701,6 +2709,96 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                             cta_position=cta_position,
                             cta_text=cta_text,
                         )
+
+
+def test_resources_block(index_page, placeholder_images, rf):
+    column_variants = get_resources_column_variants()
+    page = get_resources_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    # block-1: section containing resources (2 columns), block-2: standalone resources (3 columns)
+    # Upper: section at block_level=1 (children h2), standalone at block_level=2 (h2)
+    # Lower: section at block_level=2 (children h3), standalone at block_level=2 (h2)
+    for region_name, region, in_section_heading_tag in [("upper", upper, "h2"), ("lower", lower, "h3")]:
+        blocks_under_test = [
+            {
+                "columns": column_variants[:2],
+                "position_prefix": f"{region_name}-block-1-section.item-1-resources",
+                "heading_tag": in_section_heading_tag,
+            },
+            {
+                "columns": column_variants,
+                "position_prefix": f"{region_name}-block-2-resources",
+                "heading_tag": "h2",
+            },
+        ]
+
+        grids = region.find_all("div", class_="fl-resources")
+        assert len(grids) == 2
+
+        for grid, block_info in zip(grids, blocks_under_test):
+            heading_tag = block_info["heading_tag"]
+            subheading_tag = f"h{int(heading_tag[1:]) + 1}"
+            column_els = grid.find_all("div", class_="fl-resources-column")
+            assert len(column_els) == len(block_info["columns"])
+
+            for column_index, column_data in enumerate(block_info["columns"]):
+                column_el = column_els[column_index]
+                list_items = column_data["value"]["list_items"]
+
+                headline_text = BeautifulSoup(column_data["value"]["headline"], "html.parser").get_text().strip()
+                headline_el = column_el.find(heading_tag, class_="fl-heading")
+                assert headline_el and headline_text in headline_el.get_text()
+
+                # Consecutive links share one <ul>; a subheading closes the open list so the
+                # links after it start a new one, and a subheading with no links adds no list.
+                expected_subheadings = []
+                expected_link_groups = []
+                for item in list_items:
+                    if item["type"] == "subheading":
+                        expected_subheadings.append(BeautifulSoup(item["value"], "html.parser").get_text().strip())
+                        expected_link_groups.append([])
+                    else:
+                        if not expected_link_groups:
+                            expected_link_groups.append([])
+                        expected_link_groups[-1].append(item)
+                expected_link_groups = [group for group in expected_link_groups if group]
+
+                subheading_els = column_el.find_all(subheading_tag, class_="fl-heading")
+                assert [subheading_el.get_text().strip() for subheading_el in subheading_els] == expected_subheadings
+
+                list_els = column_el.find_all("ul", class_="fl-resources-list")
+                assert len(list_els) == len(expected_link_groups)
+
+                link_index = 0
+                for list_el, link_group in zip(list_els, expected_link_groups):
+                    link_item_els = list_el.find_all("li", class_="fl-resources-list-item")
+                    assert len(link_item_els) == len(link_group)
+
+                    for link_item_el, link_data in zip(link_item_els, link_group):
+                        link_index += 1
+                        link_value = link_data["value"]
+                        anchor = link_item_el.find("a", class_="fl-resources-link")
+                        assert anchor["href"] == add_utm_parameters(context, link_value["link"]["custom_url"])
+                        assert anchor.get_text().strip() == link_value["label"]
+                        assert anchor["data-cta-text"] == f"{headline_text} - {link_value['label']}"
+                        assert anchor["data-cta-position"] == f"{block_info['position_prefix']}.column-{column_index + 1}.link-{link_index}"
+                        assert anchor["data-cta-uid"] == link_value["settings"]["analytics_id"]
+                        if link_value["link"]["new_window"]:
+                            assert anchor["target"] == "_blank"
+                            assert anchor["rel"] == ["external", "noopener"]
+                        else:
+                            assert not anchor.has_attr("target")
 
 
 def test_icon_list_with_image_block(index_page, placeholder_images, rf):
@@ -3050,7 +3148,7 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             assert_image_variants_attributes(
                 images_element=media_element,
                 images_value=value["media"][0]["value"],
-                sizes="(min-width: 934px) 934px, 100vw",
+                sizes="(min-width: 1170px) 1170px, 100vw",
             )
         else:
             assert "has-home-intro-media" not in section["class"]
@@ -3303,6 +3401,19 @@ def _springfield_link_value(link_to, **fields):
     return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
 
 
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_springfield_link_block_links_a_private_page_on_the_cms_domain(minimal_site, rf):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    link_value = _springfield_link_value("page", page=page.pk)
+    middleware = CurrentRequestMiddleware(get_response=lambda request: HttpResponse(link_value.get_url()))
+
+    with translation.override("en-US"):
+        response = middleware(rf.get("/", HTTP_HOST="cms.example.com"))
+
+    assert response.content.decode() == "http://cms.example.com/en-US/test-page/"
+
+
 def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
     """Prepends the active locale to the stored path."""
     link_value = _springfield_link_value("relative_url", relative_url="/features/")
@@ -3531,7 +3642,7 @@ def test_springfield_link_block_page_handles_absolute_page_url(tiny_localized_si
     with (
         mock.patch("django.utils.translation.get_language", return_value="es-AR"),
         mock.patch.object(
-            type(en_us_page),
+            type(en_us_page.specific),
             "url",
             new_callable=lambda: property(lambda self: "http://localhost:8000/en-US/test-page/"),
         ),
@@ -4870,7 +4981,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
     privacy = get_blog_topics()["privacy"]
     privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image, image_caption=IMAGE_CAPTION)
-    # A second block covers the image variants, which the fixture image doesn't use.
+    # A second block covers the image variants and the image link, which the fixture block doesn't use.
     content.append(
         {
             "type": "image_caption",
@@ -4884,6 +4995,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
                     },
                 },
                 "caption": '<p data-block-key="eee55555">Caption below an image with dark mode and mobile variants.</p>',
+                "link": _BTN_LINK,
             },
             "id": "88888888-8888-8888-8888-888888888888",
         }
@@ -4914,6 +5026,13 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             figure.find("div", class_="image-variants-display"),
             block_data["value"]["image"],
         )
+
+        link_data = block_data["value"].get("link")
+        image_link = figure.find("div", class_="fl-image-caption-image").find("a")
+        assert bool(image_link) == bool(link_data)
+        if link_data:
+            assert image_link["href"] == add_utm_parameters(context, link_data["custom_url"])
+            assert image_link.find("div", class_="image-variants-display")
 
         caption_source = BeautifulSoup(block_data["value"]["caption"], "html.parser")
         figcaption = figure.find("figcaption", class_="fl-image-caption-text")
@@ -6274,6 +6393,40 @@ def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, 
     # No per-visitor CSRF token on the host page, so a shared cache may keep it
     assert main.find("input", attrs={"name": "csrfmiddlewaretoken"}) is None
     assert "no-store" not in response.get("Cache-Control", "")
+
+
+@pytest.mark.parametrize(
+    "host_query, expected_query",
+    [
+        ({}, "ls=sunday-event-contact&utm_source=event&form_instance=1"),
+        ({"ls": "another-source"}, "ls=another-source&utm_source=event&form_instance=1"),
+    ],
+    ids=["block_params", "host_params_take_precedence"],
+)
+def test_contact_form_block_adds_its_query_params_to_the_form_url(contact_page_for_block, index_page, rf, host_query, expected_query):
+    """Editors set query params that feed the contact page's hidden field overrides; the host URL's own params win."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-query-params",
+        parent=index_page,
+        content=[
+            {
+                "type": "contact_form",
+                "value": {
+                    "contact_page": contact_page_for_block.pk,
+                    "query_params": [
+                        {"key": "ls", "value": "sunday-event-contact"},
+                        {"key": "utm_source", "value": "event"},
+                    ],
+                },
+            }
+        ],
+    )
+
+    response = page.serve(rf.get(page.get_full_url(), host_query))
+    placeholder = BeautifulSoup(response.content, "html.parser").find("div", class_="fl-contact-form-wrapper")
+
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?{expected_query}"
 
 
 def test_form_field_clean_rejects_the_honeypot_internal_identifier():

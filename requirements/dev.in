@@ -1,29 +1,27 @@
 -r prod.txt
 
 braceexpand==0.1.7
-django-silk==5.5.0
+django-silk==5.6.0
 factory-boy==3.3.3
 freezegun==1.5.5
 markdown-it-py>=4.2.0
 py==1.11.0
 PyPOM==2.2.4
-pyquery==2.0.2
+pyquery==2.1.0
 pytest==9.1.1  # Included because we use it directly, but also a subdep of pytest-selenium's subdeps
 pytest-cov==7.1.0
 pytest-datadir==1.8.0
-pytest-django==4.12.0
+pytest-django==4.14.0
 pytest-mock==3.15.1
 pytest-parallel==0.1.1
-pytest-rerunfailures==16.4
+pytest-rerunfailures==16.7
 pytest-selenium==4.1.0
-responses==0.26.2
-ruff==0.15.18
-selenium==4.46.0
-translate-toolkit==3.19.15
-# unicode-segmentation-rs 0.2.2+ doesn't have the pre-built wheel we need,
-# so it tries to build from source and fails without a C compiler in the devapp Docker image.
-unicode-segmentation-rs==0.2.4
-uv==0.11.23
+responses==0.26.3
+ruff==0.16.8
+selenium==4.49.0
+translate-toolkit==3.20.0
+unicode-segmentation-rs==0.3.3
+uv==0.12.17
 wagtail-factories==4.5.0
 # Related to moz-l10n-lint, used in CI
 cl-ext.lang==0.1.0

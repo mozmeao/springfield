@@ -12,21 +12,24 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 from wagtail.models import Page, Site
 
 from springfield.base.i18n import normalize_language
+from springfield.cms.utils import LOCALE_FALLBACK_EXEMPT_ATTR, current_request
 from springfield.cms.views import _serve_fallback_page
 
 logger = logging.getLogger(__name__)
 
-# Request attribute a page can set to say "my 404 is deliberate -- do not try to
-# locale-fall-back it". Needed because this middleware treats a 404 as "no page
-# matched this path", which is false for a page that rejects its own request; the
-# fallback lookup would rediscover that page and redirect to it in a loop.
-# Set it via mark_locale_fallback_exempt() before raising Http404.
-LOCALE_FALLBACK_EXEMPT_ATTR = "cms_locale_fallback_exempt"
 
+class CurrentRequestMiddleware:
+    """Make the request being served available through utils.current_request."""
 
-def mark_locale_fallback_exempt(request):
-    """Exempt this request's 404 from CMS locale-fallback redirection."""
-    setattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, True)
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        token = current_request.set(request)
+        try:
+            return self.get_response(request)
+        finally:
+            current_request.reset(token)
 
 
 class CMSLocaleFallbackMiddleware:
