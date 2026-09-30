@@ -765,6 +765,9 @@ class SpringfieldLinkBlock(LinkBlock):
 
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
+        # Default text fields to "" instead of None to allow a link block to be optional
+        # wagtail-localize can't extract None, so blocks without a link would fail translation.
+        default = {"custom_url": "", "relative_url": "", "anchor": "", "phone": ""}
 
     def __init__(self, *args, **kwargs):
         """Override __init__() to put relative_url field right after custom_url field."""
@@ -1527,6 +1530,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label="Caption",
         help_text="Text displayed below the image.",
     )
+    link = SpringfieldLinkBlock(required=False, label="Image Link", help_text="Optional destination when the image is clicked.")
     layout = blocks.ChoiceBlock(
         choices=[
             ("default", "Default"),
@@ -1543,7 +1547,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
         form_layout = blocks.BlockGroup(
-            children=["image", "caption"],
+            children=["image", "caption", "link"],
             settings=["layout"],
         )
 
