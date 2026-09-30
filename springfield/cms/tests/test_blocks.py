@@ -4831,7 +4831,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
     privacy = get_blog_topics()["privacy"]
     privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image, image_caption=IMAGE_CAPTION)
-    # A second block covers the image variants, which the fixture image doesn't use.
+    # A second block covers the image variants and the image link, which the fixture block doesn't use.
     content.append(
         {
             "type": "image_caption",
@@ -4845,6 +4845,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
                     },
                 },
                 "caption": '<p data-block-key="eee55555">Caption below an image with dark mode and mobile variants.</p>',
+                "link": _BTN_LINK,
             },
             "id": "88888888-8888-8888-8888-888888888888",
         }
@@ -4875,6 +4876,13 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             figure.find("div", class_="image-variants-display"),
             block_data["value"]["image"],
         )
+
+        link_data = block_data["value"].get("link")
+        image_link = figure.find("div", class_="fl-image-caption-image").find("a")
+        assert bool(image_link) == bool(link_data)
+        if link_data:
+            assert image_link["href"] == add_utm_parameters(context, link_data["custom_url"])
+            assert image_link.find("div", class_="image-variants-display")
 
         caption_source = BeautifulSoup(block_data["value"]["caption"], "html.parser")
         figcaption = figure.find("figcaption", class_="fl-image-caption-text")

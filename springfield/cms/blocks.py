@@ -1527,6 +1527,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label="Caption",
         help_text="Text displayed below the image.",
     )
+    link = SpringfieldLinkBlock(required=False, label="Image Link", help_text="Optional destination when the image is clicked.")
     layout = blocks.ChoiceBlock(
         choices=[
             ("default", "Default"),
@@ -1543,7 +1544,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
         form_layout = blocks.BlockGroup(
-            children=["image", "caption"],
+            children=["image", "caption", "link"],
             settings=["layout"],
         )
 
