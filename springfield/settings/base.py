@@ -1672,5 +1672,6 @@ PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 # This needs to be in sync with Fastly WAF configuration
 CONTACT_PAGE_ALLOWED_PATHS = [
     r"/enterprise/contact/$",
+    r"/enterprise/contact/[a-zA-Z0-9\-]+/$",
     r"/landing/[a-zA-Z0-9\-]+/contact/$",
 ]
