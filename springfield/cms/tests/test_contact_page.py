@@ -19,7 +19,14 @@ from bs4 import BeautifulSoup
 from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.contact_page_fixtures import get_basic_form_field_variants, get_form_field_variants
+from springfield.cms.fixtures.contact_page_fixtures import (
+    _index_of,
+    get_basic_form_field_variants,
+    get_basic_form_field_variants_with_fieldsets,
+    get_contact_test_page,
+    get_form_field_variants,
+    get_form_field_variants_with_fieldsets,
+)
 from springfield.cms.models import SimpleRichTextPage
 from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, BASKET_INTAKE_PATH, ContactPage
 
@@ -2933,3 +2940,579 @@ def test_contact_page_strips_rich_text_from_checkbox_label_for_email_message(
     assert "I agree to the terms" in email_body
     assert "<strong>" not in email_body
     assert "<p>" not in email_body
+
+
+# Fieldset and Legend blocks grouping form fields
+
+
+def _fieldset(block_id: str, legend: str, help_text: str = "") -> dict:
+    """A `fieldset` entry for a ContactPage's form_fields stream."""
+    return {"type": "fieldset", "value": {"legend": legend, "help_text": help_text}, "id": block_id}
+
+
+def _text_field(block_id: str, identifier: str, label: str, required: bool = False) -> dict:
+    return {"type": "text_field", "value": {"internal_identifier": identifier, "label": label, "required": required}, "id": block_id}
+
+
+def _grouped_page(index_page, thank_you_page, slug: str, form_fields: list[dict]) -> ContactPage:
+    page = ContactPage(
+        title="Grouped Contact",
+        slug=slug,
+        form_fields=form_fields,
+        to_email_address="recipient@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def test_contact_page_fieldset_wraps_the_fields_that_follow_it(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A contact page with 2 fields, a fieldset start (a FieldsetAndLegendBlock), and 2 fields."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-page",
+        [
+            _text_field("gf1", "first_name", "First name"),
+            _text_field("gf2", "last_name", "Last name"),
+            _fieldset("gs1", "What you're interested in"),
+            _text_field("gf3", "interested_in", "Interested in"),
+            _text_field("gf4", "company_size", "Company size"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+
+    # The two fields are direct children of the form; the other two are not.
+    assert [field.select_one("label").get_text(strip=True) for field in form.select(":scope > .fl-field-wrap")] == [
+        "First name",
+        "Last name",
+    ]
+    # The interested_in and company_size are in the "What you're interested in" fieldset.
+    group = form.select_one("fieldset.fl-fieldset")
+    assert group.select_one("legend.fl-legend").get_text(strip=True) == "What you're interested in"
+    assert [field.select_one("label").get_text(strip=True) for field in group.select(".fl-field-wrap")] == [
+        "Interested in",
+        "Company size",
+    ]
+
+
+def test_contact_page_two_fieldsets_each_hold_their_own_fields(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A group ends where the next one begins, not at the end of the form."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-two-runs",
+        [
+            _fieldset("gs2", "What you're interested in"),
+            _text_field("gf5", "interested_in", "Interested in"),
+            _fieldset("gs3", "Your priorities and environment"),
+            _text_field("gf6", "priorities", "Priorities"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    groups = soup.select("form.contact-form fieldset.fl-fieldset")
+
+    assert [group.select_one("legend").get_text(strip=True) for group in groups] == [
+        "What you're interested in",
+        "Your priorities and environment",
+    ]
+    assert [len(group.select(".fl-field-wrap")) for group in groups] == [1, 1]
+
+
+def test_contact_page_fieldset_is_not_a_form_field(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The FieldsetAndLegendBlock has no identifier, so it must not become a field on the form."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-not-a-field",
+        [
+            _fieldset("gs4", "Your details"),  # the FieldsetAndLegendBlock
+            _text_field("gf7", "first_name", "First name"),
+        ],
+    )
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    form = page.get_form(rf.get(page.relative_url(minimal_site)))
+
+    assert list(form.fields) == ["first_name"]
+    assert [field.value["internal_identifier"] for field in page.form_field_blocks] == ["first_name"]
+
+
+def test_contact_page_fieldset_with_no_fields_renders_its_text_without_a_fieldset(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    An editor who adds a FieldsetAndLegendBlock with its text, but has not yet
+    added fields below it, should still sees the text on the page.
+
+    A <fieldset> with no controls groups nothing and a <legend> is invalid outside one, so
+    the group is not emitted as markup, but dropping the text silently would leave the
+    editor unable to tell whether the block works.
+    So instead the FieldsetAndLegendBlock's text is rendered inside <div>s and <p>s.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-orphan",
+        [
+            _text_field("gf8", "first_name", "First name"),
+            _fieldset("gs5", "Nothing under me yet", '<p data-block-key="gs5a">Coming soon.</p>'),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+    orphan = form.select_one(".fl-fieldset-orphan")
+
+    assert form.select_one("fieldset.fl-fieldset") is None
+    assert form.select_one("legend") is None
+    assert orphan.select_one("p.fl-legend").get_text(strip=True) == "Nothing under me yet"
+    assert "Coming soon." in orphan.get_text()
+
+
+def test_contact_page_fieldset_help_text_describes_the_group(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """aria-describedby points at the help text, and the id is unique to the block."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-help",
+        [
+            _fieldset("gs6", "What you're interested in", '<p data-block-key="gs6a">Pick as many as apply.</p>'),
+            _text_field("gf9", "interested_in", "Interested in"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
+    help_text = group.select_one(".fl-fieldset-help")
+
+    assert group["aria-describedby"] == help_text["id"]
+    assert help_text["id"].endswith("gs6-help")
+    assert help_text.get_text(strip=True) == "Pick as many as apply."
+
+
+@pytest.mark.parametrize(
+    "cleared",
+    [
+        "",  # empty text
+        "<p></p>",  # an empty paragraph
+        "<p><br/></p>",  # only a line break
+        "<p>&nbsp;</p>",  # a non-breaking space
+        '<p><span class="fl-fx-logo"></span></p>',  # the Firefox logo (no text)
+    ],
+)
+def test_contact_page_fieldset_cleared_help_text_renders_nothing(
+    cleared: str,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    Clearing the help text in the editor stores a truthy empty paragraph, which must
+    not reach the page as an empty box or as an aria-describedby pointing at one.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        f"grouped-cleared-{len(cleared)}",
+        [_fieldset("gs7", "Your details", cleared), _text_field("gf10", "first_name", "First name")],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
+
+    assert group.select_one(".fl-fieldset-help") is None
+    assert group.get("aria-describedby") is None
+    assert group.select_one("legend").get_text(strip=True) == "Your details"
+
+
+def test_contact_page_checkbox_group_keeps_its_own_fieldset_inside_a_group(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Fieldsets nest: the group's, and the checkbox group's own."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-nested",
+        [
+            _fieldset("gs8", "What you're interested in"),
+            {
+                "type": "checkbox_group_field",
+                "value": {
+                    "internal_identifier": "interested_in",
+                    "label": "I am interested in",
+                    "required": False,
+                    "options": [
+                        {"value": "a", "label": '<p data-block-key="gs8a">Option A</p>'},
+                        {"value": "b", "label": '<p data-block-key="gs8b">Option B</p>'},
+                    ],
+                },
+                "id": "gf11",
+            },
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    outer = soup.select_one("form.contact-form > fieldset.fl-fieldset")
+    inner = outer.select_one("fieldset.fl-field-wrap")
+
+    assert outer.select_one(":scope > legend").get_text(strip=True) == "What you're interested in"
+    assert inner.select_one("legend").get_text(strip=True) == "I am interested in"
+    assert len(inner.select("input[type=checkbox]")) == 2
+
+
+def test_contact_page_form_of_only_fieldsets_renders_no_inputs(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A stream with no field blocks still serves: an empty form, not an exception."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-only-fieldsets",
+        [_fieldset("gs9", "Nothing to fill in yet")],
+    )
+
+    response = page.serve(rf.get(page.relative_url(minimal_site)))
+    soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+    assert response.status_code == 200
+    assert soup.select_one(".fl-fieldset-orphan p.fl-legend").get_text(strip=True) == "Nothing to fill in yet"
+    assert soup.select_one("form.contact-form .fl-field-wrap") is None
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_fieldset_is_absent_from_the_email(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The notification email lists submitted fields; a group label is not one."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-email",
+        [_fieldset("gs10", "What you're interested in"), _text_field("gf12", "first_name", "First name")],
+    )
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    response = page.serve(rf.post(page.relative_url(minimal_site), {"first_name": "Jane"}))
+
+    assert response.status_code == 302
+    body = mock_email_class.call_args[0][1]
+    assert "Jane" in body
+    assert "What you're interested in" not in body
+
+
+@responses.activate
+def test_contact_page_fieldset_is_absent_from_the_basket_payload(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The payload is keyed by internal_identifier; a group label has none and must add no key."""
+    responses.add(responses.POST, f"{django_settings.BASKET_URL}{BASKET_CONTACT_BASIC_PATH}", status=200)
+    index_page = minimal_site.root_page
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Grouped Basket",
+        slug="grouped-basket",
+        form_fields=[_fieldset("gs11", "Your details")] + get_basic_form_field_variants(),
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    response = page.serve(
+        rf.post(
+            page.relative_url(minimal_site),
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "company": "Acme",
+                "job_title": "Engineer",
+                "business_email": "jane@acme.com",
+                "country": "US",
+                "accepted_terms": True,
+            },
+        )
+    )
+
+    assert response.status_code == 302
+    payload = json.loads(responses.calls[0].request.body)
+    assert set(payload) == {"first_name", "last_name", "company", "job_title", "business_email", "country", "accepted_terms", "opt_in"}
+
+
+def test_contact_page_clean_ignores_fieldsets_when_validating_the_endpoint(
+    minimal_site: Site,
+) -> None:
+    """clean() builds identifier sets from the stream; a group label must not enter them."""
+    page = ContactPage(
+        title="Grouped Clean",
+        slug="grouped-clean",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=[_fieldset("gs12", "Your details")] + get_basic_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    page.clean()  # Does not raise an error
+
+
+def test_contact_page_fieldset_survives_a_validation_error_rerender(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """An invalid submission re-renders the whole form template, groups included."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-rerender",
+        [_fieldset("gs13", "Your details"), _text_field("gf13", "first_name", "First name", required=True)],
+    )
+
+    content = page.serve(rf.post(page.relative_url(minimal_site), {})).content.decode()
+    soup = BeautifulSoup(content, "html.parser")
+
+    assert soup.select_one("fieldset.fl-fieldset legend").get_text(strip=True) == "Your details"
+    assert soup.select_one("fieldset.fl-fieldset .fl-field-error")
+
+
+def test_contact_page_two_column_layout_nests_grouped_fields_in_the_fieldset(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    The fieldset becomes the form's grid item, so the grouped fields are no longer
+    children of .fl-form. CSS depends on exactly this nesting; assert the
+    structure here, because the repo has no way to assert the layout.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-two-column",
+        [_fieldset("gs14", "Your details"), _text_field("gf14", "first_name", "First name")],
+    )
+
+    request = rf.get(page.relative_url(minimal_site), {"two_column": "1"})
+    soup = BeautifulSoup(page.serve(request).content.decode(), "html.parser")
+    form = soup.select_one("form.fl-form")
+
+    assert "fl-form-two-column" in form["class"]
+    assert form.select_one(":scope > .fl-field-wrap") is None
+    assert form.select_one(":scope > fieldset.fl-fieldset > .fl-field-wrap")
+
+
+def test_contact_fixture_page_renders_its_fieldsets(index_page, rf: RequestFactory) -> None:
+    """The sample page demonstrates the block, links in the help text included."""
+    page = get_contact_test_page()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
+
+    assert response.status_code == 200
+    assert group.select_one("legend.fl-legend").get_text(strip=True) == "Your details"
+    assert group["aria-describedby"] == group.select_one(".fl-fieldset-help")["id"]
+
+    link = group.select_one(".fl-fieldset-help a")
+    assert link["data-cta-uid"] == "2026cp04-0001-0001-0001-000000000001"
+    assert link["data-cta-text"] == "privacy notice"
+    assert link["data-cta-position"] == "link-1"
+
+
+def test_fieldset_variants_wrap_the_field_variants_without_changing_them() -> None:
+    """The helpers the fixture pages use add group."""
+    fields = get_form_field_variants()
+    grouped = get_form_field_variants_with_fieldsets()
+
+    assert all("internal_identifier" in field["value"] for field in fields)
+    assert [field["type"] for field in grouped].count("fieldset") == 3
+    assert [field for field in grouped if field["type"] != "fieldset"] == fields
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_built_from_the_fieldset_variants_submits_cleanly(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    A full POST through a realistically shaped form that contains fieldset blocks.
+
+    The page builders use the ``_with_fieldsets`` helpers, so this is the shape a real page
+    has. One request drives get_form, _collect_field_values and send_form_email past the
+    filter, which is the coverage the shared field helpers deliberately no longer provide.
+    """
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Fieldset Variants Submit",
+        slug="fieldset-variants-submit",
+        form_fields=get_basic_form_field_variants_with_fieldsets(),
+        to_email_address="recipient@example.com",
+        redirect_to=_create_thank_you_page(index_page),
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    assert "Your details" in [child.value["legend"] for child in page.form_fields if child.block_type == "fieldset"], (
+        "the legend never reached the page, so the assertion that it stays out of the email would pass vacuously"
+    )
+
+    response = page.serve(
+        rf.post(
+            page.relative_url(minimal_site),
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "company": "Acme",
+                "job_title": "Engineer",
+                "business_email": "jane@acme.com",
+                "country": "US",
+                "accepted_terms": True,
+            },
+        )
+    )
+
+    assert response.status_code == 302
+    body = mock_email_class.call_args[0][1]
+    assert "Jane" in body
+    assert "Your details" not in body
+
+
+def test_fieldset_variants_group_every_field_under_a_legend_that_describes_it() -> None:
+    """
+    A legend is announced before the label of every field in its group, so a group must
+    not reach past the fields it names.
+
+    The required consent checkbox is the case that bites: it is grouped under
+    "What you're interested in", but a screen reader announces the terms
+    agreement as though it were an interest question, which is the thing that a
+    <legend> exists to prevent.
+    """
+    legend_of = {}
+    legend = None
+    for entry in get_form_field_variants_with_fieldsets():
+        if entry["type"] == "fieldset":
+            legend = entry["value"]["legend"]
+        else:
+            legend_of[entry["value"]["internal_identifier"]] = legend
+
+    assert legend_of["first_name"] == "Your details"
+    assert legend_of["firefox_use_stage"] == "What you're interested in"
+    assert legend_of["message"] == "What you're interested in"
+    assert legend_of["opt_in"] == "Before you send"
+
+
+def test_fieldset_variants_name_the_missing_field_when_a_group_anchor_goes_away() -> None:
+    """Groups are anchored to identifiers, so a renamed field must fail legibly."""
+    with pytest.raises(LookupError, match="firefox_use_stage"):
+        _index_of([{"value": {"internal_identifier": "first_name"}}], "firefox_use_stage")
+
+
+def test_contact_page_two_adjacent_fieldsets_leave_the_first_as_an_orphan_mid_form(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    An editor who adds two groups before putting any fields in 1 of them sees their changes.
+
+    The empty group must render its text in its place in the form, but must not
+    use <fieldset> or <legend>.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-adjacent",
+        [
+            _text_field("gf15", "first_name", "First name"),
+            _fieldset("gs15", "Nothing under me yet"),
+            _fieldset("gs16", "What you're interested in"),
+            _text_field("gf16", "interested_in", "Interested in"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+
+    assert [group.select_one(":scope > legend").get_text(strip=True) for group in form.select("fieldset.fl-fieldset")] == [
+        "What you're interested in",
+    ]
+    assert form.select_one(".fl-fieldset-orphan p.fl-legend").get_text(strip=True) == "Nothing under me yet"
+    assert form.select_one(".fl-fieldset-orphan legend") is None
+    assert [field.select_one("label").get_text(strip=True) for field in form.select_one("fieldset.fl-fieldset").select(".fl-field-wrap")] == [
+        "Interested in",
+    ]
+
+
+def test_contact_page_field_groups_and_field_blocks_agree(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    Flattening the groups gives back the field list, in stream order.
+
+    The two properties read the same stream for different reasons: one wants the
+    members, the other wants the boundaries. As a result, neither can be derived
+    from the other, and each repeats the test for what counts as a field.
+
+    It is important that they agree.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        _create_thank_you_page(index_page),
+        "grouped-agreement",
+        [
+            _text_field("ga1", "first_name", "First name"),
+            _text_field("ga2", "last_name", "Last name"),
+            _fieldset("ga3", "What you're interested in"),
+            _text_field("ga4", "interested_in", "Interested in"),
+            _fieldset("ga5", "Nothing under me yet"),
+        ],
+    )
+
+    flattened = [field for _, fields in page.form_field_groups for field in fields]
+
+    assert [field.id for field in flattened] == [field.id for field in page.form_field_blocks]
+
+    # Both sides must be doing real work: fieldsets present and dropped, a run that holds
+    # no fields, and an ungrouped run ahead of the first fieldset.
+    assert len(page.form_fields) > len(page.form_field_blocks)
+    assert [fieldset is None for fieldset, _ in page.form_field_groups] == [True, False, False]
+    assert [len(fields) for _, fields in page.form_field_groups] == [2, 1, 0]

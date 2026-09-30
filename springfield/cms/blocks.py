@@ -3846,6 +3846,34 @@ class CountrySelectFieldBlock(BaseField):
         value_class = CountrySelectFieldValue
 
 
+class FieldsetAndLegendBlock(blocks.StructBlock):
+    """
+    A block for a fieldgroup around the form fields that follow it.
+
+    The group goes from where it is added by an editor to the next block of this
+    type, or to the end of the form. In Wagtail, this is a sibling of the fields
+    it groups.
+    """
+
+    legend = blocks.CharBlock(
+        label="Legend",
+        help_text=(
+            "Short name for the group, e.g. 'What you're interested in'. A screen reader announces it before the label of every field in the group."
+        ),
+    )
+    help_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        label="Help text",
+        help_text="Optional text under the legend, describing the group as a whole.",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Fieldset and Legend"
+        label_format = "Fieldset - {legend}"
+
+
 class ContactFormBlock(blocks.StructBlock):
     """Loads a chosen contact page's form into another page.
 

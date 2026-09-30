@@ -5,8 +5,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
 .fl-form {
+    --fl-form-gap: var(--token-spacing-2xl);
     display: grid;
-    gap: var(--token-spacing-2xl);
+    gap: var(--fl-form-gap);
     grid-template-columns: 1fr;
     inline-size: 100%;
     margin-inline: auto;
@@ -95,6 +96,101 @@ fieldset.fl-field-wrap {
     font-size: var(--fl-theme-label-sm);
 }
 
+/*
+  A FieldsetAndLegendBlock groups the fields that follow it. The <fieldset> becomes
+  .fl-form's grid item, which means the fields inside it are no longer the form's grid
+  items. The fieldset has to carry the same grid, or a group's fields stop lining
+  up with the fields outside one.
+*/
+.fl-fieldset {
+    border: 0 none;
+    display: grid;
+    gap: var(--fl-form-gap);
+    grid-template-columns: 1fr;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+}
+
+/*
+  A group label is uppercased at the size that supports uppercase letters, so the
+  group label and the field label do not read as the same kind of thing when
+  they nest.
+*/
+.fl-fieldset > .fl-legend,
+.fl-fieldset-orphan > .fl-legend {
+    font-size: var(--fl-theme-label-caps-md);
+
+    @container style(--lang-supports-uppercase: true) {
+        text-transform: uppercase;
+    }
+}
+
+/*
+  A fieldset's rendered legend is not a grid item: the display type applies to the
+  fieldset's anonymous content box, which the legend sits outside, so it is spaced with
+  a margin, not with the grid gap.
+*/
+.fl-fieldset > .fl-legend {
+    border-block-end: var(--fl-theme-divider);
+    margin-block-end: var(--token-spacing-md);
+    padding-block-end: var(--token-spacing-md);
+}
+
+/*
+  With help text the header is two elements, so the rule moves to the second of them.
+  Left on the legend it would separate the label from its own copy.
+*/
+.fl-fieldset:has(.fl-fieldset-help) > .fl-legend {
+    border-block-end: 0 none;
+    padding-block-end: 0;
+}
+
+/*
+  The help text is a grid item, so the form's 32px row gap falls between it and the first
+  field of the group. Pulling it up by the difference leaves 12px, which reads as "this
+  introduces what follows" rather than "this is a separate thing". A help text is always
+  followed by at least one field.
+*/
+.fl-fieldset-help {
+    border-block-end: var(--fl-theme-divider);
+    margin-block-end: calc(var(--token-spacing-md) - var(--fl-form-gap));
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-fieldset-help > :first-child {
+    margin-block-start: 0;
+}
+
+.fl-fieldset-help > :last-child {
+    margin-block-end: 0;
+}
+
+/*
+  A FieldsetAndLegendBlock with no fields under it yet shows its text, so an
+  editor can see what they typed.
+*/
+.fl-fieldset-orphan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+}
+
+/*
+  `.fl-legend` declares no margin.
+*/
+.fl-fieldset-orphan > .fl-legend {
+    margin-block-end: 0;
+}
+
+.fl-fieldset-orphan > .fl-rich-text > :first-child {
+    margin-block-start: 0;
+}
+
+.fl-fieldset-orphan > .fl-rich-text > :last-child {
+    margin-block-end: 0;
+}
+
 .fl-mediacontent:has(.fl-contact-form-wrapper) {
     align-items: start;
 }
@@ -110,8 +206,15 @@ fieldset.fl-field-wrap {
     }
 
     .fl-form.fl-form-two-column .fl-buttons,
+    .fl-form.fl-form-two-column .fl-fieldset-help,
+    .fl-form.fl-form-two-column .fl-fieldset-orphan,
     .fl-form.fl-form-two-column .fl-notification-wrapper {
         grid-column: span 2;
+    }
+
+    .fl-form.fl-form-two-column .fl-fieldset {
+        grid-column: span 2;
+        grid-template-columns: 1fr 1fr;
     }
 
     .fl-form.fl-form-two-column .fl-buttons .fl-button {
