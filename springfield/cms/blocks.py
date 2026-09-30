@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
+from django.http import QueryDict
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -3852,6 +3853,14 @@ class CountrySelectFieldBlock(BaseField):
         value_class = CountrySelectFieldValue
 
 
+class QueryParamBlock(blocks.StructBlock):
+    key = UntranslatableCharBlock(label="Key")
+    value = UntranslatableCharBlock(label="Value")
+
+    class Meta:
+        label_format = "{key}={value}"
+
+
 class ContactFormBlock(blocks.StructBlock):
     """Loads a chosen contact page's form into another page.
 
@@ -3867,6 +3876,13 @@ class ContactFormBlock(blocks.StructBlock):
         label="Two Column Layout",
         help_text="Render the form fields in two columns on large screens.",
     )
+    query_params = blocks.ListBlock(
+        QueryParamBlock(),
+        default=[],
+        label="Query Params",
+        help_text="Sent with the form to set hidden fields' query param overrides. "
+        "The same params on the page's URL take precedence over anything set here.",
+    )
 
     class Meta:
         icon = "mail"
@@ -3875,7 +3891,7 @@ class ContactFormBlock(blocks.StructBlock):
         label_format = "Contact Form - {contact_page}"
         form_layout = blocks.BlockGroup(
             children=["contact_page"],
-            settings=["two_column"],
+            settings=["two_column", "query_params"],
         )
 
     def contact_page_is_invalid(self, contact_page):
@@ -3909,8 +3925,12 @@ class ContactFormBlock(blocks.StructBlock):
             return context
 
         request.needs_htmx = True
-        # Host query params feed hidden fields' query_param_override on the contact page.
-        params = request.GET.copy()
+        # Query params feed hidden fields' query_param_override on the contact page.
+        params = QueryDict(mutable=True)
+        for query_param in value.get("query_params", []):
+            params[query_param["key"]] = query_param["value"]
+        for key in request.GET:
+            params.setlist(key, request.GET.getlist(key))
         params["form_instance"] = contact_page.next_form_number(request)
         if value.get("two_column"):
             params["two_column"] = "1"

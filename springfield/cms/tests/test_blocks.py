@@ -6237,6 +6237,40 @@ def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, 
     assert "no-store" not in response.get("Cache-Control", "")
 
 
+@pytest.mark.parametrize(
+    "host_query, expected_query",
+    [
+        ({}, "ls=sunday-event-contact&utm_source=event&form_instance=1"),
+        ({"ls": "another-source"}, "ls=another-source&utm_source=event&form_instance=1"),
+    ],
+    ids=["block_params", "host_params_take_precedence"],
+)
+def test_contact_form_block_adds_its_query_params_to_the_form_url(contact_page_for_block, index_page, rf, host_query, expected_query):
+    """Editors set query params that feed the contact page's hidden field overrides; the host URL's own params win."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-query-params",
+        parent=index_page,
+        content=[
+            {
+                "type": "contact_form",
+                "value": {
+                    "contact_page": contact_page_for_block.pk,
+                    "query_params": [
+                        {"key": "ls", "value": "sunday-event-contact"},
+                        {"key": "utm_source", "value": "event"},
+                    ],
+                },
+            }
+        ],
+    )
+
+    response = page.serve(rf.get(page.get_full_url(), host_query))
+    placeholder = BeautifulSoup(response.content, "html.parser").find("div", class_="fl-contact-form-wrapper")
+
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?{expected_query}"
+
+
 def test_form_field_clean_rejects_the_honeypot_internal_identifier():
     """The contact form posts the `office_fax` honeypot itself, so an author's field cannot claim it."""
     with pytest.raises(ValidationError, match="'office_fax' is reserved"):
