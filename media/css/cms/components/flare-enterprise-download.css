@@ -40,7 +40,6 @@
     border-block-start: 1px solid var(--fl-subtle-border-color);
     margin-block-end: var(--token-spacing-2xl);
     padding-block-start: var(--token-spacing-2xl);
-    text-align: center;
 }
 
 .fl-enterprise-download-resources ul {

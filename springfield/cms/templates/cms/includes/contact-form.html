@@ -53,8 +53,36 @@
         </include:notification>
       {% endif %}
 
-      {% for field in page.form_fields %}
-        {% include_block field %}
+      {#
+        Fields are rendered in the groups a Fieldset and Legend block divides them into.
+        A fieldset holding no fields is not emitted as a fieldset, but its text is shown.
+      #}
+      {% for fieldset, fields in page.form_field_groups %}
+        {% set help_text = fieldset.value.help_text if fieldset and fieldset.value.help_text|plain_text|trim else none %}
+        {% set help_text_id = form.id_prefix ~ fieldset.id ~ "-help" if help_text else "" %}
+        {% if fieldset and fields %}
+          <fieldset class="fl-fieldset"{% if help_text %} aria-describedby="{{ help_text_id }}"{% endif %}>
+            <legend class="fl-legend">{{ fieldset.value.legend }}</legend>
+            {% if help_text %}
+              <div class="fl-fieldset-help fl-rich-text" id="{{ help_text_id }}">{{ help_text|richtext }}</div>
+            {% endif %}
+            {% for field in fields %}
+              {% include_block field %}
+            {% endfor %}
+          </fieldset>
+        {% elif fieldset %}
+          {# If the fieldset has no fields, we show the text in divs. #}
+          <div class="fl-fieldset-orphan">
+            <p class="fl-legend">{{ fieldset.value.legend }}</p>
+            {% if help_text %}
+              <div class="fl-rich-text">{{ help_text|richtext }}</div>
+            {% endif %}
+          </div>
+        {% else %}
+          {% for field in fields %}
+            {% include_block field %}
+          {% endfor %}
+        {% endif %}
       {% endfor %}
 
       <div class="hidden">

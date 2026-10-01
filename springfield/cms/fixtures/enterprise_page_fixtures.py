@@ -18,7 +18,8 @@ from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.comparison_table_fixtures import make_content_rows, make_header_row
-from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
+from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants_with_fieldsets
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_rich_text
 from springfield.cms.models import ContactPage, FreeFormPage2026, NavigationSnippet, SpringfieldImage
 from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
 
@@ -675,7 +676,7 @@ def download_button(block_id, label, analytics_id, theme=""):
 
 
 def enterprise_download(block_id):
-    return {"type": "enterprise_download", "value": None, "id": block_id}
+    return get_enterprise_download(block_id=block_id, rich_text=get_enterprise_download_rich_text("ed260000-0003-0003-0003"))
 
 
 def product_content(contact_page):
@@ -1120,7 +1121,7 @@ def get_enterprise_contact_page(parent) -> ContactPage:
         defaults={
             "title": "Contact",
             "basket_api_path": BASKET_CONTACT_ENTERPRISE_PATH,
-            "form_fields": get_form_field_variants(),
+            "form_fields": get_form_field_variants_with_fieldsets(),
             "thank_you_message": '<p data-block-key="entctty">Thanks for reaching out! We\'ll be in touch about early access.</p>',
         },
     )
@@ -1135,7 +1136,7 @@ def get_enterprise_contact_page(parent) -> ContactPage:
             media=[],
         )
     ]
-    page.form_fields = get_form_field_variants()
+    page.form_fields = get_form_field_variants_with_fieldsets()
     page.basket_api_path = BASKET_CONTACT_ENTERPRISE_PATH
     page.thank_you_message = '<p data-block-key="entctty">Thanks for reaching out! We\'ll be in touch about early access.</p>'
     page.save_revision().publish()

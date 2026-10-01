@@ -32,6 +32,13 @@
     margin-block-end: 0;
 }
 
+.fl-section-pictogram img {
+    block-size: 100px;
+    inline-size: auto;
+    margin-block-end: 0;
+    margin-inline: auto;
+}
+
 .fl-section-container.is-narrow {
     max-inline-size: var(--token-width-desktop-content-lg);
 }

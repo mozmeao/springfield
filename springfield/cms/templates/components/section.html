@@ -8,6 +8,12 @@
 
 <section class="fl-section" {% if anchor_id %}id="{{ anchor_id }}"{% endif %}>
   <div class="fl-section-container">
+    {% if contents.pictogram %}
+      <div class="fl-section-pictogram">
+        {{ contents.pictogram }}
+      </div>
+    {% endif %}
+
     {% if contents.heading %}
       {{ contents.heading }}
     {% endif %}
