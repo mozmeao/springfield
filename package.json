@@ -48,7 +48,7 @@
     "glob": "^13.0.6",
     "globals": "^17.7.0",
     "jasmine-browser-runner": "^4.0.0",
-    "jasmine-core": "^6.3.0",
+    "jasmine-core": "^7.0.2",
     "prettier": "^3.9.3",
     "prettier-plugin-css-order": "^2.2.0",
     "sinon": "^22.0.0",
