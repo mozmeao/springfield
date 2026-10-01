@@ -22,11 +22,11 @@ TrackCTAClick.attributes = {
  * @param {Element} el
  * @returns {Object}
  */
-TrackCTAClick.getProps = (el) => {
+TrackCTAClick.getProps = (element) => {
     const props = {};
 
     for (const [attribute, prop] of Object.entries(TrackCTAClick.attributes)) {
-        const value = (el.getAttribute(attribute) || '').trim();
+        const value = (element.getAttribute(attribute) || '').trim();
         if (value) {
             props[prop] = value;
         }
