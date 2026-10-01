@@ -3893,13 +3893,7 @@ class QueryParamBlock(blocks.StructBlock):
 
 
 class FieldsetAndLegendBlock(blocks.StructBlock):
-    """
-    A block for a fieldgroup around the form fields that follow it.
-
-    The group goes from where it is added by an editor to the next block of this
-    type, or to the end of the form. In Wagtail, this is a sibling of the fields
-    it groups.
-    """
+    """A block for a fieldgroup around the form fields that follow it."""
 
     legend = blocks.CharBlock(
         label="Legend",

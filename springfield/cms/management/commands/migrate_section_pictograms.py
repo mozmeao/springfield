@@ -4,13 +4,6 @@
 
 """
 Idempotent management command to add pictograms into section blocks' pictogram field.
-
-Until now, pictograms came from a background-image keyed on the section's anchor ID,
-so a section inherited one by being named 'sovereignty'. This uploads each SVG as an
-image record and writes it onto the sections that were relying on that rule.
-
-The same logic is applied to page revisions, so the CMS editor and the live page agree
-on what a page holds. A section that already has a pictogram is left alone.
 """
 
 import json
@@ -34,13 +27,11 @@ logger = logging.getLogger(__name__)
 
 SECTION_TYPE = "section"
 
-# Stands in for an image that --dry-run reports but does not create, so the walk still runs.
+# Stands in for an image that --dry-run reports but does not create.
 DRY_RUN_IMAGE_ID = -1
 
 # Anchor ID is the SVG under media/img/firefox/enterprise/ that its CSS rule pointed at,
-# and the title its image record gets. The title is the idempotency key: Django suffixes a
-# colliding upload (sovereignty-pictogram_dXUK2KY.svg), so a filename lookup would miss an
-# image this command had already created and make a duplicate on each run.
+# and the title its image record gets.
 PICTOGRAMS_BY_ANCHOR = {
     "sovereignty": ("sovereignty-pictogram.svg", "Sovereignty pictogram"),
     "security": ("security-pictogram.svg", "Security pictogram"),
@@ -69,12 +60,6 @@ def set_section_pictograms(data, image_ids_by_anchor):
     Walk nested StreamField data, setting the pictogram on every anchored section.
 
     Returns True when anything changed. A section that already holds a pictogram keeps it.
-
-    The sequence check accepts MutableSequence as well as list because a page's
-    StreamValue.raw_data is a StreamValue.RawDataView, which subclasses MutableSequence
-    and not list. Checking for list alone makes this function return False for every page
-    while still working on revisions, whose data comes back from json.loads as a real list,
-    so the command would report success and write nothing.
     """
     changed = False
     if isinstance(data, dict):
@@ -208,13 +193,7 @@ class Command(BaseCommand):
         self.stdout.write(f"  {total} revisions {verb}.\n")
 
     def _update_translation_sources(self, translation_keys, dry_run):
-        """
-        Re-sync wagtail-localize TranslationSource snapshots for the pages that changed.
-
-        Scoped to those pages on purpose: re-snapshotting a source that this command did not
-        touch can mark its translations out of date for no reason. TranslationSource.object_id
-        holds the object's translation_key.
-        """
+        """Re-sync wagtail-localize TranslationSource snapshots for the pages that changed."""
         self.stdout.write("Updating TranslationSource records...\n")
         if not translation_keys:
             self.stdout.write("  No pages changed; nothing to re-sync.\n")

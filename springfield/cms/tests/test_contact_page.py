@@ -3061,12 +3061,8 @@ def test_contact_page_fieldset_with_no_fields_renders_its_text_without_a_fieldse
 ) -> None:
     """
     An editor who adds a FieldsetAndLegendBlock with its text, but has not yet
-    added fields below it, should still sees the text on the page.
-
-    A <fieldset> with no controls groups nothing and a <legend> is invalid outside one, so
-    the group is not emitted as markup, but dropping the text silently would leave the
-    editor unable to tell whether the block works.
-    So instead the FieldsetAndLegendBlock's text is rendered inside <div>s and <p>s.
+    added fields below it, should still sees the FieldsetAndLegendBlock's text
+    on the page.
     """
     index_page = minimal_site.root_page
     page = _grouped_page(
@@ -3383,13 +3379,7 @@ def test_contact_page_built_from_the_fieldset_variants_submits_cleanly(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """
-    A full POST through a realistically shaped form that contains fieldset blocks.
-
-    The page builders use the ``_with_fieldsets`` helpers, so this is the shape a real page
-    has. One request drives get_form, _collect_field_values and send_form_email past the
-    filter, which is the coverage the shared field helpers deliberately no longer provide.
-    """
+    """A full POST through a realistically shaped form that contains fieldset blocks."""
     index_page = minimal_site.root_page
     page = ContactPage(
         title="Fieldset Variants Submit",
@@ -3432,11 +3422,6 @@ def test_fieldset_variants_group_every_field_under_a_legend_that_describes_it() 
     """
     A legend is announced before the label of every field in its group, so a group must
     not reach past the fields it names.
-
-    The required consent checkbox is the case that bites: it is grouped under
-    "What you're interested in", but a screen reader announces the terms
-    agreement as though it were an interest question, which is the thing that a
-    <legend> exists to prevent.
     """
     legend_of = {}
     legend = None
@@ -3498,15 +3483,7 @@ def test_contact_page_field_groups_and_field_blocks_agree(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """
-    Flattening the groups gives back the field list, in stream order.
-
-    The two properties read the same stream for different reasons: one wants the
-    members, the other wants the boundaries. As a result, neither can be derived
-    from the other, and each repeats the test for what counts as a field.
-
-    It is important that they agree.
-    """
+    """The form_field_blocks and form_field_groups properties agree in the fields they return."""
     index_page = minimal_site.root_page
     page = _grouped_page(
         index_page,

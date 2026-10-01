@@ -2,9 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# Data migration filling in the Enterprise Download block's Resources heading and
-# links, which used to come from the template and are editable content from here on.
-
 import os
 import sys
 
@@ -15,12 +12,7 @@ from springfield.base.config_manager import config
 
 
 def fill_enterprise_download_resources(apps, schema_editor):
-    """Populate every empty Enterprise Download block.
-
-    Skipped on fresh databases (pytest, CI, and the sqlite DB export replay the whole
-    migration chain with no prod data to fill) — running data migrations there has
-    broken the DB export before.
-    """
+    """Populate every empty Enterprise Download block."""
     is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
     if "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false"):
         return

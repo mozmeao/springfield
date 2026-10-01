@@ -6,20 +6,7 @@
 Idempotent management command filling in the Enterprise Download block's editable
 Resources content.
 
-We assume that every stored entry is ``"value": null`` and the Resources heading
-and links are hard-coded in the template. They are becoming editable content,
-which means the stored value has to hold them or the section renders empty.
-
-Nothing else repairs a null value: the block does not coerce it, so every consumer
-fails on a null value.
-
-Every block is filled with English copy, including the ones on translated pages.
-The content is CMS-editable now, so translations go through the normal
-wagtail-localize workflow rather than added; translated pages are listed as they
-are updated, so an author knows which ones need attention.
-
-The same rules are applied to page revisions, so the CMS editor and the live
-page agree on what a page has.
+We assume that every stored entry is ``"value": null``.
 """
 
 import json
@@ -196,15 +183,7 @@ class Command(BaseCommand):
         self.stdout.write(f"  {total} revisions {'would be updated' if dry_run else 'updated'}.\n")
 
     def _update_translation_sources(self, translation_keys, dry_run):
-        """
-        Re-sync the wagtail-localize snapshots of the pages this command changed.
-
-        Only the source's serialized content is refreshed; create_or_update_translation()
-        is not called, because it re-materializes translated pages, and can drop blocks
-        whose segments do not match. Translated rows are filled above, so they
-        keep rendering. Sources for pages this command did not touch are left alone:
-        re-snapshotting them can mark their translations out of date for no reason.
-        """
+        """Re-sync the wagtail-localize snapshots of the pages this command changed."""
         self.stdout.write("Updating TranslationSource records...\n")
 
         if dry_run:

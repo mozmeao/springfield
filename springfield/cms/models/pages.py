@@ -2053,26 +2053,13 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
     @property
     def form_field_blocks(self):
-        """
-        The ``form_fields`` items that are meant to define an actual form field.
-
-        The FieldsetAndLegendBlock is also in the ``form_fields``, but it is not
-        meant to be an actual field in the template. This property allows the
-        template to separate which ``form_fields`` should be fields, and which
-        should not.
-        """
+        """Returns form_fields items that become form fields. FieldsetAndLegendBlock is excluded."""
         return [child for child in self.form_fields if isinstance(child.block, BaseField)]
 
     @property
     def form_field_groups(self):
         """
-        The ``form_fields`` items that are meant to define an actual form field,
-        grouped as ``(fieldset_block_or_None, [field_blocks])`` .
-
-        The FieldsetAndLegendBlock is also in the ``form_fields``, but it is not
-        meant to be an actual field in the template. This property allows the
-        template to separate which ``form_fields`` should be fields, and which
-        should not, similar to what is done in form_field_blocks.
+        Returns form_fields items that become form fields, grouped. FieldsetAndLegendBlock excluded.
         """
         groups = [(None, [])]
         for child in self.form_fields:

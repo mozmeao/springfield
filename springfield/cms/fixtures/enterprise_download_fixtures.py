@@ -15,12 +15,7 @@ RESOURCE_LINKS = [
 
 
 def get_enterprise_download_rich_text(uid_prefix: str) -> str:
-    """Build the resources list, giving every link a uid built from ``uid_prefix``.
-
-    The uids are hardcoded rather than left to ``RichTextBlock.get_prep_value``, which
-    mints a fresh one on every fixture load. Each block on a page needs its own set, so
-    callers pass a different prefix per block.
-    """
+    """Build the resources list, giving every link a uid built from ``uid_prefix``."""
     items = "".join(
         f'<li><a href="{href}" uid="{uid_prefix}-{index:012d}">{text}</a></li>' for index, (href, text) in enumerate(RESOURCE_LINKS, start=1)
     )
