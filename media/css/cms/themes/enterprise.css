@@ -245,6 +245,25 @@
         color: var(--token-color-light-purple);
     }
 
+    .fl-tags {
+        margin-block-end: 0;
+    }
+
+    .fl-tag.fl-tag-purple {
+        background: radial-gradient(
+            580.35% 371.43% at 50% -291.07%,
+            rgba(130, 104, 218, 0.5) 0%,
+            rgba(200, 178, 246, 0.5) 50%,
+            rgba(241, 231, 248, 0.5) 100%
+        );
+        border-radius: 100px;
+        color: var(--fl-theme-color-link);
+        font-family: var(--fl-theme-font-family-headline);
+        font-size: 1.25rem;
+        font-weight: var(--token-font-weight-semibold);
+        padding: 1rem;
+    }
+
     /* No space for the CTA button on mobile */
     @media (--viewport-xs) {
         .fl-header-main-download-button {

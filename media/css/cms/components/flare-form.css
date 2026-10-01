@@ -108,16 +108,14 @@ fieldset.fl-field-wrap {
 
 .fl-fieldset > .fl-legend,
 .fl-fieldset-orphan > .fl-legend {
-    font-size: var(--fl-theme-label-caps-md);
-
-    @container style(--lang-supports-uppercase: true) {
-        text-transform: uppercase;
-    }
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-weight: var(--token-font-weight-semibold);
 }
 
 .fl-fieldset > .fl-legend {
-    border-block-end: var(--fl-theme-divider);
-    margin-block-end: var(--token-spacing-md);
+    border-block-start: var(--fl-theme-divider);
+    margin-block: var(--token-spacing-lg) var(--token-spacing-md);
     padding-block-end: var(--token-spacing-md);
 }
 
@@ -127,7 +125,6 @@ fieldset.fl-field-wrap {
 }
 
 .fl-fieldset-help {
-    border-block-end: var(--fl-theme-divider);
     margin-block-end: calc(var(--token-spacing-md) - var(--fl-form-gap));
     padding-block-end: var(--token-spacing-md);
 }
