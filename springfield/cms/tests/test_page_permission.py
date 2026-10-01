@@ -2,8 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""A group's "Translated pages" permissions extend its page permissions to the same page
-in every other locale, at the levels those permissions grant."""
+"""
+Extended page permissions granted to Users.
+
+A Group's "Translated pages" permissions extend the permissions that the group has for a page
+(and its descendants) to every translation of those pages. The translations don't necessarily
+get the same permission levels as the original page, they're granted the permissions defined
+by the group's "Translated pages" settings.
+
+All staff users are granted full page permissions to the Flare Docs pages.
+"""
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -16,7 +24,7 @@ from wagtail.users.forms import GroupForm
 from wagtail_localize.operations import translate_object
 
 from springfield.blog.models.pages import BlogIndexPage
-from springfield.cms.tests.factories import SimpleRichTextPageFactory
+from springfield.cms.tests.factories import FlareDocsIndexPageFactory, SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
 
@@ -55,6 +63,16 @@ def editor(editor_group):
     user = User.objects.create_user(username="editor", email="editor@example.com", password="pass", is_staff=True)
     user.groups.add(editor_group)
     return user
+
+
+@pytest.fixture
+def user_without_groups():
+    return User.objects.create_user(username="docs-editor", email="docs-editor@example.com", password="pass", is_staff=True)
+
+
+@pytest.fixture
+def flare_docs_page(english_page):
+    return FlareDocsIndexPageFactory(parent=english_page.get_parent(), slug="flare-docs")
 
 
 @pytest.fixture
@@ -137,3 +155,35 @@ def test_blog_page_translations_are_extended(translation_editor, editor_group, e
     translate_object(blog_index, [french_locale])
 
     assert page_permission_policy.user_has_permission_for_instance(translation_editor, "change", blog_index.get_translation(french_locale))
+
+
+def test_user_without_groups_has_all_permissions_for_flare_docs_pages(user_without_groups, flare_docs_page):
+    sample_page = SimpleRichTextPageFactory(parent=flare_docs_page, slug="sample")
+
+    for page in (flare_docs_page, sample_page):
+        page_permissions = page.permissions_for_user(user_without_groups)
+        assert page_permissions.can_add_subpage()
+        assert page_permissions.can_edit()
+        assert page_permissions.can_publish()
+        assert page_permissions.can_delete()
+        assert page_permissions.can_lock()
+        assert page_permissions.can_unlock()
+
+
+def test_flare_docs_permissions_do_not_leak_to_other_pages(user_without_groups, flare_docs_page, english_page):
+    assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "change", english_page)
+    assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "add", english_page)
+
+
+def test_non_staff_user_has_no_permissions_for_flare_docs_pages(user_without_groups, flare_docs_page):
+    user_without_groups.is_staff = False
+    user_without_groups.save()
+
+    assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "change", flare_docs_page)
+
+
+def test_inactive_user_has_no_permissions_for_flare_docs_pages(user_without_groups, flare_docs_page):
+    user_without_groups.is_active = False
+    user_without_groups.save()
+
+    assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "change", flare_docs_page)
