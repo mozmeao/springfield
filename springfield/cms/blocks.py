@@ -3566,26 +3566,9 @@ class DownloadSupportBlock(blocks.StaticBlock):
         label = "Download Support Message"
 
 
-class EnterpriseDownloadSettings(blocks.StructBlock):
-    center_content = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label="Center content",
-        help_text="Center the heading and the content below it.",
-    )
-
-    class Meta:
-        icon = "cog"
-        collapsed = True
-        label = "Settings"
-        label_format = "Center content: {center_content}"
-        form_classname = "compact-form struct-block"
-
-
 class EnterpriseDownloadBlock(blocks.StructBlock):
     """Enterprise download section."""
 
-    settings = EnterpriseDownloadSettings()
     heading = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
@@ -3596,10 +3579,20 @@ class EnterpriseDownloadBlock(blocks.StructBlock):
         required=False,
         help_text="Content below the heading. Leave this and the heading blank to hide the section.",
     )
+    center_content = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Center content",
+        help_text="Center the heading and the content below it.",
+    )
 
     class Meta:
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
+        form_layout = blocks.BlockGroup(
+            children=["heading", "rich_text"],
+            settings=["center_content"],
+        )
 
 
 # Contact Page Form Field Blocks

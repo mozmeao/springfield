@@ -70,7 +70,7 @@ def fill_enterprise_download_blocks(data):
             if isinstance(value, dict) and (value.get("heading") or value.get("rich_text")):
                 return False
             data["value"] = {
-                "settings": {"center_content": CENTER_CONTENT},
+                "center_content": CENTER_CONTENT,
                 "heading": HEADING,
                 "rich_text": build_rich_text(),
             }

@@ -34,7 +34,7 @@ def get_enterprise_download(
     return {
         "type": "enterprise_download",
         "value": {
-            "settings": {"center_content": center_content},
+            "center_content": center_content,
             "heading": heading,
             "rich_text": rich_text,
         },

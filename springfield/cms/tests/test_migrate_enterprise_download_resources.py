@@ -36,7 +36,7 @@ def test_fill_replaces_a_null_value_with_heading_and_links():
 
     value = data[0]["value"]
     assert value["heading"] == HEADING
-    assert value["settings"] == {"center_content": True}
+    assert value["center_content"] is True
     links = BeautifulSoup(value["rich_text"], "html.parser").find_all("a")
     assert [link["href"] for link in links] == [
         "https://firefox-admin-docs.mozilla.org/",
@@ -58,7 +58,7 @@ def test_fill_gives_every_block_its_own_link_uids():
 def test_fill_leaves_a_block_an_author_has_already_edited_alone():
     edited = {
         "type": "enterprise_download",
-        "value": {"settings": {"center_content": False}, "heading": "<p>Downloads</p>", "rich_text": "<ul><li>Mine</li></ul>"},
+        "value": {"center_content": False, "heading": "<p>Downloads</p>", "rich_text": "<ul><li>Mine</li></ul>"},
         "id": "edl00003-0000-0000-0000-000000000003",
     }
     data = [edited]
