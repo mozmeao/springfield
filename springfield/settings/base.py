@@ -1629,6 +1629,7 @@ _allowed_page_models = [
     "cms.ContactPage",
     "cms.ReferralHubPage",
     "cms.ReferralGetFirefoxPage",
+    "cms.ShareFirefoxPage",
 ]
 
 if DEV is True:
