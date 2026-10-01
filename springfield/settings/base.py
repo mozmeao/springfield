@@ -794,7 +794,7 @@ INSTALLED_APPS = [
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
-    "wagtail.users",
+    "springfield.users.apps.UsersConfig",  # replaces "wagtail.users"
     "wagtail.snippets",
     "wagtail.images",
     "wagtail_localize_smartling",  # Has to come before wagtail_localize
