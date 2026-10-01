@@ -4,6 +4,7 @@
 
 import json
 import platform
+import re
 import socket
 import struct
 import sys
@@ -728,8 +729,8 @@ def get_deployment_environment(app_name):
     `springfield-{environment}` or `springfield-cms-{environment}`. Returns "local"
     for any other app name.
     """
-    environment = app_name.rsplit("-", 1)[-1]
-    return environment if environment in ("dev", "stage", "prod", "test") else "local"
+    match = re.fullmatch(r"springfield(?:-cms)?-(dev|stage|prod|test)", app_name)
+    return match.group(1) if match else "local"
 
 
 HOSTNAME = platform.node()

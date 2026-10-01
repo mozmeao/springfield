@@ -19,6 +19,7 @@ from wagtail.log_actions import LogContext, log
 from wagtail.models import PageLogEntry
 
 from springfield.cms.tests.factories import SimpleRichTextPageFactory, WagtailUserFactory
+from springfield.cms.utils import get_cms_environment
 from springfield.settings.base import get_deployment_environment
 
 pytestmark = pytest.mark.django_db
@@ -190,10 +191,18 @@ def test_audit_lines_are_written_as_bare_json():
         ("springfield-test", "test"),
         ("springfield", "local"),
         ("www-demo3", "local"),
+        ("another-service-prod", "local"),
+        ("springfield-prod-cms", "local"),
+        ("springfield-cms", "local"),
     ],
 )
 def test_get_deployment_environment(app_name, expected_environment):
     assert get_deployment_environment(app_name) == expected_environment
+
+
+def test_get_cms_environment_matches_audit_log_environment(settings):
+    settings.APP_NAME = "springfield-cms-stage"
+    assert get_cms_environment() == get_deployment_environment(settings.APP_NAME) == "stage"
 
 
 @pytest.fixture
