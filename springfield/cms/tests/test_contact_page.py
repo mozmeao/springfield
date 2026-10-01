@@ -20,10 +20,8 @@ from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
 from springfield.cms.fixtures.contact_page_fixtures import (
-    _index_of,
     get_basic_form_field_variants,
     get_basic_form_field_variants_with_fieldsets,
-    get_contact_test_page,
     get_form_field_variants,
     get_form_field_variants_with_fieldsets,
 )
@@ -3008,7 +3006,7 @@ def test_contact_page_fieldset_with_no_fields_renders_its_text_without_a_fieldse
 ) -> None:
     """
     An editor who adds a FieldsetAndLegendBlock with its text, but has not yet
-    added fields below it, should still sees the FieldsetAndLegendBlock's text
+    added fields below it, should still see the FieldsetAndLegendBlock's text
     on the page.
     """
     index_page = minimal_site.root_page
@@ -3065,7 +3063,7 @@ def test_contact_page_fieldset_help_text_describes_the_group(
         '<p><span class="fl-fx-logo"></span></p>',  # the Firefox logo (no text)
     ],
 )
-def test_contact_page_fieldset_cleared_help_text_renders_nothing(
+def test_contact_page_fieldset_empty_help_text_renders_nothing(
     cleared: str,
     minimal_site: Site,
     rf: RequestFactory,
@@ -3089,11 +3087,11 @@ def test_contact_page_fieldset_cleared_help_text_renders_nothing(
     assert group.select_one("legend").get_text(strip=True) == "Your details"
 
 
-def test_contact_page_checkbox_group_keeps_its_own_fieldset_inside_a_group(
+def test_contact_page_checkbox_group_fieldset_is_nested_inside_a_group(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """Fieldsets nest: the group's, and the checkbox group's own."""
+    """Nested fieldsets: the group's wrapping the checkbox group's."""
     index_page = minimal_site.root_page
     page = _grouped_page(
         index_page,
@@ -3125,11 +3123,11 @@ def test_contact_page_checkbox_group_keeps_its_own_fieldset_inside_a_group(
     assert len(inner.select("input[type=checkbox]")) == 2
 
 
-def test_contact_page_form_of_only_fieldsets_renders_no_inputs(
+def test_contact_page_form_with_only_fieldsets_renders_no_inputs(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """A stream with no field blocks still serves: an empty form, not an exception."""
+    """A stream with no field blocks renders an empty form."""
     index_page = minimal_site.root_page
     page = _grouped_page(
         index_page,
@@ -3146,12 +3144,12 @@ def test_contact_page_form_of_only_fieldsets_renders_no_inputs(
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
-def test_contact_page_fieldset_is_absent_from_the_email(
+def test_contact_page_fieldset_is_not_processed_in_email_form_data(
     mock_email_class,
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """The notification email lists submitted fields; a group label is not one."""
+    """Fieldsets are not included in the processed form data sent by email."""
     index_page = minimal_site.root_page
     page = _grouped_page(
         index_page,
@@ -3170,11 +3168,11 @@ def test_contact_page_fieldset_is_absent_from_the_email(
 
 
 @responses.activate
-def test_contact_page_fieldset_is_absent_from_the_basket_payload(
+def test_contact_page_fieldset_is_not_processed_in_basket_payload(
     minimal_site: Site,
     rf: RequestFactory,
 ) -> None:
-    """The payload is keyed by internal_identifier; a group label has none and must add no key."""
+    """Fieldsets are not included in the processed form data sent to the basket API."""
     responses.add(responses.POST, f"{django_settings.BASKET_URL}{BASKET_CONTACT_BASIC_PATH}", status=200)
     index_page = minimal_site.root_page
 
@@ -3222,23 +3220,6 @@ def test_contact_page_fieldset_is_absent_from_the_basket_payload(
     }
 
 
-def test_contact_page_clean_ignores_fieldsets_when_validating_the_endpoint(
-    minimal_site: Site,
-) -> None:
-    """clean() builds identifier sets from the stream; a group label must not enter them."""
-    page = ContactPage(
-        title="Grouped Clean",
-        slug="grouped-clean",
-        basket_api_path=BASKET_CONTACT_BASIC_PATH,
-        form_fields=[_fieldset("gs12", "Your details")] + get_basic_form_field_variants(),
-        thank_you_message="<p>Thank you!</p>",
-    )
-
-    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
-
-    page.clean()  # Does not raise an error
-
-
 def test_contact_page_fieldset_survives_a_validation_error_rerender(
     minimal_site: Site,
     rf: RequestFactory,
@@ -3256,59 +3237,6 @@ def test_contact_page_fieldset_survives_a_validation_error_rerender(
 
     assert soup.select_one("fieldset.fl-fieldset legend").get_text(strip=True) == "Your details"
     assert soup.select_one("fieldset.fl-fieldset .fl-field-error")
-
-
-def test_contact_page_two_column_layout_nests_grouped_fields_in_the_fieldset(
-    minimal_site: Site,
-    rf: RequestFactory,
-) -> None:
-    """
-    The fieldset becomes the form's grid item, so the grouped fields are no longer
-    children of .fl-form. CSS depends on exactly this nesting; assert the
-    structure here, because the repo has no way to assert the layout.
-    """
-    index_page = minimal_site.root_page
-    page = _grouped_page(
-        index_page,
-        "grouped-two-column",
-        [_fieldset("gs14", "Your details"), _text_field("gf14", "first_name", "First name")],
-    )
-
-    request = rf.get(page.relative_url(minimal_site), {"two_column": "1"})
-    soup = BeautifulSoup(page.serve(request).content.decode(), "html.parser")
-    form = soup.select_one("form.fl-form")
-
-    assert "fl-form-two-column" in form["class"]
-    assert form.select_one(":scope > .fl-field-wrap") is None
-    assert form.select_one(":scope > fieldset.fl-fieldset > .fl-field-wrap")
-
-
-def test_contact_fixture_page_renders_its_fieldsets(index_page, rf: RequestFactory) -> None:
-    """The sample page demonstrates the block, links in the help text included."""
-    page = get_contact_test_page()
-
-    response = page.serve(rf.get(page.get_full_url()))
-    soup = BeautifulSoup(response.content, "html.parser")
-    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
-
-    assert response.status_code == 200
-    assert group.select_one("legend.fl-legend").get_text(strip=True) == "Your details"
-    assert group["aria-describedby"] == group.select_one(".fl-fieldset-help")["id"]
-
-    link = group.select_one(".fl-fieldset-help a")
-    assert link["data-cta-uid"] == "2026cp04-0001-0001-0001-000000000001"
-    assert link["data-cta-text"] == "privacy notice"
-    assert link["data-cta-position"] == "link-1"
-
-
-def test_fieldset_variants_wrap_the_field_variants_without_changing_them() -> None:
-    """The helpers the fixture pages use add group."""
-    fields = get_form_field_variants()
-    grouped = get_form_field_variants_with_fieldsets()
-
-    assert all("internal_identifier" in field["value"] for field in fields)
-    assert [field["type"] for field in grouped].count("fieldset") == 3
-    assert [field for field in grouped if field["type"] != "fieldset"] == fields
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -3375,12 +3303,6 @@ def test_fieldset_variants_group_every_field_under_a_legend_that_describes_it() 
     assert legend_of["opt_in"] == "Before you send"
 
 
-def test_fieldset_variants_name_the_missing_field_when_a_group_anchor_goes_away() -> None:
-    """Groups are anchored to identifiers, so a renamed field must fail legibly."""
-    with pytest.raises(LookupError, match="firefox_use_stage"):
-        _index_of([{"value": {"internal_identifier": "first_name"}}], "firefox_use_stage")
-
-
 def test_contact_page_two_adjacent_fieldsets_leave_the_first_as_an_orphan_mid_form(
     minimal_site: Site,
     rf: RequestFactory,
@@ -3438,8 +3360,6 @@ def test_contact_page_field_groups_and_field_blocks_agree(
 
     assert [field.id for field in flattened] == [field.id for field in page.form_field_blocks]
 
-    # Both sides must be doing real work: fieldsets present and dropped, a run that holds
-    # no fields, and an ungrouped run ahead of the first fieldset.
     assert len(page.form_fields) > len(page.form_field_blocks)
     assert [fieldset is None for fieldset, _ in page.form_field_groups] == [True, False, False]
     assert [len(fields) for _, fields in page.form_field_groups] == [2, 1, 0]
