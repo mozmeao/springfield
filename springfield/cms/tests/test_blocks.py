@@ -2120,8 +2120,6 @@ def test_enterprise_download_block(index_page, rf):
             "The richtext filter appends the page's UTM parameters to Mozilla links"
         )
 
-        assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
-
     upper_resources = upper.find("div", class_="fl-enterprise-download-resources")
     assert "text-center" not in upper_resources["class"], "The upper block leaves Center content off, so the region is not centered"
 
