@@ -3569,11 +3569,17 @@ class DownloadSupportBlock(blocks.StaticBlock):
 class EnterpriseDownloadBlock(blocks.StructBlock):
     """Enterprise download section."""
 
+    section_heading = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+    )
+
     heading = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
         help_text="Heading for the content below the download menus.",
     )
+
     rich_text = RichTextBlock(
         features=EXPANDED_TEXT_FEATURES,
         required=False,
@@ -3590,7 +3596,7 @@ class EnterpriseDownloadBlock(blocks.StructBlock):
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
         form_layout = blocks.BlockGroup(
-            children=["heading", "rich_text"],
+            children=["section_heading", "heading", "rich_text"],
             settings=["center_content"],
         )
 
