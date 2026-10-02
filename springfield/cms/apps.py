@@ -25,7 +25,7 @@ class CmsConfig(AppConfig):
         # Extend group page permissions to the other locales at their "Translated pages" levels
         self._patch_page_permission_policy()
 
-        # Give every staff user full page permissions on the Flare Docs pages
+        # Give every user full page permissions on the Flare Docs pages
         self._patch_flare_docs_page_permissions()
 
         # Populate the User Routing signal registry with the v1 signals.
@@ -185,7 +185,7 @@ class CmsConfig(AppConfig):
     @staticmethod
     def _patch_flare_docs_page_permissions():
         """
-        Give every active staff user all page permissions on each ``FlareDocsIndexPage`` and
+        Give every active user all page permissions on each ``FlareDocsIndexPage`` and
         the pages below it.
         """
 
@@ -203,7 +203,7 @@ class CmsConfig(AppConfig):
 
         def get_all_permissions_for_user(self: PagePermissionPolicy, user: AbstractBaseUser) -> list[GroupPagePermission]:
             permissions = original_get_all_permissions_for_user(self, user)
-            if not user.is_active or not user.is_staff or user.is_superuser:
+            if not user.is_active or user.is_anonymous or user.is_superuser:
                 return permissions
 
             page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)

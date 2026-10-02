@@ -10,7 +10,7 @@ A Group's "Translated pages" permissions extend the permissions that the group h
 get the same permission levels as the original page, they're granted the permissions defined
 by the group's "Translated pages" settings.
 
-All staff users are granted full page permissions to the Flare Docs pages.
+All users are granted full page permissions to the Flare Docs pages.
 """
 
 from django.conf import settings
@@ -67,7 +67,7 @@ def editor(editor_group):
 
 @pytest.fixture
 def user_without_groups():
-    return User.objects.create_user(username="docs-editor", email="docs-editor@example.com", password="pass", is_staff=True)
+    return User.objects.create_user(username="docs-editor", email="docs-editor@example.com", password="pass")
 
 
 @pytest.fixture
@@ -173,13 +173,6 @@ def test_user_without_groups_has_all_permissions_for_flare_docs_pages(user_witho
 def test_flare_docs_permissions_do_not_leak_to_other_pages(user_without_groups, flare_docs_page, english_page):
     assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "change", english_page)
     assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "add", english_page)
-
-
-def test_non_staff_user_has_no_permissions_for_flare_docs_pages(user_without_groups, flare_docs_page):
-    user_without_groups.is_staff = False
-    user_without_groups.save()
-
-    assert not page_permission_policy.user_has_permission_for_instance(user_without_groups, "change", flare_docs_page)
 
 
 def test_inactive_user_has_no_permissions_for_flare_docs_pages(user_without_groups, flare_docs_page):
