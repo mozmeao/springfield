@@ -3,38 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import animation_block, rich_text, smart_window_instructions
 from springfield.cms.models.pages import SmartWindowExplainerPage
-
-_ANIMATION_URL = "https://assets.mozilla.net/video/red-pandas.webm"
-
-
-def _animation_media(image_id, block_id=None):
-    return {
-        "type": "animation",
-        "value": {
-            "video_url": _ANIMATION_URL,
-            "alt": "Lorem ipsum animation.",
-            "poster": image_id,
-            "playback": "autoplay_loop",
-        },
-        "id": block_id,
-    }
-
-
-def _rich_text(text, block_id):
-    return {"type": "rich_text", "value": text, "id": block_id}
-
-
-def _instructions(typewriter_text, instructions_text, block_id):
-    return {
-        "type": "smart_window_instructions",
-        "value": {
-            "pre_typewriter_text": "Type this",
-            "typewriter_text": typewriter_text,
-            "instructions": f'<p data-block-key="{block_id}i">{instructions_text}</p>',
-        },
-        "id": block_id,
-    }
 
 
 def get_smart_window_explainer_intro() -> dict:
@@ -63,25 +33,25 @@ def get_smart_window_explainer_content() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": True, "narrow": False},
-                "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000010")],
+                "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000010")],
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="swepmc1h">Lorem ipsum dolor sit amet</p>',
                     "subheading_text": "",
                 },
                 "content": [
-                    _rich_text(
-                        '<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
-                        "swepmc01-0000-0000-0000-000000000011",
+                    rich_text(
+                        html='<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                        block_id="swepmc01-0000-0000-0000-000000000011",
                     ),
-                    _instructions(
-                        "lorem ipsum dolor sit amet",
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
-                        "swepmc01-0000-0000-0000-000000000012",
+                    smart_window_instructions(
+                        typewriter_text="lorem ipsum dolor sit amet",
+                        instructions_text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
+                        block_id="swepmc01-0000-0000-0000-000000000012",
                     ),
-                    _rich_text(
-                        '<p data-block-key="swepmc1c2">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>',
-                        "swepmc01-0000-0000-0000-000000000013",
+                    rich_text(
+                        html='<p data-block-key="swepmc1c2">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>',
+                        block_id="swepmc01-0000-0000-0000-000000000013",
                     ),
                 ],
             },
@@ -91,26 +61,26 @@ def get_smart_window_explainer_content() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": False, "narrow": False},
-                "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000020")],
+                "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000020")],
                 "heading": {
                     "superheading_text": '<p data-block-key="swepmc2e">Consectetur</p>',
                     "heading_text": '<p data-block-key="swepmc2h">Sed do eiusmod tempor incididunt</p>',
                     "subheading_text": "",
                 },
                 "content": [
-                    _rich_text(
-                        '<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu '
+                    rich_text(
+                        html='<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu '
                         "fugiat nulla pariatur.</p>",
-                        "swepmc01-0000-0000-0000-000000000021",
+                        block_id="swepmc01-0000-0000-0000-000000000021",
                     ),
-                    _instructions(
-                        "sed do eiusmod tempor incididunt",
-                        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim.",
-                        "swepmc01-0000-0000-0000-000000000022",
+                    smart_window_instructions(
+                        typewriter_text="sed do eiusmod tempor incididunt",
+                        instructions_text="Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim.",
+                        block_id="swepmc01-0000-0000-0000-000000000022",
                     ),
-                    _rich_text(
-                        '<p data-block-key="swepmc2c2">Excepteur sint occaecat cupidatat non proident.</p>',
-                        "swepmc01-0000-0000-0000-000000000023",
+                    rich_text(
+                        html='<p data-block-key="swepmc2c2">Excepteur sint occaecat cupidatat non proident.</p>',
+                        block_id="swepmc01-0000-0000-0000-000000000023",
                     ),
                 ],
             },
@@ -120,26 +90,27 @@ def get_smart_window_explainer_content() -> list[dict]:
             "type": "media_content",
             "value": {
                 "settings": {"media_after": True, "narrow": False},
-                "media": [_animation_media(img, "swepmc01-0000-0000-0000-000000000030")],
+                "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000030")],
                 "heading": {
                     "superheading_text": '<p data-block-key="swepmc3e">Adipiscing</p>',
                     "heading_text": '<p data-block-key="swepmc3h">Quis nostrud exercitation ullamco</p>',
                     "subheading_text": "",
                 },
                 "content": [
-                    _rich_text(
-                        '<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
-                        "swepmc01-0000-0000-0000-000000000031",
+                    rich_text(
+                        html='<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
+                        block_id="swepmc01-0000-0000-0000-000000000031",
                     ),
-                    _instructions(
-                        "ut labore et dolore magna aliqua ut enim ad minim",
-                        "Ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation.",
-                        "swepmc01-0000-0000-0000-000000000032",
+                    smart_window_instructions(
+                        typewriter_text="ut labore et dolore magna aliqua ut enim ad minim",
+                        instructions_text="Ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation.",
+                        block_id="swepmc01-0000-0000-0000-000000000032",
                     ),
-                    _rich_text(
-                        '<p data-block-key="swepmc3c2">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt '
+                    rich_text(
+                        html='<p data-block-key="swepmc3c2">Lorem ipsum dolor sit amet, consectetur '
+                        "adipiscing elit, sed do eiusmod tempor incididunt "
                         "ut labore et dolore magna aliqua ut enim ad minim.</p>",
-                        "swepmc01-0000-0000-0000-000000000033",
+                        block_id="swepmc01-0000-0000-0000-000000000033",
                     ),
                 ],
             },
