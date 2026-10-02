@@ -2,38 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import link_block, section, subheading_block
 from springfield.cms.models import FreeFormPage2026
-
-
-def make_link(block_id, label, analytics_id, new_window=False):
-    return {
-        "type": "link",
-        "value": {
-            "settings": {"analytics_id": analytics_id},
-            "label": label,
-            "link": {
-                "link_to": "custom_url",
-                "page": None,
-                "file": None,
-                "custom_url": "https://mozilla.org",
-                "anchor": "",
-                "email": "",
-                "phone": "",
-                "new_window": new_window,
-                "relative_url": "",
-            },
-        },
-        "id": block_id,
-    }
-
-
-def make_subheading(block_id, text):
-    return {
-        "type": "subheading",
-        "value": f'<p data-block-key="{block_id}">{text}</p>',
-        "id": block_id,
-    }
 
 
 def get_resources_column_variants() -> list[dict]:
@@ -43,13 +14,24 @@ def get_resources_column_variants() -> list[dict]:
             "value": {
                 "headline": '<p data-block-key="2026rc1h">Links Only</p>',
                 "list_items": [
-                    make_link("2026rl01-0000-0000-0000-000000000001", "First link in the column", "6cbbc05e-d7ad-4929-befc-410e1e26e701"),
-                    make_link("2026rl01-0000-0000-0000-000000000002", "Second link in the column", "6cbbc05e-d7ad-4929-befc-410e1e26e702"),
-                    make_link(
-                        "2026rl01-0000-0000-0000-000000000003",
-                        "Third link, opens in a new window",
-                        "6cbbc05e-d7ad-4929-befc-410e1e26e703",
+                    link_block(
+                        block_id="2026rl01-0000-0000-0000-000000000001",
+                        label="First link in the column",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e701",
+                        custom_url="https://mozilla.org",
+                    ),
+                    link_block(
+                        block_id="2026rl01-0000-0000-0000-000000000002",
+                        label="Second link in the column",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e702",
+                        custom_url="https://mozilla.org",
+                    ),
+                    link_block(
+                        block_id="2026rl01-0000-0000-0000-000000000003",
+                        label="Third link, opens in a new window",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e703",
                         new_window=True,
+                        custom_url="https://mozilla.org",
                     ),
                 ],
             },
@@ -60,10 +42,18 @@ def get_resources_column_variants() -> list[dict]:
             "value": {
                 "headline": '<p data-block-key="2026rc2h">Subheading First</p>',
                 "list_items": [
-                    make_subheading("2026rs02-0000-0000-0000-000000000001", "A subheading before any link"),
-                    make_link("2026rl02-0000-0000-0000-000000000001", "Link under the first subheading", "6cbbc05e-d7ad-4929-befc-410e1e26e711"),
-                    make_link(
-                        "2026rl02-0000-0000-0000-000000000002", "Second link under the same subheading", "6cbbc05e-d7ad-4929-befc-410e1e26e712"
+                    subheading_block(block_id="2026rs02-0000-0000-0000-000000000001", text="A subheading before any link"),
+                    link_block(
+                        block_id="2026rl02-0000-0000-0000-000000000001",
+                        label="Link under the first subheading",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e711",
+                        custom_url="https://mozilla.org",
+                    ),
+                    link_block(
+                        block_id="2026rl02-0000-0000-0000-000000000002",
+                        label="Second link under the same subheading",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e712",
+                        custom_url="https://mozilla.org",
                     ),
                 ],
             },
@@ -74,11 +64,26 @@ def get_resources_column_variants() -> list[dict]:
             "value": {
                 "headline": '<p data-block-key="2026rc3h">Subheading Between Links</p>',
                 "list_items": [
-                    make_link("2026rl03-0000-0000-0000-000000000001", "Link before the subheading", "6cbbc05e-d7ad-4929-befc-410e1e26e721"),
-                    make_subheading("2026rs03-0000-0000-0000-000000000001", "A subheading that starts a new list"),
-                    make_link("2026rl03-0000-0000-0000-000000000002", "Link after the subheading", "6cbbc05e-d7ad-4929-befc-410e1e26e722"),
-                    make_subheading("2026rs03-0000-0000-0000-000000000002", "A second subheading"),
-                    make_link("2026rl03-0000-0000-0000-000000000003", "Link in the last list", "6cbbc05e-d7ad-4929-befc-410e1e26e723"),
+                    link_block(
+                        block_id="2026rl03-0000-0000-0000-000000000001",
+                        label="Link before the subheading",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e721",
+                        custom_url="https://mozilla.org",
+                    ),
+                    subheading_block(block_id="2026rs03-0000-0000-0000-000000000001", text="A subheading that starts a new list"),
+                    link_block(
+                        block_id="2026rl03-0000-0000-0000-000000000002",
+                        label="Link after the subheading",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e722",
+                        custom_url="https://mozilla.org",
+                    ),
+                    subheading_block(block_id="2026rs03-0000-0000-0000-000000000002", text="A second subheading"),
+                    link_block(
+                        block_id="2026rl03-0000-0000-0000-000000000003",
+                        label="Link in the last list",
+                        analytics_id="6cbbc05e-d7ad-4929-befc-410e1e26e723",
+                        custom_url="https://mozilla.org",
+                    ),
                 ],
             },
             "id": "2026rc01-0000-0000-0000-000000000003",
@@ -102,26 +107,6 @@ def get_resources_variants() -> list[dict]:
     ]
 
 
-def make_section(heading_text, content_blocks, section_id):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="2026rs">{heading_text}</p>',
-                "subheading_text": "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
 def get_resources_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
@@ -137,11 +122,7 @@ def get_resources_test_page() -> FreeFormPage2026:
 
     variants = get_resources_variants()
     page_content = [
-        make_section(
-            "Resources Inside a Section",
-            [variants[1]],
-            "2026rss1-0000-0000-0000-000000000001",
-        ),
+        section(heading_text="Resources Inside a Section", content_blocks=[variants[1]], section_id="2026rss1-0000-0000-0000-000000000001"),
         variants[0],
     ]
     page.upper_content = page_content

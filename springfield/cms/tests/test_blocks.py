@@ -83,13 +83,14 @@ from springfield.cms.fixtures.article_page_fixtures import (
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.browser_comparison_table_fixtures import (
-    cell as browser_comparison_cell,
-    get_browser_comparison_table_test_page,
-    get_browser_comparison_table_variants,
-    image_header_cell,
-    result_cell,
+from springfield.cms.fixtures.block_factories import (
+    browser_table_cell,
+    browser_table_image_header_cell,
+    browser_table_result_cell,
+    table_cell,
+    table_row,
 )
+from springfield.cms.fixtures.browser_comparison_table_fixtures import get_browser_comparison_table_test_page, get_browser_comparison_table_variants
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -104,12 +105,7 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
-from springfield.cms.fixtures.comparison_table_fixtures import (
-    cell as comparison_cell,
-    get_comparison_table_test_page,
-    get_comparison_table_variants,
-    row as comparison_row,
-)
+from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page, get_comparison_table_variants
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
@@ -4032,8 +4028,8 @@ def test_comparison_table_ignores_optional_content_left_in_stored_data():
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM", cell_id="h0")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[stored_cell], row_id="r0")],
+            "header_row": [table_row(cells=[table_cell(content="PREMIUM", cell_id="h0")], row_id="hr")],
+            "content_rows": [table_row(cells=[stored_cell], row_id="r0")],
         }
     )
 
@@ -4070,7 +4066,7 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
         {
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
-            "header_row": [comparison_row(cells=header_cells, row_id="hr")],
+            "header_row": [table_row(cells=header_cells, row_id="hr")],
             "content_rows": content_rows,
         }
     )
@@ -4080,8 +4076,8 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
 def _render_comparison_result_row(cell_data):
     """One-row browser comparison table whose only value cell holds ``cell_data``."""
     return _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Firefox", cell_id="")],
+        content_rows=[table_row(cells=[browser_table_cell(content="Blocks trackers", cell_id=""), cell_data], row_id="r0")],
     )
 
 
@@ -4095,7 +4091,7 @@ def _render_comparison_result_row(cell_data):
 )
 def test_comparison_result_renders_icon_and_result_name(result, icon_class, label):
     """Each result choice picks its own icon, labelled with the result's name."""
-    cell_data = result_cell(result, cell_id="c1")
+    cell_data = browser_table_result_cell(result=result, cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4105,7 +4101,7 @@ def test_comparison_result_renders_icon_and_result_name(result, icon_class, labe
 
 def test_comparison_result_label_can_be_overridden():
     """An author-supplied label replaces the result's name, keeping its icon."""
-    cell_data = result_cell("limited", "Some features", cell_id="c1")
+    cell_data = browser_table_result_cell(result="limited", label="Some features", cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4114,7 +4110,7 @@ def test_comparison_result_label_can_be_overridden():
 
 
 def test_comparison_cell_optional_content_replaces_plain_text():
-    cell_data = result_cell("yes", cell_id="c1")
+    cell_data = browser_table_result_cell(result="yes", cell_id="c1")
     cell_data["value"]["content"] = "Ignored text"
     soup = _render_comparison_result_row(cell_data)
 
@@ -4124,10 +4120,14 @@ def test_comparison_cell_optional_content_replaces_plain_text():
 
 
 def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     header_cell_els = soup.find("thead").find_all(["th", "td"])
@@ -4140,11 +4140,15 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
@@ -4157,8 +4161,8 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
-            "content_rows": [comparison_row(cells=[legacy_cell], row_id="r0")],
+            "header_row": [table_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
+            "content_rows": [table_row(cells=[legacy_cell], row_id="r0")],
         }
     )
 
@@ -4174,8 +4178,15 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
 def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
     """The block renders its own component, not the comparison table's."""
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), image_header_cell("Firefox", cell_id="h1")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[
+            browser_table_cell(content="", cell_id=""),
+            browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id),
+        ],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
         mobile_behavior="stacked",
         highlighted_column=2,
     )
@@ -4191,8 +4202,13 @@ def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
 
 def test_browser_comparison_table_cell_spans_the_columns_it_is_given():
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Browsers", column_span=2)],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), browser_comparison_cell("Yes", column_span=2)], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Browsers", column_span=2, cell_id="")],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_cell(content="Yes", column_span=2, cell_id="")],
+                row_id="r0",
+            )
+        ],
     )
 
     assert soup.find("thead").find_all(["th", "td"])[1].get("colspan") == "2"
