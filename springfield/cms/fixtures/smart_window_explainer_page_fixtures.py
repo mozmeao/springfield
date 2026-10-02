@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models.pages import SmartWindowExplainerPage
 
@@ -58,7 +56,8 @@ def get_smart_window_explainer_intro() -> dict:
 
 
 def get_smart_window_explainer_content() -> list[dict]:
-    img = settings.PLACEHOLDER_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
     return [
         {
             "type": "media_content",

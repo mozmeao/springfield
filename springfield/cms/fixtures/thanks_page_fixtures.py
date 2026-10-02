@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
@@ -16,13 +14,14 @@ from springfield.cms.models import ThanksPage
 
 
 def get_step_cards():
+    placeholder_images = get_placeholder_images()
     return [
         {
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -41,7 +40,7 @@ def get_step_cards():
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -60,7 +59,7 @@ def get_step_cards():
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,

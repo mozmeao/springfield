@@ -2,23 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    SHOW_TO_ALL,
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+)
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_card_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
-
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _text_section(heading_text: str, subheading_text: str, section_id: str) -> dict:
@@ -26,7 +19,7 @@ def _text_section(heading_text: str, subheading_text: str, section_id: str) -> d
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": _SHOW_TO_ALL, "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": f'<p data-block-key="fists1h">{heading_text}</p>',
@@ -40,6 +33,7 @@ def _text_section(heading_text: str, subheading_text: str, section_id: str) -> d
 
 
 def get_featured_image_section_variants() -> list[dict]:
+    image_variants = get_image_variants()
     icon_cards = get_icon_card_variants()
     return [
         {
@@ -53,7 +47,7 @@ def get_featured_image_section_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "fis00001-0000-0000-0000-000000000010",
                     }
                 ],

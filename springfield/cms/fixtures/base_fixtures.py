@@ -3,9 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from io import BytesIO
+from typing import NamedTuple
 from uuid import uuid4
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 
 from PIL import Image, ImageDraw, ImageFont
@@ -14,6 +14,23 @@ from wagtail.models import Locale, Site
 
 from springfield.cms.models import ArticleIndexPage, SpringfieldImage
 from springfield.cms.models.pages import FlareDocsIndexPage
+
+PLACEHOLDER_IMAGE_TITLE = "Placeholder Image for Testing"
+PLACEHOLDER_DARK_IMAGE_TITLE = "Dark Mode Placeholder Image for Testing"
+PLACEHOLDER_MOBILE_IMAGE_TITLE = "Placeholder Mobile Image for Testing"
+PLACEHOLDER_DARK_MOBILE_IMAGE_TITLE = "Dark Mode Placeholder Mobile Image for Testing"
+PLACEHOLDER_DOCUMENT_TITLE = "Placeholder Document for Testing"
+
+SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
+
+EMPTY_IMAGE_VARIANTS = {
+    "image": None,
+    "settings": {
+        "dark_mode_image": None,
+        "mobile_image": None,
+        "dark_mode_mobile_image": None,
+    },
+}
 
 
 def with_fresh_ids(blocks):
@@ -75,70 +92,73 @@ def _draw_numbered_grid(image, cols, rows):
             draw.text((cx - tw / 2, cy - th / 2), num, fill="white", font=font)
 
 
-def get_placeholder_images():
-    image = Image.new("RGB", (800, 450), (117, 79, 224))
-    dark_image = Image.new("RGB", (800, 450), (255, 138, 80))
-    mobile_image = Image.new("RGB", (300, 500), (117, 79, 224))
-    dark_mobile_image = Image.new("RGB", (300, 500), (255, 138, 80))
+class PlaceholderImages(NamedTuple):
+    image: SpringfieldImage
+    dark_image: SpringfieldImage
+    mobile_image: SpringfieldImage
+    dark_mobile_image: SpringfieldImage
 
-    _draw_numbered_grid(image, cols=3, rows=2)
-    _draw_numbered_grid(dark_image, cols=3, rows=2)
-    _draw_numbered_grid(mobile_image, cols=2, rows=3)
-    _draw_numbered_grid(dark_mobile_image, cols=2, rows=3)
 
-    image_buffer = BytesIO()
-    image.save(image_buffer, format="PNG")
-    image_buffer.seek(0)
-    image, _ = SpringfieldImage.objects.get_or_create(
-        id=settings.PLACEHOLDER_IMAGE_ID,
-        defaults={
-            "title": "Placeholder Image for Testing",
-            "file": ContentFile(image_buffer.read(), "placeholder_image.png"),
-            "description": "A placeholder image used for testing purposes.",
-        },
+def get_or_create_placeholder_image(*, title, description, filename, size, color, grid) -> SpringfieldImage:
+    """Fetch the placeholder image with ``title``, drawing and saving it only when it doesn't exist yet."""
+    image = SpringfieldImage.objects.filter(title=title).first()
+    if image is None:
+        canvas = Image.new("RGB", size, color)
+        _draw_numbered_grid(canvas, *grid)
+        buffer = BytesIO()
+        canvas.save(buffer, format="PNG")
+        image = SpringfieldImage.objects.create(title=title, description=description, file=ContentFile(buffer.getvalue(), filename))
+    return image
+
+
+def get_placeholder_images() -> PlaceholderImages:
+    return PlaceholderImages(
+        image=get_or_create_placeholder_image(
+            title=PLACEHOLDER_IMAGE_TITLE,
+            description="A placeholder image used for testing purposes.",
+            filename="placeholder_image.png",
+            size=(800, 450),
+            color=(117, 79, 224),
+            grid=(3, 2),
+        ),
+        dark_image=get_or_create_placeholder_image(
+            title=PLACEHOLDER_DARK_IMAGE_TITLE,
+            description="A dark mode placeholder image used for testing purposes.",
+            filename="dark_placeholder_image.png",
+            size=(800, 450),
+            color=(255, 138, 80),
+            grid=(3, 2),
+        ),
+        mobile_image=get_or_create_placeholder_image(
+            title=PLACEHOLDER_MOBILE_IMAGE_TITLE,
+            description="An placeholder mobile image used for testing purposes.",
+            filename="placeholder_image.png",
+            size=(300, 500),
+            color=(117, 79, 224),
+            grid=(2, 3),
+        ),
+        dark_mobile_image=get_or_create_placeholder_image(
+            title=PLACEHOLDER_DARK_MOBILE_IMAGE_TITLE,
+            description="A dark mode mobile placeholder image used for testing purposes.",
+            filename="dark_placeholder_image.png",
+            size=(300, 500),
+            color=(255, 138, 80),
+            grid=(2, 3),
+        ),
     )
-    image_buffer.seek(0)
 
-    dark_image_buffer = BytesIO()
-    dark_image.save(dark_image_buffer, format="PNG")
-    dark_image_buffer.seek(0)
-    dark_image, _ = SpringfieldImage.objects.get_or_create(
-        id=settings.PLACEHOLDER_DARK_IMAGE_ID,
-        defaults={
-            "title": "Dark Mode Placeholder Image for Testing",
-            "file": ContentFile(dark_image_buffer.read(), "dark_placeholder_image.png"),
-            "description": "A dark mode placeholder image used for testing purposes.",
+
+def get_image_variants() -> dict:
+    """Image block value using the placeholder image with all its dark mode and mobile variants."""
+    placeholder_images = get_placeholder_images()
+    return {
+        "image": placeholder_images.image.id,
+        "settings": {
+            "dark_mode_image": placeholder_images.dark_image.id,
+            "mobile_image": placeholder_images.mobile_image.id,
+            "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
         },
-    )
-    dark_image_buffer.seek(0)
-
-    mobile_image_buffer = BytesIO()
-    mobile_image.save(mobile_image_buffer, format="PNG")
-    mobile_image_buffer.seek(0)
-    mobile_image, _ = SpringfieldImage.objects.get_or_create(
-        id=settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        defaults={
-            "title": "Placeholder Mobile Image for Testing",
-            "file": ContentFile(mobile_image_buffer.read(), "placeholder_image.png"),
-            "description": "An placeholder mobile image used for testing purposes.",
-        },
-    )
-    mobile_image_buffer.seek(0)
-
-    dark_mobile_image_buffer = BytesIO()
-    dark_mobile_image.save(dark_mobile_image_buffer, format="PNG")
-    dark_mobile_image_buffer.seek(0)
-    dark_mobile_image, _ = SpringfieldImage.objects.get_or_create(
-        id=settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-        defaults={
-            "title": "Dark Mode Placeholder Mobile Image for Testing",
-            "file": ContentFile(dark_mobile_image_buffer.read(), "dark_placeholder_image.png"),
-            "description": "A dark mode mobile placeholder image used for testing purposes.",
-        },
-    )
-    dark_mobile_image_buffer.seek(0)
-
-    return image, dark_image, mobile_image, dark_mobile_image
+    }
 
 
 def get_flare_docs_index_page():
@@ -216,11 +236,10 @@ def get_article_index_test_page():
 
 
 def get_test_document():
-    document, _ = Document.objects.get_or_create(
-        id=settings.PLACEHOLDER_DOCUMENT_ID,
-        defaults={
-            "title": "Placeholder Document for Testing",
-            "file": ContentFile(b"Test document content", "placeholder_document.txt"),
-        },
-    )
+    document = Document.objects.filter(title=PLACEHOLDER_DOCUMENT_TITLE).first()
+    if document is None:
+        document = Document.objects.create(
+            title=PLACEHOLDER_DOCUMENT_TITLE,
+            file=ContentFile(b"Test document content", "placeholder_document.txt"),
+        )
     return document

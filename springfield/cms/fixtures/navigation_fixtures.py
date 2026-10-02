@@ -9,7 +9,6 @@ Browser / Features / Resources top navigation (see
 from io import BytesIO
 from uuid import uuid4
 
-from django.conf import settings
 from django.core.files.base import ContentFile
 
 from PIL import Image
@@ -17,6 +16,8 @@ from wagtail.models import Locale
 
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import NavigationSnippet, SpringfieldImage
+
+NAVIGATION_SNIPPET_TRANSLATION_KEY = "1828921a-934b-4e82-832f-d5f3fade9c79"
 
 
 def build_link(link_to="custom_url", custom_url="", relative_url="", new_window=False):
@@ -226,11 +227,10 @@ def build_logo_image(title, color) -> SpringfieldImage:
 
 
 def get_navigation_snippet() -> NavigationSnippet:
-    locale = Locale.get_default()
     snippet, _ = NavigationSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=NAVIGATION_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "name": "Main navigation",
             "items": get_navigation_variants(),
             "logo": build_logo_image("Placeholder Navigation Logo", (117, 79, 224)),

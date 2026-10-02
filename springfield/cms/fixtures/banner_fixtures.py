@@ -1,18 +1,16 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
-from django.conf import settings
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
 
 def get_banner_variants():
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     videos = get_video_variants()
     tags = get_tag_variants()
@@ -196,11 +194,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000004",
@@ -246,11 +244,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000006",
@@ -292,11 +290,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000008",
@@ -337,11 +335,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000010",
@@ -381,11 +379,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000012",
@@ -425,11 +423,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000014",
@@ -468,7 +466,7 @@ def get_banner_variants():
                 "media": [
                     {
                         "type": "qr_code",
-                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "value": {"data": "https://mozilla.org", "background": placeholder_images.image.id},
                         "id": "a1b2c3d4-0001-0001-0001-000000000016",
                     }
                 ],
@@ -505,7 +503,7 @@ def get_banner_variants():
                 "media": [
                     {
                         "type": "qr_code",
-                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "value": {"data": "https://mozilla.org", "background": placeholder_images.image.id},
                         "id": "a1b2c3d4-0001-0001-0001-000000000018",
                     }
                 ],
@@ -542,7 +540,7 @@ def get_banner_variants():
                 "media": [
                     {
                         "type": "qr_code",
-                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "value": {"data": "https://mozilla.org", "background": placeholder_images.image.id},
                         "id": "a1b2c3d4-0001-0001-0001-000000000020",
                     }
                 ],
@@ -679,11 +677,11 @@ def get_banner_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a1b2c3d4-0001-0001-0001-000000000029",
