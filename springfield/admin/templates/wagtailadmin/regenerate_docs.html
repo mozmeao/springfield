@@ -1,0 +1,27 @@
+{% extends "wagtailadmin/base.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}{% trans "Regenerate Docs" %}{% endblock %}
+
+{% block content %}
+  {% include "wagtailadmin/shared/header.html" with title=_("Regenerate Docs") icon="resubmit" %}
+
+  <div class="nice-padding">
+    <p class="help-block help-warning">
+      {% trans "This deletes every page under Flare Docs and recreates them from the page fixtures. Any changes made to those pages will be lost." %}
+    </p>
+
+    <form action="{% url 'cms_regenerate_docs' %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="{% trans 'Regenerate Docs' %}" class="button">
+    </form>
+  </div>
+{% endblock %}
