@@ -131,7 +131,7 @@ def get_placeholder_images() -> PlaceholderImages:
         ),
         mobile_image=get_or_create_placeholder_image(
             title=PLACEHOLDER_MOBILE_IMAGE_TITLE,
-            description="An placeholder mobile image used for testing purposes.",
+            description="A placeholder mobile image used for testing purposes.",
             filename="placeholder_image.png",
             size=(300, 500),
             color=(117, 79, 224),
