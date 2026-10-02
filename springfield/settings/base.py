@@ -1125,9 +1125,6 @@ PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
 # first-party. plausible.es6.js derives /api/event on this same origin.
 PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://pa.firefox.com/js/script.js")
 
-# Transcend Consent Management - airgap.js script URL
-TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
-
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
 STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
 STUB_ATTRIBUTION_MAX_LEN = config("STUB_ATTRIBUTION_MAX_LEN", default="600", parser=int)
