@@ -161,6 +161,11 @@ def get_image_variants() -> dict:
     }
 
 
+def get_image_media(block_id) -> list[dict]:
+    """Media stream holding one image block with the placeholder image and all its variants."""
+    return [{"type": "image", "value": get_image_variants(), "id": block_id}]
+
+
 def get_flare_docs_index_page():
     site = Site.objects.get(is_default_site=True)
     root_page = site.root_page

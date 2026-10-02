@@ -11,6 +11,7 @@ from springfield.cms.fixtures.base_fixtures import (
     get_placeholder_images,
     with_fresh_ids,
 )
+from springfield.cms.fixtures.block_factories import cards_list, section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
@@ -19,37 +20,6 @@ _SETTINGS_OUTLINE = {"variant": "outline", "align": "start", "expand_link": Fals
 _SETTINGS_FILLED = {"variant": "filled", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL}
 _SETTINGS_CENTER = {"variant": "", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL}
 _SETTINGS_END = {"variant": "", "align": "end", "expand_link": False, "show_to": SHOW_TO_ALL}
-
-
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="ch">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="cs">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
-def _cards_list(cards, settings=None, block_id=""):
-    return {
-        "type": "cards_list",
-        "value": {
-            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
-            "cards": cards,
-        },
-        "id": block_id,
-    }
 
 
 def get_card_variants() -> list[dict]:
@@ -328,34 +298,27 @@ def get_card_variants() -> list[dict]:
 def get_card_sections() -> list[dict]:
     cards = get_card_variants()
     return [
-        _section(
+        section(
             heading_text="Card — Default, Outline, Filled Variants",
             subheading_text="Three variant options side by side.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="card0002-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="card0002-0000-0000-0000-000000000001"),
             ],
             section_id="card0003-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Card — Alignments and Expand Link",
             subheading_text="Center alignment, end alignment, and clickable card.",
             content_blocks=[
-                _cards_list(
-                    [cards[3], cards[5], cards[8]],
-                    block_id="card0002-0000-0000-0000-000000000002",
-                ),
+                cards_list(cards=[cards[3], cards[5], cards[8]], block_id="card0002-0000-0000-0000-000000000002"),
             ],
             section_id="card0003-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Card — Testimonial Content Block",
             subheading_text="Outlined cards with a testimonial inside.",
             content_blocks=[
-                _cards_list(
-                    [cards[4], cards[6], cards[7]],
-                    settings={"container_width": "", "cards_per_row": "3", "two_wide_xs": False},
-                    block_id="card0002-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=[cards[4], cards[6], cards[7]], cards_per_row="3", block_id="card0002-0000-0000-0000-000000000003"),
             ],
             section_id="card0003-0000-0000-0000-000000000003",
         ),

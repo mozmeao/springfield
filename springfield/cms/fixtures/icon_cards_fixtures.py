@@ -6,39 +6,9 @@
 # they are built on top of CardBlock with icon content inside the card media area.
 
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.block_factories import cards_list, section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
-
-
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="ic26h">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="ic26s">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
-def _cards_list(cards, settings=None, block_id=""):
-    return {
-        "type": "cards_list",
-        "value": {
-            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
-            "cards": cards,
-        },
-        "id": block_id,
-    }
 
 
 def get_icon_card_variants() -> list[dict]:
@@ -161,43 +131,35 @@ def get_icon_card_variants() -> list[dict]:
 def get_icon_cards_sections() -> list[dict]:
     cards = get_icon_card_variants()
     return [
-        _section(
+        section(
             heading_text="Icon Cards 2026 - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="2026kcs1-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="2026kcs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026ks01-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Icon Cards 2026 - 4 Columns",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                _cards_list(cards, block_id="2026kcs1-0000-0000-0000-000000000002"),
+                cards_list(cards=cards, block_id="2026kcs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026ks01-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Icon Cards 2026 - Narrow Container, 2 Columns",
             subheading_text="Narrow container (725px) with 2 columns forced.",
             content_blocks=[
-                _cards_list(
-                    cards[:2],
-                    settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
-                    block_id="2026kcs1-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=cards[:2], container_width="narrow", cards_per_row="2", block_id="2026kcs1-0000-0000-0000-000000000003"),
             ],
             section_id="2026ks01-0000-0000-0000-000000000003",
         ),
-        _section(
+        section(
             heading_text="Icon Cards 2026 - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
-                _cards_list(
-                    cards * 2,
-                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
-                    block_id="2026kcs1-0000-0000-0000-000000000004",
-                ),
+                cards_list(cards=cards * 2, container_width="scroll", block_id="2026kcs1-0000-0000-0000-000000000004"),
             ],
             section_id="2026ks01-0000-0000-0000-000000000004",
         ),
