@@ -3571,9 +3571,10 @@ class EnterpriseDownloadBlock(blocks.StructBlock):
 
     section_heading = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
-        required=False,
+        required=True,
+        default="<p>Enterprise downloads</p>",
+        help_text="Heading for the whole section, above the download menus.",
     )
-
     heading = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
