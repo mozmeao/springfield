@@ -16,14 +16,12 @@ from django.core.files.base import ContentFile
 
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.comparison_table_fixtures import make_content_rows, make_header_row
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants_with_fieldsets
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_rich_text
 from springfield.cms.models import ContactPage, FreeFormPage2026, NavigationSnippet, SpringfieldImage
 from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 # Real button destinations from the source page (locale prefix dropped).
 CONTACT_URL = "/enterprise/contact/"
@@ -33,12 +31,13 @@ DOWNLOAD_URL = "/enterprise/download/"
 
 
 def image_value():
+    placeholder_images = get_placeholder_images()
     return {
-        "image": settings.PLACEHOLDER_IMAGE_ID,
+        "image": placeholder_images.image.id,
         "settings": {
-            "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-            "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-            "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+            "dark_mode_image": placeholder_images.dark_image.id,
+            "mobile_image": placeholder_images.mobile_image.id,
+            "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
         },
     }
 

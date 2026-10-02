@@ -5,11 +5,9 @@
 # Sample pages demonstrating icon-style Cards. These are not a separate card type —
 # they are built on top of CardBlock with icon content inside the card media area.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
@@ -17,7 +15,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
         "type": "section",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": "",
             },
             "heading": {
@@ -49,7 +47,7 @@ def get_icon_card_variants() -> list[dict]:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
                 "media": [{"type": "icon", "value": "activity", "id": "2026kc01-0001-0000-0000-000000000001"}],
                 "content": [
                     {
@@ -73,7 +71,7 @@ def get_icon_card_variants() -> list[dict]:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
                 "media": [{"type": "icon", "value": "android", "id": "2026kc01-0002-0000-0000-000000000001"}],
                 "content": [
                     {
@@ -102,7 +100,7 @@ def get_icon_card_variants() -> list[dict]:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": SHOW_TO_ALL},
                 "media": [{"type": "icon", "value": "apple", "id": "2026kc01-0003-0000-0000-000000000001"}],
                 "content": [
                     {
@@ -131,7 +129,7 @@ def get_icon_card_variants() -> list[dict]:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": SHOW_TO_ALL},
                 "media": [{"type": "icon", "value": "add-circle-fill", "id": "2026kc01-0004-0000-0000-000000000001"}],
                 "content": [
                     {

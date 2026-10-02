@@ -2,12 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
@@ -15,7 +11,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
         "type": "section",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": "",
             },
             "heading": {
@@ -42,11 +38,12 @@ def _list_item(icon, text, item_id):
 
 
 def get_icon_list_with_image_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     return [
         {
             "type": "icon_list_with_image",
             "value": {
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "list_items": [
                     _list_item("checkmark", "Block harmful trackers automatically", "il2026i1a"),
                     _list_item("lock", "Keep your passwords safe and synced", "il2026i1b"),
@@ -58,7 +55,7 @@ def get_icon_list_with_image_variants() -> list[dict]:
         {
             "type": "icon_list_with_image",
             "value": {
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "list_items": [
                     _list_item("bookmark", "Save pages and sync across devices", "il2026i2a"),
                     _list_item("history", "Access your browsing history anywhere", "il2026i2b"),

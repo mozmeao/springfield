@@ -2,12 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
 
 
 def _image(image_id, dark_mode_image_id=None, block_id=None):
@@ -35,8 +31,9 @@ def _heading(heading_text, superheading_text="", subheading_text=""):
 
 
 def get_sliding_carousel_slides() -> list[dict]:
-    img = settings.PLACEHOLDER_IMAGE_ID
-    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
+    dark = placeholder_images.dark_image.id
     return [
         {
             "type": "item",
@@ -107,7 +104,7 @@ def get_sliding_carousel_variants() -> list[dict]:
         {
             "type": "sliding_carousel",
             "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
+                "settings": {"show_to": SHOW_TO_ALL},
                 "slides": slides,
             },
             "id": "2026sc01-0000-0000-0000-000000000010",

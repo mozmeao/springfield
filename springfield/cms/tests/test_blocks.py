@@ -82,7 +82,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.browser_comparison_table_fixtures import (
     cell as browser_comparison_cell,
     get_browser_comparison_table_test_page,
@@ -116,7 +116,6 @@ from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
-    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -5275,8 +5274,6 @@ def test_tab_block_rejects_firefox_as_a_detected_browser():
 
 
 def test_tab_block_renders_image_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Image tab",
         "media": [
@@ -5284,7 +5281,7 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
                 "type": "image",
                 "id": "aabbcc001122",
                 "value": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                 },
             }
@@ -5298,8 +5295,6 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
 
 
 def test_tab_block_renders_animation_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Animation tab",
         "media": [
@@ -5309,7 +5304,7 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
                 "value": {
                     "video_url": "https://assets.mozilla.net/video/red-pandas.webm",
                     "alt": "Red pandas playing",
-                    "poster": settings.PLACEHOLDER_IMAGE_ID,
+                    "poster": placeholder_images.image.id,
                     "playback": "autoplay_loop",
                 },
             }

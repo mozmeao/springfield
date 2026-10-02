@@ -7,32 +7,17 @@
 # with different variant/content configurations. Use them as reference for
 # how to configure filled (pictogram), illustration, outlined, and step cards.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import (
+    SHOW_TO_ALL,
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
-_EMPTY_IMAGE_VARIANTS = {
-    "image": None,
-    "settings": {
-        "dark_mode_image": None,
-        "mobile_image": None,
-        "dark_mode_mobile_image": None,
-    },
-}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
@@ -40,7 +25,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
         "type": "section",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": "",
             },
             "heading": {
@@ -79,7 +64,7 @@ def _card(card_id, settings, content, media=None):
 
 
 def _settings(variant="", align="start", expand_link=False):
-    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": _SHOW_TO_ALL}
+    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": SHOW_TO_ALL}
 
 
 # ---------------------------------------------------------------------------
@@ -88,6 +73,7 @@ def _settings(variant="", align="start", expand_link=False):
 
 
 def get_pictogram_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         _card(
@@ -105,7 +91,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0001-0000-0000-000000000002",
                 },
                 {
@@ -136,7 +122,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0002-0000-0000-000000000002",
                 },
                 {
@@ -166,7 +152,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0003-0000-0000-000000000002",
                 },
                 {
@@ -196,7 +182,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0004-0000-0000-000000000002",
                 },
                 {
@@ -319,6 +305,7 @@ def get_pictogram_cards_test_page() -> FreeFormPage2026:
 
 
 def get_illustration_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
@@ -349,7 +336,7 @@ def get_illustration_card_variants() -> list[dict]:
             media=[
                 {
                     "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
+                    "value": [{"type": "image", "value": image_variants, "id": "2026ic01-0001-0000-0000-000000000001"}],
                     "id": "2026ic01-0001-0000-0000-000000000002",
                 }
             ],
@@ -381,7 +368,7 @@ def get_illustration_card_variants() -> list[dict]:
             media=[
                 {
                     "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
+                    "value": [{"type": "image", "value": image_variants, "id": "2026ic01-0002-0000-0000-000000000001"}],
                     "id": "2026ic01-0002-0000-0000-000000000002",
                 }
             ],
@@ -533,13 +520,14 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
 
 
 def get_step_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         {
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": "",
                 "headline": '<p data-block-key="2026st1h">Step Card 2026</p>',
                 "content": '<p data-block-key="2026st1c">Without eyebrow, primary button. Switch to Dark Mode to see the alternative image.</p>',
@@ -551,7 +539,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": '<p data-block-key="2026st2e">Download</p>',
                 "headline": '<p data-block-key="2026st2h">Step Card with Eyebrow</p>',
                 "content": '<p data-block-key="2026st2c">With eyebrow and secondary button.</p>',
@@ -563,7 +551,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": "",
                 "headline": '<p data-block-key="2026st3h">Clickable Step Card</p>',
                 "content": "",
@@ -575,7 +563,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": '<p data-block-key="2026st4e">Import</p>',
                 "headline": '<p data-block-key="2026st4h">All Step Card Fields</p>',
                 "content": '<p data-block-key="2026st4c">With all fields filled, expand link enabled, and link button.</p>',
@@ -649,6 +637,7 @@ def get_step_cards_test_page() -> FreeFormPage2026:
 
 
 def get_outlined_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         _card(
@@ -682,7 +671,7 @@ def get_outlined_card_variants() -> list[dict]:
             [
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026oc01-0002-0000-0000-000000000001",
                 },
                 {
@@ -738,7 +727,7 @@ def get_outlined_card_variants() -> list[dict]:
             [
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026oc01-0004-0000-0000-000000000001",
                 },
                 {

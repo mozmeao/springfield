@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 from django.utils.text import slugify
 
 from wagtail.models import Locale
@@ -20,13 +19,21 @@ from springfield.cms.models import (
 from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.snippets import PencilBannerSnippet, QRCodeFloatingSnippet, ScrollToSeeMoreSnippet
 
+BANNER_SNIPPET_TRANSLATION_KEY = "99d6da4a-e502-4d92-8850-f8ee9cf972c5"
+PRE_FOOTER_CTA_SNIPPET_TRANSLATION_KEY = "15e87b5c-d265-463f-adbb-b3f61d827d4e"
+PRE_FOOTER_CTA_FORM_SNIPPET_TRANSLATION_KEY = "95e69476-f4ed-44cc-8e20-238246109841"
+QR_CODE_SNIPPET_TRANSLATION_KEY = "1caf4d65-684e-4f92-97e8-e23a1b02a1d7"
+SET_AS_DEFAULT_SNIPPET_TRANSLATION_KEY = "e3fe81e2-5447-488a-beb3-3a273d3ee529"
+FLOATING_QR_CODE_SNIPPET_TRANSLATION_KEY = "f60b64c5-bdda-48bd-8116-4d5ba2787378"
+PENCIL_BANNER_SNIPPET_TRANSLATION_KEY = "de9c9b5e-030c-488e-8d70-d33064e563a5"
+SCROLL_TO_SEE_MORE_SNIPPET_TRANSLATION_KEY = "ef420de9-c4e4-47ee-b9c9-340ef3a84133"
+
 
 def get_banner_snippet() -> BannerSnippet:
-    locale = Locale.get_default()
     snippet, _ = BannerSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=BANNER_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "kit_theme": True,
             "heading": '<p data-block-key="c1bc4d7eadf0">Take your tabs, history and passwords wherever you go</p>',
             "content": '<p data-block-key="0b474f02">Your passwords, bookmarks, and preferences sync seamlessly across all your devices, '
@@ -38,11 +45,10 @@ def get_banner_snippet() -> BannerSnippet:
 
 
 def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
-    locale = Locale.get_default()
     snippet, _ = PreFooterCTASnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=PRE_FOOTER_CTA_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "label": "Get Firefox",
             "analytics_id": "123e4567-e89b-12d3-a456-426614174000",
         },
@@ -51,11 +57,10 @@ def get_pre_footer_cta_snippet() -> PreFooterCTASnippet:
 
 
 def get_pre_footer_cta_form_snippet() -> PreFooterCTAFormSnippet:
-    locale = Locale.get_default()
     snippet, _ = PreFooterCTAFormSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=PRE_FOOTER_CTA_FORM_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf0">Keep up with all things Firefox</p>',
             "subheading": '<p data-block-key="0b474f02">Get how-tos, advice and news to make your Firefox experience work best for you.</p>',
             "analytics_id": "0b474f02-d3fd-4d86-83cd-c1bc4d7eadf0",
@@ -65,11 +70,10 @@ def get_pre_footer_cta_form_snippet() -> PreFooterCTAFormSnippet:
 
 
 def get_qr_code_snippet() -> QRCodeSnippet:
-    locale = Locale.get_default()
     snippet, _ = QRCodeSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=QR_CODE_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf0">Get Firefox on your phone</p>',
             "qr_code": "https://www.firefox.com/browsers/mobile/",
             "closable": True,
@@ -79,11 +83,10 @@ def get_qr_code_snippet() -> QRCodeSnippet:
 
 
 def get_set_as_default_snippet() -> SetAsDefaultSnippet:
-    locale = Locale.get_default()
     snippet, _ = SetAsDefaultSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=SET_AS_DEFAULT_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "heading_text": "Thanks for choosing Firefox",
             "not_firefox_content": (
                 '<p data-block-key="nf001">Looks like you\'re using a different browser right now. '
@@ -115,12 +118,12 @@ def get_set_as_default_snippet() -> SetAsDefaultSnippet:
 
 def get_pretranslated_phrase_snippets() -> tuple[PretranslatedPhrase, PretranslatedPhrase]:
     locale = Locale.get_default()
-    get_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+    get_firefox, _ = PretranslatedPhrase.objects.get_or_create(
         translation_key=PHRASES["get_firefox"]["translation_key"],
         locale=locale,
         defaults={"label": PHRASES["get_firefox"]["label"], "live": True},
     )
-    download_firefox, _ = PretranslatedPhrase.objects.update_or_create(
+    download_firefox, _ = PretranslatedPhrase.objects.get_or_create(
         translation_key=PHRASES["download_firefox"]["translation_key"],
         locale=locale,
         defaults={"label": PHRASES["download_firefox"]["label"], "live": True},
@@ -129,11 +132,10 @@ def get_pretranslated_phrase_snippets() -> tuple[PretranslatedPhrase, Pretransla
 
 
 def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
-    locale = Locale.get_default()
     snippet, _ = QRCodeFloatingSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=FLOATING_QR_CODE_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
             "content": "Bring your tabs with you",
             "url": "https://www.firefox.com/browsers/mobile/",
@@ -144,11 +146,10 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
 
 
 def get_pencil_banner_snippet() -> PencilBannerSnippet:
-    locale = Locale.get_default()
     snippet, _ = PencilBannerSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
+        translation_key=PENCIL_BANNER_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
         defaults={
-            "locale": locale,
             "title": '<p data-block-key="pb001"><i>New</i> Firefox is here</p>',
             "description": '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>',
             "link": "https://www.firefox.com/",
@@ -163,10 +164,10 @@ def get_pencil_banner_snippet() -> PencilBannerSnippet:
 
 
 def get_scroll_to_see_more_snippet() -> ScrollToSeeMoreSnippet:
-    locale = Locale.get_default()
     snippet, _ = ScrollToSeeMoreSnippet.objects.update_or_create(
-        id=settings.PLACEHOLDER_SNIPPET_ID,
-        defaults={"locale": locale, "text": "Scroll to see more"},
+        translation_key=SCROLL_TO_SEE_MORE_SNIPPET_TRANSLATION_KEY,
+        locale=Locale.get_default(),
+        defaults={"text": "Scroll to see more"},
     )
     return snippet
 
