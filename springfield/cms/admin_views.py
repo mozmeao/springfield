@@ -11,6 +11,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
@@ -146,9 +147,9 @@ class RegenerateDocsView(TemplateView):
     def post(self, request, *args, **kwargs):
         defer_task(call_command, func_args=["load_page_fixtures"])
         if settings.TASK_QUEUE_AVAILABLE:
-            messages.success(request, "The docs are being regenerated in the background.")
+            messages.success(request, _("The docs are being regenerated in the background."))
         else:
-            messages.success(request, "The docs have been regenerated.")
+            messages.success(request, _("The docs have been regenerated."))
         return redirect("cms_regenerate_docs")
 
 

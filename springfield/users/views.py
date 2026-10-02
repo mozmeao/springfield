@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 
 from wagtail.admin.ui.tables import Column
 from wagtail.users.views import users
@@ -18,7 +19,7 @@ class UserIndexView(users.IndexView):
             Column(
                 "groups",
                 accessor=lambda user: ", ".join(sorted(group.name for group in user.groups.all())),
-                label="Groups",
+                label=_("Groups"),
             ),
         ]
 

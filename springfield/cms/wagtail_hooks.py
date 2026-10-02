@@ -14,6 +14,7 @@ from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
@@ -126,7 +127,7 @@ class RegenerateDocsMenuItem(MenuItem):
 
 @hooks.register("register_settings_menu_item")
 def register_regenerate_docs_menu_item():
-    return RegenerateDocsMenuItem("Regenerate Docs", reverse("cms_regenerate_docs"), icon_name="resubmit", order=10000)
+    return RegenerateDocsMenuItem(_("Regenerate Docs"), reverse("cms_regenerate_docs"), icon_name="resubmit", order=10000)
 
 
 @hooks.register("register_admin_menu_item")
