@@ -1584,7 +1584,7 @@ def test_blog_article_renders_back_link(single_article, rf):
     assert back_link
     assert back_link["href"] == index_page.url
     assert back_link.find("span", class_="fl-icon-back")
-    assert "All Articles" in back_link.get_text()
+    assert "Blog Home" in back_link.get_text()
 
 
 def test_blog_article_renders_header_image(single_article, rf):
