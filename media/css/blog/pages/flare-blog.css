@@ -191,6 +191,8 @@
 
 .fl-blog-article-body .fl-article-back {
     margin-block-end: var(--token-spacing-xl);
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-content);
     padding-inline-start: var(--token-spacing-lg);
 }
 
@@ -793,15 +795,9 @@
         padding-block: var(--token-layout-md);
     }
 
-    .fl-blog-article-body .fl-article-back {
-        float: inline-start;
-    }
-
     .fl-blog-article-body
         .fl-split-page-upper:has(.fl-article-header-large-image)
         .fl-article-back {
-        float: none;
-        margin-inline: auto;
         max-inline-size: var(--token-width-desktop-wide-banner);
         padding-inline: var(--token-spacing-lg);
     }
