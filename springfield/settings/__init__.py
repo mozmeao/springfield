@@ -114,7 +114,6 @@ _csp_script_src = {
 _csp_style_src = {
     csp.constants.SELF,
     CSP_ASSETS_HOST,
-    csp.constants.UNSAFE_INLINE,
 }
 
 # When server-side GTM is enabled, our own tagging server receives measurement
