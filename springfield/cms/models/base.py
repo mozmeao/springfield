@@ -75,7 +75,7 @@ class ImageAltTextMixin:
             image = getattr(self, image_field_name, None)
             alt_field_name = f"{image_field_name}_alt"
             if image and not image.is_decorative and not (getattr(self, alt_field_name, "") or "").strip():
-                errors[alt_field_name] = (
+                errors[alt_field_name] = translation.gettext(
                     "Describe what this image shows, so it can be read out to someone who cannot see it. "
                     "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
                 )

@@ -750,18 +750,16 @@ class SpringfieldImageChosenView(ImageChosenView):
 
 # Wagtail's `register_admin_viewset` hook appends viewsets rather than replacing
 # ones registered under the same name, so re-registering "wagtailimages_chooser"
-# here would add a second, unreachable chooser instead of overriding the built-in
-# one. Swapping the view class on Wagtail's existing viewset instance
-# keeps the registration Wagtail already wires up everywhere (menu,
-# widget, StreamField chooser block) and only changes the response it returns.
+# here would add a second, unreachable chooser instead of overriding the built-in one.
 #
 # `chosen_view_class` is a third-party attribute name we don't control. If a
 # future Wagtail upgrade renamed it, reading it below would raise
 # AttributeError at import and fail loudly.
 if image_chooser_viewset.chosen_view_class is not ImageChosenView:
     logger.error(
-        "Expected wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "
-        "The is_decorative override below is not being applied.",
+        "Expected Wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "
+        "Wagtail may have changed how it builds the chosen view, so replacing it with "
+        "SpringfieldImageChosenView may no longer have any effect.",
         image_chooser_viewset.chosen_view_class,
     )
 image_chooser_viewset.chosen_view_class = SpringfieldImageChosenView

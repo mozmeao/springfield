@@ -367,15 +367,25 @@ class RequireAltTextMixin(blocks.StructBlock):
     alt_text_fields = ()
 
     def clean(self, value):
-        cleaned = super().clean(value)
-        errors = {}
+        try:
+            cleaned = super().clean(value)
+            errors = {}
+        except StructBlockValidationError as exc:
+            # Keep validating, so the editor sees every error at once.
+            cleaned = value
+            errors = dict(exc.block_errors)
         for image_field_name in self.alt_text_fields:
             image = cleaned.get(image_field_name)
             alt_field_name = f"{image_field_name}_alt"
-            if image and not image.is_decorative and not cleaned.get(alt_field_name, "").strip():
-                errors[alt_field_name] = ValidationError(
-                    "Describe what this image shows, so it can be read out to someone who cannot see it. "
-                    "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
+            if image and not image.is_decorative and not (cleaned.get(alt_field_name) or "").strip():
+                errors.setdefault(
+                    alt_field_name,
+                    ValidationError(
+                        _(
+                            "Describe what this image shows, so it can be read out to someone who cannot see it. "
+                            "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
+                        )
+                    ),
                 )
         if errors:
             raise StructBlockValidationError(block_errors=errors)
