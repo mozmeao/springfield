@@ -57,9 +57,23 @@ describe('flare-qr-code-snippet.es6.js — reduced motion', function () {
         setupQRCodeSnippet();
         expect(el.classList.contains('is-open')).toBe(true);
 
-        el.querySelector('.fl-qr-code-snippet-close').click(); // dismiss
+        el.querySelector('.fl-qr-code-snippet-close').click();
         expect(el.classList.contains('is-open')).toBe(false);
         expect(el.style.visibility).toBe('hidden');
+    });
+
+    it('keeps the snippet hidden on init when previously dismissed and reduced motion is active', function () {
+        stubReducedMotion(true);
+        window.Mozilla.Cookies.enabled.and.returnValue(true);
+        spyOn(window.Mozilla.Cookies, 'hasItem').and.returnValue(true);
+        const el = addFloatingSnippet();
+
+        setupQRCodeSnippet();
+
+        expect(window.Mozilla.Cookies.hasItem).toHaveBeenCalledWith(
+            'moz-qr-snippet-dismissed'
+        );
+        expect(el.style.visibility).not.toBe('visible');
     });
 
     it('leaves the snippet visible (just closed) after dismissal when reduced motion is not active', function () {
@@ -67,7 +81,7 @@ describe('flare-qr-code-snippet.es6.js — reduced motion', function () {
         const el = addFloatingSnippet();
 
         setupQRCodeSnippet();
-        el.querySelector('.fl-qr-code-snippet-close').click(); // dismiss
+        el.querySelector('.fl-qr-code-snippet-close').click();
 
         expect(el.classList.contains('is-open')).toBe(false);
         expect(el.style.visibility).toBe('visible');
