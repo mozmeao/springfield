@@ -353,6 +353,13 @@
 
 /* The bare heading selector covers articles with no topic, where the heading
    component renders no hgroup to wrap. */
+
+.fl-blog-article-list-item {
+    align-items: center;
+    display: grid;
+    min-block-size: var(--token-layout-xl);
+}
+
 .fl-blog-article-list-item .fl-heading-group,
 .fl-blog-article-list-item-content > .fl-heading {
     margin-block-end: var(--token-spacing-lg);
@@ -367,7 +374,6 @@
 }
 
 .fl-blog-article-list-item-with-image {
-    display: grid;
     gap: var(--token-spacing-xl);
 }
 
@@ -386,7 +392,6 @@
 
 :is(.fl-page-blog-all, .fl-blog-related-articles)
     .fl-blog-article-list-item-with-image {
-    align-items: center;
     grid-template-columns: 1fr auto;
 }
 
@@ -505,9 +510,12 @@
     max-inline-size: var(--token-width-desktop-wide-banner);
 }
 
+.fl-blog-latest-grid .fl-blog-article-list-item {
+    min-block-size: unset;
+}
+
 /* Compact image-left row, smaller than the 180px featured/all-page image. */
 .fl-blog-latest .fl-blog-article-list-item-with-image {
-    align-items: center;
     gap: var(--token-spacing-xl);
     grid-template-columns: auto 1fr;
 }
@@ -689,7 +697,6 @@
 
 @media (--viewport-xs) {
     .fl-blog-featured-row .fl-blog-article-list-item-with-image {
-        align-items: center;
         grid-template-columns: auto 1fr;
     }
 
