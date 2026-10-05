@@ -2,13 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# from django.core.management import call_command
 from django.db import migrations
 
 
 def create_main_navigation_snippet(apps, schema_editor):
     # Disabled: this already ran in production.
-    # call_command("create_main_navigation_snippet", verbosity=1)
     return
 
 
@@ -24,9 +22,6 @@ class Migration(migrations.Migration):
         ("wagtailsearch", "0005_create_indexentry"),
     ]
 
-    # Forward-only, like the other content migrations: reversing leaves the snippet,
-    # its translations and the wagtail_localize records in place, so editor
-    # changes are never lost on rollback.
     operations = [
         migrations.RunPython(
             create_main_navigation_snippet,
