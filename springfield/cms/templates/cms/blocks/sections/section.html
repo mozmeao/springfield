@@ -10,6 +10,11 @@
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
   <include:section anchor_id="{{ value.settings.anchor_id }}">
+    {% if value.pictogram %}
+      <content:pictogram>
+        {{ image(value.pictogram, "width-200") }}
+      </content:pictogram>
+    {% endif %}
     <content:heading>
       {% with alignment_class="text-center" %}
         {% include_block value.heading %}

@@ -8,6 +8,7 @@ from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
@@ -109,12 +110,13 @@ from springfield.cms.fixtures.comparison_table_fixtures import (
     get_comparison_table_variants,
     row as comparison_row,
 )
-from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
+    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -2104,11 +2106,68 @@ def test_enterprise_download_block(index_page, rf):
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
 
         resources = download_section.find("div", class_="fl-enterprise-download-resources")
-        assert resources, "Resources block should render"
-        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
+        assert resources, "Resources region should render"
+        heading = resources.find("h3", class_="fl-enterprise-download-resources-title")
+        assert heading, "The heading renders from its own field"
+        assert heading.get_text(strip=True) == "Resources"
+
+        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/"), "Documentation link should render"
         assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
 
-        assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
+        release_notes_link = resources.find("a", href=lambda href: href and href.startswith("https://support.mozilla.org/"))
+        assert release_notes_link, "Release notes link should render"
+        assert release_notes_link["href"].endswith("?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=test-enterprise-download-page"), (
+            "The richtext filter appends the page's UTM parameters to Mozilla links"
+        )
+
+    upper_resources = upper.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" not in upper_resources["class"], "The upper block leaves Center content off, so the region is not centered"
+
+    lower_resources = lower.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" in lower_resources["class"], "The lower block turns Center content on, so the region is centered"
+
+    def docs_link_uid(region):
+        return region.find("a", href="https://firefox-admin-docs.mozilla.org/")["data-cta-uid"]
+
+    assert docs_link_uid(upper_resources) == "ed260000-0001-0001-0001-000000000001", (
+        "The fixture's uid reaches the rendered link as data-cta-uid, which analytics reads"
+    )
+    assert docs_link_uid(lower_resources) == "ed260000-0002-0002-0002-000000000001", "Each block on the page carries its own analytics uids"
+
+
+def test_enterprise_download_block_hides_empty_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000003-0000-0000-0000-000000000003", heading="", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    download_section = upper.find("section", id="download")
+    assert download_section.find("div", class_="fl-enterprise-download-lists"), "The download menus still render"
+    assert download_section.find("div", class_="fl-enterprise-download-resources") is None, (
+        "A blank heading and blank Resources render no region at all, rather than an empty bordered band"
+    )
+
+
+def test_enterprise_download_block_renders_heading_without_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000004-0000-0000-0000-000000000004", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    region = upper.find("section", id="download").find("div", class_="fl-enterprise-download-resources")
+    assert region, "A heading on its own still renders the region"
+    assert region.find("h3", class_="fl-enterprise-download-resources-title")
+    assert region.find("ul") is None
 
 
 def test_freeform_page_split_layout(index_page, rf):
@@ -4353,6 +4412,95 @@ def test_section_block_accepts_button_row():
     block = SectionBlock(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
+
+
+def test_section_block_pictogram_is_optional():
+    block = SectionBlock(require_heading=False)
+
+    assert block.child_blocks["pictogram"].field.required is False
+
+
+def test_section_block_without_pictogram_key_defaults_to_none():
+    block = SectionBlock(require_heading=False)
+
+    value = block.to_python({"heading": {"heading_text": '<p data-block-key="sec1">Section</p>'}})
+
+    assert value["pictogram"] is None
+
+
+def test_section_block_renders_decorative_svg_pictogram(index_page, rf):
+    pictogram = SpringfieldImage.objects.create(
+        title="Sovereignty pictogram",
+        is_decorative=True,
+        file=ContentFile(
+            b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40"/></svg>',
+            name="sovereignty-pictogram.svg",
+        ),
+    )
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "pictogram": pictogram.pk,
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic1">Sovereignty</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00001-0000-0000-0000-000000000001",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "Pictogram wrapper should render when an image is set"
+
+    rendered = wrapper.find("img")
+    assert rendered, "Pictogram should render an img element"
+    assert rendered["src"].endswith(".svg"), "An SVG pictogram should stay an SVG"
+    assert rendered["alt"] == "", "A decorative pictogram should render an empty alt attribute"
+
+
+def test_section_block_without_pictogram_renders_no_wrapper(index_page, rf):
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic2">No pictogram</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00002-0000-0000-0000-000000000002",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("div", class_="fl-section-pictogram") is None
+
+
+def test_freeform_page_fixture_section_renders_a_pictogram(index_page, rf):
+    page = get_freeform_page_test_page()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "The fixture page shows a section with a pictogram"
+    image = wrapper.find("img")
+    assert image, "Pictogram should render an img element"
+    assert image["alt"] == "", "The fixture pictogram is decorative, so its alt is empty"
 
 
 def test_two_column_card_accepts_button_row():

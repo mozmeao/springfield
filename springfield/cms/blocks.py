@@ -2938,6 +2938,10 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
 
     class _SectionBlock(blocks.StructBlock):
         settings = SectionBlockSettings()
+        pictogram = ImageChooserBlock(
+            required=False,
+            help_text=("Optional small (100px) image displayed centered above the heading."),
+        )
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
@@ -3562,17 +3566,33 @@ class DownloadSupportBlock(blocks.StaticBlock):
         label = "Download Support Message"
 
 
-class EnterpriseDownloadBlock(blocks.StaticBlock):
-    """Static placeholder block for the Firefox Enterprise download section.
+class EnterpriseDownloadBlock(blocks.StructBlock):
+    """Enterprise download section."""
 
-    No editable fields by design: it renders the existing enterprise
-    download markup/FTL strings as-is while the Enterprise page's
-    redesign is in progress.
-    """
+    heading = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Heading for the content below the download menus.",
+    )
+    rich_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        help_text="Content below the heading. Leave this and the heading blank to hide the section.",
+    )
+    center_content = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Center content",
+        help_text="Center the heading and the content below it.",
+    )
 
     class Meta:
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
+        form_layout = blocks.BlockGroup(
+            children=["heading", "rich_text"],
+            settings=["center_content"],
+        )
 
 
 # Contact Page Form Field Blocks
@@ -3863,6 +3883,28 @@ class QueryParamBlock(blocks.StructBlock):
 
     class Meta:
         label_format = "{key}={value}"
+
+
+class FieldsetAndLegendBlock(blocks.StructBlock):
+    """A block for a fieldgroup around the form fields that follow it."""
+
+    legend = blocks.CharBlock(
+        label="Legend",
+        help_text=(
+            "Short name for the group, e.g. 'What you're interested in'. A screen reader announces it before the label of every field in the group."
+        ),
+    )
+    help_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        label="Help text",
+        help_text="Optional text under the legend, describing the group as a whole.",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Fieldset and Legend"
+        label_format = "Fieldset - {legend}"
 
 
 class ContactFormBlock(blocks.StructBlock):

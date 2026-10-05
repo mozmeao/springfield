@@ -48,6 +48,7 @@ from springfield.cms.blocks import (
     UI_TOUR_CLASSES,
     UITOUR_BUTTON_SMART_WINDOW,
     BannerBlock,
+    BaseField,
     BrowserComparisonTableBlock,
     ButtonRowBlock,
     CardGalleryBlock,
@@ -62,6 +63,7 @@ from springfield.cms.blocks import (
     EmailFieldBlock,
     EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
+    FieldsetAndLegendBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
@@ -1880,6 +1882,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
     form_fields = StreamField(
         [
+            ("fieldset", FieldsetAndLegendBlock()),
             ("text_field", TextFieldBlock()),
             ("textarea_field", TextAreaFieldBlock()),
             ("email_field", EmailFieldBlock()),
@@ -2014,8 +2017,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             if allowed_fields is None:
                 errors["basket_api_path"] = f"{self.basket_api_path} is not a basket endpoint."
             else:
-                identifiers = {field.value["internal_identifier"] for field in self.form_fields}
-                optional_identifiers = {field.value["internal_identifier"] for field in self.form_fields if not field.value["required"]}
+                identifiers = {field.value["internal_identifier"] for field in self.form_field_blocks}
+                optional_identifiers = {field.value["internal_identifier"] for field in self.form_field_blocks if not field.value["required"]}
                 unaccepted = identifiers - allowed_fields["required"] - allowed_fields["optional"]
                 missing = allowed_fields["required"] - identifiers
                 not_marked_required = allowed_fields["required"] & optional_identifiers
@@ -2047,6 +2050,24 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
 
         if errors:
             raise ValidationError(errors)
+
+    @property
+    def form_field_blocks(self):
+        """Returns form_fields items that become form fields. FieldsetAndLegendBlock is excluded."""
+        return [child for child in self.form_fields if isinstance(child.block, BaseField)]
+
+    @property
+    def form_field_groups(self):
+        """
+        Returns form_fields items that become form fields, grouped. FieldsetAndLegendBlock excluded.
+        """
+        groups = [(None, [])]
+        for child in self.form_fields:
+            if isinstance(child.block, BaseField):
+                groups[-1][1].append(child)
+            elif isinstance(child.block, FieldsetAndLegendBlock):
+                groups.append((child, []))
+        return [group for group in groups if group[0] or group[1]]
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -2104,7 +2125,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         """
         locale = self.locale.language_code
         form_fields = {}
-        for field in self.form_fields:
+        for field in self.form_field_blocks:
             value = field.value
             form_field = value.get_form_field(locale=locale)
             if field.block_type == "hidden_field":
@@ -2114,8 +2135,8 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
             form_fields[value["internal_identifier"]] = form_field
 
         # Hidden fields always arrive in POST, they must not be considered when checking for an empty submission.
-        hidden_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type == "hidden_field"}
-        visible_identifiers = {field.value["internal_identifier"] for field in self.form_fields if field.block_type != "hidden_field"}
+        hidden_identifiers = {field.value["internal_identifier"] for field in self.form_field_blocks if field.block_type == "hidden_field"}
+        visible_identifiers = {field.value["internal_identifier"] for field in self.form_field_blocks if field.block_type != "hidden_field"}
 
         class ContactForm(forms.Form):
             def __init__(_self, *args, **kwargs):
@@ -2156,7 +2177,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         string types the basket API and email template expect."""
 
         values = {}
-        for field in self.form_fields:
+        for field in self.form_field_blocks:
             identifier = field.value["internal_identifier"]
             value = form.cleaned_data.get(identifier)
             if isinstance(value, list):
@@ -2177,7 +2198,7 @@ class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
         try:
             values = self._collect_field_values(request.form)
             field_data = []
-            for field in self.form_fields:
+            for field in self.form_field_blocks:
                 label = field.value["label"]
                 if isinstance(label, RichText):
                     label = remove_tags(richtext(label))
