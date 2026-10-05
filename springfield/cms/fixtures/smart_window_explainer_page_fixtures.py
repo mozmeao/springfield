@@ -41,7 +41,7 @@ def get_smart_window_explainer_content() -> list[dict]:
                 },
                 "content": [
                     rich_text(
-                        html='<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                        rich_text_html='<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000011",
                     ),
                     smart_window_instructions(
@@ -50,7 +50,7 @@ def get_smart_window_explainer_content() -> list[dict]:
                         block_id="swepmc01-0000-0000-0000-000000000012",
                     ),
                     rich_text(
-                        html='<p data-block-key="swepmc1c2">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>',
+                        rich_text_html='<p data-block-key="swepmc1c2">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000013",
                     ),
                 ],
@@ -69,8 +69,8 @@ def get_smart_window_explainer_content() -> list[dict]:
                 },
                 "content": [
                     rich_text(
-                        html='<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu '
-                        "fugiat nulla pariatur.</p>",
+                        rich_text_html='<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse '
+                        "cillum dolore eu fugiat nulla pariatur.</p>",
                         block_id="swepmc01-0000-0000-0000-000000000021",
                     ),
                     smart_window_instructions(
@@ -79,7 +79,7 @@ def get_smart_window_explainer_content() -> list[dict]:
                         block_id="swepmc01-0000-0000-0000-000000000022",
                     ),
                     rich_text(
-                        html='<p data-block-key="swepmc2c2">Excepteur sint occaecat cupidatat non proident.</p>',
+                        rich_text_html='<p data-block-key="swepmc2c2">Excepteur sint occaecat cupidatat non proident.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000023",
                     ),
                 ],
@@ -98,7 +98,7 @@ def get_smart_window_explainer_content() -> list[dict]:
                 },
                 "content": [
                     rich_text(
-                        html='<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
+                        rich_text_html='<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000031",
                     ),
                     smart_window_instructions(
@@ -107,7 +107,7 @@ def get_smart_window_explainer_content() -> list[dict]:
                         block_id="swepmc01-0000-0000-0000-000000000032",
                     ),
                     rich_text(
-                        html='<p data-block-key="swepmc3c2">Lorem ipsum dolor sit amet, consectetur '
+                        rich_text_html='<p data-block-key="swepmc3c2">Lorem ipsum dolor sit amet, consectetur '
                         "adipiscing elit, sed do eiusmod tempor incididunt "
                         "ut labore et dolore magna aliqua ut enim ad minim.</p>",
                         block_id="swepmc01-0000-0000-0000-000000000033",
