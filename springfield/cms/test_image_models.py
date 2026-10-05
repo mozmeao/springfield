@@ -134,6 +134,10 @@ class SpringfieldImageTestCase(TestCase):
         )
 
 
+@override_settings(
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+    USE_SSO_AUTH=False,
+)
 class ImageChooserResponseTestCase(TestCase):
     def setUp(self):
         self.superuser = get_user_model().objects.create_superuser(
@@ -149,7 +153,7 @@ class ImageChooserResponseTestCase(TestCase):
             is_decorative=True,
             file=get_test_image_file(),
         )
-        self.client.force_login(self.superuser)
+        self.client.force_login(self.superuser, backend="django.contrib.auth.backends.ModelBackend")
 
         response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
 
@@ -161,7 +165,7 @@ class ImageChooserResponseTestCase(TestCase):
             description="A purple fox on a laptop",
             file=get_test_image_file(),
         )
-        self.client.force_login(self.superuser)
+        self.client.force_login(self.superuser, backend="django.contrib.auth.backends.ModelBackend")
 
         response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
 
