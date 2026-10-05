@@ -15,7 +15,7 @@ describe('wagtailadmin-image-alt-prefill.es6.js', function () {
 
     /* Wagtail renders a chooser as an element with an id formed by the hidden
      * input's id plus the "-chooser", holding a preview image.
-     * It sets the images's default alt text to a data-default-alt-text attribute.
+     * It sets the image's default alt text to a data-default-alt-text attribute.
      * Choosing an image is simulated by writing that
      * attribute, which is done by Wagtail's renderState method. */
     function buildChooser(prefix, { withAltInput = true } = {}) {
