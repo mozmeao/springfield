@@ -239,8 +239,8 @@ class BlogArticleSectionsBlock(blocks.StreamBlock):
     cards_list = BlogCardsListBlock()
     latest = BlogLatestArticlesBlock()
 
-    def clean(self, value, ignore_required_constraints=False):
-        cleaned = super().clean(value, ignore_required_constraints=ignore_required_constraints)
+    def clean(self, value):
+        cleaned = super().clean(value)
         latest_positions = [position for position, child in enumerate(cleaned) if child.block_type == "latest"]
         if latest_positions and latest_positions[0] != len(cleaned) - 1:
             raise blocks.StreamBlockValidationError(

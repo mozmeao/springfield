@@ -16,7 +16,10 @@ from bs4 import BeautifulSoup
 from markupsafe import escape
 from PIL import Image as PillowImage
 from wagtail.images.forms import get_image_form
-from wagtail.images.jinja2tags import image as render_image, srcset_image as render_srcset_image
+from wagtail.images.jinja2tags import (
+    image as render_image,
+    srcset_image as render_srcset_image,
+)
 from wagtail.images.tests.utils import get_test_image_file
 
 from springfield.cms.fields import SanitizingWagtailImageField
@@ -186,7 +189,11 @@ def make_image():
         with patch.object(SpringfieldImage, "_pre_generate_expected_renditions"):
             return SpringfieldImage.objects.create(
                 file=ContentFile(buffer.read(), "placeholder.png"),
-                **{"title": "Firefox logo", "description": "The Firefox logo", **fields},
+                **{
+                    "title": "Firefox logo",
+                    "description": "The Firefox logo",
+                    **fields,
+                },
             )
 
     return build
@@ -272,3 +279,19 @@ def test_non_decorative_image_requires_description():
         unsaved_image.full_clean(exclude=["file"])
 
     assert "description" in raised.value.error_dict
+
+
+@override_settings(TASK_QUEUE_AVAILABLE=False)
+class SpringfieldImageSearchFieldsTestCase(TestCase):
+    def test_search_results_can_be_sorted_by_file_size(self):
+        # The image listing offers "File size" as a sort option. Without file_size
+        # registered as a FilterField, ordering a search by it raises FilterFieldError.
+        # Saving an image pre-generates renditions, which would try to open these
+        # fake files from disk when no task queue is available.
+        with patch("springfield.cms.models.images._make_renditions"):
+            for name, size in (("small.png", 10), ("large.png", 20)):
+                SpringfieldImage.objects.create(title=name, width=1, height=1, file=name, file_size=size)
+
+        results = SpringfieldImage.objects.order_by("-file_size").search("png", order_by_relevance=False)
+
+        self.assertEqual([image.title for image in results], ["large.png", "small.png"])

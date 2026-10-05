@@ -8,6 +8,8 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import path, reverse
@@ -35,6 +37,7 @@ from wagtail.snippets.models import register_snippet
 from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
+from springfield.base.models import TranslatedPagePermission
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.admin_views import (
     ContentSearchView,
@@ -65,6 +68,11 @@ from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSi
 from springfield.cms.utils import get_cms_environment
 
 logger = logging.getLogger(__name__)
+
+
+@hooks.register("register_permissions")
+def register_translated_page_permissions():
+    return Permission.objects.filter(content_type=ContentType.objects.get_for_model(TranslatedPagePermission))
 
 
 @hooks.register("register_admin_urls")

@@ -15,6 +15,11 @@
     padding-inline: 0;
 }
 
+.fl-notification-wrapper:focus,
+.fl-notification-wrapper:focus-visible {
+    outline: none;
+}
+
 /* For the odd cases where there are stacked notifications. */
 .fl-notification-wrapper + .fl-notification-wrapper,
 .fl-notification-wrapper + .conditional-display:has(.fl-notification-wrapper),

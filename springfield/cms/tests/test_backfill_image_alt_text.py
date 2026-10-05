@@ -17,7 +17,7 @@ from springfield.cms.models.images import SpringfieldImage
 from springfield.cms.models.pages import ArticleDetailPage
 from springfield.cms.tests.factories import ArticleDetailPageFactory
 
-backfill_migration = importlib.import_module("springfield.cms.migrations.0158_backfill_image_alt_text")
+backfill_migration = importlib.import_module("springfield.cms.migrations.0164_backfill_image_alt_text")
 backfill_stream_alt_text = backfill_migration.backfill_stream_alt_text
 blog_backfill_migration = importlib.import_module("springfield.blog.migrations.0005_backfill_image_alt_text")
 

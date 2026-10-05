@@ -4,10 +4,11 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-.fl-form-page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--token-spacing-2xl);
+.fl-form {
+    --fl-form-gap: var(--token-spacing-2xl);
+    display: grid;
+    gap: var(--fl-form-gap);
+    grid-template-columns: 1fr;
     inline-size: 100%;
     margin-inline: auto;
     max-inline-size: var(--token-width-desktop-content);
@@ -51,6 +52,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-checkbox {
     -webkit-appearance: none;
+    appearance: none;
     block-size: 19px;
     border: 1px solid var(--theme-checkbox-border-color);
     border-radius: 5px;
@@ -92,4 +94,94 @@ fieldset.fl-field-wrap {
 .fl-field-error-message {
     color: var(--theme-form-error-message-color);
     font-size: var(--fl-theme-label-sm);
+}
+
+.fl-fieldset {
+    border: 0 none;
+    display: grid;
+    gap: var(--fl-form-gap);
+    grid-template-columns: 1fr;
+    margin: 0;
+    min-inline-size: 0;
+    padding: 0;
+}
+
+.fl-fieldset > .fl-legend,
+.fl-fieldset-orphan > .fl-legend {
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-theme-font-size-heading-xs);
+    font-weight: var(--token-font-weight-semibold);
+}
+
+.fl-fieldset > .fl-legend {
+    border-block-start: var(--fl-theme-divider);
+    margin-block: var(--token-spacing-lg) var(--token-spacing-md);
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-fieldset:has(.fl-fieldset-help) > .fl-legend {
+    border-block-end: 0 none;
+    padding-block-end: 0;
+}
+
+.fl-fieldset-help {
+    margin-block-end: calc(var(--token-spacing-md) - var(--fl-form-gap));
+    padding-block-end: var(--token-spacing-md);
+}
+
+.fl-fieldset-help > :first-child {
+    margin-block-start: 0;
+}
+
+.fl-fieldset-help > :last-child {
+    margin-block-end: 0;
+}
+
+.fl-fieldset-orphan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--token-spacing-md);
+}
+
+.fl-fieldset-orphan > .fl-legend {
+    margin-block-end: 0;
+}
+
+.fl-fieldset-orphan > .fl-rich-text > :first-child {
+    margin-block-start: 0;
+}
+
+.fl-fieldset-orphan > .fl-rich-text > :last-child {
+    margin-block-end: 0;
+}
+
+.fl-mediacontent:has(.fl-contact-form-wrapper) {
+    align-items: start;
+}
+
+.fl-intro + .fl-section:has(.fl-contact-form-wrapper) {
+    margin-block-start: calc(var(--token-layout-sm) * -1);
+    padding-block-start: 0;
+}
+
+@media (--viewport-lg-up) {
+    .fl-form.fl-form-two-column {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-form.fl-form-two-column .fl-buttons,
+    .fl-form.fl-form-two-column .fl-fieldset-help,
+    .fl-form.fl-form-two-column .fl-fieldset-orphan,
+    .fl-form.fl-form-two-column .fl-notification-wrapper {
+        grid-column: span 2;
+    }
+
+    .fl-form.fl-form-two-column .fl-fieldset {
+        grid-column: span 2;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fl-form.fl-form-two-column .fl-buttons .fl-button {
+        inline-size: 100%;
+    }
 }

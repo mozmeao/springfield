@@ -185,6 +185,12 @@ if (typeof window.Mozilla === 'undefined') {
         _sendEvent('showNewTab');
     };
 
+    Mozilla.UITour.showHome = function (hash) {
+        _sendEvent('showHome', {
+            hash: hash
+        });
+    };
+
     /**
      * Loads about:protections in the tour tab.
      * @since 70

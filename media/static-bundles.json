@@ -468,6 +468,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-whatsnew-nova.css"
+      ],
+      "name": "whatsnew-nova",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='whatsnew-nova' and you have an up-to-date database backup."
+    },
+    {
+      "files": [
         "css/cms/pages/flare-wrexhamafc.css"
       ],
       "name": "flare26-wrexhamafc",
@@ -478,6 +485,18 @@
         "css/cms/themes/enterprise.css"
       ],
       "name": "flare-theme-enterprise"
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise-bgs-alt-1.css"
+      ],
+      "name": "enterprise-bgs-alt-1"
+    },
+    {
+      "files": [
+        "css/cms/themes/enterprise-home.css"
+      ],
+      "name": "enterprise-home"
     },
     {
       "files": [
@@ -527,12 +546,6 @@
         "js/cms/flare-lang-switcher.es6.js"
       ],
       "name": "flare-lang-switcher"
-    },
-    {
-      "files": [
-        "js/cms/contact-form.js"
-      ],
-      "name": "contact-page"
     },
     {
       "files": [
@@ -822,6 +835,12 @@
         "js/cms/easter-egg-logo.es6.js"
       ],
       "name": "easter-egg-logo"
+    },
+    {
+      "files": [
+        "js/cms/easter-egg-emoji-rain.es6.js"
+      ],
+      "name": "easter-egg-emoji-rain"
     },
     {
       "files": [

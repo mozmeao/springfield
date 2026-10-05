@@ -10,6 +10,9 @@ from django.core.cache import caches
 from django.http import Http404, HttpResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from django.urls import resolve
+
+from bs4 import BeautifulSoup
 
 from lib.l10n_utils import render_to_string
 from springfield.base.tests import TestCase
@@ -21,6 +24,18 @@ from springfield.releasenotes.models import Note, ProductRelease
 TESTS_PATH = Path(__file__).parent
 DATA_PATH = str(TESTS_PATH.joinpath("data"))
 RELEASES_PATH = str(TESTS_PATH)
+
+
+def enterprise_release():
+    return ProductRelease(
+        product="Firefox Enterprise",
+        channel="Release",
+        version="145.0",
+        release_date=datetime.date.fromisoformat("2026-08-26"),
+        created=datetime.datetime.fromisoformat("2026-08-26T16:52:24.375082+00:00"),
+        modified=datetime.datetime.fromisoformat("2026-08-26T16:53:36.605054+00:00"),
+        is_public=True,
+    )
 
 
 @override_settings(RELEASE_NOTES_PATH=RELEASES_PATH)
@@ -92,6 +107,51 @@ class TestReleaseViews(TestCase):
         mock_release_notes_template.assert_called_with(mock_release.channel, "Firefox", 34)
 
     @patch("springfield.releasenotes.views.get_release_or_404")
+    def test_enterprise_release_notes_skips_mdn_note(self, get_release_or_404):
+        """Enterprise releases must not receive the injected MDN Developer Information note."""
+        mock_release = get_release_or_404.return_value
+        mock_release.product = "Firefox Enterprise"
+        mock_release.major_version = "145"
+        mock_release.get_notes.return_value = []
+
+        views.release_notes(self.request, "145.0", product="Firefox Enterprise")
+
+        assert not any(note.get("id") == "mdn" for note in self.last_ctx["release_notes"])
+
+    @patch("springfield.releasenotes.views.get_latest_release")
+    @patch("springfield.releasenotes.views.get_release_or_404")
+    def test_release_notes_flags_whether_enterprise_notes_are_live(self, get_release_or_404, get_latest_release):
+        """The context says whether any Enterprise release is live, so the subnav can hide a link that would 404."""
+        get_release_or_404.return_value.major_version = "145"
+        get_release_or_404.return_value.get_notes.return_value = []
+
+        get_latest_release.return_value = None
+        views.release_notes(self.request, "145.0")
+        assert self.last_ctx["has_enterprise_notes"] is False
+
+        get_latest_release.return_value = enterprise_release()
+        views.release_notes(self.request, "145.0")
+        assert self.last_ctx["has_enterprise_notes"] is True
+        get_latest_release.assert_called_with("Firefox Enterprise", "release")
+
+    @override_settings(DEV=False)
+    def test_has_enterprise_notes_ignores_unpublished_releases(self):
+        """An Enterprise release that is not yet public must not make the link appear."""
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is False
+
+        release = enterprise_release()
+        release.is_public = False
+        release.save()
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is False
+
+        release.is_public = True
+        release.save()
+        caches["release-notes"].clear()
+        assert views.has_enterprise_notes() is True
+
+    @patch("springfield.releasenotes.views.get_release_or_404")
     def test_release_notes_beta_redirect(self, get_release_or_404):
         """
         Should redirect to url for beta release
@@ -117,6 +177,24 @@ class TestReleaseViews(TestCase):
         assert self.last_ctx["version"] == "27.0.1"
         assert self.mock_render.call_args[0][1] == "firefox/releases/system_requirements.html"
 
+    def test_enterprise_release_notes_route(self):
+        """Enterprise release-note URLs resolve to the Enterprise release-notes view."""
+        url = reverse("firefox.enterprise.releasenotes", args=["145.0", "release"])
+        assert url == "/en-US/firefox/enterprise/145.0/releasenotes/"
+
+        match = resolve(url)
+        assert match.func == views.release_notes
+        assert match.kwargs == {"version": "145.0", "product": "Firefox Enterprise"}
+
+    def test_enterprise_system_requirements_route(self):
+        """Enterprise system-requirement URLs resolve to the Enterprise view."""
+        url = reverse("firefox.enterprise.system_requirements", args=["145.0"])
+        assert url == "/en-US/firefox/enterprise/145.0/system-requirements/"
+
+        match = resolve(url)
+        assert match.func == views.system_requirements
+        assert match.kwargs == {"version": "145.0", "product": "Firefox Enterprise"}
+
     def test_release_notes_template(self):
         """
         Should return correct template name based on channel
@@ -130,6 +208,58 @@ class TestReleaseViews(TestCase):
         assert views.release_notes_template("Release", "Firefox") == "firefox/releases/release-notes.html"
         assert views.release_notes_template("ESR", "Firefox") == "firefox/releases/esr-notes.html"
         assert views.release_notes_template("", "") == "firefox/releases/release-notes.html"
+
+    def test_enterprise_notes_heading_and_download_ctas(self):
+        """
+        Should name the product in the heading and point both download CTAs
+        at the enterprise download page.
+        """
+        rendered = render_to_string(
+            request=RequestFactory().get("/"),
+            template_name="firefox/releases/release-notes.html",
+            context={"release_notes": [], "release": enterprise_release()},
+        )
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        assert release_notes_document.select_one("h1").get_text(" ", strip=True) == "Firefox Enterprise Release Notes"
+        for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
+            button = release_notes_document.select_one(f"#{element_id}")
+            assert button["href"] == reverse("firefox.enterprise.index")
+            assert button.get_text(strip=True) == "Request Early Access"
+
+    def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):
+        """Enterprise release notes mark Enterprise as the current subnavigation entry."""
+        rendered = render_to_string(
+            request=RequestFactory().get("/en-US/firefox/enterprise/145.0/releasenotes/"),
+            template_name="firefox/releases/release-notes.html",
+            context={"release_notes": [], "release": enterprise_release(), "has_enterprise_notes": True},
+        )
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        subnav_entries = [(link.get_text(strip=True), link.get("aria-current")) for link in release_notes_document.select(".fl-subnav-list a")]
+        assert subnav_entries == [
+            ("Desktop", None),
+            ("Enterprise", "page"),
+            ("Desktop Beta & Developer Edition", None),
+            ("Desktop Nightly", None),
+            ("Android", None),
+            ("iOS", None),
+        ]
+
+    def test_enterprise_subnav_entry_hidden_until_enterprise_notes_are_live(self):
+        """Without a live Enterprise release the subnav omits the Enterprise link, which would 404."""
+        rendered = render_to_string(
+            request=RequestFactory().get("/en-US/firefox/145.0/releasenotes/"),
+            template_name="firefox/releases/release-notes.html",
+            context={"release_notes": [], "release": enterprise_release(), "has_enterprise_notes": False},
+        )
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        subnav_entries = [link.get_text(strip=True) for link in release_notes_document.select(".fl-subnav-list a")]
+        assert subnav_entries == [
+            "Desktop",
+            "Desktop Beta & Developer Edition",
+            "Desktop Nightly",
+            "Android",
+            "iOS",
+        ]
 
     def test_notes_template_includes_progressive_rollout_indicator_if_appropriate(self):
         for note_data, expected in [
@@ -374,6 +504,7 @@ class TestReleaseViews(TestCase):
             assert views.check_url("Firefox for Android", "45.0") == "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device"
             assert views.check_url("Firefox for Android", "46.0") == "/en-US/firefox/android/46.0/system-requirements/"
             assert views.check_url("Firefox for iOS", "1.4") == "/en-US/firefox/ios/1.4/system-requirements/"
+            assert views.check_url("Firefox Enterprise", "145.0") == "/en-US/firefox/enterprise/145.0/system-requirements/"
             assert views.check_url("Firefox", "42.0") == "/en-US/firefox/42.0/system-requirements/"
 
     @override_settings(DEV=False)

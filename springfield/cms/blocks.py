@@ -12,9 +12,10 @@ from uuid import uuid4
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
+from django.http import QueryDict
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -23,7 +24,6 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
-from wagtail.models import Page
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
@@ -155,6 +155,7 @@ VIDEO_ASPECT_RATIO_CHOICES = [
 ]
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
+UITOUR_BUTTON_NEW_TAB_CUSTOMIZE = "open_new_tab_customize"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
@@ -169,6 +170,7 @@ UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
+    (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
@@ -188,6 +190,7 @@ UITOUR_BUTTON_CHOICES = (
 
 UI_TOUR_CLASSES = {
     UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
+    UITOUR_BUTTON_NEW_TAB_CUSTOMIZE: "ui-tour-open-new-tab-customize",
     UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
     UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
@@ -713,6 +716,9 @@ class SpringfieldLinkBlockURLValue(URLValue):
         if link_to == "page":
             page = self.get("page")
             if page:
+                # The chooser returns a plain wagtail Page; URLs must come from the specific
+                # class so our page URL overrides apply. Deferred, so it adds no query.
+                page = page.specific_deferred
                 try:
                     locale = SpringfieldLocale.get_active()
                     # Get the active language, so we can use it to determine the URL to return.
@@ -726,7 +732,7 @@ class SpringfieldLinkBlockURLValue(URLValue):
                         # The translated page does not match the active language;
                         # we reconstruct the URL using the URL-facing locale prefix.
                         return self._with_locale_prefix(translated_page.url, active_lang)
-                    except Page.DoesNotExist:
+                    except ObjectDoesNotExist:
                         # This means that this page has no translation for this locale.
                         # In case this is rendered as a fallback page (the user
                         # requested /es-AR/somepage, but that page doesn't exist
@@ -785,6 +791,9 @@ class SpringfieldLinkBlock(LinkBlock):
 
     class Meta:
         value_class = SpringfieldLinkBlockURLValue
+        # Default text fields to "" instead of None to allow a link block to be optional
+        # wagtail-localize can't extract None, so blocks without a link would fail translation.
+        default = {"custom_url": "", "relative_url": "", "anchor": "", "phone": ""}
 
     def __init__(self, *args, **kwargs):
         """Override __init__() to put relative_url field right after custom_url field."""
@@ -1250,6 +1259,26 @@ class TagsBlock(blocks.ListBlock):
         label_format = "Tags"
 
 
+class CertificationItemBlock(blocks.StructBlock):
+    text = blocks.CharBlock()
+    link = SpringfieldLinkBlock(required=False)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification"
+        label_format = "{text}"
+
+
+class CertificationListBlock(blocks.StructBlock):
+    list_items = blocks.ListBlock(CertificationItemBlock(), min_num=1)
+
+    class Meta:
+        icon = "tag"
+        label = "Certification List"
+        label_format = "Certification List"
+        template = "cms/blocks/certification-list.html"
+
+
 # Comparison Table
 
 
@@ -1538,6 +1567,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label="Caption",
         help_text="Text displayed below the image.",
     )
+    link = SpringfieldLinkBlock(required=False, label="Image Link", help_text="Optional destination when the image is clicked.")
     layout = blocks.ChoiceBlock(
         choices=[
             ("default", "Default"),
@@ -1554,7 +1584,7 @@ class ImageCaptionBlock(blocks.StructBlock):
         label_format = "Image + Caption - {caption}"
         template = "cms/blocks/image-caption.html"
         form_layout = blocks.BlockGroup(
-            children=["image", "caption"],
+            children=["image", "caption", "link"],
             settings=["layout"],
         )
 
@@ -1862,6 +1892,8 @@ class ImpactDashBlock(blocks.StructBlock):
             "label": singular if number == 1 else plural,
             "badge_name": (badge.get("badge_name") or "").strip(),
             "is_achieved": install_count >= number,
+            # Exactly on this milestone, the connector to the next badge shows no progress.
+            "is_at_milestone": install_count == number,
             # Read by _summary_source, not by the badge itself: only the highest
             # achieved badge's pair is rendered, above the badge array.
             "heading": (badge.get("heading") or "").strip(),
@@ -2057,6 +2089,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
                 ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
                 ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
                 ("smart_window_instructions", SmartWindowInstructionsBlock()),
+                ("contact_form", ContactFormBlock()),
                 (
                     "buttons",
                     MixedButtonsBlock(
@@ -2400,9 +2433,13 @@ def CardsListBlock(allow_uitour=False, max_buttons=3, *args, **kwargs):
 
 
 class CardLineItemBlock(blocks.StructBlock):
+    pictogram = ImageChooserBlock(
+        required=False,
+        help_text="Optional custom pictogram image to be displayed on the left of the headings.",
+    )
     superheading = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
     headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
-    content = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    content = RichTextBlock(features=EXPANDED_TEXT_FEATURES)
     buttons = MixedButtonsBlock(
         button_types=get_button_types(allow_uitour=False),
         min_num=0,
@@ -2418,6 +2455,36 @@ class LineCardsBlock(blocks.StructBlock):
         template = "cms/blocks/line-cards.html"
         label = "Line Cards"
         label_format = "Line Cards"
+
+
+# Resources
+
+
+class ResourcesColumnBlock(blocks.StructBlock):
+    headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
+    list_items = blocks.StreamBlock(
+        [
+            ("subheading", RichTextBlock(features=HEADING_TEXT_FEATURES)),
+            ("link", CTABlock(template="cms/blocks/resources-link.html")),
+        ],
+        min_num=1,
+        label="Items",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Resources Column"
+        label_format = "{headline}"
+
+
+class ResourcesBlock(blocks.StructBlock):
+    columns = blocks.ListBlock(ResourcesColumnBlock(), min_num=1)
+
+    class Meta:
+        template = "cms/blocks/resources.html"
+        icon = "list-ul"
+        label = "Resources"
+        label_format = "Resources"
 
 
 # Article Cards
@@ -2939,6 +3006,10 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
 
     class _SectionBlock(blocks.StructBlock):
         settings = SectionBlockSettings()
+        pictogram = ImageChooserBlock(
+            required=False,
+            help_text=("Optional small (100px) image displayed centered above the heading."),
+        )
         heading = HeadingBlock(required=require_heading)
         content = blocks.StreamBlock(
             [
@@ -2953,10 +3024,12 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("banner", BannerBlock(allow_uitour=allow_uitour)),
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
+                ("resources", ResourcesBlock()),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
+                ("certification_list", CertificationListBlock()),
             ],
             required=False,
         )
@@ -3206,6 +3279,12 @@ class KitBlockSettings(blocks.StructBlock):
 def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
+        scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
+            "cms.ScrollToSeeMoreSnippet",
+            label="Scroll To See More Snippet",
+            required=False,
+            help_text="Only shown when the block has media.",
+        )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
@@ -3213,11 +3292,21 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             max_num=2,
             required=False,
         )
+        media = MediaBlock(
+            max_num=1,
+            min_num=0,
+            required=False,
+            help_text="Sits below the buttons, flush with the bottom edge of the section.",
+        )
 
         class Meta:
             template = "cms/blocks/kit-intro.html"
             label = "Kit Intro"
             label_format = "{heading}"
+            form_layout = blocks.BlockGroup(
+                children=["heading", "buttons", "media"],
+                settings=["settings", "scroll_to_see_more_snippet"],
+            )
 
     return _KitIntroBlock(*args, **kwargs)
 
@@ -3561,17 +3650,33 @@ class DownloadSupportBlock(blocks.StaticBlock):
         label = "Download Support Message"
 
 
-class EnterpriseDownloadBlock(blocks.StaticBlock):
-    """Static placeholder block for the Firefox Enterprise download section.
+class EnterpriseDownloadBlock(blocks.StructBlock):
+    """Enterprise download section."""
 
-    No editable fields by design: it renders the existing enterprise
-    download markup/FTL strings as-is while the Enterprise page's
-    redesign is in progress.
-    """
+    heading = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=False,
+        help_text="Heading for the content below the download menus.",
+    )
+    rich_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        help_text="Content below the heading. Leave this and the heading blank to hide the section.",
+    )
+    center_content = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Center content",
+        help_text="Center the heading and the content below it.",
+    )
 
     class Meta:
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
+        form_layout = blocks.BlockGroup(
+            children=["heading", "rich_text"],
+            settings=["center_content"],
+        )
 
 
 # Contact Page Form Field Blocks
@@ -3854,6 +3959,115 @@ class CountrySelectFieldBlock(BaseField):
         label = "Country Select Field"
         label_format = "Country Select - {label}"
         value_class = CountrySelectFieldValue
+
+
+class QueryParamBlock(blocks.StructBlock):
+    key = UntranslatableCharBlock(label="Key")
+    value = UntranslatableCharBlock(label="Value")
+
+    class Meta:
+        label_format = "{key}={value}"
+
+
+class FieldsetAndLegendBlock(blocks.StructBlock):
+    """A block for a fieldgroup around the form fields that follow it."""
+
+    legend = blocks.CharBlock(
+        label="Legend",
+        help_text=(
+            "Short name for the group, e.g. 'What you're interested in'. A screen reader announces it before the label of every field in the group."
+        ),
+    )
+    help_text = RichTextBlock(
+        features=EXPANDED_TEXT_FEATURES,
+        required=False,
+        label="Help text",
+        help_text="Optional text under the legend, describing the group as a whole.",
+    )
+
+    class Meta:
+        icon = "list-ul"
+        label = "Fieldset and Legend"
+        label_format = "Fieldset - {legend}"
+
+
+class ContactFormBlock(blocks.StructBlock):
+    """Loads a chosen contact page's form into another page.
+
+    The form is fetched from the contact page with htmx after the host page loads, so
+    the host page carries no per-visitor CSRF token and stays cacheable. The contact
+    page owns rendering and submission handling.
+    """
+
+    contact_page = blocks.PageChooserBlock(target_model="cms.ContactPage")
+    two_column = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Two Column Layout",
+        help_text="Render the form fields in two columns on large screens.",
+    )
+    query_params = blocks.ListBlock(
+        QueryParamBlock(),
+        default=[],
+        label="Query Params",
+        help_text="Sent with the form to set hidden fields' query param overrides. "
+        "The same params on the page's URL take precedence over anything set here.",
+    )
+
+    class Meta:
+        icon = "mail"
+        template = "cms/blocks/contact-form.html"
+        label = "Contact Form"
+        label_format = "Contact Form - {contact_page}"
+        form_layout = blocks.BlockGroup(
+            children=["contact_page"],
+            settings=["two_column", "query_params"],
+        )
+
+    def contact_page_is_invalid(self, contact_page):
+        if not contact_page.live:
+            return "The selected contact page is not published."
+        elif contact_page.get_view_restrictions():
+            return "The selected contact page is private, so its form cannot be shown on another page."
+        elif not contact_page.url:
+            return "The selected contact page has no public URL."
+        return None
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        contact_page = cleaned["contact_page"]
+        error = self.contact_page_is_invalid(contact_page)
+        if error:
+            raise StructBlockValidationError(block_errors={"contact_page": ValidationError(error)})
+        return cleaned
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # Set on every render so a `form_url` from the parent context never leaks in.
+        context["form_url"] = None
+        request = context.get("request")
+        contact_page = value.get("contact_page")
+        if not (request and contact_page):
+            return context
+
+        contact_page = contact_page.localized
+        if self.contact_page_is_invalid(contact_page):
+            return context
+
+        request.needs_htmx = True
+        # Query params feed hidden fields' query_param_override on the contact page.
+        params = QueryDict(mutable=True)
+        for query_param in value.get("query_params", []):
+            params[query_param["key"]] = query_param["value"]
+        for key in request.GET:
+            params.setlist(key, request.GET.getlist(key))
+        params["form_instance"] = contact_page.next_form_number(request)
+        if value.get("two_column"):
+            params["two_column"] = "1"
+        else:
+            params.pop("two_column", None)
+        context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
+        return context
 
 
 # Navigation

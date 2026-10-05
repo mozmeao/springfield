@@ -210,7 +210,7 @@
 
     /* Copied from release-notes.scss */
 
-    .is-firefox .c-download-cta {
+    .is-firefox .c-download-cta:not(.fl-force-download-cta) {
         display: none;
     }
 
@@ -368,7 +368,7 @@
         display: block;
     }
 
-    html.is-firefox .fl-download-section-container {
+    html.is-firefox .fl-download-section-container:not(.fl-force-download-cta) {
         display: none;
     }
 }

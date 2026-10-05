@@ -7,6 +7,9 @@ from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
@@ -18,7 +21,7 @@ from wagtail import blocks
 from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockValidationError
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.blog.fixtures.blog_fixtures import (
@@ -44,7 +47,9 @@ from springfield.cms.blocks import (
     ButtonBlock,
     ButtonRowBlock,
     CardsListBlock,
+    CertificationListBlock,
     ComparisonTableBlock,
+    ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
@@ -61,6 +66,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TabBlock,
     TabsBlock,
+    TextFieldBlock,
     TopicBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
@@ -109,12 +115,13 @@ from springfield.cms.fixtures.comparison_table_fixtures import (
     get_comparison_table_variants,
     row as comparison_row,
 )
-from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
+from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
+    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -149,6 +156,10 @@ from springfield.cms.fixtures.media_content_fixtures import (
     get_media_content_variants,
 )
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page, get_notification_variants
+from springfield.cms.fixtures.resources_fixtures import (
+    get_resources_column_variants,
+    get_resources_test_page,
+)
 from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_section_variants,
     get_roadmap_list_test_page,
@@ -164,7 +175,7 @@ from springfield.cms.fixtures.smart_window_explainer_page_fixtures import (
     get_smart_window_explainer_intro,
     get_smart_window_explainer_test_page,
 )
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_set_as_default_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet, get_scroll_to_see_more_snippet, get_set_as_default_snippet
 from springfield.cms.fixtures.testimonial_card_fixtures import (
     get_testimonial_cards_sections,
     get_testimonial_cards_test_page,
@@ -173,10 +184,13 @@ from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_lower_va
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page, get_two_column_cards_variants
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.icon_utils import icon_value_fn
+from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import (
     ArticleDetailPage,
+    ContactPage,
     FreeFormPage2026,
     PretranslatedPhrase,
+    SimpleRichTextPage,
     SmartWindowExplainerPage,
     SpringfieldImage,
     WhatsNewPage2026,
@@ -2208,11 +2222,68 @@ def test_enterprise_download_block(index_page, rf):
         assert any(link["href"].startswith("https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64") for link in linux_links)
 
         resources = download_section.find("div", class_="fl-enterprise-download-resources")
-        assert resources, "Resources block should render"
-        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/")
+        assert resources, "Resources region should render"
+        heading = resources.find("h3", class_="fl-enterprise-download-resources-title")
+        assert heading, "The heading renders from its own field"
+        assert heading.get_text(strip=True) == "Resources"
+
+        assert resources.find("a", href="https://firefox-admin-docs.mozilla.org/"), "Documentation link should render"
         assert resources.find("a", href="https://github.com/mozilla/policy-templates/releases")
 
-        assert download_section.find("p", class_="fl-body"), "ESR download language paragraph should render"
+        release_notes_link = resources.find("a", href=lambda href: href and href.startswith("https://support.mozilla.org/"))
+        assert release_notes_link, "Release notes link should render"
+        assert release_notes_link["href"].endswith("?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=test-enterprise-download-page"), (
+            "The richtext filter appends the page's UTM parameters to Mozilla links"
+        )
+
+    upper_resources = upper.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" not in upper_resources["class"], "The upper block leaves Center content off, so the region is not centered"
+
+    lower_resources = lower.find("div", class_="fl-enterprise-download-resources")
+    assert "text-center" in lower_resources["class"], "The lower block turns Center content on, so the region is centered"
+
+    def docs_link_uid(region):
+        return region.find("a", href="https://firefox-admin-docs.mozilla.org/")["data-cta-uid"]
+
+    assert docs_link_uid(upper_resources) == "ed260000-0001-0001-0001-000000000001", (
+        "The fixture's uid reaches the rendered link as data-cta-uid, which analytics reads"
+    )
+    assert docs_link_uid(lower_resources) == "ed260000-0002-0002-0002-000000000001", "Each block on the page carries its own analytics uids"
+
+
+def test_enterprise_download_block_hides_empty_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000003-0000-0000-0000-000000000003", heading="", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    download_section = upper.find("section", id="download")
+    assert download_section.find("div", class_="fl-enterprise-download-lists"), "The download menus still render"
+    assert download_section.find("div", class_="fl-enterprise-download-resources") is None, (
+        "A blank heading and blank Resources render no region at all, rather than an empty bordered band"
+    )
+
+
+def test_enterprise_download_block_renders_heading_without_resources(index_page, rf):
+    page = get_enterprise_download_test_page()
+    page.upper_content = [get_enterprise_download(block_id="ed000004-0000-0000-0000-000000000004", rich_text="")]
+    page.save_revision().publish()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    region = upper.find("section", id="download").find("div", class_="fl-enterprise-download-resources")
+    assert region, "A heading on its own still renders the region"
+    assert region.find("h3", class_="fl-enterprise-download-resources-title")
+    assert region.find("ul") is None
 
 
 def test_freeform_page_split_layout(index_page, rf):
@@ -2587,7 +2658,8 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
     variant = variants[0]
     value = variant["value"]
 
-    for region_name, region in [("upper", upper), ("lower", lower)]:
+    # Lower content alternates the Featured Image block with plain text sections, so it lands at position 2.
+    for region_name, region, block_index in [("upper", upper, 1), ("lower", lower, 2)]:
         sections = region.find_all("section", class_="fl-featured-image-section")
         assert len(sections) == 1
         section = sections[0]
@@ -2610,7 +2682,7 @@ def test_featured_image_section_block(index_page, placeholder_images, rf):
         card_els = section.find_all("article", class_="fl-card")
         assert len(card_els) == len(icon_cards)
 
-        block_position_prefix = f"{region_name}-block-1-featured_image_section.item-1-cards_list"
+        block_position_prefix = f"{region_name}-block-{block_index}-featured_image_section.item-1-cards_list"
 
         for card_index, card_data in enumerate(icon_cards):
             card_el = card_els[card_index]
@@ -2720,6 +2792,13 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                 heading = card_el.find(block_info["heading_tag"], class_="fl-heading")
                 assert heading and headline_text in heading.get_text()
 
+                # Pictogram (optional)
+                header = card_el.find("header", class_="fl-article-item-header")
+                if value.get("pictogram"):
+                    assert header.find("img")
+                else:
+                    assert header.find("img") is None
+
                 # Superheading (optional)
                 if value.get("superheading"):
                     superheading_text = BeautifulSoup(value["superheading"], "html.parser").get_text()
@@ -2744,6 +2823,96 @@ def test_line_cards_block(index_page, placeholder_images, rf):
                             cta_position=cta_position,
                             cta_text=cta_text,
                         )
+
+
+def test_resources_block(index_page, placeholder_images, rf):
+    column_variants = get_resources_column_variants()
+    page = get_resources_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    context = page.get_context(request)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+    assert upper and lower
+
+    # block-1: section containing resources (2 columns), block-2: standalone resources (3 columns)
+    # Upper: section at block_level=1 (children h2), standalone at block_level=2 (h2)
+    # Lower: section at block_level=2 (children h3), standalone at block_level=2 (h2)
+    for region_name, region, in_section_heading_tag in [("upper", upper, "h2"), ("lower", lower, "h3")]:
+        blocks_under_test = [
+            {
+                "columns": column_variants[:2],
+                "position_prefix": f"{region_name}-block-1-section.item-1-resources",
+                "heading_tag": in_section_heading_tag,
+            },
+            {
+                "columns": column_variants,
+                "position_prefix": f"{region_name}-block-2-resources",
+                "heading_tag": "h2",
+            },
+        ]
+
+        grids = region.find_all("div", class_="fl-resources")
+        assert len(grids) == 2
+
+        for grid, block_info in zip(grids, blocks_under_test):
+            heading_tag = block_info["heading_tag"]
+            subheading_tag = f"h{int(heading_tag[1:]) + 1}"
+            column_els = grid.find_all("div", class_="fl-resources-column")
+            assert len(column_els) == len(block_info["columns"])
+
+            for column_index, column_data in enumerate(block_info["columns"]):
+                column_el = column_els[column_index]
+                list_items = column_data["value"]["list_items"]
+
+                headline_text = BeautifulSoup(column_data["value"]["headline"], "html.parser").get_text().strip()
+                headline_el = column_el.find(heading_tag, class_="fl-heading")
+                assert headline_el and headline_text in headline_el.get_text()
+
+                # Consecutive links share one <ul>; a subheading closes the open list so the
+                # links after it start a new one, and a subheading with no links adds no list.
+                expected_subheadings = []
+                expected_link_groups = []
+                for item in list_items:
+                    if item["type"] == "subheading":
+                        expected_subheadings.append(BeautifulSoup(item["value"], "html.parser").get_text().strip())
+                        expected_link_groups.append([])
+                    else:
+                        if not expected_link_groups:
+                            expected_link_groups.append([])
+                        expected_link_groups[-1].append(item)
+                expected_link_groups = [group for group in expected_link_groups if group]
+
+                subheading_els = column_el.find_all(subheading_tag, class_="fl-heading")
+                assert [subheading_el.get_text().strip() for subheading_el in subheading_els] == expected_subheadings
+
+                list_els = column_el.find_all("ul", class_="fl-resources-list")
+                assert len(list_els) == len(expected_link_groups)
+
+                link_index = 0
+                for list_el, link_group in zip(list_els, expected_link_groups):
+                    link_item_els = list_el.find_all("li", class_="fl-resources-list-item")
+                    assert len(link_item_els) == len(link_group)
+
+                    for link_item_el, link_data in zip(link_item_els, link_group):
+                        link_index += 1
+                        link_value = link_data["value"]
+                        anchor = link_item_el.find("a", class_="fl-resources-link")
+                        assert anchor["href"] == add_utm_parameters(context, link_value["link"]["custom_url"])
+                        assert anchor.get_text().strip() == link_value["label"]
+                        assert anchor["data-cta-text"] == f"{headline_text} - {link_value['label']}"
+                        assert anchor["data-cta-position"] == f"{block_info['position_prefix']}.column-{column_index + 1}.link-{link_index}"
+                        assert anchor["data-cta-uid"] == link_value["settings"]["analytics_id"]
+                        if link_value["link"]["new_window"]:
+                            assert anchor["target"] == "_blank"
+                            assert anchor["rel"] == ["external", "noopener"]
+                        else:
+                            assert not anchor.has_attr("target")
 
 
 def test_icon_list_with_image_block(index_page, placeholder_images, rf):
@@ -3058,9 +3227,10 @@ def _springfield_link_data(link_to, **fields):
     return data
 
 
-def test_kit_intro_block(index_page, rf):
+def test_kit_intro_block(index_page, placeholder_images, rf):
     variants = get_kit_intro_variants()
     page = get_kit_intro_test_page()
+    scroll_to_see_more_text = get_scroll_to_see_more_snippet().text
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -3078,11 +3248,31 @@ def test_kit_intro_block(index_page, rf):
 
     for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
         value = variant["value"]
+        section = intro_el.find_parent("section")
 
         heading_text = BeautifulSoup(value["heading"]["heading_text"], "html.parser").get_text()
-        # Kit intro is first block in upper (h1)
-        heading = intro_el.find("h1", class_="fl-heading")
+        # The first Kit Intro on the page is the h1; the ones after it are h2.
+        heading_tag = "h1" if index == 0 else "h2"
+        heading = intro_el.find(heading_tag, class_="fl-heading")
         assert heading and heading_text in heading.get_text()
+
+        media_element = section.find("div", class_="fl-home-intro-media")
+        if value.get("media"):
+            assert "has-home-intro-media" in section["class"]
+            assert_image_variants_attributes(
+                images_element=media_element,
+                images_value=value["media"][0]["value"],
+                sizes="(min-width: 1170px) 1170px, 100vw",
+            )
+        else:
+            assert "has-home-intro-media" not in section["class"]
+            assert media_element is None
+
+        scroll_to_see_more_element = section.find("div", class_="fl-scroll-to-see-more-wrapper")
+        if value.get("media") and value.get("scroll_to_see_more_snippet"):
+            assert scroll_to_see_more_element and scroll_to_see_more_text in scroll_to_see_more_element.get_text()
+        else:
+            assert scroll_to_see_more_element is None
 
         if value["heading"]["superheading_text"]:
             superheading_text = BeautifulSoup(value["heading"]["superheading_text"], "html.parser").get_text()
@@ -3325,6 +3515,19 @@ def _springfield_link_value(link_to, **fields):
     return SpringfieldLinkBlock().to_python(_springfield_link_data(link_to, **fields))
 
 
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_springfield_link_block_links_a_private_page_on_the_cms_domain(minimal_site, rf):
+    page = SimpleRichTextPage.objects.get(slug="test-page")
+    PageViewRestriction.objects.create(page=page, restriction_type=PageViewRestriction.LOGIN)
+    link_value = _springfield_link_value("page", page=page.pk)
+    middleware = CurrentRequestMiddleware(get_response=lambda request: HttpResponse(link_value.get_url()))
+
+    with translation.override("en-US"):
+        response = middleware(rf.get("/", HTTP_HOST="cms.example.com"))
+
+    assert response.content.decode() == "http://cms.example.com/en-US/test-page/"
+
+
 def test_springfield_link_block_relative_url_returns_locale_aware_url(minimal_site):
     """Prepends the active locale to the stored path."""
     link_value = _springfield_link_value("relative_url", relative_url="/features/")
@@ -3553,7 +3756,7 @@ def test_springfield_link_block_page_handles_absolute_page_url(tiny_localized_si
     with (
         mock.patch("django.utils.translation.get_language", return_value="es-AR"),
         mock.patch.object(
-            type(en_us_page),
+            type(en_us_page.specific),
             "url",
             new_callable=lambda: property(lambda self: "http://localhost:8000/en-US/test-page/"),
         ),
@@ -4302,7 +4505,6 @@ def article_detail_page():
     )
 
 
-
 def test_article_card_uses_the_override_alt_when_the_override_supplies_the_image(article_detail_page):
     article_detail_page.featured_image_alt = "The article's own hero"
     article_detail_page.save()
@@ -4380,6 +4582,95 @@ def test_section_block_accepts_button_row():
     block = SectionBlock(require_heading=False)
     child_block_names = [name for name, _ in block.declared_blocks["content"].child_blocks.items()]
     assert "button_row" in child_block_names
+
+
+def test_section_block_pictogram_is_optional():
+    block = SectionBlock(require_heading=False)
+
+    assert block.child_blocks["pictogram"].field.required is False
+
+
+def test_section_block_without_pictogram_key_defaults_to_none():
+    block = SectionBlock(require_heading=False)
+
+    value = block.to_python({"heading": {"heading_text": '<p data-block-key="sec1">Section</p>'}})
+
+    assert value["pictogram"] is None
+
+
+def test_section_block_renders_decorative_svg_pictogram(index_page, rf):
+    pictogram = SpringfieldImage.objects.create(
+        title="Sovereignty pictogram",
+        is_decorative=True,
+        file=ContentFile(
+            b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40"/></svg>',
+            name="sovereignty-pictogram.svg",
+        ),
+    )
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "pictogram": pictogram.pk,
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic1">Sovereignty</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00001-0000-0000-0000-000000000001",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "Pictogram wrapper should render when an image is set"
+
+    rendered = wrapper.find("img")
+    assert rendered, "Pictogram should render an img element"
+    assert rendered["src"].endswith(".svg"), "An SVG pictogram should stay an SVG"
+    assert rendered["alt"] == "", "A decorative pictogram should render an empty alt attribute"
+
+
+def test_section_block_without_pictogram_renders_no_wrapper(index_page, rf):
+    page = get_freeform_page_test_page()
+    page.content = [
+        {
+            "type": "section",
+            "value": {
+                "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
+                "heading": {"superheading_text": "", "heading_text": '<p data-block-key="pic2">No pictogram</p>', "subheading_text": ""},
+                "content": [],
+                "cta": [],
+            },
+            "id": "pic00002-0000-0000-0000-000000000002",
+        }
+    ]
+    page.save_revision().publish()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("div", class_="fl-section-pictogram") is None
+
+
+def test_freeform_page_fixture_section_renders_a_pictogram(index_page, rf):
+    page = get_freeform_page_test_page()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    wrapper = soup.find("div", class_="fl-section-pictogram")
+    assert wrapper, "The fixture page shows a section with a pictogram"
+    image = wrapper.find("img")
+    assert image, "Pictogram should render an img element"
+    assert image["alt"] == "", "The fixture pictogram is decorative, so its alt is empty"
 
 
 def test_two_column_card_accepts_button_row():
@@ -4858,7 +5149,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
     privacy = get_blog_topics()["privacy"]
     privacy_tag = get_blog_tags()["privacy"]
     content = get_blog_article_content(image, image_caption=IMAGE_CAPTION)
-    # A second block covers the image variants, which the fixture image doesn't use.
+    # A second block covers the image variants and the image link, which the fixture block doesn't use.
     content.append(
         {
             "type": "image_caption",
@@ -4873,6 +5164,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
                     },
                 },
                 "caption": '<p data-block-key="eee55555">Caption below an image with dark mode and mobile variants.</p>',
+                "link": _BTN_LINK,
             },
             "id": "88888888-8888-8888-8888-888888888888",
         }
@@ -4903,6 +5195,13 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             figure.find("div", class_="image-variants-display"),
             block_data["value"]["image"],
         )
+
+        link_data = block_data["value"].get("link")
+        image_link = figure.find("div", class_="fl-image-caption-image").find("a")
+        assert bool(image_link) == bool(link_data)
+        if link_data:
+            assert image_link["href"] == add_utm_parameters(context, link_data["custom_url"])
+            assert image_link.find("div", class_="image-variants-display")
 
         caption_source = BeautifulSoup(block_data["value"]["caption"], "html.parser")
         figcaption = figure.find("figcaption", class_="fl-image-caption-text")
@@ -5193,6 +5492,26 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
     soup = BeautifulSoup(html, "html.parser")
     panel = soup.find("div", id="fl-tab-panel-hub-1")
     assert panel.find("video") is not None
+
+
+def test_certification_list_block_renders_link_and_plain_items():
+    raw = {
+        "list_items": [
+            {"text": "DORA", "link": _BTN_LINK},
+            {"text": "GDPR"},
+        ]
+    }
+    block = CertificationListBlock()
+    value = block.to_python(raw)
+    html = block.render(value, context={})
+    tags = BeautifulSoup(html, "html.parser").select(".fl-certification-list .fl-tag")
+
+    assert tags[0].name == "a"
+    assert tags[0]["href"] == "https://mozilla.org"
+    assert tags[0].get_text() == "DORA"
+
+    assert tags[1].name == "span"
+    assert tags[1].get_text() == "GDPR"
 
 
 def _email_href(html):
@@ -5522,6 +5841,17 @@ def test_tab_block_marks_only_achieved_badges():
     assert ["is-achieved" in b["class"] for b in badges] == [True, True, False]
 
 
+@pytest.mark.parametrize(("install_count", "at_milestone"), [(5, True), (7, False)])
+def test_tab_block_marks_badge_whose_connector_has_no_progress(install_count, at_milestone):
+    """Exactly on a badge's number, the connector after it shows no gradient.
+
+    Anywhere between two numbers, it keeps its default half fill.
+    """
+    badges = _badge_elements(_render_impact_dash(numbers=(1, 5, 10), install_count=install_count))
+
+    assert ["is-at-milestone" in b["class"] for b in badges] == [False, at_milestone, False]
+
+
 def test_tab_block_impact_dash_locked_when_install_count_absent_from_context():
     """TabBlock is reachable from MediaBlock on pages that never set the count."""
     soup = _render_impact_dash(numbers=(1, 5), install_count=_UNSET)
@@ -5599,7 +5929,7 @@ def test_tab_block_renders_badge_image(placeholder_images):
     assert "srcset" in img.attrs
 
 
-def test_tab_block_renders_badge_name_below_the_number_and_label():
+def test_tab_block_renders_badge_name_above_the_number_and_label():
     badges = _badge_elements(_render_impact_dash(numbers=(5,), install_count=0))
 
     name = badges[0].find("p", class_="fl-badge-name")
@@ -5608,7 +5938,7 @@ def test_tab_block_renders_badge_name_below_the_number_and_label():
     description = badges[0].find("div", class_="fl-badge-description")
     children = description.find_all(["p", "div"], recursive=False)
     classes = [c for el in children for c in (el.get("class") or [])]
-    assert classes.index("fl-badge-value") < classes.index("fl-badge-name")
+    assert classes.index("fl-badge-name") < classes.index("fl-badge-value")
 
 
 def test_tab_block_renders_distinct_badge_name_per_badge():
@@ -6163,3 +6493,221 @@ def test_heading_levels_skip_a_leading_block_without_a_heading(page_model, notif
         assert_intro_heading(main, condition_class, heading_text, "h1")
 
     assert_section_and_banner_heading_levels(main)
+
+
+# Contact Form Block
+
+
+@pytest.fixture
+def contact_page_for_block(index_page):
+    """A published contact page with two form fields, enough to show the block renders them."""
+    page = ContactPage(
+        title="Contact Us",
+        slug="contact-us",
+        to_email_address="contact@example.com",
+        thank_you_message='<p data-block-key="cfbty1">Thanks for reaching out!</p>',
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "contact-form-block-field-1",
+            },
+            {
+                "type": "email_field",
+                "value": {"internal_identifier": "email", "label": "Email Address", "required": True},
+                "id": "contact-form-block-field-2",
+            },
+        ],
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def contact_form_block(contact_page):
+    return {"type": "contact_form", "value": {"contact_page": contact_page.pk}}
+
+
+def test_contact_form_block_loads_the_chosen_pages_form(contact_page_for_block, index_page, rf):
+    """The block renders a placeholder that htmx swaps for the contact page's form.
+
+    The same contact page is embedded twice, so each copy asks for its own form number.
+    Host query params are forwarded for the contact page's hidden field overrides.
+    """
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block",
+        parent=index_page,
+        content=[
+            contact_form_block(contact_page_for_block),
+            {"type": "contact_form", "value": {"contact_page": contact_page_for_block.pk, "two_column": True}},
+        ],
+    )
+
+    response = page.serve(rf.get(page.get_full_url(), {"utm_source": "test", "form_instance": "9", "two_column": "1"}))
+    soup = BeautifulSoup(response.content, "html.parser")
+    main = soup.find(class_="fl-main")
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js")
+
+    placeholders = main.find_all("div", class_="fl-contact-form-wrapper")
+    assert [placeholder["hx-get"] for placeholder in placeholders] == [
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=1",
+        f"{contact_page_for_block.url}?utm_source=test&form_instance=2&two_column=1",
+    ]
+    for placeholder in placeholders:
+        assert placeholder.find_parent("section", class_="fl-section")
+        assert placeholder["hx-trigger"] == "load"
+        assert placeholder["hx-swap"] == "outerHTML"
+        assert placeholder.find("form") is None
+    # No per-visitor CSRF token on the host page, so a shared cache may keep it
+    assert main.find("input", attrs={"name": "csrfmiddlewaretoken"}) is None
+    assert "no-store" not in response.get("Cache-Control", "")
+
+
+@pytest.mark.parametrize(
+    "host_query, expected_query",
+    [
+        ({}, "ls=sunday-event-contact&utm_source=event&form_instance=1"),
+        ({"ls": "another-source"}, "ls=another-source&utm_source=event&form_instance=1"),
+    ],
+    ids=["block_params", "host_params_take_precedence"],
+)
+def test_contact_form_block_adds_its_query_params_to_the_form_url(contact_page_for_block, index_page, rf, host_query, expected_query):
+    """Editors set query params that feed the contact page's hidden field overrides; the host URL's own params win."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-query-params",
+        parent=index_page,
+        content=[
+            {
+                "type": "contact_form",
+                "value": {
+                    "contact_page": contact_page_for_block.pk,
+                    "query_params": [
+                        {"key": "ls", "value": "sunday-event-contact"},
+                        {"key": "utm_source", "value": "event"},
+                    ],
+                },
+            }
+        ],
+    )
+
+    response = page.serve(rf.get(page.get_full_url(), host_query))
+    placeholder = BeautifulSoup(response.content, "html.parser").find("div", class_="fl-contact-form-wrapper")
+
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?{expected_query}"
+
+
+def test_form_field_clean_rejects_the_honeypot_internal_identifier():
+    """The contact form posts the `office_fax` honeypot itself, so an author's field cannot claim it."""
+    with pytest.raises(ValidationError, match="'office_fax' is reserved"):
+        TextFieldBlock().clean({"label": "Whatever", "internal_identifier": "office_fax", "required": False})
+
+
+def test_contact_form_block_clean_accepts_a_published_contact_page(contact_page_for_block):
+    block = ContactFormBlock()
+
+    cleaned = block.clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert cleaned["contact_page"] == contact_page_for_block
+
+
+def test_contact_form_block_clean_rejects_an_unpublished_contact_page(contact_page_for_block):
+    contact_page_for_block.unpublish()
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_restricted_contact_page(contact_page_for_block):
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "contact_page" in exc_info.value.block_errors
+
+
+def test_contact_form_block_clean_rejects_a_contact_page_without_a_url(contact_page_for_block):
+    """A contact page outside every site's tree has no URL for the form to be loaded from."""
+    with mock.patch.object(ContactPage, "url", new_callable=mock.PropertyMock, return_value=None):
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            ContactFormBlock().clean({"contact_page": contact_page_for_block, "two_column": False})
+
+    assert "no public URL" in str(exc_info.value.block_errors["contact_page"])
+
+
+def test_contact_form_block_warns_when_javascript_is_off(contact_page_for_block, index_page, rf):
+    """Submission runs through htmx, so a visitor without JavaScript is told the form will not work."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-noscript",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    noscript = main.find("div", class_="fl-contact-form-wrapper").find("noscript")
+    assert "Please turn on JavaScript" in noscript.get_text()
+
+
+def test_contact_form_block_hides_a_restricted_contact_page(contact_page_for_block, index_page, rf):
+    """A host page anyone can read must not expose a form from a contact page behind a restriction."""
+    PageViewRestriction.objects.create(page=contact_page_for_block, restriction_type=PageViewRestriction.LOGIN)
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-restricted",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.get_full_url())).content, "html.parser")
+
+    assert soup.find("div", class_="fl-contact-form-wrapper") is None
+    # With no form to load, the page skips the htmx script
+    assert soup.find("script", src="/media/django_htmx/htmx-2.min.js") is None
+
+
+def test_contact_form_block_hides_an_unpublished_contact_page(contact_page_for_block, index_page, rf):
+    """An unpublished contact page has no served form, so the block renders nothing."""
+    contact_page_for_block.unpublish()
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-unpublished",
+        parent=index_page,
+        content=[contact_form_block(contact_page_for_block)],
+    )
+
+    main = render_main_element(page, rf)
+
+    assert main.find("div", class_="fl-contact-form-wrapper") is None
+
+
+def test_contact_form_block_renders_inside_a_media_content_block(contact_page_for_block, index_page, rf):
+    """The block is also offered within Media + Content, where it carries no section of its own."""
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="contact-form-block-in-media-content",
+        parent=index_page,
+        content=[
+            {
+                "type": "media_content",
+                "value": {
+                    "heading": {"heading_text": "<p>Talk to our team</p>"},
+                    "content": [contact_form_block(contact_page_for_block)],
+                },
+            }
+        ],
+    )
+
+    main = render_main_element(page, rf)
+
+    media_content = main.find("div", class_="fl-mediacontent")
+    # Nested, the block uses the bare template, so it brings no section of its own
+    assert media_content.find("section") is None
+
+    placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
+    assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"

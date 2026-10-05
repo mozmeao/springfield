@@ -7,10 +7,11 @@ from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale
+from wagtail.models import Locale, PageViewRestriction
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
@@ -430,6 +431,37 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_all_context_omits_unpublished_articles_while_the_index_is_published(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    make_article(title="Draft article").unpublish()
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert list(context["list_articles"]) == [published]
+
+
+def test_all_context_lists_unpublished_articles_while_the_index_is_a_draft(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    draft = make_article(title="Draft article")
+    draft.unpublish()
+    blog_index.unpublish()
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert set(context["list_articles"]) == {published, draft}
+
+
+def test_all_context_lists_unpublished_articles_while_the_index_is_private(blog_index, make_article, rf):
+    published = make_article(title="Published article")
+    draft = make_article(title="Draft article")
+    draft.unpublish()
+    PageViewRestriction.objects.create(page=blog_index, restriction_type=PageViewRestriction.PASSWORD, password="secret")
+
+    context = blog_index.get_all_context(rf.get("/"))
+
+    assert set(context["list_articles"]) == {published, draft}
 
 
 def test_all_context_tag_filter_keeps_only_articles_with_the_tag(blog_index, blog_tag, tagged_articles, rf):
@@ -1282,6 +1314,15 @@ def test_blog_topic_page_url_uses_topic_route(privacy_topic_page):
     assert topic_page.url == index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
 
 
+@override_settings(WAGTAIL_ENABLE_ADMIN=True, CMS_HOSTNAME="cms.example.com", ALLOWED_HOSTS=["*"])
+def test_private_blog_topic_page_url_uses_CMS_HOSTNAME(privacy_topic_page, rf):
+    index_page, topic_page, _ = privacy_topic_page
+    PageViewRestriction.objects.create(page=topic_page, restriction_type=PageViewRestriction.LOGIN)
+    request = rf.get("/", HTTP_HOST="cms.example.com")
+
+    assert topic_page.get_url(request) == "http://cms.example.com" + index_page.url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+
 def test_blog_topic_page_not_servable_at_its_own_path(privacy_topic_page, rf):
     _, topic_page, _ = privacy_topic_page
     with pytest.raises(Http404):
@@ -1347,6 +1388,19 @@ def test_blog_topic_renders_curated_header(curated_topic_page, rf):
     assert featured[0].title in featured_block.get_text()
 
     assert soup.select_one(".fl-section-container > .fl-blog-article-list")
+
+
+def test_blog_topic_route_serves_the_curated_page_under_a_private_index(curated_topic_page, rf):
+    index_page, _, _ = curated_topic_page
+    PageViewRestriction.objects.create(page=index_page, restriction_type=PageViewRestriction.PASSWORD, password="secret")
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["privacy"])
+
+    response = index_page.topic_route(rf.get(url), "privacy")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    heading = soup.find("h1")
+    assert heading and "Curated Privacy" in heading.get_text()
 
 
 def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
@@ -1585,7 +1639,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         index_page.serve(request)
 
 
@@ -1593,7 +1647,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1610,7 +1664,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(42):
+    with django_assert_max_num_queries(44):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
@@ -1627,7 +1681,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(28):
+    with django_assert_max_num_queries(30):
         index_page.all_route(request)
 
 

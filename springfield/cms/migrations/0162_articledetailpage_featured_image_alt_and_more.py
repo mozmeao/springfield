@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0155_springfieldimage_is_decorative"),
+        ("cms", "0161_migrate_section_pictograms"),
     ]
 
     operations = [

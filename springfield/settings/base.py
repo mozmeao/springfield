@@ -324,6 +324,7 @@ FLUENT_DEFAULT_FILES = [
     "mozilla-account-promo",
     "components",
     "firefox/enterprise",
+    "cms/contact",
 ]
 
 FLUENT_DEFAULT_PERCENT_REQUIRED = config("FLUENT_DEFAULT_PERCENT_REQUIRED", default="80", parser=int)
@@ -760,7 +761,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "springfield.base.middleware.CacheMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "springfield.cms.middleware.CurrentRequestMiddleware",
     "springfield.cms.middleware.CMSLocaleFallbackMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ENABLE_CSP_MIDDLEWARE = config("ENABLE_CSP_MIDDLEWARE", default="true", parser=bool)
@@ -779,6 +782,7 @@ INSTALLED_APPS = [
     # L10n
     "product_details",
     # third-party apps
+    "django_htmx",
     "django_jinja_markdown",
     "django_jinja",
     "waffle",
@@ -947,6 +951,8 @@ PATTERN_LIBRARY = {
 
 BASKET_URL = config("BASKET_URL", default="https://basket.mozilla.org")
 BASKET_API_KEY = config("BASKET_API_KEY", default="")
+# Signs requests to basket's intake endpoint, paired with BASKET_API_KEY.
+BASKET_INTAKE_HMAC_SECRET = config("BASKET_INTAKE_HMAC_SECRET", default="")
 BASKET_TIMEOUT = config("BASKET_TIMEOUT", parser=int, default="10")
 BASKET_SUBSCRIBE_URL = f"{BASKET_URL}/news/subscribe/"
 
@@ -1385,6 +1391,8 @@ WAGTAIL_ENABLE_UPDATE_CHECK = False
 
 # Custom setting (not a Wagtail core one) that we use to plug in/unplug the admin UI entirely
 WAGTAIL_ENABLE_ADMIN = config("WAGTAIL_ENABLE_ADMIN", default="false", parser=bool)
+# The production domain for the CMS admin interface
+CMS_HOSTNAME = config("CMS_HOSTNAME", default="")
 
 if WAGTAIL_ENABLE_ADMIN:
     # Enable Middleware essential for admin
@@ -1664,5 +1672,6 @@ PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 # This needs to be in sync with Fastly WAF configuration
 CONTACT_PAGE_ALLOWED_PATHS = [
     r"/enterprise/contact/$",
+    r"/enterprise/contact/[a-zA-Z0-9\-]+/$",
     r"/landing/[a-zA-Z0-9\-]+/contact/$",
 ]

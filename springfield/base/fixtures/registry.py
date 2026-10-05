@@ -25,8 +25,10 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page
+from springfield.cms.fixtures.certification_list_fixtures import get_certification_list_test_page
 from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page
 from springfield.cms.fixtures.conditional_display_fixtures import get_conditional_display_test_page
+from springfield.cms.fixtures.contact_form_fixtures import get_contact_form_test_page
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
@@ -53,6 +55,7 @@ from springfield.cms.fixtures.kit_intro_fixtures import get_kit_intro_test_page
 from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_page
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
+from springfield.cms.fixtures.resources_fixtures import get_resources_test_page
 from springfield.cms.fixtures.roadmap_list_fixtures import get_roadmap_list_test_page
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
@@ -90,6 +93,7 @@ PAGE_FIXTURES = [
     get_icon_list_with_image_test_page,
     get_line_cards_test_page,
     get_two_column_cards_test_page,
+    get_resources_test_page,
     get_roadmap_list_test_page,
     get_showcase_test_page,
     get_card_gallery_test_page,
@@ -101,6 +105,7 @@ PAGE_FIXTURES = [
     get_button_row_test_page,
     get_comparison_table_test_page,
     get_browser_comparison_table_test_page,
+    get_certification_list_test_page,
     get_carousel_test_page,
     get_sliding_carousel_test_page,
     get_featured_image_section_test_page,
@@ -111,6 +116,7 @@ PAGE_FIXTURES = [
     get_enterprise_pages,
     get_thanks_page,
     get_contact_test_page,
+    get_contact_form_test_page,
     get_article_index_test_page,
     get_article_pages,
     get_article_theme_page,

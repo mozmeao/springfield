@@ -2,21 +2,31 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import hashlib
+import hmac
 import json
 import re
 from unittest.mock import patch
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.test import Client, RequestFactory
 
 import pytest
 import responses
+from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants
+from springfield.cms.fixtures.contact_page_fixtures import (
+    get_basic_form_field_variants,
+    get_basic_form_field_variants_with_fieldsets,
+    get_form_field_variants,
+    get_form_field_variants_with_fieldsets,
+)
 from springfield.cms.models import SimpleRichTextPage
-from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH, ContactPage
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH, BASKET_CONTACT_ENTERPRISE_PATH, BASKET_INTAKE_PATH, ContactPage
 
 pytestmark = [
     pytest.mark.django_db,
@@ -115,6 +125,55 @@ def test_contact_page_clean_requires_redirect_or_thank_you(
     }
 
 
+def test_contact_page_clean_requires_link_text_for_the_document_download(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a document is chosen without text for its link."""
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "unlabelled-guide.pdf"),
+    )
+    page = ContactPage(
+        title="Clean Document Label Test",
+        slug="clean-document-label-test",
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {
+        "document_download_label": ["Set the text for the download link."],
+    }
+
+
+def test_contact_page_clean_rejects_a_document_download_alongside_a_redirect(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a redirect would replace the page carrying the download link."""
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "redirected-guide.pdf"),
+    )
+    thank_you_page = _create_thank_you_page(minimal_site.root_page)
+    page = ContactPage(
+        title="Clean Document Redirect Test",
+        slug="clean-document-redirect-test",
+        to_email_address="test@example.com",
+        redirect_to=thank_you_page,
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    message = "Set either a redirect page or a document download, not both."
+    assert exc_info.value.message_dict == {
+        "redirect_to": [message],
+        "document_download": [message],
+    }
+
+
 def test_contact_page_clean_rejects_unknown_basket_path(
     minimal_site: Site,
 ) -> None:
@@ -168,6 +227,65 @@ def test_contact_page_clean_rejects_form_fields_the_endpoint_does_not_accept(
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} does not accept these fields: favourite_colour."]}
 
 
+def test_contact_page_clean_accepts_form_fields_matching_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() passes for the basic endpoint's own set of fields."""
+    page = ContactPage(
+        title="Basic Basket Fields Test",
+        slug="basic-basket-fields-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=get_basic_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_rejects_enterprise_only_fields_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """The two contact endpoints take different fields, so enterprise's extras are refused here."""
+    form_fields = get_basic_form_field_variants() + [
+        {
+            "type": "select_field",
+            "value": {
+                "internal_identifier": "timeline",
+                "label": "Timeline",
+                "required": True,
+                "options": [{"type": "item", "value": {"label": "1-3 months", "value": "1_3_months"}, "id": "basic-timeline-option"}],
+            },
+            "id": "basic-timeline-field",
+        },
+    ]
+    page = ContactPage(
+        title="Basic Basket Extra Field Test",
+        slug="basic-basket-extra-field-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} does not accept these fields: timeline."]}
+
+
+def test_contact_page_clean_requires_accepted_terms_on_the_basic_endpoint(
+    minimal_site: Site,
+) -> None:
+    """accepted_terms is the one field the basic endpoint requires that enterprise does not."""
+    form_fields = [field for field in get_basic_form_field_variants() if field["value"]["internal_identifier"] != "accepted_terms"]
+    page = ContactPage(
+        title="Basic Basket Accepted Terms Test",
+        slug="basic-basket-accepted-terms-test",
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        form_fields=form_fields,
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_BASIC_PATH} requires these fields: accepted_terms."]}
+
+
 def test_contact_page_clean_requires_endpoint_required_fields_to_be_marked_required(
     minimal_site: Site,
 ) -> None:
@@ -205,6 +323,60 @@ def test_contact_page_clean_requires_the_fields_the_endpoint_requires(
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
     assert exc_info.value.message_dict == {"form_fields": [f"{BASKET_CONTACT_ENTERPRISE_PATH} requires these fields: company, timeline."]}
+
+
+def test_contact_page_clean_accepts_any_form_fields_on_the_intake_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() passes the intake endpoint with any form fields once a form id is set."""
+    page = ContactPage(
+        title="Intake Fields Test",
+        slug="intake-fields-test",
+        basket_api_path=BASKET_INTAKE_PATH,
+        basket_form_id="event-signup",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "favourite_colour", "label": "Favourite colour", "required": False},
+                "id": "intake-text-field",
+            },
+        ],
+        thank_you_message="<p>Thank you!</p>",
+    )
+    page.clean()
+
+
+def test_contact_page_clean_requires_a_form_id_on_the_intake_endpoint(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if the intake endpoint is chosen without a form id."""
+    page = ContactPage(
+        title="Intake Form Id Test",
+        slug="intake-form-id-test",
+        basket_api_path=BASKET_INTAKE_PATH,
+        form_fields=get_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"basket_form_id": [f"{BASKET_INTAKE_PATH} requires a form id."]}
+
+
+def test_contact_page_clean_rejects_a_form_id_on_other_endpoints(
+    minimal_site: Site,
+) -> None:
+    """ContactPage.clean() raises if a form id is set for an endpoint that does not use it."""
+    page = ContactPage(
+        title="Form Id Test",
+        slug="form-id-test",
+        basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
+        basket_form_id="event-signup",
+        form_fields=get_form_field_variants(),
+        thank_you_message="<p>Thank you!</p>",
+    )
+    with pytest.raises(ValidationError) as exc_info:
+        page.clean()
+    assert exc_info.value.message_dict == {"basket_form_id": [f"Only {BASKET_INTAKE_PATH} uses a form id."]}
 
 
 def test_contact_page_slug_validated_when_publishing(
@@ -268,7 +440,6 @@ def test_contact_page_serve(
 ) -> None:
     """Test that ContactPage can be served and renders form field labels."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Serve Test",
@@ -291,7 +462,7 @@ def test_contact_page_serve(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -305,6 +476,235 @@ def test_contact_page_serve(
     assert "Phone Number" in page_content
 
 
+def test_contact_page_renders_its_own_form_wrapper(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The page wraps its form in .fl-contact-form-wrapper, same as the Contact Form block.
+
+    htmx (hx-target on the form) swaps this wrapper in from each POST response,
+    so a POST must carry the same wrapper as the initial GET.
+    """
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact Wrapper Test",
+        slug="contact-wrapper-test",
+        thank_you_message="<p>Thanks!</p>",
+        to_email_address="test@example.com",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    url = page.relative_url(minimal_site)
+
+    get_soup = BeautifulSoup(page.serve(rf.get(url)).text, "html.parser")
+    wrapper = get_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["hx-post"] == page.url
+    assert get_soup.find("script", src="/media/django_htmx/htmx-2.min.js")
+
+    post_soup = BeautifulSoup(page.serve(rf.post(url)).text, "html.parser")
+    wrapper = post_soup.find("div", class_="fl-contact-form-wrapper")
+    assert wrapper.find("form")["hx-post"] == page.url
+
+
+def test_contact_page_htmx_post_renders_only_the_form(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Partial Test",
+        slug="contact-htmx-partial-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {}, headers={"hx-request": "true"})
+    content = resp.content.decode()
+    soup = BeautifulSoup(content, "html.parser")
+
+    assert soup.find("div", class_="fl-contact-form-wrapper") is not None
+    assert soup.find("form", class_="contact-form") is not None
+    assert "<html" not in content
+    assert soup.find("nav") is None
+    assert soup.find("footer") is None
+
+
+def test_contact_page_htmx_post_keeps_the_number_the_form_was_rendered_with(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """The swapped-in markup reuses the submitting form's number, so it cannot take over the
+    element ids of another form still on the page."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Numbering Test",
+        slug="contact-htmx-numbering-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(f"{page.url}?form_instance=2", {}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("label", attrs={"for": "contact-2-full_name"}) is not None
+    assert soup.find("form", class_="contact-form")["hx-post"] == f"{page.url}?form_instance=2"
+
+
+@pytest.mark.parametrize("junk_number", ['1"><script>', "²", "9" * 5000])
+def test_contact_page_htmx_post_ignores_a_junk_form_number(
+    minimal_site: Site,
+    client: Client,
+    junk_number: str,
+) -> None:
+    """A submitted number that is not a plain integer never reaches the rendered ids."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Junk Number Test",
+        slug="contact-htmx-junk-number-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {}, query_params={"form_instance": junk_number}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("label", attrs={"for": "contact-1-full_name"}) is not None
+
+
+def test_contact_page_htmx_post_keeps_the_two_column_layout(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Two Column Test",
+        slug="contact-htmx-two-column-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(f"{page.url}?two_column=1", {}, headers={"hx-request": "true"})
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    form = soup.find("form", class_="contact-form")
+    assert "fl-form-two-column" in form["class"]
+    assert form["hx-post"] == f"{page.url}?two_column=1"
+
+
+def test_contact_page_htmx_get_renders_the_form_a_contact_form_block_loads(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """The Contact Form block fetches this fragment, numbered and laid out as it asks."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Fragment Test",
+        slug="contact-htmx-fragment-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "full_name", "label": "Full Name", "required": True},
+                "id": "f1",
+            },
+        ],
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.get(page.url, {"form_instance": "2", "two_column": "1"}, headers={"hx-request": "true"})
+
+    assert "no-store" in resp.get("Cache-Control", "")
+    content = resp.content.decode()
+    assert "<html" not in content
+    soup = BeautifulSoup(content, "html.parser")
+    form = soup.find("form", class_="contact-form")
+    assert "fl-form-two-column" in form["class"]
+    assert form["hx-post"] == f"{page.url}?form_instance=2&two_column=1"
+    assert form.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+    assert form.find("label", attrs={"for": "contact-2-full_name"}) is not None
+    # Unbound, so the only alert is the hidden one for a failed request
+    assert [alert["class"] for alert in soup.find_all(attrs={"role": "alert"})] == [
+        ["fl-notification-wrapper", "contact-form-request-error", "hidden"]
+    ]
+
+
+def test_contact_page_htmx_response_is_never_cached(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact HTMX Cache Test",
+        slug="contact-htmx-cache-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {}, headers={"hx-request": "true"})
+
+    assert "no-store" in resp.get("Cache-Control", "")
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("input", attrs={"name": "csrfmiddlewaretoken"})["value"]
+
+
+def test_contact_page_non_htmx_post_still_renders_the_whole_page(
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Contact No HTMX Test",
+        slug="contact-no-htmx-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(page.url, {})
+    content = resp.content.decode()
+
+    assert "<html" in content
+    assert BeautifulSoup(content, "html.parser").find("div", class_="fl-contact-form-wrapper") is not None
+
+
 def test_contact_page_get_is_never_cached(
     minimal_site: Site,
     rf: RequestFactory,
@@ -316,13 +716,12 @@ def test_contact_page_get_is_never_cached(
     and their form submissions are rejected with 403.
     """
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Cache Test",
         slug="contact-cache-test",
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -347,14 +746,13 @@ def test_contact_page_post_errors_is_never_cached(
     """
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Cache Error Test",
         slug="contact-cache-error-test",
         form_fields=form_field_variants,
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -377,13 +775,12 @@ def test_no_js_notification_present(
 ) -> None:
     """The contact page renders a noscript notification with orange color."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="NoJS Test",
         slug="nojs-test",
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -402,12 +799,11 @@ def test_contact_page_get_context_includes_unbound_form_on_get(
 ) -> None:
     """get_context() passes the form built by serve() into the template context, unbound on GET."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Context Default Test",
         slug="context-default-test",
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
         form_fields=get_form_field_variants(),
     )
     index_page.add_child(instance=page)
@@ -427,7 +823,6 @@ def test_contact_page_country_select_field_renders_countries(
 ) -> None:
     """CountrySelectField renders a <select> populated with country options."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Country Select Test",
@@ -444,7 +839,7 @@ def test_contact_page_country_select_field_renders_countries(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -464,7 +859,6 @@ def test_contact_page_country_select_field_renders_localized_countries(
 ) -> None:
     """CountrySelectField renders a <select> populated with localized labels for country options."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     fr_locale = Locale.objects.get(language_code="fr")
 
     page = ContactPage(
@@ -482,7 +876,7 @@ def test_contact_page_country_select_field_renders_localized_countries(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -504,7 +898,6 @@ def test_contact_page_select_fields_render_placeholder_option(
 ) -> None:
     """Select and country select fields both start with a blank placeholder option."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Placeholder Option Test",
@@ -527,7 +920,7 @@ def test_contact_page_select_fields_render_placeholder_option(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -544,14 +937,13 @@ def test_contact_page_preview_renders_form_fields(
 ) -> None:
     """A preview builds its own form, so the fields render outside the serve() path."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Preview Test",
         slug="preview-test",
         form_fields=get_form_field_variants(),
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -570,7 +962,6 @@ def test_contact_page_field_error_message_is_linked_to_its_widget(
 ) -> None:
     """An invalid widget points at its error message via aria-describedby."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Error Link Test",
@@ -583,16 +974,17 @@ def test_contact_page_field_error_message_is_linked_to_its_widget(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
 
     content = page.serve(rf.post(page.relative_url(minimal_site), {})).content.decode()
 
+    # "contact-1-" numbers the first form rendered for this request
     assert 'aria-invalid="true"' in content
-    assert 'aria-describedby="first_name_error"' in content
-    assert 'id="first_name_error"' in content
+    assert 'aria-describedby="contact-1-first_name_error"' in content
+    assert 'id="contact-1-first_name_error"' in content
 
 
 def test_contact_page_textarea_field_renders_correctly(
@@ -601,7 +993,6 @@ def test_contact_page_textarea_field_renders_correctly(
 ) -> None:
     """TextAreaFieldBlock renders a <textarea> with the correct rows, name, and id."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Textarea Render Test",
@@ -619,7 +1010,7 @@ def test_contact_page_textarea_field_renders_correctly(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -629,7 +1020,7 @@ def test_contact_page_textarea_field_renders_correctly(
 
     assert "<textarea" in content
     assert 'name="message"' in content
-    assert 'id="message"' in content
+    assert 'id="contact-1-message"' in content
     assert 'rows="6"' in content
     assert "cols=" not in content
     assert "maxlength=" not in content
@@ -641,7 +1032,6 @@ def test_contact_page_textarea_field_renders_max_length(
 ) -> None:
     """An authored max_length becomes the textarea's maxlength attribute."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Textarea Max Length Test",
@@ -660,7 +1050,7 @@ def test_contact_page_textarea_field_renders_max_length(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -679,13 +1069,12 @@ def test_contact_page_post_requires_csrf_token(
 ) -> None:
     """POST without a valid CSRF token is rejected with 403."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="CSRF Test",
         slug="csrf-test",
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -701,12 +1090,11 @@ def test_contact_page_includes_bound_form_in_context(
 ) -> None:
     """get_context() passes the submitted form into the template context, bound to the POST data."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Context Form Data Test",
         slug="context-form-data-test",
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
         form_fields=get_form_field_variants(),
     )
     index_page.add_child(instance=page)
@@ -728,14 +1116,13 @@ def test_contact_page_validates_missing_required_fields(
     """Test that a POST missing required fields re-renders with inline errors."""
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Validation Test",
         slug="contact-validation-test",
         form_fields=form_field_variants,
         to_email_address="recipient@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -757,7 +1144,6 @@ def test_contact_page_validates_empty_submission(
 ) -> None:
     """Test that an empty POST (no fields filled in) is rejected."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     # Use only optional fields so required-field validation doesn't trigger first
     page = ContactPage(
@@ -776,7 +1162,7 @@ def test_contact_page_validates_empty_submission(
             },
         ],
         to_email_address="recipient@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -798,14 +1184,13 @@ def test_contact_page_validates_honeypot(
     """Test that a POST with the honeypot field filled is rejected."""
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Honeypot Test",
         slug="contact-honeypot-test",
         form_fields=form_field_variants,
         to_email_address="recipient@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -832,7 +1217,6 @@ def test_contact_page_empty_submission_with_required_field_shows_only_field_erro
 ) -> None:
     """When required fields are missing, show per-field errors only, not the global empty error."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Required Only Field Errors",
         slug="required-only-field-errors",
@@ -844,7 +1228,7 @@ def test_contact_page_empty_submission_with_required_field_shows_only_field_erro
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -864,14 +1248,13 @@ def test_contact_page_renders_error_message_and_classes(
 ) -> None:
     """When a required field is missing, the field wrapper gets fl-field-error and a message."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Inline Error Test",
         slug="inline-error-test",
         form_fields=get_form_field_variants()[:1],  # first_name only, required
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -891,7 +1274,6 @@ def test_contact_page_validates_required_textarea_field(
 ) -> None:
     """A required TextAreaFieldBlock triggers a validation error when left empty."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Textarea Required Test",
@@ -909,7 +1291,7 @@ def test_contact_page_validates_required_textarea_field(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -927,7 +1309,6 @@ def test_contact_page_displays_text_field_value_after_validation_error(
 ) -> None:
     """After a validation error, the submitted text field value is pre-filled."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Text Persistence Test",
         slug="text-persistence-test",
@@ -944,7 +1325,7 @@ def test_contact_page_displays_text_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -962,7 +1343,6 @@ def test_contact_page_displays_email_field_value_after_validation_error(
 ) -> None:
     """After a validation error, the submitted email field value is pre-filled."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Email Persistence Test",
         slug="email-persistence-test",
@@ -979,7 +1359,7 @@ def test_contact_page_displays_email_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -997,7 +1377,6 @@ def test_contact_page_displays_phone_field_value_after_validation_error(
 ) -> None:
     """After a validation error, the submitted phone field value is pre-filled."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Phone Persistence Test",
         slug="phone-persistence-test",
@@ -1014,7 +1393,7 @@ def test_contact_page_displays_phone_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1032,7 +1411,6 @@ def test_contact_page_displays_textarea_field_value_after_validation_error(
 ) -> None:
     """After a validation error, the submitted textarea value is pre-filled."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Textarea Persistence Test",
         slug="textarea-persistence-test",
@@ -1049,7 +1427,7 @@ def test_contact_page_displays_textarea_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1067,7 +1445,6 @@ def test_contact_page_displays_select_field_value_after_validation_error(
 ) -> None:
     """After a validation error, the previously selected option is marked as selected."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Select Persistence Test",
         slug="select-persistence-test",
@@ -1092,7 +1469,7 @@ def test_contact_page_displays_select_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1111,7 +1488,6 @@ def test_contact_page_displays_checkbox_group_value_after_validation_error(
 ) -> None:
     """After a validation error, previously checked checkbox group options are re-checked."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Checkbox Group Persistence Test",
         slug="checkbox-group-persistence-test",
@@ -1136,7 +1512,7 @@ def test_contact_page_displays_checkbox_group_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1155,7 +1531,6 @@ def test_contact_page_displays_checkbox_field_value_after_validation_error(
 ) -> None:
     """After a validation error, a checked single checkbox remains checked."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Checkbox Field Persistence Test",
         slug="checkbox-field-persistence-test",
@@ -1172,7 +1547,7 @@ def test_contact_page_displays_checkbox_field_value_after_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1192,7 +1567,6 @@ def test_contact_page_displays_country_select_field_value_after_validation_error
 ) -> None:
     """When validation fails, the previously selected country stays selected."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Country Persist Test",
@@ -1214,7 +1588,7 @@ def test_contact_page_displays_country_select_field_value_after_validation_error
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1235,7 +1609,6 @@ def test_contact_page_validates_country_select_field(
 ) -> None:
     """Validates the country select field."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Country Validation Test",
@@ -1252,7 +1625,7 @@ def test_contact_page_validates_country_select_field(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1273,7 +1646,6 @@ def test_contact_page_hidden_field_not_visible(
 ) -> None:
     """HiddenFieldBlock renders as <input type='hidden'> with the default value."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     hidden_field = {
         "type": "hidden_field",
@@ -1289,7 +1661,7 @@ def test_contact_page_hidden_field_not_visible(
         slug="hidden-field-test",
         form_fields=[hidden_field],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1313,14 +1685,13 @@ def test_contact_page_hidden_field_post_value_overrides_default(
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Override Test",
         slug="hidden-field-override-test",
         form_fields=get_form_field_variants(),
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1360,13 +1731,12 @@ def test_contact_page_hidden_field_missing_from_post_rejects_submission(
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Hidden Field Tamper Test",
         slug="hidden-field-tamper-test",
         form_fields=get_form_field_variants(),
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1404,7 +1774,6 @@ def test_contact_page_hidden_field_post_value_is_sent_in_email(
 ) -> None:
     """When a hidden field has a non-empty POST value, it appears in the email body instead of default_value."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Email Override Test",
@@ -1422,7 +1791,7 @@ def test_contact_page_hidden_field_post_value_is_sent_in_email(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1443,7 +1812,6 @@ def test_contact_page_validates_hidden_field_missing_from_post(
 ) -> None:
     """A hidden field stripped from POST signals tampering: reject, never send email."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Hidden Field Tamper Email Test",
         slug="hidden-field-tamper-email-test",
@@ -1460,7 +1828,7 @@ def test_contact_page_validates_hidden_field_missing_from_post(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1478,7 +1846,6 @@ def test_contact_page_empty_submission_check_ignores_hidden_field_data(
 ) -> None:
     """A submission where only hidden fields carry values counts as empty."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Empty Ignores Hidden",
         slug="empty-ignores-hidden",
@@ -1495,7 +1862,7 @@ def test_contact_page_empty_submission_check_ignores_hidden_field_data(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1512,7 +1879,6 @@ def test_contact_page_invalid_email_shows_localized_message(
 ) -> None:
     """A malformed email produces the localized invalid-email message, not Django's default."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Invalid Email Message",
         slug="invalid-email-message",
@@ -1524,7 +1890,7 @@ def test_contact_page_invalid_email_shows_localized_message(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1542,7 +1908,6 @@ def test_contact_page_hidden_field_query_param_overrides_default_on_get(
 ) -> None:
     """On GET, a hidden field renders the value of its query_param_override param when present in the URL."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Query Param Test",
@@ -1559,7 +1924,7 @@ def test_contact_page_hidden_field_query_param_overrides_default_on_get(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1579,7 +1944,6 @@ def test_contact_page_hidden_field_query_param_absent_uses_default_on_get(
 ) -> None:
     """On GET without the query_param_override param, the hidden field renders its default_value."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Query Param Default Test",
@@ -1596,7 +1960,7 @@ def test_contact_page_hidden_field_query_param_absent_uses_default_on_get(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1614,7 +1978,6 @@ def test_contact_page_hidden_field_query_param_value_is_escaped(
 ) -> None:
     """A user-controlled query param value is HTML-escaped when rendered into the hidden field."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Query Param Escape Test",
@@ -1631,7 +1994,7 @@ def test_contact_page_hidden_field_query_param_value_is_escaped(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1650,7 +2013,6 @@ def test_contact_page_hidden_field_value_preserved_on_validation_error(
 ) -> None:
     """On a validation-error re-render the hidden field keeps its submitted POST value."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Hidden Field Error Persistence Test",
@@ -1672,7 +2034,7 @@ def test_contact_page_hidden_field_value_preserved_on_validation_error(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1742,6 +2104,54 @@ def test_contact_page_sends_email_and_redirects_on_valid_post(
     assert call_args[0][0] == "Contact form submission: Contact Post Test"
     assert call_args[0][3] == ["recipient@example.com"]
     mock_email_class.return_value.send.assert_called_once()
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_htmx_valid_post_gets_hx_redirect(
+    mock_email_class,
+    minimal_site: Site,
+    client: Client,
+) -> None:
+    """An htmx request gets HX-Redirect, not a 302, so it navigates instead of swapping in
+    the redirected page's markup. Uses the client, not rf, since request.htmx needs middleware."""
+    index_page = minimal_site.root_page
+    form_field_variants = get_form_field_variants()
+    thank_you_page = _create_thank_you_page(index_page)
+
+    page = ContactPage(
+        title="Contact HTMX Redirect Test",
+        slug="contact-htmx-redirect-test",
+        form_fields=form_field_variants,
+        to_email_address="recipient@example.com",
+        redirect_to=thank_you_page,
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = client.post(
+        page.full_url,
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+        HTTP_HX_REQUEST="true",
+    )
+
+    assert resp.status_code == 200
+    assert resp["HX-Redirect"] == thank_you_page.url
 
 
 @patch("springfield.cms.models.pages.EmailMessage")
@@ -1816,14 +2226,13 @@ def test_contact_page_handles_failure_sending_email(
 
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Email Failure Test",
         slug="email-failure-test",
         form_fields=form_field_variants,
         to_email_address="recipient@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1868,14 +2277,13 @@ def test_contact_page_calls_basket_api_on_valid_post(
 
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Basket API Test",
         slug="basket-api-test",
         form_fields=form_field_variants,
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1902,11 +2310,55 @@ def test_contact_page_calls_basket_api_on_valid_post(
     )
     resp = page.serve(request)
 
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     assert len(responses.calls) == 1
     body = json.loads(responses.calls[0].request.body)
     assert body["first_name"] == "Jane"
     assert body["business_email"] == "jane@acme.com"
+
+
+@responses.activate
+def test_contact_page_posts_signed_submission_to_basket_intake(
+    minimal_site: Site,
+    rf: RequestFactory,
+    settings,
+) -> None:
+    """Valid POST to the intake endpoint sends the form id and field values, signed with the intake secret."""
+    settings.BASKET_API_KEY = "intake-key"
+    settings.BASKET_INTAKE_HMAC_SECRET = "intake-secret"
+    responses.add(responses.POST, f"{django_settings.BASKET_URL}{BASKET_INTAKE_PATH}", status=200)
+
+    page = ContactPage(
+        title="Basket Intake Test",
+        slug="basket-intake-test",
+        form_fields=[
+            {
+                "type": "text_field",
+                "value": {"internal_identifier": "favourite_colour", "label": "Favourite colour", "required": True},
+                "id": "intake-text-field",
+            },
+        ],
+        basket_api_path=BASKET_INTAKE_PATH,
+        basket_form_id="event-signup",
+        thank_you_message="<p>Thank you!</p>",
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = page.serve(rf.post(page.relative_url(minimal_site), {"favourite_colour": "Orange"}))
+
+    assert resp.status_code == 200
+    assert len(responses.calls) == 1
+    sent_request = responses.calls[0].request
+    assert json.loads(sent_request.body) == {
+        "form_id": "event-signup",
+        "data": {"favourite_colour": "Orange"},
+        "source_url": page.full_url,
+    }
+    assert sent_request.headers["X-Api-Key"] == "intake-key"
+    timestamp, signature = re.fullmatch(r"t=(\d+),v1=([0-9a-f]+)", sent_request.headers["X-Basket-Signature"]).groups()
+    expected_signature = hmac.new(b"intake-secret", f"{timestamp}.".encode() + sent_request.body, hashlib.sha256).hexdigest()
+    assert signature == expected_signature
 
 
 @responses.activate
@@ -1922,14 +2374,13 @@ def test_contact_page_shows_error_message_on_basket_api_5xx(
 
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Basket 5xx Test",
         slug="basket-5xx-test",
         form_fields=form_field_variants,
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -1971,14 +2422,13 @@ def test_contact_page_shows_error_message_and_reports_to_sentry_on_basket_api_4x
 
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Basket 4xx Test",
         slug="basket-4xx-test",
         form_fields=form_field_variants,
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2024,14 +2474,13 @@ def test_contact_page_does_not_report_to_sentry_on_expected_api_errors(
 
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Basket 4xx Test",
         slug="basket-4xx-test",
         form_fields=form_field_variants,
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2107,6 +2556,127 @@ def test_contact_page_post_valid_shows_thank_you_message(
     assert "Thanks for reaching out!" in resp.content.decode()
 
 
+def post_valid_submission(page, minimal_site, rf):
+    """POST a complete, valid submission to `page` and return the response."""
+    request = rf.post(
+        page.relative_url(minimal_site),
+        {
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "company": "Acme",
+            "job_title": "Engineer",
+            "business_email": "jane@acme.com",
+            "business_phone": "555-1234",
+            "company_size": "1 - 10",
+            "country": "US",
+            "firefox_use_stage": "currently_deploy",
+            "deployment_size": "5001_10000",
+            "support_needs": ["deployment_config", "troubleshooting"],
+            "timeline": "1_3_months",
+            "lead_source": "techrider.de",
+            "cta": "Request Private Briefing",
+            "opt_in": True,
+        },
+    )
+    return page.serve(request)
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_offers_the_document_download(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A valid submission renders the thank you message with a link to the chosen document."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "deployment-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Document Download Test",
+        slug="document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+
+    link = soup.find("a", class_="contact-form-download")
+    assert link["href"] == document.url
+    assert link.get_text(strip=True) == "Download the deployment guide"
+    # The link is the no-JS fallback: flare-contact-form.es6.js clicks it and then hides it
+    assert link.has_attr("download")
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_success_without_a_document_shows_only_the_thank_you_message(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """With no document chosen, the success state carries no download link."""
+    index_page = minimal_site.root_page
+
+    page = ContactPage(
+        title="No Document Download Test",
+        slug="no-document-download-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = post_valid_submission(page, minimal_site, rf)
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert "Thanks for reaching out!" in soup.get_text()
+    assert soup.find("a", class_="contact-form-download") is None
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_offers_no_document_download_before_submitting(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The document is gated behind a submission, so a plain GET renders the form without it."""
+    index_page = minimal_site.root_page
+    document = Document.objects.create(
+        title="Firefox Enterprise Deployment Guide",
+        file=ContentFile(b"Deployment guide contents", "gated-guide.pdf"),
+    )
+
+    page = ContactPage(
+        title="Gated Document Test",
+        slug="gated-document-test",
+        form_fields=get_form_field_variants(),
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out!</p>",
+        document_download=document,
+        document_download_label="Download the deployment guide",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    resp = page.serve(rf.get(page.relative_url(minimal_site)))
+
+    soup = BeautifulSoup(resp.content, "html.parser")
+    assert soup.find("form", class_="contact-form") is not None
+    assert soup.find("a", class_="contact-form-download") is None
+
+
 # Basket API payload and email message formatting
 
 
@@ -2118,7 +2688,6 @@ def test_contact_page_sends_textarea_field_value_in_email(
 ) -> None:
     """A submitted textarea value is included in the form email body."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Textarea Email Test",
@@ -2136,7 +2705,7 @@ def test_contact_page_sends_textarea_field_value_in_email(
             }
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2147,7 +2716,7 @@ def test_contact_page_sends_textarea_field_value_in_email(
     )
     resp = page.serve(request)
 
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     email_body = mock_email_class.call_args[0][1]
     assert "Hello, I have a question about your product." in email_body
 
@@ -2162,13 +2731,12 @@ def test_contact_page_basket_payload_uses_string_format(
     responses.add(responses.POST, basket_url, status=200)
 
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Basket String Format",
         slug="basket-string-format",
         form_fields=get_form_field_variants(),
         basket_api_path=BASKET_CONTACT_ENTERPRISE_PATH,
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2208,14 +2776,13 @@ def test_contact_page_formats_checkbox_group_values_for_email_message(
     """Test that checkbox group values are collected and joined correctly."""
     index_page = minimal_site.root_page
     form_field_variants = get_form_field_variants()
-    thank_you_page = _create_thank_you_page(index_page)
 
     page = ContactPage(
         title="Contact Checkbox Test",
         slug="contact-checkbox-test",
         form_fields=form_field_variants,
         to_email_address="recipient@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2243,7 +2810,7 @@ def test_contact_page_formats_checkbox_group_values_for_email_message(
 
     resp = page.serve(request)
 
-    assert resp.status_code == 302
+    assert resp.status_code == 200
     call_args = mock_email_class.call_args
     email_body = call_args[0][1]
     assert "deployment_config, troubleshooting" in email_body
@@ -2257,7 +2824,6 @@ def test_contact_page_renders_checkbox_as_string_for_email_message(
 ) -> None:
     """A checked single checkbox appears as 'on' in the email, never as 'True'."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Email Checkbox Format",
         slug="email-checkbox-format",
@@ -2274,7 +2840,7 @@ def test_contact_page_renders_checkbox_as_string_for_email_message(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2295,7 +2861,6 @@ def test_contact_page_strips_rich_text_from_checkbox_label_for_email_message(
 ) -> None:
     """A checkbox field's rich-text label is rendered as plain text (HTML tags stripped) in the email."""
     index_page = minimal_site.root_page
-    thank_you_page = _create_thank_you_page(index_page)
     page = ContactPage(
         title="Rich Text Label Email",
         slug="rich-text-label-email",
@@ -2311,7 +2876,7 @@ def test_contact_page_strips_rich_text_from_checkbox_label_for_email_message(
             },
         ],
         to_email_address="test@example.com",
-        redirect_to=thank_you_page,
+        thank_you_message="<p>Thanks!</p>",
     )
     index_page.add_child(instance=page)
     page.save_revision().publish()
@@ -2323,3 +2888,478 @@ def test_contact_page_strips_rich_text_from_checkbox_label_for_email_message(
     assert "I agree to the terms" in email_body
     assert "<strong>" not in email_body
     assert "<p>" not in email_body
+
+
+# Fieldset and Legend blocks grouping form fields
+
+
+def _fieldset(block_id: str, legend: str, help_text: str = "") -> dict:
+    """A `fieldset` entry for a ContactPage's form_fields stream."""
+    return {"type": "fieldset", "value": {"legend": legend, "help_text": help_text}, "id": block_id}
+
+
+def _text_field(block_id: str, identifier: str, label: str, required: bool = False) -> dict:
+    return {"type": "text_field", "value": {"internal_identifier": identifier, "label": label, "required": required}, "id": block_id}
+
+
+def _grouped_page(index_page, slug: str, form_fields: list[dict]) -> ContactPage:
+    page = ContactPage(
+        title="Grouped Contact",
+        slug=slug,
+        form_fields=form_fields,
+        to_email_address="recipient@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+def test_contact_page_fieldset_wraps_the_fields_that_follow_it(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A contact page with 2 fields, a fieldset start (a FieldsetAndLegendBlock), and 2 fields."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-page",
+        [
+            _text_field("gf1", "first_name", "First name"),
+            _text_field("gf2", "last_name", "Last name"),
+            _fieldset("gs1", "What you're interested in"),
+            _text_field("gf3", "interested_in", "Interested in"),
+            _text_field("gf4", "company_size", "Company size"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+
+    # The two fields are direct children of the form; the other two are not.
+    assert [field.select_one("label").get_text(strip=True) for field in form.select(":scope > .fl-field-wrap")] == [
+        "First name",
+        "Last name",
+    ]
+    # The interested_in and company_size are in the "What you're interested in" fieldset.
+    group = form.select_one("fieldset.fl-fieldset")
+    assert group.select_one("legend.fl-legend").get_text(strip=True) == "What you're interested in"
+    assert [field.select_one("label").get_text(strip=True) for field in group.select(".fl-field-wrap")] == [
+        "Interested in",
+        "Company size",
+    ]
+
+
+def test_contact_page_two_fieldsets_each_hold_their_own_fields(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A group ends where the next one begins, not at the end of the form."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-two-runs",
+        [
+            _fieldset("gs2", "What you're interested in"),
+            _text_field("gf5", "interested_in", "Interested in"),
+            _fieldset("gs3", "Your priorities and environment"),
+            _text_field("gf6", "priorities", "Priorities"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    groups = soup.select("form.contact-form fieldset.fl-fieldset")
+
+    assert [group.select_one("legend").get_text(strip=True) for group in groups] == [
+        "What you're interested in",
+        "Your priorities and environment",
+    ]
+    assert [len(group.select(".fl-field-wrap")) for group in groups] == [1, 1]
+
+
+def test_contact_page_fieldset_is_not_a_form_field(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The FieldsetAndLegendBlock has no identifier, so it must not become a field on the form."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-not-a-field",
+        [
+            _fieldset("gs4", "Your details"),  # the FieldsetAndLegendBlock
+            _text_field("gf7", "first_name", "First name"),
+        ],
+    )
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    form = page.get_form(rf.get(page.relative_url(minimal_site)))
+
+    assert list(form.fields) == ["first_name"]
+    assert [field.value["internal_identifier"] for field in page.form_field_blocks] == ["first_name"]
+
+
+def test_contact_page_fieldset_with_no_fields_renders_its_text_without_a_fieldset(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    An editor who adds a FieldsetAndLegendBlock with its text, but has not yet
+    added fields below it, should still see the FieldsetAndLegendBlock's text
+    on the page.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-orphan",
+        [
+            _text_field("gf8", "first_name", "First name"),
+            _fieldset("gs5", "Nothing under me yet", '<p data-block-key="gs5a">Coming soon.</p>'),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+    orphan = form.select_one(".fl-fieldset-orphan")
+
+    assert form.select_one("fieldset.fl-fieldset") is None
+    assert form.select_one("legend") is None
+    assert orphan.select_one("p.fl-legend").get_text(strip=True) == "Nothing under me yet"
+    assert "Coming soon." in orphan.get_text()
+
+
+def test_contact_page_fieldset_help_text_describes_the_group(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """aria-describedby points at the help text, and the id is unique to the block."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-help",
+        [
+            _fieldset("gs6", "What you're interested in", '<p data-block-key="gs6a">Pick as many as apply.</p>'),
+            _text_field("gf9", "interested_in", "Interested in"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
+    help_text = group.select_one(".fl-fieldset-help")
+
+    assert group["aria-describedby"] == help_text["id"]
+    assert help_text["id"].endswith("gs6-help")
+    assert help_text.get_text(strip=True) == "Pick as many as apply."
+
+
+@pytest.mark.parametrize(
+    "cleared",
+    [
+        "",  # empty text
+        "<p></p>",  # an empty paragraph
+        "<p><br/></p>",  # only a line break
+        "<p>&nbsp;</p>",  # a non-breaking space
+        '<p><span class="fl-fx-logo"></span></p>',  # the Firefox logo (no text)
+    ],
+)
+def test_contact_page_fieldset_empty_help_text_renders_nothing(
+    cleared: str,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    Clearing the help text in the editor stores a truthy empty paragraph, which must
+    not reach the page as an empty box or as an aria-describedby pointing at one.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        f"grouped-cleared-{len(cleared)}",
+        [_fieldset("gs7", "Your details", cleared), _text_field("gf10", "first_name", "First name")],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    group = soup.select_one("form.contact-form fieldset.fl-fieldset")
+
+    assert group.select_one(".fl-fieldset-help") is None
+    assert group.get("aria-describedby") is None
+    assert group.select_one("legend").get_text(strip=True) == "Your details"
+
+
+def test_contact_page_checkbox_group_fieldset_is_nested_inside_a_group(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Nested fieldsets: the group's wrapping the checkbox group's."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-nested",
+        [
+            _fieldset("gs8", "What you're interested in"),
+            {
+                "type": "checkbox_group_field",
+                "value": {
+                    "internal_identifier": "interested_in",
+                    "label": "I am interested in",
+                    "required": False,
+                    "options": [
+                        {"value": "a", "label": '<p data-block-key="gs8a">Option A</p>'},
+                        {"value": "b", "label": '<p data-block-key="gs8b">Option B</p>'},
+                    ],
+                },
+                "id": "gf11",
+            },
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    outer = soup.select_one("form.contact-form > fieldset.fl-fieldset")
+    inner = outer.select_one("fieldset.fl-field-wrap")
+
+    assert outer.select_one(":scope > legend").get_text(strip=True) == "What you're interested in"
+    assert inner.select_one("legend").get_text(strip=True) == "I am interested in"
+    assert len(inner.select("input[type=checkbox]")) == 2
+
+
+def test_contact_page_form_with_only_fieldsets_renders_no_inputs(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A stream with no field blocks renders an empty form."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-only-fieldsets",
+        [_fieldset("gs9", "Nothing to fill in yet")],
+    )
+
+    response = page.serve(rf.get(page.relative_url(minimal_site)))
+    soup = BeautifulSoup(response.content.decode(), "html.parser")
+
+    assert response.status_code == 200
+    assert soup.select_one(".fl-fieldset-orphan p.fl-legend").get_text(strip=True) == "Nothing to fill in yet"
+    assert soup.select_one("form.contact-form .fl-field-wrap") is None
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_fieldset_is_not_processed_in_email_form_data(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Fieldsets are not included in the processed form data sent by email."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-email",
+        [_fieldset("gs10", "What you're interested in"), _text_field("gf12", "first_name", "First name")],
+    )
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    response = page.serve(rf.post(page.relative_url(minimal_site), {"first_name": "Jane"}))
+
+    assert response.status_code == 200
+    body = mock_email_class.call_args[0][1]
+    assert "Jane" in body
+    assert "What you're interested in" not in body
+
+
+@responses.activate
+def test_contact_page_fieldset_is_not_processed_in_basket_payload(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """Fieldsets are not included in the processed form data sent to the basket API."""
+    responses.add(responses.POST, f"{django_settings.BASKET_URL}{BASKET_CONTACT_BASIC_PATH}", status=200)
+    index_page = minimal_site.root_page
+
+    page = ContactPage(
+        title="Grouped Basket",
+        slug="grouped-basket",
+        form_fields=[_fieldset("gs11", "Your details")] + get_basic_form_field_variants(),
+        basket_api_path=BASKET_CONTACT_BASIC_PATH,
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    assert "fieldset" in [child.block_type for child in page.form_fields], "the fieldset entry was dropped, so this test would pass vacuously"
+
+    response = page.serve(
+        rf.post(
+            page.relative_url(minimal_site),
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "company": "Acme",
+                "job_title": "Engineer",
+                "business_email": "jane@acme.com",
+                "country": "US",
+                "accepted_terms": True,
+                # To be valid, the POST data also need the hidden "lead_source" field.
+                "lead_source": "techrider.de",
+            },
+        )
+    )
+
+    assert response.status_code == 200
+    payload = json.loads(responses.calls[0].request.body)
+    assert set(payload) == {
+        "first_name",
+        "last_name",
+        "company",
+        "job_title",
+        "business_email",
+        "country",
+        "accepted_terms",
+        "opt_in",
+        "lead_source",
+    }
+
+
+def test_contact_page_fieldset_survives_a_validation_error_rerender(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """An invalid submission re-renders the whole form template, groups included."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-rerender",
+        [_fieldset("gs13", "Your details"), _text_field("gf13", "first_name", "First name", required=True)],
+    )
+
+    content = page.serve(rf.post(page.relative_url(minimal_site), {})).content.decode()
+    soup = BeautifulSoup(content, "html.parser")
+
+    assert soup.select_one("fieldset.fl-fieldset legend").get_text(strip=True) == "Your details"
+    assert soup.select_one("fieldset.fl-fieldset .fl-field-error")
+
+
+@patch("springfield.cms.models.pages.EmailMessage")
+def test_contact_page_built_from_the_fieldset_variants_submits_cleanly(
+    mock_email_class,
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """A full POST through a realistically shaped form that contains fieldset blocks."""
+    index_page = minimal_site.root_page
+    page = ContactPage(
+        title="Fieldset Variants Submit",
+        slug="fieldset-variants-submit",
+        form_fields=get_basic_form_field_variants_with_fieldsets(),
+        to_email_address="recipient@example.com",
+        thank_you_message="<p>Thanks!</p>",
+    )
+    index_page.add_child(instance=page)
+    page.save_revision().publish()
+
+    assert "Your details" in [child.value["legend"] for child in page.form_fields if child.block_type == "fieldset"], (
+        "the legend never reached the page, so the assertion that it stays out of the email would pass vacuously"
+    )
+
+    response = page.serve(
+        rf.post(
+            page.relative_url(minimal_site),
+            {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "company": "Acme",
+                "job_title": "Engineer",
+                "business_email": "jane@acme.com",
+                "country": "US",
+                "accepted_terms": True,
+                # To be valid, the POST data also need the hidden "lead_source" field.
+                "lead_source": "techrider.de",
+            },
+        )
+    )
+
+    assert response.status_code == 200
+    body = mock_email_class.call_args[0][1]
+    assert "Jane" in body
+    assert "Your details" not in body
+
+
+def test_fieldset_variants_group_every_field_under_a_legend_that_describes_it() -> None:
+    """
+    A legend is announced before the label of every field in its group, so a group must
+    not reach past the fields it names.
+    """
+    legend_of = {}
+    legend = None
+    for entry in get_form_field_variants_with_fieldsets():
+        if entry["type"] == "fieldset":
+            legend = entry["value"]["legend"]
+        else:
+            legend_of[entry["value"]["internal_identifier"]] = legend
+
+    assert legend_of["first_name"] == "Your details"
+    assert legend_of["firefox_use_stage"] == "What you're interested in"
+    assert legend_of["message"] == "What you're interested in"
+    assert legend_of["opt_in"] == "Before you send"
+
+
+def test_contact_page_two_adjacent_fieldsets_leave_the_first_as_an_orphan_mid_form(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """
+    An editor who adds two groups before putting any fields in 1 of them sees their changes.
+
+    The empty group must render its text in its place in the form, but must not
+    use <fieldset> or <legend>.
+    """
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-adjacent",
+        [
+            _text_field("gf15", "first_name", "First name"),
+            _fieldset("gs15", "Nothing under me yet"),
+            _fieldset("gs16", "What you're interested in"),
+            _text_field("gf16", "interested_in", "Interested in"),
+        ],
+    )
+
+    soup = BeautifulSoup(page.serve(rf.get(page.relative_url(minimal_site))).content.decode(), "html.parser")
+    form = soup.select_one("form.contact-form")
+
+    assert [group.select_one(":scope > legend").get_text(strip=True) for group in form.select("fieldset.fl-fieldset")] == [
+        "What you're interested in",
+    ]
+    assert form.select_one(".fl-fieldset-orphan p.fl-legend").get_text(strip=True) == "Nothing under me yet"
+    assert form.select_one(".fl-fieldset-orphan legend") is None
+    assert [field.select_one("label").get_text(strip=True) for field in form.select_one("fieldset.fl-fieldset").select(".fl-field-wrap")] == [
+        "Interested in",
+    ]
+
+
+def test_contact_page_field_groups_and_field_blocks_agree(
+    minimal_site: Site,
+    rf: RequestFactory,
+) -> None:
+    """The form_field_blocks and form_field_groups properties agree in the fields they return."""
+    index_page = minimal_site.root_page
+    page = _grouped_page(
+        index_page,
+        "grouped-agreement",
+        [
+            _text_field("ga1", "first_name", "First name"),
+            _text_field("ga2", "last_name", "Last name"),
+            _fieldset("ga3", "What you're interested in"),
+            _text_field("ga4", "interested_in", "Interested in"),
+            _fieldset("ga5", "Nothing under me yet"),
+        ],
+    )
+
+    flattened = [field for _, fields in page.form_field_groups for field in fields]
+
+    assert [field.id for field in flattened] == [field.id for field in page.form_field_blocks]
+
+    assert len(page.form_fields) > len(page.form_field_blocks)
+    assert [fieldset is None for fieldset, _ in page.form_field_groups] == [True, False, False]
+    assert [len(fields) for _, fields in page.form_field_groups] == [2, 1, 0]

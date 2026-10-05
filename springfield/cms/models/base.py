@@ -23,7 +23,7 @@ from lib import l10n_utils
 from springfield.base.i18n import normalize_language
 from springfield.cms.fields import StreamField
 from springfield.cms.forms import SpringfieldCopyForm
-from springfield.cms.utils import compute_cms_page_locales
+from springfield.cms.utils import compute_cms_page_locales, current_request
 
 
 class QROpenBehavior(models.TextChoices):
@@ -198,6 +198,41 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         # pages always reflect their current public title.
         return self.internal_title or super().get_admin_display_title()
 
+    def _is_cms_domain_request(self, request):
+        """Whether this page's URLs should point at the CMS domain: a private page, viewed
+        on a deployment with the admin through the CMS domain."""
+        return (
+            settings.WAGTAIL_ENABLE_ADMIN
+            and settings.CMS_HOSTNAME
+            and request is not None
+            and request.get_host() == settings.CMS_HOSTNAME
+            and self.get_view_restrictions().exists()
+        )
+
+    def _switch_to_cms_domain_if_private(self, url_parts, request):
+        """Swap the site root URL in a get_url_parts() tuple for the CMS domain when this page is private."""
+        request = request or current_request.get()
+        if url_parts is None or url_parts[1] is None or not self._is_cms_domain_request(request):
+            return url_parts
+        site_id, root_url, page_path = url_parts
+        return (site_id, f"{request.scheme}://{settings.CMS_HOSTNAME}", page_path)
+
+    def get_url_parts(self, request=None):
+        return self._switch_to_cms_domain_if_private(super().get_url_parts(request), request)
+
+    def get_url(self, request=None, current_site=None):
+        """Always return a full URL for private pages linked from the CMS domain.
+
+        When an admin user is viewing a private page through the CMS domain,
+        they should remain on the same domain since the CMS admin is necessary for
+        the private page authentication.
+        """
+        if self._is_cms_domain_request(request or current_request.get()):
+            return self.get_full_url(request)
+        return super().get_url(request, current_site)
+
+    url = property(get_url)
+
     def _patch_request_for_springfield(self, request):
         "Add hints that help us integrate CMS pages with core Springfield logic"
 
@@ -237,9 +272,35 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
         response = self._render_with_fluent_string_support(request, *args, **kwargs)
 
-        if len(self.get_view_restrictions()):
+        # Django flags the request whenever a CSRF token is rendered; a shared cache
+        # would hand that per-visitor token to every subsequent visitor.
+        if len(self.get_view_restrictions()) or request.META.get("CSRF_COOKIE_NEEDS_UPDATE"):
             add_never_cache_headers(response)
         return response
+
+    def serve_password_required_response(self, request, form, action_url):
+        """
+        Serve Wagtail's password-required response (for pages locked via the CMS's
+        "Restrict access" privacy option) through l10n_utils.render(), same as
+        serve()/serve_preview(), so its template can use Fluent strings and other
+        context CMS templates expect (e.g. base-flare.html).
+        """
+        request = self._patch_request_for_springfield(request)
+
+        if not hasattr(request, "is_preview"):
+            request.is_preview = False
+        if not hasattr(request, "preview_mode"):
+            request.preview_mode = None
+
+        template = self.password_required_template or getattr(
+            settings,
+            "WAGTAIL_PASSWORD_REQUIRED_TEMPLATE",
+            "wagtailcore/password_required.html",
+        )
+        context = self.get_context(request)
+        context["form"] = form
+        context["action_url"] = action_url
+        return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
     def get_preview_context(self, request, mode_name):
         context = super().get_preview_context(request, mode_name)

@@ -1,2 +1,9 @@
 name: "Enterprise Download"
-context: {}
+context:
+  heading: "Resources"
+  rich_text: |
+    <ul>
+      <li><a href="https://firefox-admin-docs.mozilla.org/">Firefox Enterprise documentation</a></li>
+      <li><a href="https://github.com/mozilla/policy-templates/releases">Policy templates</a></li>
+      <li><a href="https://support.mozilla.org/products/firefox-enterprise/whats-new-firefox-enterprise/">Enterprise Release Notes</a></li>
+    </ul>

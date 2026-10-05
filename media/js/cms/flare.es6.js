@@ -25,6 +25,7 @@ import setupTopicListSidebar from './components/flare-topic-list-sidebar.es6';
 import setupTypewriter, { typewriter } from './components/flare-typewriter.es6';
 import setupVideo from './components/flare-video.es6';
 import setupPencilBanners from './components/flare-pencil-banner.es6';
+import setupContactForms from './components/flare-contact-form.es6';
 
 // Create namespace
 if (typeof window.cms === 'undefined') {
@@ -56,6 +57,7 @@ function setupComponents() {
     setupSetAsDefault();
     setupLastVisibleBanner();
     setupPencilBanners();
+    setupContactForms();
 }
 
 if (document.readyState === 'loading') {

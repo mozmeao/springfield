@@ -4,40 +4,68 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set intro %}
+  <include:intro superheading_is_pill=True>
+    <content:heading>
+      <include:heading
+        level="{{ heading.level }}"
+        heading_size="{{ heading.heading_size }}"
+        heading_text="{{ heading.heading_text }}"
+        superheading_text="{{ heading.superheading_text }}"
+        subheading_text="{{ heading.subheading_text }}"
+        subheading_size="{{ heading.subheading_size }}"
+        alignment_class="{{ heading.alignment_class }}"
+      />
+    </content:heading>
+    <content:content>
+      {% if buttons %}
+        <div class="fl-buttons">
+          {% for button in buttons %}
+            <include:button
+              label="{{ button.label }}"
+              link="{{ button.link }}"
+              theme_class="{{ button.theme_class }}"
+              external="{{ button.external }}"
+              icon_name="{{ button.icon_name }}"
+              icon_position="{{ button.icon_position }}"
+            />
+          {% endfor %}
+        </div>
+      {% endif %}
+    </content:content>
+  </include:intro>
+{% endset %}
+
 <div class="fl-force-dark-theme fl-theme-background">
   <div class="fl-home-intro" data-testid="home-intro">
-    <include:intro superheading_is_pill=True>
-      <content:heading>
-        <include:heading
-          level="{{ heading.level }}"
-          heading_size="{{ heading.heading_size }}"
-          heading_text="{{ heading.heading_text }}"
-          superheading_text="{{ heading.superheading_text }}"
-          subheading_text="{{ heading.subheading_text }}"
-          subheading_size="{{ heading.subheading_size }}"
-          alignment_class="{{ heading.alignment_class }}"
-        />
-      </content:heading>
-      <content:content>
-        {% if buttons %}
-          <div class="fl-buttons">
-            {% for button in buttons %}
-              <include:button
-                label="{{ button.label }}"
-                link="{{ button.link }}"
-                theme_class="{{ button.theme_class }}"
-                external="{{ button.external }}"
-                icon_name="{{ button.icon_name }}"
-                icon_position="{{ button.icon_position }}"
-              />
-            {% endfor %}
-          </div>
-        {% endif %}
-      </content:content>
-    </include:intro>
+    {{ intro }}
   </div>
 
   <div class="fl-section">
     <p style="text-align: center;">This component expect to be used with more content below, so this section only exists to add vertical space.</p>
+  </div>
+</div>
+
+<h2>With media</h2>
+
+<div class="fl-main" style="background: var(--token-color-dark-purple);">
+  <div class="fl-split-page-upper" data-testid="home-intro-with-media">
+    <section class="fl-section has-gradient-bottom-100-always has-home-intro-media">
+      <div class="fl-section-container">
+        <div class="fl-home-intro fl-force-dark-theme">
+          {{ intro }}
+        </div>
+      </div>
+      <div class="fl-home-intro-media">
+        <include:image url="{{ media.url }}" alt="{{ media.alt }}" />
+      </div>
+      {% with object = {"text": scroll_to_see_more_text} %}
+        {% include "cms/snippets/scroll-to-see-more-snippet.html" %}
+      {% endwith %}
+    </section>
+
+    <div class="fl-section">
+      <p style="text-align: center;">The blocks below the intro start here, on the flat section background.</p>
+    </div>
   </div>
 </div>

@@ -19,6 +19,7 @@ from springfield.firefox.templatetags.helpers import android_builds, ios_builds
 from springfield.releasenotes.models import (
     LONG_RN_CACHE_TIMEOUT,
     ProductRelease,
+    get_latest_release,
     get_latest_release_or_404,
     get_release,
     get_release_or_404,
@@ -84,6 +85,8 @@ def check_url(product, version):
             return settings.FIREFOX_MOBILE_SYSREQ_URL
     elif product == "Firefox for iOS":
         return reverse("firefox.ios.system_requirements", args=[version])
+    elif product == "Firefox Enterprise":
+        return reverse("firefox.enterprise.system_requirements", args=[version])
     else:
         return reverse("firefox.system_requirements", args=[version])
 
@@ -169,13 +172,23 @@ def get_adjacent_major_releases(release):
     return result
 
 
+def has_enterprise_notes():
+    """Whether at least one Firefox Enterprise release is live.
+
+    The Enterprise sub-navigation link points at the latest Enterprise release,
+    which 404s until one is published, so the link is only shown once this is true.
+    Firefox Enterprise ships on the Release channel only.
+    """
+    return get_latest_release("Firefox Enterprise", "release") is not None
+
+
 @require_safe
 def release_notes(request, version, product="Firefox"):
     if not version:
         raise Http404
 
     # Show a "coming soon" page for any unpublished Firefox releases
-    include_drafts = product in ["Firefox", "Firefox for Android", "Firefox for iOS"]
+    include_drafts = product in ["Firefox", "Firefox Enterprise", "Firefox for Android", "Firefox for iOS"]
 
     try:
         release = get_release_or_404(version, product, include_drafts)
@@ -183,10 +196,10 @@ def release_notes(request, version, product="Firefox"):
         release = get_release_or_404(version + "beta", product, include_drafts)
         return HttpResponseRedirect(release.get_absolute_url())
 
-    # add MDN link to all non-iOS releases. bug 1553566
+    # add MDN link to all non-iOS (bug 1553566) and non-Enterprise releases
     # avoid adding duplicate notes
     release_notes = copy(release.get_notes())
-    if release.product != "Firefox for iOS":
+    if release.product not in ("Firefox for iOS", "Firefox Enterprise"):
         release_notes.insert(
             0,
             {
@@ -214,6 +227,7 @@ def release_notes(request, version, product="Firefox"):
             "release_notes": release_notes,
             "equivalent_release_url": equivalent_release_url(release),
             "pagination": pagination,
+            "has_enterprise_notes": has_enterprise_notes(),
         },
     )
 

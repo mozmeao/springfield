@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
+
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
@@ -15,6 +17,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
+                "pictogram": None,
                 "superheading": "",
                 "headline": '<p data-block-key="2026lc1h">Line Card Without Superheading</p>',
                 "content": '<p data-block-key="2026lc1c">Content without superheading or buttons. '
@@ -26,6 +29,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
+                "pictogram": None,
                 "superheading": '<p data-block-key="2026lc2s">Privacy</p>',
                 "headline": '<p data-block-key="2026lc2h">Line Card with Superheading</p>',
                 "content": '<p data-block-key="2026lc2c">Content with a superheading label above the headline and a link button below. '
@@ -37,6 +41,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
+                "pictogram": settings.PLACEHOLDER_IMAGE_ID,
                 "superheading": "",
                 "headline": '<p data-block-key="2026lc3h">Line Card with Two Buttons</p>',
                 "content": '<p data-block-key="2026lc3c">Content without superheading and two action buttons. '
@@ -48,6 +53,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
+                "pictogram": None,
                 "superheading": '<p data-block-key="2026lc4s">Security</p>',
                 "headline": '<p data-block-key="2026lc4h">Line Card — All Fields</p>',
                 "content": '<p data-block-key="2026lc4c">Content with all fields populated: a superheading label, a headline, descriptive body text, '

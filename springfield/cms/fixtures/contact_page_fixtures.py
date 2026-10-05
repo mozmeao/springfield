@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_test_document
 from springfield.cms.models import ContactPage
-from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
+from springfield.cms.models.pages import BASKET_CONTACT_BASIC_PATH
 
 
 def get_form_field_variants() -> list[dict]:
@@ -192,6 +192,97 @@ def get_form_field_variants() -> list[dict]:
     ]
 
 
+def get_basic_form_field_variants() -> list[dict]:
+    """
+    Returns the form field variants accepted by basket's basic contact endpoint.
+    """
+    shared_identifiers = {"first_name", "last_name", "company", "job_title", "business_email", "country", "lead_source"}
+    return [field for field in get_form_field_variants() if field["value"]["internal_identifier"] in shared_identifiers] + [
+        {
+            "type": "checkbox_field",
+            "value": {
+                "internal_identifier": "accepted_terms",
+                "label": '<p data-block-key="ctpterms1">By checking this box, you agree to the '
+                '<a href="/terms-and-conditions/">terms and conditions</a>.</p>',
+                "required": True,
+            },
+            "id": "checkbox-field-accepted-terms",
+        },
+        {
+            "type": "checkbox_field",
+            "value": {
+                "internal_identifier": "opt_in",
+                "label": '<p data-block-key="ctpoptin2">Send me news and updates about Firefox for organizations.</p>',
+                "required": False,
+            },
+            "id": "checkbox-field-opt-in",
+        },
+    ]
+
+
+def _index_of(fields: list[dict], identifier: str) -> int:
+    """Where a named field sits in a variants list.
+
+    Groups are placed by identifier rather than by index.
+    A missing identifier raises an error.
+    """
+    for index, field in enumerate(fields):
+        if field["value"]["internal_identifier"] == identifier:
+            return index
+    raise LookupError(f"No form field variant has the internal_identifier {identifier!r}")
+
+
+def get_form_field_variants_with_fieldsets() -> list[dict]:
+    """The form field variants, divided into three named groups."""
+    fields = get_form_field_variants()
+    intent_index = _index_of(fields, "firefox_use_stage")
+    consent_index = _index_of(fields, "opt_in")
+    return (
+        [
+            {
+                "type": "fieldset",
+                "value": {"legend": "Your details", "help_text": ""},
+                "id": "2026cp04-0000-0000-0000-000000000001",
+            }
+        ]
+        + fields[:intent_index]
+        + [
+            {
+                "type": "fieldset",
+                "value": {
+                    "legend": "What you're interested in",
+                    "help_text": '<p data-block-key="ctpf01">These answers route your enquiry to the right team.</p>',
+                },
+                "id": "2026cp04-0000-0000-0000-000000000002",
+            }
+        ]
+        + fields[intent_index:consent_index]
+        + [
+            {
+                "type": "fieldset",
+                "value": {"legend": "Before you send", "help_text": ""},
+                "id": "2026cp04-0000-0000-0000-000000000004",
+            }
+        ]  # This group exists because a legend is announced before a label of every field under it
+        + fields[consent_index:]
+    )
+
+
+def get_basic_form_field_variants_with_fieldsets() -> list[dict]:
+    """The basic endpoint's field variants as one group, whose help text carries a link."""
+    return [
+        {
+            "type": "fieldset",
+            "value": {
+                "legend": "Your details",
+                "help_text": '<p data-block-key="ctpf02">We ask only for what we need to route your enquiry. See our '
+                '<a href="https://www.mozilla.org/privacy/" uid="2026cp04-0001-0001-0001-000000000001">privacy notice</a>.</p>',
+            },
+            "id": "2026cp04-0000-0000-0000-000000000003",
+        }
+    ] + get_basic_form_field_variants()
+
+
 def get_contact_test_page() -> ContactPage:
     index_page = get_flare_pages_docs_page()
 
@@ -202,9 +293,11 @@ def get_contact_test_page() -> ContactPage:
         parent=index_page,
         defaults={
             "title": "Test Contact Page",
-            "basket_api_path": BASKET_CONTACT_ENTERPRISE_PATH,
-            "form_fields": get_form_field_variants(),
+            "basket_api_path": BASKET_CONTACT_BASIC_PATH,
+            "form_fields": get_basic_form_field_variants_with_fieldsets(),
             "thank_you_message": '<p data-block-key="ctpty1">Thanks for reaching out!</p>',
+            "document_download": get_test_document(),
+            "document_download_label": "Download the Firefox deployment guide",
         },
     )
 
@@ -222,12 +315,11 @@ def get_contact_test_page() -> ContactPage:
                 "media": [],
                 "heading": {
                     "superheading_text": "",
-                    "heading_text": '<p data-block-key="ctph1">Talk to our team about a support plan</p>',
+                    "heading_text": '<p data-block-key="ctph1">Get in touch about Firefox for your organization</p>',
                     "subheading_text": (
-                        '<p data-block-key="ctph2">Tell us about your organization and we\'ll help you '
-                        "scope a Firefox Professional Support plan — dedicated, private support for "
-                        "large-scale deployments, with defined escalation paths and closer access to "
-                        "Mozilla's engineering and product teams.</p>"
+                        '<p data-block-key="ctph2">Tell us who you are and we\'ll point you to the right team. '
+                        "This shorter form asks only for your contact details, so it suits any enquiry that "
+                        "does not need a full support-plan conversation.</p>"
                         '<p data-block-key="ctph3">Looking for help with Firefox itself? Visit '
                         '<a href="https://support.mozilla.org">Mozilla Support</a>.</p>'
                     ),
@@ -237,8 +329,10 @@ def get_contact_test_page() -> ContactPage:
             "id": "ctp00001-0000-0000-0000-000000000001",
         }
     ]
-    page.form_fields = get_form_field_variants()
-    page.basket_api_path = BASKET_CONTACT_ENTERPRISE_PATH
+    page.form_fields = get_basic_form_field_variants_with_fieldsets()
+    page.basket_api_path = BASKET_CONTACT_BASIC_PATH
     page.thank_you_message = '<p data-block-key="ctpty1">Thanks for reaching out!</p>'
+    page.document_download = get_test_document()
+    page.document_download_label = "Download the Firefox deployment guide"
     page.save_revision().publish()
     return page

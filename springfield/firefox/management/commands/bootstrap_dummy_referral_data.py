@@ -15,7 +15,10 @@ from springfield.firefox.referral.models import FirefoxReferralData
 DUMMY_ROWS = [
     ("TEST000000000001", 1),
     ("TEST000000000002", 3),
+    ("TEST000000000004", 4),
     ("TESTA1B2C3000000", 5),
+    ("TESTA1B2C3000006", 6),
+    ("TESTA1B2C3000007", 7),
     ("TEST00000000000A", 12),
     ("TESTZYXWVT000000", 25),
     ("TESTHJKMNP000000", 87),

@@ -72,7 +72,7 @@
     .fl-referral-hub-page .fl-tab-note p {
         font-size: var(--token-font-size-xs);
         margin: 0 auto;
-        max-inline-size: 480px;
+        max-inline-size: 342px;
     }
 
     .fl-referral-hub-page .fl-tab-note a {

@@ -4,8 +4,15 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
+{% set link_url = value.link.get_url() %}
 <include:image-caption layout="{{ value.layout }}">
-  <content:image>{% include_block value.image %}</content:image>
+  <content:image>
+    {% if link_url %}
+      <a href="{{ link_url|add_utm_parameters }}"{% if value.link.new_window %} target="_blank" rel="external noopener"{% endif %}>{% include_block value.image %}</a>
+    {% else %}
+      {% include_block value.image %}
+    {% endif %}
+  </content:image>
   {% if value.caption %}
     <content:caption>{{ value.caption|richtext|remove_p_tag }}</content:caption>
   {% endif %}
