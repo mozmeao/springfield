@@ -47,13 +47,13 @@ def make_content_rows(prefix):
     return [
         table_row(
             cells=[
-                browser_table_cell(content=label, cell_id=f"{prefix}-r{i}c0"),
-                browser_table_result_cell(result=first[0], label=first[1], cell_id=f"{prefix}-r{i}c1"),
-                browser_table_result_cell(result=second[0], label=second[1], cell_id=f"{prefix}-r{i}c2"),
+                browser_table_cell(content=label, cell_id=f"{prefix}-r{row_index}c0"),
+                browser_table_result_cell(result=first[0], label=first[1], cell_id=f"{prefix}-r{row_index}c1"),
+                browser_table_result_cell(result=second[0], label=second[1], cell_id=f"{prefix}-r{row_index}c2"),
             ],
-            row_id=f"{prefix}-r{i}",
+            row_id=f"{prefix}-r{row_index}",
         )
-        for i, (label, first, second) in enumerate(RESULT_ROWS)
+        for row_index, (label, first, second) in enumerate(RESULT_ROWS)
     ]
 
 

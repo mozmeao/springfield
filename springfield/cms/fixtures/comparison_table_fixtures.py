@@ -31,8 +31,13 @@ def make_header_row(prefix):
 
 def make_content_rows(prefix):
     return [
-        table_row(cells=[table_cell(content=row_cells[j], cell_id=f"{prefix}-r{i}c{j}") for j in range(3)], row_id=f"{prefix}-r{i}")
-        for i, row_cells in enumerate(CONTENT_ROWS)
+        table_row(
+            cells=[
+                table_cell(content=cell_content, cell_id=f"{prefix}-r{row_index}c{cell_index}") for cell_index, cell_content in enumerate(row_cells)
+            ],
+            row_id=f"{prefix}-r{row_index}",
+        )
+        for row_index, row_cells in enumerate(CONTENT_ROWS)
     ]
 
 

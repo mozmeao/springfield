@@ -164,8 +164,8 @@ def subheading_block(block_id, text):
     }
 
 
-def rich_text(block_id, html):
-    return {"type": "rich_text", "value": html, "id": block_id}
+def rich_text(block_id, rich_text_html):
+    return {"type": "rich_text", "value": rich_text_html, "id": block_id}
 
 
 # Sections
