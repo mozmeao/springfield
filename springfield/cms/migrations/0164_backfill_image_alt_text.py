@@ -149,5 +149,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(backfill_cms_alt_text, migrations.RunPython.noop),
+        # Disabled: this has already run against every database with content to fill.
+        # migrations.RunPython(backfill_cms_alt_text, migrations.RunPython.noop),
     ]
