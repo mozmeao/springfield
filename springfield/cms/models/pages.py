@@ -1352,7 +1352,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             queryset = queryset.filter(version__lte=latest_version)
         latest_whats_new = queryset.first()
         if latest_whats_new:
-            url = request.build_absolute_uri(latest_whats_new.get_url())
+            url = request.build_absolute_uri(latest_whats_new.get_url(request))
             if request.GET.get("from_main_nav"):
                 url += "?from_main_nav=true"
             return redirect(url)
