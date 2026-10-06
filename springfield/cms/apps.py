@@ -187,6 +187,10 @@ class CmsConfig(AppConfig):
         """
         Give every active user all page permissions on each ``FlareDocsIndexPage`` and
         the pages below it.
+
+        Staging and dev environments have the same users and groups from production, with
+        permissions restricted to certain areas of the site tree. The documentation pages
+        should be available to all users for training purposes.
         """
 
         # Imported inline because Wagtail models can't be imported while the app registry is loading.
