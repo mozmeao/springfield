@@ -3,33 +3,15 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import (
-    SHOW_TO_ALL,
     get_flare_blocks_docs_page,
     get_image_variants,
     get_or_create_page,
     get_placeholder_images,
 )
+from springfield.cms.fixtures.block_factories import section
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_card_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
-
-
-def _text_section(heading_text: str, subheading_text: str, section_id: str) -> dict:
-    """A plain section with only a heading, used to show the Featured Image block's rounded corners against a neighboring block."""
-    return {
-        "type": "section",
-        "value": {
-            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="fists1h">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="fists1s">{subheading_text}</p>',
-            },
-            "content": [],
-            "cta": [],
-        },
-        "id": section_id,
-    }
 
 
 def get_featured_image_section_variants() -> list[dict]:
@@ -115,16 +97,16 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
     featured_image_section = get_featured_image_section_variants()[0]
     page.upper_content = [featured_image_section]
     page.content = [
-        _text_section(
-            "Something before the block",
-            "This shows how the Featured Image block adds the rounded corners to the bottom of the previous block.",
-            "fis00003-0000-0000-0000-000000000001",
+        section(
+            heading_text="Something before the block",
+            subheading_text="This shows how the Featured Image block adds the rounded corners to the bottom of the previous block.",
+            section_id="fis00003-0000-0000-0000-000000000001",
         ),
         {**featured_image_section, "id": "fis00003-0000-0000-0000-000000000002"},
-        _text_section(
-            "Something after the block",
-            "Another block under the featured image creates this alternating effect on the page layout.",
-            "fis00003-0000-0000-0000-000000000003",
+        section(
+            heading_text="Something after the block",
+            subheading_text="Another block under the featured image creates this alternating effect on the page layout.",
+            section_id="fis00003-0000-0000-0000-000000000003",
         ),
     ]
     page.docs = (

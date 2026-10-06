@@ -3,7 +3,13 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.comparison_table_fixtures import row, section
+from springfield.cms.fixtures.block_factories import (
+    browser_table_cell,
+    browser_table_image_header_cell,
+    browser_table_result_cell,
+    section,
+    table_row,
+)
 from springfield.cms.models import FreeFormPage2026
 
 # Header cells are image headers; body cells are Yes/No/Limited results.
@@ -16,61 +22,20 @@ RESULT_ROWS = [
 ]
 
 
-def cell(content, column_span=1, cell_id="", optional_content=None):
-    return {
-        "type": "item",
-        "value": {
-            "content": content,
-            "optional_content": optional_content or [],
-            "column_span": column_span,
-        },
-        "id": cell_id,
-    }
-
-
-def result_cell(result, label="", cell_id=""):
-    return cell(
-        "",
-        cell_id=cell_id,
-        optional_content=[
-            {
-                "type": "comparison_result",
-                "value": {"result": result, "label": label},
-                "id": f"{cell_id}-oc",
-            }
-        ],
-    )
-
-
-def image_header_cell(label, cell_id="", dark_mode_image=None):
-    placeholder_images = get_placeholder_images()
-    return cell(
-        "",
-        cell_id=cell_id,
-        optional_content=[
-            {
-                "type": "image_header",
-                "value": {
-                    "image": placeholder_images.image.id,
-                    "dark_mode_image": dark_mode_image,
-                    "alt": "",
-                    "label": label,
-                },
-                "id": f"{cell_id}-oc",
-            }
-        ],
-    )
-
-
 def make_header_row(prefix):
     """Header row whose value columns are an image with a label underneath."""
     placeholder_images = get_placeholder_images()
 
-    return row(
+    return table_row(
         cells=[
-            cell(RESULT_HEADERS[0], cell_id=f"{prefix}-h0"),
-            image_header_cell(RESULT_HEADERS[1], cell_id=f"{prefix}-h1", dark_mode_image=placeholder_images.dark_image.id),
-            image_header_cell(RESULT_HEADERS[2], cell_id=f"{prefix}-h2"),
+            browser_table_cell(content=RESULT_HEADERS[0], cell_id=f"{prefix}-h0"),
+            browser_table_image_header_cell(
+                label=RESULT_HEADERS[1],
+                cell_id=f"{prefix}-h1",
+                dark_mode_image_id=placeholder_images.dark_image.id,
+                image_id=placeholder_images.image.id,
+            ),
+            browser_table_image_header_cell(label=RESULT_HEADERS[2], cell_id=f"{prefix}-h2", image_id=placeholder_images.image.id),
         ],
         row_id=f"{prefix}-hr",
     )
@@ -80,15 +45,15 @@ def make_content_rows(prefix):
     """Content rows whose value columns are Yes/No/Limited results."""
 
     return [
-        row(
+        table_row(
             cells=[
-                cell(label, cell_id=f"{prefix}-r{i}c0"),
-                result_cell(first[0], first[1], cell_id=f"{prefix}-r{i}c1"),
-                result_cell(second[0], second[1], cell_id=f"{prefix}-r{i}c2"),
+                browser_table_cell(content=label, cell_id=f"{prefix}-r{row_index}c0"),
+                browser_table_result_cell(result=first[0], label=first[1], cell_id=f"{prefix}-r{row_index}c1"),
+                browser_table_result_cell(result=second[0], label=second[1], cell_id=f"{prefix}-r{row_index}c2"),
             ],
-            row_id=f"{prefix}-r{i}",
+            row_id=f"{prefix}-r{row_index}",
         )
-        for i, (label, first, second) in enumerate(RESULT_ROWS)
+        for row_index, (label, first, second) in enumerate(RESULT_ROWS)
     ]
 
 
@@ -145,9 +110,13 @@ def get_browser_comparison_table_test_page() -> FreeFormPage2026:
 
     variants = get_browser_comparison_table_variants()
     sections = [
-        section("Stacked — highlighted column 2 (disabled on mobile)", variants[0], "bctblsec1-0000-0000-0000-000000000001"),
-        section("Scroll — highlighted column 3", variants[1], "bctblsec2-0000-0000-0000-000000000002"),
-        section("With fine print", variants[2], "bctblsec3-0000-0000-0000-000000000003"),
+        section(
+            heading_text="Stacked — highlighted column 2 (disabled on mobile)",
+            content_blocks=[variants[0]],
+            section_id="bctblsec1-0000-0000-0000-000000000001",
+        ),
+        section(heading_text="Scroll — highlighted column 3", content_blocks=[variants[1]], section_id="bctblsec2-0000-0000-0000-000000000002"),
+        section(heading_text="With fine print", content_blocks=[variants[2]], section_id="bctblsec3-0000-0000-0000-000000000003"),
     ]
     page.upper_content = sections
     page.content = sections

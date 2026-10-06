@@ -2,7 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
+from springfield.cms.fixtures.block_factories import section, table_cell, table_row
 from springfield.cms.models import FreeFormPage2026
 
 # Firefox Enterprise support tier data
@@ -17,31 +18,12 @@ CONTENT_ROWS = [
 ]
 
 
-def cell(content, column_span=1, cell_id=""):
-    return {
-        "type": "item",
-        "value": {
-            "content": content,
-            "column_span": column_span,
-        },
-        "id": cell_id,
-    }
-
-
-def row(cells, row_id=""):
-    return {
-        "type": "item",
-        "value": {"cells": cells},
-        "id": row_id,
-    }
-
-
 def make_header_row(prefix):
-    return row(
+    return table_row(
         cells=[
-            cell(HEADER_CELLS[0], cell_id=f"{prefix}-h0"),
-            cell(HEADER_CELLS[1], cell_id=f"{prefix}-h1"),
-            cell(HEADER_CELLS[2], cell_id=f"{prefix}-h2"),
+            table_cell(content=HEADER_CELLS[0], cell_id=f"{prefix}-h0"),
+            table_cell(content=HEADER_CELLS[1], cell_id=f"{prefix}-h1"),
+            table_cell(content=HEADER_CELLS[2], cell_id=f"{prefix}-h2"),
         ],
         row_id=f"{prefix}-hr",
     )
@@ -49,29 +31,14 @@ def make_header_row(prefix):
 
 def make_content_rows(prefix):
     return [
-        row(
-            cells=[cell(row_cells[j], cell_id=f"{prefix}-r{i}c{j}") for j in range(3)],
-            row_id=f"{prefix}-r{i}",
+        table_row(
+            cells=[
+                table_cell(content=cell_content, cell_id=f"{prefix}-r{row_index}c{cell_index}") for cell_index, cell_content in enumerate(row_cells)
+            ],
+            row_id=f"{prefix}-r{row_index}",
         )
-        for i, row_cells in enumerate(CONTENT_ROWS)
+        for row_index, row_cells in enumerate(CONTENT_ROWS)
     ]
-
-
-def section(heading_text, table_block, section_id):
-    return {
-        "type": "section",
-        "id": section_id,
-        "value": {
-            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="{section_id}h">{heading_text}</p>',
-                "subheading_text": "",
-            },
-            "content": [table_block],
-            "cta": [],
-        },
-    }
 
 
 def get_comparison_table_variants() -> list[dict]:
@@ -125,9 +92,13 @@ def get_comparison_table_test_page() -> FreeFormPage2026:
 
     variants = get_comparison_table_variants()
     sections = [
-        section("Scroll — highlighted column 2", variants[0], "ctblsec01-0000-0000-0000-000000000001"),
-        section("Stacked — highlighted column 2 (disabled on mobile)", variants[1], "ctblsec02-0000-0000-0000-000000000002"),
-        section("With fine print", variants[2], "ctblsec03-0000-0000-0000-000000000003"),
+        section(heading_text="Scroll — highlighted column 2", content_blocks=[variants[0]], section_id="ctblsec01-0000-0000-0000-000000000001"),
+        section(
+            heading_text="Stacked — highlighted column 2 (disabled on mobile)",
+            content_blocks=[variants[1]],
+            section_id="ctblsec02-0000-0000-0000-000000000002",
+        ),
+        section(heading_text="With fine print", content_blocks=[variants[2]], section_id="ctblsec03-0000-0000-0000-000000000003"),
     ]
     page.upper_content = sections
     page.content = sections

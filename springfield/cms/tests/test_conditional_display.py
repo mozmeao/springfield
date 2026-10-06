@@ -10,11 +10,11 @@ import pytest
 from bs4 import BeautifulSoup
 
 from springfield.cms.blocks import ConditionalDisplayBlock
+from springfield.cms.fixtures.block_factories import show_to_value
 from springfield.cms.fixtures.conditional_display_fixtures import (
     get_bind_to_uitour_section,
     get_conditional_display_test_page,
     get_conditional_display_variants,
-    make_show_to,
 )
 from springfield.cms.models import FreeFormPage2026
 
@@ -102,7 +102,7 @@ def make_cards_list(sample_rates):
                             "variant": "",
                             "align": "start",
                             "expand_link": False,
-                            "show_to": make_show_to(sample_rate=sample_rate),
+                            "show_to": show_to_value(sample_rate=sample_rate),
                         },
                         "media": [],
                         "content": [],
@@ -120,12 +120,12 @@ def intro_conditional_page(minimal_site) -> FreeFormPage2026:
     page = FreeFormPage2026(slug="test-intro-conditional", title="Test Intro Conditional")
     minimal_site.root_page.add_child(instance=page)
     page.upper_content = [
-        make_intro("introfx1", "Firefox only", make_show_to(firefox="is-firefox")),
-        make_intro("introal1", "Everyone", make_show_to()),
+        make_intro("introfx1", "Firefox only", show_to_value(firefox="is-firefox")),
+        make_intro("introal1", "Everyone", show_to_value()),
     ]
     page.content = [
-        make_intro("introal2", "Lower, everyone", make_show_to()),
-        make_intro("introfx2", "Lower, non-Firefox only", make_show_to(firefox="not-firefox")),
+        make_intro("introal2", "Lower, everyone", show_to_value()),
+        make_intro("introfx2", "Lower, non-Firefox only", show_to_value(firefox="not-firefox")),
     ]
     page.save_revision().publish()
     return page
@@ -266,8 +266,8 @@ def media_content_conditional_page(minimal_site) -> FreeFormPage2026:
     page = FreeFormPage2026(slug="test-media-content-conditional", title="Test Media Content Conditional")
     minimal_site.root_page.add_child(instance=page)
     page.content = [
-        make_media_content("mcfx1", "Firefox only", make_show_to(firefox="is-firefox")),
-        make_media_content("mcall1", "Everyone", make_show_to()),
+        make_media_content("mcfx1", "Firefox only", show_to_value(firefox="is-firefox")),
+        make_media_content("mcall1", "Everyone", show_to_value()),
     ]
     page.save_revision().publish()
     return page
@@ -279,8 +279,8 @@ def kit_intro_conditional_page(minimal_site) -> FreeFormPage2026:
     page = FreeFormPage2026(slug="test-kit-intro-conditional", title="Test Kit Intro Conditional")
     minimal_site.root_page.add_child(instance=page)
     page.upper_content = [
-        make_kit_intro("kifx1", "Firefox only", make_show_to(firefox="is-firefox")),
-        make_kit_intro("kiall1", "Everyone", make_show_to()),
+        make_kit_intro("kifx1", "Firefox only", show_to_value(firefox="is-firefox")),
+        make_kit_intro("kiall1", "Everyone", show_to_value()),
     ]
     page.save_revision().publish()
     return page
@@ -369,7 +369,7 @@ def test_experiment_sample_rate_finds_rate_nested_inside_a_block():
 @pytest.mark.django_db
 def test_experiment_sample_rate_is_none_without_a_rate():
     page = FreeFormPage2026(title="No Sample Rate", slug="test-no-sample-rate")
-    page.content = [make_intro("introa1", "Everyone", make_show_to())]
+    page.content = [make_intro("introa1", "Everyone", show_to_value())]
     assert page.experiment_sample_rate is None
 
 
@@ -378,8 +378,8 @@ def test_clean_passes_when_sample_rates_match():
     """Blocks in different StreamFields (upper_content and content) may repeat the same
     rate without error."""
     page = FreeFormPage2026(title="Matching Sample Rate", slug="test-matching-sample-rate")
-    page.upper_content = [make_intro("introa1", "Upper", make_show_to(sample_rate=10))]
-    page.content = [make_intro("introa2", "Lower", make_show_to(sample_rate=10))]
+    page.upper_content = [make_intro("introa1", "Upper", show_to_value(sample_rate=10))]
+    page.content = [make_intro("introa2", "Lower", show_to_value(sample_rate=10))]
     page.clean()
     assert page.experiment_sample_rate == Decimal("10")
 
@@ -389,8 +389,8 @@ def test_clean_rejects_mismatched_sample_rates_across_streamfields():
     """A mismatch between upper_content and content is caught even though the two
     StreamFields are otherwise validated independently."""
     page = FreeFormPage2026(title="Mismatched Sample Rate", slug="test-mismatched-sample-rate")
-    page.upper_content = [make_intro("introa1", "Upper", make_show_to(sample_rate=10))]
-    page.content = [make_intro("introa2", "Lower", make_show_to(sample_rate=5))]
+    page.upper_content = [make_intro("introa1", "Upper", show_to_value(sample_rate=10))]
+    page.content = [make_intro("introa2", "Lower", show_to_value(sample_rate=5))]
 
     with pytest.raises(ValidationError) as exc_info:
         page.clean()
@@ -418,7 +418,7 @@ def test_clean_error_message_does_not_repeat_a_block_with_several_matching_rates
     page = FreeFormPage2026(title="Repeated Rate Mismatch", slug="test-repeated-rate-mismatch")
     page.content = [
         make_cards_list(sample_rates=[10, 10, 10]),
-        make_intro("introa1", "Everyone", make_show_to(sample_rate=5)),
+        make_intro("introa1", "Everyone", show_to_value(sample_rate=5)),
     ]
 
     with pytest.raises(ValidationError) as exc_info:
