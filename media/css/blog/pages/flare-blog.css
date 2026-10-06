@@ -161,6 +161,29 @@
     border-block-end: none;
     gap: var(--token-spacing-md);
     padding-block-end: 0;
+
+    /* Apply a mask to fade out content on both edges. */
+    --mask-image-content: linear-gradient(
+        to right,
+        transparent,
+        var(--fl-theme-body-background) 12px,
+        var(--fl-theme-body-background) calc(100% - 12px),
+        transparent
+    );
+    --mask-size-content: calc(100%) 100%;
+    mask-image: var(--mask-image-content);
+    mask-size: var(--mask-size-content);
+    mask-repeat: no-repeat;
+}
+
+/* Prevent the first tag in carousel from started faded. */
+.fl-blog-topics-list.is-carousel .fl-tag:first-child {
+    margin-inline-start: 12px;
+}
+
+/* Prevent the last tag in carousel from ending faded. "All topics" is last child. */
+.fl-blog-topics-list.is-carousel .fl-tag:nth-last-child(2) {
+    margin-inline-end: 12px;
 }
 
 .fl-blog-topics-list .fl-tag {
