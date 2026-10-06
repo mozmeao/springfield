@@ -1,16 +1,14 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
-from django.conf import settings
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
 
 def _get_topics(anchor_prefix):
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     return [
         {
@@ -18,7 +16,7 @@ def _get_topics(anchor_prefix):
             "value": {
                 "short_title": "Privacy Online",
                 "anchor_id": f"{anchor_prefix}privacy-online",
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp01">Privacy Online</p>',
@@ -35,7 +33,7 @@ def _get_topics(anchor_prefix):
             "value": {
                 "short_title": "Speed & Performance",
                 "anchor_id": f"{anchor_prefix}speed-performance",
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp03">Speed & Performance</p>',
@@ -52,7 +50,7 @@ def _get_topics(anchor_prefix):
             "value": {
                 "short_title": "Customization",
                 "anchor_id": f"{anchor_prefix}customization",
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp05">Customization</p>',
