@@ -958,6 +958,22 @@ def get_button_blocks() -> list[dict]:
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000019",
                             },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkle-single",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000020",
+                                    },
+                                    "button_type": "set_newtab_wallpaper",
+                                    "wallpaper": "Wrexham",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Set Wallpaper: Wrexham",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000020",
+                            },
                         ],
                     },
                 ],

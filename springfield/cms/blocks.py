@@ -169,6 +169,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
+UITOUR_BUTTON_SET_NEWTAB_WALLPAPER = "set_newtab_wallpaper"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
@@ -188,6 +189,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
+    (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Set New Tab Wallpaper"),
 )
 
 UI_TOUR_CLASSES = {
@@ -206,6 +208,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER: "ui-tour-set-newtab-wallpaper",
 }
 
 BUTTON_TYPE = "button"
@@ -878,6 +881,13 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
+        wallpaper = blocks.CharBlock(
+            required=False,
+            help_text=(
+                "Only used by the 'Set New Tab Wallpaper' button type. The wallpaper id as spelled in Firefox's "
+                "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
+            ),
+        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -885,9 +895,16 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper"],
                 settings=["settings"],
             )
+
+        def clean(self, value):
+            value = super().clean(value)
+            # An empty id would make Firefox clear the user's wallpaper rather than set one.
+            if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
+                raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
+            return value
 
     return _UITourButtonBlock(**kwargs)
 

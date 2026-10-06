@@ -265,6 +265,62 @@ function init() {
             });
         }
 
+        // Find any buttons that should set the New Tab wallpaper named in their
+        // data-wallpaper attribute.
+        const setNewtabWallpaperButtons = document.querySelectorAll(
+            '.ui-tour-set-newtab-wallpaper'
+        );
+        if (setNewtabWallpaperButtons.length) {
+            Mozilla.UITour.getConfiguration('appinfo', (data) => {
+                // setNewtabWallpaper shipped in Firefox 157. Older versions ignore
+                // the call silently, so hide the button instead of offering a dead CTA.
+                if (data && data.version && parseFloat(data.version) < 157) {
+                    setNewtabWallpaperButtons.forEach((button) => {
+                        const wrapper = button.closest('.ui-tour');
+                        if (wrapper) {
+                            wrapper.classList.add('is-hidden');
+                        }
+                    });
+                    return;
+                }
+
+                setNewtabWallpaperButtons.forEach((button) => {
+                    const wallpaper = button.dataset.wallpaper;
+
+                    // Open the customization panel after setting the wallpaper so the
+                    // user sees the result. This replaces the current tab.
+                    const setWallpaperAndShowCustomize = () => {
+                        Mozilla.UITour.setNewtabWallpaper(wallpaper);
+                        Mozilla.UITour.showHome('customize');
+                    };
+
+                    button.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            setWallpaperAndShowCustomize();
+                        },
+                        false
+                    );
+
+                    const card = button.closest('.fl-card-expand-link');
+                    if (card) {
+                        card.addEventListener(
+                            'click',
+                            (e) => {
+                                e.preventDefault();
+
+                                setWallpaperAndShowCustomize();
+                            },
+                            false
+                        );
+                    }
+                });
+            });
+        }
+
         // Find any openSmartWindowButtons that should open the  Firefox Accounts sign-in flow for the AI Window feature.
         const openSmartWindowButtons = document.querySelectorAll(
             '.ui-tour-open-smart-window'
