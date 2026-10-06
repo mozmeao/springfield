@@ -939,6 +939,27 @@ def get_button_blocks() -> list[dict]:
                             },
                         ],
                     },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000005",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sync",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000019",
+                                    },
+                                    "button_type": "open_about_preferences_sync_import_browser_data",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Import Browser Data",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000019",
+                            },
+                        ],
+                    },
                 ],
             },
             "id": "uitour02-0000-0000-0000-000000000000",
