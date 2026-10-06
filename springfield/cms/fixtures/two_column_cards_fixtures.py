@@ -2,32 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "alt_text": "",
-    "variants": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
 
 def _media(block_id):
+    placeholder_images = get_placeholder_images()
+    image_variants = {
+        "image": placeholder_images.image.id,
+        "alt_text": "",
+        "variants": {
+            "dark_mode_image": placeholder_images.dark_image.id,
+            "mobile_image": placeholder_images.mobile_image.id,
+            "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
+        },
+    }
     return {
         "type": "media",
-        "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": f"{block_id}-img"}],
+        "value": [{"type": "image", "value": image_variants, "id": f"{block_id}-img"}],
         "id": block_id,
     }
-
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def _section(heading_text, content_blocks, section_id, subheading_text=""):
@@ -35,7 +30,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
         "type": "section",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": "",
             },
             "heading": {
@@ -152,7 +147,7 @@ def _two_column_cards(cards, block_id, anchor_id="", theme="light-dark", reduce_
         "type": "two_column_cards",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": anchor_id,
                 "theme": theme,
                 "reduce_card_padding": reduce_card_padding,

@@ -2,16 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
-
 
 def get_line_card_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     return [
         {
@@ -41,7 +38,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
-                "pictogram": settings.PLACEHOLDER_IMAGE_ID,
+                "pictogram": placeholder_images.image.id,
                 "superheading": "",
                 "headline": '<p data-block-key="2026lc3h">Line Card with Two Buttons</p>',
                 "content": '<p data-block-key="2026lc3c">Content without superheading and two action buttons. '
@@ -100,7 +97,7 @@ def _section(heading_text, content_blocks, section_id):
         "type": "section",
         "value": {
             "settings": {
-                "show_to": _SHOW_TO_ALL,
+                "show_to": SHOW_TO_ALL,
                 "anchor_id": "",
             },
             "heading": {

@@ -2,13 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
 from springfield.cms.models.pages import SmartWindowPage
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
 _ANIMATION_URL = "https://assets.mozilla.net/video/red-pandas.webm"
 
 
@@ -38,7 +35,7 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
     return {
         "type": "section",
         "value": {
-            "settings": {"show_to": _SHOW_TO_ALL, "anchor_id": ""},
+            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
                 "heading_text": f'<p data-block-key="{section_id[:8]}h">{heading_text}</p>',
@@ -52,8 +49,9 @@ def _section(heading_text, content_blocks, section_id, subheading_text=""):
 
 
 def get_smart_window_sliding_carousel() -> dict:
-    img = settings.PLACEHOLDER_IMAGE_ID
-    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
+    dark = placeholder_images.dark_image.id
     slides = [
         {
             "type": "item",
@@ -119,7 +117,7 @@ def get_smart_window_sliding_carousel() -> dict:
     return {
         "type": "sliding_carousel",
         "value": {
-            "settings": {"show_to": _SHOW_TO_ALL},
+            "settings": {"show_to": SHOW_TO_ALL},
             "slides": slides,
         },
         "id": "swpsc01-0000-0000-0000-000000000001",
@@ -165,12 +163,13 @@ def get_smart_window_line_cards() -> dict:
 
 
 def get_smart_window_illustration_cards() -> dict:
-    img = settings.PLACEHOLDER_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
     animation_cards = [
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
                 "media": [
                     {
                         "type": "media",
@@ -200,7 +199,7 @@ def get_smart_window_illustration_cards() -> dict:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
                 "media": [
                     {
                         "type": "media",
@@ -230,7 +229,7 @@ def get_smart_window_illustration_cards() -> dict:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
                 "media": [
                     {
                         "type": "media",
@@ -272,7 +271,7 @@ def _testimonial_card(card_id, content, attribution, attribution_role, attributi
     return {
         "type": "card",
         "value": {
-            "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL},
+            "settings": {"variant": "outline", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL},
             "content": [
                 {
                     "type": "testimonial",
@@ -291,8 +290,9 @@ def _testimonial_card(card_id, content, attribution, attribution_role, attributi
 
 
 def get_smart_window_testimonial_cards() -> dict:
-    img = settings.PLACEHOLDER_IMAGE_ID
-    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
+    dark = placeholder_images.dark_image.id
     _image = {"image": img, "settings": {"dark_mode_image": dark, "mobile_image": None, "dark_mode_mobile_image": None}}
     _no_image = {"image": None, "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None}}
     cards = [

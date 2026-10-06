@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.comparison_table_fixtures import row, section
 from springfield.cms.models import FreeFormPage2026
@@ -45,6 +43,7 @@ def result_cell(result, label="", cell_id=""):
 
 
 def image_header_cell(label, cell_id="", dark_mode_image=None):
+    placeholder_images = get_placeholder_images()
     return cell(
         "",
         cell_id=cell_id,
@@ -52,7 +51,7 @@ def image_header_cell(label, cell_id="", dark_mode_image=None):
             {
                 "type": "image_header",
                 "value": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "dark_mode_image": dark_mode_image,
                     "alt": "",
                     "label": label,
@@ -65,11 +64,12 @@ def image_header_cell(label, cell_id="", dark_mode_image=None):
 
 def make_header_row(prefix):
     """Header row whose value columns are an image with a label underneath."""
+    placeholder_images = get_placeholder_images()
 
     return row(
         cells=[
             cell(RESULT_HEADERS[0], cell_id=f"{prefix}-h0"),
-            image_header_cell(RESULT_HEADERS[1], cell_id=f"{prefix}-h1", dark_mode_image=settings.PLACEHOLDER_DARK_IMAGE_ID),
+            image_header_cell(RESULT_HEADERS[1], cell_id=f"{prefix}-h1", dark_mode_image=placeholder_images.dark_image.id),
             image_header_cell(RESULT_HEADERS[2], cell_id=f"{prefix}-h2"),
         ],
         row_id=f"{prefix}-hr",
