@@ -33,6 +33,11 @@
         {% endif %}
 
         <div class="fl-blog-index-header">
+          {% if all_topics and not (topic_page and topic_page.hide_topics) %}
+            {% set index_page = blog_index %}
+            {% include "blog/includes/blog-all-topics.html" %}
+          {% endif %}
+
           {% if topic_page and topic_page.page_heading %}
             {% for block in topic_page.page_heading %}
               {% if block.block_type == "heading" %}
@@ -53,11 +58,6 @@
               heading_size="fl-heading-xl"
               alignment_class="text-center"
             />
-          {% endif %}
-
-          {% if all_topics and not (topic_page and topic_page.hide_topics) %}
-            {% set index_page = blog_index %}
-            {% include "blog/includes/blog-all-topics.html" %}
           {% endif %}
         </div>
 
