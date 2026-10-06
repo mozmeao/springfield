@@ -37,6 +37,9 @@ class ContentSearchView(IndexView):
     page_title = "Search content"
     index_url_name = "cms_content_search"
     index_results_url_name = "cms_content_search_results"
+    # The generic IndexView defaults list_display to plain `__str__` columns;
+    # an empty list keeps the page listing's own columns (title links, parent, status).
+    list_display = []
 
     def search_queryset(self, queryset):
         # Identical to PageListingMixin.search_queryset (listing.py) except for
