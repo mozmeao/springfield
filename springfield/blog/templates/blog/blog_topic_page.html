@@ -25,10 +25,12 @@
     <section class="fl-section">
       <div class="fl-section-container">
 
-        <a href="{{ blog_index.url }}" class="fl-blog-back-link">
-          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-home') }}
-        </a>
+        {% if not (topic_page and topic_page.hide_breadcrumb) %}
+          <a href="{{ blog_index.url }}" class="fl-blog-back-link">
+            <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+            {{ ftl('blog-home') }}
+          </a>
+        {% endif %}
 
         <div class="fl-blog-index-header">
           {% if topic_page and topic_page.page_heading %}
@@ -53,7 +55,7 @@
             />
           {% endif %}
 
-          {% if all_topics %}
+          {% if all_topics and not (topic_page and topic_page.hide_topics) %}
             {% set index_page = blog_index %}
             {% include "blog/includes/blog-all-topics.html" %}
           {% endif %}
