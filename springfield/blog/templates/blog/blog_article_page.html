@@ -46,39 +46,39 @@
     {% if page.bottom_banner %}
       {{ page.bottom_banner }}
     {% endif %}
-
-    {% if related_articles %}
-      <section class="fl-section fl-blog-related-articles">
-        <div class="fl-section-container">
-          <include:heading
-            level="h2"
-            heading_text="{{ ftl('blog-related-articles') }}"
-            heading_size="fl-heading-md"
-            alignment_class="text-center"
-          />
-          <div class="fl-blog-article-list">
-            {% for article in related_articles %}
-              {% set listing_image = article.get_listing_image() %}
-              <include:blog-article-list-item with_image="{{ listing_image }}">
-                <content:heading>
-                  {% set topic = article.get_topic() %}
-                  <include:heading
-                    level="h3"
-                    heading_text="{{ article.title }}"
-                    superheading_text="{{ topic.name if topic else '' }}"
-                    link="{{ article.url }}"
-                  />
-                </content:heading>
-                <content:body>{{ article.description|richtext }}</content:body>
-                {% if listing_image %}
-                  <content:image>{{ list_item_media(article) }}</content:image>
-                {% endif %}
-              </include:blog-article-list-item>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-    {% endif %}
   </div>
 </div>
+
+{% if related_articles %}
+  <section class="fl-section fl-split-page-upper has-gradient-bottom fl-blog-related-articles">
+    <div class="fl-section-container">
+      <include:heading
+        level="h2"
+        heading_text="{{ ftl('blog-related-articles') }}"
+        heading_size="fl-heading-md"
+        alignment_class="text-center"
+      />
+      <div class="fl-blog-article-list">
+        {% for article in related_articles %}
+          {% set listing_image = article.get_listing_image() %}
+          <include:blog-article-list-item with_image="{{ listing_image }}">
+            <content:heading>
+              {% set topic = article.get_topic() %}
+              <include:heading
+                level="h3"
+                heading_text="{{ article.title }}"
+                superheading_text="{{ topic.name if topic else '' }}"
+                link="{{ article.url }}"
+              />
+            </content:heading>
+            <content:body>{{ article.description|richtext }}</content:body>
+            {% if listing_image %}
+              <content:image>{{ list_item_media(article) }}</content:image>
+            {% endif %}
+          </include:blog-article-list-item>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
 {% endblock %}

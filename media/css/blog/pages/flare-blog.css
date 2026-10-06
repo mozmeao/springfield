@@ -84,6 +84,17 @@
     margin-inline-start: -900px;
 }
 
+/* Article content with rounded bottom above the "Related Articles" section,
+   which provides the background. */
+.fl-blog-article-body main > .fl-main {
+    z-index: 2;
+}
+
+.fl-blog-article-body .fl-blog-related-articles.fl-split-page-upper {
+    margin-block-start: calc(var(--fl-theme-main-border-radius) * -1);
+    padding-block-start: calc(var(--fl-theme-main-border-radius) * 2);
+}
+
 /* Heading and topics */
 
 .fl-blog-article-body .fl-split-page-upper {
