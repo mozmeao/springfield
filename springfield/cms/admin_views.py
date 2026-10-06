@@ -3,14 +3,17 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 import logging
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.core.management import call_command
 from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 
 from wagtail.admin import messages
 from wagtail.admin.views.pages.listing import IndexView
@@ -18,6 +21,7 @@ from wagtail.models import Page
 from wagtail_localize.models import Translation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
+from springfield.base.tasks import defer_task
 from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions
 from springfield.cms.forms import ConfirmUpdateSlugForm, UpdateSlugForm
 from springfield.cms.slug_updates import find_sibling_with_slug, page_with_translations, update_page_slug
@@ -131,6 +135,25 @@ class UpdateSlugConfirmView(FormView):
             buttons=message_buttons,
         )
         return redirect("wagtailadmin_explore", updated_page.get_parent().id)
+
+
+class RegenerateDocsView(TemplateView):
+    """Confirms, then reloads the page fixtures that make up the Flare Docs pages. Unavailable on PROD."""
+
+    template_name = "wagtailadmin/regenerate_docs.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if settings.PROD:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        defer_task(call_command, func_args=["load_page_fixtures"])
+        if settings.TASK_QUEUE_AVAILABLE:
+            messages.success(request, _("The docs are being regenerated in the background."))
+        else:
+            messages.success(request, _("The docs have been regenerated."))
+        return redirect("cms_regenerate_docs")
 
 
 @require_POST
