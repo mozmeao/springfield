@@ -883,6 +883,7 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
         )
         wallpaper = blocks.CharBlock(
             required=False,
+            default="",
             help_text=(
                 "Only used by the 'Set New Tab Wallpaper' button type. The wallpaper id as spelled in Firefox's "
                 "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
