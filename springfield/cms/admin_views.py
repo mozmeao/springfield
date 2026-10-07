@@ -10,13 +10,19 @@ from django.db import transaction
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.http import urlencode
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
 from wagtail.admin import messages
+from wagtail.admin.ui.tables import BulkActionsCheckboxColumn, TitleColumn
+from wagtail.admin.views.bulk_action import BulkAction
 from wagtail.admin.views.pages.listing import IndexView
+from wagtail.contrib.redirects import views as redirect_views
+from wagtail.contrib.redirects.models import Redirect
+from wagtail.contrib.redirects.permissions import permission_policy as redirect_permission_policy
 from wagtail.models import Page
 from wagtail_localize.models import Translation
 from wagtaildraftsharing.models import WagtaildraftsharingLink
@@ -180,3 +186,54 @@ def create_translation_sharing_link(request, translation_id):
         link = WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=request.user)
 
     return JsonResponse({"url": link.url})
+
+
+class RedirectIndexView(redirect_views.IndexView):
+    """Wagtail's redirects listing with checkboxes for bulk actions."""
+
+    template_name = "wagtailredirects/index_with_bulk_actions.html"
+
+    @cached_property
+    def columns(self):
+        from_column, *other_columns = super().columns
+        return [
+            BulkActionsCheckboxColumn("bulk_actions", obj_type="redirect"),
+            TitleColumn(
+                from_column.name,
+                label=from_column.label,
+                url_name="wagtailredirects:edit",
+                sort_key=from_column.sort_key,
+                get_title_id=lambda redirect: f"redirect_{redirect.pk}_title",
+            ),
+            *other_columns,
+        ]
+
+
+class RedirectDeleteBulkAction(BulkAction):
+    display_name = gettext_lazy("Delete")
+    action_type = "delete"
+    aria_label = gettext_lazy("Delete selected redirects")
+    template_name = "wagtailredirects/confirm_bulk_delete.html"
+    classes = {"serious"}
+    models = [Redirect]
+
+    def get_all_objects_in_listing_query(self, parent_id):
+        """Limit "select all" to the redirects the listing shows for the current search and filters."""
+        listing = RedirectIndexView()
+        listing.setup(self.request)
+        return listing.get_queryset().values_list("pk", flat=True)
+
+    def check_perm(self, redirect):
+        return redirect_permission_policy.user_has_permission(self.request.user, "delete")
+
+    @classmethod
+    def execute_action(cls, objects, **kwargs):
+        Redirect.objects.filter(pk__in=[redirect.pk for redirect in objects]).delete()
+        return len(objects), 0
+
+    def get_success_message(self, num_parent_objects, num_child_objects):
+        return ngettext(
+            "%(count)d redirect deleted.",
+            "%(count)d redirects deleted.",
+            num_parent_objects,
+        ) % {"count": num_parent_objects}

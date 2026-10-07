@@ -1,0 +1,20 @@
+{% extends "wagtailredirects/index.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% load i18n wagtailadmin_tags %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script defer src="{% versioned_static 'wagtailadmin/js/bulk-actions.js' %}"></script>
+{% endblock %}
+
+{% block bulk_actions %}
+    {% trans "Select all redirects in listing" as select_all_text %}
+    {% include "wagtailadmin/bulk_actions/footer.html" with select_all_obj_text=select_all_text app_label="wagtailredirects" model_name="redirect" objects=page_obj item_type="REDIRECT" %}
+{% endblock %}

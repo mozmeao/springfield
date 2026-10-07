@@ -40,6 +40,8 @@ from springfield.base.models import TranslatedPagePermission
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.admin_views import (
     ContentSearchView,
+    RedirectDeleteBulkAction,
+    RedirectIndexView,
     RegenerateDocsView,
     UpdateSlugConfirmView,
     UpdateSlugView,
@@ -66,6 +68,19 @@ from springfield.cms.models import (
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
+
+
+# Runs before wagtail.contrib.redirects' hook so these paths shadow its listing views,
+# while "wagtailredirects:index" and ":index_results" still reverse to the same URLs.
+@hooks.register("register_admin_urls", order=-1)
+def register_redirect_index_urls():
+    return [
+        path("redirects/", RedirectIndexView.as_view()),
+        path("redirects/results/", RedirectIndexView.as_view(results_only=True)),
+    ]
+
+
+hooks.register("register_bulk_action", RedirectDeleteBulkAction)
 
 
 @hooks.register("register_permissions")
