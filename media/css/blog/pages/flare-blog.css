@@ -187,7 +187,7 @@
     mask-size: var(--mask-size-content);
 }
 
-/* Prevent the first tag in carousel from started faded. */
+/* Prevent the first tag in carousel from starting faded. */
 .fl-blog-topics-list.is-carousel .fl-tag:first-child {
     margin-inline-start: 12px;
 }
