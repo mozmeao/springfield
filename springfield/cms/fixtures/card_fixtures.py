@@ -2,73 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import (
+    EMPTY_IMAGE_VARIANTS,
+    SHOW_TO_ALL,
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
+from springfield.cms.fixtures.block_factories import cards_list, section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "image_alt": "A numbered grid, standing in for a real image",
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
-_EMPTY_IMAGE_VARIANTS = {
-    "image": None,
-    "image_alt": "",
-    "settings": {
-        "dark_mode_image": None,
-        "mobile_image": None,
-        "dark_mode_mobile_image": None,
-    },
-}
-
-_SETTINGS_DEFAULT = {"variant": "", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL}
-_SETTINGS_OUTLINE = {"variant": "outline", "align": "start", "expand_link": False, "show_to": _SHOW_TO_ALL}
-_SETTINGS_FILLED = {"variant": "filled", "align": "center", "expand_link": False, "show_to": _SHOW_TO_ALL}
-_SETTINGS_CENTER = {"variant": "", "align": "center", "expand_link": False, "show_to": _SHOW_TO_ALL}
-_SETTINGS_END = {"variant": "", "align": "end", "expand_link": False, "show_to": _SHOW_TO_ALL}
-
-
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": _SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="ch">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="cs">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
-def _cards_list(cards, settings=None, block_id=""):
-    return {
-        "type": "cards_list",
-        "value": {
-            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
-            "cards": cards,
-        },
-        "id": block_id,
-    }
+_SETTINGS_DEFAULT = {"variant": "", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL}
+_SETTINGS_OUTLINE = {"variant": "outline", "align": "start", "expand_link": False, "show_to": SHOW_TO_ALL}
+_SETTINGS_FILLED = {"variant": "filled", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL}
+_SETTINGS_CENTER = {"variant": "", "align": "center", "expand_link": False, "show_to": SHOW_TO_ALL}
+_SETTINGS_END = {"variant": "", "align": "end", "expand_link": False, "show_to": SHOW_TO_ALL}
 
 
 def get_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         # Default variant — icon + heading + text + button
@@ -113,7 +68,7 @@ def get_card_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "pictogram",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "card0001-0000-0000-0000-000000000021",
                     },
                 ],
@@ -154,7 +109,7 @@ def get_card_variants() -> list[dict]:
                     },
                     {
                         "type": "pictogram",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "card0001-0000-0000-0000-000000000035",
                     },
                     {
@@ -183,7 +138,7 @@ def get_card_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "media",
-                        "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "card0001-0000-0000-0000-000000000041"}],
+                        "value": [{"type": "image", "value": image_variants, "id": "card0001-0000-0000-0000-000000000041"}],
                         "id": "card0001-0000-0000-0000-000000000042",
                     }
                 ],
@@ -219,7 +174,7 @@ def get_card_variants() -> list[dict]:
                             "content": '<p data-block-key="c05q1">Firefox gives me confidence that my browsing stays private.</p>',
                             "attribution": '<p data-block-key="c05a1">Jane Smith</p>',
                             "attribution_role": '<p data-block-key="c05r1">Head of Privacy, Mozilla</p>',
-                            "attribution_image": _IMAGE_VARIANTS,
+                            "attribution_image": image_variants,
                         },
                         "id": "card0001-0000-0000-0000-000000000051",
                     },
@@ -273,7 +228,7 @@ def get_card_variants() -> list[dict]:
                             "content": '<p data-block-key="c08q1">Switching to Firefox was the best decision I made for my online security.</p>',
                             "attribution": '<p data-block-key="c08a1">Alex Johnson</p>',
                             "attribution_role": "",
-                            "attribution_image": _EMPTY_IMAGE_VARIANTS,
+                            "attribution_image": EMPTY_IMAGE_VARIANTS,
                         },
                         "id": "card0001-0000-0000-0000-000000000081",
                     },
@@ -295,7 +250,7 @@ def get_card_variants() -> list[dict]:
                             " made it my go-to browser. Fast, private, and open source.</p>",
                             "attribution": '<p data-block-key="c09a1">Sam Rivera</p>',
                             "attribution_role": '<p data-block-key="c09r1">Software Engineer</p>',
-                            "attribution_image": _IMAGE_VARIANTS,
+                            "attribution_image": image_variants,
                         },
                         "id": "card0001-0000-0000-0000-000000000091",
                     },
@@ -307,7 +262,7 @@ def get_card_variants() -> list[dict]:
         {
             "type": "card",
             "value": {
-                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": _SHOW_TO_ALL},
+                "settings": {"variant": "", "align": "start", "expand_link": True, "show_to": SHOW_TO_ALL},
                 "media": [{"type": "icon", "value": "shield", "id": "card0001-0000-0000-0000-000000000071"}],
                 "content": [
                     {
@@ -343,34 +298,27 @@ def get_card_variants() -> list[dict]:
 def get_card_sections() -> list[dict]:
     cards = get_card_variants()
     return [
-        _section(
+        section(
             heading_text="Card — Default, Outline, Filled Variants",
             subheading_text="Three variant options side by side.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="card0002-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="card0002-0000-0000-0000-000000000001"),
             ],
             section_id="card0003-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Card — Alignments and Expand Link",
             subheading_text="Center alignment, end alignment, and clickable card.",
             content_blocks=[
-                _cards_list(
-                    [cards[3], cards[5], cards[8]],
-                    block_id="card0002-0000-0000-0000-000000000002",
-                ),
+                cards_list(cards=[cards[3], cards[5], cards[8]], block_id="card0002-0000-0000-0000-000000000002"),
             ],
             section_id="card0003-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Card — Testimonial Content Block",
             subheading_text="Outlined cards with a testimonial inside.",
             content_blocks=[
-                _cards_list(
-                    [cards[4], cards[6], cards[7]],
-                    settings={"container_width": "", "cards_per_row": "3", "two_wide_xs": False},
-                    block_id="card0002-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=[cards[4], cards[6], cards[7]], cards_per_row="3", block_id="card0002-0000-0000-0000-000000000003"),
             ],
             section_id="card0003-0000-0000-0000-000000000003",
         ),

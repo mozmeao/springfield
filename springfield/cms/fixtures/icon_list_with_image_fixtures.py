@@ -2,56 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import icon_list_item, section
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
-
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": _SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="il2026h">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="il2026s">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
-def _list_item(icon, text, item_id):
-    return {
-        "type": "item",
-        "value": {
-            "icon": icon,
-            "text": f'<p data-block-key="{item_id}">{text}</p>',
-        },
-        "id": item_id,
-    }
 
 
 def get_icon_list_with_image_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     return [
         {
             "type": "icon_list_with_image",
             "value": {
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
-                    _list_item("checkmark", "Block harmful trackers automatically", "il2026i1a"),
-                    _list_item("lock", "Keep your passwords safe and synced", "il2026i1b"),
-                    _list_item("shield", "Browse without leaving a trace", "il2026i1c"),
+                    icon_list_item(icon="checkmark", text="Block harmful trackers automatically", item_id="il2026i1a"),
+                    icon_list_item(icon="lock", text="Keep your passwords safe and synced", item_id="il2026i1b"),
+                    icon_list_item(icon="shield", text="Browse without leaving a trace", item_id="il2026i1c"),
                 ],
             },
             "id": "2026il01-0000-0000-0000-000000000001",
@@ -59,14 +26,14 @@ def get_icon_list_with_image_variants() -> list[dict]:
         {
             "type": "icon_list_with_image",
             "value": {
-                "image": settings.PLACEHOLDER_IMAGE_ID,
+                "image": placeholder_images.image.id,
                 "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
-                    _list_item("bookmark", "Save pages and sync across devices", "il2026i2a"),
-                    _list_item("history", "Access your browsing history anywhere", "il2026i2b"),
-                    _list_item("tab", "Manage tabs with ease", "il2026i2c"),
-                    _list_item("extension", "Add extensions to customize your experience", "il2026i2d"),
-                    _list_item("themes", "Personalize with themes", "il2026i2e"),
+                    icon_list_item(icon="bookmark", text="Save pages and sync across devices", item_id="il2026i2a"),
+                    icon_list_item(icon="history", text="Access your browsing history anywhere", item_id="il2026i2b"),
+                    icon_list_item(icon="tab", text="Manage tabs with ease", item_id="il2026i2c"),
+                    icon_list_item(icon="extension", text="Add extensions to customize your experience", item_id="il2026i2d"),
+                    icon_list_item(icon="themes", text="Personalize with themes", item_id="il2026i2e"),
                 ],
             },
             "id": "2026il01-0000-0000-0000-000000000002",
@@ -77,13 +44,13 @@ def get_icon_list_with_image_variants() -> list[dict]:
 def get_icon_list_with_image_sections() -> list[dict]:
     variants = get_icon_list_with_image_variants()
     return [
-        _section(
+        section(
             heading_text="Icon List with Image - 3 Items",
             subheading_text="The image is displayed alongside a list of icon and text items.",
             content_blocks=[variants[0]],
             section_id="2026ils1-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Icon List with Image - 5 Items",
             subheading_text="The list can contain any number of items.",
             content_blocks=[variants[1]],

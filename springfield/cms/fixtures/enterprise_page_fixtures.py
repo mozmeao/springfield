@@ -16,14 +16,41 @@ from django.core.files.base import ContentFile
 
 from wagtail.models import Locale
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    SHOW_TO_ALL,
+    get_flare_pages_docs_page,
+    get_image_media,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+)
+from springfield.cms.fixtures.block_factories import (
+    banner,
+    button,
+    button_row,
+    buttons_block,
+    cards_list,
+    download_button,
+    heading_block,
+    heading_value,
+    hero,
+    icon_card,
+    illustration_card,
+    intro,
+    link_value,
+    media_content,
+    nav_top_level_link,
+    pictogram_card,
+    rich_text,
+    section,
+    showcase,
+    two_column_card,
+)
 from springfield.cms.fixtures.comparison_table_fixtures import make_content_rows, make_header_row
 from springfield.cms.fixtures.contact_page_fixtures import get_form_field_variants_with_fieldsets
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_rich_text
 from springfield.cms.models import ContactPage, FreeFormPage2026, NavigationSnippet, SpringfieldImage
 from springfield.cms.models.pages import BASKET_CONTACT_ENTERPRISE_PATH
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 # Real button destinations from the source page (locale prefix dropped).
 CONTACT_URL = "/enterprise/contact/"
@@ -32,92 +59,17 @@ SUPPORT_URL = "/enterprise/support/"
 DOWNLOAD_URL = "/enterprise/download/"
 
 
-def image_value():
-    return {
-        "image": settings.PLACEHOLDER_IMAGE_ID,
-        "image_alt": "A numbered grid, standing in for a real image",
-        "settings": {
-            "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-            "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-            "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-        },
-    }
-
-
-def image_media(block_id):
-    return [{"type": "image", "value": image_value(), "id": block_id}]
-
-
-def heading(block_key, heading_text, subheading_text="", superheading_text=""):
-    return {
-        "superheading_text": f'<p data-block-key="{block_key}sup">{superheading_text}</p>' if superheading_text else "",
-        "heading_text": f'<p data-block-key="{block_key}head">{heading_text}</p>',
-        "subheading_text": f'<p data-block-key="{block_key}sub">{subheading_text}</p>' if subheading_text else "",
-    }
-
-
-def link_value(url="", page=None, new_window=False):
-    """A SpringfieldLinkBlock value: a page reference when ``page`` is given,
-    otherwise a custom URL."""
-    return {
-        "link_to": "page" if page else "custom_url",
-        "page": page.id if page else None,
-        "file": None,
-        "custom_url": url,
-        "anchor": "",
-        "email": "",
-        "phone": "",
-        "new_window": new_window,
-        "relative_url": "",
-    }
-
-
-def button(block_id, label, analytics_id, url="", page=None, theme="", size=""):
-    return {
-        "type": "button",
-        "value": {
-            "settings": {
-                "theme": theme,
-                "size": size,
-                "icon": "",
-                "icon_position": "right",
-                "analytics_id": analytics_id,
-            },
-            "pretranslated_label": None,
-            "custom_label": label,
-            "link": link_value(url=url, page=page),
-        },
-        "id": block_id,
-    }
-
-
-def button_row(block_id, buttons, orientation="horizontal", spacing="", alignment="", help_text=""):
-    return {
-        "type": "button_row",
-        "value": {
-            "orientation": orientation,
-            "spacing": spacing,
-            "alignment": alignment,
-            "buttons": buttons,
-            "help_text": help_text,
-        },
-        "id": block_id,
-    }
-
-
 def featured_image_section():
     """Block 1 — hero: heading, a single primary CTA, and the hero image."""
     return {
         "type": "featured_image_section",
         "value": {
             "scroll_to_see_more_snippet": None,
-            "heading": heading(
-                "enthero",
+            "heading": heading_value(
+                block_key="enthero",
                 heading_text="Your workforce runs through the browser. Firefox gives you enterprise control.",
-                subheading_text=(
-                    "Firefox Enterprise puts security controls where work happens. Make the browser a governed control "
-                    "layer for data governance, audit readiness, and sovereignty."
-                ),
+                subheading_text="Firefox Enterprise puts security controls where work happens. Make the browser a governed control "
+                "layer for data governance, audit readiness, and sovereignty.",
             ),
             "content": [
                 button_row(
@@ -132,7 +84,7 @@ def featured_image_section():
                     ],
                 )
             ],
-            "media": image_media("ent-b1-media"),
+            "media": get_image_media(block_id="ent-b1-media"),
         },
         "id": "ent-b1-featured-image-section",
     }
@@ -144,11 +96,8 @@ def trusted_media_content():
         "type": "media_content",
         "value": {
             "settings": {"media_after": False},
-            "media": image_media("ent-b2-media"),
-            "heading": heading(
-                "enttrust",
-                heading_text="Trusted by some of Europe's most security-conscious institutions.",
-            ),
+            "media": get_image_media(block_id="ent-b2-media"),
+            "heading": heading_value(block_key="enttrust", heading_text="Trusted by some of Europe's most security-conscious institutions."),
             "content": [
                 {
                     "type": "rich_text",
@@ -164,61 +113,13 @@ def trusted_media_content():
     }
 
 
-def card(block_id, settings, content, media=None):
-    return {
-        "type": "card",
-        "value": {
-            "settings": settings,
-            "media": media or [],
-            "content": content,
-        },
-        "id": block_id,
-    }
-
-
-def card_settings(variant="", align="start", expand_link=False):
-    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": SHOW_TO_ALL}
-
-
-def card_heading(block_id, headline):
-    return {
-        "type": "heading",
-        "value": {
-            "superheading_text": "",
-            "heading_text": f'<p data-block-key="{block_id}h">{headline}</p>',
-            "subheading_text": "",
-        },
-        "id": f"{block_id}-heading",
-    }
-
-
-def card_content(block_id, content):
-    return {"type": "content", "value": f'<p data-block-key="{block_id}c">{content}</p>', "id": f"{block_id}-content"}
-
-
-def illustration_card(block_id, headline, content):
-    """A Card with a full-width illustration above the heading and body copy."""
-    return card(
-        block_id,
-        card_settings(),
-        [
-            card_heading(block_id, headline),
-            card_content(block_id, content),
-        ],
-        media=[{"type": "media", "value": image_media(f"{block_id}-media-img"), "id": f"{block_id}-media"}],
-    )
-
-
 def control_layer_section():
     """Block 3 — section with a three-card illustration grid."""
     return {
         "type": "section",
         "value": {
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": heading(
-                "entcards",
-                heading_text="Security, sovereignty, and resilience in one control layer.",
-            ),
+            "heading": heading_value(block_key="entcards", heading_text="Security, sovereignty, and resilience in one control layer."),
             "content": [
                 {
                     "type": "cards_list",
@@ -226,31 +127,28 @@ def control_layer_section():
                         "settings": {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
                         "cards": [
                             illustration_card(
-                                "ent-b3-card1",
+                                block_id="ent-b3-card1",
                                 headline="Protect work where it happens.",
-                                content=(
-                                    "Extend your security perimeter to the browser itself. Govern access, data movement, "
-                                    "extensions, AI use, telemetry, and updates from a single place, without forcing workflows "
-                                    "through remote rendering or full device management."
-                                ),
+                                content="Extend your security perimeter to the browser itself. Govern access, data movement, "
+                                "extensions, AI use, telemetry, and updates from a single place, without forcing workflows "
+                                "through remote rendering or full device management.",
+                                media=get_image_media("ent-b3-card1-media-img"),
                             ),
                             illustration_card(
-                                "ent-b3-card2",
+                                block_id="ent-b3-card2",
                                 headline="Own your architecture.",
-                                content=(
-                                    "Run Firefox Enterprise through a local partner, sovereign cloud, or fully on prem. "
-                                    "Identity, telemetry, logs, and policy stay inside your boundaries. Access the auditable "
-                                    "evidence of control that EU rules increasingly require."
-                                ),
+                                content="Run Firefox Enterprise through a local partner, sovereign cloud, or fully on prem. "
+                                "Identity, telemetry, logs, and policy stay inside your boundaries. Access the auditable "
+                                "evidence of control that EU rules increasingly require.",
+                                media=get_image_media("ent-b3-card2-media-img"),
                             ),
                             illustration_card(
-                                "ent-b3-card3",
+                                block_id="ent-b3-card3",
                                 headline="Escape the dependency.",
-                                content=(
-                                    "Add a governed browser layer with verifiable, auditable trust - and without vendor lock in, "
-                                    "new cloud dependency or rip-and-replace. Backed by a nonprofit and built on its own engine, "
-                                    "Firefox Enterprise avoids the single-engine risk every Chromium browser shares."
-                                ),
+                                content="Add a governed browser layer with verifiable, auditable trust - and without vendor lock in, "
+                                "new cloud dependency or rip-and-replace. Backed by a nonprofit and built on its own engine, "
+                                "Firefox Enterprise avoids the single-engine risk every Chromium browser shares.",
+                                media=get_image_media("ent-b3-card3-media-img"),
                             ),
                         ],
                     },
@@ -263,48 +161,19 @@ def control_layer_section():
     }
 
 
-def showcase(block_id, headline, caption_description):
-    return {
-        "type": "showcase",
-        "value": {
-            "settings": {"layout": "expanded"},
-            "headline": f'<p data-block-key="{block_id}h">{headline}</p>',
-            "media": image_media(f"{block_id}-media"),
-            "caption_title": "",
-            "caption_description": f'<p data-block-key="{block_id}c">{caption_description}</p>',
-        },
-        "id": block_id,
-    }
-
-
-def two_column_card(block_id, heading_text, subheading_text, list_items, buttons):
+def two_column_list_card(block_id, heading_text, subheading_text, list_items, buttons):
+    """A two-column card with a heading, a bulleted list, stacked buttons and an image."""
     list_html = "".join(f'<li data-block-key="{block_id}li{index}">{item}</li>' for index, item in enumerate(list_items))
-    return {
-        "type": "card",
-        "value": {
-            "settings": {"image_position": "bottom-right"},
-            "tag": "",
-            "content": [
-                {
-                    "type": "heading",
-                    "value": heading(f"{block_id}head", heading_text=heading_text, subheading_text=subheading_text),
-                    "id": f"{block_id}-heading",
-                },
-                {
-                    "type": "rich_text",
-                    "value": f"<ul>{list_html}</ul>",
-                    "id": f"{block_id}-list",
-                },
-                button_row(f"{block_id}-btnrow", buttons=buttons, orientation="stacked"),
-                {
-                    "type": "media",
-                    "value": image_media(f"{block_id}-media-img"),
-                    "id": f"{block_id}-media",
-                },
-            ],
-        },
-        "id": block_id,
-    }
+    return two_column_card(
+        block_id,
+        [
+            heading_block(f"{block_id}-heading", heading_text, subheading_text=subheading_text),
+            rich_text(f"{block_id}-list", f"<ul>{list_html}</ul>"),
+            button_row(f"{block_id}-btnrow", buttons=buttons, orientation="stacked"),
+            {"type": "media", "value": get_image_media(f"{block_id}-media-img"), "id": f"{block_id}-media"},
+        ],
+        image_position="bottom-right",
+    )
 
 
 def two_ways_section():
@@ -313,14 +182,12 @@ def two_ways_section():
         "type": "section",
         "value": {
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": heading(
-                "enttwoways",
+            "heading": heading_value(
+                block_key="enttwoways",
                 heading_text="Ready to scale when you are.",
-                subheading_text=(
-                    "Begin with the free managed browser and enterprise policy controls, then move to Premium for "
-                    "centralized management, built-in DLP, SIEM integration, and AI governance in a sovereign cloud "
-                    "or fully on-prem."
-                ),
+                subheading_text="Begin with the free managed browser and enterprise policy controls, then move to Premium for "
+                "centralized management, built-in DLP, SIEM integration, and AI governance in a sovereign cloud "
+                "or fully on-prem.",
             ),
             "content": [
                 {
@@ -333,7 +200,7 @@ def two_ways_section():
                             "reduce_card_padding": False,
                         },
                         "cards": [
-                            two_column_card(
+                            two_column_list_card(
                                 "ent-b6-card1",
                                 heading_text="Firefox Enterprise - On-Prem",
                                 subheading_text=(
@@ -363,7 +230,7 @@ def two_ways_section():
                                     ),
                                 ],
                             ),
-                            two_column_card(
+                            two_column_list_card(
                                 "ent-b6-card2",
                                 heading_text="Firefox Professional Support",
                                 subheading_text="A direct line to Mozilla for teams running Firefox. Support covers:",
@@ -405,7 +272,7 @@ def browser_stat_media_content():
         "type": "media_content",
         "value": {
             "settings": {"media_after": False},
-            "media": image_media("ent-b9-media"),
+            "media": get_image_media(block_id="ent-b9-media"),
             "content": [
                 {
                     "type": "rich_text",
@@ -433,12 +300,11 @@ def enterprise_content():
         trusted_media_content(),
         control_layer_section(),
         showcase(
-            "ent-b4-showcase",
+            block_id="ent-b4-showcase",
             headline="The browser has become the operating surface of modern work.",
-            caption_description=(
-                "It's where work, data, and identity converge. And where security has the least visibility and control. "
-                "See our thoughts behind the shift and the analysis to help you read where it's headed."
-            ),
+            caption_description="It's where work, data, and identity converge. And where security has the least visibility and control. "
+            "See our thoughts behind the shift and the analysis to help you read where it's headed.",
+            media=get_image_media("ent-b4-showcase-media"),
         ),
         button_row(
             "ent-b5-btnrow",
@@ -455,13 +321,12 @@ def enterprise_content():
         ),
         two_ways_section(),
         showcase(
-            "ent-b7-showcase",
+            block_id="ent-b7-showcase",
             headline="Transparent, compliant, and secure.",
-            caption_description=(
-                "Firefox Enterprise maps to the frameworks European regulators care about like GDPR, NIS2, DORA, and "
-                "SecNumCloud. It also provides source-code access, customer-controlled telemetry boundaries, and "
-                "self-hosted diagnostic logs."
-            ),
+            caption_description="Firefox Enterprise maps to the frameworks European regulators care about like GDPR, NIS2, DORA, and "
+            "SecNumCloud. It also provides source-code access, customer-controlled telemetry boundaries, and "
+            "self-hosted diagnostic logs.",
+            media=get_image_media("ent-b7-showcase-media"),
         ),
         button_row(
             "ent-b8-btnrow",
@@ -527,155 +392,6 @@ def get_enterprise_test_page() -> FreeFormPage2026:
 # ---------------------------------------------------------------------------
 
 
-def rich_text(block_id, html):
-    return {"type": "rich_text", "value": html, "id": block_id}
-
-
-def buttons_block(block_id, buttons):
-    return {"type": "buttons", "value": buttons, "id": block_id}
-
-
-def hero(block_id, heading_text, subheading_text, buttons, superheading_text=""):
-    """A featured_image_section hero: heading, a button row, and the hero image."""
-    return {
-        "type": "featured_image_section",
-        "value": {
-            "scroll_to_see_more_snippet": None,
-            "heading": heading(
-                block_id,
-                heading_text=heading_text,
-                subheading_text=subheading_text,
-                superheading_text=superheading_text,
-            ),
-            "content": [button_row(f"{block_id}-btnrow", buttons=buttons)],
-            "media": image_media(f"{block_id}-media"),
-        },
-        "id": block_id,
-    }
-
-
-def icon_card(block_id, icon, content, headline=""):
-    """A Card with an icon in the media area above the body copy, optionally
-    preceded by a heading."""
-    content_blocks = [card_content(block_id, content)]
-    if headline:
-        content_blocks.insert(0, card_heading(block_id, headline))
-    return card(
-        block_id,
-        card_settings(),
-        content_blocks,
-        media=[{"type": "icon", "value": icon, "id": f"{block_id}-icon"}],
-    )
-
-
-def cards_list(block_id, cards, cards_per_row=""):
-    return {
-        "type": "cards_list",
-        "value": {
-            "settings": {"container_width": "", "cards_per_row": cards_per_row, "two_wide_xs": False},
-            "cards": cards,
-        },
-        "id": block_id,
-    }
-
-
-def section(block_id, heading_text, subheading_text="", content_blocks=None):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": heading(block_id, heading_text=heading_text, subheading_text=subheading_text),
-            "content": content_blocks or [],
-            "cta": [],
-        },
-        "id": block_id,
-    }
-
-
-def pictogram_card(block_id, headline, content):
-    """An outline, left-aligned Card with the pictogram in the top media area."""
-    return card(
-        block_id,
-        card_settings(variant="outline"),
-        [
-            card_heading(block_id, headline),
-            card_content(block_id, content),
-        ],
-        media=[{"type": "pictogram", "value": image_value(), "id": f"{block_id}-pictogram"}],
-    )
-
-
-def banner(block_id, theme, heading_text, subheading_text, buttons, slim=False):
-    return {
-        "type": "banner",
-        "value": {
-            "settings": {
-                "theme": theme,
-                "media_after": False,
-                "show_to": SHOW_TO_ALL,
-                "anchor_id": "",
-                "slim": slim,
-                "remove_border_radius": False,
-                "centralize_content": False,
-            },
-            "media": [],
-            "heading": heading(block_id, heading_text=heading_text, subheading_text=subheading_text),
-            "content": [buttons_block(f"{block_id}-btns", buttons)],
-        },
-        "id": block_id,
-    }
-
-
-def media_content(block_id, heading_text, subheading_text, body_blocks, media_after=False):
-    return {
-        "type": "media_content",
-        "value": {
-            "settings": {"media_after": media_after},
-            "media": image_media(f"{block_id}-media"),
-            "heading": heading(block_id, heading_text=heading_text, subheading_text=subheading_text),
-            "content": body_blocks,
-        },
-        "id": block_id,
-    }
-
-
-def intro(block_id, heading_text, subheading_text, content_blocks, layout="right", remove_border_radius=False, media=None):
-    return {
-        "type": "intro",
-        "value": {
-            "settings": {
-                "layout": layout,
-                "full_width": False,
-                "slim": False,
-                "anchor_id": "",
-                "remove_border_radius": remove_border_radius,
-            },
-            "media": image_media(f"{block_id}-media") if media is None else media,
-            "heading": heading(block_id, heading_text=heading_text, subheading_text=subheading_text),
-            "content": content_blocks,
-        },
-        "id": block_id,
-    }
-
-
-def download_button(block_id, label, analytics_id, theme=""):
-    return {
-        "type": "download_button",
-        "value": {
-            "pretranslated_label": None,
-            "custom_label": label,
-            "settings": {
-                "theme": theme,
-                "icon": "downloads",
-                "icon_position": "right",
-                "analytics_id": analytics_id,
-                "show_default_browser_checkbox": False,
-            },
-        },
-        "id": block_id,
-    }
-
-
 def enterprise_download(block_id):
     return get_enterprise_download(block_id=block_id, rich_text=get_enterprise_download_rich_text("ed260000-0003-0003-0003"))
 
@@ -683,13 +399,11 @@ def enterprise_download(block_id):
 def product_content(contact_page):
     return [
         hero(
-            "prod-hero",
+            block_id="prod-hero",
             superheading_text="Product",
             heading_text="Your Browser. Your Business.",
-            subheading_text=(
-                "Firefox Enterprise gives IT and security teams control over browser policy, data movement, access, "
-                "and visibility. Deploy it within the infrastructure your organization controls."
-            ),
+            subheading_text="Firefox Enterprise gives IT and security teams control over browser policy, data movement, access, "
+            "and visibility. Deploy it within the infrastructure your organization controls.",
             buttons=[
                 button(
                     "prod-hero-btn",
@@ -698,19 +412,18 @@ def product_content(contact_page):
                     page=contact_page,
                 )
             ],
+            media=get_image_media("prod-hero-media"),
         ),
         section(
-            "prod-security",
+            section_id="prod-security",
             heading_text="Security",
-            subheading_text=(
-                "Extend your threat defense to the place where work actually happens, while integrating with the DLP, "
-                "SIEM, and security tools you already run. Give users secure access to what they need, without hindering "
-                "their experience, or adding the infrastructure tax of VPNs, MDM, or virtual desktops."
-            ),
+            subheading_text="Extend your threat defense to the place where work actually happens, while integrating with the DLP, "
+            "SIEM, and security tools you already run. Give users secure access to what they need, without hindering "
+            "their experience, or adding the infrastructure tax of VPNs, MDM, or virtual desktops.",
             content_blocks=[
                 cards_list(
-                    "prod-security-cards",
-                    [
+                    block_id="prod-security-cards",
+                    cards=[
                         icon_card(
                             "prod-sec-card1",
                             icon="window",
@@ -746,16 +459,14 @@ def product_content(contact_page):
             ],
         ),
         section(
-            "prod-sovereignty",
+            section_id="prod-sovereignty",
             heading_text="Sovereignty",
-            subheading_text=(
-                "Define the boundaries for telemetry and browsing data, and deploy on-prem or in an approved hosting "
-                "environment. You own the infrastructure with no forced cloud dependency."
-            ),
+            subheading_text="Define the boundaries for telemetry and browsing data, and deploy on-prem or in an approved hosting "
+            "environment. You own the infrastructure with no forced cloud dependency.",
             content_blocks=[
                 cards_list(
-                    "prod-sovereignty-cards",
-                    [
+                    block_id="prod-sovereignty-cards",
+                    cards=[
                         icon_card(
                             "prod-sov-card1",
                             icon="warning",
@@ -790,16 +501,14 @@ def product_content(contact_page):
             ],
         ),
         section(
-            "prod-resilience",
+            section_id="prod-resilience",
             heading_text="Resilience",
-            subheading_text=(
-                "Break free from vendor lock-in, dependencies, and risks by leveraging the only independent, open-source "
-                "browser that returns control and infrastructure to your organization."
-            ),
+            subheading_text="Break free from vendor lock-in, dependencies, and risks by leveraging the only independent, open-source "
+            "browser that returns control and infrastructure to your organization.",
             content_blocks=[
                 cards_list(
-                    "prod-resilience-cards",
-                    [
+                    block_id="prod-resilience-cards",
+                    cards=[
                         icon_card(
                             "prod-res-card1",
                             icon="globe",
@@ -826,9 +535,10 @@ def product_content(contact_page):
             ],
         ),
         showcase(
-            "prod-showcase",
+            block_id="prod-showcase",
             headline="See Firefox Enterprise in your environment.",
-            caption_description=("Tell us a bit about your environment and priorities. We'll route your request to the right next step."),
+            caption_description="Tell us a bit about your environment and priorities. We'll route your request to the right next step.",
+            media=get_image_media("prod-showcase-media"),
         ),
         button_row(
             "prod-close-btnrow",
@@ -862,13 +572,11 @@ def support_plans_table():
 def support_content(contact_page):
     return [
         hero(
-            "supp-hero",
+            block_id="supp-hero",
             superheading_text="Support",
             heading_text="Expert Firefox support, direct from Mozilla.",
-            subheading_text=(
-                "Firefox Professional Support gives your IT team a direct, private path to the people behind the product. "
-                "Resolve issues faster with expert triage, guidance, and escalation."
-            ),
+            subheading_text="Firefox Professional Support gives your IT team a direct, private path to the people behind the product. "
+            "Resolve issues faster with expert triage, guidance, and escalation.",
             buttons=[
                 button(
                     "supp-hero-btn",
@@ -877,14 +585,15 @@ def support_content(contact_page):
                     page=contact_page,
                 )
             ],
+            media=get_image_media("supp-hero-media"),
         ),
         section(
-            "supp-cards-section",
+            section_id="supp-cards-section",
             heading_text="Real people. Faster answers.",
             content_blocks=[
                 cards_list(
-                    "supp-cards",
-                    [
+                    block_id="supp-cards",
+                    cards=[
                         icon_card(
                             "supp-card1",
                             icon="arrow-trending",
@@ -911,20 +620,17 @@ def support_content(contact_page):
             ],
         ),
         section(
-            "supp-plans-section",
+            section_id="supp-plans-section",
             heading_text="Choose your level of coverage.",
-            subheading_text=(
-                "Paid support plans for the free-to-download Firefox and Firefox ESR your team already manages. No platform migration required."
-            ),
+            subheading_text="Paid support plans for the free-to-download Firefox and Firefox ESR your team already manages. "
+            "No platform migration required.",
             content_blocks=[support_plans_table()],
         ),
         media_content(
-            "supp-feature",
+            block_id="supp-feature",
             heading_text="Going further? Support comes built in.",
-            subheading_text=(
-                "Firefox Enterprise adds centralized management, built-in DLP, SIEM integration, and sovereign deployment "
-                "with our highest tier of support included. No separate support contract."
-            ),
+            subheading_text="Firefox Enterprise adds centralized management, built-in DLP, SIEM integration, and sovereign deployment "
+            "with our highest tier of support included. No separate support contract.",
             body_blocks=[
                 rich_text(
                     "supp-feature-body2",
@@ -934,6 +640,7 @@ def support_content(contact_page):
                     '<li data-block-key="suppfb2d">Monthly business reviews</li></ul>',
                 ),
             ],
+            media=get_image_media("supp-feature-media"),
         ),
         rich_text(
             "supp-fineprint",
@@ -972,13 +679,11 @@ def support_content(contact_page):
 def download_content(contact_page):
     return [
         intro(
-            "dl-intro",
+            block_id="dl-intro",
             heading_text="Use Firefox as your enterprise browser",
-            subheading_text=(
-                "Firefox delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in "
-                "both Firefox or Firefox Extended Support Release (ESR), organizations get flexibility, control, and "
-                "transparency in a trusted, open-source browser."
-            ),
+            subheading_text="Firefox delivers secure, resilient, and privacy-focused browsing at scale. With enterprise policies in "
+            "both Firefox or Firefox Extended Support Release (ESR), organizations get flexibility, control, and "
+            "transparency in a trusted, open-source browser.",
             content_blocks=[
                 buttons_block(
                     "dl-intro-btns",
@@ -993,6 +698,7 @@ def download_content(contact_page):
             ],
             layout="right",
             remove_border_radius=True,
+            media=get_image_media("dl-intro-media"),
         ),
         banner(
             "dl-banner-1",
@@ -1013,35 +719,32 @@ def download_content(contact_page):
             ],
         ),
         section(
-            "dl-cards-section",
+            section_id="dl-cards-section",
             heading_text="Enterprise-grade protection, powered by Firefox",
             content_blocks=[
                 cards_list(
-                    "dl-cards",
-                    [
+                    block_id="dl-cards",
+                    cards=[
                         pictogram_card(
-                            "dl-card1",
+                            block_id="dl-card1",
                             headline="Your browser, your business",
-                            content=(
-                                "Firefox combines open-source transparency with advanced security features and frequent "
-                                "updates to help safeguard your organization's data."
-                            ),
+                            content="Firefox combines open-source transparency with advanced security features and frequent "
+                            "updates to help safeguard your organization's data.",
+                            pictogram=get_image_variants(),
                         ),
                         pictogram_card(
-                            "dl-card2",
+                            block_id="dl-card2",
                             headline="Deploy when and how you want",
-                            content=(
-                                "With install packages and a wide expansion of group policies and features, deployment is "
-                                "faster and more flexible than ever — and a breeze for Windows, Linux, and macOS environments."
-                            ),
+                            content="With install packages and a wide expansion of group policies and features, deployment is "
+                            "faster and more flexible than ever — and a breeze for Windows, Linux, and macOS environments.",
+                            pictogram=get_image_variants(),
                         ),
                         pictogram_card(
-                            "dl-card3",
+                            block_id="dl-card3",
                             headline="Release cycles that fit your organization",
-                            content=(
-                                "Choose Firefox for the latest features and stable releases every four weeks, or Firefox ESR "
-                                "for long-term stability, regular security updates, and annual major releases."
-                            ),
+                            content="Choose Firefox for the latest features and stable releases every four weeks, or Firefox ESR "
+                            "for long-term stability, regular security updates, and annual major releases.",
+                            pictogram=get_image_variants(),
                         ),
                     ],
                 )
@@ -1129,7 +832,7 @@ def get_enterprise_contact_page(parent) -> ContactPage:
     page.theme = "enterprise"
     page.intro = [
         intro(
-            "ent-contact-intro",
+            block_id="ent-contact-intro",
             heading_text="Request early access",
             subheading_text="Tell us about your organization and we'll get back to you about Firefox Enterprise.",
             content_blocks=[],
@@ -1159,19 +862,6 @@ def get_enterprise_logo(title, filename) -> SpringfieldImage:
         return SpringfieldImage.objects.create(title=title, file=ContentFile(logo_file.read(), name=filename))
 
 
-def nav_top_level_link(block_id, label, page, analytics_id) -> dict:
-    return {
-        "type": "top_level_link",
-        "value": {
-            "pretranslated_label": None,
-            "custom_label": label,
-            "link": link_value(page=page),
-            "analytics_id": analytics_id,
-        },
-        "id": block_id,
-    }
-
-
 def get_enterprise_navigation_snippet(parent, product_page, support_page, contact_page) -> NavigationSnippet:
     locale = Locale.get_default()
     snippet, _ = NavigationSnippet.objects.update_or_create(
@@ -1179,9 +869,13 @@ def get_enterprise_navigation_snippet(parent, product_page, support_page, contac
         locale=locale,
         defaults={
             "items": [
-                nav_top_level_link("ent-nav-overview", "Overview", parent, "c5000000-0000-0000-0000-000000000005"),
-                nav_top_level_link("ent-nav-product", "Product", product_page, "c5000000-0000-0000-0000-000000000001"),
-                nav_top_level_link("ent-nav-support", "Support", support_page, "c5000000-0000-0000-0000-000000000002"),
+                nav_top_level_link(block_id="ent-nav-overview", label="Overview", page=parent, analytics_id="c5000000-0000-0000-0000-000000000005"),
+                nav_top_level_link(
+                    block_id="ent-nav-product", label="Product", page=product_page, analytics_id="c5000000-0000-0000-0000-000000000001"
+                ),
+                nav_top_level_link(
+                    block_id="ent-nav-support", label="Support", page=support_page, analytics_id="c5000000-0000-0000-0000-000000000002"
+                ),
             ],
             "logo": get_enterprise_logo("Firefox Enterprise Logo", "firefox-enterprise-orange.svg"),
             "logo_alt": "Firefox Enterprise",

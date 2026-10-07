@@ -2,31 +2,29 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
-
-_IMAGE_MEDIA = [
-    {
-        "type": "image",
-        "value": {
-            "image": settings.PLACEHOLDER_IMAGE_ID,
-            "image_alt": "A numbered grid, standing in for a real image",
-            "settings": {
-                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                "mobile_image": None,
-                "dark_mode_mobile_image": None,
+def get_image_media() -> list[dict]:
+    placeholder_images = get_placeholder_images()
+    return [
+        {
+            "type": "image",
+            "value": {
+                "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
+                "settings": {
+                    "dark_mode_image": placeholder_images.dark_image.id,
+                    "mobile_image": None,
+                    "dark_mode_mobile_image": None,
+                },
             },
-        },
-        "id": "dlm00001-0000-0000-0000-000000000001",
-    }
-]
+            "id": "dlm00001-0000-0000-0000-000000000001",
+        }
+    ]
 
 
 def _illustration_card(card_id, eyebrow, headline, content, media, buttons):
@@ -58,6 +56,7 @@ def _illustration_card(card_id, eyebrow, headline, content, media, buttons):
 
 
 def get_illustration_cards():
+    image_media = get_image_media()
     buttons = get_button_variants()
     return [
         _illustration_card(
@@ -65,7 +64,7 @@ def get_illustration_cards():
             eyebrow='<p data-block-key="4cj6k">AI</p>',
             headline='<p data-block-key="9elvq">Your favorite AI chatbot in your sidebar. </p>',
             content='<p data-block-key="hz26f">Conversations stay between you and your AI. </p>',
-            media=_IMAGE_MEDIA,
+            media=image_media,
             buttons=[buttons["link"]],
         ),
         _illustration_card(
@@ -73,7 +72,7 @@ def get_illustration_cards():
             eyebrow='<p data-block-key="4cj6k">Privacy</p>',
             headline='<p data-block-key="9elvq">Your data stays where it belongs — with you. </p>',
             content='<p data-block-key="hz26f">Firefox doesn\'t exploit your data and is backed by a people-first foundation. </p>',
-            media=_IMAGE_MEDIA,
+            media=image_media,
             buttons=[buttons["link"]],
         ),
         _illustration_card(
@@ -81,7 +80,7 @@ def get_illustration_cards():
             eyebrow='<p data-block-key="4cj6k">Independence</p>',
             headline='<p data-block-key="9elvq">Billionaire-free and open source for over 20 years. </p>',
             content='<p data-block-key="hz26f">Since 2004, Firefox has been the independent choice.</p>',
-            media=_IMAGE_MEDIA,
+            media=image_media,
             buttons=[buttons["link"]],
         ),
         _illustration_card(
@@ -89,7 +88,7 @@ def get_illustration_cards():
             eyebrow='<p data-block-key="4cj6k">Organization</p>',
             headline='<p data-block-key="9elvq">Get organized. Stay organized.</p>',
             content='<p data-block-key="hz26f">Browse smarter with vertical tabs, tab groups, sidebar access, PDF editing, and AI chat.</p>',
-            media=_IMAGE_MEDIA,
+            media=image_media,
             buttons=[buttons["link"]],
         ),
     ]

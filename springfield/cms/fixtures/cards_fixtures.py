@@ -7,82 +7,17 @@
 # with different variant/content configurations. Use them as reference for
 # how to configure filled (pictogram), illustration, outlined, and step cards.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import (
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
+from springfield.cms.fixtures.block_factories import card, card_settings, cards_list, section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "image_alt": "A numbered grid, standing in for a real image",
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
-_EMPTY_IMAGE_VARIANTS = {
-    "image": None,
-    "image_alt": "",
-    "settings": {
-        "dark_mode_image": None,
-        "mobile_image": None,
-        "dark_mode_mobile_image": None,
-    },
-}
-
-
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": _SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="sc2026h">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="sc2026s">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
-def _cards_list(cards, settings=None, block_id=""):
-    return {
-        "type": "cards_list",
-        "value": {
-            "settings": settings or {"container_width": "", "cards_per_row": "", "two_wide_xs": False},
-            "cards": cards,
-        },
-        "id": block_id,
-    }
-
-
-def _card(card_id, settings, content, media=None):
-    return {
-        "type": "card",
-        "value": {
-            "settings": settings,
-            "media": media or [],
-            "content": content,
-        },
-        "id": card_id,
-    }
-
-
-def _settings(variant="", align="start", expand_link=False):
-    return {"variant": variant, "align": align, "expand_link": expand_link, "show_to": _SHOW_TO_ALL}
-
 
 # ---------------------------------------------------------------------------
 # Pictogram Cards 2026
@@ -90,12 +25,13 @@ def _settings(variant="", align="start", expand_link=False):
 
 
 def get_pictogram_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
-        _card(
-            "2026sc01-0000-0000-0000-000000000001",
-            _settings(variant="filled", align="center"),
-            [
+        card(
+            block_id="2026sc01-0000-0000-0000-000000000001",
+            settings=card_settings(variant="filled", align="center"),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -107,7 +43,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0001-0000-0000-000000000002",
                 },
                 {
@@ -123,10 +59,10 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026sc01-0000-0000-0000-000000000002",
-            _settings(variant="filled", align="center"),
-            [
+        card(
+            block_id="2026sc01-0000-0000-0000-000000000002",
+            settings=card_settings(variant="filled", align="center"),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -138,7 +74,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0002-0000-0000-000000000002",
                 },
                 {
@@ -153,10 +89,10 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026sc01-0000-0000-0000-000000000003",
-            _settings(variant="filled", align="center", expand_link=True),
-            [
+        card(
+            block_id="2026sc01-0000-0000-0000-000000000003",
+            settings=card_settings(variant="filled", align="center", expand_link=True),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -168,7 +104,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0003-0000-0000-000000000002",
                 },
                 {
@@ -183,10 +119,10 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026sc01-0000-0000-0000-000000000004",
-            _settings(variant="filled", align="center", expand_link=True),
-            [
+        card(
+            block_id="2026sc01-0000-0000-0000-000000000004",
+            settings=card_settings(variant="filled", align="center", expand_link=True),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -198,7 +134,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026sc01-0004-0000-0000-000000000002",
                 },
                 {
@@ -219,67 +155,51 @@ def get_pictogram_card_variants() -> list[dict]:
 def get_pictogram_cards_sections() -> list[dict]:
     cards = get_pictogram_card_variants()
     return [
-        _section(
+        section(
             heading_text="Pictogram Cards - Default",
             subheading_text="Default layout, auto column count based on number of cards.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="2026scs1-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="2026scs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Pictogram Cards - 4 Cards",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                _cards_list(cards, block_id="2026scs1-0000-0000-0000-000000000002"),
+                cards_list(cards=cards, block_id="2026scs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Pictogram Cards - Narrow container, 2 columns",
             subheading_text="Narrow container (725px) with 2 columns forced.",
             content_blocks=[
-                _cards_list(
-                    cards[:2],
-                    settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
-                    block_id="2026scs1-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=cards[:2], container_width="narrow", cards_per_row="2", block_id="2026scs1-0000-0000-0000-000000000003"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000003",
         ),
-        _section(
+        section(
             heading_text="Pictogram Cards - Wide container, 3 columns",
             subheading_text="Wide container (1170px) with 3 columns forced.",
             content_blocks=[
-                _cards_list(
-                    cards[:3],
-                    settings={"container_width": "wide", "cards_per_row": "3", "two_wide_xs": False},
-                    block_id="2026scs1-0000-0000-0000-000000000004",
-                ),
+                cards_list(cards=cards[:3], container_width="wide", cards_per_row="3", block_id="2026scs1-0000-0000-0000-000000000004"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000004",
         ),
-        _section(
+        section(
             heading_text="Pictogram Cards - Fill container, 2 wide on mobile",
             subheading_text="Fill container (no max-width) with 2-wide on mobile.",
             content_blocks=[
-                _cards_list(
-                    cards[:4],
-                    settings={"container_width": "fill", "cards_per_row": "", "two_wide_xs": True},
-                    block_id="2026scs1-0000-0000-0000-000000000005",
-                ),
+                cards_list(cards=cards[:4], container_width="fill", two_wide_xs=True, block_id="2026scs1-0000-0000-0000-000000000005"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000005",
         ),
-        _section(
+        section(
             heading_text="Pictogram Cards - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
-                _cards_list(
-                    cards * 2,
-                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
-                    block_id="2026scs1-0000-0000-0000-000000000006",
-                ),
+                cards_list(cards=cards * 2, container_width="scroll", block_id="2026scs1-0000-0000-0000-000000000006"),
             ],
             section_id="2026ss01-0000-0000-0000-000000000006",
         ),
@@ -321,13 +241,14 @@ def get_pictogram_cards_test_page() -> FreeFormPage2026:
 
 
 def get_illustration_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
-        _card(
-            "2026ic01-0000-0000-0000-000000000001",
-            _settings(),
-            [
+        card(
+            block_id="2026ic01-0000-0000-0000-000000000001",
+            settings=card_settings(),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -351,15 +272,15 @@ def get_illustration_card_variants() -> list[dict]:
             media=[
                 {
                     "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0001-0000-0000-000000000001"}],
+                    "value": [{"type": "image", "value": image_variants, "id": "2026ic01-0001-0000-0000-000000000001"}],
                     "id": "2026ic01-0001-0000-0000-000000000002",
                 }
             ],
         ),
-        _card(
-            "2026ic01-0000-0000-0000-000000000002",
-            _settings(),
-            [
+        card(
+            block_id="2026ic01-0000-0000-0000-000000000002",
+            settings=card_settings(),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -383,15 +304,15 @@ def get_illustration_card_variants() -> list[dict]:
             media=[
                 {
                     "type": "media",
-                    "value": [{"type": "image", "value": _IMAGE_VARIANTS, "id": "2026ic01-0002-0000-0000-000000000001"}],
+                    "value": [{"type": "image", "value": image_variants, "id": "2026ic01-0002-0000-0000-000000000001"}],
                     "id": "2026ic01-0002-0000-0000-000000000002",
                 }
             ],
         ),
-        _card(
-            "2026ic01-0000-0000-0000-000000000003",
-            _settings(),
-            [
+        card(
+            block_id="2026ic01-0000-0000-0000-000000000003",
+            settings=card_settings(),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -420,10 +341,10 @@ def get_illustration_card_variants() -> list[dict]:
                 }
             ],
         ),
-        _card(
-            "2026ic01-0000-0000-0000-000000000004",
-            _settings(),
-            [
+        card(
+            block_id="2026ic01-0000-0000-0000-000000000004",
+            settings=card_settings(),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -458,43 +379,35 @@ def get_illustration_card_variants() -> list[dict]:
 def get_illustration_cards_sections() -> list[dict]:
     cards = get_illustration_card_variants()
     return [
-        _section(
+        section(
             heading_text="Illustration Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="2026ics1-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="2026ics1-0000-0000-0000-000000000001"),
             ],
             section_id="2026is01-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Illustration Cards - All Media Types",
             subheading_text="All illustration card variants including image, video, and animation.",
             content_blocks=[
-                _cards_list(cards, block_id="2026ics1-0000-0000-0000-000000000002"),
+                cards_list(cards=cards, block_id="2026ics1-0000-0000-0000-000000000002"),
             ],
             section_id="2026is01-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Illustration Cards - Narrow Container, 2 Columns",
             subheading_text="Narrow container (725px) with 2 columns forced.",
             content_blocks=[
-                _cards_list(
-                    cards[:2],
-                    settings={"container_width": "narrow", "cards_per_row": "2", "two_wide_xs": False},
-                    block_id="2026ics1-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=cards[:2], container_width="narrow", cards_per_row="2", block_id="2026ics1-0000-0000-0000-000000000003"),
             ],
             section_id="2026is01-0000-0000-0000-000000000003",
         ),
-        _section(
+        section(
             heading_text="Illustration Cards - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
-                _cards_list(
-                    cards * 2,
-                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
-                    block_id="2026ics1-0000-0000-0000-000000000004",
-                ),
+                cards_list(cards=cards * 2, container_width="scroll", block_id="2026ics1-0000-0000-0000-000000000004"),
             ],
             section_id="2026is01-0000-0000-0000-000000000004",
         ),
@@ -535,13 +448,14 @@ def get_illustration_cards_test_page() -> FreeFormPage2026:
 
 
 def get_step_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         {
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": "",
                 "headline": '<p data-block-key="2026st1h">Step Card 2026</p>',
                 "content": '<p data-block-key="2026st1c">Without eyebrow, primary button. Switch to Dark Mode to see the alternative image.</p>',
@@ -553,7 +467,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": '<p data-block-key="2026st2e">Download</p>',
                 "headline": '<p data-block-key="2026st2h">Step Card with Eyebrow</p>',
                 "content": '<p data-block-key="2026st2c">With eyebrow and secondary button.</p>',
@@ -565,7 +479,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": "",
                 "headline": '<p data-block-key="2026st3h">Clickable Step Card</p>',
                 "content": "",
@@ -577,7 +491,7 @@ def get_step_card_variants() -> list[dict]:
             "type": "item",
             "value": {
                 "settings": {"expand_link": True},
-                "image": _IMAGE_VARIANTS,
+                "image": image_variants,
                 "eyebrow": '<p data-block-key="2026st4e">Import</p>',
                 "headline": '<p data-block-key="2026st4h">All Step Card Fields</p>',
                 "content": '<p data-block-key="2026st4c">With all fields filled, expand link enabled, and link button.</p>',
@@ -591,7 +505,7 @@ def get_step_card_variants() -> list[dict]:
 def get_step_cards_sections() -> list[dict]:
     cards = get_step_card_variants()
     return [
-        _section(
+        section(
             heading_text="Step Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
@@ -603,7 +517,7 @@ def get_step_cards_sections() -> list[dict]:
             ],
             section_id="2026sts1-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Step Cards - 4 Columns",
             subheading_text="When 4 step cards are present the grid switches to 4 columns.",
             content_blocks=[
@@ -651,12 +565,13 @@ def get_step_cards_test_page() -> FreeFormPage2026:
 
 
 def get_outlined_card_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
-        _card(
-            "2026oc01-0000-0000-0000-000000000001",
-            _settings(variant="outline"),
-            [
+        card(
+            block_id="2026oc01-0000-0000-0000-000000000001",
+            settings=card_settings(variant="outline"),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -678,13 +593,13 @@ def get_outlined_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026oc01-0000-0000-0000-000000000002",
-            _settings(variant="outline"),
-            [
+        card(
+            block_id="2026oc01-0000-0000-0000-000000000002",
+            settings=card_settings(variant="outline"),
+            content=[
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026oc01-0002-0000-0000-000000000001",
                 },
                 {
@@ -709,10 +624,10 @@ def get_outlined_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026oc01-0000-0000-0000-000000000003",
-            _settings(variant="outline", expand_link=True),
-            [
+        card(
+            block_id="2026oc01-0000-0000-0000-000000000003",
+            settings=card_settings(variant="outline", expand_link=True),
+            content=[
                 {
                     "type": "heading",
                     "value": {
@@ -734,13 +649,13 @@ def get_outlined_card_variants() -> list[dict]:
                 },
             ],
         ),
-        _card(
-            "2026oc01-0000-0000-0000-000000000004",
-            _settings(variant="outline", expand_link=True),
-            [
+        card(
+            block_id="2026oc01-0000-0000-0000-000000000004",
+            settings=card_settings(variant="outline", expand_link=True),
+            content=[
                 {
                     "type": "pictogram",
-                    "value": _IMAGE_VARIANTS,
+                    "value": image_variants,
                     "id": "2026oc01-0004-0000-0000-000000000001",
                 },
                 {
@@ -770,43 +685,35 @@ def get_outlined_card_variants() -> list[dict]:
 def get_outlined_cards_sections() -> list[dict]:
     cards = get_outlined_card_variants()
     return [
-        _section(
+        section(
             heading_text="Outlined Cards - 3 Columns",
             subheading_text="Default 3-column grid layout.",
             content_blocks=[
-                _cards_list(cards[:3], block_id="2026ocs1-0000-0000-0000-000000000001"),
+                cards_list(cards=cards[:3], block_id="2026ocs1-0000-0000-0000-000000000001"),
             ],
             section_id="2026os01-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Outlined Cards - 4 Columns",
             subheading_text="When 4 cards are present the grid switches to 4 columns.",
             content_blocks=[
-                _cards_list(cards, block_id="2026ocs1-0000-0000-0000-000000000002"),
+                cards_list(cards=cards, block_id="2026ocs1-0000-0000-0000-000000000002"),
             ],
             section_id="2026os01-0000-0000-0000-000000000002",
         ),
-        _section(
+        section(
             heading_text="Outlined Cards - Wide Container, 3 Columns",
             subheading_text="Wide container (1170px) with 3 columns forced.",
             content_blocks=[
-                _cards_list(
-                    cards[:3],
-                    settings={"container_width": "wide", "cards_per_row": "3", "two_wide_xs": False},
-                    block_id="2026ocs1-0000-0000-0000-000000000003",
-                ),
+                cards_list(cards=cards[:3], container_width="wide", cards_per_row="3", block_id="2026ocs1-0000-0000-0000-000000000003"),
             ],
             section_id="2026os01-0000-0000-0000-000000000003",
         ),
-        _section(
+        section(
             heading_text="Outlined Cards - Scroll",
             subheading_text="Horizontally scrollable card row.",
             content_blocks=[
-                _cards_list(
-                    cards * 2,
-                    settings={"container_width": "scroll", "cards_per_row": "", "two_wide_xs": False},
-                    block_id="2026ocs1-0000-0000-0000-000000000004",
-                ),
+                cards_list(cards=cards * 2, container_width="scroll", block_id="2026ocs1-0000-0000-0000-000000000004"),
             ],
             section_id="2026os01-0000-0000-0000-000000000004",
         ),

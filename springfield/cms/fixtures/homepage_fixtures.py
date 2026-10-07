@@ -2,15 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_pre_footer_cta_snippet, get_pretranslated_phrase_snippets
 from springfield.cms.models import HomePage
 from springfield.cms.models.pages import HomePagePencilBannerPlacement
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_home_intro():
@@ -58,8 +54,9 @@ def _pictogram_card(card_id, superheading, headline, content, image_id, dark_ima
 
 
 def get_cards_list():
-    img = settings.PLACEHOLDER_IMAGE_ID
-    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
+    dark = placeholder_images.dark_image.id
     return {
         "type": "cards_list",
         "value": {
@@ -103,6 +100,7 @@ def get_cards_list():
 
 
 def get_home_carousel():
+    placeholder_images = get_placeholder_images()
     return {
         "type": "carousel",
         "value": {
@@ -119,10 +117,10 @@ def get_home_carousel():
                     "value": {
                         "headline": '<p data-block-key="v9evz">Download Firefox</p>',
                         "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
                                 "dark_mode_mobile_image": None,
                             },
@@ -135,10 +133,10 @@ def get_home_carousel():
                     "value": {
                         "headline": '<p data-block-key="v9evz">Select what you want to bring with you</p>',
                         "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
                                 "dark_mode_mobile_image": None,
                             },
@@ -151,10 +149,10 @@ def get_home_carousel():
                     "value": {
                         "headline": '<p data-block-key="v9evz">Click import</p>',
                         "image": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
                                 "dark_mode_mobile_image": None,
                             },
@@ -169,6 +167,7 @@ def get_home_carousel():
 
 
 def get_showcase_variants():
+    placeholder_images = get_placeholder_images()
     return {
         "with_title": {
             "type": "showcase",
@@ -179,12 +178,12 @@ def get_showcase_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
@@ -206,12 +205,12 @@ def get_showcase_variants():
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "a086ca43-5ad4-4888-bf07-5b925b92ea77",
@@ -227,6 +226,7 @@ def get_showcase_variants():
 
 
 def get_card_gallery():
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     return {
         "type": "card_gallery",
@@ -245,12 +245,12 @@ def get_card_gallery():
                 '<li data-block-key="2ba94">Pinned tabs keep important sites always accessible</li></ul>',
                 "buttons": [buttons["primary"]],
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                        "dark_mode_image": placeholder_images.dark_image.id,
+                        "mobile_image": placeholder_images.mobile_image.id,
+                        "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                     },
                 },
             },
@@ -260,12 +260,12 @@ def get_card_gallery():
                 "description": '<p data-block-key="7lrh2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ac congue urna.</p>',
                 "buttons": [buttons["primary"]],
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
-                        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                        "dark_mode_image": placeholder_images.dark_image.id,
+                        "mobile_image": placeholder_images.mobile_image.id,
+                        "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                     },
                 },
             },
