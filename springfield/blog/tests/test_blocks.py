@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 
 import pytest
@@ -116,12 +115,13 @@ def test_topic_section_exempts_its_own_topic():
 
 
 @pytest.mark.django_db
-def test_blog_card_uses_the_override_alt_when_the_override_supplies_the_image(blog_article):
+def test_blog_card_uses_the_override_alt_when_the_override_supplies_the_image(blog_article, real_images):
+    _, dark_image = real_images
     block = BlogArticleBlock()
     value = block.to_python(
         {
             "article": blog_article.pk,
-            "overrides": {"image": {"image": settings.PLACEHOLDER_DARK_IMAGE_ID, "image_alt": "A custom card image", "settings": {}}},
+            "overrides": {"image": {"image": dark_image.id, "image_alt": "A custom card image", "settings": {}}},
         }
     )
     assert value.get_image_alt() == "A custom card image"

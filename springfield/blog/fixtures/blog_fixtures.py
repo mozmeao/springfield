@@ -10,15 +10,13 @@ from wagtail.models import Locale
 
 from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 from springfield.blog.models.pages import HeroStyle
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
 IMAGE_CAPTION = (
     '<p data-block-key="ccc33333">A caption below the image, using <b>bold</b>, <i>italic</i> and a <a href="https://www.mozilla.org/">link</a>.</p>'
 )
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
 

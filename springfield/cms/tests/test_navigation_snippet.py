@@ -16,17 +16,9 @@ from PIL import Image as PILImage
 from wagtail.models import Locale, Site
 
 from lib.l10n_utils import fluent_l10n
+from springfield.cms.fixtures.block_factories import nav_column, nav_folder, nav_link, nav_separator, nav_top_level_link
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.navigation_fixtures import (
-    build_column,
-    build_folder,
-    build_logo_image,
-    build_nav_link,
-    build_separator,
-    build_top_level_link,
-    get_navigation_snippet,
-    get_navigation_variants,
-)
+from springfield.cms.fixtures.navigation_fixtures import build_logo_image, get_navigation_snippet, get_navigation_variants
 from springfield.cms.models import NavigationSnippet, SpringfieldImage
 from springfield.cms.templatetags.cms_tags import add_utm_parameters
 from springfield.cms.tests.factories import (
@@ -271,7 +263,7 @@ def test_navigation_renders_all_items(minimal_site, rf):
 def test_external_top_level_link(minimal_site, rf):
     # The reproduced nav has only an internal top-level link, so cover the
     # external case (arrow icon + new tab) explicitly, reusing the assertion.
-    item = build_top_level_link("Blog", custom_url="https://blog.mozilla.org/", new_window=True, block_id="a1", analytics_id="tl-uid")
+    item = nav_top_level_link(label="Blog", custom_url="https://blog.mozilla.org/", new_window=True, block_id="a1", analytics_id="tl-uid")
     snippet = make_snippet([item])
     soup = render_navigation(snippet, rf.get("/en-US/"))
 
@@ -297,8 +289,8 @@ def build_hardcoded_page_link_block(block_type, label, icon="", has_button_style
 
 def make_one_folder_snippet(child):
     """Publish a navigation snippet holding one folder whose single column holds the given block."""
-    column = build_column([child], block_id="2026nav0-0000-0000-0000-000000000300")
-    folder = build_folder("Browser", columns=[column], block_id="2026nav0-0000-0000-0000-000000000003")
+    column = nav_column(children=[child], block_id="2026nav0-0000-0000-0000-000000000300")
+    folder = nav_folder(label="Browser", columns=[column], block_id="2026nav0-0000-0000-0000-000000000003")
     return make_snippet([folder])
 
 
@@ -370,23 +362,26 @@ def test_whats_next_link_renders_nothing_when_the_roadmap_page_is_missing(minima
 def build_browser_column_children():
     """The Browser menu's stream of links, rules and lookup links, as the static nav lays it out."""
     return [
-        build_nav_link("Mobile", custom_url="/browsers/mobile/", icon="device-mobile", block_id="2026nav0-0000-0000-0000-000000000401"),
-        build_nav_link("Enterprise", custom_url="/enterprise/", icon="globe", block_id="2026nav0-0000-0000-0000-000000000402"),
-        build_separator(block_id="2026nav0-0000-0000-0000-000000000403"),
+        nav_link(label="Mobile", custom_url="/browsers/mobile/", icon="device-mobile", block_id="2026nav0-0000-0000-0000-000000000401"),
+        nav_link(label="Enterprise", custom_url="/enterprise/", icon="globe", block_id="2026nav0-0000-0000-0000-000000000402"),
+        nav_separator(block_id="2026nav0-0000-0000-0000-000000000403"),
         build_hardcoded_page_link_block("whats_new_link", "What's New", icon="bookmark-fill"),
         build_hardcoded_page_link_block("whats_next_link", "What's Next", icon="calendar"),
-        build_separator(block_id="2026nav0-0000-0000-0000-000000000404"),
-        build_nav_link(
-            "Extensions & Themes",
+        nav_separator(block_id="2026nav0-0000-0000-0000-000000000404"),
+        nav_link(
+            label="Extensions & Themes",
             custom_url="https://addons.mozilla.org/firefox/",
             icon="extension-fill",
             block_id="2026nav0-0000-0000-0000-000000000405",
         ),
-        build_nav_link(
-            "Support", custom_url="https://support.mozilla.org/", icon="avatar-info-circle-fill", block_id="2026nav0-0000-0000-0000-000000000406"
+        nav_link(
+            label="Support",
+            custom_url="https://support.mozilla.org/",
+            icon="avatar-info-circle-fill",
+            block_id="2026nav0-0000-0000-0000-000000000406",
         ),
-        build_separator(block_id="2026nav0-0000-0000-0000-000000000407"),
-        build_nav_link("Download Firefox", custom_url="/download/", has_button_style=True, block_id="2026nav0-0000-0000-0000-000000000408"),
+        nav_separator(block_id="2026nav0-0000-0000-0000-000000000407"),
+        nav_link(label="Download Firefox", custom_url="/download/", has_button_style=True, block_id="2026nav0-0000-0000-0000-000000000408"),
     ]
 
 
@@ -399,7 +394,9 @@ def test_column_groups_each_group_of_links_into_its_own_list(minimal_site, rf):
     index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
     WhatsNewPage2026Factory(parent=index, slug="145", live=True)
     RoadmapPageFactory(parent=minimal_site.root_page, slug="whatsnext", live=True)
-    snippet = make_snippet([build_folder("Browser", columns=[build_column(build_browser_column_children(), block_id="c1")], block_id="f1")])
+    snippet = make_snippet(
+        [nav_folder(label="Browser", columns=[nav_column(children=build_browser_column_children(), block_id="c1")], block_id="f1")]
+    )
 
     soup = render_navigation(snippet, rf.get("/en-US/"))
 
@@ -420,7 +417,9 @@ def test_column_keeps_its_lists_intact_when_hardcoded_pages_are_missing(minimal_
     index = WhatsNewIndexPageFactory(parent=minimal_site.root_page, slug="whatsnew", live=True)
     WhatsNewPage2026Factory(parent=index, slug="145", live=True)
     RoadmapPageFactory(parent=minimal_site.root_page, slug="whatsnext", live=True)
-    snippet = make_snippet([build_folder("Browser", columns=[build_column(build_browser_column_children(), block_id="c1")], block_id="f1")])
+    snippet = make_snippet(
+        [nav_folder(label="Browser", columns=[nav_column(children=build_browser_column_children(), block_id="c1")], block_id="f1")]
+    )
 
     soup = render_navigation(snippet, rf.get("/fr/"), language="fr")
 
@@ -485,7 +484,7 @@ def test_page_header_overrides_logo_and_button(minimal_site, rf):
     logo_dark = make_image(240, 80, title="page-logo-dark")
     override_button = get_button_variants()["primary"]
     override_button["value"]["custom_label"] = "Buy now"
-    snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    snippet = make_snippet([nav_top_level_link(label="Home", custom_url="/", block_id="b1")])
     snippet.logo = logo
     snippet.logo_alt = "Page logo"
     snippet.logo_dark = logo_dark
@@ -515,7 +514,7 @@ def test_page_header_overrides_logo_and_button(minimal_site, rf):
 def test_page_header_dark_logo_omitted_when_unset(minimal_site, rf):
     site = Site.objects.get(is_default_site=True)
     logo = make_image(240, 80, title="light-only")
-    snippet = make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    snippet = make_snippet([nav_top_level_link(label="Home", custom_url="/", block_id="b1")])
     snippet.logo = logo
     snippet.logo_alt = "Light-only logo"
     snippet.save_revision().publish()
@@ -576,7 +575,7 @@ def make_default_snippet(name="Default nav", items=None):
 
 def test_get_default_returns_none_when_no_default(minimal_site):
     # A non-default snippet exists but must be ignored.
-    make_snippet([build_top_level_link("Home", custom_url="/", block_id="b1")])
+    make_snippet([nav_top_level_link(label="Home", custom_url="/", block_id="b1")])
     with translation.override("en-US"):
         assert NavigationSnippet.get_default() is None
 
@@ -612,14 +611,14 @@ def get_page_navigation(page):
 
 def test_page_uses_own_custom_navigation(minimal_site):
     site = Site.objects.get(is_default_site=True)
-    own = make_snippet([build_top_level_link("Own", custom_url="/own/", block_id="o1")])
+    own = make_snippet([nav_top_level_link(label="Own", custom_url="/own/", block_id="o1")])
     page = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=own)
     assert get_page_navigation(page) == own
 
 
 def test_child_inherits_parent_custom_navigation(minimal_site):
     site = Site.objects.get(is_default_site=True)
-    parent_nav = make_snippet([build_top_level_link("Parent", custom_url="/p/", block_id="p1")])
+    parent_nav = make_snippet([nav_top_level_link(label="Parent", custom_url="/p/", block_id="p1")])
     parent = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=parent_nav)
     child = FreeFormPage2026Factory(parent=parent, custom_navigation=None)
     assert get_page_navigation(child) == parent_nav
@@ -627,7 +626,7 @@ def test_child_inherits_parent_custom_navigation(minimal_site):
 
 def test_descendant_inherits_nearest_ancestor_through_structural_page(minimal_site):
     site = Site.objects.get(is_default_site=True)
-    grandparent_nav = make_snippet([build_top_level_link("GP", custom_url="/gp/", block_id="g1")])
+    grandparent_nav = make_snippet([nav_top_level_link(label="GP", custom_url="/gp/", block_id="g1")])
     grandparent = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=grandparent_nav)
     structural = StructuralPageFactory(parent=grandparent)  # mixin-less intermediate, no nav
     child = FreeFormPage2026Factory(parent=structural, custom_navigation=None)
@@ -636,8 +635,8 @@ def test_descendant_inherits_nearest_ancestor_through_structural_page(minimal_si
 
 def test_nearest_ancestor_wins(minimal_site):
     site = Site.objects.get(is_default_site=True)
-    far_nav = make_snippet([build_top_level_link("Far", custom_url="/far/", block_id="f1")])
-    near_nav = make_snippet([build_top_level_link("Near", custom_url="/near/", block_id="n1")])
+    far_nav = make_snippet([nav_top_level_link(label="Far", custom_url="/far/", block_id="f1")])
+    near_nav = make_snippet([nav_top_level_link(label="Near", custom_url="/near/", block_id="n1")])
     far = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=far_nav)
     near = FreeFormPage2026Factory(parent=far, custom_navigation=near_nav)
     child = FreeFormPage2026Factory(parent=near, custom_navigation=None)
@@ -649,7 +648,7 @@ def test_unresolvable_ancestor_nav_is_skipped(minimal_site):
     # continues to a farther ancestor whose nav does.
     site = Site.objects.get(is_default_site=True)
     draft_nav = NavigationSnippet.objects.create(locale=Locale.get_default(), name="Draft nav", items=[], live=False)
-    available_nav = make_snippet([build_top_level_link("Avail", custom_url="/a/", block_id="a1")])
+    available_nav = make_snippet([nav_top_level_link(label="Avail", custom_url="/a/", block_id="a1")])
     far = FreeFormPage2026Factory(parent=site.root_page, custom_navigation=available_nav)
     near = FreeFormPage2026Factory(parent=far, custom_navigation=draft_nav)
     child = FreeFormPage2026Factory(parent=near, custom_navigation=None)
