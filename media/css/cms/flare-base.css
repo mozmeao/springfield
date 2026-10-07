@@ -213,14 +213,6 @@ svg {
     margin: 0 0 1rem;
     max-width: 100%;
     vertical-align: middle; /* when images are reset to inline, remove bottom padding */
-}
-
-/* release notes images keep the size set by their width attribute */
-img:where(:not(.fl-release-notes img[width])),
-picture,
-video,
-canvas,
-svg {
     width: auto;
 }
 
