@@ -902,7 +902,6 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
         def clean(self, value):
             value = super().clean(value)
-            # An empty id would make Firefox clear the user's wallpaper rather than set one.
             if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
                 raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
             return value

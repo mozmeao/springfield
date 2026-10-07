@@ -272,8 +272,7 @@ function init() {
         );
         if (setNewtabWallpaperButtons.length) {
             Mozilla.UITour.getConfiguration('appinfo', (data) => {
-                // setNewtabWallpaper shipped in Firefox 157. Older versions ignore
-                // the call silently, so hide the button instead of offering a dead CTA.
+                // setNewtabWallpaper available in Firefox 157 or higher
                 if (data && data.version && parseFloat(data.version) < 157) {
                     setNewtabWallpaperButtons.forEach((button) => {
                         const wrapper = button.closest('.ui-tour');
