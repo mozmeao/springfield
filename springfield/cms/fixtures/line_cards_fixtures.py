@@ -2,16 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
-
 
 def get_line_card_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     return [
         {
@@ -41,7 +39,7 @@ def get_line_card_variants() -> list[dict]:
         {
             "type": "item",
             "value": {
-                "pictogram": settings.PLACEHOLDER_IMAGE_ID,
+                "pictogram": placeholder_images.image.id,
                 "superheading": "",
                 "headline": '<p data-block-key="2026lc3h">Line Card with Two Buttons</p>',
                 "content": '<p data-block-key="2026lc3c">Content without superheading and two action buttons. '
@@ -95,26 +93,6 @@ def get_line_cards_variants() -> list[dict]:
     ]
 
 
-def _section(heading_text, content_blocks, section_id):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": _SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="2026lcs">{heading_text}</p>',
-                "subheading_text": "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
 def get_line_cards_test_page() -> FreeFormPage2026:
     get_placeholder_images()
     index_page = get_flare_blocks_docs_page()
@@ -131,11 +109,7 @@ def get_line_cards_test_page() -> FreeFormPage2026:
 
     variants = get_line_cards_variants()
     page_content = [
-        _section(
-            "Line Cards Inside a Section",
-            [variants[1]],
-            "2026lcs1-0000-0000-0000-000000000001",
-        ),
+        section(heading_text="Line Cards Inside a Section", content_blocks=[variants[1]], section_id="2026lcs1-0000-0000-0000-000000000001"),
         variants[0],
     ]
     page.upper_content = page_content

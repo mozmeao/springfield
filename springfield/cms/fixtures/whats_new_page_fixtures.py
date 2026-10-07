@@ -2,11 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_qr_code_snippet
 from springfield.cms.models import WhatsNewIndexPage, WhatsNewPage2026
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_whatsnew_index_page() -> WhatsNewIndexPage:

@@ -2,24 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_image_variants, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
 
-IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
 
 def get_kit_intro_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
     return [
@@ -47,7 +37,7 @@ def get_kit_intro_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026ki02-0000-0000-0000-000000000010",
                     }
                 ],
@@ -67,7 +57,7 @@ def get_kit_intro_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026ki03-0000-0000-0000-000000000010",
                     }
                 ],

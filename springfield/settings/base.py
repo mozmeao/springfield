@@ -794,7 +794,7 @@ INSTALLED_APPS = [
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
-    "wagtail.users",
+    "springfield.users.apps.UsersConfig",  # replaces "wagtail.users"
     "wagtail.snippets",
     "wagtail.images",
     "wagtail_localize_smartling",  # Has to come before wagtail_localize
@@ -1124,9 +1124,6 @@ PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
 # Served from our own subdomain so the script and its events endpoint are both
 # first-party. plausible.es6.js derives /api/event on this same origin.
 PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://pa.firefox.com/js/script.js")
-
-# Transcend Consent Management - airgap.js script URL
-TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
 STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
@@ -1658,14 +1655,6 @@ if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bo
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
     SUPPORTED_NONLOCALES.append("silk")
     SILKY_PYTHON_PROFILER = config("SILKY_PYTHON_PROFILER", default="False", parser=bool)
-
-# CMS page and block testing
-PLACEHOLDER_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1000", parser=int)
-PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", parser=int)
-PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
-PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
-PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
-PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 
 # Contact Page
 # On PROD, only certain paths are allowed to send POST requests

@@ -14,6 +14,7 @@ from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
@@ -39,6 +40,7 @@ from springfield.base.models import TranslatedPagePermission
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.admin_views import (
     ContentSearchView,
+    RegenerateDocsView,
     UpdateSlugConfirmView,
     UpdateSlugView,
     create_translation_sharing_link,
@@ -83,6 +85,7 @@ def register_cms_admin_urls():
             create_translation_sharing_link,
             name="cms_translation_draftsharing_create",
         ),
+        path("regenerate-docs/", RegenerateDocsView.as_view(), name="cms_regenerate_docs"),
     ]
 
 
@@ -115,6 +118,16 @@ def register_content_search_link():
         icon_name="search",
         order=2,
     )
+
+
+class RegenerateDocsMenuItem(MenuItem):
+    def is_shown(self, request):
+        return not settings.PROD
+
+
+@hooks.register("register_settings_menu_item")
+def register_regenerate_docs_menu_item():
+    return RegenerateDocsMenuItem(_("Regenerate Docs"), reverse("cms_regenerate_docs"), icon_name="resubmit", order=10000)
 
 
 @hooks.register("register_admin_menu_item")
