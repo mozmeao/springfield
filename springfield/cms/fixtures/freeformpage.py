@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 
 from springfield.cms.fixtures.base_fixtures import (
+    SHOW_TO_ALL,
     get_flare_blocks_docs_page,
     get_flare_pages_docs_page,
     get_flare_snippets_docs_page,
@@ -29,10 +30,9 @@ from springfield.cms.fixtures.snippet_fixtures import (
 from springfield.cms.models import FreeFormPage2026, SpringfieldImage
 from springfield.cms.models.pages import PencilBannerPlacement
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
 
 def get_mobile_store_qr_code():
+    placeholder_images = get_placeholder_images()
     return {
         "type": "mobile_store_qr_code",
         "value": {
@@ -42,7 +42,7 @@ def get_mobile_store_qr_code():
                 "subheading_text": '<p data-block-key="sh1wh">The browser you trust, built for life on the go.</p>',
             },
             "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
-            "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+            "mobile_image": placeholder_images.mobile_image.id,
             "mobile_image_alt": "A numbered grid, standing in for a real image",
         },
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -464,7 +464,7 @@ def get_pre_footer_cta_snippet_test_page() -> FreeFormPage2026:
 
 def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
     snippet = get_scroll_to_see_more_snippet()
-    get_placeholder_images()
+    placeholder_images = get_placeholder_images()
     index_page = get_flare_snippets_docs_page()
 
     slug = "scroll-to-see-more-snippet"
@@ -487,7 +487,7 @@ def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
                 {
                     "type": "image",
                     "value": {
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image": placeholder_images.image.id,
                         "image_alt": "A numbered grid, standing in for a real image",
                         "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                     },

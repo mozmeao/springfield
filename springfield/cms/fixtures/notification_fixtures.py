@@ -2,10 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def get_notification_variants() -> list[dict]:
@@ -19,7 +17,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "",
                     "stacked": False,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif01">Simple notification with no color or icon.</p>',
@@ -35,7 +33,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "purple",
                     "stacked": False,
                     "closable": True,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif02">Purple closable notification with icon.</p>',
@@ -51,7 +49,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "purple",
                     "stacked": True,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif03">Purple stacked notification with icon.</p>',
@@ -67,7 +65,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "green",
                     "stacked": False,
                     "closable": True,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif04">Green closable notification with icon.</p>',
@@ -83,7 +81,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "green",
                     "stacked": True,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif05">Green stacked notification with icon.</p>',
@@ -99,7 +97,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "orange",
                     "stacked": False,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif06">Orange notification with warning icon.</p>',
@@ -115,7 +113,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "orange",
                     "stacked": True,
                     "closable": True,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif07">Orange stacked closable notification with warning icon.</p>',
@@ -131,7 +129,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "red",
                     "stacked": False,
                     "closable": True,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif08">Red closable notification with icon.</p>',
@@ -147,7 +145,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "red",
                     "stacked": True,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "message": '<p data-block-key="notif09">Red stacked notification with icon.</p>',
@@ -163,7 +161,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "",
                     "stacked": False,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "headline": '<p data-block-key="notif10h">Important update</p>',
@@ -180,7 +178,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "purple",
                     "stacked": False,
                     "closable": True,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "headline": '<p data-block-key="notif11h">Sign in to continue</p>',
@@ -197,7 +195,7 @@ def get_notification_variants() -> list[dict]:
                     "color": "green",
                     "stacked": True,
                     "closable": False,
-                    "show_to": _SHOW_TO_ALL,
+                    "show_to": SHOW_TO_ALL,
                     "anchor_id": "",
                 },
                 "headline": '<p data-block-key="notif12h">Download complete</p>',

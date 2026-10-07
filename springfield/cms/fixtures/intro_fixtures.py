@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.tag_fixtures import get_tag_variants
@@ -12,6 +10,7 @@ from springfield.cms.models import FreeFormPage2026
 
 
 def get_intro_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     videos = get_video_variants()
     tags = get_tag_variants()
@@ -56,12 +55,12 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "2026int1-0000-0000-0000-000000000002",
@@ -101,12 +100,12 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "2026int1-0000-0000-0000-000000000005",
@@ -192,7 +191,7 @@ def get_intro_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "qr_code",
-                        "value": {"data": "https://mozilla.org", "background": settings.PLACEHOLDER_IMAGE_ID},
+                        "value": {"data": "https://mozilla.org", "background": placeholder_images.image.id},
                         "id": "2026int1-0000-0000-0000-000000000009",
                     }
                 ],

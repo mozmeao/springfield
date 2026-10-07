@@ -2,9 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_article_index_test_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import (
+    SHOW_TO_ALL,
+    get_article_index_test_page,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet, get_tags
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
@@ -17,8 +21,6 @@ LOREM_IPSUM = (
     "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
     "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 )
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 
 def create_article(
@@ -145,6 +147,7 @@ def get_article_pages():
 
 
 def get_theme_page_intro():
+    placeholder_images = get_placeholder_images()
     return {
         "type": "intro",
         "value": {
@@ -153,7 +156,7 @@ def get_theme_page_intro():
                 {
                     "type": "image",
                     "value": {
-                        "image": settings.PLACEHOLDER_IMAGE_ID,
+                        "image": placeholder_images.image.id,
                         "image_alt": "A person shielded by a protective glow",
                         "settings": {
                             "dark_mode_image": None,
@@ -178,6 +181,7 @@ def get_theme_page_intro():
 
 
 def get_theme_page_illustration_cards_section():
+    placeholder_images = get_placeholder_images()
     articles = get_article_pages()
     return {
         "type": "section",
@@ -199,7 +203,7 @@ def get_theme_page_illustration_cards_section():
                                 "value": {
                                     "article": articles[0].id,
                                     "overrides": {
-                                        "image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
+                                        "image": placeholder_images.mobile_image.id,
                                         "superheading": "Tag override",
                                         "title": '<p data-block-key="njwu5">Title override</p>',
                                         "description": '<p data-block-key="mwjdk">Description override. The image is also different.</p>',
@@ -415,6 +419,7 @@ def get_theme_page_icon_cards_section():
 
 
 def get_theme_page_pictogram_row_section():
+    placeholder_images = get_placeholder_images()
     articles = get_article_pages()
     return {
         "type": "section",
@@ -433,7 +438,7 @@ def get_theme_page_pictogram_row_section():
                                     "article": articles[3].id,
                                     "overrides": {
                                         "image": None,
-                                        "sticker": settings.PLACEHOLDER_IMAGE_ID,
+                                        "sticker": placeholder_images.image.id,
                                         "icon": "",
                                         "superheading": "Different tag",
                                         "title": '<p data-block-key="bcq0b">Different title</p>',
