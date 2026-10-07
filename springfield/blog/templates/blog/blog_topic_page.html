@@ -32,9 +32,12 @@
           </a>
         {% endif %}
 
+        {% set show_topics = all_topics and not (topic_page and topic_page.hide_topics) %}
+        {% set has_featured_articles = topic_page and topic_page.featured_articles %}
+        {% set index_page = blog_index %}
+
         <div class="fl-blog-index-header">
-          {% if all_topics and not (topic_page and topic_page.hide_topics) %}
-            {% set index_page = blog_index %}
+          {% if show_topics and not has_featured_articles %}
             {% include "blog/includes/blog-all-topics.html" %}
           {% endif %}
 
@@ -59,7 +62,18 @@
               alignment_class="text-center"
             />
           {% endif %}
+
+          {% if show_topics and has_featured_articles %}
+            {% include "blog/includes/blog-all-topics.html" %}
+          {% endif %}
         </div>
+
+        {# Like the index page, featured articles start a new container below the header. #}
+        {% if has_featured_articles %}
+      </div>
+
+      <div class="fl-section-container">
+        {% endif %}
 
         {% if topic_page %}
           {% set featured_articles = topic_page.featured_articles %}
