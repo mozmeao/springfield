@@ -24,7 +24,6 @@ URLS = flatten(
         url_test("/personal/", "/", status_code=301),
         url_test("/choose/", "/", status_code=301),
         url_test("/switch/", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com", status_code=302),
-        url_test("/enterprise/", "/browsers/enterprise/", status_code=302),
         url_test("/containers/", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com", status_code=302),
         url_test("/pdx/", "/", status_code=302),
         url_test("/pair/", "https://accounts.firefox.com/pair/", status_code=302),
