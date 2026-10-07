@@ -183,8 +183,8 @@
     );
     --mask-size-content: calc(100%) 100%;
     mask-image: var(--mask-image-content);
-    mask-size: var(--mask-size-content);
     mask-repeat: no-repeat;
+    mask-size: var(--mask-size-content);
 }
 
 /* Prevent the first tag in carousel from started faded. */
@@ -434,6 +434,8 @@
 
 .fl-blog-article-list-item-image {
     aspect-ratio: 16/9;
+    border-radius: var(--token-border-radius-sm);
+    box-shadow: var(--fl-theme-subtle-box-shadow);
     overflow: hidden;
 }
 
