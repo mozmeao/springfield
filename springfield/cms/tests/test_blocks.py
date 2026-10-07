@@ -40,7 +40,9 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -82,14 +84,15 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.browser_comparison_table_fixtures import (
-    cell as browser_comparison_cell,
-    get_browser_comparison_table_test_page,
-    get_browser_comparison_table_variants,
-    image_header_cell,
-    result_cell,
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import (
+    browser_table_cell,
+    browser_table_image_header_cell,
+    browser_table_result_cell,
+    table_cell,
+    table_row,
 )
+from springfield.cms.fixtures.browser_comparison_table_fixtures import get_browser_comparison_table_test_page, get_browser_comparison_table_variants
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -104,19 +107,13 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
-from springfield.cms.fixtures.comparison_table_fixtures import (
-    cell as comparison_cell,
-    get_comparison_table_test_page,
-    get_comparison_table_variants,
-    row as comparison_row,
-)
+from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page, get_comparison_table_variants
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
-    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -1285,6 +1282,9 @@ def test_uitour_buttons_2026(index_page, rf):
         assert expected_class in button_el["class"], f"{analytics_id}: expected class '{expected_class}' on button, got {button_el['class']}"
 
         assert btn_value["custom_label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['custom_label']}' in button text"
+
+        expected_wallpaper = btn_value.get("wallpaper") or None
+        assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -4033,8 +4033,8 @@ def test_comparison_table_ignores_optional_content_left_in_stored_data():
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM", cell_id="h0")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[stored_cell], row_id="r0")],
+            "header_row": [table_row(cells=[table_cell(content="PREMIUM", cell_id="h0")], row_id="hr")],
+            "content_rows": [table_row(cells=[stored_cell], row_id="r0")],
         }
     )
 
@@ -4071,7 +4071,7 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
         {
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
-            "header_row": [comparison_row(cells=header_cells, row_id="hr")],
+            "header_row": [table_row(cells=header_cells, row_id="hr")],
             "content_rows": content_rows,
         }
     )
@@ -4081,8 +4081,8 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
 def _render_comparison_result_row(cell_data):
     """One-row browser comparison table whose only value cell holds ``cell_data``."""
     return _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Firefox", cell_id="")],
+        content_rows=[table_row(cells=[browser_table_cell(content="Blocks trackers", cell_id=""), cell_data], row_id="r0")],
     )
 
 
@@ -4096,7 +4096,7 @@ def _render_comparison_result_row(cell_data):
 )
 def test_comparison_result_renders_icon_and_result_name(result, icon_class, label):
     """Each result choice picks its own icon, labelled with the result's name."""
-    cell_data = result_cell(result, cell_id="c1")
+    cell_data = browser_table_result_cell(result=result, cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4106,7 +4106,7 @@ def test_comparison_result_renders_icon_and_result_name(result, icon_class, labe
 
 def test_comparison_result_label_can_be_overridden():
     """An author-supplied label replaces the result's name, keeping its icon."""
-    cell_data = result_cell("limited", "Some features", cell_id="c1")
+    cell_data = browser_table_result_cell(result="limited", label="Some features", cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4115,7 +4115,7 @@ def test_comparison_result_label_can_be_overridden():
 
 
 def test_comparison_cell_optional_content_replaces_plain_text():
-    cell_data = result_cell("yes", cell_id="c1")
+    cell_data = browser_table_result_cell(result="yes", cell_id="c1")
     cell_data["value"]["content"] = "Ignored text"
     soup = _render_comparison_result_row(cell_data)
 
@@ -4125,10 +4125,14 @@ def test_comparison_cell_optional_content_replaces_plain_text():
 
 
 def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     header_cell_els = soup.find("thead").find_all(["th", "td"])
@@ -4141,11 +4145,15 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
@@ -4158,8 +4166,8 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
-            "content_rows": [comparison_row(cells=[legacy_cell], row_id="r0")],
+            "header_row": [table_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
+            "content_rows": [table_row(cells=[legacy_cell], row_id="r0")],
         }
     )
 
@@ -4175,8 +4183,15 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
 def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
     """The block renders its own component, not the comparison table's."""
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), image_header_cell("Firefox", cell_id="h1")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[
+            browser_table_cell(content="", cell_id=""),
+            browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id),
+        ],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
         mobile_behavior="stacked",
         highlighted_column=2,
     )
@@ -4192,8 +4207,13 @@ def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
 
 def test_browser_comparison_table_cell_spans_the_columns_it_is_given():
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Browsers", column_span=2)],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), browser_comparison_cell("Yes", column_span=2)], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Browsers", column_span=2, cell_id="")],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_cell(content="Yes", column_span=2, cell_id="")],
+                row_id="r0",
+            )
+        ],
     )
 
     assert soup.find("thead").find_all(["th", "td"])[1].get("colspan") == "2"
@@ -4564,6 +4584,31 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
     assert "uitour_button" in button_types_with
     assert "uitour_button" not in button_types_without
+
+
+def test_uitour_import_browser_data_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+@pytest.mark.parametrize(
+    ("button_type", "wallpaper", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Wrexham", True),
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_type, wallpaper, is_valid):
+    value = {"button_type": button_type, "wallpaper": wallpaper, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "wallpaper" in exc_info.value.block_errors
 
 
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
@@ -5275,8 +5320,6 @@ def test_tab_block_rejects_firefox_as_a_detected_browser():
 
 
 def test_tab_block_renders_image_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Image tab",
         "media": [
@@ -5284,7 +5327,7 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
                 "type": "image",
                 "id": "aabbcc001122",
                 "value": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                 },
             }
@@ -5298,8 +5341,6 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
 
 
 def test_tab_block_renders_animation_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Animation tab",
         "media": [
@@ -5309,7 +5350,7 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
                 "value": {
                     "video_url": "https://assets.mozilla.net/video/red-pandas.webm",
                     "alt": "Red pandas playing",
-                    "poster": settings.PLACEHOLDER_IMAGE_ID,
+                    "poster": placeholder_images.image.id,
                     "playback": "autoplay_loop",
                 },
             }

@@ -25,6 +25,9 @@ class CmsConfig(AppConfig):
         # Extend group page permissions to the other locales at their "Translated pages" levels
         self._patch_page_permission_policy()
 
+        # Give every user full page permissions on the Flare Docs pages
+        self._patch_flare_docs_page_permissions()
+
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
 
@@ -176,6 +179,42 @@ class CmsConfig(AppConfig):
                         )
 
             return stored_permissions + translation_permissions
+
+        PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
+
+    @staticmethod
+    def _patch_flare_docs_page_permissions():
+        """
+        Give every active user all page permissions on each ``FlareDocsIndexPage`` and
+        the pages below it.
+
+        Staging and dev environments have the same users and groups from production, with
+        permissions restricted to certain areas of the site tree. The documentation pages
+        should be available to all users for training purposes.
+        """
+
+        # Imported inline because Wagtail models can't be imported while the app registry is loading.
+        from django.contrib.auth.base_user import AbstractBaseUser
+        from django.contrib.auth.models import Permission
+
+        from wagtail.models import GroupPagePermission
+        from wagtail.models.pages import PAGE_PERMISSION_CODENAMES
+        from wagtail.permission_policies.pages import PagePermissionPolicy
+
+        from springfield.cms.models.pages import FlareDocsIndexPage
+
+        original_get_all_permissions_for_user = PagePermissionPolicy.get_all_permissions_for_user
+
+        def get_all_permissions_for_user(self: PagePermissionPolicy, user: AbstractBaseUser) -> list[GroupPagePermission]:
+            permissions = original_get_all_permissions_for_user(self, user)
+            if not user.is_active or user.is_anonymous or user.is_superuser:
+                return permissions
+
+            page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)
+            flare_docs_permissions = [
+                GroupPagePermission(page=page, permission=permission) for page in FlareDocsIndexPage.objects.all() for permission in page_permissions
+            ]
+            return [*permissions, *flare_docs_permissions]
 
         PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
 

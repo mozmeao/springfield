@@ -164,10 +164,12 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
+UITOUR_BUTTON_SET_NEWTAB_WALLPAPER = "set_newtab_wallpaper"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
@@ -179,6 +181,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA, "Open Preferences - Import Browser Data"),
     (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
@@ -186,6 +189,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
+    (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Set New Tab Wallpaper"),
 )
 
 UI_TOUR_CLASSES = {
@@ -199,10 +203,12 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
     UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER: "ui-tour-set-newtab-wallpaper",
 }
 
 BUTTON_TYPE = "button"
@@ -875,6 +881,14 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
+        wallpaper = blocks.CharBlock(
+            required=False,
+            default="",
+            help_text=(
+                "Only used by the 'Set New Tab Wallpaper' button type. The wallpaper id as spelled in Firefox's "
+                "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
+            ),
+        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -882,9 +896,15 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper"],
                 settings=["settings"],
             )
+
+        def clean(self, value):
+            value = super().clean(value)
+            if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
+                raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
+            return value
 
     return _UITourButtonBlock(**kwargs)
 

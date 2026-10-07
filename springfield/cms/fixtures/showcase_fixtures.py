@@ -2,29 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_image_variants, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_IMAGE_MEDIA = [
-    {
-        "type": "image",
-        "value": {
-            "image": settings.PLACEHOLDER_IMAGE_ID,
-            "settings": {
-                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-            },
-        },
-        "id": "2026shm1-0000-0000-0000-000000000001",
-    }
-]
+
+def get_image_media() -> list[dict]:
+    return [{"type": "image", "value": get_image_variants(), "id": "2026shm1-0000-0000-0000-000000000001"}]
 
 
 def get_showcase_variants() -> list[dict]:
+    image_media = get_image_media()
     buttons = get_button_variants()
     return [
         {
@@ -33,7 +21,7 @@ def get_showcase_variants() -> list[dict]:
                 "settings": {"layout": "default"},
                 "headline": '<p data-block-key="2026sh1h">Showcase - Default Layout</p>',
                 "description": '<p data-block-key="2026sh1x">A short description below the headline.</p>',
-                "media": _IMAGE_MEDIA,
+                "media": image_media,
                 "caption_title": '<p data-block-key="2026sh1t">With caption title.</p>',
                 "caption_description": '<p data-block-key="2026sh1d">The default layout places the image on one side '
                 "with caption text beside it.</p>",
@@ -46,7 +34,7 @@ def get_showcase_variants() -> list[dict]:
                 "settings": {"layout": "expanded"},
                 "headline": '<p data-block-key="2026sh2h">Showcase - Expanded Layout</p>',
                 "description": "",
-                "media": _IMAGE_MEDIA,
+                "media": image_media,
                 "caption_title": "",
                 "caption_description": '<p data-block-key="2026sh2d">The expanded layout gives more space to the image. '
                 "No caption title in this variant.</p>",
@@ -59,7 +47,7 @@ def get_showcase_variants() -> list[dict]:
                 "settings": {"layout": "full"},
                 "headline": '<p data-block-key="2026sh3h">Showcase - Full Width Layout</p>',
                 "description": '<p data-block-key="2026sh3x">A rich text description spanning the full width.</p>',
-                "media": _IMAGE_MEDIA,
+                "media": image_media,
                 "caption_title": '<p data-block-key="2026sh3t">Full width caption title.</p>',
                 "caption_description": '<p data-block-key="2026sh3d">The full layout spans the entire width of the container.</p>',
             },
@@ -71,7 +59,7 @@ def get_showcase_variants() -> list[dict]:
                 "settings": {"layout": "default"},
                 "headline": '<p data-block-key="2026sh4h">Showcase - With CTA</p>',
                 "description": "",
-                "media": _IMAGE_MEDIA,
+                "media": image_media,
                 "caption_title": "",
                 "caption_description": "",
                 "cta": [dict(buttons["primary"], id="2026sh04-0000-0000-0000-000000000001")],

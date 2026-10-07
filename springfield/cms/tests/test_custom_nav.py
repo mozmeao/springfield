@@ -8,7 +8,7 @@ import pytest
 from bs4 import BeautifulSoup
 from wagtail.models import Locale, Site
 
-from springfield.cms.fixtures.navigation_fixtures import build_top_level_link
+from springfield.cms.fixtures.block_factories import nav_top_level_link
 from springfield.cms.models import NavigationSnippet
 from springfield.cms.models.pages import FreeFormPage2026
 from springfield.cms.tests.factories import DownloadPageFactory, FlareDocsIndexPageFactory, FreeFormPage2026Factory, LocaleFactory
@@ -21,7 +21,7 @@ def make_snippet(name="Custom nav", live=True, locale=None, is_default=False):
     snippet = NavigationSnippet.objects.create(
         locale=locale or Locale.get_default(),
         name=name,
-        items=[build_top_level_link("Custom Nav Link", custom_url="/custom-nav/", block_id="b1")],
+        items=[nav_top_level_link(label="Custom Nav Link", custom_url="/custom-nav/", block_id="b1")],
         live=live,
         is_default=is_default,
     )
@@ -161,7 +161,7 @@ def test_alias_locale_renders_fallback_locale_snippet(client):
         locale=es_mx_locale,
         translation_key=en_us_snippet.translation_key,
         name="Nav es-MX",
-        items=[build_top_level_link("Enlace es-MX", custom_url="/es-mx-nav/", block_id="b2")],
+        items=[nav_top_level_link(label="Enlace es-MX", custom_url="/es-mx-nav/", block_id="b2")],
     )
     es_mx_snippet.save_revision().publish()
 
