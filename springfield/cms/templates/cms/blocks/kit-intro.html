@@ -18,6 +18,13 @@
             {% include_block value.heading %}
           </content:heading>
           <content:content>
+            {% if value.media_above_buttons %}
+              <div class="fl-home-intro-media-above-buttons">
+                {% with widths="width-{200,400,600,800,1000,1200,1400,1600,1800,2000}", sizes="(min-width: 1170px) 1170px, 100vw" %}
+                  {% include_block value.media_above_buttons %}
+                {% endwith %}
+              </div>
+            {% endif %}
             {% if value.buttons %}
               <div class="fl-buttons">
                 {% for button in value.buttons %}
