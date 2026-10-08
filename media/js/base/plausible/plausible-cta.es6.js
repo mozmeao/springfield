@@ -19,7 +19,7 @@ TrackCTAClick.attributes = {
 
 /**
  * Create the cta_click props from an element's data-cta-* attributes
- * @param {Element} el
+ * @param {Element} element
  * @returns {Object}
  */
 TrackCTAClick.getProps = (element) => {
