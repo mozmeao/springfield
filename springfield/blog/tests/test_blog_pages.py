@@ -1264,7 +1264,7 @@ def topic_blog(minimal_site):
 
 
 def test_blog_topic_renders(topic_blog, rf):
-    """The plain variant renders the topic name, the back link, and the article list."""
+    """The plain variant renders the topic name, the back link, the topic list, and the article list."""
     index_page, _ = topic_blog
     url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
     response = index_page.topic_route(rf.get(url), "security")
@@ -1278,8 +1278,54 @@ def test_blog_topic_renders(topic_blog, rf):
     back_link = soup.find("a", class_="fl-blog-back-link")
     assert back_link and back_link["href"] == index_page.url
 
+    topic_link_names = [link.get_text(strip=True) for link in soup.find_all("a", class_="fl-tag") if "fl-blog-topic-link" in link.get("class", [])]
+    assert topic_link_names == ["Privacy"]
+    selected_topic = soup.find("span", class_="is-selected")
+    assert selected_topic and "Security" in selected_topic.get_text()
+
     items = soup.find("div", class_="fl-blog-article-list").find_all("article", class_="fl-blog-article-list-item")
     assert len(items) == 2
+
+
+def create_security_topic_page(index_page, **fields):
+    """Create and publish a BlogTopicPage for the "Security" topic, with ``fields`` set on it."""
+    security_topic = get_blog_topics()["security"]
+    topic_page = get_or_create_page(
+        BlogTopicPage,
+        slug="test-security-topic-page",
+        parent=index_page,
+        defaults={"title": "Security", "topic": security_topic, **fields},
+    )
+    topic_page.save_revision().publish()
+    return topic_page
+
+
+def test_blog_topic_hide_breadcrumb(topic_blog, rf):
+    """The hide_breadcrumb option hides the back link."""
+    index_page, _ = topic_blog
+    create_security_topic_page(index_page, hide_breadcrumb=True)
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    response = index_page.topic_route(rf.get(url), "security")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    back_link = soup.find("a", class_="fl-blog-back-link")
+    assert back_link is None
+
+
+def test_blog_topic_hide_topics(topic_blog, rf):
+    """The hide_topics option hides the topic bubbles list."""
+    index_page, _ = topic_blog
+    create_security_topic_page(index_page, hide_topics=True)
+    url = index_page.full_url + index_page.reverse_subpage("topic_route", args=["security"])
+    response = index_page.topic_route(rf.get(url), "security")
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    topic_list_container = soup.find("div", class_="fl-blog-topics-filter")
+    assert topic_list_container is None
 
 
 def test_blog_topic_unknown_slug_404s(topic_blog, rf):
@@ -1584,7 +1630,7 @@ def test_blog_article_renders_back_link(single_article, rf):
     assert back_link
     assert back_link["href"] == index_page.url
     assert back_link.find("span", class_="fl-icon-back")
-    assert "All Articles" in back_link.get_text()
+    assert "Blog Home" in back_link.get_text()
 
 
 def test_blog_article_renders_header_image(single_article, rf):
