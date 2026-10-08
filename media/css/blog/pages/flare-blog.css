@@ -124,6 +124,7 @@
 .fl-page-blog-topic:has(.fl-blog-featured) .fl-blog-index-header {
     margin-block-end: var(--token-spacing-xl);
     max-inline-size: none;
+    padding-block-end: var(--token-spacing-lg);
 }
 
 .fl-page-blog-topic:has(.fl-blog-featured) .fl-blog-topics-filter {
@@ -193,8 +194,8 @@
     --mask-image-content: linear-gradient(
         to right,
         transparent,
-        var(--fl-theme-body-background) 12px,
-        var(--fl-theme-body-background) calc(100% - 12px),
+        #000 12px,
+        #000 calc(100% - 12px),
         transparent
     );
     --mask-size-content: calc(100%) 100%;
