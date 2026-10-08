@@ -198,6 +198,7 @@ checks an editor could follow without reading the diff.
 
 * When planning Wagtail work, remember that <https://docs.wagtail.org/en/stable-7.4.x/llms.txt> and the full version at <https://docs.wagtail.org/en/stable-7.4.x/llms-full.txt> contain LLM-appropriate documentation.
 * If the version of Wagtail (not counting patch releases) in requirements/prod.in doesn't match the version in the LLM-appropriate URLs mentioned, please update this AGENTS.md then load the new info
+* When a change adds or modifies something CMS editors interact with (blocks, block fields, page types, snippets), add a dated entry to `CMS_CHANGELOG.md`. Refactors and changes that editors cannot see don't need one.
 
 ## LLM assistance
 
