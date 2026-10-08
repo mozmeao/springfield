@@ -448,6 +448,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-share-firefox.css"
+      ],
+      "name": "flare-share-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"

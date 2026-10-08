@@ -5,6 +5,7 @@
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page
 from springfield.cms.models import FreeFormPage2026
 
+ENTERPRISE_DOWNLOAD_SECTION_HEADING = '<p data-block-key="ed26s">Enterprise downloads</p>'
 ENTERPRISE_DOWNLOAD_HEADING = '<p data-block-key="ed26h">Resources</p>'
 
 RESOURCE_LINKS = [
@@ -28,6 +29,7 @@ ENTERPRISE_DOWNLOAD_RICH_TEXT = get_enterprise_download_rich_text("ed260000-0001
 def get_enterprise_download(
     block_id: str = "ed000001-0000-0000-0000-000000000001",
     center_content: bool = False,
+    section_heading: str = ENTERPRISE_DOWNLOAD_SECTION_HEADING,
     heading: str = ENTERPRISE_DOWNLOAD_HEADING,
     rich_text: str = ENTERPRISE_DOWNLOAD_RICH_TEXT,
 ) -> dict:
@@ -35,6 +37,7 @@ def get_enterprise_download(
         "type": "enterprise_download",
         "value": {
             "center_content": center_content,
+            "section_heading": section_heading,
             "heading": heading,
             "rich_text": rich_text,
         },

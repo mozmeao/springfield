@@ -525,6 +525,14 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         help_text="Up to 4 featured articles shown at the top. These are left out of the list below.",
     )
+    hide_breadcrumb = models.BooleanField(
+        default=False,
+        help_text='Hide the "Blog Home" back link on this topic page.',
+    )
+    hide_topics = models.BooleanField(
+        default=False,
+        help_text="Hide the topic bubbles on this topic page.",
+    )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("topic"),
@@ -532,7 +540,10 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("featured_articles"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("hide_breadcrumb"),
+        FieldPanel("hide_topics"),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("page_heading"),
