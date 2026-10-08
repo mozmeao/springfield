@@ -46,13 +46,6 @@
 
           {% include_block block %}
         {% endfor %}
-
-
-        {% if page.body_class == "enterprise-home" %}
-        <video class="body-bg-video" autoplay muted loop playsinline>
-          <source src="https://assets.mozilla.net/enterprise/video/HOMEPAGE_HEROBUBBLES_a.webm" type="video/webm">
-        </video>
-        {% endif %}
       </div>
 
       {% if page.content %}
@@ -76,11 +69,6 @@
 
         </div>
       {% endif %}
-      {% if page.body_class == "enterprise-home" %}
-        <video class="body-bg-video" autoplay muted loop playsinline>
-          <source src="https://assets.mozilla.net/enterprise/video/HOMEPAGE_HEROBUBBLES_a.webm" type="video/webm">
-        </video>
-        {% endif %}
       </div>
   {% else %}
     <div class="fl-main has-gradient-bottom">
