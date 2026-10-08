@@ -1379,6 +1379,40 @@ def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
     assert "Standalone Page" in content.text
 
 
+def test_flare_docs_index_page_root_renders_changelog_dialog(minimal_site, rf):
+    """The root docs page should offer the changelog in a dialog opened from the intro."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="flare-docs", title="Flare Docs - Index")
+    index_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    trigger = soup.select_one(".fl-intro .fl-dialog-trigger")
+    assert trigger is not None
+    dialog = soup.find("dialog", id=trigger["data-target-id"])
+    assert dialog is not None
+    assert dialog.find("h1").get_text(strip=True) == "CMS Changelog"
+    assert dialog.find("h2") is not None
+
+
+def test_flare_docs_index_page_child_has_no_changelog_dialog(minimal_site, rf):
+    """Only the root docs page should render the changelog."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="flare-docs", title="Flare Docs - Index")
+    index_page.save()
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+
+    request = rf.get(blocks_page.relative_url(minimal_site))
+    response = blocks_page.specific.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.select_one(".fl-dialog-trigger") is None
+    assert soup.find("dialog", id="cms-changelog-dialog") is None
+
+
 def test_flare_docs_index_page_renders_child_docs_field(minimal_site, rf):
     """A FreeFormPage2026 grandchild's docs field should render inside the main content area."""
     root_page = SimpleRichTextPage.objects.first()

@@ -11,6 +11,7 @@ import json
 import re
 import time
 import uuid
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django import forms
@@ -2307,6 +2308,11 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
             return {"page": page, "children": children}
 
         context["sections"] = [build_node(child) for child in children]
+
+        if self.slug == "flare-docs":
+            changelog = Path(settings.ROOT) / "CMS_CHANGELOG.md"
+            if changelog.exists():
+                context["changelog"] = changelog.read_text(encoding="utf-8")
         return context
 
 
