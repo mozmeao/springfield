@@ -170,6 +170,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --gallery-card-radius: var(--token-border-radius-lg);
         --gallery-callout-card-padding: var(--token-layout-xs)
             var(--token-layout-2xs);
+        --fl-section-hgroup-gap: var(--token-layout-xs);
     }
 }
 

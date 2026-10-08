@@ -488,9 +488,9 @@
     },
     {
       "files": [
-        "css/cms/themes/enterprise-bgs-alt-1.css"
+        "css/cms/themes/enterprise-remove-bgs.css"
       ],
-      "name": "enterprise-bgs-alt-1"
+      "name": "enterprise-remove-bgs"
     },
     {
       "files": [

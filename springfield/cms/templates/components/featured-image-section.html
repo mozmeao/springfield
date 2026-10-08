@@ -17,12 +17,14 @@
     ">
   <div class="fl-section">
     <div class="fl-section-container">
-      <div class="fl-featured-image-section-heading superheading-is-pill">
+      <div class="fl-featured-image-section-heading">
         {{ contents.heading }}
       </div>
+      {% if contents.content|trim %}
       <div class="fl-featured-image-section-content">
         {{ contents.content }}
       </div>
+      {% endif %}
     </div>
   </div>
   <div class="fl-featured-image-section-media">

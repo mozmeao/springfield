@@ -42,16 +42,11 @@
         font-variation-settings:
             'wght' 400,
             'wdth' 100;
+        letter-spacing: -0.02em;
     }
 
     .fl-main.has-gradient-bottom::before {
         background: none;
-    }
-
-    .fl-split-page-lower,
-    .fl-showcase,
-    main:not(.fl-contact-page) .fl-section {
-        padding-block: var(--token-layout-md);
     }
 
     .fl-section-container > .fl-heading,
@@ -123,7 +118,6 @@
         background-color: transparent;
         background-image: none;
         border-radius: 0;
-        padding-block-start: var(--token-layout-md);
     }
 
     .fl-featured-image-section:not(.has-gradient-bottom),
@@ -131,15 +125,6 @@
         background: none;
         background-color: transparent;
         border-radius: 0;
-    }
-
-    .fl-featured-image-section .fl-superheading {
-        background-image: none;
-        color: var(--fl-theme-color-text);
-    }
-
-    .fl-featured-image-section .fl-subheading {
-        margin-block-start: var(--token-layout-xs);
     }
 
     .fl-featured-image-section .fl-section-container {
@@ -159,7 +144,6 @@
     }
 
     /* footer overrides  */
-
     .fl-language-switcher::before,
     .fl-language-switcher-select-wrapper {
         color: var(--fl-theme-color-text);
@@ -172,7 +156,6 @@
     }
 
     /* Other components */
-
     .fl-card.fl-card-outline {
         --fl-theme-illustration-icon-bg: var(--token-color-grey-2);
     }
@@ -264,6 +247,62 @@
         padding: 1rem;
     }
 
+    /* From design QA. Scoping this to Enterprise-only for now,
+       but these should probably be consistent. */
+    .fl-section-container > .fl-heading-group {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fl-section-hgroup-gap);
+    }
+
+    .fl-section-container > .fl-heading-group .fl-heading {
+        margin-block-end: 0;
+    }
+
+    .fl-featured-image-section-heading .fl-heading-group,
+    .fl-intro .fl-heading-group {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fl-section-hgroup-gap);
+    }
+
+    .fl-featured-image-section-heading .fl-heading,
+    .fl-intro .fl-heading {
+        margin: 0;
+    }
+
+    .fl-intro.fl-intro-vertical {
+        gap: var(--token-layout-sm);
+    }
+
+    .fl-intro .fl-superheading,
+    .fl-featured-image-section .fl-superheading,
+    .fl-section .fl-superheading {
+        color: var(--fl-theme-color-link);
+        font-size: var(--fl-theme-font-size-subheading-xs);
+        font-weight: var(--token-font-weight-normal);
+        margin: 0;
+
+        @container style(--lang-supports-uppercase: true) {
+            text-transform: uppercase;
+        }
+    }
+
+    .fl-featured-image-section .fl-superheading,
+    .fl-intro .fl-heading-group {
+        margin: 0;
+    }
+
+    .fl-intro-content {
+        gap: var(--token-layout-xs);
+    }
+
+    .fl-intro-content .fl-buttons {
+        margin: 0;
+    }
+
     /* No space for the CTA button on mobile */
     @media (--viewport-xs) {
         .fl-header-main-download-button {
@@ -276,6 +315,35 @@
             background-size: 237px 36px;
             inline-size: 237px;
         }
+    }
+
+    /* this removes some black edges on the provided videos. */
+    .fl-mediacontent-media .fl-video,
+    .fl-showcase-media .fl-video,
+    .fl-intro-media .fl-video {
+        contain: paint;
+    }
+
+    .fl-mediacontent-media .fl-video video,
+    .fl-showcase-media .fl-video video,
+    .fl-intro-media .fl-video video {
+        block-size: calc(100% + 4px);
+        inline-size: calc(100% + 4px);
+        inset-block-start: -2px;
+        inset-inline-start: -2px;
+        max-width: none;
+    }
+
+    /* custom radius for square video on homepage */
+    .fl-mediacontent-media .fl-video {
+        border-radius: 72px;
+    }
+
+    /* custom radius for landscape video on homepage */
+    .fl-showcase-media .fl-video,
+    .fl-intro-media .fl-video,
+    .fl-featured-image-section-media .fl-video {
+        border-radius: 40px;
     }
 }
 
