@@ -31,6 +31,7 @@
 --fl-theme-card-outline-superheading-color-active: var(
     --fl-theme-color-brand-text
 );
+--fl-theme-subtle-box-shadow: 0 4px 20px var(--token-color-grey-2);
 
 /* Button palette */
 --fl-theme-pill-bg-color-primary: var(--token-color-soft-purple-2);

@@ -448,6 +448,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-share-firefox.css"
+      ],
+      "name": "flare-share-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
@@ -488,9 +494,9 @@
     },
     {
       "files": [
-        "css/cms/themes/enterprise-bgs-alt-1.css"
+        "css/cms/themes/enterprise-remove-bgs.css"
       ],
-      "name": "enterprise-bgs-alt-1"
+      "name": "enterprise-remove-bgs"
     },
     {
       "files": [
@@ -824,6 +830,14 @@
       "name": "flare26-kick-page",
       "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare26-kick-page' and you have an up-to-date database backup."
     },
+    {
+      "files":[
+        "js/cms/pages/enterprise-home.es6.js"
+      ],
+      "name": "enterprise-home",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare-enterprise-home' and you have an up-to-date database backup."
+    },
+
     {
       "files": [
         "js/cms/pages/flare-referral-hub.es6.js"

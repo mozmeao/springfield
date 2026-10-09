@@ -2610,3 +2610,70 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
             raise Http404("Referral invitee page did not get a well-formed invitation code") from None
 
         return super().serve(request, *args, **kwargs)
+
+
+class ShareFirefoxPage(AbstractSpringfieldCMSPage):
+    """
+    Only served in SHARE_FIREFOX_PAGE_LOCALES. The en-US page exists only as the
+    source for translation.
+    """
+
+    # if the en-US page is published, the page will 404
+    SHARE_FIREFOX_PAGE_LOCALES = ("fr", "de")
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/share_firefox_page.html"
+
+    upper_content = StreamField(
+        [
+            ("intro", KitIntroBlock(allow_media_above_buttons=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", CarouselBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
+    class Meta:
+        verbose_name = "Share Firefox Page"
+
+    def get_sitemap_urls(self, request=None):
+        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
+            return []
+        return super().get_sitemap_urls(request)
+
+    def serve(self, request, *args, **kwargs):
+        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
+            mark_locale_fallback_exempt(request)
+            raise Http404("Share Firefox page is not served in this locale")
+
+        return super().serve(request, *args, **kwargs)

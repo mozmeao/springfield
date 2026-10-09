@@ -191,3 +191,12 @@ class ReferralGetFirefoxPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.ReferralGetFirefoxPage
+
+
+class ShareFirefoxPageFactory(wagtail_factories.PageFactory):
+    title = "Test Share Firefox Page"
+    live = True
+    slug = "share"
+
+    class Meta:
+        model = models.ShareFirefoxPage

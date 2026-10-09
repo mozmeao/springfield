@@ -2088,7 +2088,9 @@ def test_enterprise_download_block(index_page, rf):
     for region in (upper, lower):
         download_section = region.find("section", id="download")
         assert download_section, "Enterprise download section should render"
-        assert "Enterprise downloads" in download_section.get_text()
+        section_heading = download_section.find("h2", class_="fl-heading")
+        assert section_heading, "The section heading renders above the download menus"
+        assert section_heading.get_text(strip=True) == "Enterprise downloads"
 
         download_lists = download_section.find("div", class_="fl-enterprise-download-lists")
         assert download_lists, "Download lists container should render"

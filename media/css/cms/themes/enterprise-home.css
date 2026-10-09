@@ -9,13 +9,55 @@
 
 /* Enterprise theme styles */
 @layer page {
-    .enterprise-home .has-gradient-bottom {
-        background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
-        background-position: bottom center;
+    .enterprise-home .fl-split-page-upper {
+        background: none transparent;
+        contain: paint;
+        position: relative;
     }
 
-    .enterprise-home .fl-main.has-gradient-bottom {
-        background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
-        background-position: bottom right;
+    .enterprise-home .body-bg-video {
+        inset: auto 0 0;
+        margin: 0;
+        position: absolute;
+        z-index: 0;
+    }
+
+    .enterprise-home .fl-intro-content {
+        gap: var(--fl-section-hgroup-gap);
+    }
+
+    /* static fallback for reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .enterprise-home .has-gradient-bottom {
+            background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
+            background-position: bottom center;
+        }
+
+        .enterprise-home .fl-main.has-gradient-bottom {
+            background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
+            background-position: bottom right;
+        }
+    }
+
+    @media (--viewport-md-up) {
+        /* make bubbles animate under navigation */
+        .fl-nav,
+        .fl-header {
+            background-color: transparent;
+        }
+
+        .fl-header.enable-sticky {
+            position: fixed;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .fl-split-page-upper {
+            padding-top: var(--fl-navigation-menu-height);
+        }
+
+        .fl-header.enable-sticky.is-scrolled {
+            background-color: var(--fl-theme-background);
+        }
     }
 }
