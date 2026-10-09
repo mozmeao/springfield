@@ -34,6 +34,7 @@ build.py
 db.sql
 Desktop.ini
 node_modules
+storybook-static
 npm-debug.log
 pip-log.txt
 python_coverage/

@@ -157,6 +157,22 @@ module.exports = [
         }
     },
     {
+        // Storybook config (runs in Node) and preview (runs in the browser).
+        files: ['.storybook/**/*.{js,mjs}'],
+        languageOptions: {
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+            globals: {
+                ...globals.browser,
+                ...globals.node
+            }
+        },
+        rules: {
+            ...baseRules,
+            ...extendedRules
+        }
+    },
+    {
         // JS build files for local dev.
         files: [
             'eslint.config.js',
