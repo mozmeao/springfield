@@ -14,6 +14,7 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "type": "icon_list_with_image",
             "value": {
                 "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
                     icon_list_item(icon="checkmark", text="Block harmful trackers automatically", item_id="il2026i1a"),
                     icon_list_item(icon="lock", text="Keep your passwords safe and synced", item_id="il2026i1b"),
@@ -26,6 +27,7 @@ def get_icon_list_with_image_variants() -> list[dict]:
             "type": "icon_list_with_image",
             "value": {
                 "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "list_items": [
                     icon_list_item(icon="bookmark", text="Save pages and sync across devices", item_id="il2026i2a"),
                     icon_list_item(icon="history", text="Access your browsing history anywhere", item_id="il2026i2b"),

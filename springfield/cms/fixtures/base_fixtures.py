@@ -25,6 +25,7 @@ SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browse
 
 EMPTY_IMAGE_VARIANTS = {
     "image": None,
+    "image_alt": "",
     "settings": {
         "dark_mode_image": None,
         "mobile_image": None,
@@ -153,6 +154,7 @@ def get_image_variants() -> dict:
     placeholder_images = get_placeholder_images()
     return {
         "image": placeholder_images.image.id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {
             "dark_mode_image": placeholder_images.dark_image.id,
             "mobile_image": placeholder_images.mobile_image.id,

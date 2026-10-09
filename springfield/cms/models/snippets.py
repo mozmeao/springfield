@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import translation
 from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
@@ -546,6 +547,11 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         related_name="+",
         help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
     )
+    logo_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the logo link, such as the product name. Required if a logo is set.",
+    )
     logo_dark = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -575,6 +581,7 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         MultiFieldPanel(
             [
                 FieldPanel("logo"),
+                FieldPanel("logo_alt"),
                 FieldPanel("logo_dark"),
                 FieldPanel("logo_link"),
             ],
@@ -590,6 +597,13 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
+
+    def clean(self):
+        """Requires alt text for any logo, decorative or not, because it is the logo link's only name."""
+        super().clean()
+        if self.logo and not self.logo_alt.strip():
+            message = translation.gettext("Name what the logo links to, so it can be read out to someone who cannot see it.")
+            raise ValidationError({"logo_alt": message})
 
     @classmethod
     def get_default(cls):

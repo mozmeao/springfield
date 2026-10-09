@@ -195,6 +195,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -245,6 +246,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -291,6 +293,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -336,6 +339,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -380,6 +384,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -424,6 +429,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -678,6 +684,7 @@ def get_banner_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,

@@ -21,6 +21,7 @@ def _media(block_id):
     placeholder_images = get_placeholder_images()
     image_variants = {
         "image": placeholder_images.image.id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "alt_text": "",
         "variants": {
             "dark_mode_image": placeholder_images.dark_image.id,

@@ -291,6 +291,7 @@ def image_value(image_id, dark_mode_image_id=None):
     """An image-with-variants value carrying only the main and dark mode images."""
     return {
         "image": image_id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {
             "dark_mode_image": dark_mode_image_id,
             "mobile_image": None,
@@ -553,7 +554,12 @@ def browser_table_image_header_cell(cell_id, label, image_id, dark_mode_image_id
         optional_content=[
             {
                 "type": "image_header",
-                "value": {"image": image_id, "dark_mode_image": dark_mode_image_id, "alt": "", "label": label},
+                "value": {
+                    "image": image_id,
+                    "dark_mode_image": dark_mode_image_id,
+                    "image_alt": "A numbered grid, standing in for a real image",
+                    "label": label,
+                },
                 "id": f"{cell_id}-oc",
             }
         ],

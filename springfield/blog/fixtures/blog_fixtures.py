@@ -118,6 +118,7 @@ def get_blog_article_content(image, image_caption: str = "") -> list:
     """
     image_value = {
         "image": image.id,
+        "image_alt": "A placeholder image used for testing purposes",
         "settings": {
             "dark_mode_image": None,
             "mobile_image": None,
@@ -182,6 +183,7 @@ def blog_article_block(article: BlogArticlePage, block_id: str, block_type: str 
             "overrides": {
                 "image": {
                     "image": None,
+                    "image_alt": "",
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -253,6 +255,7 @@ def create_blog_article(
 ) -> BlogArticlePage:
     if hero_style is None:
         hero_style = HeroStyle.STANDARD_IMAGE if image else HeroStyle.TEXT_ONLY
+    placeholder_alt = "A numbered grid, standing in for a real image"
 
     article = get_or_create_page(
         BlogArticlePage,
@@ -263,6 +266,7 @@ def create_blog_article(
             "topic": topic,
             "hero_style": hero_style,
             "image": image,
+            "image_alt": placeholder_alt,
             "hero_video": hero_video or [],
         },
     )
@@ -271,7 +275,9 @@ def create_blog_article(
     article.topic = topic
     article.hero_style = hero_style
     article.image = image
+    article.image_alt = placeholder_alt
     article.listing_image = listing_image
+    article.listing_image_alt = placeholder_alt
     article.updated_date = updated_date
     article.hide_dates = hide_dates
     article.description = description

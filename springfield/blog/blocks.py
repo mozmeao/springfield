@@ -92,6 +92,16 @@ class BlockArticleValue(blocks.StructValue):
             return article_page.get_listing_image_variants().dark_mode_mobile
         return None
 
+    def get_image_alt(self):
+        """Alt text for the card's image, shared by the dark and mobile variants.
+        The override's alt only applies when the override supplied the image.
+        """
+        image_override = self.get("overrides").get("image")
+        if image_override.get("image"):
+            return image_override.get("image_alt", "")
+        article_page = self.get_article()
+        return article_page.get_listing_image_alt() if article_page else ""
+
 
 class BlogArticleOverrideBlock(blocks.StructBlock):
     image = ImageVariantsBlock(required=False)
