@@ -66,6 +66,13 @@ class SpringfieldImage(AbstractImage):
 
     admin_form_fields = Image.admin_form_fields + ("is_decorative",)
 
+    @property
+    def default_alt_text(self):
+        """The alt text Wagtail's chooser prefills, empty for a decorative image."""
+        if self.is_decorative:
+            return ""
+        return super().default_alt_text
+
     def clean(self):
         super().clean()
         errors = {}

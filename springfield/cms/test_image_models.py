@@ -21,6 +21,7 @@ from wagtail.images.jinja2tags import (
     srcset_image as render_srcset_image,
 )
 from wagtail.images.tests.utils import get_test_image_file
+from wagtail.images.widgets import AdminImageChooser
 
 from springfield.cms.fields import SanitizingWagtailImageField
 from springfield.cms.models.images import SpringfieldImage, _make_renditions
@@ -170,6 +171,19 @@ class ImageChooserResponseTestCase(TestCase):
         response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
 
         assert response.json()["result"]["default_alt_text"] == "A purple fox on a laptop"
+
+
+def test_image_chooser_widget_offers_no_default_alt_text_for_a_saved_decorative_image():
+    image = SpringfieldImage.objects.create(
+        title="Swirl-2400x1200.png",
+        description="",
+        is_decorative=True,
+        file=get_test_image_file(),
+    )
+
+    value_data = AdminImageChooser().get_value_data(image)
+
+    assert value_data["default_alt_text"] == ""
 
 
 def test_image_form_does_not_fill_the_title_from_the_file_name():

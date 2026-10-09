@@ -145,7 +145,7 @@ def backfill_cms_alt_text(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0163_navigationsnippet_logo_alt"),
+        ("cms", "0164_navigationsnippet_logo_alt"),
     ]
 
     operations = [

@@ -12,6 +12,7 @@ from django.http import Http404
 from wagtail.models import Locale, Page, Site
 
 from springfield.base.i18n import split_path_and_normalize_language
+from springfield.settings.base import get_deployment_environment
 
 logger = logging.getLogger(__name__)
 
@@ -141,14 +142,7 @@ def get_cms_locales_for_path(request):
 def get_cms_environment():
     """Return a short environment label derived from APP_NAME.
 
-    APP_NAME follows the pattern "springfield-{dev|stage|prod}" in deployed
-    environments; local development produces plain "springfield" (no suffix).
+    Shares its parsing with the audit log environment so the admin UI and audit
+    lines always name the same environment.
     """
-    app_name = getattr(settings, "APP_NAME", "springfield")
-    if app_name == "springfield":
-        return "local"
-    if app_name.startswith("springfield-"):
-        suffix = app_name.split("-")[1]
-        if suffix in {"dev", "stage", "prod"}:
-            return suffix
-    return None
+    return get_deployment_environment(getattr(settings, "APP_NAME", "springfield"))

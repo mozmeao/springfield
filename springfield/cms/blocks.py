@@ -164,10 +164,12 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
+UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
+UITOUR_BUTTON_SET_NEWTAB_WALLPAPER = "set_newtab_wallpaper"
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
@@ -179,6 +181,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA, "Open Preferences - Import Browser Data"),
     (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
@@ -186,6 +189,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
+    (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Set New Tab Wallpaper"),
 )
 
 UI_TOUR_CLASSES = {
@@ -199,10 +203,12 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
     UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER: "ui-tour-set-newtab-wallpaper",
 }
 
 BUTTON_TYPE = "button"
@@ -911,6 +917,14 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             choices=UITOUR_BUTTON_CHOICES,
             inline_form=True,
         )
+        wallpaper = blocks.CharBlock(
+            required=False,
+            default="",
+            help_text=(
+                "Only used by the 'Set New Tab Wallpaper' button type. The wallpaper id as spelled in Firefox's "
+                "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
+            ),
+        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -918,9 +932,15 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper"],
                 settings=["settings"],
             )
+
+        def clean(self, value):
+            value = super().clean(value)
+            if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
+                raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
+            return value
 
     return _UITourButtonBlock(**kwargs)
 
@@ -1410,10 +1430,8 @@ class ComparisonResultBlock(blocks.StructBlock):
         value_class = ComparisonResultValue
 
 
-class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
+class ComparisonImageHeaderBlock(blocks.StructBlock):
     """An image with a label underneath it, for browser comparison table headers."""
-
-    alt_text_fields = ("image",)
 
     image = ImageChooserBlock(help_text="Image displayed above the label, such as a product logo.")
     dark_mode_image = ImageChooserBlock(required=False, help_text="Optional dark mode image variant.")
@@ -1421,7 +1439,7 @@ class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
         label="Alt Text",
         required=False,
         default="",
-        help_text="Text for screen readers describing the image.",
+        help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
     )
     label = blocks.CharBlock(help_text="Text displayed below the image.")
 
@@ -3286,7 +3304,27 @@ class KitBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, *args, **kwargs):
+    """Kit Intro hero section.
+
+    Args:
+        allow_media_above_buttons: If True, adds an optional media field rendered
+            between the heading and the buttons. Only used in ShareFirefoxPage.
+    """
+    local_blocks = []
+    if allow_media_above_buttons:
+        local_blocks.append(
+            (
+                "media_above_buttons",
+                MediaBlock(
+                    max_num=1,
+                    min_num=0,
+                    required=False,
+                    help_text="Sits between the heading and the buttons.",
+                ),
+            )
+        )
+
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
@@ -3314,11 +3352,11 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, *args, **kw
             label = "Kit Intro"
             label_format = "{heading}"
             form_layout = blocks.BlockGroup(
-                children=["heading", "buttons", "media"],
+                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "media"],
                 settings=["settings", "scroll_to_see_more_snippet"],
             )
 
-    return _KitIntroBlock(*args, **kwargs)
+    return _KitIntroBlock(local_blocks or None, *args, **kwargs)
 
 
 class CarouselSlide(blocks.StructBlock):
@@ -3663,11 +3701,18 @@ class DownloadSupportBlock(blocks.StaticBlock):
 class EnterpriseDownloadBlock(blocks.StructBlock):
     """Enterprise download section."""
 
+    section_heading = RichTextBlock(
+        features=HEADING_TEXT_FEATURES,
+        required=True,
+        default="<p>Enterprise downloads</p>",
+        help_text="Heading for the whole section, above the download menus.",
+    )
     heading = RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         required=False,
         help_text="Heading for the content below the download menus.",
     )
+
     rich_text = RichTextBlock(
         features=EXPANDED_TEXT_FEATURES,
         required=False,
@@ -3684,7 +3729,7 @@ class EnterpriseDownloadBlock(blocks.StructBlock):
         template = "cms/blocks/enterprise-download.html"
         label = "Enterprise Download"
         form_layout = blocks.BlockGroup(
-            children=["heading", "rich_text"],
+            children=["section_heading", "heading", "rich_text"],
             settings=["center_content"],
         )
 

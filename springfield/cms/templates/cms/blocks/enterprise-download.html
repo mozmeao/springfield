@@ -5,6 +5,7 @@
 #}
 
 <include:enterprise-download
+  section_heading="{{ value.section_heading|richtext|remove_p_tag }}"
   heading="{{ value.heading|richtext|remove_p_tag if value.heading else '' }}"
   rich_text="{{ value.rich_text|richtext }}"
   center_content="{{ value.center_content }}"

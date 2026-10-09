@@ -25,6 +25,7 @@
 /* Divider color */
 --fl-theme-divider-color: var(--token-color-light-purple);
 --fl-subtle-border-color: var(--token-color-purple);
+--fl-theme-subtle-box-shadow: 0 4px 32px var(--token-color-dark-purple-3);
 
 /* Navigation menu */
 --fl-logo-url: url('/media/img/logos/firefox/logo-word-hor-white-2026.svg');
