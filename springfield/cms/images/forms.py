@@ -38,17 +38,20 @@ class InlineImageForm(forms.ModelForm):
     to keep them unique across the listing.
     """
 
+    # Declared rather than listed in Meta.fields, because a ModelForm reads a listed tags field
+    # with a query of its own for every instance. The tags are taken from instance.tags.all()
+    # instead, which the image listing prefetches for all its rows at once.
+    tags = SpringfieldImage._meta.get_field("tags").formfield(widget=AdminTagWidget)
+
     class Meta:
         model = SpringfieldImage
-        fields = ("title", "description", "is_decorative", "tags")
-        widgets = {
-            "description": forms.Textarea(attrs={"rows": 2}),
-            "tags": AdminTagWidget,
-        }
+        fields = ("title", "description", "is_decorative")
+        widgets = {"description": forms.Textarea(attrs={"rows": 2})}
 
     def __init__(self, *args, instance, **kwargs):
         super().__init__(*args, instance=instance, prefix=f"image-{instance.pk}", **kwargs)
         self.form_id = f"image-inline-{instance.pk}"
+        self.initial["tags"] = list(instance.tags.all())
         for field in self.fields.values():
             field.widget.attrs["form"] = self.form_id
 
@@ -60,6 +63,7 @@ class InlineImageForm(forms.ModelForm):
     def save(self, commit=True):
         image = super().save(commit=commit)
         if commit:
+            image.tags.set(self.cleaned_data["tags"])
             # Tags are written after the image row, so reindex to make the new tags searchable.
             search_index.insert_or_update_object(image)
         return image

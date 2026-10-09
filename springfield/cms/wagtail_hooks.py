@@ -46,7 +46,7 @@ from springfield.cms.admin_views import (
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
-from springfield.cms.images.views import inline_edit_image
+from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
@@ -98,6 +98,8 @@ def register_image_listing_urls():
     resolves to the view registered here, while the wagtailimages URL names still reverse to it.
     """
     return [
+        path("images/", SpringfieldImageIndexView.as_view(), name="cms_image_index"),
+        path("images/results/", SpringfieldImageIndexView.as_view(results_only=True), name="cms_image_index_results"),
         path("images/<int:image_id>/inline-edit/", inline_edit_image, name="cms_image_inline_edit"),
     ]
 
