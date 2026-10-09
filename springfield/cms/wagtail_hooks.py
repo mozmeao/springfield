@@ -3,7 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
-import logging
 from uuid import uuid4
 
 from django.conf import settings
@@ -30,7 +29,6 @@ from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
-from wagtail.images.views.chooser import ImageChosenView, viewset as image_chooser_viewset
 from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -68,8 +66,6 @@ from springfield.cms.models import (
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
-
-logger = logging.getLogger(__name__)
 
 
 @hooks.register("register_permissions")
@@ -745,37 +741,6 @@ for _viewset in (
     NavigationSnippetViewSet,
 ):
     register_snippet(_viewset)
-
-
-class SpringfieldImageChosenView(ImageChosenView):
-    def get_chosen_response_data(self, image, preview_image_filter="max-165x165"):
-        """Sends no default alt text for a decorative image.
-
-        Wagtail falls back to the image's title when its description is blank.
-        Offering a title as alt text invites an editor to accept a file name as
-        a description, so a decorative image offers nothing instead.
-        """
-        response_data = super().get_chosen_response_data(image, preview_image_filter)
-        if image.is_decorative:
-            response_data["default_alt_text"] = ""
-        return response_data
-
-
-# Wagtail's `register_admin_viewset` hook appends viewsets rather than replacing
-# ones registered under the same name, so re-registering "wagtailimages_chooser"
-# here would add a second, unreachable chooser instead of overriding the built-in one.
-#
-# `chosen_view_class` is a third-party attribute name we don't control. If a
-# future Wagtail upgrade renamed it, reading it below would raise
-# AttributeError at import and fail loudly.
-if image_chooser_viewset.chosen_view_class is not ImageChosenView:
-    logger.error(
-        "Expected Wagtail's image chooser viewset to have chosen_view_class=ImageChosenView, but found %r. "
-        "Wagtail may have changed how it builds the chosen view, so replacing it with "
-        "SpringfieldImageChosenView may no longer have any effect.",
-        image_chooser_viewset.chosen_view_class,
-    )
-image_chooser_viewset.chosen_view_class = SpringfieldImageChosenView
 
 
 @hooks.register("after_copy_page")
