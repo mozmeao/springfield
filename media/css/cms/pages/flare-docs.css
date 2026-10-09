@@ -23,6 +23,18 @@
     }
 }
 
+body:has(#cms-changelog-dialog[open]) {
+    overflow: hidden;
+}
+
+#cms-changelog-dialog {
+    max-block-size: 70vh;
+}
+
+#cms-changelog-dialog .fl-dialog-content {
+    overflow-y: auto;
+}
+
 @layer page {
     .fl-docs-page .fl-fx-logo {
         font-size: 6rem;
