@@ -6,7 +6,6 @@ import importlib
 import json
 
 from django.apps import apps
-from django.conf import settings
 
 import pytest
 from wagtail.models import Locale, Site
@@ -21,20 +20,24 @@ backfill_migration = importlib.import_module("springfield.cms.migrations.0165_ba
 backfill_stream_alt_text = backfill_migration.backfill_stream_alt_text
 blog_backfill_migration = importlib.import_module("springfield.blog.migrations.0006_backfill_image_alt_text")
 
+# The walker only reads stored JSON, so these ids need no image rows behind them.
+IMAGE_ID = 1
+MOBILE_IMAGE_ID = 2
+
 
 def test_backfill_fills_a_blank_alt_from_the_image_description():
     stream_data = [
         {
             "type": "icon_list_with_image",
             "id": "aaa",
-            "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "", "list_items": []},
+            "value": {"image": IMAGE_ID, "image_alt": "", "list_items": []},
         }
     ]
-    assert backfill_stream_alt_text(stream_data, descriptions_by_image_id={settings.PLACEHOLDER_IMAGE_ID: "A purple fox"}) == [
+    assert backfill_stream_alt_text(stream_data, descriptions_by_image_id={IMAGE_ID: "A purple fox"}) == [
         {
             "type": "icon_list_with_image",
             "id": "aaa",
-            "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "A purple fox", "list_items": []},
+            "value": {"image": IMAGE_ID, "image_alt": "A purple fox", "list_items": []},
         }
     ]
 
@@ -44,10 +47,10 @@ def test_backfill_leaves_a_filled_alt_alone():
         {
             "type": "icon_list_with_image",
             "id": "aaa",
-            "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "An editor wrote this", "list_items": []},
+            "value": {"image": IMAGE_ID, "image_alt": "An editor wrote this", "list_items": []},
         }
     ]
-    backfilled = backfill_stream_alt_text(stream_data, descriptions_by_image_id={settings.PLACEHOLDER_IMAGE_ID: "A purple fox"})
+    backfilled = backfill_stream_alt_text(stream_data, descriptions_by_image_id={IMAGE_ID: "A purple fox"})
     assert backfilled[0]["value"]["image_alt"] == "An editor wrote this"
 
 
@@ -56,7 +59,7 @@ def test_backfill_leaves_a_decorative_image_blank():
         {
             "type": "icon_list_with_image",
             "id": "aaa",
-            "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "image_alt": "", "list_items": []},
+            "value": {"image": IMAGE_ID, "image_alt": "", "list_items": []},
         }
     ]
     assert backfill_stream_alt_text(stream_data, descriptions_by_image_id={})[0]["value"]["image_alt"] == ""
@@ -72,7 +75,7 @@ def test_backfill_renames_the_comparison_header_alt_key():
                     {
                         "type": "image_header",
                         "id": "bbb",
-                        "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "alt": "Firefox logo", "label": "Firefox"},
+                        "value": {"image": IMAGE_ID, "alt": "Firefox logo", "label": "Firefox"},
                     }
                 ]
             },
@@ -90,11 +93,11 @@ def test_backfill_fills_a_nested_image_block():
             "id": "aaa",
             "value": {
                 "caption": "",
-                "image": {"image": settings.PLACEHOLDER_IMAGE_ID, "settings": {"mobile_image": None, "dark_mode_image": None}},
+                "image": {"image": IMAGE_ID, "settings": {"mobile_image": None, "dark_mode_image": None}},
             },
         }
     ]
-    image = backfill_stream_alt_text(stream_data, descriptions_by_image_id={settings.PLACEHOLDER_IMAGE_ID: "A purple fox"})[0]["value"]["image"]
+    image = backfill_stream_alt_text(stream_data, descriptions_by_image_id={IMAGE_ID: "A purple fox"})[0]["value"]["image"]
     assert image["image_alt"] == "A purple fox"
 
 
@@ -104,20 +107,20 @@ def test_backfill_leaves_images_without_an_alt_field_untouched():
         {
             "type": "badge",
             "id": "aaa",
-            "value": {"image": settings.PLACEHOLDER_IMAGE_ID, "number": 1, "singular_label": "person", "plural_label": "people"},
+            "value": {"image": IMAGE_ID, "number": 1, "singular_label": "person", "plural_label": "people"},
         },
         {
             "type": "image",
             "id": "bbb",
             "value": {
-                "image": settings.PLACEHOLDER_IMAGE_ID,
-                "settings": {"mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID, "dark_mode_image": None},
+                "image": IMAGE_ID,
+                "settings": {"mobile_image": MOBILE_IMAGE_ID, "dark_mode_image": None},
             },
         },
     ]
     backfilled = backfill_stream_alt_text(
         stream_data,
-        descriptions_by_image_id={settings.PLACEHOLDER_IMAGE_ID: "A purple fox", settings.PLACEHOLDER_MOBILE_IMAGE_ID: "A purple fox on a phone"},
+        descriptions_by_image_id={IMAGE_ID: "A purple fox", MOBILE_IMAGE_ID: "A purple fox on a phone"},
     )
     assert "image_alt" not in backfilled[0]["value"]
     assert "mobile_image_alt" not in backfilled[1]["value"]["settings"]
