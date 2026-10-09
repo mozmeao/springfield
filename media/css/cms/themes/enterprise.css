@@ -7,6 +7,11 @@
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
 @import 'variables/flare-media-query-tokens.css';
 
+:root {
+    --enterprise-square-radius: 32px;
+    --enterprise-video-radius: 32px;
+}
+
 /* Enterprise theme styles */
 @layer page {
     :root,
@@ -71,10 +76,14 @@
         display: none;
     }
 
+    .fl-card p {
+        text-wrap: balance;
+    }
+
     /* default backgrounds. */
     .has-gradient-bottom {
         background-image: url('/media/img/firefox/enterprise/ent-bg-subpage-1.svg');
-        background-position: bottom 119% center;
+        background-position: bottom 67% center;
         background-repeat: no-repeat;
         background-size: 112vw auto;
     }
@@ -217,6 +226,7 @@
 
     .fl-article-item-header {
         align-items: center;
+        padding-block: var(--token-spacing-md);
     }
 
     .fl-article-item-header img {
@@ -226,6 +236,10 @@
 
     .fl-article-item-description ul li::marker {
         color: var(--token-color-light-purple);
+    }
+
+    .fl-article-item-description .fl-buttons {
+        margin-block-end: var(--token-spacing-xl);
     }
 
     .fl-tags {
@@ -303,20 +317,6 @@
         margin: 0;
     }
 
-    /* No space for the CTA button on mobile */
-    @media (--viewport-xs) {
-        .fl-header-main-download-button {
-            display: none;
-        }
-    }
-
-    @media (--viewport-md-up) {
-        .fl-logo-fx {
-            background-size: 237px 36px;
-            inline-size: 237px;
-        }
-    }
-
     /* this removes some black edges on the provided videos. */
     .fl-mediacontent-media .fl-video,
     .fl-showcase-media .fl-video,
@@ -336,34 +336,56 @@
 
     /* custom radius for square video on homepage */
     .fl-mediacontent-media .fl-video {
-        border-radius: 72px;
+        border-radius: var(--enterprise-square-radius);
     }
 
     /* custom radius for landscape video on homepage */
     .fl-showcase-media .fl-video,
     .fl-intro-media .fl-video,
     .fl-featured-image-section-media .fl-video {
-        border-radius: 40px;
+        border-radius: var(--enterprise-video-radius);
     }
-}
 
-@media (--viewport-sm-up) {
-    :root {
-        /* note: 80% smaller for now. */
-        --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
-        --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
-        --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
-        --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
-        --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
+    /* No space for the CTA button on mobile */
+    @media (--viewport-xs) {
+        .fl-header-main-download-button {
+            display: none;
+        }
     }
-}
 
-@media (--viewport-md-up) {
-    :root {
-        --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
-        --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
-        --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
-        --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
-        --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
+    @media (--viewport-sm-up) {
+        :root {
+            /* note: 80% smaller for now. */
+            --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
+            --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
+            --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
+            --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
+            --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
+        }
+    }
+
+    @media (--viewport-md-up) {
+        :root {
+            --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
+            --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
+            --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
+            --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
+            --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
+            --enterprise-square-radius: 72px;
+            --enterprise-video-radius: 50px;
+        }
+
+        .has-gradient-bottom {
+            background-position: bottom 119% center;
+        }
+
+        .fl-logo-fx {
+            background-size: 237px 36px;
+            inline-size: 237px;
+        }
+
+        .fl-article-item-header {
+            padding-block: 0;
+        }
     }
 }
