@@ -1,0 +1,23 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+The row's <form>, which the row's inputs join through their `form` attribute. The CSRF
+token is sent as a header by the inline edit script.
+{% endcomment %}
+{% load i18n %}
+<td class="inline-edit-cell" data-inline-cell="save">
+    {% if form %}
+        <form id="{{ form.form_id }}" data-inline-image-form method="post" action="{% url 'cms_image_inline_edit' instance.pk %}">
+            <button type="submit" class="button button-small">{% trans "Save" %}</button>
+            {% for error in form.non_field_errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
+            <span class="inline-edit-status" role="status" data-inline-image-status>{{ status_message }}</span>
+        </form>
+    {% endif %}
+</td>
