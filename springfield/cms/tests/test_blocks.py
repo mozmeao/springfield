@@ -876,6 +876,21 @@ def test_mobile_store_qr_code_block_renders_its_alt(placeholder_images, rf):
     assert mobile_image_div.find("img")["alt"] == "Firefox in the app store"
 
 
+def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_errors(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "",
+        }
+    )
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
+
+
 def test_topic_block_renders_its_alt(placeholder_images):
     block = TopicBlock()
     value = block.to_python(
