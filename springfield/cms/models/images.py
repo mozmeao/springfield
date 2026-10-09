@@ -138,16 +138,5 @@ class SpringfieldRendition(AbstractRendition):
         related_name="renditions",
     )
 
-    @property
-    def alt(self):
-        """The alt text for the rendered <img>, empty for a decorative image.
-
-        An empty alt attribute is what drops an image out of the accessibility tree. Leaving
-        the attribute off instead makes screen readers fall back to announcing the file name.
-        """
-        if self.image.is_decorative:
-            return ""
-        return super().alt
-
     class Meta:
         unique_together = (("image", "filter_spec", "focal_point_key"),)
