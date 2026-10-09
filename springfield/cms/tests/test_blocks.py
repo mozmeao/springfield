@@ -50,6 +50,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    ComparisonImageHeaderBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
@@ -4020,12 +4021,8 @@ def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: di
     img_els = wrapper_el.find("span", class_="fl-comparison-image-header-media").find_all("img")
     has_dark_mode = bool(image_header_data.get("dark_mode_image"))
     assert len(img_els) == (2 if has_dark_mode else 1)
-    # The alt field pairs with the primary image; the dark-mode variant reuses
-    # that one computed string, since only one of the two is ever visible at a time.
-    primary_image = SpringfieldImage.objects.get(pk=image_header_data["image"])
-    expected_alt = alt_text(image_header_data["image_alt"], primary_image)
     for img_el in img_els:
-        assert img_el.get("alt") == expected_alt
+        assert img_el.get("alt") == image_header_data["image_alt"]
         assert img_el.get("loading") == "lazy"
         assert img_el.get("srcset")
     if has_dark_mode:
@@ -4279,6 +4276,30 @@ def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_image_header_blocks_image_alt_field_takes_precedence_even_if_blank(placeholder_images):
+    """Even if the image has a description, an explicitly blank image_alt takes precedence."""
+    block = ComparisonImageHeaderBlock()
+    value = block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "label": "Firefox"}))
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert placeholder_images.image.description
+    assert soup.find("img")["alt"] == ""
+    assert soup.find("span", class_="fl-comparison-image-header-text").get_text(strip=True) == "Firefox"
+
+
+def test_comparison_image_header_blocks_alt_text_takes_precedence_for_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+    block = ComparisonImageHeaderBlock()
+    value = block.to_python({"image": decorative_image.pk, "image_alt": "Firefox logo", "label": "Firefox"})
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("img")["alt"] == "Firefox logo"
 
 
 def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():

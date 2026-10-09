@@ -1430,10 +1430,8 @@ class ComparisonResultBlock(blocks.StructBlock):
         value_class = ComparisonResultValue
 
 
-class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
+class ComparisonImageHeaderBlock(blocks.StructBlock):
     """An image with a label underneath it, for browser comparison table headers."""
-
-    alt_text_fields = ("image",)
 
     image = ImageChooserBlock(help_text="Image displayed above the label, such as a product logo.")
     dark_mode_image = ImageChooserBlock(required=False, help_text="Optional dark mode image variant.")
@@ -1441,7 +1439,7 @@ class ComparisonImageHeaderBlock(RequireAltTextMixin, blocks.StructBlock):
         label="Alt Text",
         required=False,
         default="",
-        help_text="Text for screen readers describing the image.",
+        help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
     )
     label = blocks.CharBlock(help_text="Text displayed below the image.")
 
