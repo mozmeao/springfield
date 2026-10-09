@@ -43,24 +43,15 @@ def inline_edit_image(request, image_id):
 
 
 class InlineFieldColumn(BaseColumn):
-    """A listing cell holding one field of the image's inline form, or the field's value as
-    text when the user can't change the image."""
+    """A listing cell holding one field of the image's inline form."""
 
     cell_template_name = "springfield_images/inline_field_cell.html"
 
     def get_cell_context_data(self, instance, parent_context):
         context = super().get_cell_context_data(instance, parent_context)
         context["field_name"] = self.name
-        context["field"] = instance.inline_form[self.name] if instance.inline_form else None
-        context["display_value"] = self.get_display_value(instance)
+        context["field"] = instance.inline_form[self.name]
         return context
-
-    def get_display_value(self, image):
-        if self.name == "tags":
-            return ", ".join(tag.name for tag in image.tags.all())
-        if self.name == "is_decorative":
-            return _("Yes") if image.is_decorative else _("No")
-        return getattr(image, self.name)
 
 
 class InlineSaveColumn(BaseColumn):
@@ -89,14 +80,9 @@ class SpringfieldImageIndexView(IndexView):
         images = list(object_list)
         prefetch_related_objects(images, "tags")
         usages = get_image_usages(images)
-        changeable_image_ids = set(
-            self.permission_policy.instances_user_has_permission_for(self.request.user, "change")
-            .filter(pk__in=[image.pk for image in images])
-            .values_list("pk", flat=True)
-        )
         for image in images:
             image.usage = usages.get(image.pk, NO_USAGE)
-            image.inline_form = InlineImageForm(instance=image) if image.pk in changeable_image_ids else None
+            image.inline_form = InlineImageForm(instance=image)
         return object_list
 
     @cached_property

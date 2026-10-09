@@ -8,8 +8,6 @@ from django.urls import resolve, reverse
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.images import get_image_model
-from wagtail.images.permissions import permission_policy
 from wagtail.models import Locale, ReferenceIndex
 
 from springfield.blog.models import BlogAuthor
@@ -86,21 +84,6 @@ def test_grid_layout_renders_the_image_grid(admin_client, make_image):
     assert soup.select_one("ul.listing.horiz.images") is not None
     assert image.title in soup.select_one("ul.listing.horiz.images figcaption").get_text()
     assert soup.select("[data-inline-image-form]") == []
-
-
-def test_list_layout_is_read_only_for_images_the_user_cannot_change(admin_client, make_image, monkeypatch):
-    make_image(description="<b>Bold</b> claim")
-    monkeypatch.setattr(permission_policy, "instances_user_has_permission_for", lambda user, action: get_image_model().objects.none())
-
-    response = admin_client.get(reverse("wagtailimages:index"), {"layout": "list"})
-
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, "html.parser")
-    description_cell = soup.select_one("td[data-inline-cell='description']")
-    assert description_cell.get_text(strip=True) == "<b>Bold</b> claim"
-    assert description_cell.select("b, textarea") == []
-    assert soup.select_one("td[data-inline-cell='is_decorative']").get_text(strip=True) == "No"
-    assert soup.select_one("td[data-inline-cell='save']").select("form") == []
 
 
 def test_search_results_in_list_layout_are_served_by_our_view(admin_client, make_image):
