@@ -184,6 +184,12 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def image_inline_edit_js():
+    """Script that saves rows of the image listing edited in place."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def mark_locale_roles_in_admin():
     """Adds role badges next to locale names on the locales list page.
 

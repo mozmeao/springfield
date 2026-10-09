@@ -906,6 +906,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-image-inline-edit.es6.js"
+      ],
+      "name": "wagtailadmin-image-inline-edit"
+    },
+    {
+      "files": [
         "js/cms/wagtailadmin-link-block.js"
       ],
       "name": "wagtailadmin-link-block"
