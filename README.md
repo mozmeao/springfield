@@ -37,7 +37,7 @@ CMS changelog
 -------------
 
 [CMS_CHANGELOG.md](CMS_CHANGELOG.md) records the changes CMS editors can see: new or modified
-blocks, block fields, page types and snippets. Add a dated entry in every PR that adds or modifies
+blocks, block fields, page types and snippets. Add a dated entry to the top of it in every PR that adds or modifies
 one of these. The changelog is shown on the `/flare-docs/` page.
 
 Code of Conduct
