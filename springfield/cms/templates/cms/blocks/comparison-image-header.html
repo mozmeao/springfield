@@ -7,7 +7,6 @@
 {% set sizes = "(min-width: 768px) 200px, 33vw" %}
 {% set widths = "width-{100,200,300,400}" %}
 {% set classes = image_variant_classes(value.dark_mode_image) %}
-{% set image_alt = alt_text(value.image_alt, value.image) %}
 
 <include:comparison-image-header label="{{ value.label }}">
   <content:image>
@@ -18,7 +17,7 @@
         width=value.image.width,
         height=value.image.height,
         loading="lazy",
-        alt=image_alt,
+        alt=value.image_alt,
         class=classes.primary,
     ) }}
 
@@ -30,7 +29,7 @@
           width=value.dark_mode_image.width,
           height=value.dark_mode_image.height,
           loading="lazy",
-          alt=image_alt,
+          alt=value.image_alt,
           class=classes.dark_mode,
       ) }}
     {% endif %}

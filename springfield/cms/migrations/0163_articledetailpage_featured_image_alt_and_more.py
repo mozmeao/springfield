@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0161_migrate_section_pictograms"),
+        ("cms", "0162_sharefirefoxpage"),
     ]
 
     operations = [

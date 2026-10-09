@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import translation
 from django.utils.functional import cached_property
 
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
@@ -35,7 +36,7 @@ from springfield.cms.blocks import (
     get_button_types,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.models.base import ImageAltTextMixin, QROpenBehavior
+from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
@@ -521,14 +522,12 @@ class PencilBannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMi
         return "cms/snippets/pencil-banner-snippet-preview.html"
 
 
-class NavigationSnippet(ImageAltTextMixin, FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
     """A snippet defining a site navigation menu, editable in the CMS.
 
     The ``items`` stream holds top-level links (a label + link rendered directly
     in the nav bar) and folders (a label + a dropdown of grouped links).
     """
-
-    image_alt_fields = ("logo",)
 
     name = models.CharField(max_length=255, help_text="Internal name for this navigation menu.")
     is_default = models.BooleanField(default=False, help_text="Whether this is the default navigation menu for the site.")
@@ -551,7 +550,7 @@ class NavigationSnippet(ImageAltTextMixin, FluentPreviewableMixin, BaseDraftTran
     logo_alt = models.CharField(
         max_length=255,
         blank=True,
-        help_text="Text for screen readers describing the image.",
+        help_text="Text for screen readers describing the logo link, such as the product name. Required if a logo is set.",
     )
     logo_dark = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -600,9 +599,11 @@ class NavigationSnippet(ImageAltTextMixin, FluentPreviewableMixin, BaseDraftTran
         return f"{self.name} – {self.locale}"
 
     def clean(self):
+        """Requires alt text for any logo, decorative or not, because it is the logo link's only name."""
         super().clean()
-        if errors := self.clean_image_alt_text():
-            raise ValidationError(errors)
+        if self.logo and not self.logo_alt.strip():
+            message = translation.gettext("Name what the logo links to, so it can be read out to someone who cannot see it.")
+            raise ValidationError({"logo_alt": message})
 
     @classmethod
     def get_default(cls):

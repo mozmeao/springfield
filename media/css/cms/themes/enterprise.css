@@ -7,6 +7,11 @@
 /* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
 @import 'variables/flare-media-query-tokens.css';
 
+:root {
+    --enterprise-square-radius: 32px;
+    --enterprise-video-radius: 32px;
+}
+
 /* Enterprise theme styles */
 @layer page {
     :root,
@@ -42,16 +47,11 @@
         font-variation-settings:
             'wght' 400,
             'wdth' 100;
+        letter-spacing: -0.02em;
     }
 
     .fl-main.has-gradient-bottom::before {
         background: none;
-    }
-
-    .fl-split-page-lower,
-    .fl-showcase,
-    main:not(.fl-contact-page) .fl-section {
-        padding-block: var(--token-layout-md);
     }
 
     .fl-section-container > .fl-heading,
@@ -76,10 +76,14 @@
         display: none;
     }
 
+    .fl-card p {
+        text-wrap: balance;
+    }
+
     /* default backgrounds. */
     .has-gradient-bottom {
         background-image: url('/media/img/firefox/enterprise/ent-bg-subpage-1.svg');
-        background-position: bottom 119% center;
+        background-position: bottom 67% center;
         background-repeat: no-repeat;
         background-size: 112vw auto;
     }
@@ -123,7 +127,6 @@
         background-color: transparent;
         background-image: none;
         border-radius: 0;
-        padding-block-start: var(--token-layout-md);
     }
 
     .fl-featured-image-section:not(.has-gradient-bottom),
@@ -131,15 +134,6 @@
         background: none;
         background-color: transparent;
         border-radius: 0;
-    }
-
-    .fl-featured-image-section .fl-superheading {
-        background-image: none;
-        color: var(--fl-theme-color-text);
-    }
-
-    .fl-featured-image-section .fl-subheading {
-        margin-block-start: var(--token-layout-xs);
     }
 
     .fl-featured-image-section .fl-section-container {
@@ -159,7 +153,6 @@
     }
 
     /* footer overrides  */
-
     .fl-language-switcher::before,
     .fl-language-switcher-select-wrapper {
         color: var(--fl-theme-color-text);
@@ -172,7 +165,6 @@
     }
 
     /* Other components */
-
     .fl-card.fl-card-outline {
         --fl-theme-illustration-icon-bg: var(--token-color-grey-2);
     }
@@ -234,6 +226,7 @@
 
     .fl-article-item-header {
         align-items: center;
+        padding-block: var(--token-spacing-md);
     }
 
     .fl-article-item-header img {
@@ -243,6 +236,10 @@
 
     .fl-article-item-description ul li::marker {
         color: var(--token-color-light-purple);
+    }
+
+    .fl-article-item-description .fl-buttons {
+        margin-block-end: var(--token-spacing-xl);
     }
 
     .fl-tags {
@@ -264,6 +261,91 @@
         padding: 1rem;
     }
 
+    /* From design QA. Scoping this to Enterprise-only for now,
+       but these should probably be consistent. */
+    .fl-section-container > .fl-heading-group {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fl-section-hgroup-gap);
+    }
+
+    .fl-section-container > .fl-heading-group .fl-heading {
+        margin-block-end: 0;
+    }
+
+    .fl-featured-image-section-heading .fl-heading-group,
+    .fl-intro .fl-heading-group {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--fl-section-hgroup-gap);
+    }
+
+    .fl-featured-image-section-heading .fl-heading,
+    .fl-intro .fl-heading {
+        margin: 0;
+    }
+
+    .fl-intro.fl-intro-vertical {
+        gap: var(--token-layout-sm);
+    }
+
+    .fl-intro .fl-superheading,
+    .fl-featured-image-section .fl-superheading,
+    .fl-section .fl-superheading {
+        color: var(--fl-theme-color-link);
+        font-size: var(--fl-theme-font-size-subheading-xs);
+        font-weight: var(--token-font-weight-normal);
+        margin: 0;
+
+        @container style(--lang-supports-uppercase: true) {
+            text-transform: uppercase;
+        }
+    }
+
+    .fl-featured-image-section .fl-superheading,
+    .fl-intro .fl-heading-group {
+        margin: 0;
+    }
+
+    .fl-intro-content {
+        gap: var(--token-layout-xs);
+    }
+
+    .fl-intro-content .fl-buttons {
+        margin: 0;
+    }
+
+    /* this removes some black edges on the provided videos. */
+    .fl-mediacontent-media .fl-video,
+    .fl-showcase-media .fl-video,
+    .fl-intro-media .fl-video {
+        contain: paint;
+    }
+
+    .fl-mediacontent-media .fl-video video,
+    .fl-showcase-media .fl-video video,
+    .fl-intro-media .fl-video video {
+        block-size: calc(100% + 4px);
+        inline-size: calc(100% + 4px);
+        inset-block-start: -2px;
+        inset-inline-start: -2px;
+        max-width: none;
+    }
+
+    /* custom radius for square video on homepage */
+    .fl-mediacontent-media .fl-video {
+        border-radius: var(--enterprise-square-radius);
+    }
+
+    /* custom radius for landscape video on homepage */
+    .fl-showcase-media .fl-video,
+    .fl-intro-media .fl-video,
+    .fl-featured-image-section-media .fl-video {
+        border-radius: var(--enterprise-video-radius);
+    }
+
     /* No space for the CTA button on mobile */
     @media (--viewport-xs) {
         .fl-header-main-download-button {
@@ -271,31 +353,39 @@
         }
     }
 
+    @media (--viewport-sm-up) {
+        :root {
+            /* note: 80% smaller for now. */
+            --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
+            --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
+            --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
+            --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
+            --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
+        }
+    }
+
     @media (--viewport-md-up) {
+        :root {
+            --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
+            --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
+            --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
+            --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
+            --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
+            --enterprise-square-radius: 72px;
+            --enterprise-video-radius: 50px;
+        }
+
+        .has-gradient-bottom {
+            background-position: bottom 119% center;
+        }
+
         .fl-logo-fx {
             background-size: 237px 36px;
             inline-size: 237px;
         }
-    }
-}
 
-@media (--viewport-sm-up) {
-    :root {
-        /* note: 80% smaller for now. */
-        --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
-        --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
-        --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
-        --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
-        --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
-    }
-}
-
-@media (--viewport-md-up) {
-    :root {
-        --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
-        --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
-        --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
-        --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
-        --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
+        .fl-article-item-header {
+            padding-block: 0;
+        }
     }
 }

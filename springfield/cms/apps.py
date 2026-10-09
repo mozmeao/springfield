@@ -31,6 +31,15 @@ class CmsConfig(AppConfig):
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
 
+        self._connect_audit_log_receivers()
+
+    @staticmethod
+    def _connect_audit_log_receivers():
+        """Send every new Wagtail audit log entry, and every user deletion, to the audit.wagtail logger."""
+        # Imported here because importing the module connects its receivers, and it imports
+        # Wagtail models, which cannot be imported while the app registry is still loading.
+        from springfield.cms import audit_log  # noqa: F401
+
     @staticmethod
     def _register_routing_signals():
         """Populate the routing signal registry.

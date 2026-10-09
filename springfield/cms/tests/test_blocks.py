@@ -40,7 +40,9 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -48,6 +50,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    ComparisonImageHeaderBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
@@ -873,6 +876,21 @@ def test_mobile_store_qr_code_block_renders_its_alt(placeholder_images, rf):
     assert mobile_image_div.find("img")["alt"] == "Firefox in the app store"
 
 
+def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_errors(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "",
+        }
+    )
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
+
+
 def test_topic_block_renders_its_alt(placeholder_images):
     block = TopicBlock()
     value = block.to_python(
@@ -1390,6 +1408,9 @@ def test_uitour_buttons_2026(index_page, rf):
         assert expected_class in button_el["class"], f"{analytics_id}: expected class '{expected_class}' on button, got {button_el['class']}"
 
         assert btn_value["custom_label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['custom_label']}' in button text"
+
+        expected_wallpaper = btn_value.get("wallpaper") or None
+        assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -2199,7 +2220,9 @@ def test_enterprise_download_block(index_page, rf):
     for region in (upper, lower):
         download_section = region.find("section", id="download")
         assert download_section, "Enterprise download section should render"
-        assert "Enterprise downloads" in download_section.get_text()
+        section_heading = download_section.find("h2", class_="fl-heading")
+        assert section_heading, "The section heading renders above the download menus"
+        assert section_heading.get_text(strip=True) == "Enterprise downloads"
 
         download_lists = download_section.find("div", class_="fl-enterprise-download-lists")
         assert download_lists, "Download lists container should render"
@@ -4013,12 +4036,8 @@ def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: di
     img_els = wrapper_el.find("span", class_="fl-comparison-image-header-media").find_all("img")
     has_dark_mode = bool(image_header_data.get("dark_mode_image"))
     assert len(img_els) == (2 if has_dark_mode else 1)
-    # The alt field pairs with the primary image; the dark-mode variant reuses
-    # that one computed string, since only one of the two is ever visible at a time.
-    primary_image = SpringfieldImage.objects.get(pk=image_header_data["image"])
-    expected_alt = alt_text(image_header_data["image_alt"], primary_image)
     for img_el in img_els:
-        assert img_el.get("alt") == expected_alt
+        assert img_el.get("alt") == image_header_data["image_alt"]
         assert img_el.get("loading") == "lazy"
         assert img_el.get("srcset")
     if has_dark_mode:
@@ -4272,6 +4291,30 @@ def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_image_header_blocks_image_alt_field_takes_precedence_even_if_blank(placeholder_images):
+    """Even if the image has a description, an explicitly blank image_alt takes precedence."""
+    block = ComparisonImageHeaderBlock()
+    value = block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "label": "Firefox"}))
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert placeholder_images.image.description
+    assert soup.find("img")["alt"] == ""
+    assert soup.find("span", class_="fl-comparison-image-header-text").get_text(strip=True) == "Firefox"
+
+
+def test_comparison_image_header_blocks_alt_text_takes_precedence_for_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+    block = ComparisonImageHeaderBlock()
+    value = block.to_python({"image": decorative_image.pk, "image_alt": "Firefox logo", "label": "Firefox"})
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("img")["alt"] == "Firefox logo"
 
 
 def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():
@@ -4749,6 +4792,31 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     button_types_without = list(block_without.declared_blocks["buttons"].child_blocks.keys())
     assert "uitour_button" in button_types_with
     assert "uitour_button" not in button_types_without
+
+
+def test_uitour_import_browser_data_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+@pytest.mark.parametrize(
+    ("button_type", "wallpaper", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Wrexham", True),
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_type, wallpaper, is_valid):
+    value = {"button_type": button_type, "wallpaper": wallpaper, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "wallpaper" in exc_info.value.block_errors
 
 
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):

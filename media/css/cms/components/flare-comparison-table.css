@@ -72,6 +72,14 @@
 }
 
 @media (--viewport-below-md) {
+    .fl-comparison-table-wrapper {
+        inline-size: calc(
+            100% + var(--fl-section-h-padding) + var(--fl-section-h-padding)
+        );
+        margin-inline-start: calc(-1 * var(--fl-section-h-padding));
+        padding-inline: var(--fl-section-h-padding);
+    }
+
     .fl-comparison-table-wrapper.stacked thead,
     .fl-comparison-table-wrapper.stacked tbody {
         display: block;
