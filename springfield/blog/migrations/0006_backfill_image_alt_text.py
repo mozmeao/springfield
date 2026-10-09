@@ -9,7 +9,7 @@ import importlib
 
 from django.db import migrations
 
-cms_backfill = importlib.import_module("springfield.cms.migrations.0164_backfill_image_alt_text")
+cms_backfill = importlib.import_module("springfield.cms.migrations.0165_backfill_image_alt_text")
 
 
 def backfill_blog_alt_text(apps, schema_editor):
@@ -18,8 +18,8 @@ def backfill_blog_alt_text(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("blog", "0004_blogarticlepage_image_alt_and_more"),
-        ("cms", "0164_backfill_image_alt_text"),
+        ("blog", "0005_blogarticlepage_image_alt_and_more"),
+        ("cms", "0165_backfill_image_alt_text"),
     ]
 
     operations = [
