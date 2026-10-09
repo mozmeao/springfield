@@ -16,6 +16,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="navigationsnippet",
             name="logo_alt",
-            field=models.CharField(blank=True, help_text="Text for screen readers describing the image.", max_length=255),
+            field=models.CharField(
+                blank=True,
+                help_text="Text for screen readers describing the logo link, such as the product name. Required if a logo is set.",
+                max_length=255,
+            ),
         ),
     ]

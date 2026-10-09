@@ -537,11 +537,13 @@ def test_navigation_snippet_requires_alt_for_a_non_decorative_logo(navigation_sn
     assert "logo_alt" in excinfo.value.error_dict
 
 
-def test_navigation_snippet_accepts_a_blank_alt_for_a_decorative_logo(navigation_snippet):
+def test_navigation_snippet_requires_alt_for_a_decorative_logo(navigation_snippet):
     navigation_snippet.logo.is_decorative = True
     navigation_snippet.logo.save()
     navigation_snippet.logo_alt = ""
-    navigation_snippet.clean()  # does not raise
+    with pytest.raises(ValidationError) as excinfo:
+        navigation_snippet.clean()
+    assert "logo_alt" in excinfo.value.error_dict
 
 
 def test_site_header_renders_the_logo_alt_on_both_variants(minimal_site, rf, navigation_snippet):
@@ -558,6 +560,7 @@ def test_site_header_renders_the_logo_alt_on_both_variants(minimal_site, rf, nav
     assert logo_images
     for logo_image in logo_images:
         assert logo_image["alt"] == "Firefox"
+    assert "aria-label" not in logo_anchor.attrs
 
 
 def make_default_snippet(name="Default nav", items=None):
