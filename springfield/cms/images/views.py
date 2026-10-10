@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import prefetch_related_objects
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -14,6 +15,7 @@ from wagtail.admin.ui.tables import BaseColumn
 from wagtail.images import get_image_model
 from wagtail.images.permissions import permission_policy
 from wagtail.images.views.images import IndexView
+from wagtail.log_actions import log
 
 from springfield.cms.images.forms import InlineImageForm
 from springfield.cms.images.usage import NO_USAGE, get_image_usages
@@ -32,7 +34,9 @@ def inline_edit_image(request, image_id):
     form = InlineImageForm(request.POST, instance=image)
     is_saved = form.is_valid()
     if is_saved:
-        form.save()
+        with transaction.atomic():
+            form.save()
+            log(instance=image, action="wagtail.edit", content_changed=form.has_changed())
 
     return TemplateResponse(
         request,

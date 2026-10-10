@@ -12,7 +12,7 @@ token is sent as a header by the inline edit script.
 {% load i18n %}
 <td class="inline-edit-cell" data-inline-cell="save">
     <form id="{{ form.form_id }}" data-inline-image-form method="post" action="{% url 'cms_image_inline_edit' instance.pk %}">
-        <button type="submit" class="button button-small">{% trans "Save" %}</button>
+        <button type="submit" class="button button-small">{% trans "Save" %}<span class="w-sr-only"> {{ instance.title }}</span></button>
         {% for error in form.non_field_errors %}
             <p class="error-message">{{ error }}</p>
         {% endfor %}

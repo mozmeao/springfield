@@ -8,6 +8,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 {% comment %}
 One editable field of an image's row in the image listing.
 {% endcomment %}
+{% load i18n %}
 <td class="inline-edit-cell" data-inline-cell="{{ field_name }}">
     <label class="w-sr-only" for="{{ field.id_for_label }}">{{ field.label }}</label>
     {{ field }}
@@ -16,5 +17,6 @@ One editable field of an image's row in the image listing.
     {% endfor %}
     {% if field_name == "title" %}
         <div class="filename-wrapper"><span>{{ instance.filename }}</span></div>
+        <a href="{% url 'wagtailimages:edit' instance.pk %}">{% trans "Edit" %}<span class="w-sr-only"> {{ instance.title }}</span></a>
     {% endif %}
 </td>

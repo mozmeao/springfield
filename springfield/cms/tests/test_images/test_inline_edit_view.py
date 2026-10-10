@@ -9,7 +9,7 @@ from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Collection, GroupCollectionPermission
+from wagtail.models import Collection, GroupCollectionPermission, ModelLogEntry
 
 pytestmark = [pytest.mark.django_db]
 
@@ -54,6 +54,7 @@ def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
     assert image.description == "The Firefox logo on a purple background"
     assert image.is_decorative is False
     assert set(image.tags.names()) == {"brand", "logo"}
+    assert ModelLogEntry.objects.filter(object_id=str(image.pk), action="wagtail.edit").count() == 1
     soup = BeautifulSoup(response.content, "html.parser")
     assert [cell["data-inline-cell"] for cell in soup.select("td[data-inline-cell]")] == [
         "title",
@@ -67,7 +68,7 @@ def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
     row_form = soup.select_one(f"form#image-inline-{image.pk}[data-inline-image-form]")
     assert row_form["action"] == reverse("cms_image_inline_edit", args=[image.pk])
     assert row_form.select_one("[role='status']").get_text(strip=True) == "Saved"
-    assert soup.select_one("td[data-inline-cell='title']").get_text(" ", strip=True).endswith(image.filename)
+    assert image.filename in soup.select_one("td[data-inline-cell='title'] .filename-wrapper").get_text()
 
 
 def test_invalid_post_returns_400_and_saves_nothing(admin_client, make_image):

@@ -89,5 +89,5 @@ def group_translations(sources, default_locale_id, url_finder):
                 is_snippet=not isinstance(shown_member, Page),
             )
         )
-    groups.sort(key=lambda group: (group.is_snippet, group.title.lower()))
+    groups.sort(key=lambda group: (group.is_snippet, group.title.lower(), group.edit_url or ""))
     return groups

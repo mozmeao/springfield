@@ -29,11 +29,11 @@ function hasUnsavedRows() {
 }
 
 function markRowDirty(event) {
-    const form = event.target.form;
-    if (!form || !form.matches(FORM_SELECTOR)) {
+    const cell = event.target.closest('.inline-edit-cell');
+    const row = cell && cell.closest('tr');
+    if (!row || !row.querySelector(FORM_SELECTOR)) {
         return;
     }
-    const row = form.closest('tr');
     if (!row.hasAttribute(DIRTY_ATTRIBUTE)) {
         row.setAttribute(DIRTY_ATTRIBUTE, '');
         setStatus(row, 'Unsaved changes');
@@ -41,6 +41,10 @@ function markRowDirty(event) {
 }
 
 function replaceCells(row, responseHtml) {
+    const focusedElement = row.contains(document.activeElement)
+        ? document.activeElement
+        : null;
+    const focusedId = focusedElement && focusedElement.id;
     const template = document.createElement('template');
     template.innerHTML = responseHtml;
     template.content
@@ -53,6 +57,24 @@ function replaceCells(row, responseHtml) {
                 oldCell.replaceWith(newCell);
             }
         });
+    if (!focusedElement) {
+        return;
+    }
+    const firstError = row.querySelector('.error-message');
+    const target = firstError
+        ? firstError
+              .closest('.inline-edit-cell')
+              .querySelector('input, textarea')
+        : (focusedId && document.getElementById(focusedId)) ||
+          row.querySelector('button[type="submit"]');
+    if (target) {
+        target.focus();
+    }
+}
+
+function announceStatus(row, message) {
+    setStatus(row, '');
+    requestAnimationFrame(() => setStatus(row, message));
 }
 
 async function saveRow(event) {
@@ -85,6 +107,7 @@ async function saveRow(event) {
             throw new Error(`Unexpected response ${response.status}`);
         }
         replaceCells(row, await response.text());
+        announceStatus(row, response.ok ? 'Saved' : 'Not saved');
         if (response.ok) {
             row.removeAttribute(DIRTY_ATTRIBUTE);
         }
@@ -113,6 +136,12 @@ function warnBeforeUnload(event) {
 
 document.addEventListener('input', markRowDirty);
 document.addEventListener('change', markRowDirty);
+// Wagtail's tag widget (tag-it) triggers `change` through jQuery, which native listeners never see.
+if (window.jQuery) {
+    window
+        .jQuery(document)
+        .on('change', '.inline-edit-cell input', markRowDirty);
+}
 document.addEventListener('submit', saveRow);
 document.addEventListener('w-swap:begin', confirmDiscardBeforeSwap);
 window.addEventListener('beforeunload', warnBeforeUnload);

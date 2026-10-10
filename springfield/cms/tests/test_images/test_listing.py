@@ -19,6 +19,7 @@ pytestmark = [pytest.mark.django_db]
 
 def test_list_layout_renders_editable_rows_and_usage(admin_client, make_image, root_page):
     image = make_image()
+    image.tags.add("brand")
     french = LocaleFactory(language_code="fr")
     english_page = SimpleRichTextPageFactory(parent=root_page, slug="firefox-home", title="Firefox Home", og_image=image)
     french_page = SimpleRichTextPageFactory(
@@ -50,6 +51,8 @@ def test_list_layout_renders_editable_rows_and_usage(admin_client, make_image, r
     assert cells[-3]["data-inline-cell"] == "save"
     assert cells[-2].get_text(strip=True) == "Root"
     assert row.select_one(f"input[name='image-{image.pk}-title']")["value"] == "Firefox logo"
+    assert row.select_one(f"input[name='image-{image.pk}-tags']")["value"] == "brand"
+    assert row.select_one("td[data-inline-cell='title'] a")["href"] == reverse("wagtailimages:edit", args=[image.pk])
     assert row.select_one(f"textarea[name='image-{image.pk}-description']").get_text(strip=True) == "The Firefox logo"
     usage_items = row.select("td[data-inline-cell='usage'] li")
     assert usage_items[0].get_text(" ", strip=True) == "Firefox Home · 2 locales"
@@ -87,13 +90,16 @@ def test_grid_layout_renders_the_image_grid(admin_client, make_image):
 
 
 def test_search_results_in_list_layout_are_served_by_our_view(admin_client, make_image):
-    make_image()
+    image = make_image()
     results_url = reverse("wagtailimages:index_results")
 
     response = admin_client.get(results_url, {"layout": "list", "q": "logo"})
 
     assert resolve(results_url).func.view_class is SpringfieldImageIndexView
     assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    row = soup.select_one(f"form#image-inline-{image.pk}").find_parent("tr")
+    assert row.select_one("td[data-inline-cell='usage']") is not None
 
 
 def test_list_layout_query_count_does_not_grow_with_images(admin_client, make_image, root_page):
