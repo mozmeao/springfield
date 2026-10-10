@@ -136,11 +136,21 @@ function warnBeforeUnload(event) {
 
 document.addEventListener('input', markRowDirty);
 document.addEventListener('change', markRowDirty);
-// Wagtail's tag widget (tag-it) triggers `change` through jQuery, which native listeners never see.
+// Wagtail's tag widget (tag-it) reports tag changes only through jQuery events, and also fires
+// them while building a row's existing tags on load, which is not an edit.
 if (window.jQuery) {
     window
         .jQuery(document)
-        .on('change', '.inline-edit-cell input', markRowDirty);
+        .on(
+            'tagitaftertagadded tagitaftertagremoved',
+            '.inline-edit-cell',
+            (event, tagDetails) => {
+                if (tagDetails && tagDetails.duringInitialization) {
+                    return;
+                }
+                markRowDirty(event);
+            }
+        );
 }
 document.addEventListener('submit', saveRow);
 document.addEventListener('w-swap:begin', confirmDiscardBeforeSwap);
