@@ -46,6 +46,7 @@ from springfield.cms.admin_views import (
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
+from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
@@ -86,6 +87,20 @@ def register_cms_admin_urls():
             name="cms_translation_draftsharing_create",
         ),
         path("regenerate-docs/", RegenerateDocsView.as_view(), name="cms_regenerate_docs"),
+    ]
+
+
+@hooks.register("register_admin_urls", order=-1)
+def register_image_listing_urls():
+    """URLs for the image listing's inline editing.
+
+    Registered ahead of Wagtail's own image URLs, so any path here that Wagtail also serves
+    resolves to the view registered here, while the wagtailimages URL names still reverse to it.
+    """
+    return [
+        path("images/", SpringfieldImageIndexView.as_view(), name="cms_image_index"),
+        path("images/results/", SpringfieldImageIndexView.as_view(results_only=True), name="cms_image_index_results"),
+        path("images/<int:image_id>/inline-edit/", inline_edit_image, name="cms_image_inline_edit"),
     ]
 
 
@@ -166,6 +181,12 @@ def environment_admin_css():
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
+
+
+@hooks.register("insert_global_admin_js")
+def image_inline_edit_js():
+    """Script that saves rows of the image listing edited in place."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
 
 
 @hooks.register("insert_global_admin_js")

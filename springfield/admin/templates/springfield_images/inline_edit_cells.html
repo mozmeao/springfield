@@ -1,0 +1,16 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+An image row's editable cells after a save, for the inline edit script to swap into the row.
+{% endcomment %}
+<table><tbody><tr>
+    {% for field in form.visible_fields %}
+        {% include "springfield_images/inline_field_cell.html" with field=field field_name=field.name %}
+    {% endfor %}
+    {% include "springfield_images/inline_save_cell.html" %}
+</tr></tbody></table>
