@@ -1,4 +1,4 @@
-name: ssdlc-sbom
+name: "SSDLC: Generate SBOM"
 
 on:
     release:
