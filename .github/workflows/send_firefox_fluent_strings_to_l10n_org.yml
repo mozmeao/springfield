@@ -4,7 +4,7 @@
 name: Open Fluent PR in www-firefox-l10n
 
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Build and push a Docker image"]
     types: [completed]
     branches: [main]
@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.HEAD_SHA }}
+          persist-credentials: false
       - name: Run PR-opening script
         shell: bash
         run: FLUENT_REPO_AUTH=${{ secrets.FLUENT_REPO_AUTH }} bin/open-ftl-pr.sh
