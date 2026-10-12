@@ -3,6 +3,9 @@
 
 name: Open Fluent PR in www-firefox-l10n
 
+permissions:
+  contents: read
+
 on:
   workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Build and push a Docker image"]

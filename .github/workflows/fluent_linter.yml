@@ -1,4 +1,8 @@
 name: Fluent Linter
+
+permissions:
+  contents: read
+
 on:
   push:
     paths:

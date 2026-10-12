@@ -1,4 +1,8 @@
 name: Enforce pre-commit standards
+
+permissions:
+  contents: read
+
 on:
   push:
     branches:

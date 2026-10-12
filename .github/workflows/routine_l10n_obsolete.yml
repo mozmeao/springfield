@@ -1,4 +1,7 @@
 name: Bimonthly l10n cleanup reminder
+
+permissions: {}
+
 on:
   schedule:
     - cron: 0 10 15 2-12/2 *
