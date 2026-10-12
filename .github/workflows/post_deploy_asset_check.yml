@@ -32,6 +32,7 @@ jobs:
         with:
           sparse-checkout: |
             .github/actions/slack
+          persist-credentials: false
       - name: Notify via Slack that tests are starting
         uses: ./.github/actions/slack
         with:
@@ -72,6 +73,7 @@ jobs:
         with:
           sparse-checkout: |
             .github/actions/slack
+          persist-credentials: false
       - name: Notify via Slack of test-run success
         if: ${{ needs.asset-check.result == 'success' }}
         uses: ./.github/actions/slack

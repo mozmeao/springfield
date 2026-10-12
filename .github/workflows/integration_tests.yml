@@ -29,6 +29,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/actions/slack
+          persist-credentials: false
       - name: Notify via Slack that tests are starting
         uses: ./.github/actions/slack
         with:
@@ -78,6 +79,8 @@ jobs:
       - name: Fetch codebase
         if: always()
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Sets specific env vars IF testing against dev/main only
         if: ${{ github.event.inputs.branch == 'main'}}
         run: |
@@ -109,6 +112,8 @@ jobs:
       CI: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
@@ -132,6 +137,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/actions/slack
+          persist-credentials: false
       - name: Notify via Slack of test-run success
         if: ${{ needs.integration-tests.result == 'success' && needs.playwright-tests.result == 'success' }}
         uses: ./.github/actions/slack

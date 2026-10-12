@@ -59,6 +59,7 @@ jobs:
             fetch-depth: 10 # get enough so we have a Git history, but not everything
             fetch-tags: true
             ref: ${{ env.REF_ID }}
+            persist-credentials: false
 
       - id: long-sha
         name: Use full SHA for tagging images

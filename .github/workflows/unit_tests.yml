@@ -19,6 +19,8 @@ jobs:
     if: github.repository == 'mozmeao/springfield'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
@@ -33,6 +35,8 @@ jobs:
     if: github.repository == 'mozmeao/springfield'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: "Run Python tests (on Docker)"
         run: |
             make clean test-image
@@ -59,6 +63,8 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}  # Only run the extra release checks on PRs and Merge Queue prep for now
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: "Run Python tests (on Docker) with extra release service build"
         run: |
             make clean test-ci
