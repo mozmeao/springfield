@@ -588,6 +588,10 @@
     --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/firefox-24.svg');
 }
 
+.fl-icon-firefox-1c {
+    --icon-src: url('/media/img/firefox/flare/icons/mobile-24/browsers/firefox-1c.svg');
+}
+
 .fl-icon-firefox-bridge {
     --icon-src: url('/media/img/firefox/flare/icons/desktop-16/firefox-bridge/firefox-bridge-16.svg');
 }
