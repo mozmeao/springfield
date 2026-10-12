@@ -23,6 +23,7 @@ permissions:
 
 jobs:
   notify-of-test-run-start:
+    name: Notify Slack of test run start
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     steps:
@@ -42,6 +43,7 @@ jobs:
           message: "Integration tests started"
 
   integration-tests:
+    name: Integration tests
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     strategy:
@@ -105,6 +107,7 @@ jobs:
           if-no-files-found: ignore # this avoids a false "Warning" if there were no issues
 
   playwright-tests:
+    name: Playwright tests
     if: always() && github.repository == 'mozmeao/springfield'
     runs-on: ubuntu-latest
     env:
@@ -130,6 +133,7 @@ jobs:
           retention-days: 30
 
   notify-of-test-run-completion:
+    name: Notify Slack of test run completion
     if: always() && github.repository == 'mozmeao/springfield'
     runs-on: ubuntu-latest
     needs: [integration-tests, playwright-tests]

@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   test-js:
+    name: JS tests
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     steps:
@@ -31,6 +32,7 @@ jobs:
         run: xvfb-run npm test
 
   test-python:
+    name: Python tests
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     steps:
@@ -59,6 +61,7 @@ jobs:
           verbose: true  # optional (default = false)
 
   test-python-more:  # This is a preview `test-ci` to replace the previous `test-image` over time
+    name: Python tests (release build)
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}  # Only run the extra release checks on PRs and Merge Queue prep for now
     steps:

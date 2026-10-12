@@ -21,6 +21,7 @@ on:
   workflow_dispatch:
 jobs:
   linter:
+    name: Lint Fluent files
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     steps:

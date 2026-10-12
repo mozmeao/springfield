@@ -17,6 +17,7 @@ on:
 
 jobs:
   open_l10n_pr:
+    name: Open Fluent l10n PR
     if: |
       github.repository == 'mozmeao/springfield' &&
       (github.event.workflow_run.conclusion == 'success' || github.event_name != 'workflow_run')
