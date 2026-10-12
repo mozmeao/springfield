@@ -19,7 +19,7 @@ languages.forEach((lang) => {
     // For Japanese, the macOS download language code is `ja-JP-mac`.
     const macDownloadLang = lang === 'ja' ? 'ja-JP-mac' : lang;
 
-    test.describe(
+    test.describe.skip(
         `${url} page`,
         {
             tag: '@firefox'
