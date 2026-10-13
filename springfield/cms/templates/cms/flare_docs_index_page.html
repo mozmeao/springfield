@@ -131,6 +131,15 @@
           heading_level="h1"
         />
       </content:heading>
+      {% if changelog %}
+        <content:content>
+          <include:button
+            label="Open changelog"
+            extra_classes="fl-dialog-trigger"
+            data_target_id="cms-changelog-dialog"
+          />
+        </content:content>
+      {% endif %}
     </include:intro>
 
     <div class="fl-section">
@@ -206,6 +215,22 @@
     </div>
   </main>
 </div>
+
+{% if changelog %}
+  <include:dialog id="cms-changelog-dialog" label="CMS changelog">
+    <content:heading>
+      <include:heading
+        level="h1"
+        heading_size="fl-heading-md"
+        heading_text="CMS Changelog"
+      />
+    </content:heading>
+    <content:body>
+      <p>These are the most recent changes to CMS blocks, block fields, page types, etc.</p>
+      <div class="fl-rich-text">{{ changelog|markdown_safe }}</div>
+    </content:body>
+  </include:dialog>
+{% endif %}
 {% endblock %}
 
 {% block js %}
