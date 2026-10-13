@@ -61,3 +61,11 @@
         }
     }
 }
+
+/* Hotfix for nonbreaking long words in German header. TODO: improve me */
+@media (--viewport-below-md) {
+    .fl-heading {
+        /* break-word (from flare-base) doesn't fire here and 'hyphens: auto' breaks too eagerly, even scoped to :lang(de) */
+        overflow-wrap: anywhere;
+    }
+}
