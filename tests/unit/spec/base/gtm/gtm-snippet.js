@@ -166,6 +166,8 @@ describe('gtm-snippet.es6.js', function () {
     describe('GTMSnippet.setGtagConsentDefaults()', function () {
         beforeEach(function () {
             window.gtag = jasmine.createSpy('gtag');
+            // Mock initAnalytics to avoid real XHR request
+            spyOn(window.Mozilla.DownloadAttribution, 'initAnalytics');
         });
 
         afterEach(function () {
