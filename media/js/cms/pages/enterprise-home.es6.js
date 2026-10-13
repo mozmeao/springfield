@@ -10,45 +10,30 @@
   extra_js="enterprise-home" to avoid breaking the page functionality.
 */
 
+// Decorative animated bubbles, styled and animated in css/cms/themes/enterprise-home.css.
+const BUBBLES_MARKUP = `
+<div class="fl-ent-bubbles" aria-hidden="true">
+  <div class="fl-ent-haze"></div>
+  <div class="fl-ent-bubble fl-ent-bubble-right">
+    <div class="fl-ent-fade"><div class="fl-ent-fill"></div></div>
+  </div>
+  <div class="fl-ent-bubble fl-ent-bubble-left">
+    <div class="fl-ent-fade"><div class="fl-ent-fill"></div></div>
+    <div class="fl-ent-lens-wrap"><div class="fl-ent-lens"></div></div>
+  </div>
+</div>`;
+
 const setupEnterpriseHome = () => {
     if (!document.querySelector('.enterprise-home')) return;
 
-    const topVideoContainer = document.querySelector('.fl-split-page-upper');
-    const bottomVideoContainer = document.querySelector('.fl-main');
+    const heroContainer = document.querySelector('.fl-split-page-upper');
+    const footerContainer = document.querySelector('.fl-main');
 
-    if (!topVideoContainer) return;
+    if (!heroContainer) return;
 
-    // Stop here if the user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const createVideo = () => {
-        const video = document.createElement('video');
-        video.className = 'body-bg-video';
-        video.autoplay = true;
-        video.muted = true;
-        video.loop = true;
-        video.playsInline = true;
-
-        const source = document.createElement('source');
-        source.src =
-            'https://assets.mozilla.net/enterprise/video/HOMEPAGE_HEROBUBBLES_a.webm';
-        source.type = 'video/webm';
-
-        video.appendChild(source);
-        return video;
-    };
-
-    [topVideoContainer, bottomVideoContainer].forEach((container) => {
+    [heroContainer, footerContainer].forEach((container) => {
         if (!container) return;
-
-        const video = createVideo();
-        container.appendChild(video);
-
-        video.play().catch((error) => {
-            // Autoplay interrupted, ignore
-            if (error && error.name === 'AbortError') return;
-            throw error;
-        });
+        container.insertAdjacentHTML('beforeend', BUBBLES_MARKUP);
     });
 };
 
