@@ -24,6 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.templatetags.qrcode import qrcode
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -57,6 +58,7 @@ from springfield.cms.blocks import (
     IconChoiceBlock,
     IconListItemValue,
     ImpactDashBlock,
+    QRCodeBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -6583,3 +6585,16 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+@pytest.mark.django_db
+def test_qr_code_block_encodes_its_own_data():
+    block = QRCodeBlock()
+    value = block.to_python({"data": "https://example.com/app", "background": None})
+
+    # The SVG carries an XML prolog, which BeautifulSoup's HTML parser warns about, so read the
+    # one attribute that holds the encoded modules directly.
+    def qr_path(svg):
+        return re.search(r'<path d="([^"]+)"', svg).group(1)
+
+    assert qr_path(block.render(value)) == qr_path(str(qrcode("https://example.com/app", 12)))
