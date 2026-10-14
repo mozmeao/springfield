@@ -601,7 +601,7 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
     def clean(self):
         """Requires alt text for any logo, decorative or not, because it is the logo link's only name."""
         super().clean()
-        if self.logo and not self.logo_alt.strip():
+        if self.logo_id and not self.logo_alt.strip():
             message = translation.gettext("Name what the logo links to, so it can be read out to someone who cannot see it.")
             raise ValidationError({"logo_alt": message})
 
