@@ -23,7 +23,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Deliberately not undone: the alt text this writes is indistinguishable
-        # from alt text an editor wrote, so reversing it would discard their work too.
-        migrations.RunPython(backfill_blog_alt_text, migrations.RunPython.noop),
+        # Disabled: this has already run against every database with content to fill.
+        # migrations.RunPython(backfill_blog_alt_text, migrations.RunPython.noop),
     ]
