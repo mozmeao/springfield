@@ -2,6 +2,10 @@ name: Bimonthly l10n cleanup reminder
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 on:
   schedule:
     - cron: 0 10 15 2-12/2 *
@@ -12,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'mozmeao/springfield'
     permissions:
-      issues: write
+      issues: write # Open the reminder issue and close the previous one
     steps:
       - name: Open new issue (and close old if needed)
         run: |

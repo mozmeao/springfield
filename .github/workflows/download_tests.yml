@@ -8,6 +8,10 @@ env:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 on:
   schedule:
     - cron: "15 14 * * *" # 2:15 PM UTC daily

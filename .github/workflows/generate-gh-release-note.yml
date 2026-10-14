@@ -2,6 +2,10 @@ name: Generate GitHub Release entry
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   push:
     # YYYY-MM-DD or YYYY-MM-DD.integer for times when there are multiple releases in a day
@@ -18,7 +22,7 @@ jobs:
     runs-on: ubuntu-slim
     if: github.repository == 'mozmeao/springfield'
     permissions:
-      contents: write
+      contents: write # Create the GitHub Release for the tag
 
     steps:
       - name: Checkout repository

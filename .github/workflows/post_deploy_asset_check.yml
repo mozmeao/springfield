@@ -4,6 +4,12 @@ run-name: Asset check for ${{ inputs.branch }} @ ${{ inputs.git_sha }}
 env:
   SLACK_CHANNEL_ID: CBX0KH5GA # #www-notify in MoCo Slack
   SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN_FOR_MEAO_NOTIFICATIONS_APP}}
+
+# Keyed per branch so stage and prod checks don't block each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.branch }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
