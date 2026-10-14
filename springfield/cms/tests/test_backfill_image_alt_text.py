@@ -14,6 +14,7 @@ from springfield.blog.models.pages import BlogArticlePage
 from springfield.blog.models.snippets import BlogTopic
 from springfield.cms.models.images import SpringfieldImage
 from springfield.cms.models.pages import ArticleDetailPage
+from springfield.cms.models.snippets import NavigationSnippet
 from springfield.cms.tests.factories import ArticleDetailPageFactory
 
 backfill_migration = importlib.import_module("springfield.cms.migrations.0165_backfill_image_alt_text")
@@ -231,3 +232,122 @@ def test_blog_backfill_fills_source_locale_articles_and_leaves_translations_blan
 
     assert english_article.image_alt == "A purple fox"
     assert french_article.image_alt == ""
+
+
+def make_navigation(name, logo=None, logo_alt="", locale=None):
+    """A navigation snippet holding only the fields the logo backfill reads."""
+    locale = locale or Locale.objects.get(language_code="en-US")
+    return NavigationSnippet.objects.create(locale=locale, name=name, items=[], logo=logo, logo_alt=logo_alt)
+
+
+@pytest.mark.django_db
+def test_backfill_names_a_logo_link_from_the_image_description(monkeypatch, placeholder_images):
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=logo.pk).update(title="Firefox Enterprise Logo", description="The Firefox for Enterprise wordmark")
+    navigation = make_navigation("Enterprise Navigation", logo=logo)
+    revision = navigation.save_revision(clean=False)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    revision.refresh_from_db()
+    assert navigation.logo_alt == "The Firefox for Enterprise wordmark"
+    assert revision.content["logo_alt"] == "The Firefox for Enterprise wordmark"
+
+
+@pytest.mark.django_db
+def test_backfill_names_a_logo_link_from_the_image_title_when_it_has_no_description(monkeypatch, placeholder_images):
+    """If a logo has no description, then its title is used for the alt text."""
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=logo.pk).update(title="Firefox Enterprise Logo", description="")
+    navigation = make_navigation("Enterprise Navigation", logo=logo)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    assert navigation.logo_alt == "Firefox Enterprise Logo"
+
+
+@pytest.mark.django_db
+def test_backfill_names_a_decorative_logo(monkeypatch, placeholder_images):
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=logo.pk).update(title="Firefox Enterprise Logo", description="", is_decorative=True)
+    navigation = make_navigation("Enterprise Navigation", logo=logo)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    assert navigation.logo_alt == "Firefox Enterprise Logo"
+
+
+@pytest.mark.django_db
+def test_backfill_names_a_logo_a_revision_no_longer_uses(monkeypatch, placeholder_images):
+    """A revision keeps the logo it was saved with, which can differ from the one in use today."""
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    old_logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=old_logo.pk).update(title="Firefox Enterprise Logo", description="")
+    navigation = make_navigation("Enterprise Navigation", logo=old_logo)
+    revision = navigation.save_revision(clean=False)
+    NavigationSnippet.objects.filter(pk=navigation.pk).update(logo=None)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    revision.refresh_from_db()
+    assert revision.content["logo_alt"] == "Firefox Enterprise Logo"
+
+
+@pytest.mark.django_db
+def test_backfill_keeps_a_logo_name_an_editor_wrote(monkeypatch, placeholder_images):
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=logo.pk).update(title="Firefox Enterprise Logo", description="The Firefox for Enterprise wordmark")
+    navigation = make_navigation("Enterprise Navigation", logo=logo, logo_alt="Firefox for Enterprise")
+    revision = navigation.save_revision(clean=False)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    revision.refresh_from_db()
+    assert navigation.logo_alt == "Firefox for Enterprise"
+    assert revision.content["logo_alt"] == "Firefox for Enterprise"
+
+
+@pytest.mark.django_db
+def test_backfill_leaves_a_translated_navigation_blank(monkeypatch, placeholder_images):
+    """A translated navigation stays blank until the next translation sync fills it from the source."""
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    french_locale, _ = Locale.objects.get_or_create(language_code="fr")
+    navigation = make_navigation("Navigation", logo=placeholder_images.image, locale=french_locale)
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    assert navigation.logo_alt == ""
+
+
+@pytest.mark.django_db
+def test_backfill_leaves_a_navigation_without_a_logo_alone(monkeypatch):
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    navigation = make_navigation("No logo")
+
+    backfill_migration.backfill_navigation_logo_alt(apps)
+
+    navigation.refresh_from_db()
+    assert navigation.logo_alt == ""
+
+
+@pytest.mark.django_db
+def test_backfill_cms_alt_text_names_a_navigation_logo(monkeypatch, placeholder_images):
+    """The migration's own callable, on an image only the logo step can name."""
+    monkeypatch.setattr(backfill_migration, "is_skipped_environment", lambda: False)
+    logo = placeholder_images.image
+    SpringfieldImage.objects.filter(pk=logo.pk).update(title="Firefox Enterprise Logo", description="")
+    navigation = make_navigation("Enterprise Navigation", logo=logo)
+
+    backfill_migration.backfill_cms_alt_text(apps, schema_editor=None)
+
+    navigation.refresh_from_db()
+    assert navigation.logo_alt == "Firefox Enterprise Logo"

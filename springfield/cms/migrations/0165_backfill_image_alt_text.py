@@ -9,6 +9,9 @@
 # wants. Only source-locale content is filled, so that a translated page keeps
 # rendering the English fallback until the next translation sync delivers a
 # translated string, rather than storing English as though it were translated.
+# A navigation logo is the exception: it is named from its image's description
+# or, where there is none, its title, and it is named even when the image is
+# decorative, because the logo is the whole content of the header link.
 
 import json
 import os
@@ -139,8 +142,56 @@ def backfill_alt_text(apps, app_label):
             revision.save(update_fields=["content"])
 
 
+def backfill_navigation_logo_alt(apps):
+    """Fills the blank logo alt text of every source-locale navigation, and of its revisions."""
+    if is_skipped_environment():
+        return
+
+    NavigationSnippet = apps.get_model("cms", "NavigationSnippet")
+    SpringfieldImage = apps.get_model("cms", "SpringfieldImage")
+    Locale = apps.get_model("wagtailcore", "Locale")
+    Revision = apps.get_model("wagtailcore", "Revision")
+    ContentType = apps.get_model("contenttypes", "ContentType")
+
+    source_locale = Locale.objects.filter(language_code="en-US").first()
+    if source_locale is None:
+        return
+
+    source_navigations = NavigationSnippet.objects.filter(locale=source_locale)
+    content_type = ContentType.objects.get_for_model(NavigationSnippet)
+    # object_id is a CharField, and a queryset on the right of __in reaches the database uncoerced.
+    source_navigation_ids = [str(pk) for pk in source_navigations.values_list("pk", flat=True)]
+    revisions = Revision.objects.filter(content_type=content_type, object_id__in=source_navigation_ids)
+
+    # A revision can hold a logo the navigation no longer uses, so both are collected before naming any.
+    logo_ids = {logo_id for logo_id in source_navigations.values_list("logo", flat=True) if logo_id}
+    for content in revisions.values_list("content", flat=True):
+        if content.get("logo"):
+            logo_ids.add(content["logo"])
+
+    # The description names the image wherever an editor wrote one and the title names it otherwise:
+    # the pair the image chooser offers an editor who picks the image by hand.
+    names_by_logo_id = {
+        logo_id: description or title
+        for logo_id, description, title in SpringfieldImage.objects.filter(id__in=logo_ids).values_list("id", "description", "title")
+    }
+
+    for navigation in source_navigations.exclude(logo=None).filter(logo_alt="").iterator():
+        navigation.logo_alt = names_by_logo_id.get(navigation.logo_id, "")
+        navigation.save(update_fields=["logo_alt"])
+
+    # The row is what the header renders; the revisions are what the admin form loads and what a
+    # revert restores, so we make sure they are not blank.
+    for revision in revisions.iterator():
+        logo_id = revision.content.get("logo")
+        if logo_id and not revision.content.get("logo_alt"):
+            revision.content["logo_alt"] = names_by_logo_id.get(logo_id, "")
+            revision.save(update_fields=["content"])
+
+
 def backfill_cms_alt_text(apps, schema_editor):
     backfill_alt_text(apps, "cms")
+    backfill_navigation_logo_alt(apps)
 
 
 class Migration(migrations.Migration):
