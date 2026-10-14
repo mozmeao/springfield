@@ -8,10 +8,10 @@
 
 <footer class="fl-footer">
     <div class="fl-footer-inner">
-        <div class="fl-footer-top">
-            <p class="fl-footer-copy">
-                {% set mozilla_link_attrs %}class="fl-footer-link" href="https://www.mozilla.org/{{ params }}"{% endset %}
-                {% set mozilla_foundation_link_attrs %}class="fl-footer-link" href="https://foundation.mozilla.org/{{ params }}"{% endset %}
+        <div class="fl-wnp-footer-legal">
+            <p class="fl-wnp-footer-copy">
+                {% set mozilla_link_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/{{ params }}"{% endset %}
+                {% set mozilla_foundation_link_attrs %}class="fl-wnp-footer-link" href="https://foundation.mozilla.org/{{ params }}"{% endset %}
                 {% set footer_years = "©1998–" ~ current_year|string %}
                 {{ ftl('footer-visit-mozilla',
                 mozilla_link_attrs=mozilla_link_attrs,
@@ -19,14 +19,14 @@
                 <br />
                 {{ ftl('footer-contributors', years=footer_years) }}
                 <br />
-                {% set license_attrs %}class="fl-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/{{ params }}"{% endset %}
+                {% set license_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/{{ params }}"{% endset %}
                 {{ ftl('footer-license', license_attrs=license_attrs) }}
             </p>
-            <nav class="fl-footer-links" aria-label="Footer">
+            <nav class="fl-wnp-footer-links" aria-label="Footer">
                 <ul>
                     <li>
                         <a
-                            class="fl-footer-link fl-footer-link-has-icon"
+                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
                             href="https://support.mozilla.org/"
                             >{{ ftl('footer-firefox-support')}}
                             <svg
@@ -51,28 +51,28 @@
                     </li>
                     <li>
                         <a
-                            class="fl-footer-link"
+                            class="fl-wnp-footer-link"
                             href="https://www.mozilla.org/privacy/websites/"
                             >{{ ftl('footer-privacy-notice') }}</a
                         >
                     </li>
                     <li>
                         <a
-                            class="fl-footer-link"
+                            class="fl-wnp-footer-link"
                             href="https://www.mozilla.org/about/legal/terms/firefox/"
                             >{{ ftl('footer-terms-of-use') }}</a
                         >
                     </li>
                     <li>
                         <a
-                            class="fl-footer-link"
+                            class="fl-wnp-footer-link"
                             href="/privacy/websites/cookie-settings/"
                             >{{ ftl('footer-websites-cookie-policy') }}</a
                         >
                     </li>
                 </ul>
             </nav>
-            <div class="fl-footer-logo fl-force-dark-theme">
+            <div class="fl-wnp-footer-logo fl-force-dark-theme">
                 <a
                     href="{{ url('firefox') }}"
                     data-link-position="footer"
@@ -82,18 +82,18 @@
             </div>
         </div>
 
-        <hr class="fl-footer-divider" />
+        <hr class="fl-wnp-footer-divider" />
 
-        <div class="fl-footer-bottom">
-            <div class="fl-footer-brand">
-                <h3 class="fl-footer-title">
+        <div class="fl-wnp-footer-mozilla">
+            <div class="fl-wnp-footer-brand">
+                <h3 class="fl-wnp-footer-title">
                     <a href="https://www.mozilla.org/{{ params }}" data-link-position="footer" data-link-text="Powered by Mozilla">{{ ftl('footer-powdered-by') }}</a>
                 </h3>
-                <p class="fl-footer-subtitle">
+                <p class="fl-wnp-footer-subtitle">
                     {{ ftl('footer-putting-people') }}
                 </p>
             </div>
-            <div class="fl-footer-cta">
+            <div class="fl-wnp-footer-cta">
               <include:button
                 link="https://foundation.mozilla.org/?form=whats-new-product"
                 icon_name="heart"
@@ -103,7 +103,7 @@
               </include:button>
 
 
-                <p class="fl-footer-note">
+                <p class="fl-wnp-footer-note">
                     {{ ftl('footer-make-good-things') }}
                 </p>
             </div>
