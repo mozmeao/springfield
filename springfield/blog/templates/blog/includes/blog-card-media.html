@@ -34,11 +34,12 @@
     {% set mobile_image = article.get_mobile_image() %}
     {% set dark_mobile_image = article.get_mobile_dark_image() %}
     {% set classes = image_variant_classes(dark_image, mobile_image, dark_mobile_image) %}
+    {% set image_alt = alt_text(article.get_image_alt(), image) %}
     <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
-      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", class=classes.primary) }}
-      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
-      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.primary) }}
+      {% if mobile_image %}{{ srcset_image(mobile_image, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.mobile) }}{% endif %}
+      {% if dark_mobile_image %}{{ srcset_image(dark_mobile_image, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.dark_mode_mobile) }}{% endif %}
+      {% if dark_image %}{{ srcset_image(dark_image, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.dark_mode) }}{% endif %}
     </div>
   {% endif %}
 {% endmacro %}
@@ -60,11 +61,12 @@
     {% endif %}
     {% set variants = article_page.get_listing_image_variants() %}
     {% set classes = image_variant_classes(variants.dark_mode, variants.mobile, variants.dark_mode_mobile) %}
+    {% set image_alt = alt_text(article_page.get_listing_image_alt(), image) %}
     <div class="image-variants-display" style="--focal-point: {{ focal_point }}">
-      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", class=classes.primary) }}
-      {% if variants.mobile %}{{ srcset_image(variants.mobile, filterspec, sizes=sizes, loading="lazy", class=classes.mobile) }}{% endif %}
-      {% if variants.dark_mode_mobile %}{{ srcset_image(variants.dark_mode_mobile, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
-      {% if variants.dark_mode %}{{ srcset_image(variants.dark_mode, filterspec, sizes=sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
+      {{ srcset_image(image, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.primary) }}
+      {% if variants.mobile %}{{ srcset_image(variants.mobile, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.mobile) }}{% endif %}
+      {% if variants.dark_mode_mobile %}{{ srcset_image(variants.dark_mode_mobile, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.dark_mode_mobile) }}{% endif %}
+      {% if variants.dark_mode %}{{ srcset_image(variants.dark_mode, filterspec, sizes=sizes, loading="lazy", alt=image_alt, class=classes.dark_mode) }}{% endif %}
     </div>
   {% endif %}
 {% endmacro %}
@@ -75,11 +77,12 @@
     {% set variants = article_page.get_listing_image_variants() %}
     {% set classes = image_variant_classes(variants.dark_mode, variants.mobile, variants.dark_mode_mobile) %}
     {% set list_item_sizes = "(min-width: 768px) 300px, 100vw" %}
+    {% set image_alt = alt_text(article_page.get_listing_image_alt(), listing_image) %}
     <div class="image-variants-display">
-      {{ srcset_image(listing_image, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.primary) }}
-      {% if variants.mobile %}{{ srcset_image(variants.mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.mobile) }}{% endif %}
-      {% if variants.dark_mode %}{{ srcset_image(variants.dark_mode, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.dark_mode) }}{% endif %}
-      {% if variants.dark_mode_mobile %}{{ srcset_image(variants.dark_mode_mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", class=classes.dark_mode_mobile) }}{% endif %}
+      {{ srcset_image(listing_image, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", alt=image_alt, class=classes.primary) }}
+      {% if variants.mobile %}{{ srcset_image(variants.mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", alt=image_alt, class=classes.mobile) }}{% endif %}
+      {% if variants.dark_mode %}{{ srcset_image(variants.dark_mode, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", alt=image_alt, class=classes.dark_mode) }}{% endif %}
+      {% if variants.dark_mode_mobile %}{{ srcset_image(variants.dark_mode_mobile, "width-{200,400,600,800}", sizes=list_item_sizes, loading="lazy", alt=image_alt, class=classes.dark_mode_mobile) }}{% endif %}
     </div>
   {% endif %}
 {% endmacro %}
