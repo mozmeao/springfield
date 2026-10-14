@@ -22,6 +22,21 @@
     place-self: center;
 }
 
+/* The qr_code block's background image is optional. With none, the QR is the only child of the
+   grid, so nothing sizes the cell, so we set the size. */
+.fl-qr-code:only-child {
+    inline-size: 300px;
+    max-inline-size: 100%;
+}
+
+.fl-qr-code:only-child svg rect[fill='white'] {
+    fill: transparent;
+}
+
+.fl-qr-code:only-child svg path {
+    fill: var(--fl-theme-color-text);
+}
+
 .fl-qr-code svg {
     inline-size: 100%;
     margin: auto;
