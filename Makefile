@@ -3,13 +3,6 @@ DC = $(shell which docker) compose
 DOCKER = $(shell which docker)
 TEST_DOMAIN = www.firefox.com
 
-# Check if 'uv' exists and set the command accordingly
-ifneq (, $(shell which uv 2>/dev/null))
-	pip = uv pip
-else
-	pip = pip
-endif
-
 all: help
 
 help:
@@ -35,7 +28,7 @@ help:
 	@echo "  test-visual-update             - regenerate playwright visual regression test snapshots"
 	@echo "  build-ci                       - build docker images for use in our CI pipeline"
 	@echo "  test-ci                        - run tests against files in docker image built by CI"
-	@echo "  compile-requirements           - update Python requirements files using pip-compile"
+	@echo "  compile-requirements           - update the Python lockfile (uv.lock) using uv"
 	@echo "  check-requirements             - get a report on stale/old Python dependencies in use"
 	@echo "  install-local-python-deps      - install Python dependencies for local development"
 	@echo "  install-custom-git-hooks       - install custom git hooks"
@@ -158,6 +151,7 @@ test-ci: .docker-build-ci
 #########################
 
 compile-requirements: .docker-build-pull
+	${DC} build builder
 	${DC} run --rm compile-requirements
 
 check-requirements: .docker-build-pull
@@ -181,11 +175,10 @@ preflight:
 	@python manage.py bootstrap_local_admin
 
 install-local-python-deps:
-	# Dev requirements are a superset of prod requirements, but we install
-	# them in the same separate steps that we use for our Docker-based build,
-	# so that it mirrors Production and Dev image building
-	$(pip) install -r requirements/prod.txt
-	$(pip) install -r requirements/dev.txt
+	# --active installs into your activated virtualenv, falling back to .venv.
+	# --python 3.13 overrides pyenv-style .python-version files naming a virtualenv.
+	# --inexact keeps packages you installed yourself, e.g. pre-commit.
+	uv sync --locked --active --python 3.13 --inexact
 
 run-local-task-queue:
 	# We temporarily source the .env for the command's duration only
@@ -195,7 +188,8 @@ run-local-task-queue:
 
 
 clean-local-deps:
-	$(pip) uninstall mdx_outline -y && $(pip) freeze | xargs $(pip) uninstall -y
+	# Strip the ` @ <url>` suffix that `freeze` prints for URL-sourced packages
+	uv pip freeze | sed 's/ @ .*//' | xargs -r uv pip uninstall
 
 # Done explicitly to avoid surprises
 install-custom-git-hooks:
