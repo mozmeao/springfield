@@ -47,6 +47,10 @@ example_unsanitised_data = {
     # Mixed-case header key as Sentry's Django integration records it. The
     # processor lowercases it before matching against our (lowercase) entry.
     "X-Mozilla-Ops-Canary": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    # Frame local in SyntheticServerErrorMiddleware holding the header value.
+    # Masked via the default "token" substring entry, so the canary value
+    # cannot leak if an exception is captured while it is in scope.
+    "provided_token": "b'0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'",
     "ref_key": "a referral ID, on our blocklist and removed entirely",
     "invitation": "an invite code, on our blocklist and removed entirely",
 }
@@ -62,6 +66,7 @@ expected_sanitised_data = {
     # Custom blocklist
     "email": "********",
     "X-Mozilla-Ops-Canary": "********",
+    "provided_token": "********",
     "ref_key": "********",
     "invitation": "********",
 }

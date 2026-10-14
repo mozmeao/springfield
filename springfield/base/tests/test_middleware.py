@@ -693,12 +693,12 @@ def test_synthetic_500_middleware_uses_constant_time_compare(rf):
     # characters via response timing.
     middleware = SyntheticServerErrorMiddleware(get_response=_passthrough_response)
     # Use a 64-char header so we pass the length gate and reach compare_digest.
-    provided = "c" * 64
+    provided_token = "c" * 64
     with mock.patch("springfield.base.middleware.hmac.compare_digest", return_value=True) as m:
-        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=provided)
+        request = rf.get("/en-US/", HTTP_X_MOZILLA_OPS_CANARY=provided_token)
         response = middleware(request)
     # Operands are bytes, never str (str would TypeError on non-ASCII).
-    m.assert_called_once_with(provided.encode("utf-8"), _VALID_TOKEN.encode("utf-8"))
+    m.assert_called_once_with(provided_token.encode("utf-8"), _VALID_TOKEN.encode("utf-8"))
     # Response is the synthetic 500 because we forced the compare to True.
     assert response.status_code == 500
 

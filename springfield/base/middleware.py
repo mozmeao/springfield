@@ -227,7 +227,7 @@ class SyntheticServerErrorMiddleware:
     Token comparison uses hmac.compare_digest for constant-time content
     comparison, gated by a strict length check. Python's docs note that
     compare_digest can leak string lengths via timing when the operands
-    differ in length; by requiring provided == TOKEN_LENGTH before calling
+    differ in length; by requiring len(provided_token) == TOKEN_LENGTH before calling
     compare_digest, we ensure both operands are always the same length when
     the comparison runs. The pinned length (64 chars = openssl rand -hex 32
     = 256 bits of entropy) is public info by design, so any timing signal
@@ -296,8 +296,10 @@ class SyntheticServerErrorMiddleware:
         if request.path in self.HEALTHCHECK_PATHS:
             return self.get_response(request)
 
-        provided = request.headers.get(self.HEADER_NAME)
-        if provided is None:
+        # Named with a "token" suffix so Sentry's default blocklist masks this
+        # frame local if anything below raises while the value is in scope.
+        provided_token = request.headers.get(self.HEADER_NAME)
+        if provided_token is None:
             return self.get_response(request)
 
         # Compare as bytes: compare_digest raises TypeError on non-ASCII str,
@@ -307,8 +309,8 @@ class SyntheticServerErrorMiddleware:
         # matching (empty, wrong length OR wrong value) counts as a probe
         # attempt so we get observability on token-guessing BEFORE anyone
         # succeeds.
-        provided = provided.encode("utf-8")
-        if len(provided) != self.TOKEN_LENGTH or not hmac.compare_digest(provided, self._token):
+        provided_token = provided_token.encode("utf-8")
+        if len(provided_token) != self.TOKEN_LENGTH or not hmac.compare_digest(provided_token, self._token):
             metrics.incr("synthetic5xx.header_present_no_match")
             return self.get_response(request)
 
