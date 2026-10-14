@@ -670,6 +670,7 @@ describe('referral-attribution.es6.js', function () {
 
         beforeEach(function () {
             xhrRequests = [];
+            Mozilla.DownloadAttribution.inFlightXHR = null;
 
             function FakeXHR() {
                 this.headers = {};

@@ -80,7 +80,7 @@ COPY ./lib ./lib
 COPY ./root_files ./root_files
 COPY ./scripts ./scripts
 COPY ./wsgi ./wsgi
-COPY manage.py LICENSE ./
+COPY manage.py LICENSE CMS_CHANGELOG.md ./
 
 # changes more frequently
 COPY ./docker ./docker

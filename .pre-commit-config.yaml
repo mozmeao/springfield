@@ -85,7 +85,7 @@ repos:
     hooks:
       - id: prettier
         additional_dependencies:
-        - prettier@^3.9.3
+        - prettier@^3.9.10
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2
     hooks:
@@ -94,7 +94,7 @@ repos:
           - "stylelint@16.26.1"
           - "stylelint-config-standard-scss@13.1.0"
           - "postcss-scss@4.0.9"
-          - "postcss@8.5.28"
+          - "postcss@8.5.30"
   - repo: https://github.com/awebdeveloper/pre-commit-stylelint
     rev: 0.0.2
     hooks:
@@ -105,14 +105,14 @@ repos:
           - "stylelint@16.26.1"
           - "stylelint-config-standard-scss@13.1.0"
           - "postcss-scss@4.0.9"
-          - "postcss@8.5.28"
+          - "postcss@8.5.30"
           - "stylelint-use-logical@2.1.3"
   - repo: https://github.com/eslint/eslint
-    rev: v10.11.0
+    rev: v10.12.0
     hooks:
       - id: eslint
         additional_dependencies:
-          - "eslint-config-prettier@9.1.0"
+          - "eslint-config-prettier@10.1.8"
   #       Additional excludes in /.eslintignore file
   - repo: https://github.com/mozmeao/pre-commit-hooks-django
     rev: v0.4.1a  # this is OUR micro-bumped release of the fork
