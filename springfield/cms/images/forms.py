@@ -46,7 +46,7 @@ class InlineImageForm(forms.ModelForm):
     class Meta:
         model = SpringfieldImage
         fields = ("title", "description", "is_decorative")
-        widgets = {"description": forms.Textarea(attrs={"rows": 2})}
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
 
     def __init__(self, *args, instance, **kwargs):
         super().__init__(*args, instance=instance, prefix=f"image-{instance.pk}", **kwargs)
