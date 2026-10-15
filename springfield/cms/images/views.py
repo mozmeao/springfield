@@ -78,7 +78,7 @@ class SpringfieldImageIndexView(IndexView):
 
     def decorate_paginated_queryset(self, object_list):
         object_list = super().decorate_paginated_queryset(object_list)
-        if self.layout != "list":
+        if self.layout == "grid":
             return object_list
 
         images = list(object_list)
