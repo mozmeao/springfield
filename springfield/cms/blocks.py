@@ -4,8 +4,11 @@
 
 from __future__ import annotations
 
+import logging
+import re
 from copy import deepcopy
 from decimal import Decimal
+from io import BytesIO
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -13,6 +16,7 @@ from uuid import uuid4
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.base import ContentFile
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.http import QueryDict
@@ -20,12 +24,14 @@ from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
+import requests
 from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail.utils.file import hash_filelike
 from wagtail_link_block.blocks import LinkBlock, URLValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
@@ -34,6 +40,7 @@ from springfield.base.i18n import normalize_language, split_path_and_normalize_l
 from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.rich_text import RichTextBlock
+from springfield.cms.utils import current_request
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
@@ -42,6 +49,8 @@ if TYPE_CHECKING:
         ArticleThemePage,
         SpringfieldImage,
     )
+
+logger = logging.getLogger(__name__)
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -245,9 +254,71 @@ def validate_animation_url(value):
 
 
 def validate_video_url(value):
-    if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
+    if value and not is_youtube_url(value) and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
     return value
+
+
+YOUTUBE_VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
+YOUTUBE_THUMBNAIL_SIZES = ("maxresdefault", "hqdefault")
+# (connect, read) seconds. Kept short because the download runs inside the editor's save request.
+YOUTUBE_THUMBNAIL_TIMEOUT = (3, 5)
+PREVIEW_URL_NAMES = {"preview_on_add", "preview_on_edit"}
+
+
+def is_youtube_url(url):
+    return "youtube.com" in url or "youtu.be" in url
+
+
+def youtube_video_id(url):
+    # Parsed the same way as components/video.html, so the poster matches the video that plays.
+    video_id = url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
+    return video_id if YOUTUBE_VIDEO_ID_PATTERN.match(video_id) else None
+
+
+def is_preview_request():
+    request = current_request.get()
+    resolver_match = getattr(request, "resolver_match", None)
+    return resolver_match is not None and resolver_match.url_name in PREVIEW_URL_NAMES
+
+
+def download_youtube_thumbnail(video_id):
+    """Fetch the widest thumbnail YouTube has for `video_id`, or None if it has none or can't be reached."""
+    for size in YOUTUBE_THUMBNAIL_SIZES:
+        url = f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
+        try:
+            response = requests.get(url, timeout=YOUTUBE_THUMBNAIL_TIMEOUT)
+        except requests.RequestException as exc:
+            # The next size is on the same host, so it would fail the same way.
+            logger.warning("Could not reach YouTube for the thumbnail %s: %s", url, exc)
+            return None
+        if response.status_code == 200 and response.headers.get("Content-Type", "").startswith("image/"):
+            return response.content
+        logger.info("No YouTube thumbnail at %s (HTTP %s, %s)", url, response.status_code, response.headers.get("Content-Type", ""))
+    logger.warning("YouTube has no thumbnail for video %s", video_id)
+    return None
+
+
+def get_or_create_youtube_poster(video_id, title):
+    """Store YouTube's thumbnail for `video_id` in the image library, so visitors never request it from YouTube."""
+    # Inline because springfield.cms.models imports this module.
+    from springfield.cms.models import SpringfieldImage
+
+    content = download_youtube_thumbnail(video_id)
+    if content is None:
+        return None
+
+    file_hash = hash_filelike(BytesIO(content))
+    existing = SpringfieldImage.objects.filter(file_hash=file_hash).first()
+    if existing is not None:
+        return existing
+
+    return SpringfieldImage.objects.create(
+        title=f"YouTube thumbnail: {title}"[:255],
+        is_decorative=True,
+        file=ContentFile(content, name=f"youtube-{video_id}.jpg"),
+        file_hash=file_hash,
+    )
 
 
 _ICON_LABEL_OVERRIDES = {
@@ -1579,7 +1650,11 @@ class VideoBlock(blocks.StructBlock):
         validators=[validate_video_url],
     )
     alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
-    poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
+    poster = ImageChooserBlock(
+        required=False,
+        help_text="Required for assets.mozilla.net videos. Optional for YouTube: leave it empty to use YouTube's own thumbnail, "
+        "which is added to the image library when you save. Displayed before the video is played.",
+    )
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
         default="",
@@ -1587,6 +1662,35 @@ class VideoBlock(blocks.StructBlock):
         label="Aspect Ratio",
         help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
     )
+
+    def clean(self, value):
+        value = super().clean(value)
+        video_url = value["video_url"]
+
+        if not is_youtube_url(video_url):
+            if not value["poster"]:
+                raise StructBlockValidationError(
+                    block_errors={"poster": ValidationError("Add a poster image. Videos from assets.mozilla.net need one.")}
+                )
+            return value
+
+        video_id = youtube_video_id(video_url)
+        if video_id is None:
+            raise StructBlockValidationError(
+                block_errors={"video_url": ValidationError("Use a YouTube link in the form youtube.com/watch?v=… or youtu.be/….")}
+            )
+
+        # The preview's form data never receives the fetched poster, so fetching there would repeat on every refresh.
+        if value["poster"] or is_preview_request():
+            return value
+
+        poster = get_or_create_youtube_poster(video_id, value["alt"])
+        if poster is None:
+            raise StructBlockValidationError(
+                block_errors={"poster": ValidationError("Couldn't fetch this video's thumbnail from YouTube. Upload a poster image instead.")}
+            )
+        value["poster"] = poster
+        return value
 
     class Meta:
         label = "Video"
