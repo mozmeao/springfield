@@ -117,8 +117,10 @@ jobs:
         env:
             GIT_COMMIT: ${{ env.LONG_SHA }}
             # A SHA checkout is detached, so tell the push script the branch name
-            # explicitly; it only pushes the :latest tag for main.
+            # explicitly; it only pushes the :latest tag for main. Both variables are
+            # needed: set_git_env_vars.sh derives BRANCH_NAME only when GIT_BRANCH is unset.
             GIT_BRANCH: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
+            BRANCH_NAME: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
 
 
   upload_static_assets:
