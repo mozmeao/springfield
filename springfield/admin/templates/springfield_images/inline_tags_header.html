@@ -1,0 +1,22 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+The Tags column header pages with help text exposed as a tooltip.
+{% endcomment %}
+{% load wagtailadmin_tags %}
+<th {% if column.classname %}class="{{ column.classname }}"{% endif %}>
+    <button
+      type="button"
+      data-controller="w-tooltip"
+      data-w-tooltip-content-value="{{ column.help_text }}"
+      data-w-tooltip-placement-value="bottom"
+      class="w-human-readable-date"
+    >
+        {{ column.label }}
+  </button>
+</th>

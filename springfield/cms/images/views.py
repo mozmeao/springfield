@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
 
 from wagtail.admin.ui.tables import BaseColumn
+from wagtail.admin.widgets import AdminTagWidget
 from wagtail.images import get_image_model
 from wagtail.images.permissions import permission_policy
 from wagtail.images.views.images import IndexView
@@ -58,6 +59,16 @@ class InlineFieldColumn(BaseColumn):
         return context
 
 
+class InlineTagsColumn(InlineFieldColumn):
+    """Adds custom help text to header."""
+
+    header_template_name = "springfield_images/inline_tags_header.html"
+
+    def __init__(self, *args, help_text="", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.help_text = help_text
+
+
 class InlineSaveColumn(BaseColumn):
     cell_template_name = "springfield_images/inline_save_cell.html"
 
@@ -94,13 +105,14 @@ class SpringfieldImageIndexView(IndexView):
         if self.layout == "grid":
             return []
         wagtail_columns = {column.name: column for column in super().columns}
+        tags_help_text = AdminTagWidget().get_context("tags", "", {})["widget"]["help_text"]
         return [
             wagtail_columns["bulk_actions"],
             wagtail_columns["preview"],
             InlineFieldColumn("title", label=gettext_lazy("Title"), sort_key="title", width="20%"),
             InlineFieldColumn("description", label=gettext_lazy("Description"), width="25%"),
             InlineFieldColumn("is_decorative", label=gettext_lazy("Decorative")),
-            InlineFieldColumn("tags", label=gettext_lazy("Tags"), width="15%"),
+            InlineTagsColumn("tags", help_text=tags_help_text, label=gettext_lazy("Tags"), width="15%"),
             UsageListColumn("usage", label=gettext_lazy("Usage"), sort_key=wagtail_columns["usage_count"].sort_key),
             InlineSaveColumn("save", label=""),
             wagtail_columns["collection"],

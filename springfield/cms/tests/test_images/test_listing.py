@@ -60,6 +60,34 @@ def test_list_layout_renders_editable_rows_and_usage(admin_client, make_image, r
     assert usage_items[1].get_text(" ", strip=True) == f"{author} Snippet"
 
 
+def test_list_layout_renders_tag_header_help_text(admin_client, make_image, root_page):
+    """The Tag field's help text should be in the header as a tippy tooltip, not in each cell."""
+    image = make_image()
+
+    response = admin_client.get(reverse("wagtailimages:index"), {"layout": "list"})
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # No help text for Tag field
+    row = soup.select_one(f"form#image-inline-{image.pk}").find_parent("tr")
+    assert row is not None
+    tags_cell = row.select_one("td[data-inline-cell='tags']")
+    assert tags_cell is not None
+    field_help_text = tags_cell.select_one(".help")
+    assert field_help_text is not None
+    assert field_help_text.get_text(strip=True) == ""
+
+    # Tag column header has help text
+    tags_column_index = 5
+    tags_header = soup.select("#listing-results th")[tags_column_index]
+    assert tags_header.get_text(strip=True) == "Tags"
+    help_text_button = tags_header.select_one("button[data-w-tooltip-content-value]")
+    assert help_text_button is not None
+    help_text = help_text_button["data-w-tooltip-content-value"]
+    assert "Multi-word tags with spaces" in help_text
+
+
 def test_list_layout_links_to_full_usage_beyond_five_groups(admin_client, make_image, root_page):
     image = make_image()
     for page_number in range(6):
