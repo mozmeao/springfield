@@ -25,7 +25,8 @@ footer-nightly = { -brand-name-nightly }
 
 # Section title
 footer-business= { -brand-name-firefox } for Business
-footer-enterprise = { -brand-name-firefox } { -brand-name-enterprise }
+footer-business-v2 = For Business
+footer-enterprise-v2 = { -brand-name-firefox } { -brand-name-enterprise }
 
 ## Links to community groups.
 
