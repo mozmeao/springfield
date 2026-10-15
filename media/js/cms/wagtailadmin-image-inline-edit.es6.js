@@ -64,8 +64,8 @@ function replaceCells(row, responseHtml) {
     let target = null;
     if (firstError) {
         target = firstError
-          .closest('.inline-edit-cell')
-          .querySelector('input, textarea');
+            .closest('.inline-edit-cell')
+            .querySelector('input, textarea');
     } else {
         if (focusedId) {
             target = document.getElementById(focusedId);
