@@ -9,7 +9,7 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.branch }}
   cancel-in-progress: false
-  queue: max
+  queue: max # keep every pending run, not just the newest
 
 on:
   workflow_dispatch:
