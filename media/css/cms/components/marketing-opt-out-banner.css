@@ -1,0 +1,86 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Sticks to the bottom of the viewport while the page scrolls, and comes to
+   rest below the footer at the end of the page instead of covering it. */
+.fl-marketing-opt-out-banner {
+    /* The dark theme's checkbox and button purples nearly match this
+       background, so they switch to white and dark purple here. */
+    --checkbox-border-color: var(--token-color-white);
+    --checkbox-hover-border-color: var(--token-color-white);
+    --checkbox-checked-bg-color: var(--token-color-dark-purple);
+    --checkbox-checked-hover-bg-color: var(--token-color-purple);
+    background: var(--token-color-link-purple);
+    border-radius: var(--token-border-radius-sm);
+    color: var(--fl-theme-color-text);
+    font-size: var(--fl-theme-font-size-body-sm);
+    inset-block-end: calc(
+        var(--token-spacing-lg) + env(safe-area-inset-bottom, 0px)
+    );
+    margin: var(--token-spacing-lg);
+    padding: var(--token-spacing-xl) var(--token-spacing-2xl);
+    position: sticky;
+    z-index: 5;
+}
+
+/* The card spans the page; its content stays at a readable width in the
+   middle, as in the cookie banner. */
+.fl-marketing-opt-out-banner-content {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--token-spacing-lg) var(--token-spacing-2xl);
+    justify-content: space-between;
+    margin-inline: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+}
+
+.fl-marketing-opt-out-banner .fl-button.button-secondary {
+    --button-border-color: var(--token-color-white);
+    --button-bg-color-hover: var(--token-color-white);
+    --button-text-color-hover: var(--token-color-dark-purple);
+    --button-bg-color-active: var(--token-color-soft-purple-4);
+}
+
+.fl-marketing-opt-out-banner .marketing-opt-out-checkbox-label {
+    align-items: flex-start;
+    display: flex;
+    flex: 1 1 32em;
+    gap: var(--token-spacing-lg);
+    max-inline-size: 52em;
+    min-inline-size: 0;
+    text-align: start;
+}
+
+.fl-marketing-opt-out-banner input[type='checkbox'] {
+    block-size: 16px;
+    flex-shrink: 0;
+    inline-size: 16px;
+    margin-block-start: 4px;
+}
+
+/* Once checked, the border takes the fill color, so the white check is the
+   only light mark. Applies on hover too, where the default adds a white ring. */
+.fl-marketing-opt-out-banner input[type='checkbox']:checked {
+    border-color: transparent;
+}
+
+.fl-marketing-opt-out-banner .marketing-opt-out-text a {
+    color: inherit;
+}
+
+/* "Learn how we use the data" starts its own line beneath the text. */
+.fl-marketing-opt-out-banner .marketing-opt-out-text a::before {
+    content: '\A';
+    white-space: pre;
+}
+
+/* The floating QR code shares the bottom corner, so it waits until the
+   banner is closed. */
+body:has(.fl-marketing-opt-out-banner:not(.hidden))
+    :is(.fl-qr-code-floating-snippet, .fl-qr-code-snippet) {
+    display: none;
+}

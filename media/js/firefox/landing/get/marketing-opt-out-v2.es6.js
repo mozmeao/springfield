@@ -195,6 +195,8 @@ MarketingOptOut.showCheckbox = () => {
             true;
     }
 
+    MarketingOptOut.showBanners();
+
     // Add param to download /thanks links sharing consent state with /thanks page
     // This is only necessary on initial "show" of checked checkbox
     // User interaction with the checkbox will set a global pref cookie
@@ -208,6 +210,46 @@ MarketingOptOut.showCheckbox = () => {
             linkUrl.searchParams.set('marketing_consent', '1');
             downloadThanksLinks[i].setAttribute('href', linkUrl.toString());
         }
+    }
+};
+
+/**
+ * Displays any page-wide opt-out banner holding the checkbox, and lets
+ * its "Close" button hide it for this page view. Nothing is stored,
+ * so the banner shows again on the next page load.
+ */
+MarketingOptOut.showBanners = () => {
+    const banners = document.querySelectorAll('.fl-marketing-opt-out-banner');
+
+    for (let i = 0; i < banners.length; i++) {
+        const banner = banners[i];
+        banner.classList.remove('hidden');
+        banner
+            .querySelector('.marketing-opt-out-banner-dismiss')
+            .addEventListener(
+                'click',
+                () => MarketingOptOut.hideBanner(banner),
+                false
+            );
+    }
+};
+
+/**
+ * Hides a banner. Hiding the focused Close button would drop focus to the
+ * top of the page, so focus moves to the element just before the banner
+ * (the footer) without scrolling, and keyboard users carry on from there.
+ * @param {HTMLElement} banner - the banner to hide.
+ */
+MarketingOptOut.hideBanner = (banner) => {
+    const hadFocus = banner.contains(document.activeElement);
+    banner.classList.add('hidden');
+
+    const previous = banner.previousElementSibling;
+    if (hadFocus && previous) {
+        if (!previous.hasAttribute('tabindex')) {
+            previous.setAttribute('tabindex', '-1');
+        }
+        previous.focus({ preventScroll: true });
     }
 };
 

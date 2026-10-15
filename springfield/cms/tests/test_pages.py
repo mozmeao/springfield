@@ -671,29 +671,20 @@ def test_smart_window_marketing_attribution_renders_promoted_markup(smart_window
     assert soup.find("html")["data-promoted-page"].lower() == "true"
     assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
 
-    # One checkbox for the page, a sibling of the intro button row rather than nested in a
-    # button, so it can sit centred beneath both buttons.
-    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert len(labels) == 1
-    label = labels[0]
+    # One opt-out for the page, in a banner after the footer; no download button carries one.
+    banner = soup.find("aside", class_="fl-marketing-opt-out-banner")
+    assert soup.find_all("label", class_="marketing-opt-out-checkbox-label") == [banner.find("label")]
     # Rendered hidden; the JS decides whether to reveal it.
-    assert "hidden" in label.get("class", [])
-    assert label.find("input", class_="marketing-opt-out-checkbox-input")
-
-    button_row = soup.find("div", class_="fl-buttons")
-    assert label.parent is button_row.parent
-    assert label.find_parent("div", {"id": str(page.intro_download_button_uid)}) is None
-
-    # The nav download button never gets one, matching /landing/get.
-    nav_button = soup.find("div", {"id": str(page.nav_download_button_uid)})
-    assert nav_button
-    assert not nav_button.find("label", class_="marketing-opt-out-checkbox-label")
+    assert "hidden" in banner["class"]
+    assert banner.find("input", class_="marketing-opt-out-checkbox-input")
+    assert banner.find("button", class_="marketing-opt-out-banner-dismiss").get_text(strip=True) == "Close"
+    assert banner.find_previous_sibling("footer")
 
 
 @pytest.mark.django_db
-def test_free_form_page_marketing_attribution_renders_checkbox_in_download_button(rf, placeholder_images):
-    """FreeFormPage2026 reaches the download button through the block wrapper, which nests
-    the checkbox inside the button rather than alongside it."""
+def test_free_form_page_marketing_attribution_moves_opt_out_into_banner(rf, placeholder_images):
+    """The opt-out renders once in the page banner, and download buttons drop their own
+    checkboxes, including the "Set as default browser" one it must not be combined with."""
     page = get_buttons_test_page()
     page.enable_marketing_attribution = True
 
@@ -702,12 +693,11 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert labels
-    for label in labels:
-        assert label.find_parent("div", class_="fl-download-firefox-button")
-        assert "hidden" in label.get("class", [])
-        assert label.find("input", class_="marketing-opt-out-checkbox-input")
+    banner = soup.find("aside", class_="fl-marketing-opt-out-banner")
+    assert "hidden" in banner["class"]
+    assert soup.find_all("label", class_="marketing-opt-out-checkbox-label") == [banner.find("label")]
+    assert soup.find_all("div", class_="fl-download-firefox-button")
+    assert not soup.find_all("label", class_="default-browser-label")
 
 
 # Leading conditional blocks warning

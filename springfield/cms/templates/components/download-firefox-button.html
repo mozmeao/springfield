@@ -45,9 +45,8 @@
       />
     {% endif %}
   </a>
-  {% if enable_marketing_attribution %}
-    <include:marketing-opt-out-checkbox analytics_id="{{ analytics_id }}" />
-  {% elif show_default_browser_checkbox  %}
+  {# On promoted pages the marketing opt-out banner takes over, and the two must not be combined. #}
+  {% if show_default_browser_checkbox and not enable_marketing_attribution %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
