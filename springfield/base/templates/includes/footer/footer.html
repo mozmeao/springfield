@@ -34,10 +34,11 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
               <li><a href="{{ url('firefox.channel.desktop') }}#beta" data-link-position="footer" data-link-text="Beta">{{ ftl('footer-beta') }}</a></li>
             </ul>
           </div>
+
           <div class="c-footer-section-business">
-            <h3 class="c-footer-subheading">{{ ftl('footer-business') }}</h3>
+            <h3 class="c-footer-subheading">{{ ftl('footer-business-v2', fallback='footer-business') }}</h3>
             <ul class="mzp-c-footer-list">
-              <li><a href="{{ url('firefox.enterprise.index') }}" data-link-position="footer" data-link-text="Enterprise">{{ ftl('footer-enterprise') }}</a></li>
+              <li><a href="{{ url('firefox.enterprise.index') }}" data-link-position="footer" data-link-text="Enterprise">{{ ftl('footer-enterprise-v2') }}</a></li>
             </ul>
           </div>
         </section>
