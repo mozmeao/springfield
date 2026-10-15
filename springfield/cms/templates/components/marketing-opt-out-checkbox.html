@@ -14,7 +14,7 @@
 
 <label for="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-label hidden">
   <input type="checkbox" id="{{ analytics_id }}-marketing-opt-out" class="marketing-opt-out-checkbox-input">
-  <span class="marketing-opt-out-text">
+  <span class="marketing-opt-out-text" id="{{ analytics_id }}-marketing-opt-out-text">
     {% set attrs = 'href="https://support.mozilla.org/kb/marketing-data" target="_blank" rel="noopener"' %}
     {{ ftl('download-button-share-how-you-discovered', attrs=attrs) }}
   </span>

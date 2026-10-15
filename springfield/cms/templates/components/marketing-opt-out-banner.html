@@ -1,0 +1,22 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ The page-wide "Share how you discovered Firefox" opt-out for promoted pages.
+
+ Rendered hidden; media/js/firefox/landing/get/marketing-opt-out-v2.es6.js reveals it for
+ the visitors who would otherwise see the checkbox. "Close" hides it for this page view
+ only and stores nothing, so it shows again on the next page load.
+#}
+
+<aside class="fl-marketing-opt-out-banner fl-force-dark-theme hidden" aria-labelledby="marketing-opt-out-banner-marketing-opt-out-text" data-nosnippet="true" data-testid="marketing-opt-out-banner">
+  <div class="fl-marketing-opt-out-banner-content">
+    <include:marketing-opt-out-checkbox analytics_id="marketing-opt-out-banner" />
+    <button type="button" class="fl-button fl-button-small button-secondary marketing-opt-out-banner-dismiss">
+      {{ ftl('ui-close') }}
+    </button>
+  </div>
+</aside>

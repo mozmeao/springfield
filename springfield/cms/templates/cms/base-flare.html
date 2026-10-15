@@ -129,9 +129,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block page_css %}
-      {% if page is defined and page.enable_marketing_attribution %}
-        {{ css_bundle('firefox_marketing_opt_out') }}
-      {% endif %}
       {% if page is defined and page.body_class %}
         {{ css_bundle(page.body_class) }}
       {% endif %}
@@ -231,6 +228,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
     {% block flare_footer %}
       <include:flare-footer />
+    {% endblock %}
+
+    {# After the footer, so the sticky banner comes to rest below it at the end of the page. #}
+    {% block marketing_opt_out_banner %}
+      {% if page is defined and page.enable_marketing_attribution %}
+        <include:marketing-opt-out-banner />
+      {% endif %}
     {% endblock %}
 
     {% block consent_banner %}

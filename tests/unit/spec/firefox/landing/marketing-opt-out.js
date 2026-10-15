@@ -24,6 +24,9 @@ describe('marketing-opt-out.es6.js', function () {
                 <input type="checkbox" id="marketing-opt-out-secondary" class="marketing-opt-out-checkbox-input">.
             </label>
         </div>
+        <aside id="opt-out-banner" class="fl-marketing-opt-out-banner hidden">
+            <button type="button" class="marketing-opt-out-banner-dismiss">Close</button>
+        </aside>
         <div id="opt-out-download-links" class="c-button-download-thanks">
         <a class="download-link"
         href="https://download.mozilla.org/?product=firefox&os=win64&lang=en-US">
@@ -48,6 +51,8 @@ describe('marketing-opt-out.es6.js', function () {
             'opt-out-download-links'
         );
         optOutDownloadLinks.parentNode.removeChild(optOutDownloadLinks);
+        const optOutBanner = document.getElementById('opt-out-banner');
+        optOutBanner.parentNode.removeChild(optOutBanner);
 
         document
             .getElementsByTagName('html')[0]
@@ -201,7 +206,86 @@ describe('marketing-opt-out.es6.js', function () {
         });
     });
 
+    describe('banner visibility', function () {
+        beforeEach(function () {
+            window.Mozilla.gpcEnabled = sinon.stub().returns(false);
+            window.Mozilla.dntEnabled = sinon.stub().returns(false);
+            spyOn(
+                window.Mozilla.DownloadAttribution,
+                'meetsFunctionalRequirements'
+            ).and.returnValue(true);
+            spyOn(
+                window.Mozilla.DownloadAttribution,
+                'hasSignedCookie'
+            ).and.returnValue(false);
+            spyOn(window.Mozilla.Cookies, 'hasItem').and.returnValue(false);
+        });
+
+        afterEach(function () {
+            delete window.Mozilla.gpcEnabled;
+            delete window.Mozilla.dntEnabled;
+        });
+
+        it('should keep the banner hidden for EU/EEA visitors without a consent cookie', function () {
+            document
+                .getElementsByTagName('html')[0]
+                .setAttribute('data-needs-consent', 'True');
+
+            expect(MarketingOptOut.init()).toBeFalse();
+            expect(
+                document
+                    .getElementById('opt-out-banner')
+                    .classList.contains('hidden')
+            ).toBeTrue();
+        });
+
+        it('should keep the banner hidden when Global Privacy Control is on', function () {
+            window.Mozilla.gpcEnabled = sinon.stub().returns(true);
+
+            expect(MarketingOptOut.init()).toBeFalse();
+            expect(
+                document
+                    .getElementById('opt-out-banner')
+                    .classList.contains('hidden')
+            ).toBeTrue();
+        });
+
+        it('should show the banner to visitors outside the EU/EEA', function () {
+            expect(MarketingOptOut.init()).toBeTrue();
+            expect(
+                document
+                    .getElementById('opt-out-banner')
+                    .classList.contains('hidden')
+            ).toBeFalse();
+        });
+    });
+
     describe('showCheckbox()', function () {
+        it('should reveal the opt-out banner, and hide it on "Close" without storing anything', function () {
+            spyOn(window.Mozilla.Cookies, 'setItem');
+            const banner = document.getElementById('opt-out-banner');
+
+            MarketingOptOut.showCheckbox();
+            expect(banner.classList.contains('hidden')).toBeFalse();
+
+            banner.querySelector('.marketing-opt-out-banner-dismiss').click();
+            expect(banner.classList.contains('hidden')).toBeTrue();
+            expect(window.Mozilla.Cookies.setItem).not.toHaveBeenCalled();
+        });
+
+        it('should move focus to the element before the banner when "Close" is used from the keyboard', function () {
+            const banner = document.getElementById('opt-out-banner');
+            const close = banner.querySelector(
+                '.marketing-opt-out-banner-dismiss'
+            );
+
+            MarketingOptOut.showCheckbox();
+            close.focus();
+            close.click();
+
+            expect(document.activeElement).toBe(banner.previousElementSibling);
+        });
+
         it('should add marketing_consent=1 param to all download links', function () {
             MarketingOptOut.showCheckbox();
             const links = document.querySelectorAll('.download-link');
