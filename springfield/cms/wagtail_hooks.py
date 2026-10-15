@@ -43,6 +43,7 @@ from springfield.cms.admin_views import (
     RegenerateDocsView,
     UpdateSlugConfirmView,
     UpdateSlugView,
+    WorkspaceView,
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
@@ -66,6 +67,7 @@ from springfield.cms.models import (
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
+from springfield.cms.workspaces import workspaces_menu
 
 
 @hooks.register("register_permissions")
@@ -848,3 +850,15 @@ def warn_about_leading_conditional_blocks(request, page):
         "Check that their display conditions cover every visitor exactly once — overlapping conditions show more than "
         "one h1, and gaps leave visitors with none.",
     )
+
+
+@hooks.register("register_admin_urls")
+def register_workspace_admin_urls():
+    return [
+        path("workspaces/<slug:slug>/", WorkspaceView.as_view(), name="cms_workspace"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_workspaces_menu():
+    return SubmenuMenuItem("Workspaces", workspaces_menu, name="workspaces", icon_name="grid", order=150)

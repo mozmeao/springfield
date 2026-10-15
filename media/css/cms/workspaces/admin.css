@@ -1,0 +1,88 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.workspace-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0 2rem;
+}
+
+.workspace-counts {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+}
+
+.workspace-count {
+    border: 1px solid var(--w-color-border-furniture);
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+}
+
+.workspace-count-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.workspace-count-label {
+    color: var(--w-color-text-meta);
+    font-size: 0.875rem;
+}
+
+.workspace-count-scheduled .workspace-count-value {
+    color: var(--w-color-info-100);
+}
+
+.workspace-columns {
+    align-items: start;
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr);
+}
+
+@media (max-width: 64em) {
+    .workspace-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+.workspace-section h2 {
+    font-size: 1.125rem;
+    margin: 0 0 1rem;
+}
+
+.workspace-links {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+}
+
+.workspace-links li {
+    margin-bottom: 0.5rem;
+}
+
+.workspace-links a {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.5rem;
+}
+
+.workspace-links .icon {
+    flex: none;
+    height: 1rem;
+    width: 1rem;
+}
+
+.workspace-meta {
+    color: var(--w-color-text-meta);
+    font-size: 0.875rem;
+}

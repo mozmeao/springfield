@@ -11,11 +11,13 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.http import urlencode
+from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
 from wagtail.admin import messages
+from wagtail.admin.views.generic.base import WagtailAdminTemplateMixin
 from wagtail.admin.views.pages.listing import IndexView
 from wagtail.models import Page
 from wagtail_localize.models import Translation
@@ -25,6 +27,7 @@ from springfield.base.tasks import defer_task
 from springfield.cms.draftsharing import create_detached_revision, delete_dead_sharing_revisions
 from springfield.cms.forms import ConfirmUpdateSlugForm, UpdateSlugForm
 from springfield.cms.slug_updates import find_sibling_with_slug, page_with_translations, update_page_slug
+from springfield.cms.workspaces import WorkspaceLink, get_workspace
 
 logger = logging.getLogger(__name__)
 
@@ -180,3 +183,91 @@ def create_translation_sharing_link(request, translation_id):
         link = WagtaildraftsharingLink.objects.create_for_revision(revision=revision, user=request.user)
 
     return JsonResponse({"url": link.url})
+
+
+class WorkspaceView(WagtailAdminTemplateMixin, TemplateView):
+    template_name = "wagtailadmin/workspaces/workspace.html"
+    recent_edits_limit = 10
+
+    def dispatch(self, request, *args, **kwargs):
+        self.workspace = get_workspace(kwargs["slug"])
+        self.root = self.workspace.get_root_page() if self.workspace else None
+        if self.root is None:
+            raise Http404
+        if not self.workspace.user_can_access(request.user, self.root):
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_page_title(self):
+        return self.workspace.label
+
+    def get_header_icon(self):
+        return self.workspace.icon
+
+    def get_breadcrumbs_items(self):
+        return [*self.breadcrumbs_items, {"url": "", "label": self.workspace.label}]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        workspace, root, user = self.workspace, self.root, self.request.user
+        content = workspace.content_queryset(root)
+        root_permissions = root.permissions_for_user(user)
+        add_model = workspace.add_page_model
+        explore_url = reverse("wagtailadmin_explore", args=[root.pk])
+        context.update(
+            root=root,
+            add_url=(
+                reverse("wagtailadmin_pages:add", args=[add_model._meta.app_label, add_model._meta.model_name, root.pk])
+                if add_model and root_permissions.can_add_subpage()
+                else None
+            ),
+            add_label=workspace.add_label or (f"Add {add_model._meta.verbose_name.lower()}" if add_model else ""),
+            root_edit_url=reverse("wagtailadmin_pages:edit", args=[root.pk]) if root_permissions.can_edit() else None,
+            root_edit_label=workspace.root_edit_label or f"Edit “{root.title}” page",
+            browse_url=reverse(workspace.listing_url_name) if workspace.listing_url_name else explore_url,
+            browse_label=workspace.listing_label,
+            tree_url=explore_url if workspace.listing_url_name else None,
+            counts=self.get_counts(content),
+            recent=self.get_recent(content),
+            locales=[
+                {"locale": translated.locale, "browse_url": reverse("wagtailadmin_explore", args=[translated.pk])}
+                for translated in workspace.get_root_translations(root)
+            ],
+            manage_links=self.get_snippet_links() + (workspace.get_extra_links(root, user) if workspace.get_extra_links else []),
+        )
+        return context
+
+    def get_counts(self, content):
+        return [
+            {"label": "Live", "value": content.live().count(), "status": "live"},
+            {"label": "Live, with unpublished changes", "value": content.live().filter(has_unpublished_changes=True).count(), "status": "changes"},
+            {"label": "Draft", "value": content.not_live().count(), "status": "draft"},
+            {"label": "Scheduled", "value": content.annotate_approved_schedule().filter(_approved_schedule=True).count(), "status": "scheduled"},
+        ]
+
+    def get_recent(self, content):
+        pages = (
+            content.filter(latest_revision_created_at__isnull=False)
+            .select_related("locale", "latest_revision__user")
+            .order_by("-latest_revision_created_at")[: self.recent_edits_limit]
+            .specific()
+        )
+        user = self.request.user
+        return [
+            {
+                "page": page,
+                "edit_url": reverse("wagtailadmin_pages:edit", args=[page.pk]) if page.permissions_for_user(user).can_edit() else None,
+                "edited_by": page.latest_revision.user if page.latest_revision else None,
+            }
+            for page in pages
+        ]
+
+    def get_snippet_links(self):
+        links = []
+        for model in self.workspace.snippet_models:
+            viewset = model.snippet_viewset
+            if viewset.permission_policy.user_has_any_permission(self.request.user, {"add", "change", "delete", "view"}):
+                links.append(
+                    WorkspaceLink(capfirst(model._meta.verbose_name_plural), reverse(viewset.get_url_name("list")), viewset.icon or "snippet")
+                )
+        return links

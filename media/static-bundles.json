@@ -244,7 +244,8 @@
     {
       "files": [
         "css/cms/wagtail-admin.css",
-        "css/cms/routing/admin.css"
+        "css/cms/routing/admin.css",
+        "css/cms/workspaces/admin.css"
       ],
       "name": "wagtail-admin"
     },
