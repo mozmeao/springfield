@@ -1,10 +1,12 @@
 name: Build and push a Docker image
 
 # Queue rather than cancel: downstream jobs pull images by SHA, so every
-# build must complete.
+# build must complete. queue: max keeps every pending run; the default
+# keeps only one and cancels the rest.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
+  queue: max
 
 on:
   push:

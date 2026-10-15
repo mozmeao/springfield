@@ -9,6 +9,7 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.branch }}
   cancel-in-progress: false
+  queue: max
 
 on:
   workflow_dispatch:
