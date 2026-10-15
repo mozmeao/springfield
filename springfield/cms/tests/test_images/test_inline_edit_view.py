@@ -14,6 +14,16 @@ from wagtail.models import Collection, GroupCollectionPermission, ModelLogEntry
 pytestmark = [pytest.mark.django_db]
 
 
+def url(image):
+    return reverse("cms_image_inline_edit", args=[image.pk])
+
+
+def test_url(make_image):
+    image = make_image()
+    image.pk = 1
+    assert url(image) == "/cms-admin/images/1/inline-edit/"
+
+
 @pytest.fixture
 def uploader_client(client):
     """A logged-in editor who can upload images but can only change their own."""
@@ -39,7 +49,7 @@ def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
     prefix = f"image-{image.pk}"
 
     response = admin_client.post(
-        reverse("cms_image_inline_edit", args=[image.pk]),
+        url(image),
         {
             f"{prefix}-title": "Firefox logo on purple",
             f"{prefix}-description": "The Firefox logo on a purple background",
@@ -76,7 +86,7 @@ def test_invalid_post_returns_400_and_saves_nothing(admin_client, make_image):
     prefix = f"image-{image.pk}"
 
     response = admin_client.post(
-        reverse("cms_image_inline_edit", args=[image.pk]),
+        url(image),
         {f"{prefix}-title": "firefox_logo.png", f"{prefix}-description": "", f"{prefix}-tags": ""},
         HTTP_X_REQUESTED_WITH="XMLHttpRequest",
     )
@@ -97,7 +107,7 @@ def test_overlong_title_is_a_field_error(admin_client, make_image):
     prefix = f"image-{image.pk}"
 
     response = admin_client.post(
-        reverse("cms_image_inline_edit", args=[image.pk]),
+        url(image),
         {f"{prefix}-title": "A" * 256, f"{prefix}-description": "The Firefox logo", f"{prefix}-tags": ""},
         HTTP_X_REQUESTED_WITH="XMLHttpRequest",
     )
@@ -112,7 +122,7 @@ def test_post_without_change_permission_is_forbidden(uploader_client, make_image
     prefix = f"image-{image.pk}"
 
     response = uploader_client.post(
-        reverse("cms_image_inline_edit", args=[image.pk]),
+        url(image),
         {f"{prefix}-title": "Changed", f"{prefix}-description": "Changed", f"{prefix}-tags": ""},
         HTTP_X_REQUESTED_WITH="XMLHttpRequest",
     )
