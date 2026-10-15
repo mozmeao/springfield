@@ -69,8 +69,16 @@ class PromotedPageMixin(models.Model):
         ),
     )
 
+    promoted_panels = [
+        FieldPanel("enable_marketing_attribution"),
+    ]
+
     class Meta:
         abstract = True
+
+    @property
+    def noindex(self):
+        return self.enable_marketing_attribution
 
 
 @method_decorator(never_cache, name="serve_password_required_response")

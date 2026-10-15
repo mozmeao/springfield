@@ -38,7 +38,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   {% endif %}
   {% endblock %}
   {% block marketing_attribution %}
-    {% if page is defined and page.enable_marketing_attribution is defined %}data-promoted-page="{{ page.enable_marketing_attribution }}"{% endif %}
+    {% if page is defined and page.enable_marketing_attribution %}data-promoted-page="true"{% endif %}
   {% endblock marketing_attribution %}
   {% block html_attrs %}{% endblock %}
 >
@@ -129,9 +129,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endblock %}
 
     {% block page_css %}
-      {% if page is defined and page.enable_marketing_attribution %}
-        {{ css_bundle('firefox_marketing_opt_out') }}
-      {% endif %}
       {% if page is defined and page.body_class %}
         {{ css_bundle(page.body_class) }}
       {% endif %}

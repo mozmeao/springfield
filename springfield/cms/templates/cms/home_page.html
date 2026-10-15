@@ -7,6 +7,9 @@
 {% extends "cms/base-flare.html" %}
 
 {% block structured_data %}
+{%- if not page.include_site_structured_data %}
+{{ super() }}
+{%- else %}
 {%- if page and page.og_image %}
 {%- set og_image_url = image(page.og_image, "width-1200").url|absolute_url %}
 {%- else %}
@@ -85,6 +88,7 @@
   ]
 }
 </script>
+{%- endif %}
 {% endblock %}
 
 {% block page_css %}{{ css_bundle('flare-homepage') }}{% endblock %}

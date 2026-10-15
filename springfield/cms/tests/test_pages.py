@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from unittest import mock
 
 from django.conf import settings
@@ -15,10 +16,12 @@ from django.urls import reverse
 import pytest
 from bs4 import BeautifulSoup
 from wagtail import hooks
+from wagtail.models import Site
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.block_factories import notification_block, show_to_value
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
+from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -708,6 +711,77 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
         assert label.find_parent("div", class_="fl-download-firefox-button")
         assert "hidden" in label.get("class", [])
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+
+# Home Page marketing attribution
+
+
+@pytest.mark.django_db
+def test_home_page_defaults_render_the_homepage_unchanged(rf):
+    """A HomePage with no promote settings touched is indexable, unpromoted and carries
+    the full site identity graph, as the live homepage did before these settings existed."""
+    page = get_home_test_page()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+
+    json_ld_blocks = [json.loads(script.string) for script in soup.find_all("script", {"type": "application/ld+json"})]
+    assert len(json_ld_blocks) == 1
+    assert {entity["@type"] for entity in json_ld_blocks[0]["@graph"]} == {"Organization", "Brand", "WebSite", "WebPage", "SoftwareApplication"}
+
+
+@pytest.mark.django_db
+def test_site_homepage_can_never_be_promoted_or_noindexed():
+    """The site's homepage rejects marketing attribution on save, and stays indexable even
+    if the flag reaches it anyway. A copy of it elsewhere in the tree accepts the flag."""
+    site_homepage = get_home_test_page()
+    landing_copy = site_homepage.copy(to=site_homepage.get_parent(), update_attrs={"slug": "landing-copy", "title": "Landing copy"})
+    Site.objects.filter(is_default_site=True).update(root_page=site_homepage)
+
+    site_homepage.enable_marketing_attribution = True
+    with pytest.raises(ValidationError) as excinfo:
+        site_homepage.clean()
+    assert "enable_marketing_attribution" in excinfo.value.message_dict
+    assert site_homepage.noindex is False
+
+    landing_copy.enable_marketing_attribution = True
+    landing_copy.clean()
+    assert landing_copy.noindex is True
+
+
+@pytest.mark.django_db
+def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf):
+    page = get_home_test_page()
+    page.enable_marketing_attribution = True
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("html")["data-promoted-page"].lower() == "true"
+    assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
+
+    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert labels
+    for label in labels:
+        assert label.find_parent("div", class_="fl-download-firefox-button")
+        assert "hidden" in label.get("class", [])
+        assert label.find("input", class_="marketing-opt-out-checkbox-input")
+        assert label.find("a")["href"] == "https://support.mozilla.org/kb/marketing-data"
+
+    # The privacy notice sits between the button and the checkbox.
+    download_button = soup.find("div", class_="has-marketing-opt-out")
+    button_link, privacy_notice, checkbox_label = download_button.find_all(recursive=False)[:3]
+    assert "download-link" in button_link["class"]
+    assert privacy_notice.find("a")["href"].startswith("https://www.mozilla.org/en-US/privacy/firefox/")
+    assert "marketing-opt-out-checkbox-label" in checkbox_label["class"]
 
 
 # Leading conditional blocks warning

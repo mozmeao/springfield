@@ -33,7 +33,7 @@ from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
-from wagtail.models import Orderable, Page as WagtailBasePage
+from wagtail.models import Orderable, Page as WagtailBasePage, Site
 from wagtail.rich_text import RichText
 from wagtail.search import index
 from wagtail.templatetags.wagtailcore_tags import richtext
@@ -424,7 +424,14 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    include_site_structured_data = models.BooleanField(
+        default=True,
+        verbose_name="Site identity structured data",
+        help_text=(
+            "Describe Mozilla, Firefox and the website in this page's structured data. Turn off on copies of the homepage, such as landing pages."
+        ),
+    )
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -450,6 +457,11 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
 
+    promote_panels = UTMParamsMixin.promote_panels + [
+        *PromotedPageMixin.promoted_panels,
+        FieldPanel("include_site_structured_data"),
+    ]
+
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
@@ -469,11 +481,29 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"HomePage: {self.title} - {self.locale}"
 
     @property
+    def is_site_homepage(self):
+        """Whether this is a site's root page, or a translation or alias of one."""
+        return Site.objects.filter(root_page__translation_key=self.translation_key).exists()
+
+    @property
+    def noindex(self):
+        # clean() already blocks this combination; this keeps a site's homepage indexable
+        # even if the flag reaches it some other way, such as a script or data migration.
+        return super().noindex and not self.is_site_homepage
+
+    @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
         snippets = [placement.snippet.get_localized() for placement in placements]
         # get_localized() can return None if the snippet isn't translated and published
         return [snippet for snippet in snippets if snippet]
+
+    def clean(self):
+        super().clean()
+        if self.enable_marketing_attribution and self.is_site_homepage:
+            raise ValidationError(
+                {"enable_marketing_attribution": "Marketing attribution can't be turned on for the site's homepage. Use a copy of the homepage."}
+            )
 
 
 class DownloadIndexPage(AbstractSpringfieldCMSPage):
@@ -1260,7 +1290,7 @@ class FreeFormPage2026(
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
@@ -1304,10 +1334,6 @@ class FreeFormPage2026(
 
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     @property
     def pencil_banners(self):
@@ -1646,7 +1672,7 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1673,10 +1699,6 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()

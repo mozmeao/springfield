@@ -143,6 +143,17 @@ def test_homepage_software_application_has_dynamic_version(index_page, rf):
     assert "}}" not in app["softwareVersion"]
 
 
+def test_homepage_without_site_structured_data_emits_only_breadcrumbs(index_page, rf):
+    """A homepage copy with site identity structured data turned off falls back to the
+    BreadcrumbList every other CMS page emits."""
+    test_page = get_home_test_page()
+    test_page.include_site_structured_data = False
+    response = test_page.serve(rf.get(test_page.get_full_url()))
+
+    blocks = _extract_json_ld(response.content)
+    assert [block["@type"] for block in blocks] == ["BreadcrumbList"]
+
+
 # ---------------------------------------------------------------------------
 # BreadcrumbList — get_breadcrumb_ancestors() helper on AbstractSpringfieldCMSPage
 #
