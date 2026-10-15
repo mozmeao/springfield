@@ -1,12 +1,11 @@
 name: Build and push a Docker image
 
-# Queue rather than cancel: downstream jobs pull images by SHA, so every
-# build must complete. queue: max keeps every pending run; the default
-# keeps only one and cancels the rest.
+# Queue rather than cancel: downstream jobs and the l10n workflow_run pull images
+# by SHA, and a cancelled build would leave a SHA with no image.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
-  queue: max
+  queue: max # keep every pending run, not just the newest
 
 on:
   push:
@@ -31,7 +30,10 @@ env:
   GAR_REPOSITORY: springfield-prod
   IMAGE: springfield
   ORG: mozmeao
-  REF_ID: ${{ github.event.inputs.ref || github.ref }}
+  # Push builds pin the commit that triggered them. Runs can now queue behind each
+  # other, and checking out the branch name would build whatever the tip is by the
+  # time the run starts, leaving the triggering SHA with no image.
+  REF_ID: ${{ github.event.inputs.ref || github.sha }}
 
 permissions:
   contents: read
@@ -114,6 +116,9 @@ jobs:
         timeout-minutes: 90
         env:
             GIT_COMMIT: ${{ env.LONG_SHA }}
+            # A SHA checkout is detached, so tell the push script the branch name
+            # explicitly; it only pushes the :latest tag for main.
+            GIT_BRANCH: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
 
 
   upload_static_assets:
