@@ -12,7 +12,7 @@
 
 // Decorative animated bubbles, styled and animated in css/cms/themes/enterprise-home.css.
 const BUBBLES_MARKUP = `
-<div class="fl-ent-bubbles" aria-hidden="true">
+<div class="fl-ent-bubbles fl-ent-bubbles-loading" aria-hidden="true">
   <div class="fl-ent-haze"></div>
   <div class="fl-ent-bubble fl-ent-bubble-right">
     <div class="fl-ent-fade"><div class="fl-ent-fill"></div></div>
@@ -34,6 +34,17 @@ const setupEnterpriseHome = () => {
     [heroContainer, footerContainer].forEach((container) => {
         if (!container) return;
         container.insertAdjacentHTML('beforeend', BUBBLES_MARKUP);
+    });
+
+    // Wait two frames so the hidden state is painted before fading in.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document
+                .querySelectorAll('.fl-ent-bubbles-loading')
+                .forEach((bubbles) =>
+                    bubbles.classList.remove('fl-ent-bubbles-loading')
+                );
+        });
     });
 };
 

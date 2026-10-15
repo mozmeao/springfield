@@ -40,7 +40,13 @@
         overflow: hidden;
         pointer-events: none;
         position: absolute;
+        transition: opacity 0.3s ease;
         z-index: 0;
+    }
+
+    /* added by the script on insert and removed a frame later, so the bubbles fade in */
+    .fl-ent-bubbles-loading {
+        opacity: 0;
     }
 
     /* page-background stage: warms to peach along the canvas bottom, clear above */
