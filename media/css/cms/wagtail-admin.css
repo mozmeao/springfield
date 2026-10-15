@@ -78,7 +78,7 @@
 /* stylelint-enable */
 
 /* Image listing rows edited in place */
-.listing .inline-edit-cell {
+.listing tr:has(.inline-edit-cell) td {
     vertical-align: top;
 }
 
