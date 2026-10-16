@@ -5,12 +5,8 @@
  */
 
 /*
-  Loaded behind the `easter-egg-emoji-rain` waffle switch. Visitors arriving
-  from the Toronto engineering summit stickers (`?utm_team=web+martech`) get
-  a short shower of Toronto, Canada and Firefox emojis falling down the page.
-  `base-flare.html` checks the query param so nobody else downloads this
-  bundle. This script therefore starts the rain as soon as it loads.
-  To retire the easter egg, flip the switch off.
+   Loading this bundle starts a short shower of Toronto, Canada, and Firefox
+   emojis unless the visitor prefers reduced motion.
 */
 
 const EMOJIS = [
