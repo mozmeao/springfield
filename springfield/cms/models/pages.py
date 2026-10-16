@@ -424,7 +424,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -448,6 +448,10 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    promote_panels = UTMParamsMixin.promote_panels + [
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1260,7 +1264,7 @@ class FreeFormPage2026(
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
@@ -1304,10 +1308,6 @@ class FreeFormPage2026(
 
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     @property
     def pencil_banners(self):
@@ -1646,7 +1646,7 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1673,10 +1673,6 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()

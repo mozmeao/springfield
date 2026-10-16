@@ -37,10 +37,10 @@ def _extract_json_ld(html_content):
 # ---------------------------------------------------------------------------
 
 
-def test_homepage_emits_valid_json_ld_entity_graph(index_page, rf):
+def test_homepage_emits_valid_json_ld_entity_graph(site_homepage, rf):
     """Homepage renders a single JSON-LD script with a valid @graph containing
     Organization, Brand, WebSite, WebPage, and SoftwareApplication entities."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
     assert response.status_code == 200
@@ -56,10 +56,10 @@ def test_homepage_emits_valid_json_ld_entity_graph(index_page, rf):
     assert types_present == {"Organization", "Brand", "WebSite", "WebPage", "SoftwareApplication"}
 
 
-def test_homepage_website_has_no_inlanguage(index_page, rf):
+def test_homepage_website_has_no_inlanguage(site_homepage, rf):
     """WebSite represents the whole site (locale-agnostic). It must not declare
     inLanguage, which would imply the entire site is in one language."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
 
@@ -68,11 +68,11 @@ def test_homepage_website_has_no_inlanguage(index_page, rf):
     assert "inLanguage" not in website
 
 
-def test_homepage_webpage_url_is_locale_aware(index_page, rf):
+def test_homepage_webpage_url_is_locale_aware(site_homepage, rf):
     """WebPage.@id and WebPage.url must be locale-specific (matching the page's
     canonical URL), so different locales emit different identifiers rather than
     a single shared site-root URL."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
 
@@ -90,10 +90,10 @@ def test_homepage_webpage_url_is_locale_aware(index_page, rf):
     assert webpage["@id"].endswith("#webpage")
 
 
-def test_homepage_webpage_inlanguage_matches_canonical_lang(index_page, rf):
+def test_homepage_webpage_inlanguage_matches_canonical_lang(site_homepage, rf):
     """WebPage.inLanguage should reflect the language of the page's actual
     content (CANONICAL_LANG), not just the requested locale (LANG)."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
 
@@ -102,10 +102,10 @@ def test_homepage_webpage_inlanguage_matches_canonical_lang(index_page, rf):
     assert webpage["inLanguage"] == "en-US"
 
 
-def test_homepage_entity_ids_are_consistent(index_page, rf):
+def test_homepage_entity_ids_are_consistent(site_homepage, rf):
     """The cross-references via @id should target entities that actually exist
     in the @graph (no dangling references)."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
 
@@ -128,10 +128,10 @@ def test_homepage_entity_ids_are_consistent(index_page, rf):
     assert app["publisher"]["@id"] in declared_ids
 
 
-def test_homepage_software_application_has_dynamic_version(index_page, rf):
+def test_homepage_software_application_has_dynamic_version(site_homepage, rf):
     """SoftwareApplication.softwareVersion should be populated from product-details
     via the latest_firefox_version context variable (i.e. not a Jinja placeholder)."""
-    test_page = get_home_test_page()
+    test_page = site_homepage
     request = rf.get(test_page.get_full_url())
     response = test_page.serve(request)
 
@@ -141,6 +141,16 @@ def test_homepage_software_application_has_dynamic_version(index_page, rf):
     assert app["softwareVersion"]
     assert "{{" not in app["softwareVersion"]
     assert "}}" not in app["softwareVersion"]
+
+
+def test_homepage_copy_emits_only_breadcrumbs(index_page, rf):
+    """A copy of the homepage elsewhere in the tree, such as a landing page, doesn't describe
+    the organization and website; it gets the BreadcrumbList every other CMS page emits."""
+    test_page = get_home_test_page()
+    response = test_page.serve(rf.get(test_page.get_full_url()))
+
+    blocks = _extract_json_ld(response.content)
+    assert [block["@type"] for block in blocks] == ["BreadcrumbList"]
 
 
 # ---------------------------------------------------------------------------
