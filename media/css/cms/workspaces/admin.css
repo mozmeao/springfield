@@ -38,6 +38,13 @@
     font-size: 0.875rem;
 }
 
+.workspace-count-description {
+    color: var(--w-color-text-meta);
+    display: block;
+    font-size: 0.8125rem;
+    margin-top: 0.25rem;
+}
+
 .workspace-count-scheduled .workspace-count-value {
     color: var(--w-color-info-100);
 }

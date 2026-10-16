@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 
 from wagtail import hooks
 from wagtail.admin.menu import Menu, MenuItem
@@ -33,7 +34,7 @@ class Workspace:
     add_page_model: type[Page] | None = None
     add_label: str = ""
     listing_url_name: str = ""
-    listing_label: str = "Browse all"
+    listing_label: str = _("Browse all")
     root_edit_label: str = ""
     snippet_models: tuple[type, ...] = ()
     get_extra_links: Callable[[Page, object], list[WorkspaceLink]] | None = None
@@ -47,8 +48,11 @@ class Workspace:
         return Page.objects.filter(translation_key=root.translation_key).select_related("locale").order_by("locale__language_code")
 
     def content_queryset(self, root):
+        roots = list(self.get_root_translations(root))
+        if not roots:
+            return Page.objects.none()
         under_a_root = Q()
-        for translated_root in self.get_root_translations(root):
+        for translated_root in roots:
             under_a_root |= Q(path__startswith=translated_root.path, depth__gt=translated_root.depth)
         pages = Page.objects.filter(under_a_root)
         return pages.type(self.add_page_model) if self.add_page_model else pages

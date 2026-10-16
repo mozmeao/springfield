@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.functional import cached_property
+from django.utils.translation import gettext as _, gettext_lazy
 
 from django_filters.filters import ModelMultipleChoiceFilter
 from wagtail.admin.ui.tables.pages import PageTitleColumn
@@ -36,7 +37,7 @@ def blog_tag_autocomplete(request):
 
 class BlogPostFilterSet(PageFilterSet):
     topic = ModelMultipleChoiceFilter(
-        label="Topic",
+        label=gettext_lazy("Topic"),
         queryset=lambda request: BlogTopic.objects.filter(locale=Locale.get_default()).order_by("name"),
         widget=CheckboxSelectMultiple,
     )
@@ -48,24 +49,24 @@ class BlogPostFilterSet(PageFilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if "locale" in self.filters:
-            self.filters["locale"].label = "Language"
+            self.filters["locale"].label = _("Language")
 
 
 class BlogPostIndexView(IndexView):
     default_ordering = "-first_published_at"
-    page_title = "All posts"
-    add_item_label = "New post"
+    page_title = gettext_lazy("All posts")
+    add_item_label = gettext_lazy("New post")
 
     @cached_property
     def workspace_url(self):
         return reverse("cms_workspace", args=["blog"])
 
     def get_breadcrumbs_items(self):
-        return [*self.breadcrumbs_items, {"url": self.workspace_url, "label": "Blog"}, {"url": "", "label": self.get_page_title()}]
+        return [*self.breadcrumbs_items, {"url": self.workspace_url, "label": _("Blog")}, {"url": "", "label": self.get_page_title()}]
 
     @cached_property
     def header_buttons(self):
-        return [HeaderButton("Back to Blog workspace", url=self.workspace_url, icon_name="arrow-left"), *super().header_buttons]
+        return [HeaderButton(_("Back to Blog workspace"), url=self.workspace_url, icon_name="arrow-left"), *super().header_buttons]
 
     def get_base_queryset(self):
         return super().get_base_queryset().select_related("topic", "locale")
@@ -108,4 +109,4 @@ def translations_display(page):
 
 
 def post_date_display(page):
-    return date_format(page.first_published_at) if page.first_published_at else "Not published"
+    return date_format(page.first_published_at) if page.first_published_at else _("Not published")

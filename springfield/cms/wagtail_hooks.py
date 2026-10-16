@@ -861,4 +861,4 @@ def register_workspace_admin_urls():
 
 @hooks.register("register_admin_menu_item")
 def register_workspaces_menu():
-    return SubmenuMenuItem("Workspaces", workspaces_menu, name="workspaces", icon_name="grid", order=150)
+    return SubmenuMenuItem(_("Workspaces"), workspaces_menu, name="workspaces", icon_name="grid", order=150)

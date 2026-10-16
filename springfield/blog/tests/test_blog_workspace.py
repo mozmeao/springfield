@@ -153,8 +153,8 @@ def test_workspace_page_shows_actions_counts_and_recent_edits(admin_client, blog
     response = admin_client.get(workspace_url())
 
     assert response.status_code == 200
-    counts = {count["status"]: count["value"] for count in response.context["counts"]}
-    assert counts == {"live": 1, "changes": 0, "draft": 2, "scheduled": 1}
+    assert [(count["status"], count["value"]) for count in response.context["counts"]] == [("scheduled", 1), ("draft", 1), ("live", 1)]
+    assert response.context["total"] == 3
     assert [row["page"].title for row in response.context["recent"]] == ["Scheduled post", "Draft post", "Live post"]
     assert response.context["add_url"] == reverse("wagtailadmin_pages:add", args=["blog", "blogarticlepage", blog_index.pk])
     assert [(link.label, link.icon) for link in response.context["manage_links"]] == [
@@ -168,6 +168,20 @@ def test_workspace_page_shows_actions_counts_and_recent_edits(admin_client, blog
     content = response.content.decode()
     assert "New post" in content
     assert "Recently edited" in content
+    assert content.count('class="w-status') >= 3
+
+
+def test_counts_use_wagtails_status_combinations(admin_client, blog_index, make_article):
+    make_article(title="Untouched")
+    edited = make_article(title="Edited")
+    edited.title = "Edited again"
+    edited.save_revision()
+    make_article(title="Never published", live=False)
+
+    counts = admin_client.get(workspace_url()).context["counts"]
+
+    assert [(count["status"], count["value"]) for count in counts] == [("live + draft", 1), ("draft", 1), ("live", 1)]
+    assert counts[0]["description"] == "Live, with changes not yet published"
 
 
 def test_counts_only_include_blog_articles(admin_client, blog_index, make_article):
@@ -242,3 +256,18 @@ def test_all_posts_language_filter_shows_other_languages(admin_client, translate
 def test_page_tree_button_comes_after_edit_blog_homepage(admin_client, blog_index):
     content = admin_client.get(workspace_url()).content.decode()
     assert content.index("All posts") < content.index("Edit blog homepage") < content.index("Page tree")
+
+
+def test_all_posts_listing_sorts_by_other_columns(admin_client, blog_index, make_article):
+    make_article(title="Beta")
+    make_article(title="Alpha")
+
+    response = admin_client.get(reverse("blog_posts:index"), {"ordering": "title"})
+
+    assert [page.title for page in response.context["pages"]] == ["Alpha", "Beta"]
+
+
+def test_content_queryset_is_empty_without_roots(blog_index):
+    workspace = get_workspace("blog")
+    unsaved_root = BlogIndexPage(title="Unsaved", slug="unsaved")
+    assert not workspace.content_queryset(unsaved_root).exists()

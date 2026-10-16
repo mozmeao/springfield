@@ -17,11 +17,13 @@
     {% endif %}
   </div>
 
-  <ul class="workspace-counts" aria-label="{% trans 'Status' %}">
+  <p class="workspace-meta">{% blocktrans trimmed count counter=total %}{{ counter }} page{% plural %}{{ counter }} pages{% endblocktrans %}</p>
+  <ul class="workspace-counts" role="list" aria-label="{% trans 'Status' %}">
     {% for count in counts %}
-      <li class="workspace-count workspace-count-{{ count.status }}">
+      <li class="workspace-count workspace-count-{{ count.status|slugify }}">
         <span class="workspace-count-value">{{ count.value }}</span>
         <span class="workspace-count-label">{{ count.label }}</span>
+        <span class="workspace-count-description">{{ count.description }}</span>
       </li>
     {% endfor %}
   </ul>
@@ -48,7 +50,7 @@
                   {{ row.page.get_admin_display_title }}
                 {% endif %}
               </td>
-              <td>{% include "wagtailadmin/shared/page_status_tag_new.html" with page=row.page %}</td>
+              <td>{% include "wagtailadmin/shared/page_status_tag.html" with page=row.page %}</td>
               <td>{{ row.page.locale.get_display_name }}</td>
               <td>
                 <span title="{{ row.page.latest_revision_created_at }}">{% blocktrans trimmed with ago=row.page.latest_revision_created_at|timesince %}{{ ago }} ago{% endblocktrans %}</span>
@@ -65,7 +67,7 @@
     <aside class="workspace-section">
       {% if manage_links %}
         <h2>{% trans "Manage" %}</h2>
-        <ul class="workspace-links">
+        <ul class="workspace-links" role="list">
           {% for link in manage_links %}
             <li><a href="{{ link.url }}">{% icon name=link.icon %}{{ link.label }}</a></li>
           {% endfor %}
@@ -74,7 +76,7 @@
 
       {% if locales|length > 1 %}
         <h2>{% trans "Languages" %}</h2>
-        <ul class="workspace-links">
+        <ul class="workspace-links" role="list">
           {% for item in locales %}
             <li><a href="{{ item.browse_url }}">{% icon name="globe" %}{{ item.locale.get_display_name }}</a></li>
           {% endfor %}

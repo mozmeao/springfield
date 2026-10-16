@@ -4,6 +4,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import path, reverse
+from django.utils.translation import gettext_lazy as _
 
 from wagtail import hooks
 from wagtail.admin.ui.tables import Column, DateColumn
@@ -90,13 +91,13 @@ class BlogPostListingViewSet(PageListingViewSet):
     filterset_class = BlogPostFilterSet
     columns = [
         BulkActionsColumn("bulk_actions"),
-        PostTitleColumn("title", label="Title", sort_key="title", classname="title"),
-        Column("topic", label="Topic", accessor="topic.name", width="14%"),
-        Column("locale", label="Language", accessor="locale.get_display_name", width="11%"),
-        Column("translations", label="Translations", accessor=translations_display, width="12%"),
-        Column("first_published_at", label="Post date", accessor=post_date_display, sort_key="first_published_at", width="11%"),
-        DateColumn("latest_revision_created_at", label="Updated", sort_key="latest_revision_created_at", width="10%"),
-        PageStatusColumn("status", label="Status", sort_key="live", width="10%"),
+        PostTitleColumn("title", label=_("Title"), sort_key="title", classname="title"),
+        Column("topic", label=_("Topic"), accessor="topic.name", width="14%"),
+        Column("locale", label=_("Language"), accessor="locale.get_display_name", width="11%"),
+        Column("translations", label=_("Translations"), accessor=translations_display, width="12%"),
+        Column("first_published_at", label=_("Post date"), accessor=post_date_display, sort_key="first_published_at", width="11%"),
+        DateColumn("latest_revision_created_at", label=_("Updated"), sort_key="latest_revision_created_at", width="10%"),
+        PageStatusColumn("status", label=_("Status"), sort_key="live", width="10%"),
     ]
 
 
@@ -109,7 +110,7 @@ def blog_workspace_links(root, user):
     topic_pages = ContentType.objects.get_for_model(BlogTopicPage)
     return [
         WorkspaceLink(
-            label="Topic pages",
+            label=_("Topic pages"),
             url=f"{reverse('wagtailadmin_explore', args=[root.pk])}?content_type={topic_pages.pk}",
             icon="doc-empty-inverse",
         ),
@@ -125,14 +126,14 @@ def get_blog_root_page():
 def register_blog_workspace():
     return Workspace(
         slug="blog",
-        label="Blog",
+        label=_("Blog"),
         icon="doc-full-inverse",
         get_root_page=get_blog_root_page,
         add_page_model=BlogArticlePage,
-        add_label="New post",
+        add_label=_("New post"),
         snippet_models=(BlogTopic, BlogTag, BlogAuthor),
         listing_url_name="blog_posts:index",
-        listing_label="All posts",
-        root_edit_label="Edit blog homepage",
+        listing_label=_("All posts"),
+        root_edit_label=_("Edit blog homepage"),
         get_extra_links=blog_workspace_links,
     )
