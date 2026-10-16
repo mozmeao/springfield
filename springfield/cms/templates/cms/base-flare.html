@@ -274,7 +274,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% if switch('easter-egg-logo') %}
     {{ js_bundle('easter-egg-logo') }}
     {% endif %}
-    {% if switch('easter-egg-emoji-rain') %}
+    {# Django decodes the `+` in the sticker URL to a space. #}
+    {% if switch('easter-egg-emoji-rain') and request.GET.get('utm_team') == 'web martech' %}
     {{ js_bundle('easter-egg-emoji-rain') }}
     {% endif %}
     {% endblock %}
