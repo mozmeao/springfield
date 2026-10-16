@@ -15,27 +15,516 @@
         position: relative;
     }
 
-    .enterprise-home .body-bg-video {
-        inset: auto 0 0;
-        margin: 0;
-        position: absolute;
-        z-index: 0;
-    }
-
     .enterprise-home .fl-intro-content {
         gap: var(--fl-section-hgroup-gap);
     }
 
-    /* static fallback for reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-        .enterprise-home .has-gradient-bottom {
-            background-image: url('/media/img/firefox/enterprise/ent-bg-bubbles.png');
-            background-position: bottom center;
+    .enterprise-home .fl-main.has-gradient-bottom {
+        background-image: none;
+    }
+
+    /*
+     * Hero bubbles. Two soft bubbles drift over a fixed, canvas-wide gradient: each
+     * fill counter-moves against its bubble (--s: -1) so the colours stay put while
+     * the bubble travels. Everything is sized in --u, one pixel of a 1080 design canvas.
+     */
+    .fl-ent-bubbles {
+        --loop: 10s;
+
+        /* canvas: the square the bubbles are drawn on, capped on wide heroes; --ct / --cl place it bottom-centre */
+        --canvas: max(0.75 * 100cqh, min(100cqw, 1.6 * 100cqh));
+        --u: calc(var(--canvas) / 1080);
+        --ct: calc(100cqh - var(--u) * 1080);
+        --cl: calc((100cqw - var(--u) * 1080) / 2);
+
+        /* on very wide heroes, push the two bubbles toward their own edges */
+        --spread: calc(max(0px, 100cqw - var(--canvas)) / 2 * 0.7);
+        container-type: size;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        position: absolute;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+    }
+
+    /* added by the script on insert and removed a frame later, so the bubbles fade in */
+    .fl-ent-bubbles-loading {
+        opacity: 0;
+    }
+
+    /* page-background stage: warms to peach along the canvas bottom, clear above */
+    .fl-ent-bubbles::before {
+        background: linear-gradient(
+            to top,
+            #fdddcb 0,
+            #fde0cd calc(var(--u) * 119),
+            #fdeadc calc(var(--u) * 216),
+            rgba(253, 253, 253, 0) calc(var(--u) * 410)
+        );
+        content: '';
+        inset: 0;
+        position: absolute;
+    }
+
+    /* the footer copy sits in the whole page, so it stays a plain square at the bottom */
+    .fl-main > .fl-ent-bubbles {
+        --canvas: 100cqw;
+        aspect-ratio: 1;
+        content-visibility: auto;
+        inset: auto 0 0;
+    }
+
+    .fl-ent-bubbles *,
+    .fl-ent-bubbles *::before,
+    .fl-ent-bubbles *::after {
+        box-sizing: border-box;
+    }
+
+    .fl-ent-bubble,
+    .fl-ent-fade,
+    .fl-ent-fill,
+    .fl-ent-lens-wrap,
+    .fl-ent-lens,
+    .fl-ent-haze {
+        position: absolute;
+    }
+
+    .fl-ent-bubble,
+    .fl-ent-lens,
+    .fl-ent-haze {
+        border-radius: 50%;
+    }
+
+    /*
+     * No filter: blur() anywhere here. Blurring animated layers is memory-hungry, so soft
+     * edges are mimicked with gradient stops (a gaussian-like falloff) and masks instead.
+     */
+    .fl-ent-bubble {
+        --ring: radial-gradient(
+            circle closest-side,
+            transparent calc(100% - var(--u) * 36),
+            rgba(238, 160, 168, 0.34) 100%
+        );
+        mask: radial-gradient(
+            circle closest-side,
+            #000 calc(100% - var(--u) * 19),
+            rgba(0, 0, 0, 0.84) calc(100% - var(--u) * 14),
+            rgba(0, 0, 0, 0.5) calc(100% - var(--u) * 9),
+            rgba(0, 0, 0, 0.16) calc(100% - var(--u) * 4),
+            transparent 100%
+        );
+        overflow: hidden;
+    }
+
+    /* the bubble fades in from the page background along its top edge */
+    .fl-ent-fade {
+        inset: 0;
+        mask: linear-gradient(to bottom, transparent 0, #000 24%);
+    }
+
+    .fl-ent-fill {
+        --s: -1;
+        background: linear-gradient(
+            to bottom,
+            #f6f4fd 0,
+            #f8f6fd 40%,
+            #fbf6fb 50%,
+            #f9eff2 55.5%,
+            #f7e9e5 61%,
+            #f7e4da 66.7%,
+            #f9e0d5 72%,
+            #f9dcd0 78%,
+            #f9d9cd 83.3%,
+            #f9d8cc 89%,
+            #f8d5ca 100%
+        );
+        block-size: calc(var(--u) * 1080);
+        inset-block-start: 0;
+        inset-inline: 0;
+    }
+
+    /* soft inner highlight */
+    .fl-ent-bubble::before {
+        background:
+            radial-gradient(
+                circle at 50% 36%,
+                rgba(255, 255, 255, 0.8),
+                rgba(240, 240, 253, 0.55) 30%,
+                transparent 55%
+            ),
+            var(--ring);
+        border-radius: 50%;
+        content: '';
+        inset: 0;
+        position: absolute;
+    }
+
+    /* warm rim on the upper-left edge */
+    .fl-ent-bubble::after {
+        background: conic-gradient(
+            from 285deg,
+            transparent 0,
+            rgba(246, 196, 150, 0.55) 34deg,
+            transparent 80deg
+        );
+        border-radius: 50%;
+        content: '';
+        inset: 0;
+        mask: radial-gradient(
+            circle closest-side,
+            transparent 78%,
+            #000 94%,
+            #000 98.5%,
+            transparent 100%
+        );
+        position: absolute;
+    }
+
+    .fl-ent-bubble-right {
+        animation: fl-ent-move-right var(--loop) linear infinite;
+        block-size: calc(var(--u) * 760);
+        inline-size: calc(var(--u) * 760);
+        inset-block-start: calc(var(--ct) + var(--u) * 205);
+        inset-inline-start: calc(var(--cl) + var(--spread) + var(--u) * 480);
+    }
+
+    .fl-ent-bubble-right .fl-ent-fill {
+        animation: fl-ent-move-right var(--loop) linear infinite;
+        inset-block-start: calc(var(--u) * -205);
+        inset-inline: calc(var(--u) * -150);
+    }
+
+    .fl-ent-bubble-left {
+        animation: fl-ent-move-left var(--loop) linear infinite;
+        block-size: calc(var(--u) * 820);
+        inline-size: calc(var(--u) * 820);
+        inset-block-start: calc(var(--ct) + var(--u) * 440);
+        inset-inline-start: calc(var(--cl) - var(--spread) + var(--u) * -145);
+    }
+
+    .fl-ent-bubble-left::before {
+        background:
+            radial-gradient(
+                circle at 36% 40%,
+                rgba(253, 232, 210, 0.95),
+                transparent 46%
+            ),
+            var(--ring);
+    }
+
+    .fl-ent-bubble-left .fl-ent-fill {
+        animation: fl-ent-move-left var(--loop) linear infinite;
+        background: linear-gradient(
+            to bottom,
+            #f7f5fa 0,
+            #f7f5fa 48%,
+            #f7f2f3 55.5%,
+            #f7ebe2 61%,
+            #f7e5d9 66.7%,
+            #f9e1d3 72%,
+            #f7ded1 78%,
+            #f7dbcf 83.3%,
+            #f6d9cc 89%,
+            #f9d2c8 100%
+        );
+        inset-block-start: calc(var(--u) * -440);
+    }
+
+    /* the pink overlap: a tinted copy of the right bubble, clipped by the left one */
+    .fl-ent-lens-wrap {
+        --s: -1;
+        animation: fl-ent-move-left var(--loop) linear infinite;
+        block-size: calc(var(--u) * 1080);
+        inline-size: calc(var(--u) * 1080);
+        inset-block-start: calc(var(--u) * -440);
+        inset-inline-start: calc(var(--u) * 145);
+    }
+
+    .fl-ent-lens {
+        --s: 1;
+        animation: fl-ent-move-right var(--loop) linear infinite;
+        background:
+            radial-gradient(
+                circle closest-side,
+                transparent calc(100% - var(--u) * 50),
+                rgba(236, 140, 160, 0.42) 100%
+            ),
+            linear-gradient(
+                rgba(236, 150, 165, 0.28),
+                rgba(236, 150, 165, 0.28)
+            );
+        block-size: calc(var(--u) * 760);
+        inline-size: calc(var(--u) * 760);
+        inset-block-start: calc(var(--u) * 205);
+        inset-inline-start: calc(var(--spread) * 2 + var(--u) * 480);
+        mask: radial-gradient(
+            circle closest-side,
+            #000 calc(100% - var(--u) * 38),
+            rgba(0, 0, 0, 0.84) calc(100% - var(--u) * 28),
+            rgba(0, 0, 0, 0.5) calc(100% - var(--u) * 18),
+            rgba(0, 0, 0, 0.16) calc(100% - var(--u) * 8),
+            transparent 100%
+        );
+    }
+
+    /* warm glow around the left bubble, strongest mid-loop */
+    .fl-ent-haze {
+        animation:
+            fl-ent-move-left var(--loop) linear infinite,
+            fl-ent-haze-fade var(--loop) ease-in-out infinite;
+        background: radial-gradient(
+            circle closest-side,
+            transparent 62%,
+            rgba(252, 224, 192, 0.04) 68%,
+            rgba(252, 224, 192, 0.13) 74%,
+            rgba(252, 224, 192, 0.27) 80%,
+            rgba(252, 224, 192, 0.4) 85%,
+            rgba(252, 224, 192, 0.44) 88%,
+            rgba(252, 224, 192, 0.36) 91%,
+            rgba(252, 224, 192, 0.2) 95%,
+            rgba(252, 224, 192, 0.06) 98%,
+            transparent 100%
+        );
+        block-size: calc(var(--u) * 1040);
+        inline-size: calc(var(--u) * 1040);
+        inset-block-start: calc(var(--ct) + var(--u) * 330);
+        inset-inline-start: calc(var(--cl) - var(--spread) + var(--u) * -255);
+    }
+
+    @keyframes fl-ent-move-right {
+        0% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 0 * var(--s, 1));
         }
 
-        .enterprise-home .fl-main.has-gradient-bottom {
-            background-image: url('/media/img/firefox/enterprise/ent-bg-footer-bubbles.png');
-            background-position: bottom right;
+        5% {
+            translate: calc(var(--u) * 20 * var(--s, 1))
+                calc(var(--u) * 47 * var(--s, 1));
+        }
+
+        10% {
+            translate: calc(var(--u) * 46 * var(--s, 1))
+                calc(var(--u) * 88 * var(--s, 1));
+        }
+
+        15% {
+            translate: calc(var(--u) * 77 * var(--s, 1))
+                calc(var(--u) * 120 * var(--s, 1));
+        }
+
+        20% {
+            translate: calc(var(--u) * 94 * var(--s, 1))
+                calc(var(--u) * 136 * var(--s, 1));
+        }
+
+        25% {
+            translate: calc(var(--u) * 99 * var(--s, 1))
+                calc(var(--u) * 143 * var(--s, 1));
+        }
+
+        30% {
+            translate: calc(var(--u) * 95 * var(--s, 1))
+                calc(var(--u) * 142 * var(--s, 1));
+        }
+
+        35% {
+            translate: calc(var(--u) * 87 * var(--s, 1))
+                calc(var(--u) * 134 * var(--s, 1));
+        }
+
+        40% {
+            translate: calc(var(--u) * 81 * var(--s, 1))
+                calc(var(--u) * 118 * var(--s, 1));
+        }
+
+        45% {
+            translate: calc(var(--u) * 72 * var(--s, 1))
+                calc(var(--u) * 98 * var(--s, 1));
+        }
+
+        50% {
+            translate: calc(var(--u) * 55 * var(--s, 1))
+                calc(var(--u) * 72 * var(--s, 1));
+        }
+
+        55% {
+            translate: calc(var(--u) * 23 * var(--s, 1))
+                calc(var(--u) * 41 * var(--s, 1));
+        }
+
+        60% {
+            translate: calc(var(--u) * 2 * var(--s, 1))
+                calc(var(--u) * 14 * var(--s, 1));
+        }
+
+        65% {
+            translate: calc(var(--u) * -8 * var(--s, 1))
+                calc(var(--u) * 0 * var(--s, 1));
+        }
+
+        70% {
+            translate: calc(var(--u) * -18 * var(--s, 1))
+                calc(var(--u) * -18 * var(--s, 1));
+        }
+
+        75% {
+            translate: calc(var(--u) * -24 * var(--s, 1))
+                calc(var(--u) * -47 * var(--s, 1));
+        }
+
+        80% {
+            translate: calc(var(--u) * -35 * var(--s, 1))
+                calc(var(--u) * -70 * var(--s, 1));
+        }
+
+        85% {
+            translate: calc(var(--u) * -37 * var(--s, 1))
+                calc(var(--u) * -78 * var(--s, 1));
+        }
+
+        90% {
+            translate: calc(var(--u) * -28 * var(--s, 1))
+                calc(var(--u) * -74 * var(--s, 1));
+        }
+
+        95% {
+            translate: calc(var(--u) * -21 * var(--s, 1))
+                calc(var(--u) * -44 * var(--s, 1));
+        }
+
+        100% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 0 * var(--s, 1));
+        }
+    }
+    @keyframes fl-ent-move-left {
+        0% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 0 * var(--s, 1));
+        }
+
+        5% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 6 * var(--s, 1));
+        }
+
+        10% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 22 * var(--s, 1));
+        }
+
+        15% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 46 * var(--s, 1));
+        }
+
+        20% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 77 * var(--s, 1));
+        }
+
+        25% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 112 * var(--s, 1));
+        }
+
+        30% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 147 * var(--s, 1));
+        }
+
+        35% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 175 * var(--s, 1));
+        }
+
+        40% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 196 * var(--s, 1));
+        }
+
+        45% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 212 * var(--s, 1));
+        }
+
+        50% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 218 * var(--s, 1));
+        }
+
+        55% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 225 * var(--s, 1));
+        }
+
+        60% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 222 * var(--s, 1));
+        }
+
+        65% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 198 * var(--s, 1));
+        }
+
+        70% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 167 * var(--s, 1));
+        }
+
+        75% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 139 * var(--s, 1));
+        }
+
+        80% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 111 * var(--s, 1));
+        }
+
+        85% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 72 * var(--s, 1));
+        }
+
+        90% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 40 * var(--s, 1));
+        }
+
+        95% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 15 * var(--s, 1));
+        }
+
+        100% {
+            translate: calc(var(--u) * 0 * var(--s, 1))
+                calc(var(--u) * 0 * var(--s, 1));
+        }
+    }
+
+    @keyframes fl-ent-haze-fade {
+        0%,
+        100% {
+            opacity: 0;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+    /* reduced motion: hold the first frame */
+    @media (prefers-reduced-motion: reduce) {
+        .fl-ent-bubbles *,
+        .fl-ent-bubbles *::before {
+            animation: none;
+        }
+
+        .fl-ent-haze {
+            opacity: 0;
         }
     }
 
