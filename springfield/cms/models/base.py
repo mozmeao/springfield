@@ -76,9 +76,31 @@ class PromotedPageMixin(models.Model):
     class Meta:
         abstract = True
 
+    @cached_property
+    def is_site_homepage(self):
+        """Whether this is a site's root page, or a translation or alias of one. Copies of the
+        homepage, such as landing pages, are not."""
+        return Site.objects.filter(root_page__translation_key=self.translation_key).exists()
+
+    @property
+    def marketing_attribution_active(self):
+        """Whether the page renders with marketing attribution. Templates read this rather
+        than the field: a site's homepage never does, even with the field set."""
+        # Checked when rendering as well as in clean(), which only runs on an editor's save:
+        # a script, a data migration or a promoted page swapped in as the site root can
+        # still carry the flag onto the real homepage.
+        return self.enable_marketing_attribution and not self.is_site_homepage
+
     @property
     def noindex(self):
-        return self.enable_marketing_attribution
+        return self.marketing_attribution_active
+
+    def clean(self):
+        super().clean()
+        if self.enable_marketing_attribution and self.is_site_homepage:
+            raise ValidationError(
+                {"enable_marketing_attribution": "Marketing attribution can't be turned on for the site's homepage. Use a copy of the homepage."}
+            )
 
 
 @method_decorator(never_cache, name="serve_password_required_response")

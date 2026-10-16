@@ -38,7 +38,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   {% endif %}
   {% endblock %}
   {% block marketing_attribution %}
-    {% if page is defined and page.enable_marketing_attribution %}data-promoted-page="true"{% endif %}
+    {% if page is defined and page.marketing_attribution_active %}data-promoted-page="true"{% endif %}
   {% endblock marketing_attribution %}
   {% block html_attrs %}{% endblock %}
 >
@@ -299,7 +299,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
          campaign data attrs or URL utm_campaign; no-op otherwise. #}
       {{ js_bundle('mobile-attribution') }}
 
-      {% if page is defined and page.enable_marketing_attribution %}
+      {% if page is defined and page.marketing_attribution_active %}
         <!--[if IE 9]><!-->
           {# Marketing opt-out runs on all evergreen browsers plus IE9 and above. #}
           {{ js_bundle('firefox_marketing_opt_out') }}

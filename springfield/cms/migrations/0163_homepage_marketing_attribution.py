@@ -27,16 +27,4 @@ class Migration(migrations.Migration):
                 ),
             ),
         ),
-        migrations.AddField(
-            model_name="homepage",
-            name="include_site_structured_data",
-            field=models.BooleanField(
-                default=True,
-                help_text=(
-                    "Describe Mozilla, Firefox and the website in this page's structured data."
-                    " Turn off on copies of the homepage, such as landing pages."
-                ),
-                verbose_name="Site identity structured data",
-            ),
-        ),
     ]

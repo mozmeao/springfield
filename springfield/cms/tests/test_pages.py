@@ -717,12 +717,10 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
 
 
 @pytest.mark.django_db
-def test_home_page_defaults_render_the_homepage_unchanged(rf):
-    """A HomePage with no promote settings touched is indexable, unpromoted and carries
-    the full site identity graph, as the live homepage did before these settings existed."""
-    page = get_home_test_page()
-
-    response = page.serve(rf.get(page.get_full_url()))
+def test_home_page_defaults_render_the_homepage_unchanged(site_homepage, rf):
+    """The site's homepage with no promote settings touched is indexable, unpromoted and
+    carries the full site identity graph, as it did before these settings existed."""
+    response = site_homepage.serve(rf.get(site_homepage.get_full_url()))
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
@@ -737,22 +735,67 @@ def test_home_page_defaults_render_the_homepage_unchanged(rf):
 
 
 @pytest.mark.django_db
-def test_site_homepage_can_never_be_promoted_or_noindexed():
-    """The site's homepage rejects marketing attribution on save, and stays indexable even
-    if the flag reaches it anyway. A copy of it elsewhere in the tree accepts the flag."""
-    site_homepage = get_home_test_page()
+def test_site_homepage_rejects_marketing_attribution_on_save(site_homepage):
+    """Saving the site's homepage with marketing attribution on is refused; a copy of it
+    elsewhere in the tree, such as a landing page, accepts it."""
     landing_copy = site_homepage.copy(to=site_homepage.get_parent(), update_attrs={"slug": "landing-copy", "title": "Landing copy"})
-    Site.objects.filter(is_default_site=True).update(root_page=site_homepage)
 
     site_homepage.enable_marketing_attribution = True
     with pytest.raises(ValidationError) as excinfo:
         site_homepage.clean()
     assert "enable_marketing_attribution" in excinfo.value.message_dict
-    assert site_homepage.noindex is False
 
     landing_copy.enable_marketing_attribution = True
     landing_copy.clean()
+    assert landing_copy.marketing_attribution_active is True
     assert landing_copy.noindex is True
+
+
+@pytest.mark.django_db
+def test_site_homepage_renders_unpromoted_even_with_the_flag_set(site_homepage, rf):
+    """The flag can reach the homepage without an editor's save (a script, a data migration,
+    a promoted copy swapped in as the site root); the page still renders indexable and
+    unpromoted."""
+    site_homepage.enable_marketing_attribution = True
+    assert site_homepage.marketing_attribution_active is False
+    assert site_homepage.noindex is False
+
+    response = site_homepage.serve(rf.get(site_homepage.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert not soup.find_all("div", class_="has-marketing-opt-out")
+    assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
+
+
+@pytest.mark.django_db
+def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf, placeholder_images):
+    """The homepage guard covers every promoted page type, not just HomePage: a promoted
+    FreeFormPage2026 made the site root refuses the flag on save and renders indexable."""
+    page = get_buttons_test_page()
+    page.enable_marketing_attribution = True
+    site = Site.objects.get(is_default_site=True)
+    site.root_page = page
+    site.save()
+
+    with pytest.raises(ValidationError) as excinfo:
+        page.clean()
+    assert "enable_marketing_attribution" in excinfo.value.message_dict
+    assert page.noindex is False
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
 
 
 @pytest.mark.django_db
@@ -767,6 +810,7 @@ def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf)
 
     assert soup.find("html")["data-promoted-page"].lower() == "true"
     assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
+    assert [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
 
     labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
     assert labels

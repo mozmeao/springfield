@@ -15,6 +15,7 @@ from wagtail_localize.models import StringSegment, StringTranslation, Translatio
 
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
+from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import PretranslatedPhrase
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
@@ -69,6 +70,16 @@ def placeholder_images():
 @pytest.fixture
 def index_page(minimal_site):
     return get_flare_docs_index_page()
+
+
+@pytest.fixture
+def site_homepage(index_page):
+    """The homepage test page, made the default site's root so it renders as the real homepage."""
+    page = get_home_test_page()
+    site = Site.objects.get(is_default_site=True)
+    site.root_page = page
+    site.save()
+    return page
 
 
 @pytest.fixture
