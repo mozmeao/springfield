@@ -125,6 +125,32 @@ redirectpatterns = (
     # `school` is in SUPPORTED_NONLOCALES so LangCodeFixupMiddleware won't
     # prepend a locale before this pattern fires.
     redirect(r"^school/?$", "/en-US/landing/school/", locale_prefix=False, permanent=False),
+    # Brand campaign vanity URLs. All land on the same page; redirect_source records
+    # which one was used, leaving UTM params free for whoever shares the link.
+    redirect(
+        r"^comeback/?$",
+        "/landing/welcomeback/",
+        permanent=False,
+        re_flags="i",
+        query={"redirect_source": "comeback"},
+        merge_query=True,
+    ),
+    redirect(
+        r"^welcomeback/?$",
+        "/landing/welcomeback/",
+        permanent=False,
+        re_flags="i",
+        query={"redirect_source": "welcomeback"},
+        merge_query=True,
+    ),
+    redirect(
+        r"^try/?$",
+        "/landing/welcomeback/",
+        permanent=False,
+        re_flags="i",
+        query={"redirect_source": "try"},
+        merge_query=True,
+    ),
 )
 
 refresh_redirects = (
