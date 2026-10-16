@@ -13,6 +13,7 @@ permissions: {}
 
 jobs:
     sbom:
+        name: Generate SBOM
         permissions:
             contents: write # Upload the SBOM as a release asset and submit it to the dependency graph
             actions: read # Let the reusable workflow upload the SBOM as a workflow artifact
