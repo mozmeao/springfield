@@ -10,7 +10,7 @@
   anchor_id="{{ value.anchor_id }}"
 >
   <content:image>
-    {{ image(value.image, "width-400") }}
+    {{ image(value.image, "width-400", alt=alt_text(value.image_alt, value.image)) }}
   </content:image>
   <content:heading>
     <include:heading

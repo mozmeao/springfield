@@ -31,6 +31,7 @@ def get_home_intro():
 def _pictogram_card(card_id, superheading, headline, content, image_id, dark_image_id):
     _image = {
         "image": image_id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {"dark_mode_image": dark_image_id, "mobile_image": None, "dark_mode_mobile_image": None},
     }
     return {
@@ -117,6 +118,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Download Firefox</p>',
                         "image": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
@@ -132,6 +134,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Select what you want to bring with you</p>',
                         "image": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
@@ -147,6 +150,7 @@ def get_home_carousel():
                         "headline": '<p data-block-key="v9evz">Click import</p>',
                         "image": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": None,
@@ -175,6 +179,7 @@ def get_showcase_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -201,6 +206,7 @@ def get_showcase_variants():
                         "type": "image",
                         "value": {
                             "image": placeholder_images.image.id,
+                            "image_alt": "A numbered grid, standing in for a real image",
                             "settings": {
                                 "dark_mode_image": placeholder_images.dark_image.id,
                                 "mobile_image": placeholder_images.mobile_image.id,
@@ -240,6 +246,7 @@ def get_card_gallery():
                 "buttons": [buttons["primary"]],
                 "image": {
                     "image": placeholder_images.image.id,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": placeholder_images.dark_image.id,
                         "mobile_image": placeholder_images.mobile_image.id,
@@ -254,6 +261,7 @@ def get_card_gallery():
                 "buttons": [buttons["primary"]],
                 "image": {
                     "image": placeholder_images.image.id,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": placeholder_images.dark_image.id,
                         "mobile_image": placeholder_images.mobile_image.id,

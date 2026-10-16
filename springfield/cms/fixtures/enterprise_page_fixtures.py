@@ -878,6 +878,7 @@ def get_enterprise_navigation_snippet(parent, product_page, support_page, contac
                 ),
             ],
             "logo": get_enterprise_logo("Firefox Enterprise Logo", "firefox-enterprise-orange.svg"),
+            "logo_alt": "Firefox Enterprise",
             "logo_dark": None,
             "logo_link": [{"type": "link", "value": link_value(page=parent), "id": "ent-nav-logolink"}],
             "cta_button": [

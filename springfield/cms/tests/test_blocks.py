@@ -50,14 +50,19 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    ComparisonImageHeaderBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
     IconListItemValue,
+    IconListWithImageBlock,
+    ImageVariantsBlock,
     ImpactDashBlock,
+    MobileStoreQRCodeBlock,
     QRCodeModalButtonBlock,
+    RelatedArticleBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -65,6 +70,7 @@ from springfield.cms.blocks import (
     TabBlock,
     TabsBlock,
     TextFieldBlock,
+    TopicBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
@@ -188,7 +194,7 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
-from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.cms.templatetags.cms_tags import add_utm_parameters, alt_text
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.misc import app_store_url, fxa_button, play_store_url
@@ -489,6 +495,7 @@ def assert_image_variants_attributes(
     assert images_element
 
     settings = images_value.get("settings", {})
+    expected_alt = alt_text(images_value.get("image_alt", ""), image)
 
     default_display_classes = "display-light" if settings.get("dark_mode_image") else ""
     if settings.get("mobile_image") or settings.get("dark_mode_mobile_image"):
@@ -505,6 +512,7 @@ def assert_image_variants_attributes(
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": expected_alt,
                 "class": classes,
             },
         )
@@ -780,6 +788,124 @@ def assert_media_block(element: BeautifulSoup, block_data: dict):
     elif first_item["type"] == "video":
         video_el = element.find("div", class_="fl-video")
         assert_video_attributes(video_element=video_el, video_data=first_item)
+
+
+def test_image_variants_block_renders_one_alt_on_every_variant(placeholder_images):
+    block = ImageVariantsBlock()
+    value = block.to_python(
+        {
+            "image": placeholder_images.image.id,
+            "image_alt": "Firefox running on a laptop",
+            "settings": {
+                "dark_mode_image": placeholder_images.dark_image.id,
+                "mobile_image": placeholder_images.mobile_image.id,
+                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
+            },
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    rendered_images = soup.find_all("img")
+    assert len(rendered_images) == 4
+    for rendered_image in rendered_images:
+        assert rendered_image["alt"] == "Firefox running on a laptop"
+
+
+def test_image_variants_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = ImageVariantsBlock()
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "settings": {}}))
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_image_variants_block_accepts_a_blank_alt_for_a_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+
+    block = ImageVariantsBlock()
+    cleaned = block.clean(block.to_python({"image": decorative_image.pk, "image_alt": "", "settings": {}}))
+    assert cleaned["image_alt"] == ""
+
+
+def test_image_variants_block_decodes_legacy_content_without_an_alt_key(placeholder_images):
+    # Existing content predates this field, so its stored JSON has no key for it.
+    block = ImageVariantsBlock()
+    value = block.to_python({"image": placeholder_images.image.id, "settings": {}})
+    assert value["image_alt"] == ""
+
+
+def test_icon_list_with_image_block_renders_its_alt(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python(
+        {
+            "image": placeholder_images.image.id,
+            "image_alt": "A checklist beside the Firefox logo",
+            "list_items": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A checklist beside the Firefox logo"
+
+
+def test_icon_list_with_image_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python({"image": placeholder_images.image.id, "image_alt": "", "list_items": []})
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_mobile_store_qr_code_block_renders_its_alt(placeholder_images, rf):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "https://example.com/",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "Firefox in the app store",
+        }
+    )
+    # The store buttons need request and fluent_l10n in context, normally
+    # injected by the page they render on; _render_context supplies both.
+    rendered = block.render(value, context=_render_context(rf.get("/")))
+    soup = BeautifulSoup(rendered, "html.parser")
+    # The store buttons render their own icons first, so scope the search to
+    # the mobile image container rather than matching the first img on the page.
+    mobile_image_div = soup.find("div", class_="fl-mobile-store-mobile-image")
+    assert mobile_image_div.find("img")["alt"] == "Firefox in the app store"
+
+
+def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_errors(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "",
+        }
+    )
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
+
+
+def test_topic_block_renders_its_alt(placeholder_images):
+    block = TopicBlock()
+    value = block.to_python(
+        {
+            "short_title": "Privacy",
+            "anchor_id": "privacy-online",
+            "image": placeholder_images.image.id,
+            "image_alt": "A padlock over a browser window",
+            "heading": {"heading_text": '<p data-block-key="h">Privacy online</p>'},
+            "content": '<p data-block-key="c">How Firefox protects you.</p>',
+            "buttons": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A padlock over a browser window"
 
 
 class TestDownloadFirefoxButtonBlock:
@@ -1711,6 +1837,7 @@ def test_theme_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1719,6 +1846,7 @@ def test_theme_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1790,9 +1918,9 @@ def test_theme_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_icon = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
 
@@ -1858,6 +1986,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1866,6 +1995,7 @@ def test_theme_hub_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1906,7 +2036,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_pictogram = image(img, "width-400").img_tag()
+        rendered_pictogram = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_pictogram, "html.parser").find("img").prettify()
 
@@ -1948,6 +2078,7 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
             "width": expected_img.width,
             "height": expected_img.height,
             "loading": "lazy",
+            "alt": alt_text(article.featured_image_alt, expected_img),
         },
     )
     image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
@@ -1988,9 +2119,10 @@ def test_pictogram_row_renders_pictogram_without_override(index_page, rf):
     # Should NOT be the Firefox logo placeholder
     assert pictogram_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
 
-    # Should match the article's pictogram rendered with image()
+    # Should match the article's pictogram rendered with image(); pictograms
+    # are decorative by their role on a card, so their alt is always empty.
     expected_img = image_ids[article.sticker.id]
-    rendered_icon = image(expected_img, "width-400").img_tag()
+    rendered_icon = image(expected_img, "width-400").img_tag(extra_attributes={"alt": ""})
     expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
     assert pictogram_element.prettify() == expected_soup.prettify()
 
@@ -3905,7 +4037,7 @@ def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: di
     has_dark_mode = bool(image_header_data.get("dark_mode_image"))
     assert len(img_els) == (2 if has_dark_mode else 1)
     for img_el in img_els:
-        assert img_el.get("alt") == image_header_data["alt"]
+        assert img_el.get("alt") == image_header_data["image_alt"]
         assert img_el.get("loading") == "lazy"
         assert img_el.get("srcset")
     if has_dark_mode:
@@ -4148,7 +4280,7 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
-    header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
+    header_cell["value"]["optional_content"][0]["value"]["image_alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
         header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
         content_rows=[
@@ -4159,6 +4291,30 @@ def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_image_header_blocks_image_alt_field_takes_precedence_even_if_blank(placeholder_images):
+    """Even if the image has a description, an explicitly blank image_alt takes precedence."""
+    block = ComparisonImageHeaderBlock()
+    value = block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "label": "Firefox"}))
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert placeholder_images.image.description
+    assert soup.find("img")["alt"] == ""
+    assert soup.find("span", class_="fl-comparison-image-header-text").get_text(strip=True) == "Firefox"
+
+
+def test_comparison_image_header_blocks_alt_text_takes_precedence_for_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+    block = ComparisonImageHeaderBlock()
+    value = block.to_python({"image": decorative_image.pk, "image_alt": "Firefox logo", "label": "Firefox"})
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("img")["alt"] == "Firefox logo"
 
 
 def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():
@@ -4393,6 +4549,56 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
 
     assert result.id == pt_br_article.id
     assert result.locale == pt_br_locale
+
+
+@pytest.fixture
+def article_detail_page():
+    """A minimal published ArticleDetailPage with a featured image and a sticker."""
+    image, dark_image, _mobile_image, _dark_mobile_image = get_placeholder_images()
+    root_page = Site.objects.get(is_default_site=True).root_page
+    return ArticleDetailPageFactory(
+        parent=root_page,
+        featured_image=image,
+        sticker=dark_image,
+    )
+
+
+def test_article_card_uses_the_override_alt_when_the_override_supplies_the_image(article_detail_page, placeholder_images):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": placeholder_images.dark_image.id, "image_alt": "A custom card image"},
+        }
+    )
+    assert value.get_featured_image_alt() == "A custom card image"
+
+
+def test_article_card_uses_the_article_alt_when_the_override_has_no_image(article_detail_page):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": None, "image_alt": "", "title": "A custom title"},
+        }
+    )
+    assert value.get_featured_image_alt() == "The article's own hero"
+
+
+def test_article_card_pictogram_renders_an_empty_alt(article_detail_page, placeholder_images):
+    block = RelatedArticleBlock()
+    value = block.to_python({"article": article_detail_page.pk, "overrides": {"sticker": placeholder_images.dark_image.id}})
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    pictogram = soup.select_one(".fl-card-media-pictogram img")
+    assert pictogram is not None
+    assert pictogram["alt"] == ""
 
 
 def _make_button_row_value(count, allow_uitour=False):
@@ -5033,6 +5239,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             "value": {
                 "image": {
                     "image": image.id,
+                    "image_alt": "An image with dark mode and mobile variants",
                     "settings": {
                         "dark_mode_image": dark_image.id,
                         "mobile_image": mobile_image.id,
