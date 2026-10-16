@@ -19,6 +19,10 @@
         gap: var(--fl-section-hgroup-gap);
     }
 
+    .enterprise-home .fl-main.has-gradient-bottom {
+        background-image: none;
+    }
+
     /*
      * Hero bubbles. Two soft bubbles drift over a fixed, canvas-wide gradient: each
      * fill counter-moves against its bubble (--s: -1) so the colours stay put while
