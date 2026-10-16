@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from types import SimpleNamespace
 from typing import NamedTuple
 
@@ -13,9 +14,9 @@ from django.db.models import Case, Count, Exists, OuterRef, Q, Value, When
 from django.http import Http404
 
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
+from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
-from wagtail.models import Orderable
+from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.search import index
 
 from lib import l10n_utils
@@ -154,6 +155,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     featured_articles = StreamField(
         [("article", BlogArticleBlock())],
         max_num=4,
+        collapsed=True,
         use_json_field=True,
         null=True,
         blank=True,
@@ -183,13 +185,14 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     )
     article_sections = StreamField(
         BlogArticleSectionsBlock(),
+        collapsed=True,
         use_json_field=True,
         null=True,
         blank=True,
     )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("page_heading"),
+    content_panels = [
+        *WagtailBasePage.content_panels,
         FieldPanel("featured_articles"),
         MultiFieldPanel(
             [
@@ -199,7 +202,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         ),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = [
+        FieldPanel("internal_title"),
+        FieldPanel("page_heading"),
+        *AbstractSpringfieldCMSPage.settings_panels,
+    ]
 
     blog_options_panels = [
         FieldPanel("featured_topics"),
@@ -550,6 +557,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     featured_articles = StreamField(
         [("article", BlogArticleBlock())],
         max_num=4,
+        collapsed=True,
         use_json_field=True,
         blank=True,
         help_text="Up to 4 featured articles shown at the top. These are left out of the list below.",
@@ -772,48 +780,50 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         ),
     )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("description"),
+    content_panels = [
+        *WagtailBasePage.content_panels,
         MultiFieldPanel(
             [
+                FieldPanel("description"),
                 FieldPanel("topic"),
                 FieldPanel("tags"),
-            ],
-            heading="Topic & Tags",
-        ),
-        InlinePanel("article_authors", label="Authors"),
-        MultiFieldPanel(
-            [
+                InlinePanel("article_authors", label="Authors"),
                 FieldPanel("first_published_at"),
                 FieldPanel("updated_date"),
                 FieldPanel("hide_dates"),
             ],
-            heading="Dates",
+            heading="Post details",
+            classname="collapsed",
         ),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
-                FieldRowPanel(
+                FieldPanel("listing_image"),
+                MultiFieldPanel(
                     [
                         FieldPanel("image_dark_mode"),
                         FieldPanel("image_mobile"),
                         FieldPanel("image_dark_mode_mobile"),
-                    ]
+                    ],
+                    heading="Dark mode & mobile versions",
+                    classname="collapsed",
                 ),
-                FieldPanel("listing_image"),
-            ],
-            heading="Featured Image",
-        ),
-        MultiFieldPanel(
-            [
                 FieldPanel("hero_style"),
-                FieldPanel("hero_video"),
+                FieldPanel(
+                    "hero_video",
+                    attrs={"data-w-rules-target": "show", "data-w-rules": json.dumps({"hero_style": [HeroStyle.VIDEO]})},
+                ),
             ],
-            heading="Hero Options",
+            heading="Featured image & hero",
             classname="collapsed",
+            attrs={"data-controller": "w-rules", "data-action": "change->w-rules#resolve"},
         ),
         FieldPanel("content"),
-        FieldPanel("bottom_banner"),
+        MultiFieldPanel(
+            [FieldPanel("bottom_banner")],
+            heading="Bottom banner",
+            classname="collapsed",
+        ),
     ]
 
     related_articles_panels = [
@@ -821,7 +831,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("related_articles"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+    settings_panels = [
+        FieldPanel("internal_title"),
+        *AbstractSpringfieldCMSPage.settings_panels,
         FieldPanel("exclude_from_rss"),
     ]
 

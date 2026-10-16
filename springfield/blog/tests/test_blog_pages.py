@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import itertools
+import json
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
@@ -1976,6 +1977,17 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
     assert soup.find("div", class_="fl-banner") is None
 
 
+def _panel_labels(panels):
+    return [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in panels]
+
+
+def test_blog_index_internal_title_and_page_heading_are_in_settings_tab():
+    content_tab, *_, settings_tab = BlogIndexPage.get_edit_handler().children
+
+    assert _panel_labels(content_tab.children) == ["title", "featured_articles", "Article Sections"]
+    assert _panel_labels(settings_tab.children)[:2] == ["internal_title", "page_heading"]
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1984,27 +1996,55 @@ def test_blog_article_edit_handler_tabs():
 
 def test_blog_article_content_tab_panel_order():
     content_tab = BlogArticlePage.get_edit_handler().children[0]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in content_tab.children]
 
-    assert labels == [
+    assert _panel_labels(content_tab.children) == [
         "title",
-        "internal_title",
-        "description",
-        "Topic & Tags",
-        "article_authors",
-        "Dates",
-        "Featured Image",
-        "Hero Options",
+        "Post details",
+        "Featured image & hero",
         "content",
-        "bottom_banner",
+        "Bottom banner",
     ]
+
+
+def test_blog_article_content_tab_groups():
+    _, post_details, featured, _, bottom_banner = BlogArticlePage.get_edit_handler().children[0].children
+
+    assert _panel_labels(post_details.children) == [
+        "description",
+        "topic",
+        "tags",
+        "article_authors",
+        "first_published_at",
+        "updated_date",
+        "hide_dates",
+    ]
+    assert _panel_labels(featured.children) == ["image", "listing_image", "Dark mode & mobile versions", "hero_style", "hero_video"]
+    assert _panel_labels(featured.children[2].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
+    for panel in (post_details, featured, featured.children[2], bottom_banner):
+        assert "collapsed" in panel.classname
+
+
+def test_blog_article_hero_video_shows_only_for_video_hero_style():
+    featured = BlogArticlePage.get_edit_handler().children[0].children[2]
+    hero_video = featured.children[-1]
+
+    assert featured.attrs["data-controller"] == "w-rules"
+    assert hero_video.field_name == "hero_video"
+    assert hero_video.attrs["data-w-rules-target"] == "show"
+    assert json.loads(hero_video.attrs["data-w-rules"]) == {"hero_style": ["video"]}
+
+
+def test_blog_article_internal_title_is_in_settings_tab():
+    content_tab, *_, settings_tab = BlogArticlePage.get_edit_handler().children
+
+    assert "internal_title" not in _panel_labels(content_tab.children)
+    assert _panel_labels(settings_tab.children)[0] == "internal_title"
 
 
 def test_blog_article_related_articles_tab_panel_order():
     related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
 
-    assert labels == [
+    assert _panel_labels(related_articles_tab.children) == [
         "hide_related",
         "related_articles",
     ]
