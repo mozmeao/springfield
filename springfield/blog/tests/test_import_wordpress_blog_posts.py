@@ -192,6 +192,7 @@ def make_command(dry_run=False):
     command.stderr = OutputWrapper(StringIO())
     command.dry_run = dry_run
     command.image_cache = {}
+    command.unavailable_image_urls = {}
     command.urls_cached_by_post = []
     return command
 
@@ -912,12 +913,28 @@ def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster(co
     assert video_value["video_url"] == "https://www.youtube.com/watch?v=abc123"
     assert video_value["alt"] == "A video"
     assert video_value["poster"].title == "A video"
-    assert [call.request.url for call in responses.calls] == ["https://img.youtube.com/vi/abc123/hqdefault.jpg"]
+    assert [call.request.url for call in responses.calls] == ["https://img.youtube.com/vi/abc123/maxresdefault.jpg"]
+
+
+@responses.activate
+def test_materialize_content_video_falls_back_to_the_4_3_thumbnail_when_there_is_no_widescreen_one(command):
+    """Older videos have no maxresdefault. That is expected, so it is neither retried nor reported."""
+    responses.add(responses.GET, "https://img.youtube.com/vi/abc123/maxresdefault.jpg", status=404, content_type="image/jpeg")
+    mock_image_downloads("https://img.youtube.com/vi/abc123/hqdefault.jpg")
+
+    blocks = command.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+
+    assert blocks[0][1][0][1]["poster"].title == "A video"
+    assert [call.request.url for call in responses.calls] == [
+        "https://img.youtube.com/vi/abc123/maxresdefault.jpg",
+        "https://img.youtube.com/vi/abc123/hqdefault.jpg",
+    ]
+    assert stderr_of(command) == ""
 
 
 @responses.activate
 def test_materialize_content_gives_each_video_its_own_poster(command):
-    """Two videos in one run must not share a thumbnail just because both URLs end in hqdefault.jpg."""
+    """Two videos in one run must not share a thumbnail just because both URLs end in maxresdefault.jpg."""
     mock_image_downloads()
 
     blocks = command.materialize_content(
@@ -951,6 +968,42 @@ def test_materialize_content_links_a_video_whose_poster_download_fails(command, 
     blocks = command.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
     # The link keeps its query string here: a YouTube watch URL carries the video id in it.
     assert blocks == [("text", '<p><a href="https://www.youtube.com/watch?v=abc123">Watch video</a></p>')]
+
+
+@responses.activate
+def test_materialize_content_reports_a_video_with_no_thumbnail_at_all_once(command, no_retry_backoff):
+    """A deleted video 404s at every size. The missing 4:3 thumbnail is the one worth reporting."""
+    responses.add(responses.GET, "https://img.youtube.com/vi/abc123/maxresdefault.jpg", status=404)
+    responses.add(responses.GET, "https://img.youtube.com/vi/abc123/hqdefault.jpg", status=404)
+
+    blocks = command.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+
+    assert blocks == [("text", '<p><a href="https://www.youtube.com/watch?v=abc123">Watch video</a></p>')]
+    assert stderr_of(command).count("could not download image") == 1
+    assert "hqdefault.jpg" in stderr_of(command)
+
+
+@responses.activate
+def test_materialize_content_video_falls_back_quietly_when_the_widescreen_thumbnail_keeps_failing(command, no_retry_backoff):
+    mock_failed_downloads("https://img.youtube.com/vi/abc123/maxresdefault.jpg")
+    mock_image_downloads("https://img.youtube.com/vi/abc123/hqdefault.jpg")
+
+    blocks = command.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+
+    assert blocks[0][1][0][1]["poster"] is not None
+    assert len(responses.calls) == DOWNLOAD_ATTEMPTS + 1
+    assert stderr_of(command) == ""
+
+
+@responses.activate
+def test_materialize_content_video_falls_back_quietly_when_the_widescreen_thumbnail_cannot_be_processed(command):
+    responses.add(responses.GET, "https://img.youtube.com/vi/abc123/maxresdefault.jpg", body=b"not an image", content_type="image/jpeg")
+    mock_image_downloads("https://img.youtube.com/vi/abc123/hqdefault.jpg")
+
+    blocks = command.materialize_content([("video", {"url": "https://www.youtube.com/watch?v=abc123", "alt": "A video"})], "A Test Post")
+
+    assert "hqdefault" in blocks[0][1][0][1]["poster"].file.name
+    assert stderr_of(command) == ""
 
 
 @responses.activate
@@ -1065,6 +1118,46 @@ def test_get_or_create_image_gives_up_after_three_attempts(command, no_retry_bac
     assert image is None
     assert len(responses.calls) == DOWNLOAD_ATTEMPTS
     assert "could not download image" in stderr_of(command)
+
+
+@responses.activate
+def test_get_or_create_image_does_not_retry_a_missing_file(command):
+    responses.add(responses.GET, "https://example.com/gone.png", status=404)
+
+    assert command.get_or_create_image("https://example.com/gone.png", "Gone") is None
+    assert len(responses.calls) == 1
+    assert "could not download image https://example.com/gone.png" in stderr_of(command)
+
+
+@responses.activate
+def test_get_or_create_image_retries_when_rate_limited(command, no_retry_backoff):
+    url = "https://example.com/hero.jpg"
+    responses.add(responses.GET, url, status=429)
+    responses.add(responses.GET, url, body=PNG_BYTES, content_type="image/png")
+
+    assert command.get_or_create_image(url, "Hero") is not None
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+def test_get_or_create_image_asks_for_a_missing_file_once_per_run_and_warns_each_time(command):
+    """Each post's warnings are its own worklist, so a second post using the dead image needs the warning too."""
+    responses.add(responses.GET, "https://example.com/gone.png", status=404)
+
+    command.get_or_create_image("https://example.com/gone.png", "Gone")
+    command.get_or_create_image("https://example.com/gone.png", "Gone")
+
+    assert len(responses.calls) == 1
+    assert stderr_of(command).count("could not download image https://example.com/gone.png") == 2
+
+
+@responses.activate
+def test_get_or_create_image_rejects_a_response_that_is_not_an_image(command):
+    responses.add(responses.GET, "https://example.com/hero.jpg", body="<html></html>", content_type="text/html")
+
+    assert command.get_or_create_image("https://example.com/hero.jpg", "Hero") is None
+    assert len(responses.calls) == 1
+    assert "served text/html, not an image" in stderr_of(command)
 
 
 @responses.activate

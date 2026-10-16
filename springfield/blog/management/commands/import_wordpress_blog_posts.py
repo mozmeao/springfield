@@ -262,20 +262,16 @@ def youtube_watch_url(video_id):
     return f"https://www.youtube.com/watch?v={video_id}"
 
 
-def youtube_poster_url(video_id):
-    """Build the thumbnail URL used as the video block's poster image.
-
-    hqdefault is the largest size YouTube generates for every upload; maxresdefault is missing
-    for older videos.
-    """
-    return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+def youtube_poster_url(video_id, size):
+    """Build the URL of one of YouTube's thumbnails for a video, used as its block's poster image."""
+    return f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
 
 
 def image_filename(url):
     """The name to store the download from `url` under.
 
-    Usually the file's own name. Every YouTube thumbnail is called 'hqdefault.jpg', so the video
-    id (the directory holding it) is prefixed to keep posters distinct in the image library.
+    Usually the file's own name. YouTube gives every video's thumbnail the same name, such as
+    'maxresdefault.jpg', so the video id (the directory holding it) is prefixed to keep posters distinct in the image library.
     """
     path = Path(urlparse(url).path)
     name = path.name or "image.jpg"
@@ -734,6 +730,7 @@ class Command(BaseCommand):
 
         self.dry_run = options["dry_run"]
         self.image_cache = {}
+        self.unavailable_image_urls = {}
 
         locale = Locale.objects.filter(language_code=options["locale"]).first()
         if locale is None:
@@ -927,7 +924,7 @@ class Command(BaseCommand):
                     blocks.append(("media", [("image", image_value)]))
             elif block_type == "video":
                 alt = value["alt"] or title
-                poster = self.get_or_create_image(youtube_poster_url(youtube_video_id(value["url"])), alt, description=alt)
+                poster = self.get_or_create_youtube_poster(youtube_video_id(value["url"]), alt)
                 if poster is None:
                     # The block requires a poster, and YouTube serves no thumbnail at all for a
                     # video that has since been deleted. Keep the reference as a link so the video
@@ -1046,15 +1043,28 @@ class Command(BaseCommand):
             )
         return authors
 
-    def get_or_create_image(self, url, title, description=""):
+    def get_or_create_youtube_poster(self, video_id, alt):
+        """Store YouTube's thumbnail for `video_id` as an image, or return None if it has none.
+
+        Prefers the 16:9 maxresdefault, which older videos lack, over the 4:3 hqdefault that every
+        upload has, which shows a widescreen video inside black bars.
+        """
+        return self.get_or_create_image(
+            youtube_poster_url(video_id, "maxresdefault"), alt, description=alt, warn_on_failure=False
+        ) or self.get_or_create_image(youtube_poster_url(video_id, "hqdefault"), alt, description=alt)
+
+    def get_or_create_image(self, url, title, description="", warn_on_failure=True):
         """Download `url` into an image, reusing one the library already holds.
 
         An asset is identified by its source URL, not its file name: WordPress names uploads per
-        month, so unrelated posts routinely hold a different `image.png`, and every YouTube
-        thumbnail is called `hqdefault.jpg`. Matching on the name collapsed those into one image.
+        month, so unrelated posts routinely hold a different `image.png`, and YouTube gives every
+        video's thumbnail the same name. Matching on the name collapsed those into one image.
 
         `description` is Wagtail's alt text. It is only kept when it actually describes the image
         (see image_description), so a screen reader never reads out a file name.
+
+        `warn_on_failure=False` is for a URL that may legitimately not exist, when the caller has
+        a fallback.
         """
         url = url.strip()
         if not url:
@@ -1066,7 +1076,7 @@ class Command(BaseCommand):
         filename = image_filename(url)
         title = title.strip() or filename
 
-        response = self.download(url)
+        response = self.download(url, warn_on_failure=warn_on_failure)
         if response is None:
             return None
 
@@ -1081,10 +1091,6 @@ class Command(BaseCommand):
             return existing
 
         alt_text = image_description(description)
-        if not alt_text:
-            # Reported once per post, after the post is imported, so it is one line to act on
-            # instead of one per image.
-            self.images_without_alt += 1
         try:
             with transaction.atomic():
                 image = SpringfieldImage.objects.create(
@@ -1099,9 +1105,14 @@ class Command(BaseCommand):
             # Saving computes the image's dimensions through ImageMagick, which fails on some
             # files; a large animated GIF exhausts its pixel cache. Warn and carry on instead of
             # failing the whole post.
-            self.warn(WARNING_PROCESSING, f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
+            if warn_on_failure:
+                self.warn(WARNING_PROCESSING, f"could not process image {url} ({filesizeformat(len(response.content))}): {exc}")
             return None
 
+        if not alt_text:
+            # Reported once per post, after the post is imported, so it is one line to act on
+            # instead of one per image.
+            self.images_without_alt += 1
         self.cache_image(url, image)
         return image
 
@@ -1112,21 +1123,50 @@ class Command(BaseCommand):
         self.image_cache[url] = image
         self.urls_cached_by_post.append(url)
 
-    def download(self, url):
-        """Fetch `url`, retrying with a widening gap, or warn and return None if it never answers."""
-        last_exc = None
+    def download(self, url, warn_on_failure=True):
+        """Fetch the image at `url`, or return None (warning, unless told not to) if there isn't one."""
+        if url in self.unavailable_image_urls:
+            failure = self.unavailable_image_urls[url]
+        else:
+            response, failure = self.fetch_image(url)
+            if response is not None:
+                return response
+
+        if warn_on_failure:
+            self.warn(WARNING_DOWNLOAD, f"could not download image {url}: {failure}")
+        return None
+
+    def fetch_image(self, url):
+        """Return (response, None) for the image at `url`, or (None, the reason it failed).
+
+        A server error or no answer is retried with a widening gap. A 4xx or a response that isn't
+        an image is not, since asking again won't change it, and the URL is remembered for the rest
+        of the run.
+        """
+        failure = None
         for attempt in range(1, DOWNLOAD_ATTEMPTS + 1):
             try:
                 response = requests.get(url, timeout=DOWNLOAD_TIMEOUT_SECONDS)
                 response.raise_for_status()
-                return response
             except requests.RequestException as exc:
-                last_exc = exc
+                failure = exc
+                status_code = exc.response.status_code if exc.response is not None else None
+                # 429 is the one 4xx that asks for another try.
+                if status_code is not None and status_code < 500 and status_code != 429:
+                    self.unavailable_image_urls[url] = failure
+                    return None, failure
                 if attempt < DOWNLOAD_ATTEMPTS:
                     time.sleep(2**attempt)  # 2s, then 4s
+                continue
 
-        self.warn(WARNING_DOWNLOAD, f"could not download image {url} after {DOWNLOAD_ATTEMPTS} attempts: {last_exc}")
-        return None
+            content_type = response.headers.get("Content-Type", "")
+            if content_type.startswith("image/"):
+                return response, None
+            failure = f"served {content_type or 'no Content-Type'}, not an image"
+            self.unavailable_image_urls[url] = failure
+            return None, failure
+
+        return None, f"{failure} (after {DOWNLOAD_ATTEMPTS} attempts)"
 
     def parse_wp_date(self, text):
         """Parse a WordPress export Date (no timezone info) as wall-clock time in
