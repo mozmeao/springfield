@@ -52,7 +52,9 @@ def test_list_layout_renders_editable_rows_and_usage(admin_client, make_image, r
     assert cells[-2].get_text(strip=True) == "Root"
     assert row.select_one(f"input[name='image-{image.pk}-title']")["value"] == "Firefox logo"
     assert row.select_one(f"input[name='image-{image.pk}-tags']")["value"] == "brand"
-    assert row.select_one("td[data-inline-cell='title'] a")["href"] == reverse("wagtailimages:edit", args=[image.pk])
+    title_link = row.select_one("td[data-inline-cell='title'] a")
+    assert title_link["href"] == reverse("wagtailimages:edit", args=[image.pk])
+    assert title_link.get_text(strip=True) == "Firefox logo"
     assert row.select_one(f"textarea[name='image-{image.pk}-description']").get_text(strip=True) == "The Firefox logo"
     usage_items = row.select("td[data-inline-cell='usage'] li")
     assert usage_items[0].get_text(" ", strip=True) == "Firefox Home · 2 locales"

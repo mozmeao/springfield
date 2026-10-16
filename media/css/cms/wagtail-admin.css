@@ -93,6 +93,18 @@
     min-width: 14rem;
 }
 
+.listing .inline-edit-cell[data-inline-cell='title'] {
+    max-width: 20rem;
+}
+
+.listing .inline-edit-cell[data-inline-cell='title'] a {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .listing tr[data-inline-dirty] {
     box-shadow: inset 4px 0 0 var(--w-color-warning-100);
 }
