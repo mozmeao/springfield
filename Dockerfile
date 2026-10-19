@@ -1,7 +1,7 @@
 ########
 # Pinned `uv` binary, copied into the stages that install Python deps
 #
-FROM ghcr.io/astral-sh/uv:0.12.17 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.1 AS uv
 
 
 ########
