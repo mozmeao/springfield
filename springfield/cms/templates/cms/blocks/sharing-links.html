@@ -1,0 +1,25 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_position = block_position or "article" %}
+
+<include:sharing-links
+  instance_id="fl-sharing-links-{{ value.analytics_id }}"
+  url="{{ value.url }}"
+  copy_label="{{ value.copy_label }}"
+  copy_success_label="{{ value.copy_success_label }}"
+  email_label="{{ value.email_label }}"
+  email_subject="{{ value.email_subject }}"
+  email_body="{{ value.email_body }}"
+  qr_label="{{ value.qr_label }}"
+  qr_heading="{{ value.qr_heading|richtext|remove_p_tag if value.qr_heading else '' }}"
+  qr_heading_level="{{ 'h' ~ block_level if block_level else 'h2' }}"
+  qr_text="{{ value.qr_text|richtext if value.qr_text else '' }}"
+  close_label="{{ ftl('ui-close') }}"
+  analytics_text="{{ block_text or '' }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.analytics_id }}"
+/>

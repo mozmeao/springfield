@@ -167,3 +167,17 @@ context:
       - label: "Gold Button"
         link: "#"
         theme_class: 'button-gold'
+  icon_only_buttons:
+    buttons:
+      - label: "Share by email"
+        link: "mailto:"
+        theme_class: 'button-primary'
+        icon_name: 'email'
+      - label: "Show QR code"
+        link: ""
+        theme_class: 'button-secondary'
+        icon_name: 'qr-code'
+      - label: "Next"
+        link: "#"
+        theme_class: 'button-ghost'
+        icon_name: 'forward'

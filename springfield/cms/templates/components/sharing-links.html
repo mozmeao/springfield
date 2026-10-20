@@ -1,0 +1,81 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# props instance_id, url, copy_label="", copy_success_label="", email_label="", email_subject="", email_body="", qr_label="", qr_heading="", qr_heading_level="h2", qr_text="", close_label="Close", analytics_text="", analytics_position="", analytics_id="" #}
+
+{% set qr_dialog_id = instance_id ~ '-qr-dialog' %}
+
+{# Analytics attributes are only rendered when the CMS block passes a position; analytics_text is the nearest heading. #}
+{% macro cta_text(label) %}{{ (analytics_text ~ ' - ' if analytics_text else '') ~ label if analytics_position else '' }}{% endmacro %}
+
+{# The shared URL always ends the email body, so the message carries the link even without a body. #}
+{% set email_body_text = (email_body ~ '\n\n' ~ url) if email_body else url %}
+{% set mailto_link = 'mailto:?' ~ ('subject=' ~ email_subject|mailtoencode ~ '&' if email_subject else '') ~ 'body=' ~ email_body_text|mailtoencode %}
+
+<div class="fl-sharing-links">
+  <div class="fl-buttons is-horizontal">
+    <include:copy-to-clipboard-button
+      value="{{ url }}"
+      label="{{ copy_label }}"
+      success_label="{{ copy_success_label }}"
+      theme_class="button-primary"
+      analytics_text="{{ cta_text(copy_label) }}"
+      analytics_position="{{ analytics_position ~ '.copy-link' if analytics_position else '' }}"
+      analytics_id="{{ analytics_id }}"
+    />
+
+    <include:button
+      link="{{ mailto_link }}"
+      label="{{ email_label }}"
+      theme_class="button-primary"
+      extra_classes="fl-sharing-links-email"
+      icon_name="email"
+      icon_position="right"
+      icon_only=true
+      analytics_text="{{ cta_text(email_label) }}"
+      analytics_position="{{ analytics_position ~ '.email' if analytics_position else '' }}"
+      analytics_id="{{ analytics_id }}"
+    />
+
+    <include:button
+      label="{{ qr_label }}"
+      theme_class="button-primary"
+      extra_classes="fl-dialog-trigger fl-sharing-links-qr"
+      icon_name="qr-code"
+      icon_position="right"
+      icon_only=true
+      data_target_id="{{ qr_dialog_id }}"
+      analytics_text="{{ cta_text(qr_label) }}"
+      analytics_position="{{ analytics_position ~ '.qr-code' if analytics_position else '' }}"
+      analytics_id="{{ analytics_id }}"
+    />
+  </div>
+
+  {# Same dialog markup as the QR code modal button, so it shares its styles. #}
+  <div class="fl-qr-code-modal-wrapper">
+    <dialog id="{{ qr_dialog_id }}" class="fl-dialog fl-qr-code-dialog fl-sharing-links-dialog" aria-label="{{ qr_label }}">
+      <div class="fl-qr-code-floating-header">
+        <div class="fl-qr-code-prompt">
+          <span class="fl-icon fl-icon-device-mobile" aria-hidden="true"></span>
+          {% if qr_heading %}
+            <include:heading level="{{ qr_heading_level }}" heading_text="{{ qr_heading }}" />
+          {% endif %}
+        </div>
+        <button type="button" class="fl-dialog-close-button fl-qr-code-floating-button" aria-label="{{ close_label }}">
+          <span class="fl-icon fl-icon-close" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="fl-qr-code-floating-content">
+        <div class="fl-qr-code-image" aria-hidden="true">
+          {{ qrcode_rounded(url) }}
+        </div>
+        {% if qr_text %}
+          <div class="fl-sharing-links-qr-text">{{ qr_text }}</div>
+        {% endif %}
+      </div>
+    </dialog>
+  </div>
+</div>

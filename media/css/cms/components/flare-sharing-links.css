@@ -1,0 +1,24 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* =====================================================================
+Sharing Links - copy, email and QR code buttons for one URL
+===================================================================== */
+
+/* the heading sits in the QR dialog's compact header, so it takes the prompt's type */
+.fl-sharing-links-dialog .fl-qr-code-prompt .fl-heading {
+    font: inherit;
+    margin: 0;
+}
+
+.fl-sharing-links-qr-text {
+    padding-inline: var(--token-spacing-lg);
+    text-align: center;
+}
+
+.fl-sharing-links-qr-text > :last-child {
+    margin-block-end: 0;
+}

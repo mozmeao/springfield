@@ -1698,6 +1698,46 @@ class ReferralControlsBlock(blocks.StructBlock):
         template = "cms/blocks/referral-controls.html"
 
 
+class SharingLinksBlock(blocks.StructBlock):
+    """A row of buttons for sharing a URL: copy it, email it or show it as a QR code."""
+
+    copy_label = blocks.CharBlock(default="Copy link", label="Share this button label", help_text="Label for the button that copies the link.")
+    copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
+    url = blocks.URLBlock(label="Share this URL", help_text="The link that is copied, emailed and encoded in the QR code.")
+    email_label = blocks.CharBlock(
+        default="Share by email",
+        help_text="Read by screen readers for the email button, which only shows an icon.",
+    )
+    email_subject = blocks.CharBlock(required=False, label="E-mail subject")
+    email_body = blocks.TextBlock(
+        required=False,
+        label="E-mail body",
+        help_text="A short paragraph for the email draft. The shared URL is added to the end.",
+    )
+    qr_label = blocks.CharBlock(
+        default="Show QR code",
+        label="QR code button label",
+        help_text="Read by screen readers for the QR code button, which only shows an icon, and for its modal.",
+    )
+    qr_heading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False, label="QR code modal heading")
+    qr_text = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False, label="QR code modal text")
+    analytics_id = UUIDBlock(
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
+    )
+
+    class Meta:
+        label = "Sharing Links"
+        label_format = "Sharing Links - {url}"
+        icon = "link"
+        template = "cms/blocks/sharing-links.html"
+        form_layout = blocks.BlockGroup(
+            children=["copy_label", "url", "email_subject", "email_body", "qr_heading", "qr_text"],
+            settings=["copy_success_label", "email_label", "qr_label", "analytics_id"],
+        )
+
+
 class TabReferralControlsBlock(blocks.StreamBlock):
     """Wrapper making ReferralControlsBlock a genuinely optional tab field.
 
@@ -2743,6 +2783,7 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
                 ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
                 ("icon_list", IconListBlock()),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
                 ("media", MediaBlock(max_num=1, min_num=0, required=False)),
                 ("numbered_list", NumberedListBlock()),
                 ("timeline", TimelineBlock()),
@@ -2979,6 +3020,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("resources", ResourcesBlock()),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
                 ("certification_list", CertificationListBlock()),
@@ -3018,6 +3060,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
             ],
             required=False,
         )
