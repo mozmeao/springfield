@@ -431,6 +431,12 @@ def normalize_text_for_matching(text: str) -> str:
     # Normalize any remaining link attributes
     text = re.sub(r"<a\s+[^>]*>", "<a>", text, flags=re.IGNORECASE)
 
+    # Normalize <br/> and <br>, for translations.
+    text = re.sub(r"<br\s*/?>", "<br>", text, flags=re.IGNORECASE)
+
+    # Normalize <b> and <strong>.
+    text = re.sub(r"</?b>", lambda m: "</strong>" if m.group(0).startswith("</") else "<strong>", text, flags=re.IGNORECASE)
+
     return text.strip()
 
 
