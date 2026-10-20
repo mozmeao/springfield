@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import re
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 from uuid import uuid4
 
 if TYPE_CHECKING:
@@ -619,6 +619,9 @@ class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
 
 
 PARTNER_DOWNLOAD_HOST = "download.mozilla.org"
+# Partner builds only exist on the production download server, so this
+# doesn't follow `settings.BOUNCER_URL`.
+PARTNER_DOWNLOAD_BASE_URL = f"https://{PARTNER_DOWNLOAD_HOST}/"
 
 # Each partner download link field, with the `os` value its link must carry
 # and the platform whose language list covers it.
@@ -747,6 +750,20 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         """Return the `product` and `os` values of the link stored in `link_field`."""
         query = parse_qs(urlsplit(getattr(self, link_field)).query)
         return query.get("product", [""])[0], query.get("os", [""])[0]
+
+    def download_url(self, link_field: str, lang: str) -> str | None:
+        """Return the download URL for the link in `link_field` in `lang`.
+
+        Returns None when the link is blank or `lang` isn't listed for its platform.
+        Only `product` and `os` are kept from the pasted link, and `lang` goes last.
+        """
+        platform = PARTNER_REPACK_LINK_FIELDS[link_field][1]
+        if not getattr(self, link_field) or lang not in self.languages_for(platform):
+            return None
+        product, link_os = self.product_for(link_field)
+        # The download server's Mac Japanese build uses its own code.
+        download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
+        return f"{PARTNER_DOWNLOAD_BASE_URL}?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
 
     def clean_fields(self, exclude=None):
         # Tidy pasted values before Django validates them. Slugs are stored

@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.test import override_settings
 
 import pytest
 from wagtail.models import TranslatableMixin
@@ -197,3 +198,41 @@ def test_partner_with_every_link_is_valid():
     partner.full_clean()
 
     assert partner.product_for("linux_url") == (ACME_PRODUCT, "linux64")
+
+
+def test_download_url_adds_lang_last():
+    partner = make_partner()
+
+    assert partner.download_url("windows64_url", "de") == f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64&lang=de"
+
+
+def test_download_url_drops_other_pasted_parameters():
+    partner = make_partner(windows64_url=f"{ACME_WINDOWS64_URL}&foo=1&lang=fr")
+
+    assert partner.download_url("windows64_url", "de") == f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64&lang=de"
+
+
+def test_download_url_uses_the_mac_japanese_code_on_mac_only():
+    partner = make_partner(windows_languages="ja", mac_url=ACME_MAC_URL, mac_languages="ja")
+
+    assert partner.download_url("mac_url", "ja") == f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx&lang=ja-JP-mac"
+    assert partner.download_url("windows64_url", "ja") == f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64&lang=ja"
+
+
+@override_settings(BOUNCER_URL="https://bouncer.stage.example/")
+def test_download_url_always_uses_the_production_download_server():
+    partner = make_partner()
+
+    assert partner.download_url("windows64_url", "de").startswith("https://download.mozilla.org/?")
+
+
+def test_download_url_is_none_for_an_unlisted_language():
+    partner = make_partner(windows_languages="de")
+
+    assert partner.download_url("windows64_url", "fr") is None
+
+
+def test_download_url_is_none_for_a_blank_link():
+    partner = make_partner(windows_languages="de")
+
+    assert partner.download_url("windows32_url", "de") is None
