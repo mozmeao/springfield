@@ -607,6 +607,12 @@
     },
     {
       "files": [
+        "js/firefox/download/partner-download-init.es6.js"
+      ],
+      "name": "partner-download"
+    },
+    {
+      "files": [
         "js/base/mobile-attribution.js"
       ],
       "name": "mobile-attribution"

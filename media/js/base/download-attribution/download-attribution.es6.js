@@ -375,6 +375,33 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
     },
 
     /**
+     * Shows analytics signing progress on `<html>`, so scripts holding another
+     * copy of this module (each JS bundle has its own) can tell when it ends.
+     * Sets `data-download-attribution` to `pending` or `complete`, and on
+     * completion dispatches a `mozDownloadAttribution` window event whose
+     * `detail.status` is `success` or `timeout`.
+     * @param {String} status - 'pending', 'success' or 'timeout'.
+     */
+    setSigningStatus: (status) => {
+        try {
+            const isPending = status === 'pending';
+            document.documentElement.setAttribute(
+                'data-download-attribution',
+                isPending ? 'pending' : 'complete'
+            );
+            if (!isPending) {
+                window.dispatchEvent(
+                    new CustomEvent('mozDownloadAttribution', {
+                        detail: { status: status }
+                    })
+                );
+            }
+        } catch (error) {
+            // Signalling is best effort and must never affect signing.
+        }
+    },
+
+    /**
      * Handles XHR request from `stub_attribution_code` service.
      * @param {Object} data - attribution_code, attribution_sig.
      */
@@ -388,6 +415,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             DownloadAttribution.updateBouncerLinks(data);
         }
         DownloadAttribution.setSignedCookie(data);
+        DownloadAttribution.setSigningStatus('success');
 
         // The success callback fires once per page lifetime. Auto-download
         // relies on this gate to start the download exactly once.
@@ -402,6 +430,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
 
     onRequestTimeout: () => {
         DownloadAttribution.inFlightXHR = null;
+        DownloadAttribution.setSigningStatus('timeout');
         if (!DownloadAttribution.requestComplete) {
             DownloadAttribution.requestComplete = true;
 
@@ -911,6 +940,7 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             }
 
             DownloadAttribution.gettingAnalyticsData = true;
+            DownloadAttribution.setSigningStatus('pending');
             DownloadAttribution.waitForGoogleAnalyticsThen(() => {
                 const params = new window._SearchParams();
                 const analytics = DownloadAttribution.getAnalyticsData(
