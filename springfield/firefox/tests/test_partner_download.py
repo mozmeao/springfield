@@ -305,3 +305,11 @@ def test_state_blocks_have_no_duplicate_ids(client):
     ids = [element["id"] for element in render_page(client, "/de/get/?p=acme").select("main [id]")]
 
     assert len(ids) == len(set(ids))
+
+
+def test_page_names_the_partner_for_download_events(client):
+    make_partner(**WINDOWS_DE)
+
+    soup = render_page(client, "/de/get/?p=acme")
+
+    assert soup.find("html")["data-download-partner"] == "acme"

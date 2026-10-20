@@ -33,6 +33,9 @@
 
 {% block page_og_desc %}{{ ftl('firefox-desktop-download-og-desc') }}{% endblock %}
 
+{# Adds the partner to every download event sent from this page. #}
+{% block html_attrs %}data-download-partner="{{ partner.slug }}"{% endblock %}
+
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
 {% block page_css %}

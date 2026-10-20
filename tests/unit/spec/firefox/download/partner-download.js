@@ -10,6 +10,7 @@
  */
 
 import PartnerDownload from '../../../../../media/js/firefox/download/partner-download.es6';
+import Plausible from '../../../../../media/js/base/plausible/plausible.es6';
 
 const WIN64_URL =
     'https://download.mozilla.org/?product=partner-firefox-release-acme-acme-001-latest&os=win64&lang=en-US';
@@ -547,6 +548,197 @@ describe('partner-download.es6.js', function () {
             expect(
                 window.Mozilla.DownloadAttribution.initEssential
             ).not.toHaveBeenCalled();
+        });
+
+        describe('analytics', function () {
+            const REGULAR_URL =
+                'https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US';
+            const PLAY_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox';
+
+            function eventsNamed(name) {
+                return window.dataLayer.filter((event) => event.event === name);
+            }
+
+            function clickDownloadLink(url) {
+                const link = document.createElement('a');
+                link.href = url;
+                window.Mozilla.TrackProductDownload.handleLink({
+                    target: link
+                });
+            }
+
+            beforeEach(function () {
+                document.documentElement.setAttribute(
+                    'data-download-partner',
+                    'acme'
+                );
+                spyOn(Plausible, 'trackEvent');
+                // Bitness is covered above; Chrome's client hints would otherwise wait on the mocked clock.
+                spyOn(PartnerDownload, 'waitForBitness').and.returnValue(
+                    Promise.resolve(true)
+                );
+                window.Mozilla.TrackProductDownload.sendEventFromURL.and.callThrough();
+            });
+
+            afterEach(function () {
+                document.documentElement.removeAttribute(
+                    'data-download-partner'
+                );
+                delete window.plausible;
+            });
+
+            it('should mark the automatic partner download as a repack', async function () {
+                window.plausible = jasmine.createSpy('plausible');
+                visitOn('osx');
+                renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
+
+                PartnerDownload.begin();
+                await flushPromises();
+                jasmine.clock().tick(1000);
+                await flushPromises();
+
+                expect(eventsNamed('firefox_download')).toEqual([
+                    jasmine.objectContaining({
+                        product: 'firefox',
+                        partner: 'acme',
+                        partner_download: 'repack'
+                    })
+                ]);
+                // The download event's Plausible copy lives in another bundle, so check the shared global.
+                expect(window.plausible).toHaveBeenCalledWith(
+                    'product_download',
+                    {
+                        props: jasmine.objectContaining({
+                            partner: 'acme',
+                            partner_download: 'repack'
+                        })
+                    }
+                );
+            });
+
+            it('should mark regular Firefox and store clicks as a fallback', function () {
+                clickDownloadLink(REGULAR_URL);
+                clickDownloadLink(PLAY_STORE_URL);
+
+                const downloads = window.dataLayer.filter(
+                    (event) =>
+                        event.event === 'firefox_download' ||
+                        event.event === 'firefox_mobile_download'
+                );
+                expect(
+                    downloads.map((event) => event.partner_download)
+                ).toEqual(['fallback', 'fallback']);
+            });
+
+            const unavailableCases = [
+                [
+                    'android',
+                    {},
+                    ['available', 'available', 'available'],
+                    1,
+                    'device'
+                ],
+                [
+                    'osx',
+                    { isFirefox: () => true },
+                    ['available', 'available', 'available'],
+                    2,
+                    'firefox'
+                ],
+                [
+                    'windows',
+                    { fxSupported: false },
+                    ['available', 'available', 'available'],
+                    3,
+                    'unsupported_os'
+                ],
+                [
+                    'osx',
+                    {},
+                    ['available', 'language', 'available'],
+                    5,
+                    'language'
+                ],
+                ['osx', {}, ['available', 'device', 'available'], 6, 'device'],
+                [
+                    'linux',
+                    {},
+                    ['available', 'available', 'language'],
+                    8,
+                    'language'
+                ],
+                [
+                    'linux',
+                    {},
+                    ['available', 'available', 'device'],
+                    9,
+                    'device'
+                ],
+                [
+                    'other',
+                    {},
+                    ['available', 'available', 'available'],
+                    10,
+                    'device'
+                ]
+            ];
+
+            for (const [
+                platform,
+                overrides,
+                states,
+                state,
+                reason
+            ] of unavailableCases) {
+                it(`should send one unavailable event for state ${state}`, async function () {
+                    visitOn(platform, overrides);
+                    renderPage(...states, []);
+
+                    PartnerDownload.begin();
+                    await flushPromises();
+
+                    expect(eventsNamed('partner_download_unavailable')).toEqual(
+                        [
+                            {
+                                event: 'partner_download_unavailable',
+                                partner: 'acme',
+                                platform:
+                                    platform === 'osx' ? 'macos' : platform,
+                                download_language: 'en-US',
+                                reason: reason,
+                                non_interaction: true
+                            }
+                        ]
+                    );
+                    expect(Plausible.trackEvent).toHaveBeenCalledWith(
+                        'partner_download_unavailable',
+                        {
+                            partner: 'acme',
+                            platform: platform === 'osx' ? 'macos' : platform,
+                            download_language: 'en-US',
+                            reason: reason
+                        }
+                    );
+                });
+            }
+
+            it('should send no unavailable event when the partner build is offered', async function () {
+                visitOn('osx');
+                renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
+                PartnerDownload.begin();
+                await flushPromises();
+                jasmine.clock().tick(1000);
+                await flushPromises();
+                document.querySelector('.c-partner-download').remove();
+
+                visitOn('linux');
+                renderPage('device', 'device', 'available', []);
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(eventsNamed('partner_download_unavailable')).toEqual([]);
+            });
         });
     });
 });

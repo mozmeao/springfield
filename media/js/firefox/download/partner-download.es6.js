@@ -11,6 +11,8 @@
  * on the container so CSS shows the matching one.
  */
 
+import Plausible from '../../base/plausible/plausible.es6';
+
 const PartnerDownload = {};
 
 // How long to wait for client hints to report 64-bit Windows.
@@ -194,6 +196,33 @@ PartnerDownload.getAttributedURL = (url) => {
 };
 
 /**
+ * Record that the visitor can't get the partner's build, and why.
+ * Sent to the dataLayer and to Plausible as `partner_download_unavailable`.
+ * @param {HTMLElement} container
+ * @param {String} reason - 'language', 'device', 'firefox' or 'unsupported_os'.
+ */
+PartnerDownload.sendUnavailableEvent = (container, reason) => {
+    const platform = window.site.platform;
+    const props = {
+        partner: container.getAttribute('data-partner'),
+        platform: platform === 'osx' ? 'macos' : platform,
+        download_language: container.getAttribute('data-lang'),
+        reason: reason
+    };
+
+    try {
+        window.dataLayer.push(
+            Object.assign({ event: 'partner_download_unavailable' }, props, {
+                non_interaction: true
+            })
+        );
+        Plausible.trackEvent('partner_download_unavailable', props);
+    } catch (error) {
+        // Analytics must never block the page.
+    }
+};
+
+/**
  * Go to the download URL.
  * @param {String} url
  */
@@ -261,6 +290,10 @@ PartnerDownload.begin = () => {
             PartnerDownload.readOptions(container)
         );
         container.setAttribute('data-state', result.state);
+
+        if (result.reason) {
+            PartnerDownload.sendUnavailableEvent(container, result.reason);
+        }
 
         if (result.state !== 4) {
             return result;
