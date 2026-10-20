@@ -14,6 +14,7 @@ from springfield.cms.fixtures.article_page_fixtures import get_article_pages, ge
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.browser_comparison_table_fixtures import get_browser_comparison_table_test_page
+from springfield.cms.fixtures.button_combination_fixtures import get_button_combination_test_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.button_row_fixtures import get_button_row_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_test_page
@@ -102,6 +103,7 @@ PAGE_FIXTURES = [
     get_kit_banner_test_page,
     get_conditional_display_test_page,
     get_buttons_test_page,
+    get_button_combination_test_pages,
     get_button_row_test_page,
     get_comparison_table_test_page,
     get_browser_comparison_table_test_page,

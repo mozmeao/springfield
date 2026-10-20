@@ -54,6 +54,7 @@
     {% for cta in value.cta %}
       {% include_block cta %}
     {% endfor %}
+    {% with buttons=value.cta %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
   </content:cta>
   {% endif %}
 </include:showcase>

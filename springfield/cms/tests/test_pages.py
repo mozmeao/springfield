@@ -20,6 +20,7 @@ from wagtail.models import Site
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.block_factories import notification_block, show_to_value
+from springfield.cms.fixtures.button_combination_fixtures import get_button_combination_test_pages
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import (
@@ -694,9 +695,9 @@ def test_smart_window_marketing_attribution_renders_promoted_markup(smart_window
 
 
 @pytest.mark.django_db
-def test_free_form_page_marketing_attribution_renders_checkbox_in_download_button(rf, placeholder_images):
-    """FreeFormPage2026 reaches the download button through the block wrapper, which nests
-    the checkbox inside the button rather than alongside it."""
+def test_free_form_page_marketing_attribution_renders_checkbox_after_each_download_row(rf, placeholder_images):
+    """Each button row holding a download button gets one checkbox, directly after the row,
+    so the row's other buttons sit beside the download button."""
     page = get_buttons_test_page()
     page.enable_marketing_attribution = True
 
@@ -705,12 +706,55 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert labels
-    for label in labels:
-        assert label.find_parent("div", class_="fl-download-firefox-button")
+    download_rows = [row for row in soup.find_all("div", class_="fl-buttons") if row.find("div", class_="fl-download-firefox-button")]
+    assert download_rows
+    for row in download_rows:
+        footer = row.find_next_sibling()
+        assert "fl-buttons-download-footer" in footer["class"]
+        label = footer.find("label", class_="marketing-opt-out-checkbox-label")
         assert "hidden" in label.get("class", [])
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+    assert not soup.select(".fl-download-firefox-button .marketing-opt-out-checkbox-label")
+    assert len(soup.find_all("div", class_="fl-buttons-download-footer")) == len(download_rows)
+
+
+def render_button_combination_pages(rf):
+    """Render both button combination pages: (without the opt-out, with the opt-out)."""
+    return [BeautifulSoup(page.serve(rf.get(page.get_full_url())).content, "html.parser") for page in get_button_combination_test_pages()]
+
+
+def download_rows(soup):
+    return [row for row in soup.find_all("div", class_="fl-buttons") if row.find("div", class_="fl-download-firefox-button")]
+
+
+@pytest.mark.parametrize("with_opt_out", [False, True])
+@pytest.mark.django_db
+def test_button_combinations_render_one_footer_after_each_download_row(with_opt_out, rf, placeholder_images):
+    """The privacy notice, and the opt-out when it's on, follow the whole row once, so the
+    row's other buttons sit level with the download button."""
+    soup = render_button_combination_pages(rf)[with_opt_out]
+
+    rows = download_rows(soup)
+    assert rows
+    for row in rows:
+        assert not row.find("a", href="https://www.mozilla.org/en-US/privacy/firefox/")
+        assert not row.find("label", class_="marketing-opt-out-checkbox-label")
+
+        footer = row.find_next_sibling()
+        assert "fl-buttons-download-footer" in footer["class"]
+        assert len(footer.find_all("a", href="https://www.mozilla.org/en-US/privacy/firefox/")) == 1
+        assert len(footer.find_all("label", class_="marketing-opt-out-checkbox-label")) == int(with_opt_out)
+
+    assert len(soup.find_all("div", class_="fl-buttons-download-footer")) == len(rows)
+
+
+@pytest.mark.django_db
+def test_button_combinations_with_the_opt_out_drop_the_default_browser_checkbox(rf, placeholder_images):
+    without_opt_out, with_opt_out = render_button_combination_pages(rf)
+
+    assert without_opt_out.find("label", class_="default-browser-label")
+    assert not with_opt_out.find("label", class_="default-browser-label")
 
 
 # Home Page marketing attribution
@@ -768,7 +812,6 @@ def test_site_homepage_renders_unpromoted_even_with_the_flag_set(site_homepage, 
     assert not soup.find("html").has_attr("data-promoted-page")
     assert not soup.find("meta", {"name": "robots"})
     assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert not soup.find_all("div", class_="has-marketing-opt-out")
     assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
 
 
@@ -799,7 +842,7 @@ def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf
 
 
 @pytest.mark.django_db
-def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf):
+def test_home_page_marketing_attribution_renders_checkbox_after_the_intro_buttons(rf):
     page = get_home_test_page()
     page.enable_marketing_attribution = True
 
@@ -812,20 +855,19 @@ def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf)
     assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
     assert [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
 
-    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert labels
-    for label in labels:
-        assert label.find_parent("div", class_="fl-download-firefox-button")
-        assert "hidden" in label.get("class", [])
-        assert label.find("input", class_="marketing-opt-out-checkbox-input")
-        assert label.find("a")["href"] == "https://support.mozilla.org/kb/marketing-data"
+    intro_buttons = soup.select_one(".fl-home-intro .fl-buttons")
+    download_button = intro_buttons.find("div", class_="fl-download-firefox-button")
+    assert not download_button.find("a", href="https://www.mozilla.org/en-US/privacy/firefox/")
+    assert not download_button.find("label", class_="marketing-opt-out-checkbox-label")
 
-    # The privacy notice sits between the button and the checkbox.
-    download_button = soup.find("div", class_="has-marketing-opt-out")
-    button_link, privacy_notice, checkbox_label = download_button.find_all(recursive=False)[:3]
-    assert "download-link" in button_link["class"]
-    assert privacy_notice.find("a")["href"].startswith("https://www.mozilla.org/en-US/privacy/firefox/")
-    assert "marketing-opt-out-checkbox-label" in checkbox_label["class"]
+    # The privacy notice and the checkbox follow the whole row, in that order.
+    footer = intro_buttons.find_next_sibling()
+    assert "fl-buttons-download-footer" in footer["class"]
+    privacy_notice, label = footer.find_all(recursive=False)
+    assert privacy_notice.find("a")["href"] == "https://www.mozilla.org/en-US/privacy/firefox/"
+    assert "hidden" in label.get("class", [])
+    assert label.find("input", class_="marketing-opt-out-checkbox-input")["id"] == f"{download_button['id']}-marketing-opt-out"
+    assert label.find("a")["href"] == "https://support.mozilla.org/kb/marketing-data"
 
 
 # Leading conditional blocks warning

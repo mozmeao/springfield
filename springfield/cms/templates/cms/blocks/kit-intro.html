@@ -32,6 +32,7 @@
                   {% include_block button %}
                 {% endfor %}
               </div>
+              {% with buttons=value.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
             {% endif %}
           </content:content>
         </include:intro>

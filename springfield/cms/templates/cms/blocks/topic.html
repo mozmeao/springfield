@@ -30,5 +30,6 @@
       {% set block_text = value.heading.heading_text|richtext|remove_tags %}
       {% include_block button %}
     {% endfor %}
+    {% with buttons=value.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
   </content:buttons>
 </include:topic>

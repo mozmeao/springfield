@@ -17,15 +17,7 @@
   media/js/base/mozilla-utils.js
 #}
 
-{% macro privacy_notice() %}
-  <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
-    <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
-      {{ ftl('download-button-firefox-privacy-notice') }}
-    </a>
-  </small>
-{% endmacro %}
-
-<div class="fl-download-firefox-button c-button-download-thanks {% if enable_marketing_attribution %}has-marketing-opt-out{% endif %}" id="{{ analytics_id }}">
+<div class="fl-download-firefox-button c-button-download-thanks" id="{{ analytics_id }}">
   <a href="{{ link_href }}"
      class="download-link fl-button {{ theme_class }} {{ size_class }} {% if is_forced %}ga-product-download{% endif %} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"
@@ -53,13 +45,7 @@
       />
     {% endif %}
   </a>
-  {% if enable_marketing_attribution %}
-    {# With the opt-out, the privacy notice moves up to sit between the button and the checkbox. #}
-    {% if not exclude_unsupported_content %}
-      {{ privacy_notice() }}
-    {% endif %}
-    <include:marketing-opt-out-checkbox analytics_id="{{ analytics_id }}" />
-  {% elif show_default_browser_checkbox  %}
+  {% if show_default_browser_checkbox %}
     {% set checkbox %}
       <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
         <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
@@ -95,8 +81,12 @@
       {% include 'firefox/includes/download-unsupported.html' %}
     {% endwith %}
 
-    {% if not enable_marketing_attribution %}
-      {{ privacy_notice() }}
+    {% if not exclude_privacy_notice %}
+      <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
+          {{ ftl('download-button-firefox-privacy-notice') }}
+        </a>
+      </small>
     {% endif %}
   {% endif %}
 </div>

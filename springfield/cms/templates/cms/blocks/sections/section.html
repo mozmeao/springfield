@@ -34,6 +34,7 @@
           {% set block_position = block_position ~ ".cta-" ~ loop.index %}
           {% include_block cta %}
         {% endfor %}
+        {% with buttons=value.cta %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
       </content:cta>
     {% endif %}
   </include:section>

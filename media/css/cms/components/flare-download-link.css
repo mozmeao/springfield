@@ -102,16 +102,68 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     align-items: flex-start;
 }
 
-/* The opt-out makes the button's stack wider than the button, so the stack
-   follows the alignment of the row or card it sits in. */
-.fl-buttons.is-start > .fl-download-firefox-button.has-marketing-opt-out,
-.fl-card-start .fl-download-firefox-button.has-marketing-opt-out {
-    align-items: flex-start;
+/* The privacy notice and opt-out after a row of buttons. They follow the
+   text alignment around them, and the checkbox stays out of the layout until
+   the JS reveals it. */
+.fl-buttons-download-footer:not(:has(> :not(.hidden))) {
+    display: none;
 }
 
-.fl-buttons.is-end > .fl-download-firefox-button.has-marketing-opt-out,
-.fl-card-end .fl-download-firefox-button.has-marketing-opt-out {
-    align-items: flex-end;
+.fl-buttons-download-footer > .mzp-c-button-download-privacy-link {
+    display: block;
+}
+
+.fl-buttons-download-footer > .marketing-opt-out-checkbox-label:not(.hidden) {
+    display: inline-flex;
+}
+
+/* 16px between the buttons, the privacy notice and the checkbox. */
+.fl-buttons-download-footer,
+.mzp-c-button-download-privacy-link + .marketing-opt-out-checkbox-label {
+    margin-block-start: var(--token-spacing-lg);
+}
+
+/* An intro spaces its button row from what follows; that space moves below
+   the footer instead. */
+.fl-intro-content
+    .fl-buttons:has(+ .fl-buttons-download-footer > :not(.hidden)) {
+    margin-block-end: 0;
+}
+
+.fl-intro-content .fl-buttons + .fl-buttons-download-footer {
+    margin-block-end: var(--token-spacing-lg);
+}
+
+/* Inside a row, it takes a line of its own below the buttons, spaced by the
+   row's own gap. */
+.fl-buttons > .fl-buttons-download-footer {
+    flex-basis: 100%;
+    margin-block-start: 0;
+}
+
+.fl-buttons.is-start + .fl-buttons-download-footer {
+    text-align: start;
+}
+
+.fl-buttons.is-center + .fl-buttons-download-footer {
+    text-align: center;
+}
+
+.fl-buttons.is-end + .fl-buttons-download-footer {
+    text-align: end;
+}
+
+/* Cards align their buttons themselves, whatever the row's alignment. */
+.fl-card.fl-card-start .fl-buttons-download-footer {
+    text-align: start;
+}
+
+.fl-card.fl-card-center .fl-buttons-download-footer {
+    text-align: center;
+}
+
+.fl-card.fl-card-end .fl-buttons-download-footer {
+    text-align: end;
 }
 
 .fl-privacy-link {
@@ -120,7 +172,8 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
 
 .fl-header .mzp-c-button-download-privacy-link,
 .fl-header .fx-unsupported-message,
-.fl-header .fl-privacy-link {
+.fl-header .fl-privacy-link,
+.fl-header .fl-buttons-download-footer {
     display: none !important; /* stylelint-disable-line */
     margin: 0;
 }

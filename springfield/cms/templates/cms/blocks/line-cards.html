@@ -28,6 +28,7 @@
             {% set block_position = block_position ~ ".button-" ~ loop.index %}
             {% include_block button %}
           {% endfor %}
+          {% with buttons=card.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
         </content:buttons>
       {% endif %}
     </include:line-card>

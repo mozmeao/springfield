@@ -1,0 +1,30 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+ What follows a row of buttons, given as `buttons`, that holds a download
+ button: the privacy notice and, on promoted pages, the marketing opt-out.
+ Both apply to every download in the row, so they render once after it
+ rather than inside each button.
+#}
+
+{% set download_buttons = buttons|selectattr("block_type", "equalto", "download_button")|list %}
+{% set show_privacy_notice = download_buttons|selectattr("value.settings.show_extra_links")|first %}
+{% set show_marketing_opt_out = download_buttons and page is defined and page.marketing_attribution_active %}
+
+{% if show_privacy_notice or show_marketing_opt_out %}
+  <div class="fl-buttons-download-footer">
+    {% if show_privacy_notice %}
+      {# The download button component's class for its own notice, so page and theme styles that target it apply here too. #}
+      <small class="mzp-c-button-download-privacy-link">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">{{ ftl('download-button-firefox-privacy-notice') }}</a>
+      </small>
+    {% endif %}
+    {% if show_marketing_opt_out %}
+      <include:marketing-opt-out-checkbox analytics_id="{{ download_buttons[0].value.settings.analytics_id }}" />
+    {% endif %}
+  </div>
+{% endif %}

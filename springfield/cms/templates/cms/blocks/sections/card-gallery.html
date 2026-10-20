@@ -35,6 +35,7 @@
           {% include_block button %}
         {% endfor %}
       </div>
+      {% with buttons=value.main_card.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
     {% endif %}
   </content:main_card>
 
@@ -64,6 +65,7 @@
           {% include_block button %}
         {% endfor %}
       </div>
+      {% with buttons=value.secondary_card.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
     {% endif %}
   </content:secondary_card>
 
@@ -92,6 +94,7 @@
         {% set size_class = "fl-button-small" %}
         {% include_block cta %}
       {% endfor %}
+      {% with buttons=value.cta %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
     </content:cta>
   {% endif %}
 </include:card-gallery>

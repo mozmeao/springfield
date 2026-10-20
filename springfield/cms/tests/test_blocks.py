@@ -71,6 +71,7 @@ from springfield.cms.blocks import (
     UUIDBlock,
     icon_display_label,
 )
+from springfield.cms.fixtures import block_factories
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -89,6 +90,7 @@ from springfield.cms.fixtures.block_factories import (
     browser_table_cell,
     browser_table_image_header_cell,
     browser_table_result_cell,
+    download_button,
     table_cell,
     table_row,
 )
@@ -4541,7 +4543,6 @@ _DOWNLOAD_BUTTON_CONTEXT = {
     "icon_name": "",
     "icon_position": "right",
     "exclude_unsupported_content": True,
-    "enable_marketing_attribution": False,
     "show_default_browser_checkbox": False,
     "show_store_button": False,
     "is_preview": False,
@@ -6583,3 +6584,16 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+def test_section_cta_download_button_is_followed_by_its_privacy_notice(index_page, rf):
+    """A section's CTA buttons render outside any button row, so the privacy notice follows
+    the CTA buttons themselves."""
+    section_block = block_factories.section("ctasection", "Section with a download CTA")
+    section_block["value"]["cta"] = [download_button("ctadownload", "Get Firefox", "c7a00000-0000-0000-0000-000000000001")]
+    page = publish_freeform_content_page(FreeFormPage2026, slug="section-cta-download", parent=index_page, content=[section_block])
+
+    cta_wrap = render_main_element(page, rf).find("div", class_="fl-section-cta-wrap")
+    download = cta_wrap.find("div", class_="fl-download-firefox-button")
+    footer = download.find_next_sibling("div", class_="fl-buttons-download-footer")
+    assert footer.find("a", href="https://www.mozilla.org/en-US/privacy/firefox/")

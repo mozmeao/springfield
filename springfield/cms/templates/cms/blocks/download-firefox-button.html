@@ -6,6 +6,9 @@
 
 {% set cta_text = (block_text ~ " - " if block_text else "") ~ button_label %}
 {% set icon_name = value.settings.icon %}
+{# The privacy notice, and the marketing opt-out that replaces the default browser checkbox,
+   render once below the button row: cms/includes/buttons-download-footer.html. #}
+{% set marketing_attribution_active = page is defined and page.marketing_attribution_active %}
 
 <include:download-firefox-button
   analytics_id="{{ value.settings.analytics_id }}"
@@ -16,9 +19,9 @@
   block_position="{{ block_position }}"
   icon_position="{{ value.settings.icon_position }}"
   icon_name="{{ icon_name }}"
-  show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox }}"
-  enable_marketing_attribution="{{ 'true' if page is defined and page.marketing_attribution_active else '' }}"
+  show_default_browser_checkbox="{{ value.settings.show_default_browser_checkbox and not marketing_attribution_active }}"
   show_store_button=true
   exclude_unsupported_content="{{ not value.settings.show_extra_links }}"
+  exclude_privacy_notice=true
   specific_version="{{ value.settings.specific_version }}"
 />
