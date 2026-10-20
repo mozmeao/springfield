@@ -59,6 +59,7 @@ footer-merch-store = Merch store
 # Section title
 footer-follow-us = Follow Us
 footer-instagram = Instagram
+footer-facebook = Facebook
 footer-youtube = YouTube
 footer-tiktok = TikTok
 

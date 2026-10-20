@@ -24,4 +24,3 @@ footer-donate-v2 = Donate to { -brand-name-mozilla-foundation }
 footer-make-good-things = Make good things together
 
 footer-follow-firefox = Follow { -brand-name-firefox }
-footer-facebook = Facebook
