@@ -639,7 +639,7 @@ PARTNER_REPACK_OS_LABELS = {
     "linux64": "Linux",
 }
 
-PARTNER_REPACK_PLATFORMS = ["windows", "mac", "linux"]
+PARTNER_REPACK_PLATFORMS = {"windows": "Windows", "mac": "Mac", "linux": "Linux"}
 
 # The download-only Mac Japanese code is entered and stored as our site code.
 PARTNER_REPACK_LANGUAGE_ALIASES = {"ja-jp-mac": "ja"}
@@ -735,12 +735,28 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
 
     objects = BaseDraftQueryset.as_manager()
 
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("slug"),
+        MultiFieldPanel([FieldPanel("windows64_url"), FieldPanel("windows32_url"), FieldPanel("windows_languages")], heading="Windows"),
+        MultiFieldPanel([FieldPanel("mac_url"), FieldPanel("mac_languages")], heading="Mac"),
+        MultiFieldPanel([FieldPanel("linux_url"), FieldPanel("linux_languages")], heading="Linux"),
+        MultiFieldPanel([FieldPanel("firefox_user_link_url"), FieldPanel("firefox_user_link_label")], heading="Current Firefox users"),
+    ]
+
     class Meta:
         verbose_name = "Partner download"
         verbose_name_plural = "Partner downloads"
 
     def __str__(self):
         return self.name
+
+    def systems(self) -> str:
+        """Name the systems this partner has a download link for, e.g. "Windows, Mac"."""
+        platforms_with_links = {platform for link_field, (link_os, platform) in PARTNER_REPACK_LINK_FIELDS.items() if getattr(self, link_field)}
+        return ", ".join(label for platform, label in PARTNER_REPACK_PLATFORMS.items() if platform in platforms_with_links)
+
+    systems.short_description = "Systems"
 
     def languages_for(self, platform: str) -> list[str]:
         """Return the language codes listed for `platform` ("windows", "mac" or "linux")."""

@@ -26,6 +26,8 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     PageLinkElementHandler,
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
+from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
+from wagtail.admin.views.generic.mixins import RevisionsRevertMixin
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -33,7 +35,7 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
+from wagtail.snippets.views.snippets import CreateView, EditView, IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.models import TranslatedPagePermission
@@ -52,6 +54,7 @@ from springfield.cms.models import (
     BannerSnippet,
     FreeFormPage2026,
     NavigationSnippet,
+    PartnerRepack,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -723,6 +726,39 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class PartnerRepackPublishMessageMixin:
+    """Tells editors how long a published change takes to reach visitors."""
+
+    def get_success_message(self, *args, **kwargs):
+        if self.action == "publish":
+            return "Published. Visitors see the change within about 20 minutes."
+        return super().get_success_message(*args, **kwargs)
+
+
+class PartnerRepackCreateView(PartnerRepackPublishMessageMixin, CreateView):
+    pass
+
+
+class PartnerRepackEditView(PartnerRepackPublishMessageMixin, EditView):
+    pass
+
+
+# The message mixin comes before the revert mixin, which sets its own message.
+class PartnerRepackRevertView(PartnerRepackPublishMessageMixin, RevisionsRevertMixin, EditView):
+    view_name = "revisions_revert"
+
+
+class PartnerRepackViewSet(SnippetViewSet):
+    model = PartnerRepack
+    menu_label = "Partner downloads"
+    icon = "download"
+    list_display = ["name", "slug", "systems", LiveStatusTagColumn(), UpdatedAtColumn()]
+    search_fields = ["name", "slug"]
+    add_view_class = PartnerRepackCreateView
+    edit_view_class = PartnerRepackEditView
+    revisions_revert_view_class = PartnerRepackRevertView
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -735,6 +771,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    PartnerRepackViewSet,
 ):
     register_snippet(_viewset)
 

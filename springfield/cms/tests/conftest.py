@@ -5,6 +5,7 @@ import os
 from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.template import engines
 from django.test import override_settings
 
@@ -59,6 +60,22 @@ def admin_client(client, db):
             password="adminpass",
         )
         client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
+
+
+@pytest.fixture
+def limited_admin_client(client, db):
+    """Log in a user who can open the Wagtail admin but holds no other permissions.
+
+    Uses the same ModelBackend override as `admin_client`, for the same reason.
+    """
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        user = User.objects.create_user(username="limited", email="limited@example.com", password="limitedpass", is_staff=True)
+        user.user_permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+        client.force_login(user, backend="django.contrib.auth.backends.ModelBackend")
         yield client
 
 
