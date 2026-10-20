@@ -288,7 +288,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 .fl-wnp-footer-inner {
     display: grid;
-    padding-block: var(--token-layout-md) var(--token-spacing-2xl);
+    padding-block: var(--token-layout-md);
     row-gap: var(--token-layout-sm);
 }
 
