@@ -249,7 +249,7 @@ PARTNER_REPACK_PERMISSIONS = {"add_partnerrepack", "change_partnerrepack", "dele
 @pytest.fixture
 def permissions_migration():
     # The module name starts with a digit, so it has to be imported by string.
-    return import_module("springfield.cms.migrations.0165_editors_moderators_partnerrepack_permissions")
+    return import_module("springfield.cms.migrations.0164_partnerrepack")
 
 
 def test_editors_and_moderators_get_partner_download_permissions(permissions_migration):
