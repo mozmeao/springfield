@@ -26,7 +26,7 @@
       theme_class="button-primary"
       analytics_text="{{ cta_text(copy_label) }}"
       analytics_position="{{ analytics_position ~ '.copy-link' if analytics_position else '' }}"
-      analytics_id="{{ analytics_id }}"
+      analytics_id="{{ analytics_id ~ '-copy-link' }}"
     />
 
     <include:button
@@ -39,7 +39,7 @@
       icon_only=true
       analytics_text="{{ cta_text(email_label) }}"
       analytics_position="{{ analytics_position ~ '.email' if analytics_position else '' }}"
-      analytics_id="{{ analytics_id }}"
+      analytics_id="{{ analytics_id ~ '-email' }}"
     />
 
     <include:button
@@ -52,7 +52,7 @@
       data_target_id="{{ qr_dialog_id }}"
       analytics_text="{{ cta_text(qr_label) }}"
       analytics_position="{{ analytics_position ~ '.qr-code' if analytics_position else '' }}"
-      analytics_id="{{ analytics_id }}"
+      analytics_id="{{ analytics_id ~ '-qr-code' }}"
     />
   </div>
 

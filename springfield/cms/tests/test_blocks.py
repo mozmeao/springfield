@@ -6630,7 +6630,7 @@ def test_sharing_links_block(index_page, rf):
             assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == block_data["copy_success_label"]
             assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
             assert copy_button["data-cta-text"] == f"{section_heading} - {block_data['copy_label']}"
-            assert copy_button["data-cta-uid"] == analytics_id
+            assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
 
             email_link = button_row.find("a", class_="fl-sharing-links-email")
             assert {"button-primary", "fl-button-icon-only"} <= set(email_link["class"])
@@ -6638,7 +6638,7 @@ def test_sharing_links_block(index_page, rf):
             assert "fl-icon-email" in email_link.find("span", class_="fl-icon")["class"]
             assert email_link["data-cta-position"] == f"{cta_position}.email"
             assert email_link["data-cta-text"] == f"{section_heading} - {block_data['email_label']}"
-            assert email_link["data-cta-uid"] == analytics_id
+            assert email_link["data-cta-uid"] == f"{analytics_id}-email"
             # Percent-decode only, as a mail client does: parse_qs would also turn "+" into a space.
             mailto_query = email_link["href"].removeprefix("mailto:?")
             email_params = {key: unquote(raw) for key, raw in (param.split("=", 1) for param in mailto_query.split("&"))}
@@ -6657,7 +6657,7 @@ def test_sharing_links_block(index_page, rf):
             assert qr_button["data-target-id"] == dialog_id
             assert qr_button["data-cta-position"] == f"{cta_position}.qr-code"
             assert qr_button["data-cta-text"] == f"{section_heading} - {block_data['qr_label']}"
-            assert qr_button["data-cta-uid"] == analytics_id
+            assert qr_button["data-cta-uid"] == f"{analytics_id}-qr-code"
 
             dialog = sharing_links_element.find("dialog", id=dialog_id)
             assert "fl-qr-code-dialog" in dialog["class"]
