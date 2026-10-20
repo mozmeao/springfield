@@ -314,7 +314,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 .fl-button.fl-button-icon-only {
     aspect-ratio: 1;
     border-radius: 50%;
-    padding: var(--token-spacing-sm);
+    padding: var(--token-spacing-md);
 }
 
 /* Button icons */

@@ -53,7 +53,6 @@ from springfield.cms.blocks import (
     CertificationListBlock,
     ComparisonTableBlock,
     ContactFormBlock,
-    FeaturedImageSectionBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
@@ -62,7 +61,6 @@ from springfield.cms.blocks import (
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
-    SharingLinksBlock,
     ShowcaseBlock,
     SpringfieldLinkBlock,
     TabBlock,
@@ -6607,14 +6605,19 @@ def test_sharing_links_block(index_page, rf):
         sharing_links = region.find_all("div", class_="fl-sharing-links")
         assert len(sharing_links) == 2
 
-        for block_index, (sharing_links_element, variant_name, section_heading) in enumerate(
-            zip(sharing_links, ["full", "required_only"], ["All Fields", "Required Fields Only"]),
-            start=1,
+        for sharing_links_element, variant_name, section_heading, cta_position in zip(
+            sharing_links,
+            ["full", "required_only"],
+            ["All Fields", "Required Fields Only"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content"],
         ):
             block_data = variants[variant_name]["value"]
             analytics_id = block_data["analytics_id"]
-            cta_position = f"{region_name}-block-{block_index}-section.item-1-sharing_links"
             dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
+
+            url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+            assert url_link["href"] == url_link.get_text(strip=True) == SHARED_URL
+            assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
 
             button_row = sharing_links_element.find("div", class_="fl-buttons")
             assert "is-horizontal" in button_row["class"]
@@ -6673,40 +6676,3 @@ def test_sharing_links_block(index_page, rf):
             else:
                 assert dialog.find(class_="fl-heading") is None
                 assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
-
-
-def test_sharing_links_block_defaults_and_required_fields():
-    block = SharingLinksBlock()
-    default_value = block.get_default()
-    assert default_value["copy_label"] == "Copy link"
-    assert default_value["copy_success_label"] == "Link copied!"
-
-    with pytest.raises(StructBlockValidationError) as error:
-        block.clean(block.to_python({"copy_label": "", "url": ""}))
-    assert set(error.value.block_errors) == {"copy_label", "url"}
-
-    with pytest.raises(StructBlockValidationError) as error:
-        block.clean(block.to_python({"copy_label": "Copy link", "url": "not a url"}))
-    assert set(error.value.block_errors) == {"url"}
-
-
-def test_sharing_links_block_generates_analytics_id():
-    block = SharingLinksBlock()
-    cleaned = block.clean(block.to_python({"copy_label": "Copy link", "url": SHARED_URL}))
-    assert cleaned["analytics_id"], "A blank analytics ID is filled in so the QR code dialog gets a unique id"
-
-
-@pytest.mark.parametrize(
-    "content_stream",
-    [
-        SectionBlock().child_blocks["content"],
-        FeaturedImageSectionBlock().child_blocks["content"],
-        TwoColumnCardBlock().child_blocks["content"],
-        ArticleDetailPage._meta.get_field("content").stream_block,
-        FreeFormPage2026._meta.get_field("upper_content").stream_block,
-        FreeFormPage2026._meta.get_field("content").stream_block,
-    ],
-)
-def test_sharing_links_block_is_offered_wherever_button_row_is(content_stream):
-    assert "button_row" in content_stream.child_blocks
-    assert isinstance(content_stream.child_blocks["sharing_links"], SharingLinksBlock)

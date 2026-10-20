@@ -2121,6 +2121,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
                         required=False,
                     ),
                 ),
+                ("sharing_links", SharingLinksBlock()),
             ]
         )
 

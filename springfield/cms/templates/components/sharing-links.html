@@ -16,6 +16,8 @@
 {% set mailto_link = 'mailto:?' ~ ('subject=' ~ email_subject|mailtoencode ~ '&' if email_subject else '') ~ 'body=' ~ email_body_text|mailtoencode %}
 
 <div class="fl-sharing-links">
+  <p class="fl-sharing-links-url"><a href="{{ url }}">{{ url }}</a></p>
+
   <div class="fl-buttons is-horizontal">
     <include:copy-to-clipboard-button
       value="{{ url }}"

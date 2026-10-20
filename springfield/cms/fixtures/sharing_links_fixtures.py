@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, with_fresh_ids
-from springfield.cms.fixtures.block_factories import section
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_image_media, get_or_create_page, with_fresh_ids
+from springfield.cms.fixtures.block_factories import media_content, section
 from springfield.cms.models import FreeFormPage2026
 
 SHARED_URL = "https://www.firefox.com/enterprise/"
@@ -60,11 +60,12 @@ def get_sharing_links_blocks(content_area: int = 1) -> list[dict]:
             section_id="shrlnk01-0000-0000-0000-000000000000",
             content_blocks=[variants["full"]],
         ),
-        section(
+        media_content(
+            block_id="shrlnk02-0000-0000-0000-000000000000",
             heading_text="Required Fields Only",
             subheading_text="A custom copy label and URL only: the email draft holds just the URL and the QR code modal shows just the code.",
-            section_id="shrlnk02-0000-0000-0000-000000000000",
-            content_blocks=[variants["required_only"]],
+            body_blocks=[variants["required_only"]],
+            media=get_image_media("shrlnk02-0000-0000-0000-000000000003"),
         ),
     ]
 
@@ -87,8 +88,7 @@ def get_sharing_links_test_page() -> FreeFormPage2026:
         "<p>The Sharing Links block is a row of three buttons for sharing one URL. "
         "<b>Copy link</b> copies the URL to the clipboard, the <b>email</b> button opens a draft "
         "with the optional subject and body followed by the URL, and the <b>QR code</b> button opens "
-        "a modal with a QR code for the URL plus the optional heading and text. "
-        "It is available wherever a Button Row is.</p>"
+        "a modal with a QR code for the URL plus the optional heading and text.</p>"
     )
     page.save_revision().publish()
     return page
