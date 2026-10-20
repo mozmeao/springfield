@@ -219,6 +219,7 @@ DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
 QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
+VIDEO_MODAL_BUTTON_TYPE = "video_modal_button"
 REFERRAL_DOWNLOAD_BUTTON_TYPE = "referral_download"
 
 
@@ -247,6 +248,27 @@ def validate_animation_url(value):
 def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
+    return value
+
+
+def youtube_video_id(url):
+    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None."""
+    parsed = urlparse(url or "")
+    host = parsed.netloc.lower().removeprefix("www.").removeprefix("m.")
+    if host == "youtu.be":
+        return parsed.path.strip("/").split("/")[0] or None
+    if host in ("youtube.com", "youtube-nocookie.com"):
+        if parsed.path == "/watch":
+            return QueryDict(parsed.query).get("v") or None
+        path_segments = parsed.path.strip("/").split("/")
+        if len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed") and path_segments[1]:
+            return path_segments[1]
+    return None
+
+
+def validate_youtube_url(value):
+    if value and not youtube_video_id(value):
+        raise ValidationError("Please provide a YouTube video URL, e.g. https://www.youtube.com/watch?v=VIDEO_ID.")
     return value
 
 
@@ -519,13 +541,14 @@ class PricingHeadingBlock(blocks.StructBlock):
 # Buttons
 
 
-def get_button_types(allow_uitour=False, allow_referral_download=False):
+def get_button_types(allow_uitour=False, allow_referral_download=False, allow_video_modal=False):
     """Helper function to get button types based on feature flags.
 
     Args:
-        allow_uitour: If True, includes UI Tour, Set as Default, and QR Code Modal types.
+        allow_uitour: If True, includes UI Tour, Set as Default, QR Code Modal and Video Modal types.
         allow_referral_download: If True, includes the referral download CTA type.
             Only used in ReferralGetFirefoxPage's KitIntroBlock.
+        allow_video_modal: If True, includes the Video Modal type without the UI Tour types.
 
     Returns:
         List of button type strings.
@@ -533,6 +556,8 @@ def get_button_types(allow_uitour=False, allow_referral_download=False):
     base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
     if allow_uitour:
         base_button_types = [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
+    if allow_uitour or allow_video_modal:
+        base_button_types = [*base_button_types, VIDEO_MODAL_BUTTON_TYPE]
     if allow_referral_download:
         base_button_types = [*base_button_types, REFERRAL_DOWNLOAD_BUTTON_TYPE]
     return base_button_types
@@ -964,6 +989,37 @@ def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
     return _QRCodeModalButtonBlock(**kwargs)
 
 
+class VideoModalButtonValue(BaseButtonValue):
+    def video_id(self) -> str:
+        return youtube_video_id(self.get("video_url")) or ""
+
+
+def VideoModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
+    class _VideoModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        video_url = blocks.URLBlock(
+            label="YouTube URL",
+            help_text="The video opens in a modal and starts playing.",
+            validators=[validate_youtube_url],
+        )
+        video_title = blocks.CharBlock(
+            label="Video title",
+            help_text="Describes the video for screen readers.",
+        )
+
+        class Meta:
+            template = "cms/blocks/video-modal-button.html"
+            label = "Video Modal Button"
+            label_format = "{custom_label} {pretranslated_label}"
+            value_class = VideoModalButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "video_url", "video_title"],
+                settings=["settings"],
+            )
+
+    return _VideoModalButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -1121,6 +1177,7 @@ def MixedButtonsBlock(
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
         QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
+        VIDEO_MODAL_BUTTON_TYPE: VideoModalButtonBlock(themes=themes),
         REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
     }
     return blocks.StreamBlock(
@@ -3264,12 +3321,13 @@ class KitBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, allow_video_modal=False, *args, **kwargs):
     """Kit Intro hero section.
 
     Args:
         allow_media_above_buttons: If True, adds an optional media field rendered
             between the heading and the buttons. Only used in ShareFirefoxPage.
+        allow_video_modal: If True, offers the Video Modal button. Used in HomePage.
     """
     local_blocks = []
     if allow_media_above_buttons:
@@ -3295,7 +3353,11 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
+            button_types=get_button_types(
+                allow_uitour=allow_uitour,
+                allow_referral_download=allow_referral_download,
+                allow_video_modal=allow_video_modal,
+            ),
             min_num=0,
             max_num=2,
             required=False,

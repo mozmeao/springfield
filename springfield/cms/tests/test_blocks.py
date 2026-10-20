@@ -70,7 +70,11 @@ from springfield.cms.blocks import (
     UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
+    VideoModalButtonBlock,
+    get_button_types,
     icon_display_label,
+    validate_youtube_url,
+    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -183,6 +187,7 @@ from springfield.cms.models import (
     ArticleDetailPage,
     ContactPage,
     FreeFormPage2026,
+    HomePage,
     PretranslatedPhrase,
     SimpleRichTextPage,
     SmartWindowExplainerPage,
@@ -221,7 +226,15 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = [
+    "button",
+    "uitour_button",
+    "fxa_button",
+    "set_as_default_button",
+    "focus_button",
+    "qr_code_modal_button",
+    "video_modal_button",
+]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -251,6 +264,10 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
         value["url"] = "https://www.mozilla.org/firefox/mobile/"
         value["heading"] = "Get Firefox on your phone"
         value["content"] = "Take Firefox with you."
+    elif btn_type == "video_modal_button":
+        block = VideoModalButtonBlock()
+        value["video_url"] = "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        value["video_title"] = "Firefox campaign video"
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -6679,3 +6696,76 @@ def test_sharing_links_block(index_page, rf):
             else:
                 assert dialog.find(class_="fl-heading") is None
                 assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+
+
+# Video Modal Button
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/watch?feature=share&v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://youtu.be/aqz-KE-bpKQ?si=abc", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/shorts/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/embed/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/@firefox", None),
+        ("https://www.youtube.com/watch", None),
+        ("https://assets.mozilla.net/video/campaign.webm", None),
+        ("https://example.com/watch?v=aqz-KE-bpKQ", None),
+        ("", None),
+    ],
+)
+def test_youtube_video_id(url, expected):
+    assert youtube_video_id(url) == expected
+
+
+def test_validate_youtube_url_rejects_non_video_urls():
+    assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
+    with pytest.raises(ValidationError):
+        validate_youtube_url("https://assets.mozilla.net/video/campaign.webm")
+    with pytest.raises(ValidationError):
+        validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def test_video_modal_button_trigger_targets_its_dialog(rf):
+    """flare-dialogs.es6.js pairs trigger and dialog by id alone, so check they meet."""
+    soup = BeautifulSoup(_render_button("video_modal_button", rf.get("/"), custom_label="Watch"), "html.parser")
+
+    trigger = soup.find("a", class_="fl-video-modal-trigger")
+    # A real link, so the video still opens without JS.
+    assert trigger["href"] == "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+    assert "fl-dialog-trigger" in trigger["class"]
+
+    dialog = soup.find("dialog", id=trigger["data-target-id"])
+    assert dialog is not None
+    assert dialog["aria-label"] == "Firefox campaign video"
+    assert dialog.find("button", class_="fl-dialog-close-button") is not None
+    # The player is only added by JS when the dialog opens.
+    assert dialog.find("div", class_="fl-video-dialog-frame") is not None
+    assert dialog.find("iframe") is None
+
+
+@pytest.mark.parametrize(
+    "kwargs, offered",
+    [
+        ({}, False),
+        ({"allow_uitour": True}, True),
+        ({"allow_video_modal": True}, True),
+    ],
+)
+def test_get_button_types_offers_video_modal(kwargs, offered):
+    assert ("video_modal_button" in get_button_types(**kwargs)) is offered
+
+
+def test_get_button_types_video_modal_alone_keeps_uitour_types_out():
+    button_types = get_button_types(allow_video_modal=True)
+    assert "uitour_button" not in button_types
+    assert "qr_code_modal_button" not in button_types
+
+
+def test_home_page_intro_offers_the_video_modal_button():
+    buttons_block = HomePage.upper_content.field.stream_block.child_blocks["intro"].child_blocks["buttons"]
+    assert "video_modal_button" in buttons_block.child_blocks
+    assert "uitour_button" not in buttons_block.child_blocks
