@@ -895,6 +895,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-except-aliases-checkbox.js"
+      ],
+      "name": "wagtailadmin-except-aliases-checkbox"
+    },
+    {
+      "files": [
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
