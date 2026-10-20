@@ -57,6 +57,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/firefox/download/get.css"
+      ],
+      "name": "firefox_download_get"
+    },
+    {
+      "files": [
         "css/firefox/download/desktop/thanks-ie.scss"
       ],
       "name": "firefox_desktop_download_thanks_ie"

@@ -1,0 +1,42 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+@layer page {
+    /*
+     * Each state block holds its message with the action directly beneath it.
+     * Exactly one block shows: the fallback until a state is picked, then that state's.
+     */
+    .c-partner-download-state {
+        display: none;
+    }
+
+    .c-partner-download:not([data-state]) .state-nojs,
+    .c-partner-download[data-state='1'] .state-1,
+    .c-partner-download[data-state='2'] .state-2,
+    .c-partner-download[data-state='3'] .state-3,
+    .c-partner-download[data-state='4'] .state-4,
+    .c-partner-download[data-state='5'] .state-5,
+    .c-partner-download[data-state='6'] .state-6,
+    .c-partner-download[data-state='7'] .state-7,
+    .c-partner-download[data-state='8'] .state-8,
+    .c-partner-download[data-state='9'] .state-9,
+    .c-partner-download[data-state='10'] .state-10 {
+        display: block;
+    }
+
+    .c-partner-download .fl-notification-wrapper {
+        margin-block-end: var(--token-spacing-2xl);
+    }
+
+    .c-partner-download .fl-download-support {
+        gap: var(--token-spacing-2xl);
+    }
+
+    .c-partner-download .fl-heading {
+        margin-inline: auto;
+        max-inline-size: 30ch;
+    }
+}
