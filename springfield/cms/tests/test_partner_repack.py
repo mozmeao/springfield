@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from importlib import import_module
+
+from django.apps import apps
+from django.contrib.auth.models import Group
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import override_settings
 
@@ -236,3 +240,34 @@ def test_download_url_is_none_for_a_blank_link():
     partner = make_partner(windows_languages="de")
 
     assert partner.download_url("windows32_url", "de") is None
+
+
+PARTNER_REPACK_PERMISSIONS = {"add_partnerrepack", "change_partnerrepack", "delete_partnerrepack", "publish_partnerrepack"}
+
+
+@pytest.fixture
+def permissions_migration():
+    # The module name starts with a digit, so it has to be imported by string.
+    return import_module("springfield.cms.migrations.0165_editors_moderators_partnerrepack_permissions")
+
+
+def test_editors_and_moderators_get_partner_download_permissions(permissions_migration):
+    groups = Group.objects.filter(name__in=["Editors", "Moderators"])
+    for group in groups:
+        group.permissions.clear()
+
+    permissions_migration.add_group_permissions(apps, None)
+
+    assert groups.count() == 2
+    for group in groups:
+        assert set(group.permissions.values_list("codename", flat=True)) == PARTNER_REPACK_PERMISSIONS
+
+
+def test_permissions_migration_skips_a_missing_group(permissions_migration):
+    Group.objects.filter(name="Moderators").delete()
+    editors = Group.objects.get(name="Editors")
+    editors.permissions.clear()
+
+    permissions_migration.add_group_permissions(apps, None)
+
+    assert set(editors.permissions.values_list("codename", flat=True)) == PARTNER_REPACK_PERMISSIONS
