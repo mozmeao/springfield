@@ -1444,6 +1444,10 @@ if WAGTAIL_ENABLE_ADMIN:
     ]:
         MIDDLEWARE.insert(3, midddleware_spec)
 
+    # Last in the chain: it needs request.user, which AuthenticationMiddleware above
+    # provides, and the view it guards only exists when the admin is enabled.
+    MIDDLEWARE.append("springfield.cms.middleware.PendingTranslationSyncGuardMiddleware")
+
     SUPPORTED_NONLOCALES.extend(
         [
             "cms-admin",
