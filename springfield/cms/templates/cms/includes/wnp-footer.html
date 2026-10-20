@@ -26,56 +26,10 @@
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer' %}
 
-<footer class="fl-footer">
-    <div class="fl-footer-inner">
-        <div class="fl-wnp-footer-legal">
-            <p class="fl-wnp-footer-copy">
-                {% set mozilla_link_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/{{ params }}"{% endset %}
-                {% set mozilla_foundation_link_attrs %}class="fl-wnp-footer-link" href="https://foundation.mozilla.org/{{ params }}"{% endset %}
-                {% set footer_years = "©1998–" ~ current_year|string %}
-                {{ ftl('footer-visit-mozilla',
-                mozilla_link_attrs=mozilla_link_attrs,
-                mozilla_foundation_link_attrs=mozilla_foundation_link_attrs) }}
-                <br />
-                {{ ftl('footer-contributors', years=footer_years) }}
-                <br />
-                {% set license_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/{{ params }}"{% endset %}
-                {{ ftl('footer-license', license_attrs=license_attrs) }}
-            </p>
-            <nav class="fl-wnp-footer-links" aria-label="Footer">
-                <ul>
-                    <li>
-                        <a
-                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
-                            href="https://support.mozilla.org/"
-                            >{{ ftl('footer-firefox-support')}}
-                            {{ external_link_icon() }}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="fl-wnp-footer-link"
-                            href="https://www.mozilla.org/privacy/websites/"
-                            >{{ ftl('footer-privacy-notice') }}</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            class="fl-wnp-footer-link"
-                            href="https://www.mozilla.org/about/legal/terms/firefox/"
-                            >{{ ftl('footer-terms-of-use') }}</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            class="fl-wnp-footer-link"
-                            href="/privacy/websites/cookie-settings/"
-                            >{{ ftl('footer-websites-cookie-policy') }}</a
-                        >
-                    </li>
-                </ul>
-            </nav>
-            <div class="fl-wnp-footer-logo fl-force-dark-theme">
+<footer class="fl-footer fl-wnp-footer fl-force-dark-theme">
+    <div class="fl-footer-inner fl-wnp-footer-inner">
+        <div class="fl-wnp-footer-top">
+            <div class="fl-wnp-footer-logo">
                 <a
                     href="{{ url('firefox') }}"
                     data-link-position="footer"
@@ -83,15 +37,121 @@
                     >{{ ftl('footer-firefox') }}</a
                 >
             </div>
+            <div class="fl-wnp-footer-legal">
+                <p class="fl-wnp-footer-copy">
+                    {% set mozilla_link_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/{{ params }}"{% endset %}
+                    {% set mozilla_foundation_link_attrs %}class="fl-wnp-footer-link" href="https://foundation.mozilla.org/{{ params }}"{% endset %}
+                    {% set footer_years = "©1998–" ~ current_year|string %}
+                    {{ ftl('footer-visit-mozilla',
+                    mozilla_link_attrs=mozilla_link_attrs,
+                    mozilla_foundation_link_attrs=mozilla_foundation_link_attrs) }}
+                    <br />
+                    {{ ftl('footer-contributors', years=footer_years) }}
+                    <br />
+                    {% set license_attrs %}class="fl-wnp-footer-link" href="https://www.mozilla.org/en-US/foundation/licensing/website-content/{{ params }}"{% endset %}
+                    {{ ftl('footer-license', license_attrs=license_attrs) }}
+                </p>
+                <nav class="fl-wnp-footer-links" aria-label="Footer">
+                    <ul>
+                        <li>
+                            <a
+                                class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
+                                href="https://support.mozilla.org/"
+                                >{{ ftl('footer-firefox-support')}}
+                                {{ external_link_icon() }}
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                class="fl-wnp-footer-link"
+                                href="https://www.mozilla.org/privacy/websites/"
+                                >{{ ftl('footer-privacy-notice') }}</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                class="fl-wnp-footer-link"
+                                href="https://www.mozilla.org/about/legal/terms/firefox/"
+                                >{{ ftl('footer-terms-of-use') }}</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                class="fl-wnp-footer-link"
+                                href="/privacy/websites/cookie-settings/"
+                                >{{ ftl('footer-websites-cookie-policy') }}</a
+                            >
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
 
-        <hr class="fl-wnp-footer-divider" />
-
-        <div class="fl-wnp-footer-mozilla">
-            <div class="fl-wnp-footer-brand">
-                <h3 class="fl-wnp-footer-title">
+        <div class="fl-wnp-footer-social">
+            <nav aria-label="{{ ftl('footer-follow-firefox') }}">
+                <include:heading
+                    level="h2"
+                    heading_text="{{ ftl('footer-follow-firefox') }}"
+                />
+                <ul role="list" class="fl-wnp-footer-social-links">
+                    <li>
+                        <a
+                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
+                            href="https://www.instagram.com/firefox/"
+                            data-link-position="footer"
+                            data-link-text="Instagram"
+                            >{{ ftl('footer-instagram') }}
+                            {{ external_link_icon() }}
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
+                            href="https://www.facebook.com/firefox"
+                            data-link-position="footer"
+                            data-link-text="Facebook"
+                            >{{ ftl('footer-facebook') }}
+                            {{ external_link_icon() }}
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
+                            href="https://www.youtube.com/user/firefoxchannel"
+                            data-link-position="footer"
+                            data-link-text="YouTube"
+                            >{{ ftl('footer-youtube') }}
+                            {{ external_link_icon() }}
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
+                            href="https://www.tiktok.com/@firefox"
+                            data-link-position="footer"
+                            data-link-text="TikTok"
+                            >{{ ftl('footer-tiktok') }}
+                            {{ external_link_icon() }}
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            class="fl-wnp-footer-link"
+                            href="https://blog.mozilla.org/en/category/firefox/?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=footer"
+                            data-link-position="footer"
+                            data-link-text="Blog"
+                            >{{ ftl('footer-blog') }}</a
+                        >
+                    </li>
+                </ul>
+            </nav>
+            <hr class="fl-wnp-footer-divider">
+        </div>
+        <div class="fl-wnp-footer-bottom">
+            <div class="fl-wnp-footer-mozilla">
+                <h2 class="fl-wnp-footer-title fl-heading-md">
                     <a href="https://www.mozilla.org/{{ params }}" data-link-position="footer" data-link-text="Powered by Mozilla">{{ ftl('footer-powdered-by') }}</a>
-                </h3>
+                </h2>
                 <p class="fl-wnp-footer-subtitle">
                     {{ ftl('footer-putting-people') }}
                 </p>
@@ -99,16 +159,16 @@
             <div class="fl-wnp-footer-cta">
               <include:button
                 link="https://foundation.mozilla.org/?form=whats-new-product"
-                icon_name="heart"
+                size_class="fl-button-medium"
+                icon_name="bookmark"
                 icon_position="left"
                 label="{{ ftl('footer-donate-v2', fallback='footer-donate') }}"
                 >
               </include:button>
 
-
-                <p class="fl-wnp-footer-note">
-                    {{ ftl('footer-make-good-things') }}
-                </p>
+              <p class="fl-wnp-footer-note">
+              {{ ftl('footer-make-good-things') }}
+              </p>
             </div>
         </div>
     </div>
