@@ -5,6 +5,7 @@
 from importlib import import_module
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import override_settings
@@ -296,3 +297,9 @@ def test_test_links_list_every_system_and_language_in_order():
 
 def test_test_links_are_empty_without_links():
     assert PartnerRepack(name="Acme", slug="acme").test_links() == []
+
+
+def test_partner_repacks_are_included_in_the_db_export():
+    export_script = (settings.ROOT_PATH / "bin" / "export-db-to-sqlite.sh").read_text()
+
+    assert "cms.PartnerRepack" in export_script
