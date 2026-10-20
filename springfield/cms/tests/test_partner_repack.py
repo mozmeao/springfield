@@ -271,3 +271,28 @@ def test_permissions_migration_skips_a_missing_group(permissions_migration):
     permissions_migration.add_group_permissions(apps, None)
 
     assert set(editors.permissions.values_list("codename", flat=True)) == PARTNER_REPACK_PERMISSIONS
+
+
+def test_test_links_list_every_system_and_language_in_order():
+    partner = make_partner(
+        windows32_url=ACME_WINDOWS32_URL,
+        windows_languages="de, en-US",
+        mac_url=ACME_MAC_URL,
+        mac_languages="fr",
+        linux_url=ACME_LINUX_URL,
+        linux_languages="en-US",
+    )
+
+    assert [(system, lang) for system, lang, url in partner.test_links()] == [
+        ("Windows 64-bit", "de"),
+        ("Windows 64-bit", "en-US"),
+        ("Windows 32-bit", "de"),
+        ("Windows 32-bit", "en-US"),
+        ("Mac", "fr"),
+        ("Linux", "en-US"),
+    ]
+    assert partner.test_links()[0][2] == partner.download_url("windows64_url", "de")
+
+
+def test_test_links_are_empty_without_links():
+    assert PartnerRepack(name="Acme", slug="acme").test_links() == []

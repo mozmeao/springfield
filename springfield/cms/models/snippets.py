@@ -39,6 +39,7 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.panels import PartnerRepackTestLinksPanel
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
 
@@ -742,6 +743,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         MultiFieldPanel([FieldPanel("mac_url"), FieldPanel("mac_languages")], heading="Mac"),
         MultiFieldPanel([FieldPanel("linux_url"), FieldPanel("linux_languages")], heading="Linux"),
         MultiFieldPanel([FieldPanel("firefox_user_link_url"), FieldPanel("firefox_user_link_label")], heading="Current Firefox users"),
+        PartnerRepackTestLinksPanel(heading="Test links"),
     ]
 
     class Meta:
@@ -780,6 +782,15 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         # The download server's Mac Japanese build uses its own code.
         download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
         return f"{PARTNER_DOWNLOAD_BASE_URL}?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
+
+    def test_links(self) -> list[tuple[str, str, str]]:
+        """Return (system, language, URL) for every download link and listed language, as visitors get them."""
+        links = []
+        for link_field, (link_os, platform) in PARTNER_REPACK_LINK_FIELDS.items():
+            for lang in self.languages_for(platform):
+                if url := self.download_url(link_field, lang):
+                    links.append((PARTNER_REPACK_OS_LABELS[link_os], lang, url))
+        return links
 
     def clean_fields(self, exclude=None):
         # Tidy pasted values before Django validates them. Slugs are stored

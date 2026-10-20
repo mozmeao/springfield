@@ -134,3 +134,49 @@ def test_saving_a_draft_keeps_the_usual_message(admin_client):
     response = admin_client.post(reverse("wagtailsnippets_cms_partnerrepack:edit", args=[partner.pk]), partner_form_data(name="Acme Inc"))
 
     assert success_messages(response) == ["Partner download 'Acme Inc' updated."]
+
+
+TEST_LINKS_HELP = "The exact links visitors get. Click each one and check that a download starts before you publish."
+
+
+def find_test_links_help(response):
+    """Return the Test links panel's help paragraph from a rendered edit screen."""
+    soup = BeautifulSoup(response.content, "html.parser")
+    return soup.find("p", string=TEST_LINKS_HELP)
+
+
+def test_edit_screen_lists_a_test_link_per_system_and_language(admin_client):
+    partner = create_partner(
+        live=False,
+        mac_url=f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx",
+        mac_languages="en-US, de",
+    )
+
+    response = admin_client.get(reverse("wagtailsnippets_cms_partnerrepack:edit", args=[partner.pk]))
+
+    table = find_test_links_help(response).find_next("table")
+    rows = [[cell.get_text(strip=True) for cell in row.find_all("td")] for row in table.select("tbody tr")]
+    assert rows == [
+        ["Windows 64-bit", "en-US", f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64&lang=en-US"],
+        ["Windows 64-bit", "de", f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64&lang=de"],
+        ["Mac", "en-US", f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx&lang=en-US"],
+        ["Mac", "de", f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx&lang=de"],
+    ]
+    assert all(link["target"] == "_blank" and link["href"] == link.get_text(strip=True) for link in table.select("a"))
+
+
+def test_edit_screen_test_link_uses_the_mac_japanese_code(admin_client):
+    partner = create_partner(live=False, mac_url=f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx", mac_languages="ja")
+
+    response = admin_client.get(reverse("wagtailsnippets_cms_partnerrepack:edit", args=[partner.pk]))
+
+    mac_links = [link["href"] for link in find_test_links_help(response).find_next("table").select("a") if "os=osx" in link["href"]]
+    assert mac_links == [f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=osx&lang=ja-JP-mac"]
+
+
+def test_create_screen_has_no_test_links_yet(admin_client):
+    response = admin_client.get(reverse("wagtailsnippets_cms_partnerrepack:add"))
+
+    help_text = find_test_links_help(response)
+    assert help_text.find_parent("section").find("h2").get_text(strip=True) == "Test links"
+    assert help_text.find_next("p").get_text(strip=True) == "No links yet"
