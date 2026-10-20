@@ -65,10 +65,7 @@ def admin_client(client, db):
 
 @pytest.fixture
 def limited_admin_client(client, db):
-    """Log in a user who can open the Wagtail admin but holds no other permissions.
-
-    Uses the same ModelBackend override as `admin_client`, for the same reason.
-    """
+    """Log in a staff user with only Wagtail admin access, using the same SSO override as `admin_client`."""
     with override_settings(
         AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
         USE_SSO_AUTH=False,

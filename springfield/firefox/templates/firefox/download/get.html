@@ -4,17 +4,13 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{#
- One block per visitor state this partner and language can produce. The page
- script picks the state and sets `data-state`, and CSS shows the matching block.
- Until then, and without JS, the fallback block shows and no partner link is visible.
-#}
+{# One block per visitor state; the page script shows the right one. #}
 
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_linux with context %}
 
 {% extends "cms/base-flare.html" %}
 
-{# The English pages get distinct titles so search engines don't see them as duplicates. #}
+{# Distinct English titles avoid duplicate search results. #}
 {%- block page_title_full -%}
   {%- if LANG == 'en-US' -%}
     Get Firefox for desktop by Mozilla (US)
@@ -49,7 +45,7 @@
 {% endblock %}
 
 {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-partner-download' %}
-{# Fluent doesn't escape variables, so the display name is escaped before it's passed in. #}
+{# Fluent doesn't escape variables. #}
 {% set partner_name = partner.name|e %}
 {% set windows = options.windows %}
 {% set mac = options.mac %}
@@ -94,7 +90,7 @@
       </div>
     </section>
 
-    {# Also the fallback before a state is picked, as on /thanks/. #}
+    {# Also the no-JS fallback. #}
     <section class="fl-section c-partner-download-state state-3 state-nojs">
       <div class="fl-section-container fl-download-support">
         <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('firefox-desktop-download-interrupted') }}</h1>
@@ -147,7 +143,7 @@
       </section>
     {% endif %}
 
-    {# A 64-bit-only Windows build can't be offered to a machine not detected as 64-bit. #}
+    {# Also shown when only a 64-bit Windows build exists and the machine isn't 64-bit. #}
     {% if 'device' in desktop_states or (windows.state == 'available' and 'win' not in windows.urls) %}
       <section class="fl-section c-partner-download-state state-6">
         <div class="fl-section-container fl-download-support">

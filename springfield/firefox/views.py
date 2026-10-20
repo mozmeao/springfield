@@ -473,8 +473,7 @@ class PartnerDownloadView(L10nTemplateView):
 
     template_name = "firefox/download/get.html"
     ftl_files = ["firefox/download/get", "firefox/download/desktop"]
-    # Served in every download language, with English for untranslated strings, so
-    # the URL locale is never swapped for another. `ja-JP-mac` is a download-only code.
+    # Every download language is served, so the URL locale is never swapped; `ja-JP-mac` is download-only.
     active_locales = [lang for lang in settings.PROD_LANGUAGES if lang != "ja-JP-mac"]
 
     def get(self, request, *args, **kwargs):

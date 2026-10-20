@@ -321,9 +321,11 @@ describe('partner-download.es6.js', function () {
         afterEach(function () {
             jasmine.clock().uninstall();
             window.site = originalSite;
-            document.documentElement.removeAttribute(
-                'data-download-attribution'
-            );
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = false;
+            window.Mozilla.DownloadAttribution.inFlightXHR = null;
+            window.Mozilla.DownloadAttribution.requestComplete = false;
+            window.Mozilla.DownloadAttribution.successCallback = undefined;
+            window.Mozilla.DownloadAttribution.timeoutCallback = undefined;
             const container = document.querySelector('.c-partner-download');
             if (container) {
                 container.remove();
@@ -333,20 +335,13 @@ describe('partner-download.es6.js', function () {
         it('should download the repack at 1 second when signing finishes earlier', async function () {
             visitOn('osx');
             renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
-            document.documentElement.setAttribute(
-                'data-download-attribution',
-                'pending'
-            );
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
 
             PartnerDownload.begin();
             await flushPromises();
             jasmine.clock().tick(400);
             signedCookie = SIGNED;
-            window.dispatchEvent(
-                new CustomEvent('mozDownloadAttribution', {
-                    detail: { status: 'success' }
-                })
-            );
+            window.Mozilla.DownloadAttribution.successCallback();
             await flushPromises();
             jasmine.clock().tick(599);
             await flushPromises();
@@ -367,10 +362,7 @@ describe('partner-download.es6.js', function () {
         it('should wait past 1 second for signing that finishes at 1.6 seconds', async function () {
             visitOn('osx');
             renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
-            document.documentElement.setAttribute(
-                'data-download-attribution',
-                'pending'
-            );
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
 
             PartnerDownload.begin();
             await flushPromises();
@@ -379,11 +371,7 @@ describe('partner-download.es6.js', function () {
             expect(PartnerDownload.navigate).not.toHaveBeenCalled();
 
             signedCookie = SIGNED;
-            window.dispatchEvent(
-                new CustomEvent('mozDownloadAttribution', {
-                    detail: { status: 'success' }
-                })
-            );
+            window.Mozilla.DownloadAttribution.successCallback();
             await flushPromises();
             expect(PartnerDownload.navigate).toHaveBeenCalledWith(
                 `${OSX_URL}&attribution_code=code123&attribution_sig=sig456`
@@ -393,10 +381,7 @@ describe('partner-download.es6.js', function () {
         it('should download without attribution at 2 seconds when signing never returns', async function () {
             visitOn('osx');
             renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
-            document.documentElement.setAttribute(
-                'data-download-attribution',
-                'pending'
-            );
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
 
             PartnerDownload.begin();
             await flushPromises();
@@ -406,6 +391,24 @@ describe('partner-download.es6.js', function () {
 
             jasmine.clock().tick(1);
             await flushPromises();
+            expect(PartnerDownload.navigate).toHaveBeenCalledWith(OSX_URL);
+            expect(attributionEvents()).toEqual([
+                jasmine.objectContaining({ action: 'timeout' })
+            ]);
+        });
+
+        it('should stop waiting when an in-flight signing request times out', async function () {
+            visitOn('osx');
+            renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
+            window.Mozilla.DownloadAttribution.inFlightXHR = {};
+            window.Mozilla.DownloadAttribution.requestComplete = false;
+
+            PartnerDownload.begin();
+            await flushPromises();
+            jasmine.clock().tick(1200);
+            window.Mozilla.DownloadAttribution.timeoutCallback();
+            await flushPromises();
+
             expect(PartnerDownload.navigate).toHaveBeenCalledWith(OSX_URL);
             expect(attributionEvents()).toEqual([
                 jasmine.objectContaining({ action: 'timeout' })

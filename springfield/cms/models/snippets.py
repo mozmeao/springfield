@@ -620,12 +620,10 @@ class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
 
 
 PARTNER_DOWNLOAD_HOST = "download.mozilla.org"
-# Partner builds only exist on the production download server, so this
-# doesn't follow `settings.BOUNCER_URL`.
+# Partner builds only exist on production, so this ignores `settings.BOUNCER_URL`.
 PARTNER_DOWNLOAD_BASE_URL = f"https://{PARTNER_DOWNLOAD_HOST}/"
 
-# Each partner download link field, with the `os` value its link must carry
-# and the platform whose language list covers it.
+# Link field: (the `os` its link must carry, the platform whose languages cover it).
 PARTNER_REPACK_LINK_FIELDS = {
     "windows64_url": ("win64", "windows"),
     "windows32_url": ("win", "windows"),
@@ -775,11 +773,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         return query.get("product", [""])[0], query.get("os", [""])[0]
 
     def download_url(self, link_field: str, lang: str) -> str | None:
-        """Return the download URL for the link in `link_field` in `lang`.
-
-        Returns None when the link is blank or `lang` isn't listed for its platform.
-        Only `product` and `os` are kept from the pasted link, and `lang` goes last.
-        """
+        """Return the download URL for `link_field` in `lang`, or None if there's no such build."""
         platform = PARTNER_REPACK_LINK_FIELDS[link_field][1]
         if not getattr(self, link_field) or lang not in self.languages_for(platform):
             return None
@@ -789,11 +783,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         return f"{PARTNER_DOWNLOAD_BASE_URL}?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
 
     def download_options(self, lang: str) -> dict[str, dict]:
-        """Return each platform's download state for `lang`, with its URLs keyed by `os`.
-
-        The state is "available", "language" (a link, but not in `lang`) or "device"
-        (no link). Only an available platform has URLs.
-        """
+        """Return each platform's state ("available", "language" or "device") and its URLs for `lang`."""
         options = {}
         for platform in PARTNER_REPACK_PLATFORMS:
             urls = {}
@@ -810,7 +800,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         return options
 
     def test_links(self) -> list[tuple[str, str, str]]:
-        """Return (system, language, URL) for every download link and listed language, as visitors get them."""
+        """Return (system, language, URL) for every link and listed language."""
         links = []
         for link_field, (link_os, platform) in PARTNER_REPACK_LINK_FIELDS.items():
             for lang in self.languages_for(platform):
@@ -819,8 +809,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         return links
 
     def clean_fields(self, exclude=None):
-        # Tidy pasted values before Django validates them. Slugs are stored
-        # lowercase because visitors' `p` values are matched lowercased.
+        # Strip pasted values, and lowercase the slug to match the lowercased `p` lookup.
         for link_field in [*PARTNER_REPACK_LINK_FIELDS, "firefox_user_link_url"]:
             setattr(self, link_field, getattr(self, link_field).strip())
         self.slug = self.slug.strip().lower()
@@ -863,11 +852,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         return f"This link isn't for {PARTNER_REPACK_OS_LABELS[expected_os]}."
 
     def normalize_languages(self, platform: str) -> str | None:
-        """Store `platform`'s languages in canonical form, or return the problem with them.
-
-        Codes are matched to the download languages ignoring case, de-duplicated and
-        saved comma-separated in the order entered.
-        """
+        """Store `platform`'s languages in canonical case without duplicates, or return the problem."""
         languages_field = f"{platform}_languages"
         entered = split_language_codes(getattr(self, languages_field))
         has_link = any(getattr(self, link_field) for link_field in platform_link_fields(platform))

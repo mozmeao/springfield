@@ -4,29 +4,21 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/*
- * Picks the visitor's state on the partner download page and, when the
- * partner has a build for this system and language, starts that download.
- * The server renders one block per possible state; this sets `data-state`
- * on the container so CSS shows the matching one.
- */
+// Picks the visitor's state on /get/ and starts the partner download when there is one.
 
 import Plausible from '../../base/plausible/plausible.es6';
 
 const PartnerDownload = {};
 
-// How long to wait for client hints to report 64-bit Windows.
 PartnerDownload.BITNESS_CAP_MS = 500;
-// The download starts this long after DOM ready, as on /thanks/.
 PartnerDownload.DOWNLOAD_DELAY_MS = 1000;
-// The latest the download starts while waiting for attribution signing.
 PartnerDownload.ATTRIBUTION_CAP_MS = 2000;
 
 /**
- * Choose the Windows build. A 64-bit build only goes to a machine detected as 64-bit.
- * @param {Boolean} x64 - whether the machine was detected as 64-bit.
- * @param {Object} links - partner links keyed by `os` (`win64`, `win`).
- * @returns {Object|null} the link to download, or null.
+ * Pick the Windows link; 64-bit only goes to a machine detected as 64-bit.
+ * @param {Boolean} x64
+ * @param {Object} links - keyed by `os`
+ * @returns {Object|null}
  */
 PartnerDownload.chooseWindowsLink = (x64, links) => {
     if (x64) {
@@ -36,11 +28,10 @@ PartnerDownload.chooseWindowsLink = (x64, links) => {
 };
 
 /**
- * Work out which state to show. The first match wins.
- * @param {Object} signals - `platform`, `isFirefox`, `fxSupported`, `x64`.
- * @param {Object} options - per-platform `state` plus partner `links` keyed by `os`.
- * @returns {Object} `state` (1-10), with `reason` when no partner build is offered,
- *     or `link` for a partner download.
+ * Pick the state to show; the first match wins.
+ * @param {Object} signals - `platform`, `isFirefox`, `fxSupported`, `x64`
+ * @param {Object} options - per-platform `state` and `links` keyed by `os`
+ * @returns {Object} `state`, plus `reason` or the partner `link`
  */
 PartnerDownload.getState = (signals, options) => {
     const platform = signals.platform;
@@ -88,7 +79,7 @@ PartnerDownload.getState = (signals, options) => {
 /**
  * Read each platform's state and the partner links from the page.
  * @param {HTMLElement} container
- * @returns {Object} options for `getState`.
+ * @returns {Object}
  */
 PartnerDownload.readOptions = (container) => {
     const links = {};
@@ -106,10 +97,9 @@ PartnerDownload.readOptions = (container) => {
 };
 
 /**
- * Wait for client hints to report the machine's bitness, up to `capMs`.
- * `site.js` reads the same hints but doesn't announce when they arrive.
+ * Resolve whether the machine is 64-bit, waiting up to `capMs` for client hints.
  * @param {Number} capMs
- * @returns {Promise<Boolean>} whether the machine counts as 64-bit.
+ * @returns {Promise<Boolean>}
  */
 PartnerDownload.waitForBitness = (capMs = PartnerDownload.BITNESS_CAP_MS) => {
     const site = window.site;
@@ -139,25 +129,33 @@ PartnerDownload.waitForBitness = (capMs = PartnerDownload.BITNESS_CAP_MS) => {
 };
 
 /**
- * Wait for attribution signing that's in progress on this page, up to `capMs`.
- * Resolves at once when nothing is signing, for example without consent.
+ * Wait up to `capMs` for attribution signing in progress; resolves at once if none.
  * @param {Number} capMs
- * @returns {Promise<String|null>} 'success' or 'timeout' when it waited, otherwise null.
+ * @returns {Promise<String|null>} 'success', 'timeout', or null if it didn't wait
  */
 PartnerDownload.waitForAttribution = (
     capMs = PartnerDownload.ATTRIBUTION_CAP_MS
 ) => {
-    if (
-        document.documentElement.getAttribute('data-download-attribution') !==
-        'pending'
-    ) {
+    const attribution = window.Mozilla.DownloadAttribution;
+    const signing =
+        attribution &&
+        (attribution.gettingAnalyticsData ||
+            (attribution.inFlightXHR && !attribution.requestComplete));
+
+    if (!signing) {
         return Promise.resolve(null);
     }
 
     return new Promise((resolve) => {
+        let finished = false;
         const finish = (status) => {
+            if (finished) {
+                return;
+            }
+            finished = true;
             clearTimeout(timer);
-            window.removeEventListener('mozDownloadAttribution', onSigned);
+            attribution.successCallback = undefined;
+            attribution.timeoutCallback = undefined;
             window.dataLayer.push({
                 event: 'widget_action',
                 type: 'direct-attribution',
@@ -166,17 +164,15 @@ PartnerDownload.waitForAttribution = (
             });
             resolve(status);
         };
-        const onSigned = (event) =>
-            finish(event.detail.status === 'success' ? 'success' : 'timeout');
 
-        window.addEventListener('mozDownloadAttribution', onSigned);
+        attribution.successCallback = () => finish('success');
+        attribution.timeoutCallback = () => finish('timeout');
         const timer = setTimeout(() => finish('timeout'), capMs);
     });
 };
 
 /**
- * Add the signed attribution parameters to a partner download URL, replacing
- * any already there. Returns the URL unchanged when there's nothing to add.
+ * Replace the URL's attribution params with the signed cookie's, if there is one.
  * @param {String} url
  * @returns {String}
  */
@@ -197,9 +193,8 @@ PartnerDownload.getAttributedURL = (url) => {
 
 /**
  * Record that the visitor can't get the partner's build, and why.
- * Sent to the dataLayer and to Plausible as `partner_download_unavailable`.
  * @param {HTMLElement} container
- * @param {String} reason - 'language', 'device', 'firefox' or 'unsupported_os'.
+ * @param {String} reason
  */
 PartnerDownload.sendUnavailableEvent = (container, reason) => {
     const platform = window.site.platform;
@@ -218,12 +213,11 @@ PartnerDownload.sendUnavailableEvent = (container, reason) => {
         );
         Plausible.trackEvent('partner_download_unavailable', props);
     } catch (error) {
-        // Analytics must never block the page.
+        // Analytics never blocks the page.
     }
 };
 
 /**
- * Go to the download URL.
  * @param {String} url
  */
 PartnerDownload.navigate = (url) => {
@@ -231,9 +225,8 @@ PartnerDownload.navigate = (url) => {
 };
 
 /**
- * Track and start the partner download, and point "try again" at the same URL.
- * @param {HTMLElement} link - the chosen partner link.
- * @returns {String} the URL that was downloaded.
+ * Start and track the download, and point "try again" at the same URL.
+ * @param {HTMLElement} link
  */
 PartnerDownload.startDownload = (link) => {
     const url = PartnerDownload.getAttributedURL(link.href);
@@ -253,17 +246,15 @@ PartnerDownload.startDownload = (link) => {
     try {
         window.Mozilla.TrackProductDownload.sendEventFromURL(url);
     } catch (error) {
-        // Tracking must never block the download.
+        // Analytics never blocks the page.
     }
 
     PartnerDownload.navigate(url);
-    return url;
 };
 
 /**
- * Pick and show the state, then start the partner download when there is one.
- * Call on DOM ready: the download delay and the attribution cap both run from here.
- * @returns {Promise<Object>} the chosen state.
+ * Show the visitor's state and start the partner download; call on DOM ready.
+ * @returns {Promise<Object>} the chosen state
  */
 PartnerDownload.begin = () => {
     const container = document.querySelector('.c-partner-download');

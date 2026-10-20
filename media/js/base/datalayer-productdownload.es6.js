@@ -203,10 +203,9 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
 };
 
 /**
- * Partner fields for downloads fired from a partner download page, which names
- * the partner in `data-download-partner` on `<html>`.
+ * Partner fields when `<html>` has `data-download-partner`, otherwise empty.
  * @param {String} downloadURL
- * @returns {Object} - empty on every other page
+ * @returns {Object}
  */
 TrackProductDownload.getPartnerFields = (downloadURL) => {
     const partner = document.documentElement.getAttribute(
