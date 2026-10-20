@@ -58,6 +58,7 @@ from springfield.cms.blocks import (
     IconChoiceBlock,
     IconListItemValue,
     ImpactDashBlock,
+    KitIntroBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -75,6 +76,7 @@ from springfield.cms.blocks import (
     validate_youtube_url,
     youtube_video_id,
 )
+from springfield.cms.fixtures import block_factories
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -6751,3 +6753,46 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+# Kit Intro buttons below
+
+
+def render_kit_intro(rf, buttons, buttons_below):
+    block = KitIntroBlock()
+    value = block.to_python(
+        {
+            "heading": block_factories.heading_value("kitintro", "Kit Intro"),
+            "buttons": buttons,
+            "buttons_below": buttons_below,
+        }
+    )
+    return BeautifulSoup(block.render(value, context=_render_context(rf.get("/"))), "html.parser")
+
+
+def link_button(block_id):
+    return block_factories.button(block_id, block_id.title(), f"{block_id}-analytics-id", url="https://www.firefox.com/", theme="link")
+
+
+@pytest.mark.parametrize(
+    "first_row, expected_positions",
+    [
+        (["first"], ["block-1-intro.button-1", "block-1-intro.button-below-1"]),
+        ([], ["block-1-intro.button-below-1"]),
+    ],
+)
+def test_kit_intro_buttons_below_have_their_own_analytics_positions(first_row, expected_positions, rf):
+    soup = render_kit_intro(rf, [link_button(block_id) for block_id in first_row], [link_button("below")])
+
+    assert [button["data-cta-position"] for button in soup.select(".fl-buttons .fl-button")] == expected_positions
+
+
+def test_kit_intro_buttons_below_follow_the_first_rows_download_extras(rf):
+    download = block_factories.download_button("first", "Get Firefox", "first-analytics-id")
+    soup = render_kit_intro(rf, [download], [link_button("below")])
+
+    first_row, second_row = soup.select(".fl-intro-content > .fl-buttons")
+    extras = first_row.find("div", class_="fl-download-firefox-button-extras")
+    assert extras.find("a", href=lambda href: href and "/privacy/firefox/" in href)
+    assert "fl-home-intro-buttons-below" in second_row["class"]
+    assert not second_row.find("div", class_="fl-download-firefox-button-extras")

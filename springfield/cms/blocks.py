@@ -3339,6 +3339,8 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             )
         )
 
+    button_types = get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download)
+
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
@@ -3349,10 +3351,18 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
+            button_types=button_types,
             min_num=0,
             max_num=2,
             required=False,
+        )
+        buttons_below = MixedButtonsBlock(
+            button_types=button_types,
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Buttons below",
+            help_text="A second row of buttons, below the first row and its privacy notice.",
         )
         media = MediaBlock(
             max_num=1,
@@ -3366,7 +3376,7 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             label = "Kit Intro"
             label_format = "{heading}"
             form_layout = blocks.BlockGroup(
-                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "media"],
+                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "buttons_below", "media"],
                 settings=["settings", "scroll_to_see_more_snippet"],
             )
 

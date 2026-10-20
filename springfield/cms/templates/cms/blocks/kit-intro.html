@@ -28,6 +28,11 @@
             {% if value.buttons %}
               {% include_block value.buttons %}
             {% endif %}
+            {% if value.buttons_below %}
+              {% with buttons_class="fl-home-intro-buttons-below", button_position_label="button-below" %}
+                {% include_block value.buttons_below %}
+              {% endwith %}
+            {% endif %}
           </content:content>
         </include:intro>
       </div>
