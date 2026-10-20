@@ -17,10 +17,6 @@ Sharing Links - copy, email and QR code buttons for one URL
     justify-content: center;
 }
 
-.fl-mediacontent-content .fl-sharing-links {
-    align-items: start;
-}
-
 .fl-mediacontent-content .fl-sharing-links .fl-buttons {
     margin: 0;
 }
@@ -41,4 +37,16 @@ Sharing Links - copy, email and QR code buttons for one URL
 
 .fl-sharing-links-url {
     margin: 0;
+}
+
+@media (--viewport-xs) {
+    .fl-mediacontent-content .fl-sharing-links .fl-button {
+        inline-size: unset;
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-mediacontent-content .fl-sharing-links {
+        align-items: start;
+    }
 }
