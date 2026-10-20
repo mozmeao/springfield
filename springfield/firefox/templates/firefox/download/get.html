@@ -1,0 +1,13 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "firefox/download/desktop/base.html" %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block content %}
+<main class="c-partner-download" data-partner="{{ partner.slug }}"></main>
+{% endblock %}

@@ -646,6 +646,11 @@ PARTNER_REPACK_PLATFORMS = {"windows": "Windows", "mac": "Mac", "linux": "Linux"
 PARTNER_REPACK_LANGUAGE_ALIASES = {"ja-jp-mac": "ja"}
 
 
+def platform_link_fields(platform: str) -> dict[str, str]:
+    """Map each download link field whose builds are for `platform` to its `os` value."""
+    return {link_field: link_os for link_field, (link_os, link_platform) in PARTNER_REPACK_LINK_FIELDS.items() if link_platform == platform}
+
+
 def split_language_codes(value: str) -> list[str]:
     """Split a language list on commas and whitespace, dropping empty entries."""
     return [code for code in re.split(r"[\s,]+", value) if code]
@@ -783,6 +788,27 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
         return f"{PARTNER_DOWNLOAD_BASE_URL}?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
 
+    def download_options(self, lang: str) -> dict[str, dict]:
+        """Return each platform's download state for `lang`, with its URLs keyed by `os`.
+
+        The state is "available", "language" (a link, but not in `lang`) or "device"
+        (no link). Only an available platform has URLs.
+        """
+        options = {}
+        for platform in PARTNER_REPACK_PLATFORMS:
+            urls = {}
+            for link_field, link_os in platform_link_fields(platform).items():
+                if url := self.download_url(link_field, lang):
+                    urls[link_os] = url
+            if urls:
+                state = "available"
+            elif any(getattr(self, link_field) for link_field in platform_link_fields(platform)):
+                state = "language"
+            else:
+                state = "device"
+            options[platform] = {"state": state, "urls": urls}
+        return options
+
     def test_links(self) -> list[tuple[str, str, str]]:
         """Return (system, language, URL) for every download link and listed language, as visitors get them."""
         links = []
@@ -844,9 +870,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         """
         languages_field = f"{platform}_languages"
         entered = split_language_codes(getattr(self, languages_field))
-        has_link = any(
-            getattr(self, link_field) for link_field, (link_os, link_platform) in PARTNER_REPACK_LINK_FIELDS.items() if link_platform == platform
-        )
+        has_link = any(getattr(self, link_field) for link_field in platform_link_fields(platform))
 
         if has_link and not entered:
             return "Add the languages this build was made for."

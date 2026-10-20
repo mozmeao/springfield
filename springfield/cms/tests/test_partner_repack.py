@@ -303,3 +303,38 @@ def test_partner_repacks_are_included_in_the_db_export():
     export_script = (settings.ROOT_PATH / "bin" / "export-db-to-sqlite.sh").read_text()
 
     assert "cms.PartnerRepack" in export_script
+
+
+def test_download_options_per_platform_state():
+    partner = make_partner(windows_languages="de", mac_url=ACME_MAC_URL, mac_languages="fr")
+
+    assert partner.download_options("de") == {
+        "windows": {"state": "available", "urls": {"win64": partner.download_url("windows64_url", "de")}},
+        "mac": {"state": "language", "urls": {}},
+        "linux": {"state": "device", "urls": {}},
+    }
+
+
+def test_download_options_carry_both_windows_links():
+    partner = make_partner(windows32_url=ACME_WINDOWS32_URL)
+
+    assert partner.download_options("de")["windows"]["urls"] == {
+        "win64": partner.download_url("windows64_url", "de"),
+        "win": partner.download_url("windows32_url", "de"),
+    }
+
+
+@pytest.mark.parametrize("link_field, link_os", [("windows64_url", "win64"), ("windows32_url", "win")])
+def test_download_options_carry_a_single_windows_link(link_field, link_os):
+    partner = make_partner(**{"windows64_url": "", link_field: f"https://download.mozilla.org/?product={ACME_PRODUCT}&os={link_os}"})
+
+    assert list(partner.download_options("de")["windows"]["urls"]) == [link_os]
+
+
+def test_download_options_have_no_urls_unless_available():
+    partner = make_partner(mac_url=ACME_MAC_URL, mac_languages="de", linux_url=ACME_LINUX_URL, linux_languages="de")
+
+    options = partner.download_options("fr")
+
+    assert {platform: option["state"] for platform, option in options.items()} == {"windows": "language", "mac": "language", "linux": "language"}
+    assert all(option["urls"] == {} for option in options.values())
