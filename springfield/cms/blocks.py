@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from decimal import Decimal
+from functools import lru_cache
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -18,9 +19,15 @@ from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.http import QueryDict
 from django.urls import Resolver404, resolve
 from django.utils import translation
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from product_details import product_details
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+from pygments.util import ClassNotFound
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
@@ -289,6 +296,16 @@ def icon_display_label(stem: str) -> str:
 
 class UntranslatableCharBlock(blocks.CharBlock):
     """A CharBlock that is not sent for translation"""
+
+    def get_translatable_segments(self, value):
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
+
+class UntranslatableTextBlock(blocks.TextBlock):
+    """A TextBlock that is not sent for translation"""
 
     def get_translatable_segments(self, value):
         return []
@@ -2219,15 +2236,81 @@ class IconListWithImageBlock(blocks.StructBlock):
         template = "cms/blocks/icon-list-with-image.html"
 
 
+CODE_PROSE_LANGUAGES = {"prompt", "output"}
+
+CODE_LANGUAGE_CHOICES = [
+    ("", "Plain text"),
+    ("prompt", "Prompt"),
+    ("output", "Model output"),
+    ("javascript", "JavaScript"),
+    ("typescript", "TypeScript"),
+    ("python", "Python"),
+    ("cpp", "C++"),
+    ("rust", "Rust"),
+    ("bash", "Shell"),
+    ("json", "JSON"),
+    ("html", "HTML"),
+    ("css", "CSS"),
+]
+
+# Programming language names shown above the block; the template labels prompts and output with Fluent strings.
+CODE_LANGUAGE_LABELS = {value: label for value, label in CODE_LANGUAGE_CHOICES if value and value not in CODE_PROSE_LANGUAGES}
+
+
+@lru_cache(maxsize=256)
+def highlight_code(language: str, code: str) -> str:
+    """Return Pygments HTML for the code, using classes rather than inline styles (CSP blocks those).
+
+    A language Pygments doesn't know, e.g. one later removed from the choices, falls back to escaped plain text.
+    """
+    try:
+        lexer = get_lexer_by_name(language)
+    except ClassNotFound:
+        return escape(code)
+    return highlight(code, lexer, HtmlFormatter(nowrap=True, classprefix="tok-"))
+
+
+class CodeBlockValue(blocks.StructValue):
+    def language_label(self) -> str:
+        return CODE_LANGUAGE_LABELS.get(self.get("language") or "", "")
+
+    def is_prose(self) -> bool:
+        return self.get("language") in CODE_PROSE_LANGUAGES
+
+    def highlighted_code(self) -> str:
+        language = self.get("language") or ""
+        code = self.get("code") or ""
+        if not language or language in CODE_PROSE_LANGUAGES:
+            return escape(code)
+        # Pygments escapes the source, and the fallback is escaped too.
+        return mark_safe(highlight_code(language, code))
+
+
 class CodeBlock(blocks.StructBlock):
-    code = blocks.TextBlock(
+    language = blocks.ChoiceBlock(
+        choices=CODE_LANGUAGE_CHOICES,
+        default="",
+        required=False,
+        label="Language",
+        help_text="Adds colours and a label. Prompt and Model output wrap long lines; code scrolls sideways.",
+    )
+    code = UntranslatableTextBlock(
         label="Code",
-        help_text="Paste the code snippet here.",
+        help_text="Paste the code snippet here. Not sent for translation.",
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Caption",
+        help_text="Optional, e.g. the file the code comes from.",
     )
 
     class Meta:
         label = "Code"
+        label_format = "Code - {code}"
         template = "cms/blocks/code.html"
+        value_class = CodeBlockValue
+        form_classname = "struct-block fl-admin-code-block"
 
 
 class QuoteBlock(blocks.StructBlock):

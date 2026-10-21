@@ -4,6 +4,29 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-code-block">
-  <pre><code>{{ value.code }}</code></pre>
-</div>
+{% if value.language == "prompt" %}
+  {% set label = ftl("block-code-prompt") %}
+{% elif value.language == "output" %}
+  {% set label = ftl("block-code-output") %}
+{% else %}
+  {% set label = value.language_label() %}
+{% endif %}
+
+<figure class="fl-code-block{% if value.is_prose() %} fl-code-block-{{ value.language }}{% endif %}">
+  <div class="fl-code-block-header">
+    {% if label %}
+      <span class="fl-code-block-label">{{ label }}</span>
+    {% endif %}
+    <include:copy-to-clipboard-button
+      value="{{ value.code }}"
+      label="{{ ftl('block-code-copy') }}"
+      success_label="{{ ftl('block-code-copied') }}"
+      theme_class="button-ghost fl-button-square fl-code-block-copy"
+    />
+  </div>
+  {# A named, focusable region so keyboard users can scroll long lines. #}
+  <pre role="region" tabindex="0" aria-label="{{ label or ftl('block-code') }}"><code>{{ value.highlighted_code() }}</code></pre>
+  {% if value.caption %}
+    <figcaption class="fl-code-block-caption">{{ value.caption }}</figcaption>
+  {% endif %}
+</figure>

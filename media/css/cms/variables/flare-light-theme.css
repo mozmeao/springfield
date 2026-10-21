@@ -203,3 +203,17 @@
 --browser-comparison-table-highlighted-text-color: var(--token-color-purple);
 --browser-comparison-table-border-color: var(--token-color-light-purple);
 --browser-comparison-table-text-color: var(--token-color-dark-purple);
+
+/* Code block */
+--code-block-bg: var(--token-color-grey-1);
+--code-block-header-bg: rgb(241, 240, 245);
+--code-block-border: var(--token-color-grey-2);
+--code-block-text: var(--token-color-black-4);
+--code-block-muted: rgb(91, 90, 102);
+--code-block-keyword: var(--token-color-link-purple);
+--code-block-string: var(--token-color-secondary-green);
+--code-block-number: var(--token-color-error-red);
+--code-block-function: var(--token-color-medium-purple);
+--code-block-prose-bg: var(--token-color-soft-purple);
+--code-block-prose-border: var(--token-color-soft-purple-3);
+--code-block-focus: var(--token-color-light-purple);

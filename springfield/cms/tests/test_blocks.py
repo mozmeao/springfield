@@ -22,6 +22,7 @@ from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockVal
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
+from wagtail_localize.segments.extract import StreamFieldSegmentExtractor
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.base.templatetags.qrcode import qrcode_rounded
@@ -51,6 +52,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    CodeBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
@@ -6760,3 +6762,85 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def render_code_block(raw):
+    block = CodeBlock()
+    context = {"fluent_l10n": fluent_l10n(["en"], settings.FLUENT_DEFAULT_FILES)}
+    return BeautifulSoup(block.render(block.to_python(raw), context=context), "html.parser")
+
+
+def test_code_block_highlights_with_classes_not_inline_styles():
+    """The CSP blocks inline styles, so the colours must come from classes."""
+    soup = render_code_block({"language": "javascript", "code": "const answer = 42; // comment"})
+
+    code = soup.find("code")
+    assert code.find("span", class_="tok-kd").get_text() == "const"
+    assert code.find("span", class_="tok-c1").get_text() == "// comment"
+    assert not soup.find(style=True)
+    assert soup.find(class_="fl-code-block-label").get_text() == "JavaScript"
+    pre = soup.find("pre")
+    assert pre["role"] == "region"
+    assert pre["aria-label"] == "JavaScript"
+    assert pre["tabindex"] == "0"
+
+
+def test_code_block_escapes_code():
+    soup = render_code_block({"language": "html", "code": '<script>alert("hi")</script>'})
+
+    assert not soup.find("script")
+    assert soup.find("code").get_text() == '<script>alert("hi")</script>\n'
+    assert soup.find("button")["data-copy-value"] == '<script>alert("hi")</script>'
+
+
+def test_code_block_without_language_is_plain_text():
+    """Blocks saved before the language field existed have no language key."""
+    soup = render_code_block({"code": "a < b && c"})
+
+    assert soup.find("code").get_text() == "a < b && c"
+    assert not soup.find("code").find("span")
+    assert not soup.find(class_="fl-code-block-label")
+    assert soup.find("pre")["aria-label"] == "Code"
+    assert soup.find("figure")["class"] == ["fl-code-block"]
+
+
+def test_code_block_with_a_language_pygments_does_not_know_renders_plain_text():
+    soup = render_code_block({"language": "not-a-language", "code": "a < b"})
+
+    assert soup.find("code").get_text() == "a < b"
+    assert not soup.find("code").find("span")
+    assert not soup.find(class_="fl-code-block-label")
+
+
+@pytest.mark.parametrize("language, label", [("prompt", "Prompt"), ("output", "Output")])
+def test_code_block_prose_languages_are_labelled_and_not_highlighted(language, label):
+    soup = render_code_block({"language": language, "code": "You are a helpful summarizer.\n   Step 1: read."})
+
+    assert f"fl-code-block-{language}" in soup.find("figure")["class"]
+    assert soup.find(class_="fl-code-block-label").get_text() == label
+    assert not soup.find("code").find("span")
+    assert soup.find("code").get_text() == "You are a helpful summarizer.\n   Step 1: read."
+
+
+def test_code_block_renders_optional_caption():
+    assert not render_code_block({"code": "x"}).find("figcaption")
+
+    soup = render_code_block({"code": "x", "caption": "From MLUtils.cpp"})
+    assert soup.find("figcaption", class_="fl-code-block-caption").get_text() == "From MLUtils.cpp"
+
+
+def test_code_block_sends_only_the_caption_for_translation():
+    block = CodeBlock()
+    value = block.to_python({"language": "python", "code": "print('hi')", "caption": "A caption"})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+
+    assert [(segment.path, segment.string.data) for segment in segments] == [("caption", "A caption")]
+
+
+def test_code_block_saved_without_a_caption_can_be_translated():
+    """Blocks saved before the caption field existed have no caption key."""
+    block = CodeBlock()
+    value = block.to_python({"code": "print('hi')"})
+
+    assert StreamFieldSegmentExtractor(None).handle_block(block, value)[0].string.data == ""
