@@ -113,9 +113,14 @@
     inset-inline-end: var(--token-spacing-sm);
 }
 
+/* The player's corners follow the dialog's, inset by its padding. */
 .fl-video-dialog-frame {
     aspect-ratio: 16 / 9;
+    border-radius: calc(
+        var(--token-border-radius-md) - var(--token-spacing-sm)
+    );
     inline-size: 100%;
+    overflow: hidden;
 }
 
 .fl-video-dialog-frame iframe {
