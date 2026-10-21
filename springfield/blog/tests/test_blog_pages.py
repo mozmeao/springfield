@@ -471,6 +471,32 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
 
 
+def test_blog_index_lists_every_article_when_nothing_is_curated(blog_index, make_article, rf):
+    titles = {make_article(title=f"Article {number}").title for number in range(3)}
+
+    response = blog_index.serve(rf.get(blog_index.get_full_url()))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert {heading.get_text(strip=True) for heading in soup.select(".fl-blog-article-list h2")} == titles
+
+
+def test_blog_index_article_list_paginates_on_the_index_url(blog_index, make_article, rf):
+    for number in range(ARTICLES_PER_PAGE + 1):
+        make_article(title=f"Article {number}")
+
+    response = blog_index.serve(rf.get(blog_index.get_full_url()))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert len(soup.select(".fl-blog-article-list h2")) == ARTICLES_PER_PAGE
+    assert soup.find("a", href=f"{blog_index.url}?page=2")
+
+
+def test_blog_index_with_sections_does_not_list_every_article(sectioned_index):
+    blog_index, _, _ = sectioned_index
+
+    assert not blog_index.lists_all_articles()
+
+
 def test_all_context_omits_unpublished_articles_while_the_index_is_published(blog_index, make_article, rf):
     published = make_article(title="Published article")
     make_article(title="Draft article").unpublish()

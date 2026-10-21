@@ -446,8 +446,20 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             context.update(extra_context)
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
+    def lists_all_articles(self):
+        """Whether the home page shows the full article list. It does when nothing is
+        curated, as on a translated blog with only a few articles."""
+        return not self.featured_articles and not self.article_sections
+
     @path("")
     def index_route(self, request):
+        if self.lists_all_articles():
+            extra_context = {
+                "header_topics": self.get_header_topics(),
+                **self.get_all_context(request),
+            }
+            return self._render_route(request, self.get_template(request), extra_context=extra_context)
+
         prefetch_article_blocks([block.value for block in (self.featured_articles or [])])
         sections = self.resolve_article_sections()
         extra_context = {
