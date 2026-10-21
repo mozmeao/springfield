@@ -1015,11 +1015,11 @@ wheels = [
 
 [[package]]
 name = "justhtml"
-version = "1.18.0"
+version = "1.22.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fc/3f/a4344c56738f83feb69b7799b6fffe2f1e61c51116a0d26d37cf91a86bfc/justhtml-1.18.0.tar.gz", hash = "sha256:74407e840dc34f77230acda83cbee4ada8a6dbe77543684eac9f7874028e072a", size = 406145, upload-time = "2026-05-04T20:31:55.233Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4d/7a/7ad1267ea9b3e34573f7ce11686515b4bf4b5814e26758c230df0faa318e/justhtml-1.22.0.tar.gz", hash = "sha256:04a1599b8790902ae9353fec8080e0687cbf092a5d8c7de60687ceb8754c3031", size = 417204, upload-time = "2026-05-22T05:27:42.242Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/41/375ec477f524a230520cc8be504661c7525fc9560f8a8a30e9f89063bdcc/justhtml-1.18.0-py3-none-any.whl", hash = "sha256:38d74b92c06f2cf55aa14c3532fbd2ced65884c2c32c3544b389f321799a7fc2", size = 144347, upload-time = "2026-05-04T20:31:53.458Z" },
+    { url = "https://files.pythonhosted.org/packages/11/a8/889b05e302dbb14f51a53bd4e2276a28b4b54f85fca16bd4a83c2c0e97f8/justhtml-1.22.0-py3-none-any.whl", hash = "sha256:a64746c54fc0488cef42e426f92e919f2f5abbce3564b82255df0d7001f7596f", size = 145802, upload-time = "2026-05-22T05:27:40.735Z" },
 ]
 
 [[package]]
@@ -2023,7 +2023,7 @@ requires-dist = [
     { name = "html5lib", specifier = "==1.1" },
     { name = "jinja2", specifier = "==3.1.6" },
     { name = "jq", specifier = "==1.12.0" },
-    { name = "justhtml", specifier = "==1.18.0" },
+    { name = "justhtml", specifier = "==1.22.0" },
     { name = "lxml", specifier = "==6.1.3" },
     { name = "markdown", specifier = "==3.10.3" },
     { name = "markus", extras = ["datadog"], specifier = "==5.0.0" },
