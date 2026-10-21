@@ -98,6 +98,9 @@ dev = [
 [tool.uv]
 # Springfield is an application, not an installable package
 package = false
+# Floor matches the `ghcr.io/astral-sh/uv` image in `Dockerfile`. uv carries its own CA roots for
+# PyPI fetches, so an older local uv would resolve and lock against a stale trust store.
+required-version = ">=0.13.4"
 # Avoids packages uploaded in the last 7 days, reducing supply-chain risk. Dependabot's
 # `cooldown` in `.github/dependabot.yml` matches it. This also blocks Dependabot security
 # updates to a release younger than 7 days.
