@@ -4,9 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import setupBlogFocalPoints from './components/flare-blog-focal-point.es6';
 import setupBlogTopicsScroll from './components/flare-blog-topics-scroll.es6';
 
 function setupComponents() {
+    setupBlogFocalPoints();
     setupBlogTopicsScroll();
 }
 
