@@ -6729,17 +6729,15 @@ def test_validate_youtube_url_rejects_non_video_urls():
         validate_youtube_url("https://www.youtube.com/@firefox")
 
 
-def test_video_modal_button_trigger_targets_its_dialog(rf):
-    """flare-dialogs.es6.js pairs trigger and dialog by id alone, so check they meet."""
+def test_video_modal_button_renders_its_dialog_right_after_the_trigger(rf):
+    """flare-video-modal.es6.js opens the dialog that follows each trigger."""
     soup = BeautifulSoup(_render_button("video_modal_button", rf.get("/"), custom_label="Watch"), "html.parser")
 
     trigger = soup.find("a", class_="fl-video-modal-trigger")
     # A real link, so the video still opens without JS.
     assert trigger["href"] == "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
-    assert "fl-dialog-trigger" in trigger["class"]
 
-    dialog = soup.find("dialog", id=trigger["data-target-id"])
-    assert dialog is not None
+    dialog = trigger.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
     assert dialog["aria-label"] == "Firefox campaign video"
     assert dialog.find("button", class_="fl-dialog-close-button") is not None
     # The player is only added by JS when the dialog opens.
