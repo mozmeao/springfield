@@ -1,7 +1,7 @@
 ########
 # Pinned `uv` binary, copied into the stages that install Python deps
 #
-FROM ghcr.io/astral-sh/uv:0.12.17 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.4 AS uv
 
 
 ########
@@ -22,7 +22,7 @@ ENV UV_NO_CACHE=1
 ENV UV_COMPILE_BYTECODE=1
 
 COPY docker/bin/apt-install /usr/local/bin/
-RUN apt-install gettext build-essential libxml2-dev libxslt1-dev libxslt1.1 libpq-dev
+RUN apt-install ca-certificates gettext build-essential libxml2-dev libxslt1-dev libxslt1.1 libpq-dev
 COPY --from=uv /uv /usr/local/bin/
 
 COPY pyproject.toml uv.lock ./
@@ -96,7 +96,7 @@ EXPOSE 8000
 CMD ["./bin/run.sh"]
 
 COPY docker/bin/apt-install /usr/local/bin/
-RUN apt-install curl gettext git libmagickwand-dev libpq-dev libxslt1.1 sqlite3
+RUN apt-install ca-certificates curl gettext git libmagickwand-dev libpq-dev libxslt1.1 sqlite3
 
 # copy in Python environment
 COPY --from=python-builder /venv /venv
