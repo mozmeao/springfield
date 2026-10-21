@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from datetime import UTC, datetime
 from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -13,7 +14,6 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
 from django.utils import translation
-from django.utils.formats import date_format
 
 import pytest
 from bs4 import BeautifulSoup
@@ -4715,6 +4715,7 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
     assert url == "/pt-PT/article-url-locale-test/"
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
 def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
@@ -4723,6 +4724,8 @@ def test_roadmap_list_section_block(index_page, rf):
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    page.last_published_at = datetime(2026, 10, 13, 4, 1, tzinfo=UTC)
 
     request = rf.get(page.get_full_url())
     response = page.serve(request)
@@ -4764,7 +4767,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+    assert "Last updated: Oct. 12, 2026" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)

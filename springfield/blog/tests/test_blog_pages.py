@@ -2045,6 +2045,20 @@ def test_blog_article_hero_renders_published_date(make_article, rf):
     assert "Last updated on" not in meta.get_text()
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_shows_site_time_zone_date(make_article, rf):
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
+    assert time_el["datetime"].startswith("2026-10-13T04:01")
+
+
 def test_blog_article_hero_renders_updated_date(make_article, rf):
     article = make_article(updated_date=date(2026, 6, 12))
 
