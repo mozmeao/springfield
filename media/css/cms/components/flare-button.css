@@ -375,10 +375,24 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-buttons > .fl-download-firefox-button {
-    display: flex;
-    flex-direction: column;
-    inline-size: 100%;
+    display: contents;
+}
+
+.fl-buttons > .fl-download-firefox-button-extras > * {
+    flex-basis: 100%;
+}
+
+.fl-buttons.is-center > .fl-download-firefox-button-extras {
     text-align: center;
+}
+
+.fl-buttons.is-end > .fl-download-firefox-button-extras {
+    text-align: end;
+}
+
+.fl-buttons > .fl-download-firefox-button-extras,
+.fl-buttons > .fl-download-firefox-button-extras > .default-browser-label {
+    justify-content: inherit;
 }
 
 .fl-buttons.is-stacked:not(.auto-width-buttons) > * {
@@ -451,12 +465,6 @@ Copy-to-Clipboard Button
    that sizing */
 .fl-copy-to-clipboard-button .is-hidden {
     visibility: hidden;
-}
-
-@media (--viewport-sm-up) {
-    .fl-buttons > .fl-download-firefox-button {
-        inline-size: auto;
-    }
 }
 
 /* =====================================================================

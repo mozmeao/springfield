@@ -17,6 +17,12 @@
   media/js/base/mozilla-utils.js
 #}
 
+{#
+  `without_extras` and `extras_only` are used to render the button separately from its extras
+  when included in a button row, so that the button aligns with other buttons in the row
+  and extras are shown below.
+#}
+
 {% macro privacy_notice() %}
   <small class="{% if flare_styles %}fl-privacy-link{% else %}mzp-c-button-download-privacy-link{% endif %}">
     <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/{{ params }}">
@@ -25,6 +31,50 @@
   </small>
 {% endmacro %}
 
+{% set checkboxes %}
+  {% if enable_marketing_attribution %}
+    {# With the opt-out, the privacy notice moves up to sit between the button and the checkbox. #}
+    {% if not exclude_unsupported_content %}
+      {{ privacy_notice() }}
+    {% endif %}
+    <include:marketing-opt-out-checkbox analytics_id="{{ analytics_id }}" />
+  {% elif show_default_browser_checkbox  %}
+    {% set checkbox %}
+      <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
+        <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
+        {{ ftl('block-set-as-default')}}
+      </label>
+    {% endset %}
+    {% if is_preview %}
+      <include:conditional-display platform_conditions="{{ ['windows'] }}">
+        {{ checkbox }}
+      </include:conditional-display>
+    {% else %}
+      {{ checkbox }}
+    {% endif %}
+  {% endif %}
+{% endset %}
+
+{% set unsupported_content %}
+  {% if not exclude_unsupported_content %}
+    {# ESR download buttons to display on unsupported systems: issue 13317 #}
+    {% with flare_styles=True %}
+      {% include 'firefox/includes/download-unsupported.html' %}
+    {% endwith %}
+
+    {% if not enable_marketing_attribution %}
+      {{ privacy_notice() }}
+    {% endif %}
+  {% endif %}
+{% endset %}
+
+{% if extras_only %}
+  {# Carries the button's classes because the styles and scripts for these elements look for them inside a download button. #}
+  <div class="fl-download-firefox-button fl-download-firefox-button-extras c-button-download-thanks {% if enable_marketing_attribution %}has-marketing-opt-out{% endif %}">
+    {{ checkboxes }}
+    {{ unsupported_content }}
+  </div>
+{% else %}
 <div class="fl-download-firefox-button c-button-download-thanks {% if enable_marketing_attribution %}has-marketing-opt-out{% endif %}" id="{{ analytics_id }}">
   <a href="{{ link_href }}"
      class="download-link fl-button {{ theme_class }} {{ size_class }} {% if is_forced %}ga-product-download{% endif %} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
@@ -53,26 +103,8 @@
       />
     {% endif %}
   </a>
-  {% if enable_marketing_attribution %}
-    {# With the opt-out, the privacy notice moves up to sit between the button and the checkbox. #}
-    {% if not exclude_unsupported_content %}
-      {{ privacy_notice() }}
-    {% endif %}
-    <include:marketing-opt-out-checkbox analytics_id="{{ analytics_id }}" />
-  {% elif show_default_browser_checkbox  %}
-    {% set checkbox %}
-      <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
-        <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
-        {{ ftl('block-set-as-default')}}
-      </label>
-    {% endset %}
-    {% if is_preview %}
-      <include:conditional-display platform_conditions="{{ ['windows'] }}">
-        {{ checkbox }}
-      </include:conditional-display>
-    {% else %}
-      {{ checkbox }}
-    {% endif %}
+  {% if not without_extras %}
+    {{ checkboxes }}
   {% endif %}
 
   {% if show_store_button %}
@@ -89,14 +121,8 @@
     {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
   {% endif %}
 
-  {% if not exclude_unsupported_content %}
-    {# ESR download buttons to display on unsupported systems: issue 13317 #}
-    {% with flare_styles=True %}
-      {% include 'firefox/includes/download-unsupported.html' %}
-    {% endwith %}
-
-    {% if not enable_marketing_attribution %}
-      {{ privacy_notice() }}
-    {% endif %}
+  {% if not without_extras %}
+    {{ unsupported_content }}
   {% endif %}
 </div>
+{% endif %}

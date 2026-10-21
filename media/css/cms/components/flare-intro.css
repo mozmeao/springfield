@@ -370,6 +370,11 @@
         align-items: start;
     }
 
+    .fl-intro.fl-intro-media-right .fl-buttons,
+    .fl-intro.fl-intro-media-left .fl-buttons {
+        justify-content: start;
+    }
+
     .fl-home-intro {
         --banner-kit-right-position: calc(50% - 134px);
         --banner-kit-bottom-position: -414px;

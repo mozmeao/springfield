@@ -424,7 +424,9 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
+        # In a row of buttons the checkbox is placed after the buttons; on its own it follows the link directly.
+        checkbox_container = button_element.find_parent("div", class_="fl-buttons") or button_element.parent
+        checkbox_label = checkbox_container.find("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
@@ -3079,11 +3081,12 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
                 cta_wrap = gallery.find("div", class_="fl-section-cta-wrap")
                 assert cta_wrap
                 gallery_heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
-                for button_data in variant["value"]["cta"]:
+                cta_elements = cta_wrap.find_all("a", class_="fl-button")
+                for cta_index, button_data in enumerate(variant["value"]["cta"]):
                     if button_data["type"] == "button":
-                        button_el = cta_wrap.find("a", class_="fl-button")
+                        button_el = cta_elements[cta_index]
                         cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
-                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
+                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta-{cta_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,
