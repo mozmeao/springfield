@@ -228,6 +228,48 @@ def test_get_wagtail_urls__blog_topic_without_live_articles_excluded(blog_pages)
     assert "/blog/topics/performance/" not in urls
 
 
+def test_get_wagtail_urls__blog_index_without_live_articles_has_no_route_urls(blog_pages):
+    empty_index = BlogIndexPage(title="Empty blog", slug="empty-blog", locale=Locale.get_default())
+    Site.objects.get(is_default_site=True).root_page.add_child(instance=empty_index)
+    empty_index.save_revision().publish()
+
+    urls = get_wagtail_urls()
+
+    assert urls["/empty-blog/"] == ["en-US"]
+    assert not [path for path in urls if path.startswith("/empty-blog/") and path != "/empty-blog/"]
+
+
+def test_get_wagtail_urls__blog_translations_listed_only_when_live_and_public(blog_pages):
+    """A German copy of one article (published, never synced) is listed next to the English
+    one; English-only articles stay English-only, and a draft or private copy is left out."""
+    german = LocaleFactory(language_code="de")
+    Site.objects.get(is_default_site=True).root_page.copy_for_translation(german).save_revision().publish()
+    de_index = blog_pages.copy_for_translation(german)
+    de_index.save_revision().publish()
+    english_article = BlogArticlePage.objects.get(slug="privacy-article")
+    de_topic = english_article.topic.copy_for_translation(german)
+    de_topic.save()
+    de_article = english_article.copy_for_translation(german)
+    de_article.topic = de_topic
+    de_article.save_revision().publish()
+    de_article.refresh_from_db()
+
+    urls = get_wagtail_urls()
+    assert urls["/blog/privacy-article/"] == ["en-US", "de"]
+    assert urls["/blog/topics/privacy/"] == ["en-US", "de"]
+    assert urls["/blog/security-article/"] == ["en-US"]
+    assert urls["/blog/topics/security/"] == ["en-US"]
+
+    PageViewRestriction.objects.create(page=de_index, restriction_type=PageViewRestriction.LOGIN)
+    assert get_wagtail_urls()["/blog/privacy-article/"] == ["en-US"]
+
+    PageViewRestriction.objects.all().delete()
+    de_article.unpublish()
+    urls = get_wagtail_urls()
+    assert urls["/blog/privacy-article/"] == ["en-US"]
+    assert urls["/blog/topics/"] == ["en-US"]
+
+
 @pytest.mark.parametrize(
     "page_url, lang_code, expected",
     (

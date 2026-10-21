@@ -236,6 +236,10 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     url = property(get_url)
 
+    def get_cms_page_locales(self):
+        """Return (all_locales, content_locales) this page is available in."""
+        return compute_cms_page_locales(self)
+
     def _patch_request_for_springfield(self, request):
         "Add hints that help us integrate CMS pages with core Springfield logic"
 
@@ -243,7 +247,7 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
         request.is_cms_page = True
 
         # Patch in a list of available locales for pages that are translations, not just aliases
-        all_locales, content_locales = compute_cms_page_locales(self)
+        all_locales, content_locales = self.get_cms_page_locales()
         request._locales_available_via_cms = all_locales
         request._content_locales_via_cms = content_locales
         return request
