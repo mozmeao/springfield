@@ -310,6 +310,13 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     border-radius: var(--token-border-radius-2xs);
 }
 
+/* A round button that shows only its icon; the label is visually hidden. */
+.fl-button.fl-button-icon-only {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: var(--token-spacing-md);
+}
+
 /* Button icons */
 .fl-button .fl-icon {
     block-size: var(--button-icon-size);

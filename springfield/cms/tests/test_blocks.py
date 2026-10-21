@@ -24,6 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.templatetags.qrcode import qrcode_rounded
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -157,6 +158,7 @@ from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_test_page,
     get_roadmap_page_intro,
 )
+from springfield.cms.fixtures.sharing_links_fixtures import SHARED_URL, get_sharing_links_test_page, get_sharing_links_variants
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page, get_showcase_variants
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
@@ -6583,3 +6585,94 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+def test_sharing_links_block(index_page, rf):
+    page = get_sharing_links_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+
+    # The first section with a heading on the page is the h1, so the upper area's first
+    # section nests its children at h2 and every later section nests them at h3.
+    for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
+        variants = get_sharing_links_variants(content_area)
+        sharing_links = region.find_all("div", class_="fl-sharing-links")
+        assert len(sharing_links) == 2
+
+        for sharing_links_element, variant_name, section_heading, cta_position in zip(
+            sharing_links,
+            ["full", "required_only"],
+            ["All Fields", "Required Fields Only"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content"],
+        ):
+            block_data = variants[variant_name]["value"]
+            analytics_id = block_data["analytics_id"]
+            dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
+
+            url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+            assert url_link["href"] == url_link.get_text(strip=True) == SHARED_URL
+            assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+
+            button_row = sharing_links_element.find("div", class_="fl-buttons")
+            assert "is-horizontal" in button_row["class"]
+
+            copy_button = button_row.find("button", attrs={"data-js": "fl-copy-to-clipboard"})
+            assert "button-primary" in copy_button["class"]
+            assert copy_button["data-copy-value"] == block_data["url"] == SHARED_URL
+            assert copy_button["data-label-success"] == block_data["copy_success_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == block_data["copy_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == block_data["copy_success_label"]
+            assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
+            assert copy_button["data-cta-text"] == f"{section_heading} - {block_data['copy_label']}"
+            assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
+
+            email_link = button_row.find("a", class_="fl-sharing-links-email")
+            assert {"button-primary", "fl-button-icon-only"} <= set(email_link["class"])
+            assert email_link.find("span", class_="visually-hidden").get_text(strip=True) == block_data["email_label"]
+            assert "fl-icon-email" in email_link.find("span", class_="fl-icon")["class"]
+            assert email_link["data-cta-position"] == f"{cta_position}.email"
+            assert email_link["data-cta-text"] == f"{section_heading} - {block_data['email_label']}"
+            assert email_link["data-cta-uid"] == f"{analytics_id}-email"
+            # Percent-decode only, as a mail client does: parse_qs would also turn "+" into a space.
+            mailto_query = email_link["href"].removeprefix("mailto:?")
+            email_params = {key: unquote(raw) for key, raw in (param.split("=", 1) for param in mailto_query.split("&"))}
+            if block_data["email_subject"]:
+                assert email_params == {
+                    "subject": block_data["email_subject"],
+                    "body": f"{block_data['email_body']}\n\n{SHARED_URL}",
+                }
+            else:
+                assert email_params == {"body": SHARED_URL}, "Without a subject or body, the draft carries only the URL"
+
+            qr_button = button_row.find("button", class_="fl-sharing-links-qr")
+            assert {"button-primary", "fl-button-icon-only", "fl-dialog-trigger"} <= set(qr_button["class"])
+            assert qr_button.find("span", class_="visually-hidden").get_text(strip=True) == block_data["qr_label"]
+            assert "fl-icon-qr-code" in qr_button.find("span", class_="fl-icon")["class"]
+            assert qr_button["data-target-id"] == dialog_id
+            assert qr_button["data-cta-position"] == f"{cta_position}.qr-code"
+            assert qr_button["data-cta-text"] == f"{section_heading} - {block_data['qr_label']}"
+            assert qr_button["data-cta-uid"] == f"{analytics_id}-qr-code"
+
+            dialog = sharing_links_element.find("dialog", id=dialog_id)
+            assert "fl-qr-code-dialog" in dialog["class"]
+            assert dialog["aria-label"] == block_data["qr_label"]
+            assert dialog.find("button", class_="fl-dialog-close-button")["aria-label"] == "Close"
+            qr_code_image = dialog.find("div", class_="fl-qr-code-image").find("img")
+            expected_qr_code_image = BeautifulSoup(qrcode_rounded(SHARED_URL), "html.parser").find("img")
+            assert qr_code_image["src"] == expected_qr_code_image["src"], "The QR code encodes the shared URL"
+
+            if variant_name == "full":
+                heading = dialog.find(full_heading_tag, class_="fl-heading")
+                assert heading.get_text(" ", strip=True) == "Scan to open on your phone"
+                assert heading.find("b").get_text(strip=True) == "your phone"
+                qr_text = dialog.find("div", class_="fl-sharing-links-qr-text")
+                assert qr_text.find("p").get_text(strip=True) == "The QR code encodes the same URL the other buttons share."
+            else:
+                assert dialog.find(class_="fl-heading") is None
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
