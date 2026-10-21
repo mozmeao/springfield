@@ -62,6 +62,15 @@
         {% for block in article_sections %}
           {% include_block block %}
         {% endfor %}
+
+        {% if list_articles %}
+          {% set topic_param = '&topic=' ~ topic.slug if topic else '' %}
+          {% set tag_param = '&tag=' ~ tag.slug if tag else '' %}
+          {% set filter_params = topic_param ~ tag_param %}
+          {% set pagination_prev_url = page.url ~ '?page=' ~ list_articles.previous_page_number() ~ filter_params if list_articles.has_previous() else '' %}
+          {% set pagination_next_url = page.url ~ '?page=' ~ list_articles.next_page_number() ~ filter_params if list_articles.has_next() else '' %}
+          {% include "blog/includes/blog-article-list.html" %}
+        {% endif %}
       </div>
     </section>
 
