@@ -7,6 +7,7 @@
 from urllib.parse import urlencode
 from uuid import uuid4
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.db import connection
@@ -163,6 +164,10 @@ def test_superuser_sees_warning_banner(translated_page, admin_client):
 
     assert response.status_code == 200
     assert b"being translated in Smartling into French" in response.content
+    # The banner looks like a warning
+    banners = [message for message in response.context["messages"] if "being translated in Smartling" in str(message)]
+    assert len(banners) == 1
+    assert banners[0].level == messages.WARNING
 
 
 def test_blocked_editor_sees_the_page_and_the_reason(translated_page, editor_publisher, editor_publisher_client):
