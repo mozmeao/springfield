@@ -4,16 +4,17 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<figure class="fl-quote">
+<figure class="fl-quote{% if value.style %} fl-quote-{{ value.style }}{% endif %}">
+  {% if value.style == "pull" %}
+    <span class="fl-quote-mark" aria-hidden="true"></span>
+  {% endif %}
   <blockquote class="fl-body">
     {{ value.quote|richtext }}
   </blockquote>
-  {% if value.author %}
+  {% if value.author or value.authors_title %}
     <figcaption class="fl-quote-author fl-body fl-body-small">
-      <span>{{ value.author }}</span>
-      {% if value.authors_title %}
-        <span class="fl-quote-authors-title">{{ value.authors_title }}</span>
-      {% endif %}
+      {%- if value.author %}<span class="fl-quote-name">{{ value.author }}</span>{% endif -%}
+      {%- if value.authors_title %}<span class="fl-quote-authors-title">{{ value.authors_title }}</span>{% endif -%}
     </figcaption>
   {% endif %}
 </figure>

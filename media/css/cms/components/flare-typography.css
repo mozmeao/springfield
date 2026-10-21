@@ -61,15 +61,6 @@
     margin-block-end: var(--token-spacing-sm);
 }
 
-.fl-rich-text blockquote {
-    border-inline-start: var(--token-spacing-xs) solid
-        var(--token-color-light-purple);
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-body-lg);
-    margin: var(--token-spacing-lg) 0;
-    padding-inline-start: var(--token-spacing-lg);
-}
-
 .fl-rich-text cite {
     color: var(--token-color-link-purple);
     font-size: var(--fl-theme-font-size-body-sm);

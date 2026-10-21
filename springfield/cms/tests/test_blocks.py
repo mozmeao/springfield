@@ -59,6 +59,7 @@ from springfield.cms.blocks import (
     IconListItemValue,
     ImpactDashBlock,
     QRCodeModalButtonBlock,
+    QuoteBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -6760,3 +6761,55 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def _render_quote(**value):
+    block = QuoteBlock()
+    raw = {"quote": '<p data-block-key="q1">The web is for everyone.</p>', **value}
+    return BeautifulSoup(block.render(block.to_python(raw)), "html.parser").find("figure")
+
+
+def test_quote_block_without_style_renders_standard():
+    # Quote blocks saved before the style field existed have no "style" key.
+    figure = _render_quote(author="Ada Lovelace")
+
+    assert figure["class"] == ["fl-quote"]
+    assert figure.find(class_="fl-quote-mark") is None
+    assert "The web is for everyone." in figure.find("blockquote").get_text()
+
+
+@pytest.mark.parametrize("style", ["pull", "passage"])
+def test_quote_block_style_sets_class(style):
+    figure = _render_quote(style=style)
+
+    assert figure["class"] == ["fl-quote", f"fl-quote-{style}"]
+
+
+def test_quote_block_pull_quote_mark_is_hidden_from_screen_readers():
+    figure = _render_quote(style="pull")
+
+    mark = figure.find(class_="fl-quote-mark")
+    assert mark["aria-hidden"] == "true"
+    assert mark.get_text() == ""
+
+
+def test_quote_block_passage_has_no_quote_mark():
+    assert _render_quote(style="passage").find(class_="fl-quote-mark") is None
+
+
+def test_quote_block_attribution_is_optional():
+    assert _render_quote().find("figcaption") is None
+
+
+def test_quote_block_renders_name_and_title():
+    caption = _render_quote(author="Karen Kim", authors_title="product manager for Firefox desktop").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+
+
+def test_quote_block_renders_title_without_name():
+    caption = _render_quote(authors_title="Firefox community").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name") is None
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "Firefox community"
