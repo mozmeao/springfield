@@ -26,13 +26,7 @@
               </div>
             {% endif %}
             {% if value.buttons %}
-              <div class="fl-buttons">
-                {% for button in value.buttons %}
-                  {% set block_position = block_position + "." + "button-" ~ loop.index %}
-                  {% include_block button %}
-                {% endfor %}
-              </div>
-              {% with buttons=value.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
+              {% include_block value.buttons %}
             {% endif %}
           </content:content>
         </include:intro>

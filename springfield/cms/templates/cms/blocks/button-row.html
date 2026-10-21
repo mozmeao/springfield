@@ -8,18 +8,13 @@
 {% set orientation = value.orientation or 'horizontal' %}
 
 <div class="fl-button-row">
-  <div class="
-    fl-buttons
+  {% set buttons_class -%}
     is-{{ orientation }}
     {% if value.alignment %}is-{{ value.alignment }}{% else %}is-center{% endif %}
     {% if value.spacing %}fl-buttons-spacing-{{ value.spacing }}{% endif %}
-    {% if value.auto_width_buttons %}auto-width-buttons{% endif %}">
-    {% for button in value.buttons %}
-      {% set block_position = block_position + "." + "button-" ~ loop.index %}
-      {% include_block button %}
-    {% endfor %}
-  </div>
-  {% with buttons=value.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
+    {% if value.auto_width_buttons %}auto-width-buttons{% endif %}
+  {%- endset %}
+  {% include_block value.buttons %}
   {% if value.help_text %}
     <div class="fl-button-row-help-text">{{ value.help_text|richtext }}</div>
   {% endif %}

@@ -4,10 +4,27 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-buttons">
+{% if wrap_buttons %}<div class="fl-buttons{% if buttons_class %} {{ buttons_class }}{% endif %}">{% endif %}
   {% for button in value %}
-    {% set block_position = block_position + "." + "button-" ~ loop.index %}
+    {% set block_position = block_position + ".button-" ~ loop.index %}
     {% include_block button %}
   {% endfor %}
-</div>
-{% with buttons=value %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
+{% if wrap_buttons %}</div>{% endif %}
+
+{#
+ The privacy notice and marketing opt-out apply to every download in the row,
+ so they render once after it rather than inside each button.
+#}
+{% if show_privacy_notice or show_marketing_opt_out %}
+  <div class="fl-buttons-download-footer">
+    {% if show_privacy_notice %}
+      {# The download button component's class for its own notice, so page and theme styles that target it apply here too. #}
+      <small class="mzp-c-button-download-privacy-link">
+        <a href="https://www.mozilla.org/{{ LANG }}/privacy/firefox/">{{ ftl('download-button-firefox-privacy-notice') }}</a>
+      </small>
+    {% endif %}
+    {% if show_marketing_opt_out %}
+      <include:marketing-opt-out-checkbox analytics_id="{{ opt_out_analytics_id }}" />
+    {% endif %}
+  </div>
+{% endif %}

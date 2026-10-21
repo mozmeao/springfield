@@ -24,11 +24,8 @@
   </content:body>
   {% if value.buttons %}
     <content:buttons>
-      {% for button in value.buttons %}
-        {% set block_position = block_position ~ ".button-" ~ loop.index %}
-        {% include_block button %}
-      {% endfor %}
-      {% with buttons=value.buttons %}{% include "cms/includes/buttons-download-footer.html" %}{% endwith %}
+      {# The step card already wraps its buttons in a row. #}
+      {% with wrap_buttons=False %}{% include_block value.buttons %}{% endwith %}
     </content:buttons>
   {% endif %}
 </include:step-card>

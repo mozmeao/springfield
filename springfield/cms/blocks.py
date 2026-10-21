@@ -1095,42 +1095,61 @@ class ReferralDownloadBlock(blocks.StaticBlock):
         label = "Referral Download CTA"
 
 
-def MixedButtonsBlock(
-    button_types: list,
-    min_num: int,
-    max_num: int,
-    themes=BUTTON_THEMES,
-    label="Buttons",
-    template="cms/blocks/mixed-buttons.html",
-    **kwargs,
-):
+class MixedButtonsBlock(blocks.StreamBlock):
     """
-    Creates a StreamBlock that can contain either regular buttons or UI Tour buttons.
+    A row of buttons of the given types, followed by the privacy notice and
+    marketing opt-out when the row holds a download button.
 
     The min_num and max_num parameters control the total number of buttons (combined).
 
     Example: min_num=0 and max_num=2 allows up to 2 buttons, or up to 2 UI Tour
     buttons, or up to 1 of each.
+
+    The parent template can set `buttons_class` to add classes to the row, or
+    `wrap_buttons=False` when it already wraps the buttons in a row.
     """
-    button_blocks = {
-        BUTTON_TYPE: ButtonBlock(themes=themes),
-        UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
-        SET_AS_DEFAULT_BUTTON: SetAsDefaultButtonBlock(themes=themes),
-        FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
-        DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
-        STORE_BUTTON_TYPE: StoreButtonBlock(),
-        FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
-        QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
-        REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
-    }
-    return blocks.StreamBlock(
-        [(button_type, button_blocks[button_type]) for button_type in button_types],
-        max_num=max_num,
-        min_num=min_num,
-        label=label,
-        template=template,
+
+    def __init__(
+        self,
+        button_types: list,
+        min_num: int,
+        max_num: int,
+        themes=BUTTON_THEMES,
+        label="Buttons",
+        template="cms/blocks/mixed-buttons.html",
         **kwargs,
-    )
+    ):
+        button_blocks = {
+            BUTTON_TYPE: ButtonBlock(themes=themes),
+            UITOUR_BUTTON_TYPE: UITourButtonBlock(themes=themes),
+            SET_AS_DEFAULT_BUTTON: SetAsDefaultButtonBlock(themes=themes),
+            FXA_BUTTON_TYPE: FXAccountButtonBlock(themes=themes),
+            DOWNLOAD_BUTTON_TYPE: DownloadFirefoxButtonBlock(themes=themes),
+            STORE_BUTTON_TYPE: StoreButtonBlock(),
+            FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
+            QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
+            REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
+        }
+        super().__init__(
+            [(button_type, button_blocks[button_type]) for button_type in button_types],
+            max_num=max_num,
+            min_num=min_num,
+            label=label,
+            template=template,
+            **kwargs,
+        )
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context)
+        context.setdefault("wrap_buttons", True)
+        context.setdefault("buttons_class", "")
+        download_buttons = [button for button in value if button.block_type == DOWNLOAD_BUTTON_TYPE]
+        page = context.get("page")
+        context["show_privacy_notice"] = any(button.value["settings"].get("show_extra_links") for button in download_buttons)
+        context["show_marketing_opt_out"] = bool(download_buttons) and getattr(page, "marketing_attribution_active", False)
+        if context["show_marketing_opt_out"]:
+            context["opt_out_analytics_id"] = download_buttons[0].value["settings"]["analytics_id"]
+        return context
 
 
 def ButtonRowBlock(allow_uitour=False, max_buttons=3, **kwargs):

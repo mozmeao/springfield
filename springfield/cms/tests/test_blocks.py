@@ -35,7 +35,9 @@ from springfield.blog.fixtures.blog_fixtures import (
     get_blog_topics,
 )
 from springfield.cms.blocks import (
+    BUTTON_TYPE,
     DETECTED_BROWSER_CHOICES,
+    DOWNLOAD_BUTTON_TYPE,
     ROADMAP_STATUS_LABELS,
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
@@ -57,6 +59,7 @@ from springfield.cms.blocks import (
     IconChoiceBlock,
     IconListItemValue,
     ImpactDashBlock,
+    MixedButtonsBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -855,6 +858,50 @@ class TestDownloadFirefoxButtonBlock:
         value = {"pretranslated_label": None, "custom_label": "", "settings": {}}
         context = download_firefox_button_block.get_context(value)
         assert "button_label" not in context
+
+
+class TestMixedButtonsBlock:
+    """Unit tests for MixedButtonsBlock.get_context()."""
+
+    @pytest.fixture
+    def mixed_buttons_block(self):
+        return MixedButtonsBlock(button_types=[BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE], min_num=0, max_num=3)
+
+    def stream_value(self, block, *download_settings):
+        link = {"type": BUTTON_TYPE, "value": {"pretranslated_label": None, "custom_label": "Learn more", "link": {}, "settings": {}}}
+        downloads = [
+            {"type": DOWNLOAD_BUTTON_TYPE, "value": {"pretranslated_label": None, "custom_label": "Download", "settings": settings}}
+            for settings in download_settings
+        ]
+        return block.to_python([link, *downloads])
+
+    def test_get_context_with_download_on_promoted_page(self, mixed_buttons_block):
+        value = self.stream_value(mixed_buttons_block, {"analytics_id": "first"}, {"analytics_id": "second"})
+        context = mixed_buttons_block.get_context(value, {"page": mock.Mock(marketing_attribution_active=True)})
+        assert context["wrap_buttons"] is True
+        assert context["buttons_class"] == ""
+        assert context["show_privacy_notice"] is True
+        assert context["show_marketing_opt_out"] is True
+        assert context["opt_out_analytics_id"] == "first"
+
+    def test_get_context_without_extra_links_or_page(self, mixed_buttons_block):
+        value = self.stream_value(mixed_buttons_block, {"analytics_id": "first", "show_extra_links": False})
+        context = mixed_buttons_block.get_context(value, {})
+        assert context["show_privacy_notice"] is False
+        assert context["show_marketing_opt_out"] is False
+        assert "opt_out_analytics_id" not in context
+
+    def test_get_context_without_download_buttons(self, mixed_buttons_block):
+        value = self.stream_value(mixed_buttons_block)
+        context = mixed_buttons_block.get_context(value, {"page": mock.Mock(marketing_attribution_active=True)})
+        assert context["show_privacy_notice"] is False
+        assert context["show_marketing_opt_out"] is False
+
+    def test_get_context_keeps_the_parent_template_row_options(self, mixed_buttons_block):
+        value = self.stream_value(mixed_buttons_block)
+        context = mixed_buttons_block.get_context(value, {"wrap_buttons": False, "buttons_class": "is-stacked"})
+        assert context["wrap_buttons"] is False
+        assert context["buttons_class"] == "is-stacked"
 
 
 class TestLabelSourceMixin:
