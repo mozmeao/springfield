@@ -83,7 +83,7 @@ class SpringfieldImageIndexView(IndexView):
 
         images = list(object_list)
         prefetch_related_objects(images, "tags")
-        usages = get_image_usages(images)
+        usages = get_image_usages(images, self.request.user)
         for image in images:
             image.usage = usages.get(image.pk, NO_USAGE)
             image.inline_form = InlineImageForm(instance=image)

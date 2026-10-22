@@ -72,9 +72,21 @@ function replaceCells(row, responseHtml) {
     }
 }
 
-function announceStatus(row, message) {
-    setStatus(row, '');
-    requestAnimationFrame(() => setStatus(row, message));
+// Re-sets the server's status text so screen readers announce it again.
+function announceStatus(row) {
+    const status = row.querySelector(STATUS_SELECTOR);
+    if (!status) {
+        return;
+    }
+    const message = status.textContent;
+    status.textContent = '';
+    requestAnimationFrame(() => {
+        status.textContent = message;
+    });
+}
+
+function serializeForm(form) {
+    return new URLSearchParams(new FormData(form)).toString();
 }
 
 async function saveRow(event) {
@@ -89,12 +101,13 @@ async function saveRow(event) {
     const wagtailConfig = JSON.parse(
         document.getElementById('wagtail-config').textContent
     );
+    const submittedData = serializeForm(form);
     button.disabled = true;
 
     try {
         const response = await fetch(form.action, {
             method: 'POST',
-            body: new FormData(form),
+            body: new URLSearchParams(submittedData),
             headers: {
                 [wagtailConfig.CSRF_HEADER_NAME]: wagtailConfig.CSRF_TOKEN,
                 'X-Requested-With': 'XMLHttpRequest'
@@ -106,8 +119,14 @@ async function saveRow(event) {
         ) {
             throw new Error(`Unexpected response ${response.status}`);
         }
-        replaceCells(row, await response.text());
-        announceStatus(row, response.ok ? 'Saved' : 'Not saved');
+        const responseHtml = await response.text();
+        if (serializeForm(form) !== submittedData) {
+            // Edited while saving: keep the newer edits, which are still unsaved.
+            button.disabled = false;
+            return;
+        }
+        replaceCells(row, responseHtml);
+        announceStatus(row);
         if (response.ok) {
             row.removeAttribute(DIRTY_ATTRIBUTE);
         }
@@ -124,6 +143,13 @@ function confirmDiscardBeforeSwap(event) {
         !window.confirm('Some images have unsaved changes. Discard them?')
     ) {
         event.preventDefault();
+        // Wagtail's swap controller shows its spinner before dispatching this event and
+        // doesn't clear it when the event is cancelled.
+        document
+            .querySelectorAll('[data-w-swap-loading-value="true"]')
+            .forEach((element) => {
+                element.setAttribute('data-w-swap-loading-value', 'false');
+            });
     }
 }
 

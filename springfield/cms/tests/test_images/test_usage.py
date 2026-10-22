@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.contrib.auth import get_user_model
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -87,6 +88,17 @@ def test_a_reference_to_a_deleted_source_is_skipped(make_image, root_page):
     usage = get_image_usages([image])[image.pk]
 
     assert [group.title for group in usage.groups] == ["Kept"]
+
+
+def test_edit_urls_are_left_out_for_a_user_who_cannot_edit(make_image, root_page):
+    image = make_image()
+    page = SimpleRichTextPageFactory(parent=root_page, slug="firefox-home", title="Firefox Home", og_image=image)
+    ReferenceIndex.create_or_update_for_object(page)
+    user_without_permissions = get_user_model().objects.create_user(username="reader")
+
+    usage = get_image_usages([image], user_without_permissions)[image.pk]
+
+    assert usage.groups == [UsageGroup(title="Firefox Home", edit_url=None, locale_count=1, is_snippet=False)]
 
 
 def test_unused_images_have_no_entry(make_image):

@@ -32,11 +32,12 @@ class ImageUsage:
 NO_USAGE = ImageUsage(groups=[], more_count=0)
 
 
-def get_image_usages(images, limit=5):
+def get_image_usages(images, user=None, limit=5):
     """Map each image's pk to the pages and snippets that use it, translations folded together.
 
     Runs one reference query plus one query per source model, however many images there are.
-    Edit URLs are built without permission checks; the edit views enforce permissions.
+    Sources are fetched through the base manager, so a model whose default manager filters
+    some rows out still has those rows counted. Edit URLs are left out where `user` can't edit.
     """
     references = ReferenceIndex.get_references_to_in_bulk(list(images)).values_list("to_object_id", "base_content_type_id", "object_id").distinct()
     source_keys_by_image_id = defaultdict(set)
@@ -50,14 +51,14 @@ def get_image_usages(images, limit=5):
         model = ContentType.objects.get_for_id(content_type_id).model_class()
         if model is None:
             continue
-        sources = model._default_manager.filter(pk__in=object_ids)
+        sources = model._base_manager.filter(pk__in=object_ids)
         if issubclass(model, TranslatableMixin):
             sources = sources.select_related("locale")
         for source in sources:
             sources_by_key[(content_type_id, str(source.pk))] = source
 
     default_locale_id = Locale.get_default().pk
-    url_finder = AdminURLFinder()
+    url_finder = AdminURLFinder(user)
     usages = {}
     for image_id, source_keys in source_keys_by_image_id.items():
         sources = [sources_by_key[key] for key in source_keys if key in sources_by_key]
