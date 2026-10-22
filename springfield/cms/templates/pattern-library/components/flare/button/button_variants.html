@@ -58,4 +58,20 @@
     {% set buttons = stacked.buttons %}
     <include:buttons buttons="{{ stacked.buttons }}" orientation="{{ orientation }}"/>
   </div>
+  <div class="pl-row" data-testid="button-icon-only">
+    <h5>Icon only</h5>
+    <p>The label is visually hidden but still read by screen readers.</p>
+    <div class="fl-buttons is-horizontal">
+      {% for button in icon_only_buttons.buttons %}
+        <include:button
+          theme_class="{{ button.theme_class }}"
+          label="{{ button.label }}"
+          link="{{ button.link }}"
+          icon_name="{{ button.icon_name }}"
+          icon_position="right"
+          icon_only=true
+        />
+      {% endfor %}
+    </div>
+  </div>
 </div>

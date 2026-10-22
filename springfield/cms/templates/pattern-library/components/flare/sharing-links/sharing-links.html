@@ -1,0 +1,36 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame">
+  <div class="pl-row" data-testid="sharing-links-full">
+    <h5>All fields</h5>
+    <include:sharing-links
+      instance_id="pl-sharing-links-full"
+      url="{{ url }}"
+      copy_label="{{ copy_label }}"
+      copy_success_label="{{ copy_success_label }}"
+      email_label="{{ email_label }}"
+      email_subject="{{ email_subject }}"
+      email_body="{{ email_body }}"
+      qr_label="{{ qr_label }}"
+      qr_heading="{{ qr_heading }}"
+      qr_text="{{ qr_text|safe }}"
+    />
+  </div>
+
+  <div class="pl-row" data-testid="sharing-links-required">
+    <h5>Required fields only</h5>
+    <p>Without a subject or body, the email draft holds only the URL, and the QR code modal shows only the code.</p>
+    <include:sharing-links
+      instance_id="pl-sharing-links-required"
+      url="{{ url }}"
+      copy_label="{{ copy_label }}"
+      copy_success_label="{{ copy_success_label }}"
+      email_label="{{ email_label }}"
+      qr_label="{{ qr_label }}"
+    />
+  </div>
+</div>

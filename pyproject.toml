@@ -98,6 +98,9 @@ dev = [
 [tool.uv]
 # Springfield is an application, not an installable package
 package = false
+# Floor matches the `ghcr.io/astral-sh/uv` image in `Dockerfile`. uv carries its own CA roots for
+# PyPI fetches, so an older local uv would resolve and lock against a stale trust store.
+required-version = ">=0.13.4"
 # Avoids packages uploaded in the last 7 days, reducing supply-chain risk. Dependabot's
 # `cooldown` in `.github/dependabot.yml` matches it. This also blocks Dependabot security
 # updates to a release younger than 7 days.
@@ -108,6 +111,10 @@ package = false
 #   3. Run `uv lock`, which only re-resolves the changed package. Commit both files.
 #   4. Once the release is 7 days old, remove the exemption and run `uv lock` again.
 exclude-newer = "7 days"
+# Temporary: certifi 2026.10.19 drops the compromised eMudhra intermediates, so skip the
+# cooldown for it. Remove this line on or after 2026-10-28 (the release was uploaded late on
+# 2026-10-20 UTC) and run `uv lock`, then check certifi is still 2026.10.19.
+exclude-newer-package = { certifi = false }
 
 [tool.ruff]
 line-length = 150

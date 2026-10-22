@@ -33,6 +33,10 @@ test.describe(
             await expectComponentScreenshot(page, 'button-stacked');
         });
 
+        test('icon only', async ({ page }) => {
+            await expectComponentScreenshot(page, 'button-icon-only');
+        });
+
         test.describe('dark mode', () => {
             test.use({ colorScheme: 'dark' });
 
@@ -57,6 +61,14 @@ test.describe(
                     page,
                     'button-stacked',
                     'button-stacked-dark'
+                );
+            });
+
+            test('icon only', async ({ page }) => {
+                await expectComponentScreenshot(
+                    page,
+                    'button-icon-only',
+                    'button-icon-only-dark'
                 );
             });
         });
