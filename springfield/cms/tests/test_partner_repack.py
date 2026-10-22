@@ -13,6 +13,7 @@ from django.test import override_settings
 import pytest
 from wagtail.models import TranslatableMixin
 
+from springfield.cms.fixtures.snippet_fixtures import get_partner_repack_snippet
 from springfield.cms.models import PartnerRepack
 
 pytestmark = [pytest.mark.django_db]
@@ -274,6 +275,14 @@ def test_test_links_list_every_system_and_language_in_order():
 
 def test_test_links_are_empty_without_links():
     assert PartnerRepack(name="Acme", slug="acme").test_links() == []
+
+
+def test_sample_partner_fixture_is_valid_and_published():
+    partner = get_partner_repack_snippet()
+
+    partner.full_clean()
+    assert partner.live
+    assert partner.download_options("de")["mac"]["state"] == "language"
 
 
 def test_partner_repacks_are_included_in_the_db_export():
