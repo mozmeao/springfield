@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING
 from urllib.parse import parse_qs, urlencode, urlsplit
 from uuid import uuid4
@@ -619,39 +618,17 @@ class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
         return f"{self.label} – {self.locale}"
 
 
+# Partner builds only exist on production, so their links ignore `settings.BOUNCER_URL`.
 PARTNER_DOWNLOAD_HOST = "download.mozilla.org"
-# Partner builds only exist on production, so this ignores `settings.BOUNCER_URL`.
-PARTNER_DOWNLOAD_BASE_URL = f"https://{PARTNER_DOWNLOAD_HOST}/"
 
-# Link field: (the `os` its link must carry, the platform whose languages cover it).
-PARTNER_REPACK_LINK_FIELDS = {
-    "windows64_url": ("win64", "windows"),
-    "windows32_url": ("win", "windows"),
-    "mac_url": ("osx", "mac"),
-    "linux_url": ("linux64", "linux"),
+PARTNER_REPACK_LINKS = {
+    "windows64_url": ("windows", "win64", "Windows 64-bit"),
+    "windows32_url": ("windows", "win", "Windows 32-bit"),
+    "mac_url": ("mac", "osx", "Mac"),
+    "linux_url": ("linux", "linux64", "Linux"),
 }
 
-PARTNER_REPACK_OS_LABELS = {
-    "win64": "Windows 64-bit",
-    "win": "Windows 32-bit",
-    "osx": "Mac",
-    "linux64": "Linux",
-}
-
-PARTNER_REPACK_PLATFORMS = {"windows": "Windows", "mac": "Mac", "linux": "Linux"}
-
-# The download-only Mac Japanese code is entered and stored as our site code.
-PARTNER_REPACK_LANGUAGE_ALIASES = {"ja-jp-mac": "ja"}
-
-
-def platform_link_fields(platform: str) -> dict[str, str]:
-    """Map each download link field whose builds are for `platform` to its `os` value."""
-    return {link_field: link_os for link_field, (link_os, link_platform) in PARTNER_REPACK_LINK_FIELDS.items() if link_platform == platform}
-
-
-def split_language_codes(value: str) -> list[str]:
-    """Split a language list on commas and whitespace, dropping empty entries."""
-    return [code for code in re.split(r"[\s,]+", value) if code]
+PARTNER_REPACK_PLATFORMS = ("windows", "mac", "linux")
 
 
 class PartnerRepackLinkLabel(models.TextChoices):
@@ -758,41 +735,40 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
 
     def systems(self) -> str:
         """Name the systems this partner has a download link for, e.g. "Windows, Mac"."""
-        platforms_with_links = {platform for link_field, (link_os, platform) in PARTNER_REPACK_LINK_FIELDS.items() if getattr(self, link_field)}
-        return ", ".join(label for platform, label in PARTNER_REPACK_PLATFORMS.items() if platform in platforms_with_links)
+        return ", ".join(platform.capitalize() for platform in PARTNER_REPACK_PLATFORMS if self.has_link(platform))
 
     systems.short_description = "Systems"
 
-    def languages_for(self, platform: str) -> list[str]:
-        """Return the language codes listed for `platform` ("windows", "mac" or "linux")."""
-        return split_language_codes(getattr(self, f"{platform}_languages"))
+    def has_link(self, platform: str) -> bool:
+        """Return whether any download link is set for `platform` ("windows", "mac" or "linux")."""
+        return any(getattr(self, link_field) for link_field, (link_platform, _, _) in PARTNER_REPACK_LINKS.items() if link_platform == platform)
 
-    def product_for(self, link_field: str) -> tuple[str, str]:
-        """Return the `product` and `os` values of the link stored in `link_field`."""
-        query = parse_qs(urlsplit(getattr(self, link_field)).query)
-        return query.get("product", [""])[0], query.get("os", [""])[0]
+    def languages_for(self, platform: str) -> list[str]:
+        """Return the language codes listed for `platform`, which editors separate with commas or spaces."""
+        return getattr(self, f"{platform}_languages").replace(",", " ").split()
 
     def download_url(self, link_field: str, lang: str) -> str | None:
         """Return the download URL for `link_field` in `lang`, or None if there's no such build."""
-        platform = PARTNER_REPACK_LINK_FIELDS[link_field][1]
+        platform = PARTNER_REPACK_LINKS[link_field][0]
         if not getattr(self, link_field) or lang not in self.languages_for(platform):
             return None
-        product, link_os = self.product_for(link_field)
+        params = parse_qs(urlsplit(getattr(self, link_field)).query)
+        product, link_os = params.get("product", [""])[0], params.get("os", [""])[0]
         # The download server's Mac Japanese build uses its own code.
         download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
-        return f"{PARTNER_DOWNLOAD_BASE_URL}?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
+        return f"https://{PARTNER_DOWNLOAD_HOST}/?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
 
     def download_options(self, lang: str) -> dict[str, dict]:
         """Return each platform's state ("available", "language" or "device") and its URLs for `lang`."""
         options = {}
         for platform in PARTNER_REPACK_PLATFORMS:
             urls = {}
-            for link_field, link_os in platform_link_fields(platform).items():
-                if url := self.download_url(link_field, lang):
+            for link_field, (link_platform, link_os, _) in PARTNER_REPACK_LINKS.items():
+                if link_platform == platform and (url := self.download_url(link_field, lang)):
                     urls[link_os] = url
             if urls:
                 state = "available"
-            elif any(getattr(self, link_field) for link_field in platform_link_fields(platform)):
+            elif self.has_link(platform):
                 state = "language"
             else:
                 state = "device"
@@ -801,29 +777,24 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
 
     def test_links(self) -> list[tuple[str, str, str]]:
         """Return (system, language, URL) for every link and listed language."""
-        links = []
-        for link_field, (link_os, platform) in PARTNER_REPACK_LINK_FIELDS.items():
-            for lang in self.languages_for(platform):
-                if url := self.download_url(link_field, lang):
-                    links.append((PARTNER_REPACK_OS_LABELS[link_os], lang, url))
-        return links
-
-    def clean_fields(self, exclude=None):
-        # Strip pasted values, and lowercase the slug to match the lowercased `p` lookup.
-        for link_field in [*PARTNER_REPACK_LINK_FIELDS, "firefox_user_link_url"]:
-            setattr(self, link_field, getattr(self, link_field).strip())
-        self.slug = self.slug.strip().lower()
-        super().clean_fields(exclude=exclude)
+        return [
+            (system, lang, url)
+            for link_field, (platform, _, system) in PARTNER_REPACK_LINKS.items()
+            for lang in self.languages_for(platform)
+            if (url := self.download_url(link_field, lang))
+        ]
 
     def clean(self):
         super().clean()
+        # The view lowercases `p`, so lowercase slugs also stay unique ignoring case.
+        self.slug = self.slug.lower()
         errors = {}
 
-        for link_field, (expected_os, platform) in PARTNER_REPACK_LINK_FIELDS.items():
-            if getattr(self, link_field) and (error := self.link_error(link_field, expected_os)):
+        for link_field in PARTNER_REPACK_LINKS:
+            if getattr(self, link_field) and (error := self.link_error(link_field)):
                 errors[link_field] = error
 
-        if not any(getattr(self, link_field) for link_field in PARTNER_REPACK_LINK_FIELDS):
+        if not any(self.has_link(platform) for platform in PARTNER_REPACK_PLATFORMS):
             errors[NON_FIELD_ERRORS] = "Add a download link for at least one system."
 
         for platform in PARTNER_REPACK_PLATFORMS:
@@ -838,42 +809,32 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         if errors:
             raise ValidationError(errors)
 
-    def link_error(self, link_field: str, expected_os: str) -> str | None:
+    def link_error(self, link_field: str) -> str | None:
         """Return the problem with the link in `link_field`, or None if it's usable."""
-        if urlsplit(getattr(self, link_field)).hostname != PARTNER_DOWNLOAD_HOST:
+        _, expected_os, system = PARTNER_REPACK_LINKS[link_field]
+        link = urlsplit(getattr(self, link_field))
+        params = parse_qs(link.query)
+        link_os = params.get("os", [""])[0]
+        if link.hostname != PARTNER_DOWNLOAD_HOST:
             return f"Use the {PARTNER_DOWNLOAD_HOST} link supplied by the product team."
-        product, link_os = self.product_for(link_field)
-        if not product:
+        if not params.get("product"):
             return "This link has no product. Paste the full link supplied by the product team."
         if link_os == expected_os:
             return None
-        if link_os in PARTNER_REPACK_OS_LABELS:
-            return f"This link is for {PARTNER_REPACK_OS_LABELS[link_os]} (os={link_os}). Paste it in that field."
-        return f"This link isn't for {PARTNER_REPACK_OS_LABELS[expected_os]}."
+        if other_system := next((label for _, system_os, label in PARTNER_REPACK_LINKS.values() if system_os == link_os), None):
+            return f"This link is for {other_system} (os={link_os}). Paste it in that field."
+        return f"This link isn't for {system}."
 
     def normalize_languages(self, platform: str) -> str | None:
         """Store `platform`'s languages in canonical case without duplicates, or return the problem."""
-        languages_field = f"{platform}_languages"
-        entered = split_language_codes(getattr(self, languages_field))
-        has_link = any(getattr(self, link_field) for link_field in platform_link_fields(platform))
-
-        if has_link and not entered:
+        entered = self.languages_for(platform)
+        if self.has_link(platform) and not entered:
             return "Add the languages this build was made for."
-        if entered and not has_link:
+        if entered and not self.has_link(platform):
             return "Add a download link, or clear these languages."
 
-        canonical_codes = {code.lower(): code for code in settings.PROD_LANGUAGES}
-        canonical_codes.update(PARTNER_REPACK_LANGUAGE_ALIASES)
-        languages = []
-        unknown = []
-        for code in entered:
-            if canonical := canonical_codes.get(code.lower()):
-                if canonical not in languages:
-                    languages.append(canonical)
-            elif code not in unknown:
-                unknown.append(code)
-
-        if unknown:
-            return f"Not a Firefox download language: {', '.join(unknown)}."
-        setattr(self, languages_field, ", ".join(languages))
+        canonical_codes = {code.lower(): code for code in settings.PROD_LANGUAGES} | {"ja-jp-mac": "ja"}
+        if unknown := [code for code in entered if code.lower() not in canonical_codes]:
+            return f"Not a Firefox download language: {', '.join(dict.fromkeys(unknown))}."
+        setattr(self, f"{platform}_languages", ", ".join(dict.fromkeys(canonical_codes[code.lower()] for code in entered)))
         return None

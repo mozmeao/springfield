@@ -114,7 +114,7 @@ def test_slug_is_unique():
 
 
 def test_slug_is_stored_lowercase():
-    partner = make_partner(slug=" Acme ")
+    partner = make_partner(slug="Acme")
     partner.full_clean()
 
     assert partner.slug == "acme"
@@ -126,16 +126,6 @@ def test_slug_is_unique_ignoring_case():
     errors = validation_errors(make_partner(name="Acme again", slug="ACME"))
 
     assert list(errors) == ["slug"]
-
-
-def test_links_are_stored_stripped():
-    partner = make_partner(
-        windows64_url=f"  {ACME_WINDOWS64_URL}\n", firefox_user_link_url=" https://acme.example/ ", firefox_user_link_label="visit"
-    )
-    partner.full_clean()
-
-    assert partner.windows64_url == ACME_WINDOWS64_URL
-    assert partner.firefox_user_link_url == "https://acme.example/"
 
 
 def test_partner_is_not_translatable():
@@ -183,12 +173,11 @@ def test_windows_32_bit_link_alone_is_valid():
     assert partner.languages_for("windows") == ["en-US", "de"]
 
 
-def test_pasted_lang_is_kept_but_not_part_of_the_product():
+def test_pasted_link_with_a_lang_is_kept_as_pasted():
     partner = make_partner(windows64_url=f"{ACME_WINDOWS64_URL}&lang=de")
     partner.full_clean()
 
     assert partner.windows64_url == f"{ACME_WINDOWS64_URL}&lang=de"
-    assert partner.product_for("windows64_url") == (ACME_PRODUCT, "win64")
 
 
 def test_partner_with_every_link_is_valid():
@@ -202,7 +191,7 @@ def test_partner_with_every_link_is_valid():
     )
     partner.full_clean()
 
-    assert partner.product_for("linux_url") == (ACME_PRODUCT, "linux64")
+    assert partner.download_url("linux_url", "en-US") == f"{ACME_LINUX_URL}&lang=en-US"
 
 
 def test_download_url_adds_lang_last():
