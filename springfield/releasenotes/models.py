@@ -7,11 +7,6 @@ import json
 import logging
 import os
 import re
-
-# Only used to build a single output element for Python-Markdown, which itself
-# uses the stdlib etree. Nothing here parses XML, so the XXE concern behind the
-# defusedxml rule does not apply and defusedxml does not export Element anyway.
-import xml.etree.ElementTree as etree  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
 from glob import glob
 from operator import attrgetter
 
@@ -26,7 +21,7 @@ import markdown
 from bs4 import BeautifulSoup
 from django_extensions.db.fields.json import JSONField
 from markdown.extensions import Extension
-from markdown.inlinepatterns import InlineProcessor
+from markdown.inlinepatterns import SimpleTagInlineProcessor
 from product_details import product_details
 from product_details.version_compare import Version
 
@@ -38,17 +33,11 @@ from springfield.releasenotes.utils import memoize
 logger = logging.getLogger(__name__)
 
 
-class StrikethroughInlineProcessor(InlineProcessor):
-    def handleMatch(self, m, data):
-        el = etree.Element("del")
-        el.text = m.group(1)
-        return el, m.start(0), m.end(0)
-
-
 class StrikethroughExtension(Extension):
     def extendMarkdown(self, md):
-        STRIKETHROUGH_PATTERN = r"~~(.*?)~~"  # like ~~elided~~
-        md.inlinePatterns.register(StrikethroughInlineProcessor(STRIKETHROUGH_PATTERN, md), "del", 175)
+        # SimpleTagInlineProcessor wraps group 2 in the tag, hence the empty group 1.
+        STRIKETHROUGH_PATTERN = r"()~~(.*?)~~"  # like ~~elided~~
+        md.inlinePatterns.register(SimpleTagInlineProcessor(STRIKETHROUGH_PATTERN, "del"), "del", 175)
 
 
 LONG_RN_CACHE_TIMEOUT = 7200  # 2 hours
