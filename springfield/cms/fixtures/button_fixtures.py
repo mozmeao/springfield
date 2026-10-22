@@ -364,6 +364,22 @@ def get_button_variants(full=False) -> dict[str, dict]:
             },
             "id": "qrmodal1-0000-0000-0000-000000000002",
         },
+        "video_modal": {
+            "type": "video_modal_button",
+            "value": {
+                "settings": {
+                    "theme": "link",
+                    "icon": "play-fill",
+                    "icon_position": "right",
+                    "analytics_id": "vidmodal-0000-0000-0000-000000000001",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Watch our latest campaign",
+                "video_url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+                "video_title": "Firefox campaign video",
+            },
+            "id": "vidmodal-0000-0000-0000-000000000002",
+        },
     }
     if full:
         index_page = get_flare_blocks_docs_page()
@@ -710,6 +726,27 @@ def get_button_blocks() -> list[dict]:
                 ],
             },
             "id": "qrmodal01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
+                    "heading_text": '<p data-block-key="vidmodal01h">Video Modal Button</p>',
+                    "subheading_text": '<p data-block-key="vidmodal01s">Opens a modal that autoplays a YouTube video. '
+                    "Without JavaScript, the button links to the video on YouTube.</p>",
+                },
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "vidmodal01-0000-0000-0000-000000000002",
+                        "value": [buttons["video_modal"]],
+                    },
+                ],
+            },
+            "id": "vidmodal01-0000-0000-0000-000000000001",
         },
         {
             "type": "intro",

@@ -24,6 +24,7 @@ import setupBrowserTabs from './components/flare-browser-tabs.es6';
 import setupTopicListSidebar from './components/flare-topic-list-sidebar.es6';
 import setupTypewriter, { typewriter } from './components/flare-typewriter.es6';
 import setupVideo from './components/flare-video.es6';
+import setupVideoModals from './components/flare-video-modal.es6';
 import setupPencilBanners from './components/flare-pencil-banner.es6';
 import setupContactForms from './components/flare-contact-form.es6';
 
@@ -49,6 +50,7 @@ function setupComponents() {
     setupTopicListSidebar();
     setupTypewriter();
     setupDialogs();
+    setupVideoModals();
     setupCarousels();
     setupScrollingCardGrid();
     setupCopyToClipboardButtons();
