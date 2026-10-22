@@ -15,7 +15,7 @@ from springfield.cms.models import PartnerRepack
 pytestmark = [pytest.mark.django_db]
 
 ACME_PRODUCT = "partner-firefox-release-acme-acme-001-latest"
-PUBLISHED_MESSAGE = "Published. Visitors see the change within about 20 minutes."
+PUBLISHED_NOTE = "Visitors see the change within about 20 minutes."
 
 
 def partner_form_data(**fields):
@@ -96,7 +96,7 @@ def test_publishing_a_new_partner_says_when_visitors_see_it(admin_client):
     response = admin_client.post(reverse("wagtailsnippets_cms_partnerrepack:add"), {**partner_form_data(), "action-publish": "action-publish"})
 
     assert PartnerRepack.objects.get(slug="acme").live
-    assert success_messages(response) == [PUBLISHED_MESSAGE]
+    assert success_messages(response) == ["Partner download 'Acme' created and published.", PUBLISHED_NOTE]
 
 
 def test_publishing_an_edit_says_when_visitors_see_it(admin_client):
@@ -109,7 +109,7 @@ def test_publishing_an_edit_says_when_visitors_see_it(admin_client):
 
     partner.refresh_from_db()
     assert partner.name == "Acme Inc"
-    assert success_messages(response) == [PUBLISHED_MESSAGE]
+    assert success_messages(response) == ["Partner download 'Acme Inc' updated and published.", PUBLISHED_NOTE]
 
 
 def test_publishing_an_earlier_revision_says_when_visitors_see_it(admin_client):
@@ -125,10 +125,10 @@ def test_publishing_an_earlier_revision_says_when_visitors_see_it(admin_client):
 
     partner.refresh_from_db()
     assert partner.name == "Acme"
-    assert success_messages(response) == [PUBLISHED_MESSAGE]
+    assert success_messages(response)[-1] == PUBLISHED_NOTE
 
 
-def test_saving_a_draft_keeps_the_usual_message(admin_client):
+def test_saving_a_draft_has_no_publish_note(admin_client):
     partner = create_partner(live=True)
 
     response = admin_client.post(reverse("wagtailsnippets_cms_partnerrepack:edit", args=[partner.pk]), partner_form_data(name="Acme Inc"))

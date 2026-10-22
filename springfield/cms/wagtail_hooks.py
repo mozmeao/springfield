@@ -27,7 +27,6 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
-from wagtail.admin.views.generic.mixins import RevisionsRevertMixin
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -35,7 +34,7 @@ from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
-from wagtail.snippets.views.snippets import CreateView, EditView, IndexView, SnippetViewSet
+from wagtail.snippets.views.snippets import IndexView, SnippetViewSet
 from wagtail.whitelist import check_url
 
 from springfield.base.models import TranslatedPagePermission
@@ -726,37 +725,20 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
-class PartnerRepackPublishMessageMixin:
-    """Tells editors how long a published change takes to reach visitors."""
-
-    def get_success_message(self, *args, **kwargs):
-        if self.action == "publish":
-            return "Published. Visitors see the change within about 20 minutes."
-        return super().get_success_message(*args, **kwargs)
-
-
-class PartnerRepackCreateView(PartnerRepackPublishMessageMixin, CreateView):
-    pass
-
-
-class PartnerRepackEditView(PartnerRepackPublishMessageMixin, EditView):
-    pass
-
-
-# The message mixin comes before the revert mixin, which sets its own message.
-class PartnerRepackRevertView(PartnerRepackPublishMessageMixin, RevisionsRevertMixin, EditView):
-    view_name = "revisions_revert"
-
-
 class PartnerRepackViewSet(SnippetViewSet):
     model = PartnerRepack
     menu_label = "Partner downloads"
     icon = "download"
     list_display = ["name", "slug", "systems", LiveStatusTagColumn(), UpdatedAtColumn()]
     search_fields = ["name", "slug"]
-    add_view_class = PartnerRepackCreateView
-    edit_view_class = PartnerRepackEditView
-    revisions_revert_view_class = PartnerRepackRevertView
+
+
+@hooks.register("after_create_snippet")
+@hooks.register("after_edit_snippet")
+def tell_editors_when_partner_downloads_reach_visitors(request, instance):
+    """Add, under Wagtail's publish message, how long a published partner download takes to reach visitors."""
+    if isinstance(instance, PartnerRepack) and "action-publish" in request.POST:
+        messages.success(request, "Visitors see the change within about 20 minutes.")
 
 
 for _viewset in (
