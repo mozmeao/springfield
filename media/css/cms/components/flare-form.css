@@ -119,7 +119,11 @@ fieldset.fl-field-wrap {
     padding-block-end: var(--token-spacing-md);
 }
 
-.fl-form > .fl-fieldset:nth-child(1 of :not([type='hidden'])) > .fl-legend {
+.fl-form
+    > .fl-fieldset:nth-child(
+        1 of :not([type='hidden'], .fl-notification-wrapper)
+    )
+    > .fl-legend {
     border-block-start: 0 none;
     margin-block-start: 0;
 }
