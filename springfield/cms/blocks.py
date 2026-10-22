@@ -3354,6 +3354,15 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             max_num=2,
             required=False,
         )
+        # The referral download CTA renders fixed IDs, so the page allows only one, and only in the first row.
+        buttons_below = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour=allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Buttons below",
+            help_text="A second row of buttons, below the first row and its privacy notice.",
+        )
         media = MediaBlock(
             max_num=1,
             min_num=0,
@@ -3366,7 +3375,7 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             label = "Kit Intro"
             label_format = "{heading}"
             form_layout = blocks.BlockGroup(
-                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "media"],
+                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "buttons_below", "media"],
                 settings=["settings", "scroll_to_see_more_snippet"],
             )
 

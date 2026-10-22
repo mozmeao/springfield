@@ -171,6 +171,12 @@
     text-wrap: balance;
 }
 
+/* The second row of buttons sits the same distance below whatever ends the
+   first row: its buttons, privacy notice or checkbox. */
+.fl-home-intro .fl-intro-content .fl-home-intro-buttons-below {
+    margin-block-start: var(--token-layout-xs);
+}
+
 .fl-home-intro::before {
     aspect-ratio: 4/3;
     background: url('/media/img/firefox/flare/kit-tail-2.svg');
@@ -194,6 +200,10 @@
     contain: paint;
     padding-block-end: 0;
     position: relative;
+}
+
+.fl-split-page-upper:has(.fl-section.has-home-intro-media:last-child) {
+    padding-block-end: 0;
 }
 
 /* The glow is brightest at its centre, so it is centred on the bottom edge
