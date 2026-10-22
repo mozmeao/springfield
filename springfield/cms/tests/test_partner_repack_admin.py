@@ -30,7 +30,7 @@ def partner_form_data(**fields):
         "linux_url": "",
         "linux_languages": "",
         "firefox_user_link_url": "",
-        "firefox_user_link_label": "",
+        "firefox_user_link_label": "visit",
         **fields,
     }
 

@@ -94,7 +94,7 @@
             analytics_text="Continue to firefox.com"
             analytics_position="partner-download"
           />
-          {% if partner.firefox_user_link_url and partner.firefox_user_link_label %}
+          {% if partner.firefox_user_link_url %}
             <include:button
               link="{{ partner.firefox_user_link_url }}"
               label="{{ ftl('partner-download-link-visit', partner=partner_name) if partner.firefox_user_link_label == 'visit' else ftl('partner-download-link-learn-more') }}"

@@ -93,18 +93,6 @@ def test_mac_japanese_code_is_stored_as_ja(platform, japanese_code):
     assert partner.languages_for(platform) == ["de", "ja"]
 
 
-def test_firefox_user_link_needs_a_label():
-    errors = validation_errors(make_partner(firefox_user_link_url="https://acme.example/"))
-
-    assert errors == {"firefox_user_link_label": ["Add a label for this link."]}
-
-
-def test_firefox_user_link_label_needs_a_link():
-    errors = validation_errors(make_partner(firefox_user_link_label="visit"))
-
-    assert errors == {"firefox_user_link_url": ["Add a link for this label."]}
-
-
 def test_slug_is_unique():
     make_partner().save()
 

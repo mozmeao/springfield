@@ -709,7 +709,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         "Button label",
         max_length=20,
         choices=PartnerRepackLinkLabel,
-        blank=True,
+        default=PartnerRepackLinkLabel.VISIT,
         help_text="The button text for the link above.",
     )
 
@@ -799,11 +799,6 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         for platform in PARTNER_REPACK_PLATFORMS:
             if error := self.normalize_languages(platform):
                 errors[f"{platform}_languages"] = error
-
-        if self.firefox_user_link_url and not self.firefox_user_link_label:
-            errors["firefox_user_link_label"] = "Add a label for this link."
-        if self.firefox_user_link_label and not self.firefox_user_link_url:
-            errors["firefox_user_link_url"] = "Add a link for this label."
 
         if errors:
             raise ValidationError(errors)

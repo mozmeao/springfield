@@ -168,8 +168,8 @@ class Migration(migrations.Migration):
                 (
                     "firefox_user_link_label",
                     models.CharField(
-                        blank=True,
                         choices=[("visit", "Visit <display name>"), ("learn_more", "Learn more")],
+                        default="visit",
                         help_text="The button text for the link above.",
                         max_length=20,
                         verbose_name="Button label",
