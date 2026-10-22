@@ -9,7 +9,7 @@
   Requires: feed_index (the BlogIndexPage), feed_topic (optional).
 #}
 
-<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-title') }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('feed_route') }}">
+<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-title').striptags() }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('feed_route') }}">
 {% if feed_topic %}
-<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-topic-title', topic=feed_topic.name) }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('topic_feed_route', args=[feed_topic.slug]) }}">
+<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-topic-title', topic=feed_topic.name).striptags() }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('topic_feed_route', args=[feed_topic.slug]) }}">
 {% endif %}

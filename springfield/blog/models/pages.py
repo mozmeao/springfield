@@ -176,9 +176,9 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         null=True,
         blank=True,
         help_text=(
-            "Articles with these topics or tags are left out of the full article list and the "
-            "latest-articles section, and these tags are hidden on article cards. Topic pages "
-            "and ?tag= links are unaffected."
+            "Articles with these topics or tags are left out of the full article list, the "
+            "latest-articles section and the RSS feeds, and these tags are hidden on article cards. "
+            "Topic pages, their feeds and ?tag= links still show their own topic or tag."
         ),
     )
     article_sections = StreamField(
@@ -767,7 +767,9 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     exclude_from_rss = models.BooleanField(
         default=False,
         verbose_name="Exclude from RSS",
-        help_text="Leave this article out of the blog's RSS feeds. It still shows on the blog.",
+        help_text=(
+            "Leave this article out of the blog's RSS feeds. It still shows on the blog. Translations follow after Sync translated pages and publish."
+        ),
     )
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [

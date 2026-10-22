@@ -55,7 +55,7 @@ def make_article(blog_index, blog_topic):
     """Each new article is published one day after the previous one."""
     numbers = itertools.count(1)
 
-    def make_article(parent=None, **fields):
+    def build_article(parent=None, **fields):
         number = next(numbers)
         fields.setdefault("topic", blog_topic)
         fields.setdefault("first_published_at", datetime(2026, 1, 1, tzinfo=UTC) + timedelta(days=number))
@@ -66,7 +66,7 @@ def make_article(blog_index, blog_topic):
         parent.add_child(instance=article)
         return article
 
-    return make_article
+    return build_article
 
 
 def get_feed(index, rf, topic_slug=None):
@@ -168,7 +168,33 @@ def test_feed_item_content_without_a_hero_image(blog_index, make_article, rf):
     image = get_placeholder_images()[0]
     make_article(image=image, hero_style=HeroStyle.TEXT_ONLY, content=[{"type": "text", "value": "<p>Body.</p>"}])
 
-    assert item_content(blog_index, rf).find("img") is None
+    content = item_content(blog_index, rf)
+
+    assert content.find("img") is None
+    assert content.get_text() == "Body."
+
+
+@pytest.mark.parametrize(
+    "opening_block",
+    [
+        lambda image: {"type": "image_caption", "value": {"image": {"image": image.pk}, "caption": "", "layout": "default"}},
+        lambda image: {"type": "media", "value": [{"type": "image", "value": {"image": image.pk}}]},
+    ],
+    ids=["image_caption", "media"],
+)
+def test_feed_item_content_shows_a_hero_repeated_at_the_top_of_the_body_once(blog_index, make_article, rf, opening_block):
+    image = get_placeholder_images()[0]
+    make_article(image=image, hero_style=HeroStyle.STANDARD_IMAGE, content=[opening_block(image)])
+
+    assert len(item_content(blog_index, rf).find_all("img")) == 1
+
+
+def test_feed_item_content_keeps_a_hero_when_the_body_opens_with_another_image(blog_index, make_article, rf):
+    hero, other = get_placeholder_images()[:2]
+    opening_block = {"type": "media", "value": [{"type": "image", "value": {"image": other.pk}}]}
+    make_article(image=hero, hero_style=HeroStyle.STANDARD_IMAGE, content=[opening_block])
+
+    assert len(item_content(blog_index, rf).find_all("img")) == 2
 
 
 def test_feed_item_content_videos(blog_index, make_article, rf):
@@ -190,27 +216,83 @@ def test_feed_item_content_videos(blog_index, make_article, rf):
     youtube = content.find("a")
     assert youtube["href"] == "https://www.youtube.com/watch?v=abc"
     assert youtube.img["src"].startswith("http://testserver/")
+    assert youtube.img["alt"] == "Demo"
     video = content.find("video")
     assert video["src"] == "https://assets.mozilla.net/demo.webm"
     assert video["poster"].startswith("http://testserver/")
+    assert video["aria-label"] == "Demo"
 
 
-def test_feed_item_content_cards_keep_headings_and_text_but_not_buttons(blog_index, make_article, rf):
-    card_content = [
-        {"type": "heading", "value": {"heading_text": "<p>Card heading</p>"}},
-        {"type": "content", "value": "<p>Card text</p>"},
-        {
-            "type": "buttons",
-            "value": [{"type": "button", "value": {"label": "Download", "link": {"link_to": "custom_url", "custom_url": "https://example.com"}}}],
-        },
-    ]
-    make_article(content=[{"type": "cards_list", "value": {"cards": [{"type": "card", "value": {"media": [], "content": card_content}}]}}])
+def make_card_article(make_article, card_content):
+    return make_article(content=[{"type": "cards_list", "value": {"cards": [{"type": "card", "value": {"media": [], "content": card_content}}]}}])
+
+
+def test_feed_item_content_cards_keep_headings_and_text_but_not_buttons_or_tags(blog_index, make_article, rf):
+    make_card_article(
+        make_article,
+        [
+            {"type": "tags_list", "value": [{"title": "New", "icon": "", "icon_position": "before", "color": "purple"}]},
+            {"type": "heading", "value": {"heading_text": "<p>Card heading</p>"}},
+            {"type": "content", "value": "<p>Card text</p>"},
+            {
+                "type": "buttons",
+                "value": [{"type": "button", "value": {"label": "Download", "link": {"link_to": "custom_url", "custom_url": "https://example.com"}}}],
+            },
+        ],
+    )
 
     content = item_content(blog_index, rf)
 
     assert content.find("h3").get_text() == "Card heading"
     assert content.find("p").get_text() == "Card text"
     assert "Download" not in content.get_text()
+    assert "New" not in content.get_text()
+
+
+def test_feed_item_content_leaves_out_cards_shown_only_to_some_visitors(blog_index, make_article, rf):
+    cards = [
+        {"type": "card", "value": {"media": [], "content": [{"type": "content", "value": "<p>For everyone</p>"}]}},
+        {
+            "type": "card",
+            "value": {
+                "settings": {"show_to": {"platforms": ["windows"]}},
+                "media": [],
+                "content": [{"type": "content", "value": "<p>Windows only</p>"}],
+            },
+        },
+    ]
+    make_article(content=[{"type": "cards_list", "value": {"cards": cards}}])
+
+    assert item_content(blog_index, rf).get_text() == "For everyone"
+
+
+def test_feed_item_content_card_heading_keeps_its_superheading_and_subheading(blog_index, make_article, rf):
+    heading = {"superheading_text": "<p>Super</p>", "heading_text": "<p>Card heading</p>", "subheading_text": "<p>Sub</p>"}
+    make_card_article(make_article, [{"type": "heading", "value": heading}])
+
+    content = item_content(blog_index, rf)
+
+    assert [tag.get_text() for tag in content.find_all(["p", "h3"])] == ["Super", "Card heading", "Sub"]
+
+
+def test_feed_item_content_card_pictogram_shows_its_image(blog_index, make_article, rf):
+    image = get_placeholder_images()[0]
+    make_card_article(make_article, [{"type": "pictogram", "value": {"image": image.pk}}])
+
+    assert item_content(blog_index, rf).find("img")["src"].startswith("http://testserver/")
+
+
+def test_feed_item_content_card_testimonial_is_a_quote(blog_index, make_article, rf):
+    testimonial = {"content": "<p>Love it.</p>", "attribution": "<p>Ada</p>", "attribution_role": "<p>Countess</p>"}
+    make_card_article(make_article, [{"type": "testimonial", "value": testimonial}])
+
+    assert item_content(blog_index, rf).blockquote.get_text() == "Love it.— Ada, Countess"
+
+
+def test_feed_item_content_card_testimonial_without_attribution(blog_index, make_article, rf):
+    make_card_article(make_article, [{"type": "testimonial", "value": {"content": "<p>Love it.</p>"}}])
+
+    assert item_content(blog_index, rf).blockquote.get_text() == "Love it."
 
 
 def test_feed_item_content_video_hero(blog_index, make_article, rf):
@@ -251,7 +333,9 @@ def test_feed_item_content_animation_and_pictogram_show_their_images(blog_index,
 
     content = item_content(blog_index, rf)
 
-    assert len(content.find_all("img")) == 2
+    animation_poster, pictogram = content.find_all("img")
+    assert animation_poster["alt"] == "Loop"
+    assert pictogram["alt"] == image.default_alt_text
     assert content.find("video") is None
 
 
@@ -260,10 +344,11 @@ def test_feed_item_content_youtube_without_a_poster_is_a_link(blog_index, make_a
         content=[{"type": "media", "value": [{"type": "video", "value": {"video_url": "https://youtu.be/abc", "alt": "Demo", "poster": None}}]}]
     )
 
-    link = item_content(blog_index, rf).find("a")
+    content = item_content(blog_index, rf)
 
-    assert link["href"] == "https://youtu.be/abc"
-    assert link.get_text() == "Demo"
+    assert content.a["href"] == "https://youtu.be/abc"
+    assert content.a.get_text() == "Demo"
+    assert content.find(["figure", "img"]) is None
 
 
 def test_feed_item_content_skips_a_deleted_image(blog_index, make_article, rf):
@@ -306,10 +391,33 @@ def test_feed_item_urls_use_the_site_host_not_the_request_host(blog_index, make_
     assert content.a["href"] == f"{article.full_url}#details"
 
 
+ATOM_LINK = "{http://www.w3.org/2005/Atom}link"
+
+
+def test_feed_self_link_uses_the_site_host_not_the_request_host(blog_index, rf):
+    response = blog_index.feed_route(rf.get(blog_index.url + "feed/", HTTP_HOST="origin.internal"))
+
+    assert parse_feed(response).find(ATOM_LINK).get("href") == blog_index.full_url + "feed/"
+
+
+def test_topic_feed_self_link_uses_the_site_host_not_the_request_host(blog_index, blog_topic, rf):
+    request = rf.get(blog_index.url + "topics/test-unit-privacy/feed/", HTTP_HOST="origin.internal")
+
+    response = blog_index.topic_feed_route(request, blog_topic.slug)
+
+    assert parse_feed(response).find(ATOM_LINK).get("href") == blog_index.full_url + "topics/test-unit-privacy/feed/"
+
+
 def test_every_body_block_type_has_a_feed_renderer():
     body_block_types = set(BlogArticlePage._meta.get_field("content").stream_block.child_blocks)
 
     assert body_block_types == set(BODY_BLOCK_RENDERERS)
+
+
+def test_feed_item_description_is_the_summary(blog_index, make_article, rf):
+    make_article(image=get_placeholder_images()[0], description="<p>Summary.</p>")
+
+    assert parse_feed(get_feed(blog_index, rf)).find("item").findtext("description") == "<p>Summary.</p>"
 
 
 def test_feed_item_description_falls_back_to_the_search_description(blog_index, make_article, rf):
@@ -327,16 +435,27 @@ def test_feed_item_description_falls_back_to_a_body_excerpt(blog_index, make_art
     assert description == f"<p>{' '.join(words[:55])} […]</p>"
 
 
-def test_feed_item_content_resolves_anchors_against_the_article(blog_index, make_article, rf):
-    article = make_article(content=[{"type": "text", "value": '<p><a href="#details">Jump</a></p>'}])
+def test_feed_item_body_excerpt_without_text_blocks_reads_the_rest_of_the_body(blog_index, make_article, rf):
+    card = {"type": "card", "value": {"media": [], "content": [{"type": "content", "value": "<p>Card text.</p>"}]}}
+    make_article(
+        content=[
+            {"type": "cards_list", "value": {"cards": [card]}},
+            {"type": "code", "value": {"code": "const x = 1;"}},
+            {"type": "quote", "value": {"quote": "<p>Quoted.</p>"}},
+        ]
+    )
 
-    assert item_content(blog_index, rf).a["href"] == f"{article.full_url}#details"
+    description = parse_feed(get_feed(blog_index, rf)).find("item").findtext("description")
+
+    assert description == "<p>Card text. Quoted.</p>"
 
 
-def test_feed_item_description_is_the_summary(blog_index, make_article, rf):
-    make_article(image=get_placeholder_images()[0], description="<p>Summary.</p>")
+def test_feed_item_body_excerpt_prefers_text_blocks(blog_index, make_article, rf):
+    make_article(content=[{"type": "quote", "value": {"quote": "<p>Quoted.</p>"}}, {"type": "text", "value": "<p>Body.</p>"}])
 
-    assert parse_feed(get_feed(blog_index, rf)).find("item").findtext("description") == "<p>Summary.</p>"
+    description = parse_feed(get_feed(blog_index, rf)).find("item").findtext("description")
+
+    assert description == "<p>Body.</p>"
 
 
 def test_feed_leaves_out_unpublished_and_private_articles(blog_index, make_article, rf):
@@ -465,6 +584,14 @@ def test_topic_route_links_to_both_feeds(blog_index, blog_topic, rf):
         ("Firefox Blog", blog_index.url + "feed/"),
         ("Privacy – Firefox Blog", blog_index.url + "topics/test-unit-privacy/feed/"),
     ]
+
+
+def test_topic_feed_link_title_escapes_quotes(blog_index, rf):
+    topic = BlogTopic.objects.create(name='The "Private" Web & more', slug="test-unit-private-web", locale=blog_index.locale)
+
+    response = blog_index.topic_route(rf.get(blog_index.url + "topics/test-unit-private-web/"), topic.slug)
+
+    assert feed_links(response)[1] == ('The "Private" Web & more – Firefox Blog', blog_index.url + "topics/test-unit-private-web/feed/")
 
 
 def test_article_links_to_the_feed(blog_index, make_article, rf):
