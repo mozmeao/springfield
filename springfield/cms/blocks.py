@@ -3339,8 +3339,6 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             )
         )
 
-    button_types = get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download)
-
     class _KitIntroBlock(blocks.StructBlock):
         settings = KitBlockSettings()
         scroll_to_see_more_snippet = LocalizedLiveSnippetChooserBlock(
@@ -3351,13 +3349,14 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            button_types=button_types,
+            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
             min_num=0,
             max_num=2,
             required=False,
         )
+        # The referral download CTA renders fixed IDs, so the page allows only one, and only in the first row.
         buttons_below = MixedButtonsBlock(
-            button_types=button_types,
+            button_types=get_button_types(allow_uitour=allow_uitour),
             min_num=0,
             max_num=2,
             required=False,
