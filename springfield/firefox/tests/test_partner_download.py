@@ -86,24 +86,24 @@ def test_unpublished_partner_forwards_to_thanks(client, acme):
     assert response["Location"] == "/en-US/thanks/"
 
 
-@pytest.mark.parametrize("p", ["ACME", "acme%20"])
-def test_partner_link_name_ignores_case_and_spaces(client, acme, p):
-    response = client.get(f"/en-US/get/?p={p}")
+@pytest.mark.parametrize("link_name", ["ACME", "acme%20"])
+def test_partner_link_name_ignores_case_and_spaces(client, acme, link_name):
+    response = client.get(f"/en-US/get/?p={link_name}")
 
     assert response.status_code == 200
     assert response.context["partner"] == acme
 
 
 @pytest.mark.parametrize(
-    "p, reason",
+    "link_name, reason",
     [("", "missing"), ("nobody", "unknown"), ("acme", "inactive")],
 )
-def test_forwarding_counts_the_reason_without_the_link_name(client, acme, p, reason):
+def test_forwarding_counts_the_reason_without_the_link_name(client, acme, link_name, reason):
     acme.live = False
     acme.save()
 
     with MetricsMock() as metrics_mock:
-        client.get(f"/en-US/get/?p={p}")
+        client.get(f"/en-US/get/?p={link_name}")
 
     metrics_mock.assert_incr_once("springfield.partner_download.unknown", tags=[f"reason:{reason}"])
 

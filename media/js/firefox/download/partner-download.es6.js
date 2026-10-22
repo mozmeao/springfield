@@ -156,13 +156,18 @@ PartnerDownload.waitForAttribution = (
             clearTimeout(timer);
             attribution.successCallback = undefined;
             attribution.timeoutCallback = undefined;
-            window.dataLayer.push({
-                event: 'widget_action',
-                type: 'direct-attribution',
-                action: status,
-                non_interaction: true
-            });
             resolve(status);
+
+            try {
+                window.dataLayer.push({
+                    event: 'widget_action',
+                    type: 'direct-attribution',
+                    action: status,
+                    non_interaction: true
+                });
+            } catch (error) {
+                // Analytics never blocks the download.
+            }
         };
 
         attribution.successCallback = () => finish('success');

@@ -10,15 +10,8 @@
 
 {% extends "cms/base-flare.html" %}
 
-{# Distinct English titles avoid duplicate search results. #}
 {%- block page_title_full -%}
-  {%- if LANG == 'en-US' -%}
-    Get Firefox for desktop by Mozilla (US)
-  {%- elif LANG == 'en-GB' -%}
-    Download Firefox for Desktop by Mozilla (UK)
-  {%- else -%}
-    {{ ftl('firefox-desktop-download-meta-title-v2', fallback='firefox-desktop-download-meta-title') }}
-  {%- endif -%}
+  {{ ftl('firefox-desktop-download-meta-title-v2', fallback='firefox-desktop-download-meta-title') }}
 {%- endblock -%}
 
 {% block page_title_suffix %}{% endblock %}

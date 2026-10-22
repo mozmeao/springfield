@@ -397,6 +397,25 @@ describe('partner-download.es6.js', function () {
             ]);
         });
 
+        it('should still download when the data layer throws', async function () {
+            visitOn('osx');
+            renderPage('device', 'available', 'device', [['osx', OSX_URL]]);
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
+            spyOn(window.dataLayer, 'push').and.throwError('GTM failed');
+
+            PartnerDownload.begin();
+            await flushPromises();
+            signedCookie = SIGNED;
+            window.Mozilla.DownloadAttribution.successCallback();
+            await flushPromises();
+            jasmine.clock().tick(1000);
+            await flushPromises();
+
+            expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                `${OSX_URL}&attribution_code=code123&attribution_sig=sig456`
+            );
+        });
+
         it('should stop waiting when an in-flight signing request times out', async function () {
             visitOn('osx');
             renderPage('device', 'available', 'device', [['osx', OSX_URL]]);

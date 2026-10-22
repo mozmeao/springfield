@@ -136,7 +136,10 @@ def test_saving_a_draft_keeps_the_usual_message(admin_client):
     assert success_messages(response) == ["Partner download 'Acme Inc' updated."]
 
 
-TEST_LINKS_HELP = "The exact links visitors get. Click each one and check that a download starts before you publish."
+TEST_LINKS_HELP = (
+    "The download link for each system and language, before any attribution is added. "
+    "Click each one and check that a download starts before you publish."
+)
 
 
 def find_test_links_help(response):
