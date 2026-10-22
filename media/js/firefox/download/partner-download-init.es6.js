@@ -6,9 +6,4 @@
 
 import PartnerDownload from './partner-download.es6';
 
-window.Mozilla.Utils.onDocumentReady(() => {
-    PartnerDownload.begin();
-});
-
-// A hint for test automation that the page has loaded, as on /thanks/.
-document.documentElement.classList.add('download-ready');
+window.Mozilla.Utils.onDocumentReady(() => PartnerDownload.begin());

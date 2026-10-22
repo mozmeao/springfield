@@ -41,10 +41,6 @@ def partner_urls(soup):
     return {link["href"].split("os=")[1].split("&")[0]: link["href"] for link in soup.select(f'a[href*="{ACME_PRODUCT}"]')}
 
 
-def heading(soup, state):
-    return soup.select_one(f"section.state-{state} h1").get_text(strip=True)
-
-
 @pytest.fixture
 def acme():
     return make_partner(windows64_url=partner_link("win64"), windows_languages="en-US")
@@ -182,7 +178,6 @@ def test_alias_locale_without_its_build_offers_regular_firefox(client):
     soup = render_page(client, "/en-CA/get/?p=acme")
 
     assert soup.find("main")["data-windows"] == "language"
-    assert soup.select_one("section.state-5")
     assert partner_urls(soup) == {}
 
 
@@ -227,19 +222,17 @@ def test_partner_urls_stay_on_the_production_server(client, settings):
     soup = render_page(client, "/de/get/?p=acme")
 
     assert partner_urls(soup)["win64"].startswith("https://download.mozilla.org/?")
-    linux_option = soup.select_one("section.state-9 a.os_linux64")
+    linux_option = soup.select_one('section[data-state="linux_device"] a.os_linux64')
     assert linux_option["href"].startswith("https://bouncer.stage.example/")
 
 
 def test_messages_name_the_partner(client):
-    make_partner(windows64_url=partner_link("win64"), windows_languages="en-US", linux_url=partner_link("linux64"), linux_languages="en-US")
-    language_soup = render_page(client, "/de/get/?p=acme")
-    PartnerRepack.objects.all().delete()
-    make_partner(mac_url=partner_link("osx"), mac_languages="de")
-    device_soup = render_page(client, "/de/get/?p=acme")
+    make_partner(**WINDOWS_DE)
 
-    for soup, state in [(language_soup, 5), (language_soup, 8), (device_soup, 1), (device_soup, 6), (device_soup, 9), (device_soup, 10)]:
-        assert "from Acme" in heading(soup, state)
+    soup = render_page(client, "/de/get/?p=acme")
+
+    for state in ["language", "device", "linux_language", "linux_device"]:
+        assert "from Acme" in soup.select_one(f'section[data-state="{state}"] h1').get_text(strip=True)
 
 
 def test_partner_name_is_escaped(client):
@@ -247,7 +240,7 @@ def test_partner_name_is_escaped(client):
 
     soup = render_page(client, "/de/get/?p=acme")
 
-    language_heading = soup.select_one("section.state-5 h1")
+    language_heading = soup.select_one('section[data-state="language"] h1')
     assert "from <b>Acme</b> & Co" in language_heading.get_text()
     assert language_heading.find("b") is None
 
@@ -256,7 +249,7 @@ def test_partner_name_is_escaped(client):
 def test_link_for_current_firefox_users_uses_its_label(client, label, expected_text):
     make_partner(**WINDOWS_DE, firefox_user_link_url="https://acme.example/", firefox_user_link_label=label)
 
-    links = render_page(client, "/de/get/?p=acme").select("section.state-2 a")
+    links = render_page(client, "/de/get/?p=acme").select('section[data-state="firefox"] a')
 
     assert [(link.get_text(strip=True), link["href"]) for link in links] == [
         ("Continue to firefox.com", "/de/"),
@@ -267,7 +260,7 @@ def test_link_for_current_firefox_users_uses_its_label(client, label, expected_t
 def test_current_firefox_users_only_continue_without_a_partner_link(client):
     make_partner(**WINDOWS_DE)
 
-    links = render_page(client, "/de/get/?p=acme").select("section.state-2 a")
+    links = render_page(client, "/de/get/?p=acme").select('section[data-state="firefox"] a')
 
     assert [(link.get_text(strip=True), link["href"]) for link in links] == [("Continue to firefox.com", "/de/")]
 
@@ -286,15 +279,27 @@ def test_markup_for_the_page_script(client):
     soup = render_page(client, "/de/get/?p=acme")
 
     main = soup.find("main")
+    sections = soup.select("section[data-state]")
+    assert [section["data-state"] for section in sections] == [
+        "download",
+        "linux",
+        "firefox",
+        "language",
+        "device",
+        "linux_language",
+        "linux_device",
+        "unsupported_os",
+    ]
+    assert all(section.has_attr("hidden") for section in sections)
     assert (main["data-partner"], main["data-lang"]) == ("acme", "de")
-    assert (main["data-windows"], main["data-mac"], main["data-linux"]) == ("available", "available", "available")
+    assert (main["data-windows"], main["data-osx"], main["data-linux"]) == ("available", "available", "available")
     repack_links = soup.select(".c-partner-download-links a")
     assert [(link["class"], link["data-download-version"]) for link in repack_links] == [
         (["download-link"], "win64"),
         (["download-link"], "win"),
         (["download-link"], "osx"),
     ]
-    linux_link = soup.select_one(f'section.state-7 a[href*="{ACME_PRODUCT}"]')
+    linux_link = soup.select_one(f'section[data-state="linux"] a[href*="{ACME_PRODUCT}"]')
     assert "download-link" not in linux_link["class"]
     assert not linux_link.has_attr("data-download-version")
 

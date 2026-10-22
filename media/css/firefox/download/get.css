@@ -5,22 +5,7 @@
  */
 
 @layer page {
-    /* The page script sets `data-state`; without JS only the fallback shows. */
-    .c-partner-download-state {
-        display: none;
-    }
-
-    .no-js .c-partner-download .state-nojs,
-    .c-partner-download[data-state='1'] .state-1,
-    .c-partner-download[data-state='2'] .state-2,
-    .c-partner-download[data-state='3'] .state-3,
-    .c-partner-download[data-state='4'] .state-4,
-    .c-partner-download[data-state='5'] .state-5,
-    .c-partner-download[data-state='6'] .state-6,
-    .c-partner-download[data-state='7'] .state-7,
-    .c-partner-download[data-state='8'] .state-8,
-    .c-partner-download[data-state='9'] .state-9,
-    .c-partner-download[data-state='10'] .state-10 {
+    .no-js .c-partner-download [data-state='unsupported_os'] {
         display: block;
     }
 
