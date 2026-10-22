@@ -58,7 +58,6 @@ from springfield.cms.blocks import (
     IconChoiceBlock,
     IconListItemValue,
     ImpactDashBlock,
-    KitIntroBlock,
     QRCodeModalButtonBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
@@ -76,7 +75,6 @@ from springfield.cms.blocks import (
     validate_youtube_url,
     youtube_video_id,
 )
-from springfield.cms.fixtures import block_factories
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
     get_article_theme_hub_page,
@@ -3183,8 +3181,9 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
 
     intro_divs = upper.find_all("div", class_="fl-home-intro")
     assert len(intro_divs) == len(variants)
+    kit_intro_block_numbers = [block_number for block_number, block in enumerate(page.upper_content, 1) if block.block_type == "kit_intro"]
 
-    for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+    for index, (intro_el, variant, block_number) in enumerate(zip(intro_divs, variants, kit_intro_block_numbers)):
         value = variant["value"]
         section = intro_el.find_parent("section")
 
@@ -3217,19 +3216,27 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             superheading = intro_el.find("p", class_="fl-superheading")
             assert superheading and superheading_text in superheading.get_text()
 
-        buttons = value["buttons"]
+        # The buttons below render as a second row after the first, with their own analytics positions.
+        expected_buttons = [(button, f"button-{button_index + 1}") for button_index, button in enumerate(value["buttons"])]
+        expected_buttons += [(button, f"button-below-{button_index + 1}") for button_index, button in enumerate(value.get("buttons_below", []))]
         button_elements = intro_el.find_all("a", class_="fl-button")
-        assert len(button_elements) == len(buttons)
-        for button_index, button in enumerate(buttons):
-            cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
+        assert len(button_elements) == len(expected_buttons)
+        for button_element, (button, position_label) in zip(button_elements, expected_buttons):
+            cta_position = f"upper-block-{block_number}-kit_intro.{position_label}"
             cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
-                button_element=button_elements[button_index],
+                button_element=button_element,
                 button_data=button,
                 context=context,
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+        buttons_below_row = intro_el.find("div", class_="fl-home-intro-buttons-below")
+        if value.get("buttons_below"):
+            assert len(buttons_below_row.find_all("a", class_="fl-button")) == len(value["buttons_below"])
+        else:
+            assert buttons_below_row is None
 
     # The Kit Intro block isn't allowed on the lower section
     assert not lower.find_all("div", class_="fl-home-intro")
@@ -6753,46 +6760,3 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
-
-
-# Kit Intro buttons below
-
-
-def render_kit_intro(rf, buttons, buttons_below):
-    block = KitIntroBlock()
-    value = block.to_python(
-        {
-            "heading": block_factories.heading_value("kitintro", "Kit Intro"),
-            "buttons": buttons,
-            "buttons_below": buttons_below,
-        }
-    )
-    return BeautifulSoup(block.render(value, context=_render_context(rf.get("/"))), "html.parser")
-
-
-def link_button(block_id):
-    return block_factories.button(block_id, block_id.title(), f"{block_id}-analytics-id", url="https://www.firefox.com/", theme="link")
-
-
-@pytest.mark.parametrize(
-    "first_row, expected_positions",
-    [
-        (["first"], ["block-1-intro.button-1", "block-1-intro.button-below-1"]),
-        ([], ["block-1-intro.button-below-1"]),
-    ],
-)
-def test_kit_intro_buttons_below_have_their_own_analytics_positions(first_row, expected_positions, rf):
-    soup = render_kit_intro(rf, [link_button(block_id) for block_id in first_row], [link_button("below")])
-
-    assert [button["data-cta-position"] for button in soup.select(".fl-buttons .fl-button")] == expected_positions
-
-
-def test_kit_intro_buttons_below_follow_the_first_rows_download_extras(rf):
-    download = block_factories.download_button("first", "Get Firefox", "first-analytics-id")
-    soup = render_kit_intro(rf, [download], [link_button("below")])
-
-    first_row, second_row = soup.select(".fl-intro-content > .fl-buttons")
-    extras = first_row.find("div", class_="fl-download-firefox-button-extras")
-    assert extras.find("a", href=lambda href: href and "/privacy/firefox/" in href)
-    assert "fl-home-intro-buttons-below" in second_row["class"]
-    assert not second_row.find("div", class_="fl-download-firefox-button-extras")
