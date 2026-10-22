@@ -3065,6 +3065,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                     "media_content",
                     MediaContentBlock(allow_uitour=allow_uitour),
                 ),
+                ("form_content", FormContentBlock()),
                 ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
@@ -4138,6 +4139,49 @@ class ContactFormBlock(blocks.StructBlock):
             params.pop("two_column", None)
         context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
         return context
+
+
+class FormContentBlock(blocks.StructBlock):
+    """A contact page's form beside a heading and content. On mobile the form always follows the content."""
+
+    form_before = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Form Before",
+        help_text="Place the form before the text content on desktop. On mobile the form always comes after the content.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    form = ContactFormBlock()
+    heading = HeadingBlock(required=False)
+    content = blocks.StreamBlock(
+        [
+            ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+            ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
+            (
+                "buttons",
+                MixedButtonsBlock(
+                    button_types=get_button_types(allow_uitour=True),
+                    min_num=0,
+                    max_num=2,
+                    required=False,
+                ),
+            ),
+            ("sharing_links", SharingLinksBlock()),
+        ]
+    )
+
+    class Meta:
+        icon = "form"
+        label = "Form + Content"
+        label_format = "{heading}"
+        template = "cms/blocks/form-content.html"
+        form_layout = blocks.BlockGroup(
+            children=["form", "heading", "content"],
+            settings=["form_before", "show_to"],
+        )
 
 
 # Navigation

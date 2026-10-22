@@ -1,0 +1,19 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# Wrap the form + content block in a section container to use it without the section heading and CTA #}
+
+<include:conditional-display
+  condition_settings="{{ value.show_to }}">
+
+  <section class="fl-section">
+    <div class="fl-section-container">
+      {% set conditional_display_handled = True %}
+      {% include "cms/blocks/form-content.html" %}
+    </div>
+  </section>
+
+</include:conditional-display>
