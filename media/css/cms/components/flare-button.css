@@ -401,6 +401,17 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     justify-content: inherit;
 }
 
+/* A width-capped extra, like the opt-out, can fit beside the buttons, so the
+   extras take a full line of their own whenever one of them is shown. Rows
+   that stack their buttons, including every row in a card, already do. */
+.fl-buttons:not(.is-stacked, .fl-card .fl-buttons)
+    > .fl-download-firefox-button-extras:has(> :not(.hidden)) {
+    display: flex;
+    flex-basis: 100%;
+    flex-flow: row wrap;
+    gap: inherit;
+}
+
 .fl-buttons.is-stacked:not(.auto-width-buttons) > * {
     inline-size: 100%;
 }
