@@ -1,0 +1,14 @@
+name: Sharing Links
+context:
+  url: "https://www.firefox.com/enterprise/"
+  copy_label: "Copy link"
+  copy_success_label: "Link copied!"
+  email_label: "Share by email"
+  email_subject: "Take a look at Firefox for Enterprise"
+  # The URL is appended to the body when the email draft is built.
+  email_body: >-
+    Firefox for Enterprise gives your team a fast, private browser with the
+    policies and controls IT needs.
+  qr_label: "Show QR code"
+  qr_heading: "Scan to open on your phone"
+  qr_text: "<p>Point your phone's camera at the code to open the link.</p>"

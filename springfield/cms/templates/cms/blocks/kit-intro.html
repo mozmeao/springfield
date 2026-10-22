@@ -26,12 +26,12 @@
               </div>
             {% endif %}
             {% if value.buttons %}
-              <div class="fl-buttons">
-                {% for button in value.buttons %}
-                  {% set block_position = block_position + "." + "button-" ~ loop.index %}
-                  {% include_block button %}
-                {% endfor %}
-              </div>
+              {% include_block value.buttons %}
+            {% endif %}
+            {% if value.buttons_below %}
+              {% with buttons_class="fl-home-intro-buttons-below", button_position_label="button-below" %}
+                {% include_block value.buttons_below %}
+              {% endwith %}
             {% endif %}
           </content:content>
         </include:intro>

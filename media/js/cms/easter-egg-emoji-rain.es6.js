@@ -5,15 +5,9 @@
  */
 
 /*
-  Loaded site-wide behind the `easter-egg-emoji-rain` waffle switch. Visitors
-  arriving from the Toronto engineering summit stickers
-  (`?utm_team=web+martech`) get a short shower of Toronto, Canada and Firefox
-  emojis falling down the page. To retire the easter egg, flip the switch off.
+   Loading this bundle starts a short shower of Toronto, Canada, and Firefox
+   emojis unless the visitor prefers reduced motion.
 */
-
-const TRIGGER_PARAM = 'utm_team';
-// `URLSearchParams` decodes the `+` in the sticker URL to a space.
-const TRIGGER_VALUE = 'web martech';
 
 const EMOJIS = [
     // Toronto
@@ -53,14 +47,6 @@ function randomBetween(min, max) {
 
 function randomEmoji() {
     return EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-}
-
-/**
- * Returns `true` when the query string carries the summit sticker's
- * `utm_team` value.
- */
-function isWebMartechVisit(search) {
-    return new URLSearchParams(search).get(TRIGGER_PARAM) === TRIGGER_VALUE;
 }
 
 function createRainContainer() {
@@ -138,9 +124,6 @@ function startEmojiRain() {
 }
 
 function initEmojiRain() {
-    if (!isWebMartechVisit(window.location.search)) {
-        return;
-    }
     if (
         window.matchMedia &&
         window.matchMedia('(prefers-reduced-motion: reduce)').matches

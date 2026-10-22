@@ -127,6 +127,7 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 }
 
 .fl-button.button-link:focus-visible {
+    color: var(--button-text-color-hover);
     outline: none;
     text-decoration: none;
 }
@@ -310,6 +311,13 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     border-radius: var(--token-border-radius-2xs);
 }
 
+/* A round button that shows only its icon; the label is visually hidden. */
+.fl-button.fl-button-icon-only {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: var(--token-spacing-md);
+}
+
 /* Button icons */
 .fl-button .fl-icon {
     block-size: var(--button-icon-size);
@@ -363,15 +371,34 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     inline-size: auto;
 }
 
-.fl-buttons > *:not(.fl-set-as-default-dialog, .fl-qr-code-modal-wrapper) {
+.fl-buttons
+    > *:not(
+        .fl-set-as-default-dialog,
+        .fl-qr-code-modal-wrapper,
+        .fl-video-modal-wrapper
+    ) {
     display: inline-flex;
 }
 
 .fl-buttons > .fl-download-firefox-button {
-    display: flex;
-    flex-direction: column;
-    inline-size: 100%;
+    display: contents;
+}
+
+.fl-buttons > .fl-download-firefox-button-extras > * {
+    flex-basis: 100%;
+}
+
+.fl-buttons.is-center > .fl-download-firefox-button-extras {
     text-align: center;
+}
+
+.fl-buttons.is-end > .fl-download-firefox-button-extras {
+    text-align: end;
+}
+
+.fl-buttons > .fl-download-firefox-button-extras,
+.fl-buttons > .fl-download-firefox-button-extras > .default-browser-label {
+    justify-content: inherit;
 }
 
 .fl-buttons.is-stacked:not(.auto-width-buttons) > * {
@@ -444,12 +471,6 @@ Copy-to-Clipboard Button
    that sizing */
 .fl-copy-to-clipboard-button .is-hidden {
     visibility: hidden;
-}
-
-@media (--viewport-sm-up) {
-    .fl-buttons > .fl-download-firefox-button {
-        inline-size: auto;
-    }
 }
 
 /* =====================================================================

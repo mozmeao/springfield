@@ -1,0 +1,17 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. #}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% load i18n l10n wagtailadmin_tags %}
+<td {% if column.classname %}class="{{ column.classname }}"{% endif %} data-listing-page-title>
+  <div class="title-wrapper">
+    {% fragment as page_title %}
+      <span id="page_{{ instance.pk|unlocalize|admin_urlquote }}_title">{{ instance.get_admin_display_title }}</span>
+    {% endfragment %}
+    {% if page_perms.can_edit %}
+      <a href="{% url 'wagtailadmin_pages:edit' instance.id %}" title="{% trans 'Edit this page' %}">{{ page_title }}</a>
+    {% else %}
+      {{ page_title }}
+    {% endif %}
+    {% include "wagtailadmin/pages/listing/_privacy_indicator.html" with page=instance %}
+    {% include "wagtailadmin/pages/listing/_locked_indicator.html" with page=instance %}
+  </div>
+</td>

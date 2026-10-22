@@ -47,3 +47,85 @@
 .fl-dialog-content-text {
     padding-block: var(--token-spacing-lg);
 }
+
+/* Video modal: a 16:9 player, with the close button above it so it doesn't
+   cover YouTube's own controls. */
+.fl-video-dialog {
+    background: var(--token-color-black-4);
+    color: var(--token-color-white);
+    inline-size: calc(100% - 2 * var(--token-spacing-lg));
+    margin-block: auto;
+    max-inline-size: var(--token-width-desktop-wide-banner);
+    padding: var(--token-spacing-sm);
+    padding-block-start: var(--token-spacing-3xl);
+    translate: 0 var(--token-spacing-xl);
+}
+
+/* Fade the backdrop in, and fade the player in while it rises. allow-discrete
+   keeps the dialog in the top layer until the close transition finishes. */
+.fl-video-dialog,
+.fl-video-dialog::backdrop {
+    opacity: 0;
+    transition:
+        opacity 300ms ease-out,
+        translate 300ms ease-out,
+        display 300ms allow-discrete,
+        overlay 300ms allow-discrete;
+}
+
+.fl-video-dialog[open],
+.fl-video-dialog[open]::backdrop {
+    opacity: 1;
+}
+
+.fl-video-dialog[open] {
+    translate: 0 0;
+}
+
+@starting-style {
+    .fl-video-dialog[open],
+    .fl-video-dialog[open]::backdrop {
+        opacity: 0;
+    }
+
+    .fl-video-dialog[open] {
+        translate: 0 var(--token-spacing-xl);
+    }
+}
+
+/* Keep the fade, drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+    .fl-video-dialog,
+    .fl-video-dialog[open] {
+        translate: none;
+    }
+
+    @starting-style {
+        .fl-video-dialog[open] {
+            translate: none;
+        }
+    }
+}
+
+.fl-video-dialog .fl-dialog-close-button {
+    color: inherit;
+    inset-block-start: var(--token-spacing-sm);
+    inset-inline-end: var(--token-spacing-sm);
+}
+
+/* The player's corners follow the dialog's, inset by its padding. */
+.fl-video-dialog-frame {
+    aspect-ratio: 16 / 9;
+    border-radius: calc(
+        var(--token-border-radius-md) - var(--token-spacing-sm)
+    );
+    inline-size: 100%;
+    overflow: hidden;
+}
+
+.fl-video-dialog-frame iframe {
+    block-size: 100%;
+    border: 0;
+    display: block;
+    inline-size: 100%;
+}

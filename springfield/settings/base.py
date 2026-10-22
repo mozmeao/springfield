@@ -750,7 +750,7 @@ ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDL
 
 # Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
 # Secret in webservices-infra), requests carrying the same token in the
-# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# X-Mozilla-Ops-Canary header receive HTTP 500. Used to force user-facing
 # 5xx for testing Fastly's failover cascade without breaking the /healthz/
 # probe. When unset (the default in every environment) the middleware is a
 # no-op and this setting has no effect.
@@ -1193,8 +1193,11 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
     # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
-    # requests; keep it out of Sentry events so the token cannot leak via error reports.
-    "X-Mozilla-Ops-Canary",
+    # requests; keep it out of Sentry events so the token cannot leak via error
+    # reports. Must be lowercase: DesensitizationProcessor lowercases the event
+    # key before doing a substring match, but does NOT lowercase the configured
+    # blocklist entries, so a mixed-case entry here would never match.
+    "x-mozilla-ops-canary",
     # `ref_key` is a referral ID and `invitation` is its invite code, the plaintext
     # and ciphertext of the FF1 mapping. Both arrive as query params on public
     # pages, so the Django integration puts them in `request.query_string` on any

@@ -103,6 +103,8 @@ class OtherPage(Page):
 
 * When a block has its data structure changed, make sure that a data migration is created to handle the new format.
 
+* If the PR adds or modifies something CMS editors interact with (a new or changed StreamField block or block field in springfield/cms/blocks.py, a new or changed page type in springfield/cms/models/pages.py, a new or changed snippet in springfield/cms/models/snippets.py, or the equivalents in springfield/blog/), check that it adds a dated entry to CMS_CHANGELOG.md. If the entry is missing, add a blocking comment. Refactors and changes that editors cannot see do not need an entry.
+
 ## 10. Database schema changes
 
 * We use Django migrations to manage database schema state and also sometimes to adjust data. Django migrations are the ONLY permissible way to change database schema.

@@ -24,6 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.templatetags.qrcode import qrcode_rounded
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -69,7 +70,10 @@ from springfield.cms.blocks import (
     UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
+    VideoModalButtonBlock,
     icon_display_label,
+    validate_youtube_url,
+    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -157,6 +161,7 @@ from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_test_page,
     get_roadmap_page_intro,
 )
+from springfield.cms.fixtures.sharing_links_fixtures import SHARED_URL, get_sharing_links_test_page, get_sharing_links_variants
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page, get_showcase_variants
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
@@ -219,7 +224,15 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = [
+    "button",
+    "uitour_button",
+    "fxa_button",
+    "set_as_default_button",
+    "focus_button",
+    "qr_code_modal_button",
+    "video_modal_button",
+]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -249,6 +262,10 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
         value["url"] = "https://www.mozilla.org/firefox/mobile/"
         value["heading"] = "Get Firefox on your phone"
         value["content"] = "Take Firefox with you."
+    elif btn_type == "video_modal_button":
+        block = VideoModalButtonBlock()
+        value["video_url"] = "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        value["video_title"] = "Firefox campaign video"
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -422,12 +439,37 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
+        # In a row of buttons the checkbox is placed after the buttons; on its own it follows the link directly.
+        checkbox_container = button_element.find_parent("div", class_="fl-buttons") or button_element.parent
+        checkbox_label = checkbox_container.find("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
         checkbox = checkbox_label.find("input", {"type": "checkbox", "class": "default-browser-checkbox"})
         assert checkbox and checkbox["id"] == id_
+
+
+def assert_video_modal_button_attributes(button_element: BeautifulSoup, button_data: dict, cta_position: str, cta_text: str):
+    value = button_data["value"]
+    settings = value["settings"]
+
+    assert value["custom_label"] in button_element.get_text()
+    assert "fl-video-modal-trigger" in button_element["class"]
+    assert f"button-{settings['theme']}" in button_element["class"]
+    assert button_element.find("span", class_=f"fl-icon-{settings['icon']}")
+    # A real link, so the video still opens on YouTube without JavaScript.
+    assert button_element["href"] == value["video_url"]
+    assert button_element["data-cta-position"] == cta_position
+    assert button_element["data-cta-text"] == cta_text
+    assert button_element["data-cta-uid"] == settings["analytics_id"]
+
+    # flare-video-modal.es6.js opens the dialog that follows each trigger.
+    dialog = button_element.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
+    assert dialog["aria-label"] == value["video_title"]
+    assert dialog.find("button", class_="fl-dialog-close-button")
+    # The player is only added by JavaScript when the dialog opens.
+    assert dialog.find("div", class_="fl-video-dialog-frame")
+    assert dialog.find("iframe") is None
 
 
 def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
@@ -1229,6 +1271,13 @@ def test_buttons(index_page, rf):
                         assert button_element["href"] == play_store_url(context, "focus", campaign)
                     else:
                         assert button_element["href"] == app_store_url(context, "focus", campaign)
+                elif button_data["type"] == "video_modal_button":
+                    assert_video_modal_button_attributes(
+                        button_element=button_element,
+                        button_data=button_data,
+                        cta_position=f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
+                        cta_text=f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
+                    )
 
             # Store buttons render as fl-store-button, exclude those inside download wrappers
             store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]
@@ -3077,11 +3126,12 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
                 cta_wrap = gallery.find("div", class_="fl-section-cta-wrap")
                 assert cta_wrap
                 gallery_heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
-                for button_data in variant["value"]["cta"]:
+                cta_elements = cta_wrap.find_all("a", class_="fl-button")
+                for cta_index, button_data in enumerate(variant["value"]["cta"]):
                     if button_data["type"] == "button":
-                        button_el = cta_wrap.find("a", class_="fl-button")
+                        button_el = cta_elements[cta_index]
                         cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
-                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
+                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta-{cta_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,
@@ -3131,8 +3181,9 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
 
     intro_divs = upper.find_all("div", class_="fl-home-intro")
     assert len(intro_divs) == len(variants)
+    kit_intro_block_numbers = [block_number for block_number, block in enumerate(page.upper_content, 1) if block.block_type == "kit_intro"]
 
-    for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+    for index, (intro_el, variant, block_number) in enumerate(zip(intro_divs, variants, kit_intro_block_numbers)):
         value = variant["value"]
         section = intro_el.find_parent("section")
 
@@ -3165,19 +3216,27 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             superheading = intro_el.find("p", class_="fl-superheading")
             assert superheading and superheading_text in superheading.get_text()
 
-        buttons = value["buttons"]
+        # The buttons below render as a second row after the first, with their own analytics positions.
+        expected_buttons = [(button, f"button-{button_index + 1}") for button_index, button in enumerate(value["buttons"])]
+        expected_buttons += [(button, f"button-below-{button_index + 1}") for button_index, button in enumerate(value.get("buttons_below", []))]
         button_elements = intro_el.find_all("a", class_="fl-button")
-        assert len(button_elements) == len(buttons)
-        for button_index, button in enumerate(buttons):
-            cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
+        assert len(button_elements) == len(expected_buttons)
+        for button_element, (button, position_label) in zip(button_elements, expected_buttons):
+            cta_position = f"upper-block-{block_number}-kit_intro.{position_label}"
             cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
-                button_element=button_elements[button_index],
+                button_element=button_element,
                 button_data=button,
                 context=context,
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+        buttons_below_row = intro_el.find("div", class_="fl-home-intro-buttons-below")
+        if value.get("buttons_below"):
+            assert len(buttons_below_row.find_all("a", class_="fl-button")) == len(value["buttons_below"])
+        else:
+            assert buttons_below_row is None
 
     # The Kit Intro block isn't allowed on the lower section
     assert not lower.find_all("div", class_="fl-home-intro")
@@ -6583,3 +6642,121 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+def test_sharing_links_block(index_page, rf):
+    page = get_sharing_links_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+
+    # The first section with a heading on the page is the h1, so the upper area's first
+    # section nests its children at h2 and every later section nests them at h3.
+    for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
+        variants = get_sharing_links_variants(content_area)
+        sharing_links = region.find_all("div", class_="fl-sharing-links")
+        assert len(sharing_links) == 2
+
+        for sharing_links_element, variant_name, section_heading, cta_position in zip(
+            sharing_links,
+            ["full", "required_only"],
+            ["All Fields", "Required Fields Only"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content"],
+        ):
+            block_data = variants[variant_name]["value"]
+            analytics_id = block_data["analytics_id"]
+            dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
+
+            url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+            assert url_link["href"] == url_link.get_text(strip=True) == SHARED_URL
+            assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+
+            button_row = sharing_links_element.find("div", class_="fl-buttons")
+            assert "is-horizontal" in button_row["class"]
+
+            copy_button = button_row.find("button", attrs={"data-js": "fl-copy-to-clipboard"})
+            assert "button-primary" in copy_button["class"]
+            assert copy_button["data-copy-value"] == block_data["url"] == SHARED_URL
+            assert copy_button["data-label-success"] == block_data["copy_success_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == block_data["copy_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == block_data["copy_success_label"]
+            assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
+            assert copy_button["data-cta-text"] == f"{section_heading} - {block_data['copy_label']}"
+            assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
+
+            email_link = button_row.find("a", class_="fl-sharing-links-email")
+            assert {"button-primary", "fl-button-icon-only"} <= set(email_link["class"])
+            assert email_link.find("span", class_="visually-hidden").get_text(strip=True) == block_data["email_label"]
+            assert "fl-icon-email" in email_link.find("span", class_="fl-icon")["class"]
+            assert email_link["data-cta-position"] == f"{cta_position}.email"
+            assert email_link["data-cta-text"] == f"{section_heading} - {block_data['email_label']}"
+            assert email_link["data-cta-uid"] == f"{analytics_id}-email"
+            # Percent-decode only, as a mail client does: parse_qs would also turn "+" into a space.
+            mailto_query = email_link["href"].removeprefix("mailto:?")
+            email_params = {key: unquote(raw) for key, raw in (param.split("=", 1) for param in mailto_query.split("&"))}
+            if block_data["email_subject"]:
+                assert email_params == {
+                    "subject": block_data["email_subject"],
+                    "body": f"{block_data['email_body']}\n\n{SHARED_URL}",
+                }
+            else:
+                assert email_params == {"body": SHARED_URL}, "Without a subject or body, the draft carries only the URL"
+
+            qr_button = button_row.find("button", class_="fl-sharing-links-qr")
+            assert {"button-primary", "fl-button-icon-only", "fl-dialog-trigger"} <= set(qr_button["class"])
+            assert qr_button.find("span", class_="visually-hidden").get_text(strip=True) == block_data["qr_label"]
+            assert "fl-icon-qr-code" in qr_button.find("span", class_="fl-icon")["class"]
+            assert qr_button["data-target-id"] == dialog_id
+            assert qr_button["data-cta-position"] == f"{cta_position}.qr-code"
+            assert qr_button["data-cta-text"] == f"{section_heading} - {block_data['qr_label']}"
+            assert qr_button["data-cta-uid"] == f"{analytics_id}-qr-code"
+
+            dialog = sharing_links_element.find("dialog", id=dialog_id)
+            assert "fl-qr-code-dialog" in dialog["class"]
+            assert dialog["aria-label"] == block_data["qr_label"]
+            assert dialog.find("button", class_="fl-dialog-close-button")["aria-label"] == "Close"
+            qr_code_image = dialog.find("div", class_="fl-qr-code-image").find("img")
+            expected_qr_code_image = BeautifulSoup(qrcode_rounded(SHARED_URL), "html.parser").find("img")
+            assert qr_code_image["src"] == expected_qr_code_image["src"], "The QR code encodes the shared URL"
+
+            if variant_name == "full":
+                heading = dialog.find(full_heading_tag, class_="fl-heading")
+                assert heading.get_text(" ", strip=True) == "Scan to open on your phone"
+                assert heading.find("b").get_text(strip=True) == "your phone"
+                qr_text = dialog.find("div", class_="fl-sharing-links-qr-text")
+                assert qr_text.find("p").get_text(strip=True) == "The QR code encodes the same URL the other buttons share."
+            else:
+                assert dialog.find(class_="fl-heading") is None
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+
+
+# Video Modal Button
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://youtu.be/aqz-KE-bpKQ?si=abc", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/shorts/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/embed/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/@firefox", None),
+        ("https://www.youtube.com/watch", None),
+        ("https://example.com/watch?v=aqz-KE-bpKQ", None),
+        ("", None),
+    ],
+)
+def test_youtube_video_id(url, expected):
+    assert youtube_video_id(url) == expected
+
+
+def test_validate_youtube_url_rejects_non_video_urls():
+    assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
+    with pytest.raises(ValidationError):
+        validate_youtube_url("https://www.youtube.com/@firefox")

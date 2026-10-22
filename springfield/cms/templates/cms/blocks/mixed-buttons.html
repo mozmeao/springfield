@@ -4,9 +4,32 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-<div class="fl-buttons">
+{#
+  Render all buttons in a row. If a download button is present, it gets rendered without
+  extras, and the extras are shown below the row. Each extra is displayed when any download
+  button in the row includes it.
+#}
+
+{% set download_buttons = value.blocks_by_name("download_button") %}
+{% set default_browser_button = download_buttons|selectattr("value.settings.show_default_browser_checkbox")|first %}
+{% set shows_default_browser_checkbox = default_browser_button is defined %}
+{% set shows_extra_links = download_buttons|selectattr("value.settings.show_extra_links")|list|length > 0 %}
+{% set button_position_label = button_position_label|default("button") %}
+{% set buttons_class = buttons_class|default("") %}
+
+<div class="fl-buttons {{ buttons_class }}">
   {% for button in value %}
-    {% set block_position = block_position + "." + "button-" ~ loop.index %}
-    {% include_block button %}
+    {% with block_position = block_position ~ "." ~ button_position_label ~ "-" ~ loop.index, download_button_without_extras = True %}
+      {% include_block button %}
+    {% endwith %}
   {% endfor %}
+  {% if download_buttons %}
+    <include:download-firefox-button
+      extras_only=true
+      analytics_id="{{ (default_browser_button or download_buttons[0]).value.settings.analytics_id }}"
+      show_default_browser_checkbox="{{ shows_default_browser_checkbox }}"
+      enable_marketing_attribution="{{ 'true' if page is defined and page.marketing_attribution_active else '' }}"
+      exclude_unsupported_content="{{ not shows_extra_links }}"
+    />
+  {% endif %}
 </div>
