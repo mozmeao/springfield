@@ -2,17 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from io import BytesIO
 from unittest.mock import Mock, patch
 
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.test import TestCase, override_settings
 
 import pytest
 from bs4 import BeautifulSoup
 from markupsafe import escape
-from PIL import Image as PillowImage
 from wagtail.images.forms import get_image_form
 from wagtail.images.jinja2tags import image as render_image, srcset_image as render_srcset_image
 
@@ -136,23 +133,6 @@ def test_image_form_does_not_fill_the_title_from_the_file_name():
     assert "data-controller" not in file_attrs
     assert form.fields["title"].required
     assert not form["title"].value()
-
-
-@pytest.fixture
-def make_image():
-    """Build one saved SpringfieldImage, with the rendition pre-generation stubbed out."""
-
-    def build(**fields):
-        buffer = BytesIO()
-        PillowImage.new("RGB", (400, 300), (117, 79, 224)).save(buffer, format="PNG")
-        buffer.seek(0)
-        with patch.object(SpringfieldImage, "_pre_generate_expected_renditions"):
-            return SpringfieldImage.objects.create(
-                file=ContentFile(buffer.read(), "placeholder.png"),
-                **{"title": "Firefox logo", "description": "The Firefox logo", **fields},
-            )
-
-    return build
 
 
 def find_img(rendered):
