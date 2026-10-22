@@ -30,7 +30,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 PartnerDownload.isX64 = () => {
     const site = window.site;
     const userAgentData = navigator.userAgentData;
-    const fromUserAgent = () => site.archSize === 64;
+    const fromUserAgent = () => site.getArchSize() === 64;
     if (
         site.platform !== 'windows' ||
         !userAgentData ||
@@ -71,6 +71,14 @@ PartnerDownload.findLink = (container, platform, x64) => {
 };
 
 /**
+ * Whether this is an ARM machine, which can't run a partner's 64-bit Linux build.
+ * @returns {Boolean}
+ */
+PartnerDownload.isArm = () =>
+    /\b(arm|aarch64)/i.test(navigator.platform) ||
+    /\b(arm|aarch64)/i.test(navigator.userAgent);
+
+/**
  * Pick the state to show: the partner download, or why the visitor can't have it.
  * @param {Object} site - `window.site`
  * @param {Object} builds - each platform's build state: "available", "language" or "device"
@@ -86,7 +94,10 @@ PartnerDownload.getState = (site, builds, link) => {
         return 'firefox';
     }
     if (platform === 'linux') {
-        return builds.linux === 'available' ? 'linux' : `linux_${builds.linux}`;
+        if (builds.linux === 'available') {
+            return PartnerDownload.isArm() ? 'linux_device' : 'linux';
+        }
+        return `linux_${builds.linux}`;
     }
     if (platform !== 'windows' && platform !== 'osx') {
         return 'device';
@@ -114,9 +125,22 @@ PartnerDownload.waitForAttribution = (deadline) => {
     if (!signing) {
         return Promise.resolve();
     }
+    // Chain any callbacks already registered, so other scripts still get them.
+    const previousSuccess = attribution.successCallback;
+    const previousTimeout = attribution.timeoutCallback;
     const signed = new Promise((resolve) => {
-        attribution.successCallback = () => resolve('success');
-        attribution.timeoutCallback = () => resolve('timeout');
+        attribution.successCallback = () => {
+            if (typeof previousSuccess === 'function') {
+                previousSuccess();
+            }
+            resolve('success');
+        };
+        attribution.timeoutCallback = () => {
+            if (typeof previousTimeout === 'function') {
+                previousTimeout();
+            }
+            resolve('timeout');
+        };
     });
     return Promise.race([signed, deadline.then(() => 'timeout')]).then(
         (action) => {
@@ -167,12 +191,20 @@ PartnerDownload.sendUnavailableEvent = (container, reason) => {
         download_language: container.getAttribute('data-lang'),
         reason: reason
     };
-    window.dataLayer.push(
-        Object.assign({ event: 'partner_download_unavailable' }, props, {
-            non_interaction: true
-        })
-    );
-    Plausible.trackEvent('partner_download_unavailable', props);
+    try {
+        window.dataLayer.push(
+            Object.assign({ event: 'partner_download_unavailable' }, props, {
+                non_interaction: true
+            })
+        );
+    } catch (error) {
+        // Analytics never blocks the page.
+    }
+    try {
+        Plausible.trackEvent('partner_download_unavailable', props);
+    } catch (error) {
+        // Analytics never blocks the page.
+    }
 };
 
 /**
@@ -206,49 +238,68 @@ PartnerDownload.startDownload = (link) => {
 };
 
 /**
+ * Unhide the section for `state` and hide the rest.
+ * @param {HTMLElement} container
+ * @param {String} state
+ */
+PartnerDownload.showState = (container, state) => {
+    for (const section of container.querySelectorAll('section[data-state]')) {
+        section.hidden = section.getAttribute('data-state') !== state;
+    }
+};
+
+/**
  * Show the visitor's state, and download the partner build when there's one for their machine.
  * @returns {Promise<String>} the state shown
  */
 PartnerDownload.begin = () => {
     const container = document.querySelector('.c-partner-download');
+    if (!container) {
+        return Promise.resolve(null);
+    }
     const downloadDelay = wait(DOWNLOAD_DELAY_MS);
     const attributionDeadline = wait(ATTRIBUTION_WAIT_MS);
 
-    return PartnerDownload.isX64().then((x64) => {
-        const link = PartnerDownload.findLink(
-            container,
-            window.site.platform,
-            x64
-        );
-        const state = PartnerDownload.getState(
-            window.site,
-            container.dataset,
-            link
-        );
-
-        for (const section of container.querySelectorAll(
-            'section[data-state]'
-        )) {
-            section.hidden = section.getAttribute('data-state') !== state;
-        }
-
-        if (state === 'download') {
-            return Promise.all([
-                downloadDelay,
-                PartnerDownload.waitForAttribution(attributionDeadline)
-            ]).then(() => {
-                PartnerDownload.startDownload(link);
-                return state;
-            });
-        }
-        if (UNAVAILABLE_REASONS[state]) {
-            PartnerDownload.sendUnavailableEvent(
+    return Promise.resolve()
+        .then(() => PartnerDownload.isX64())
+        .then((x64) => {
+            const link = PartnerDownload.findLink(
                 container,
-                UNAVAILABLE_REASONS[state]
+                window.site.platform,
+                x64
             );
-        }
-        return state;
-    });
+            const state = PartnerDownload.getState(
+                window.site,
+                container.dataset,
+                link
+            );
+            PartnerDownload.showState(container, state);
+
+            if (state === 'download') {
+                return Promise.all([
+                    downloadDelay,
+                    PartnerDownload.waitForAttribution(attributionDeadline)
+                ]).then(() => {
+                    PartnerDownload.startDownload(link);
+                    return state;
+                });
+            }
+            if (UNAVAILABLE_REASONS[state]) {
+                PartnerDownload.sendUnavailableEvent(
+                    container,
+                    UNAVAILABLE_REASONS[state]
+                );
+            }
+            return state;
+        })
+        .catch(() => {
+            // Never leave the page blank: fall back to the regular Firefox download.
+            if (!container.querySelector('section[data-state]:not([hidden])')) {
+                PartnerDownload.showState(container, 'device');
+                return 'device';
+            }
+            return null;
+        });
 };
 
 export default PartnerDownload;

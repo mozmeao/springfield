@@ -155,6 +155,7 @@ describe('partner-download.es6.js', function () {
         });
 
         it('should show the partner Linux button, or why Linux has no build', function () {
+            spyOn(PartnerDownload, 'isArm').and.returnValue(false);
             for (const linux of ['available', 'language', 'device']) {
                 expect(
                     PartnerDownload.getState(
@@ -164,6 +165,14 @@ describe('partner-download.es6.js', function () {
                     )
                 ).toBe(linux === 'available' ? 'linux' : `linux_${linux}`);
             }
+        });
+
+        it('should send ARM Linux to the regular Linux options', function () {
+            spyOn(PartnerDownload, 'isArm').and.returnValue(true);
+
+            expect(
+                PartnerDownload.getState(site('linux'), allAvailable, null)
+            ).toBe('linux_device');
         });
 
         it('should treat other platforms as an unbuilt device', function () {
@@ -224,7 +233,8 @@ describe('partner-download.es6.js', function () {
             originalSite = window.site;
             window.site = Object.assign({}, originalSite, {
                 platform: 'windows',
-                archSize: 32
+                archSize: 32,
+                getArchSize: () => 32
             });
         });
 
@@ -265,11 +275,22 @@ describe('partner-download.es6.js', function () {
             expect(x64).toBeFalse();
         });
 
+        it('should fall back to the user agent, not the unconfirmed default, when client hints are slow', async function () {
+            stubUserAgentData(() => new Promise(() => undefined));
+            window.site.getArchSize = () => 64;
+            let x64;
+            PartnerDownload.isX64().then((value) => (x64 = value));
+
+            jasmine.clock().tick(500);
+            await flushPromises();
+            expect(x64).toBeTrue();
+        });
+
         it('should not ask for client hints off Windows', async function () {
             const getHighEntropyValues = jasmine.createSpy();
             stubUserAgentData(getHighEntropyValues);
             window.site.platform = 'osx';
-            window.site.archSize = 64;
+            window.site.getArchSize = () => 64;
 
             expect(await PartnerDownload.isX64()).toBeTrue();
             expect(getHighEntropyValues).not.toHaveBeenCalled();
@@ -386,6 +407,54 @@ describe('partner-download.es6.js', function () {
                 window.Mozilla.TrackProductDownload.sendEventFromURL
             ).toHaveBeenCalledWith(OSX_URL);
             expect(attributionEvents()).toEqual([]);
+        });
+
+        it('should fall back to the regular download if the page script fails', async function () {
+            window.site = undefined;
+            container = renderPage(macBuild, [['osx', OSX_URL]]);
+
+            expect(await PartnerDownload.begin()).toBe('device');
+            expect(shownStates()).toEqual(['device']);
+        });
+
+        it('should keep a callback another script already registered', async function () {
+            visitOn('osx');
+            container = renderPage(macBuild, [['osx', OSX_URL]]);
+            const otherScriptCallback = jasmine.createSpy(
+                'otherScriptCallback'
+            );
+            window.Mozilla.DownloadAttribution.successCallback =
+                otherScriptCallback;
+            window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
+
+            PartnerDownload.begin();
+            await flushPromises();
+            jasmine.clock().tick(1200);
+            window.Mozilla.DownloadAttribution.successCallback();
+            await flushPromises();
+
+            expect(otherScriptCallback).toHaveBeenCalled();
+            expect(PartnerDownload.navigate).toHaveBeenCalledWith(OSX_URL);
+        });
+
+        it('should still send the unavailable event to Plausible when the data layer throws', async function () {
+            visitOn('osx');
+            container = renderPage({
+                windows: 'device',
+                osx: 'language',
+                linux: 'device'
+            });
+            window.dataLayer = {
+                push: () => {
+                    throw new Error('GTM listener failed');
+                }
+            };
+
+            expect(await PartnerDownload.begin()).toBe('language');
+            expect(Plausible.trackEvent).toHaveBeenCalledWith(
+                'partner_download_unavailable',
+                jasmine.objectContaining({ reason: 'language' })
+            );
         });
 
         it('should drop attribution from "try again" when consent is withdrawn after the download', async function () {
