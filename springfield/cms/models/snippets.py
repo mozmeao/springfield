@@ -18,7 +18,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
@@ -38,7 +38,6 @@ from springfield.cms.blocks import (
 from springfield.cms.fields import StreamField
 from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
-from springfield.cms.panels import PartnerRepackTestLinksPanel
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
 
@@ -723,7 +722,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         MultiFieldPanel([FieldPanel("mac_url"), FieldPanel("mac_languages")], heading="Mac"),
         MultiFieldPanel([FieldPanel("linux_url"), FieldPanel("linux_languages")], heading="Linux"),
         MultiFieldPanel([FieldPanel("firefox_user_link_url"), FieldPanel("firefox_user_link_label")], heading="Current Firefox users"),
-        PartnerRepackTestLinksPanel(heading="Test links"),
+        HelpPanel(heading="Test links", template="wagtailadmin/panels/partner_repack_test_links.html"),
     ]
 
     class Meta:
