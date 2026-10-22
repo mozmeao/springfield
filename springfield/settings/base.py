@@ -529,6 +529,7 @@ NOINDEX_URLS = [
     r"^landing/",
     r"/system-requirements/$",
     r"^thanks/$",
+    r"^get/$",
     r"^analytics-tests/",
     r"^readiness/$",
     r"^healthz-cron/$",

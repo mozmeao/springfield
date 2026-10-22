@@ -197,6 +197,7 @@ python manage.py dumpdata \
     cms.QRCodeSnippet \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
+    cms.PartnerRepack \
     cms.PencilBannerPlacement \
     cms.HomePagePencilBannerPlacement \
     cms.ArticleThemePagePencilBannerPlacement \

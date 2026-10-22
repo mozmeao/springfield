@@ -57,6 +57,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/firefox/download/get.css"
+      ],
+      "name": "firefox_download_get"
+    },
+    {
+      "files": [
         "css/firefox/download/desktop/thanks-ie.scss"
       ],
       "name": "firefox_desktop_download_thanks_ie"
@@ -597,6 +604,12 @@
         "js/firefox/download/auto-download.es6.js"
       ],
       "name": "auto-download"
+    },
+    {
+      "files": [
+        "js/firefox/download/partner-download-init.es6.js"
+      ],
+      "name": "partner-download"
     },
     {
       "files": [

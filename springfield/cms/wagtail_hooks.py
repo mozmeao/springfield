@@ -26,6 +26,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     PageLinkElementHandler,
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
+from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -52,6 +53,7 @@ from springfield.cms.models import (
     BannerSnippet,
     FreeFormPage2026,
     NavigationSnippet,
+    PartnerRepack,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -723,6 +725,22 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class PartnerRepackViewSet(SnippetViewSet):
+    model = PartnerRepack
+    menu_label = "Partner downloads"
+    icon = "download"
+    list_display = ["name", "slug", "systems", LiveStatusTagColumn(), UpdatedAtColumn()]
+    search_fields = ["name", "slug"]
+
+
+@hooks.register("after_create_snippet")
+@hooks.register("after_edit_snippet")
+def tell_editors_when_partner_downloads_reach_visitors(request, instance):
+    """Add, under Wagtail's publish message, how long a published partner download takes to reach visitors."""
+    if isinstance(instance, PartnerRepack) and "action-publish" in request.POST:
+        messages.success(request, "Visitors see the change within about 20 minutes.")
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -735,6 +753,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    PartnerRepackViewSet,
 ):
     register_snippet(_viewset)
 

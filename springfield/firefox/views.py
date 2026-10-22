@@ -20,8 +20,9 @@ from wagtail.models import Locale as WagtailLocale
 from lib import l10n_utils, querystringsafe_base64
 from lib.l10n_utils import L10nTemplateView
 from lib.l10n_utils.fluent import ftl, ftl_file_is_active
-from springfield.base import waffle
+from springfield.base import metrics, waffle
 from springfield.base.urlresolvers import reverse
+from springfield.cms.models import PartnerRepack
 from springfield.cms.models.pages import WhatsNewPage2026
 from springfield.firefox.firefox_details import (
     firefox_android,
@@ -465,6 +466,42 @@ class DownloadThanksView(L10nTemplateView):
                 template = "firefox/download/basic/thanks.html"
 
         return [template]
+
+
+class PartnerDownloadView(L10nTemplateView):
+    """Offers a published partner's Firefox build, chosen by `?p=<link name>`."""
+
+    template_name = "firefox/download/get.html"
+    ftl_files = ["firefox/download/get", "firefox/download/desktop"]
+    # Every download language is served, so the URL locale is never swapped; `ja-JP-mac` is download-only.
+    active_locales = [lang for lang in settings.PROD_LANGUAGES if lang != "ja-JP-mac"]
+
+    def get(self, request, *args, **kwargs):
+        slug = request.GET.get("p", "").strip().lower()
+        self.partner = PartnerRepack.objects.live().filter(slug=slug).first() if slug else None
+        if self.partner:
+            return super().get(request, *args, **kwargs)
+
+        if not slug:
+            reason = "missing"
+        elif PartnerRepack.objects.filter(slug=slug).exists():
+            reason = "inactive"
+        else:
+            reason = "unknown"
+        metrics.incr("springfield.partner_download.unknown", tags=[f"reason:{reason}"])
+
+        query = request.GET.copy()
+        query.pop("p", None)
+        thanks_url = reverse("firefox.download.thanks")
+        return HttpResponseRedirect(f"{thanks_url}?{query.urlencode()}" if query else thanks_url)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["partner"] = self.partner
+        # The URL locale, not the content locale, decides which build is offered.
+        ctx["partner_lang"] = self.request.locale
+        ctx["options"] = self.partner.download_options(self.request.locale)
+        return ctx
 
 
 # Platform detection patterns for /download/ redirect.

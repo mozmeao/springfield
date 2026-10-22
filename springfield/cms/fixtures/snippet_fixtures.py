@@ -9,6 +9,7 @@ from wagtail.models import Locale
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
 from springfield.cms.models import (
     BannerSnippet,
+    PartnerRepack,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
     PretranslatedPhrase,
@@ -169,6 +170,29 @@ def get_scroll_to_see_more_snippet() -> ScrollToSeeMoreSnippet:
         locale=Locale.get_default(),
         defaults={"text": "Scroll to see more"},
     )
+    return snippet
+
+
+def get_partner_repack_snippet() -> PartnerRepack:
+    """A published sample partner with a build for every system, served at /get/?p=example."""
+    product_url = "https://download.mozilla.org/?product=partner-firefox-release-example-example-001-latest"
+    snippet, _ = PartnerRepack.objects.update_or_create(
+        slug="example",
+        defaults={
+            "name": "Example",
+            "windows64_url": f"{product_url}&os=win64",
+            "windows32_url": f"{product_url}&os=win",
+            "windows_languages": "en-US, de",
+            "mac_url": f"{product_url}&os=osx",
+            "mac_languages": "en-US",
+            "linux_url": f"{product_url}&os=linux64",
+            "linux_languages": "en-US",
+            "firefox_user_link_url": "https://www.example.com/",
+        },
+    )
+
+    snippet.save_revision().publish()
+    snippet.refresh_from_db()
     return snippet
 
 
