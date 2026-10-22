@@ -8,7 +8,7 @@ all: help
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  build                          - build docker images for dev"
-	@echo "  run                            - 'docker compose up' the entire system for dev"
+	@echo "  run                            - 'docker compose up' the entire system for dev (fetches the DB on first run)"
 	@echo "  stop                           - stop all docker containers"
 	@echo "  kill                           - kill all docker containers (more forceful than stop)"
 	@echo "  pull                           - pull the latest production images from Docker Hub"
@@ -64,6 +64,8 @@ pull: .env
 rebuild: clean build
 
 run: .docker-build-pull
+#	Fetch the DB if it's missing or empty. A crashed first run leaves an empty `springfield.db` behind.
+	@[ -s data/springfield.db ] || ${DC} run --rm app bin/sync-all.sh
 	${DC} up assets app
 
 run-prod: .docker-build-pull
