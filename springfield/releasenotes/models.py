@@ -7,7 +7,11 @@ import json
 import logging
 import os
 import re
-import xml.etree.ElementTree as etree
+
+# Only used to build a single output element for Python-Markdown, which itself
+# uses the stdlib etree. Nothing here parses XML, so the XXE concern behind the
+# defusedxml rule does not apply and defusedxml does not export Element anyway.
+import xml.etree.ElementTree as etree  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
 from glob import glob
 from operator import attrgetter
 

@@ -9,7 +9,6 @@ import zlib
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import NamedTuple
-from xml.etree import ElementTree
 
 from django.core.management import call_command
 from django.core.management.base import CommandError, OutputWrapper
@@ -19,6 +18,7 @@ import pytest
 import requests
 import responses
 from bs4 import BeautifulSoup
+from defusedxml import ElementTree
 from PIL import Image
 from wagtail.models import Locale, Site
 

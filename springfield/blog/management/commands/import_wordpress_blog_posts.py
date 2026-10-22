@@ -34,7 +34,6 @@ import time
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse, urlunparse
-from xml.etree import ElementTree
 
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
@@ -46,6 +45,7 @@ from django.utils.timezone import get_default_timezone, make_aware
 
 import requests
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag as HtmlTag
+from defusedxml import ElementTree
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
