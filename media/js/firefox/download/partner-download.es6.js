@@ -183,16 +183,19 @@ PartnerDownload.navigate = (url) => {
 };
 
 /**
- * Start and track the download, and point "try again" at the same URL.
- * @param {String} url
+ * Start and track the download, and point "try again" at the same build.
+ * @param {HTMLAnchorElement} link - the partner build for this machine
  */
-PartnerDownload.startDownload = (url) => {
+PartnerDownload.startDownload = (link) => {
+    const url = PartnerDownload.getAttributedURL(link.href);
     const tryAgain = document.getElementById('partner-download-try-again');
     if (tryAgain) {
-        tryAgain.href = url;
-        tryAgain.addEventListener('click', (event) =>
-            window.Mozilla.TrackProductDownload.handleLink(event)
-        );
+        tryAgain.href = link.href;
+        // Attribute at click time, so a later consent change is respected.
+        tryAgain.addEventListener('click', (event) => {
+            tryAgain.href = PartnerDownload.getAttributedURL(link.href);
+            window.Mozilla.TrackProductDownload.handleLink(event);
+        });
     }
     try {
         window.Mozilla.TrackProductDownload.sendEventFromURL(url);
@@ -234,9 +237,7 @@ PartnerDownload.begin = () => {
                 downloadDelay,
                 PartnerDownload.waitForAttribution(attributionDeadline)
             ]).then(() => {
-                PartnerDownload.startDownload(
-                    PartnerDownload.getAttributedURL(link.href)
-                );
+                PartnerDownload.startDownload(link);
                 return state;
             });
         }

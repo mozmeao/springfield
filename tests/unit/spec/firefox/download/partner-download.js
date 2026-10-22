@@ -388,6 +388,35 @@ describe('partner-download.es6.js', function () {
             expect(attributionEvents()).toEqual([]);
         });
 
+        it('should drop attribution from "try again" when consent is withdrawn after the download', async function () {
+            visitOn('osx');
+            container = renderPage(macBuild, [['osx', OSX_URL]]);
+            signedCookie = SIGNED;
+
+            PartnerDownload.begin();
+            await flushPromises();
+            jasmine.clock().tick(1000);
+            await flushPromises();
+            expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                `${OSX_URL}&attribution_code=code123&attribution_sig=sig456`
+            );
+
+            signedCookie = null;
+            const tryAgain = document.getElementById(
+                'partner-download-try-again'
+            );
+            // Keep the test page from following the link.
+            tryAgain.addEventListener('click', (event) =>
+                event.preventDefault()
+            );
+            tryAgain.click();
+
+            expect(tryAgain.href).toBe(OSX_URL);
+            expect(
+                window.Mozilla.TrackProductDownload.sendEventFromURL
+            ).toHaveBeenCalledWith(OSX_URL);
+        });
+
         it('should still wait the full second when signing finishes sooner', async function () {
             visitOn('osx');
             container = renderPage(macBuild, [['osx', OSX_URL]]);

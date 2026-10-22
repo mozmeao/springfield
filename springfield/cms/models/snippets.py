@@ -751,7 +751,10 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         platform = PARTNER_REPACK_LINKS[link_field][0]
         if not getattr(self, link_field) or lang not in self.languages_for(platform):
             return None
-        params = parse_qs(urlsplit(getattr(self, link_field)).query)
+        try:
+            params = parse_qs(urlsplit(getattr(self, link_field)).query)
+        except ValueError:
+            return None
         product, link_os = params.get("product", [""])[0], params.get("os", [""])[0]
         # The download server's Mac Japanese build uses its own code.
         download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
@@ -806,11 +809,15 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
     def link_error(self, link_field: str) -> str | None:
         """Return the problem with the link in `link_field`, or None if it's usable."""
         _, expected_os, system = PARTNER_REPACK_LINKS[link_field]
-        link = urlsplit(getattr(self, link_field))
+        try:
+            link = urlsplit(getattr(self, link_field))
+            hostname = link.hostname
+        except ValueError:
+            hostname = None
+        if hostname != PARTNER_DOWNLOAD_HOST:
+            return f"Use the {PARTNER_DOWNLOAD_HOST} link supplied by the product team."
         params = parse_qs(link.query)
         link_os = params.get("os", [""])[0]
-        if link.hostname != PARTNER_DOWNLOAD_HOST:
-            return f"Use the {PARTNER_DOWNLOAD_HOST} link supplied by the product team."
         if not params.get("product"):
             return "This link has no product. Paste the full link supplied by the product team."
         if link_os == expected_os:

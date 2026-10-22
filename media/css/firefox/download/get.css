@@ -4,11 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-@layer page {
-    .no-js .c-partner-download [data-state='unsupported_os'] {
-        display: block;
-    }
+/* Outside the layer so the no-JS fallback shows in browsers without cascade layers. */
+.no-js .c-partner-download [data-state='unsupported_os'] {
+    display: block;
+}
 
+@layer page {
     .c-partner-download .fl-notification-wrapper {
         margin-block-end: var(--token-spacing-2xl);
     }

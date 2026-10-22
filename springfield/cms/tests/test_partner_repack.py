@@ -147,6 +147,19 @@ def test_link_must_be_on_the_download_host():
     assert errors == {"windows64_url": ["Use the download.mozilla.org link supplied by the product team."]}
 
 
+MALFORMED_URL = "https://download.mozilla.org[/?product=x&os=win64"
+
+
+def test_malformed_link_gives_a_field_error():
+    errors = validation_errors(make_partner(windows64_url=MALFORMED_URL))
+
+    assert "Use the download.mozilla.org link supplied by the product team." in errors["windows64_url"]
+
+
+def test_malformed_link_has_no_download_url():
+    assert make_partner(windows64_url=MALFORMED_URL).download_url("windows64_url", "de") is None
+
+
 def test_link_must_have_a_product():
     errors = validation_errors(
         make_partner(windows64_url="", windows_languages="", mac_url="https://download.mozilla.org/?os=osx", mac_languages="en-US")
