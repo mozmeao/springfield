@@ -799,7 +799,7 @@ def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf
 
 
 @pytest.mark.django_db
-def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf):
+def test_home_page_marketing_attribution_renders_checkbox_after_download_button_row(rf):
     page = get_home_test_page()
     page.enable_marketing_attribution = True
 
@@ -820,10 +820,12 @@ def test_home_page_marketing_attribution_renders_checkbox_in_download_button(rf)
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
         assert label.find("a")["href"] == "https://support.mozilla.org/kb/marketing-data"
 
-    # The privacy notice sits between the button and the checkbox.
-    download_button = soup.find("div", class_="has-marketing-opt-out")
-    button_link, privacy_notice, checkbox_label = download_button.find_all(recursive=False)[:3]
-    assert "download-link" in button_link["class"]
+    # The privacy notice and the checkbox are placed after the download button row
+    download_extras = soup.find("div", class_="fl-download-firefox-button-extras")
+    buttons_row = download_extras.parent
+    assert "fl-buttons" in buttons_row["class"]
+    assert buttons_row.find_all(recursive=False)[-1] is download_extras
+    privacy_notice, checkbox_label = download_extras.find_all(recursive=False)[:2]
     assert privacy_notice.find("a")["href"].startswith("https://www.mozilla.org/en-US/privacy/firefox/")
     assert "marketing-opt-out-checkbox-label" in checkbox_label["class"]
 
