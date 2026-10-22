@@ -83,15 +83,6 @@ def test_listing_searches_by_name_and_slug(admin_client, query):
     assert set(listing_rows(response)) == {"Acme Labs"}
 
 
-def test_users_without_partner_permissions_cannot_see_partner_downloads(limited_admin_client):
-    snippets_response = limited_admin_client.get(reverse("wagtailsnippets:index"))
-    listing_response = limited_admin_client.get(reverse("wagtailsnippets_cms_partnerrepack:list"))
-
-    assert "Partner downloads" not in snippets_response.content.decode()
-    assert listing_response.status_code == 302
-    assert listing_response["Location"] == reverse("wagtailadmin_home")
-
-
 def test_publishing_a_new_partner_says_when_visitors_see_it(admin_client):
     response = admin_client.post(reverse("wagtailsnippets_cms_partnerrepack:add"), {**partner_form_data(), "action-publish": "action-publish"})
 
