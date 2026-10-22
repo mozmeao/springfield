@@ -61,12 +61,19 @@ function replaceCells(row, responseHtml) {
         return;
     }
     const firstError = row.querySelector('.error-message');
-    const target = firstError
-        ? firstError
-              .closest('.inline-edit-cell')
-              .querySelector('input, textarea')
-        : (focusedId && document.getElementById(focusedId)) ||
-          row.querySelector('button[type="submit"]');
+    let target = null;
+    if (firstError) {
+        target = firstError
+            .closest('.inline-edit-cell')
+            .querySelector('input, textarea');
+    } else {
+        if (focusedId) {
+            target = document.getElementById(focusedId);
+        }
+        if (!target) {
+            target = row.querySelector('button[type="submit"]');
+        }
+    }
     if (target) {
         target.focus();
     }

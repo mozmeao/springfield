@@ -17,6 +17,6 @@ One editable field of an image's row in the image listing.
     {% endfor %}
     {% if field_name == "title" %}
         <div class="filename-wrapper"><span>{{ instance.filename }}</span></div>
-        <a href="{% url 'wagtailimages:edit' instance.pk %}">{% trans "Edit" %}<span class="w-sr-only"> {{ instance.title }}</span></a>
+        <a href="{% url 'wagtailimages:edit' instance.pk %}">{{ instance.title }}</a>
     {% endif %}
 </td>

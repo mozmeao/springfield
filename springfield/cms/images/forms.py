@@ -9,10 +9,10 @@
 from django import forms
 
 from wagtail.admin.forms.tags import validate_tag_length
-from wagtail.admin.widgets import AdminTagWidget
 from wagtail.images.forms import BaseImageForm
 from wagtail.search import index as search_index
 
+from springfield.cms.images.widgets import AdminTagNoHelpWidget
 from springfield.cms.models.images import SpringfieldImage
 
 
@@ -41,12 +41,12 @@ class InlineImageForm(forms.ModelForm):
     # Declared rather than listed in Meta.fields, because a ModelForm reads a listed tags field
     # with a query of its own for every instance. The tags are taken from instance.tags.all()
     # instead, which the image listing prefetches for all its rows at once.
-    tags = SpringfieldImage._meta.get_field("tags").formfield(widget=AdminTagWidget)
+    tags = SpringfieldImage._meta.get_field("tags").formfield(widget=AdminTagNoHelpWidget)
 
     class Meta:
         model = SpringfieldImage
         fields = ("title", "description", "is_decorative")
-        widgets = {"description": forms.Textarea(attrs={"rows": 2})}
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
 
     def __init__(self, *args, instance, **kwargs):
         super().__init__(*args, instance=instance, prefix=f"image-{instance.pk}", **kwargs)
