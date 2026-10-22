@@ -541,23 +541,20 @@ class PricingHeadingBlock(blocks.StructBlock):
 # Buttons
 
 
-def get_button_types(allow_uitour=False, allow_referral_download=False, allow_video_modal=False):
+def get_button_types(allow_uitour=False, allow_referral_download=False):
     """Helper function to get button types based on feature flags.
 
     Args:
-        allow_uitour: If True, includes UI Tour, Set as Default, QR Code Modal and Video Modal types.
+        allow_uitour: If True, includes UI Tour, Set as Default, and QR Code Modal types.
         allow_referral_download: If True, includes the referral download CTA type.
             Only used in ReferralGetFirefoxPage's KitIntroBlock.
-        allow_video_modal: If True, includes the Video Modal type without the UI Tour types.
 
     Returns:
         List of button type strings.
     """
-    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE, VIDEO_MODAL_BUTTON_TYPE]
     if allow_uitour:
         base_button_types = [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
-    if allow_uitour or allow_video_modal:
-        base_button_types = [*base_button_types, VIDEO_MODAL_BUTTON_TYPE]
     if allow_referral_download:
         base_button_types = [*base_button_types, REFERRAL_DOWNLOAD_BUTTON_TYPE]
     return base_button_types
@@ -3321,13 +3318,12 @@ class KitBlockSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, allow_video_modal=False, *args, **kwargs):
+def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media_above_buttons=False, *args, **kwargs):
     """Kit Intro hero section.
 
     Args:
         allow_media_above_buttons: If True, adds an optional media field rendered
             between the heading and the buttons. Only used in ShareFirefoxPage.
-        allow_video_modal: If True, offers the Video Modal button. Used in HomePage.
     """
     local_blocks = []
     if allow_media_above_buttons:
@@ -3353,11 +3349,7 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
         )
         heading = HeadingBlock()
         buttons = MixedButtonsBlock(
-            button_types=get_button_types(
-                allow_uitour=allow_uitour,
-                allow_referral_download=allow_referral_download,
-                allow_video_modal=allow_video_modal,
-            ),
+            button_types=get_button_types(allow_uitour=allow_uitour, allow_referral_download=allow_referral_download),
             min_num=0,
             max_num=2,
             required=False,

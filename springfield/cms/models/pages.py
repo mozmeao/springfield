@@ -427,7 +427,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 class HomePage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
-            ("intro", KitIntroBlock(allow_video_modal=True)),
+            ("intro", KitIntroBlock()),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],

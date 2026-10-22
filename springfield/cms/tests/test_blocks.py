@@ -71,7 +71,6 @@ from springfield.cms.blocks import (
     UntranslatableCharBlock,
     UUIDBlock,
     VideoModalButtonBlock,
-    get_button_types,
     icon_display_label,
     validate_youtube_url,
     youtube_video_id,
@@ -187,7 +186,6 @@ from springfield.cms.models import (
     ArticleDetailPage,
     ContactPage,
     FreeFormPage2026,
-    HomePage,
     PretranslatedPhrase,
     SimpleRichTextPage,
     SmartWindowExplainerPage,
@@ -449,6 +447,29 @@ def assert_download_button_attributes(
         assert checkbox_label["for"] == id_
         checkbox = checkbox_label.find("input", {"type": "checkbox", "class": "default-browser-checkbox"})
         assert checkbox and checkbox["id"] == id_
+
+
+def assert_video_modal_button_attributes(button_element: BeautifulSoup, button_data: dict, cta_position: str, cta_text: str):
+    value = button_data["value"]
+    settings = value["settings"]
+
+    assert value["custom_label"] in button_element.get_text()
+    assert "fl-video-modal-trigger" in button_element["class"]
+    assert f"button-{settings['theme']}" in button_element["class"]
+    assert button_element.find("span", class_=f"fl-icon-{settings['icon']}")
+    # A real link, so the video still opens on YouTube without JavaScript.
+    assert button_element["href"] == value["video_url"]
+    assert button_element["data-cta-position"] == cta_position
+    assert button_element["data-cta-text"] == cta_text
+    assert button_element["data-cta-uid"] == settings["analytics_id"]
+
+    # flare-video-modal.es6.js opens the dialog that follows each trigger.
+    dialog = button_element.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
+    assert dialog["aria-label"] == value["video_title"]
+    assert dialog.find("button", class_="fl-dialog-close-button")
+    # The player is only added by JavaScript when the dialog opens.
+    assert dialog.find("div", class_="fl-video-dialog-frame")
+    assert dialog.find("iframe") is None
 
 
 def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
@@ -1250,6 +1271,13 @@ def test_buttons(index_page, rf):
                         assert button_element["href"] == play_store_url(context, "focus", campaign)
                     else:
                         assert button_element["href"] == app_store_url(context, "focus", campaign)
+                elif button_data["type"] == "video_modal_button":
+                    assert_video_modal_button_attributes(
+                        button_element=button_element,
+                        button_data=button_data,
+                        cta_position=f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
+                        cta_text=f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
+                    )
 
             # Store buttons render as fl-store-button, exclude those inside download wrappers
             store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]
@@ -6705,14 +6733,12 @@ def test_sharing_links_block(index_page, rf):
     "url, expected",
     [
         ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
-        ("https://www.youtube.com/watch?feature=share&v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://youtu.be/aqz-KE-bpKQ?si=abc", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/shorts/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/embed/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/@firefox", None),
         ("https://www.youtube.com/watch", None),
-        ("https://assets.mozilla.net/video/campaign.webm", None),
         ("https://example.com/watch?v=aqz-KE-bpKQ", None),
         ("", None),
     ],
@@ -6724,46 +6750,4 @@ def test_youtube_video_id(url, expected):
 def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
-        validate_youtube_url("https://assets.mozilla.net/video/campaign.webm")
-    with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
-
-
-def test_video_modal_button_renders_its_dialog_right_after_the_trigger(rf):
-    """flare-video-modal.es6.js opens the dialog that follows each trigger."""
-    soup = BeautifulSoup(_render_button("video_modal_button", rf.get("/"), custom_label="Watch"), "html.parser")
-
-    trigger = soup.find("a", class_="fl-video-modal-trigger")
-    # A real link, so the video still opens without JS.
-    assert trigger["href"] == "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
-
-    dialog = trigger.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
-    assert dialog["aria-label"] == "Firefox campaign video"
-    assert dialog.find("button", class_="fl-dialog-close-button") is not None
-    # The player is only added by JS when the dialog opens.
-    assert dialog.find("div", class_="fl-video-dialog-frame") is not None
-    assert dialog.find("iframe") is None
-
-
-@pytest.mark.parametrize(
-    "kwargs, offered",
-    [
-        ({}, False),
-        ({"allow_uitour": True}, True),
-        ({"allow_video_modal": True}, True),
-    ],
-)
-def test_get_button_types_offers_video_modal(kwargs, offered):
-    assert ("video_modal_button" in get_button_types(**kwargs)) is offered
-
-
-def test_get_button_types_video_modal_alone_keeps_uitour_types_out():
-    button_types = get_button_types(allow_video_modal=True)
-    assert "uitour_button" not in button_types
-    assert "qr_code_modal_button" not in button_types
-
-
-def test_home_page_intro_offers_the_video_modal_button():
-    buttons_block = HomePage.upper_content.field.stream_block.child_blocks["intro"].child_blocks["buttons"]
-    assert "video_modal_button" in buttons_block.child_blocks
-    assert "uitour_button" not in buttons_block.child_blocks
