@@ -5,5 +5,6 @@
 #}
 
 <div class="fl-code-block">
-  <pre><code>{{ value.code }}</code></pre>
+  {# Focusable so keyboard users can scroll long lines. #}
+  <pre tabindex="0"><code>{{ value.code }}</code></pre>
 </div>
