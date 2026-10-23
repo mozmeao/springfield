@@ -1595,13 +1595,16 @@ def test_blog_article_renders_code_block(single_article, rf):
     response = article.serve(request)
     soup = BeautifulSoup(response.content, "html.parser")
 
-    code_block = soup.find("div", class_="fl-code-block")
+    code_block = soup.find("figure", class_="fl-code-block")
     assert code_block
+    assert code_block.find(class_="fl-code-block-label").get_text() == "Python"
+    assert code_block.find(class_="fl-copy-to-clipboard-label").get_text() == "Copy"
 
     pre = code_block.find("pre")
     code = pre.find("code") if pre else None
     assert code
     assert "Hello, Firefox!" in code.get_text()
+    assert code.find("span", class_="tok-nb"), "Python code should be highlighted"
 
 
 def test_blog_article_renders_quote_block(single_article, rf):
