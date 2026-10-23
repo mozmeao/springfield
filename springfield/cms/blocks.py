@@ -33,6 +33,7 @@ from wagtail.images.blocks import ImageChooserBlock
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_link_block.blocks import LinkBlock, URLValue
+from wagtail_localize.segments import StringSegmentValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl, ftl_lazy
@@ -295,16 +296,6 @@ def icon_display_label(stem: str) -> str:
 
 class UntranslatableCharBlock(blocks.CharBlock):
     """A CharBlock that is not sent for translation"""
-
-    def get_translatable_segments(self, value):
-        return []
-
-    def restore_translated_segments(self, value, segments):
-        return value
-
-
-class UntranslatableTextBlock(blocks.TextBlock):
-    """A TextBlock that is not sent for translation"""
 
     def get_translatable_segments(self, value):
         return []
@@ -2292,10 +2283,9 @@ class CodeBlock(blocks.StructBlock):
         label="Language",
         help_text="Adds colours and a label. Prompt and Model output wrap long lines; code scrolls sideways.",
     )
-    # Prompts stay untranslated too: they show the exact text a model was given.
-    code = UntranslatableTextBlock(
+    code = blocks.TextBlock(
         label="Code",
-        help_text="Paste the code snippet here. Not sent for translation.",
+        help_text="Paste the code snippet here. Code isn't sent for translation; Prompt and Model output text is.",
     )
     caption = blocks.CharBlock(
         required=False,
@@ -2310,6 +2300,16 @@ class CodeBlock(blocks.StructBlock):
         template = "cms/blocks/code.html"
         value_class = CodeBlockValue
         form_classname = "struct-block fl-admin-code-block"
+
+    def get_translatable_segments(self, value):
+        """Send the caption for translation, and the text too when it's a prompt or model output, never code."""
+        fields = ["caption", "code"] if value.get("language") in CODE_PROSE_LANGUAGES else ["caption"]
+        return [StringSegmentValue(field, value.get(field) or "") for field in fields]
+
+    def restore_translated_segments(self, value, segments):
+        for segment in segments:
+            value[segment.path] = segment.render_text()
+        return value
 
 
 class QuoteBlock(blocks.StructBlock):

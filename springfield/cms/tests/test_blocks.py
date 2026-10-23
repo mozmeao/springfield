@@ -22,6 +22,7 @@ from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockVal
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
+from wagtail_localize.segments import StringSegmentValue
 from wagtail_localize.segments.extract import StreamFieldSegmentExtractor
 
 from lib.l10n_utils import fluent_l10n, get_locale
@@ -6829,13 +6830,41 @@ def test_code_block_renders_optional_caption():
     assert soup.find("figcaption", class_="fl-code-block-caption").get_text() == "From MLUtils.cpp"
 
 
-def test_code_block_sends_only_the_caption_for_translation():
+def test_code_block_sends_only_the_caption_of_code_for_translation():
     block = CodeBlock()
     value = block.to_python({"language": "python", "code": "print('hi')", "caption": "A caption"})
 
     segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
 
     assert [(segment.path, segment.string.data) for segment in segments] == [("caption", "A caption")]
+
+
+@pytest.mark.parametrize("language", ["prompt", "output"])
+def test_code_block_sends_prompt_and_output_text_for_translation(language):
+    block = CodeBlock()
+    value = block.to_python({"language": language, "code": "You are a summarizer.\n   Step 1: read.", "caption": "A caption"})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+
+    assert [(segment.path, segment.render_text()) for segment in segments] == [
+        ("caption", "A caption"),
+        ("code", "You are a summarizer.\n   Step 1: read."),
+    ]
+
+
+def test_code_block_restores_translated_prompt_keeping_line_breaks():
+    block = CodeBlock()
+    value = block.to_python({"language": "prompt", "code": "You are a summarizer.\n   Step 1: read.", "caption": "A caption"})
+    translated = [
+        StringSegmentValue("caption", "Eine Bildunterschrift"),
+        StringSegmentValue("code", "Du fasst zusammen.\n   Schritt 1: lesen."),
+    ]
+
+    restored = block.restore_translated_segments(value, translated)
+
+    assert restored["caption"] == "Eine Bildunterschrift"
+    assert restored["code"] == "Du fasst zusammen.\n   Schritt 1: lesen."
+    assert restored["language"] == "prompt"
 
 
 def test_code_block_saved_without_a_caption_can_be_translated():
