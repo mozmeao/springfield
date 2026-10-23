@@ -63,7 +63,7 @@
         <div class="fl-article-dates">
           {% if page.first_published_at %}
             <time class="fl-article-date" datetime="{{ page.first_published_at.isoformat() }}">
-              {{ page.first_published_at|localtime|date("DATE_FORMAT") }}
+              {{ page.first_published_at|timezone(settings.TIME_ZONE)|date("DATE_FORMAT") }}
             </time>
           {% endif %}
           {% if page.updated_date %}

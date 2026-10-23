@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.test import override_settings
+from django.utils import timezone
 
 import pytest
 from bs4 import BeautifulSoup
@@ -2057,6 +2058,20 @@ def test_blog_article_hero_shows_site_time_zone_date(make_article, rf):
 
     assert "Oct. 12, 2026" in time_el.get_text()
     assert time_el["datetime"].startswith("2026-10-13T04:01")
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_ignores_the_editor_time_zone(make_article, rf):
+    # The Wagtail admin renders previews in the editor's own time zone.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    with timezone.override("Europe/Berlin"):
+        response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
 
 
 def test_blog_article_hero_renders_updated_date(make_article, rf):
