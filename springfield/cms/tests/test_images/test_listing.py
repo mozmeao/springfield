@@ -116,7 +116,7 @@ def test_grid_layout_renders_the_image_grid(admin_client, make_image):
     soup = BeautifulSoup(response.content, "html.parser")
     assert soup.select_one("ul.listing.horiz.images") is not None
     assert image.title in soup.select_one("ul.listing.horiz.images figcaption").get_text()
-    assert soup.select("[data-inline-image-form]") == []
+    assert soup.select("[data-inline-form]") == []
 
 
 def test_search_results_in_list_layout_are_served_by_our_view(admin_client, make_image):
