@@ -2231,6 +2231,20 @@ class CodeBlock(blocks.StructBlock):
 
 
 class QuoteBlock(blocks.StructBlock):
+    style = blocks.ChoiceBlock(
+        choices=[
+            ("", "Standard"),
+            ("pull", "Pull quote"),
+            ("passage", "Passage"),
+        ],
+        required=False,
+        default="",
+        label="Style",
+        help_text=(
+            "Standard for someone quoted. Pull quote for one short line from the article; "
+            "it adds its own quotation mark, so leave yours out. Passage for long extracts, definitions or lists of comments."
+        ),
+    )
     quote = blocks.RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         label="Quote",
