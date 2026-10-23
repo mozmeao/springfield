@@ -24,8 +24,16 @@ Each fix has a name and only runs when asked for with `--fix`:
   text, which is what screen readers hear for a video. inline-alt copies an image's reviewed
   description into the alt text of each inline image in a post's rich text, which keeps its own.
   Images have no draft state, so image-text applies at once; the other two save page drafts.
+- taxonomy: moves the posts onto the blog's topics and tags (TOPICS and TAGS below), from a
+  `--taxonomy` CSV with slug, final_topic and final_tags columns. Topics and tags that carry on
+  are renamed in place, so they keep their translation keys, and new ones are created; all are
+  published. Each post gets its topic and tags from the CSV, and so do its translations, whose
+  topic is the translation of the same topic. Retired topics, and tags not on the list, are then
+  deleted once nothing uses them. Unlike the other page fixes this one publishes, so it runs on
+  its own: a post is only changed when it is live with no unpublished changes, and is otherwise
+  skipped and reported.
 
-Page fixes never publish. All the fixes a run makes to one page go into a single new draft
+The other page fixes never publish. All the fixes a run makes to one page go into a single new draft
 revision, built on the page's latest revision so earlier draft edits are kept, and that one
 revision is what to revert from the page history to undo the run for that page. A live page is
 left alone unless `--include-live` is passed, and even then only gets a draft. Authors are
@@ -42,16 +50,20 @@ import html
 import json
 import re
 import time
+from collections import Counter
 from io import BytesIO
 from pathlib import Path
+from typing import NamedTuple
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 import requests
 from PIL import Image
-from wagtail.models import Locale
+from wagtail.log_actions import log
+from wagtail.models import Locale, ReferenceIndex
 from wagtail.rich_text import RichText
 from wagtail.search import index as search_index
 from wagtail.utils.file import hash_filelike
@@ -61,7 +73,7 @@ from springfield.blog.management.commands.import_wordpress_blog_posts import (
     youtube_video_id,
     youtube_watch_url,
 )
-from springfield.blog.models import BlogArticlePage, BlogAuthor
+from springfield.blog.models import BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, BlogTopicPage, TaggedBlogArticle
 from springfield.cms.models import SpringfieldImage
 
 FIX_YOUTUBE_POSTERS = "youtube-posters"
@@ -72,9 +84,63 @@ FIX_VIDEO_ALT = "video-alt"
 FIX_INLINE_ALT = "inline-alt"
 FIX_SEO_TEXT = "seo-text"
 FIX_LINKS = "link-fixes"
+FIX_TAXONOMY = "taxonomy"
 PAGE_FIXES = (FIX_YOUTUBE_POSTERS, FIX_MOZILLA_BYLINE, FIX_VIDEO_ALT, FIX_INLINE_ALT, FIX_SEO_TEXT, FIX_LINKS)
 DECISION_FIXES = (FIX_IMAGE_TEXT, FIX_VIDEO_ALT, FIX_INLINE_ALT, FIX_SEO_TEXT, FIX_LINKS)
-FIXES = (*PAGE_FIXES, FIX_AUTHOR_NAMES, FIX_IMAGE_TEXT)
+FIXES = (*PAGE_FIXES, FIX_AUTHOR_NAMES, FIX_IMAGE_TEXT, FIX_TAXONOMY)
+
+
+class TaxonomyTerm(NamedTuple):
+    """A topic or tag the blog keeps. `was` is the slug of the existing one to rename into it."""
+
+    slug: str
+    name: str
+    was: str = ""
+
+
+TOPICS = (
+    TaxonomyTerm("ai", "AI", was="firefox-ai"),
+    TaxonomyTerm("privacy-security", "Privacy & security"),
+    TaxonomyTerm("features", "Features", was="firefox-features"),
+    TaxonomyTerm("extensions", "Extensions", was="extensions-addons"),
+    TaxonomyTerm("tips-and-tricks", "Tips & tricks"),
+    TaxonomyTerm("news", "News"),
+    TaxonomyTerm("community-culture", "Community & culture"),
+)
+# Deleted once no post uses them. Other topics, such as ones made by hand, are left alone.
+RETIRED_TOPICS = ("firefox", "ai-tech", "internet-culture", "internet-policy", "life-online")
+
+# Every other tag is deleted once no post uses it.
+TAGS = (
+    TaxonomyTerm("mobile", "Mobile", was="firefox-for-mobile"),
+    TaxonomyTerm("android", "Android"),
+    TaxonomyTerm("ios", "iOS", was="firefox-for-ios"),
+    TaxonomyTerm("ai-controls", "AI controls"),
+    TaxonomyTerm("smart-window", "Smart Window"),
+    TaxonomyTerm("shake-to-summarize", "Shake to Summarize"),
+    TaxonomyTerm("vpn", "VPN", was="mozilla-vpn"),
+    TaxonomyTerm("tabs", "Tabs"),
+    TaxonomyTerm("containers", "Containers"),
+    TaxonomyTerm("profiles", "Profiles"),
+    TaxonomyTerm("search", "Search"),
+    TaxonomyTerm("tracking-protection", "Tracking protection"),
+    TaxonomyTerm("ad-blocking", "Ad blocking"),
+    TaxonomyTerm("performance", "Performance"),
+    TaxonomyTerm("private-browsing", "Private browsing"),
+    TaxonomyTerm("passwords", "Passwords"),
+    TaxonomyTerm("encryption", "Encryption"),
+    TaxonomyTerm("accessibility", "Accessibility"),
+    TaxonomyTerm("enterprise", "Enterprise"),
+    TaxonomyTerm("translations", "Translations"),
+    TaxonomyTerm("switching", "Switching to Firefox"),
+    TaxonomyTerm("partnerships", "Partnerships"),
+    TaxonomyTerm("campaigns", "Campaigns"),
+    TaxonomyTerm("anniversary", "Anniversaries"),
+    TaxonomyTerm("kit", "Kit"),
+    TaxonomyTerm("under-the-hood", "Under the hood"),
+    TaxonomyTerm("outside-the-fox", "Outside the Fox"),
+    TaxonomyTerm("release-roundup", "Release roundup"),
+)
 
 # A link in rich text, with its attributes and its contents.
 LINK_RE = re.compile(r"<a\b([^>]*)>(.*?)</a>", re.DOTALL)
@@ -204,8 +270,9 @@ class Command(BaseCommand):
         "Bulk fixes for blog posts imported from blog.mozilla.org: widescreen YouTube posters, the "
         "'Mozilla' byline, author names, image and video alt text, Title tags and Meta descriptions, "
         "and links. Post changes are saved as one draft per post and never published. Author renames "
-        "are published, and image titles and alt text apply at once, since neither has drafts. Writes "
-        "a CSV report. Run with --dry-run first."
+        "are published, and image titles and alt text apply at once, since neither has drafts. The "
+        "taxonomy fix runs on its own and publishes the posts' new topics and tags. Writes a CSV "
+        "report. Run with --dry-run first."
     )
 
     def add_arguments(self, parser):
@@ -239,6 +306,10 @@ class Command(BaseCommand):
             '"pages": [{"slug", "seo_title", "search_description"}], "links": [{"slug", "url", "action", "new_url"}]}.',
         )
         parser.add_argument(
+            "--taxonomy",
+            help="CSV with slug, final_topic and final_tags columns (tag slugs separated by |), for the taxonomy fix.",
+        )
+        parser.add_argument(
             "--report-out",
             default="blog_fixes_report.csv",
             help="Path to write the per-change CSV report (default: blog_fixes_report.csv). An existing file is overwritten.",
@@ -265,6 +336,16 @@ class Command(BaseCommand):
                 raise CommandError(f"--fix {'/'.join(fix for fix in fixes if fix in DECISION_FIXES)} needs --decisions <json>")
             self.read_decisions(options["decisions"])
 
+        taxonomy = None
+        if FIX_TAXONOMY in fixes:
+            if len(fixes) > 1:
+                raise CommandError(f"--fix {FIX_TAXONOMY} publishes posts, so run it on its own")
+            if not options["taxonomy"]:
+                raise CommandError(f"--fix {FIX_TAXONOMY} needs --taxonomy <csv>")
+            if self.locale != Locale.get_default():
+                raise CommandError(f"--fix {FIX_TAXONOMY} works from the {Locale.get_default().language_code} posts, and updates their translations")
+            taxonomy = self.read_taxonomy(options["taxonomy"])
+
         pages = BlogArticlePage.objects.filter(locale=self.locale).order_by("path")
         if options["slugs"]:
             pages = pages.filter(slug__in=options["slugs"])
@@ -272,6 +353,7 @@ class Command(BaseCommand):
             if missing:
                 raise CommandError(f"No {self.locale.language_code} blog post with slug {', '.join(sorted(missing))}")
 
+        self.limited_to_slugs = bool(options["slugs"])
         self.poster_plans = {}
         self.counts = {}
         # Written even when there is nothing to report, so a stale report from an earlier run is
@@ -298,6 +380,9 @@ class Command(BaseCommand):
                 self.stdout.write(f"{prefix}Setting image text for {len(self.image_decisions)} images from {options['decisions']}")
                 for file_hash, decision in self.image_decisions.items():
                     self.isolated(FIX_IMAGE_TEXT, "", self.set_image_text, file_hash, decision, detail=f"image with hash {file_hash}")
+            if taxonomy is not None:
+                self.stdout.write(f"{prefix}Applying topics and tags from {options['taxonomy']}")
+                self.fix_taxonomy(taxonomy, pages)
         finally:
             self.report_file.close()
 
@@ -728,6 +813,258 @@ class Command(BaseCommand):
             revision = author.save_revision(log_action=True)
             revision.publish(log_action=True)
         self.record(None, {**row, "action": CHANGED, "detail": "renamed and published", "revision_id": revision.pk})
+
+    # -----------------------------------------------------------------------
+    # Taxonomy
+    # -----------------------------------------------------------------------
+
+    def read_taxonomy(self, path):
+        """Each post's new topic and tags, as {slug: (topic slug, [tag slugs])}."""
+        try:
+            with open(path, newline="") as taxonomy_file:
+                reader = csv.DictReader(taxonomy_file)
+                rows = list(reader)
+        except OSError as exc:
+            raise CommandError(f"Could not read {path}: {exc}") from exc
+        missing = {"slug", "final_topic", "final_tags"} - set(reader.fieldnames or ())
+        if missing:
+            raise CommandError(f"{path} has no {', '.join(sorted(missing))} column")
+        topic_slugs = [term.slug for term in TOPICS]
+        tag_slugs = {term.slug for term in TAGS}
+        posts = {}
+        for number, row in enumerate(rows, start=2):
+            slug, topic = (row["slug"] or "").strip(), (row["final_topic"] or "").strip()
+            tags = list(dict.fromkeys(tag.strip() for tag in (row["final_tags"] or "").split("|") if tag.strip()))
+            if not slug or topic not in topic_slugs:
+                raise CommandError(f"{path} line {number}: needs a slug and one of the topics {', '.join(topic_slugs)}")
+            unknown = sorted(set(tags) - tag_slugs)
+            if unknown:
+                raise CommandError(f"{path} line {number}: not on the tag list: {', '.join(unknown)}")
+            if slug in posts:
+                raise CommandError(f"{path} line {number}: {slug} is listed twice")
+            posts[slug] = (topic, tags)
+        return posts
+
+    def fix_taxonomy(self, posts, pages):
+        """Put the kept topics and tags in place, move the posts onto them, then delete what no
+        post uses any more."""
+        # Topics and tags that were skipped or failed: posts that need one are skipped too.
+        self.blocked_terms = set()
+        self.topics = {term.slug: self.prepare_term(BlogTopic, term, "topic") for term in TOPICS}
+        self.tags = {term.slug: self.prepare_term(BlogTag, term, "tag") for term in TAGS}
+        topic_terms = {term.slug: term for term in TOPICS}
+        tag_terms = {term.slug: term for term in TAGS}
+
+        # Pages a dry run would move onto the new topics and tags. They still hold their old ones,
+        # which mustn't count as uses of a topic or tag about to be deleted. A real run needs no
+        # such list: a post it moved no longer uses them, and one that failed still does.
+        self.retagged = set()
+        planned = Counter()
+        for page in pages:
+            if page.slug not in posts:
+                self.record(page, {"fix": FIX_TAXONOMY, "action": SKIPPED, "detail": "not in the CSV, topic and tags unchanged"})
+                continue
+            topic_slug, tag_slugs = posts[page.slug]
+            planned[topic_terms[topic_slug].name] += 1
+            self.retag_post(page, topic_terms[topic_slug], [tag_terms[slug] for slug in tag_slugs])
+        if not self.limited_to_slugs:
+            found = set(BlogArticlePage.objects.filter(locale=self.locale, slug__in=posts).values_list("slug", flat=True))
+            detail = f"no {self.locale.language_code} post with this slug"
+            for slug in sorted(set(posts) - found):
+                self.record(None, {"fix": FIX_TAXONOMY, "slug": slug, "action": SKIPPED, "detail": detail})
+
+        for slug in RETIRED_TOPICS:
+            topic = BlogTopic.objects.filter(locale=self.locale, slug=slug).first()
+            if topic is not None:
+                self.isolated(FIX_TAXONOMY, slug, self.delete_if_unused, topic, "topic", detail="delete topic")
+        kept_tags = [tag.pk for tag in self.tags.values() if tag is not None]
+        for tag in BlogTag.objects.filter(locale=self.locale).exclude(pk__in=kept_tags).order_by("slug"):
+            self.isolated(FIX_TAXONOMY, tag.slug, self.delete_if_unused, tag, "tag", detail="delete tag")
+
+        if self.dry_run:
+            counts = planned.most_common()
+            self.stdout.write(f"{self.locale.language_code} posts per topic in the CSV: {', '.join(f'{name} {count}' for name, count in counts)}")
+        else:
+            counts = Counter(BlogArticlePage.objects.filter(locale=self.locale).values_list("topic__name", flat=True)).most_common()
+            self.stdout.write(f"{self.locale.language_code} posts per topic now: {', '.join(f'{name} {count}' for name, count in counts)}")
+
+    def prepare_term(self, model, term, kind):
+        """Find, rename or create one kept topic or tag and publish it, renaming its translations to
+        match. Returns it, or None if it is still to be created (in a dry run) or couldn't be.
+
+        If it's skipped or fails, its translations are left alone and it's blocked, so no post is
+        moved onto it until a rerun.
+        """
+        found = model.objects.filter(locale=self.locale, slug=term.slug).first()
+        if found is None and term.was:
+            found = model.objects.filter(locale=self.locale, slug=term.was).first()
+        new = f"{term.name} ({term.slug})"
+        rows = []
+        try:
+            with transaction.atomic():
+                if found is None:
+                    if self.dry_run:
+                        rows.append({"action": WOULD_CHANGE, "detail": f"create and publish the {kind}", "new": new})
+                    else:
+                        found = model(name=term.name, slug=term.slug, locale=self.locale, live=False)
+                        found.save()
+                        revision = found.save_revision(log_action=True)
+                        revision.publish(log_action=True)
+                        rows.append({"action": CHANGED, "detail": f"created and published the {kind}", "new": new, "revision_id": revision.pk})
+                else:
+                    old_name = found.name
+                    rows += self.update_term(found, term.name, term.slug, kind)
+                    if any(row["action"] == SKIPPED for row in rows):
+                        self.blocked_terms.add((model, term.slug))
+                        translations = []
+                    else:
+                        translations = found.get_translations().select_related("locale").order_by("locale__language_code")
+                    for translation in translations:
+                        # The slug has to match for the translation to be found. A name still in
+                        # English follows the English rename; a translated one is kept.
+                        name = term.name if translation.name == old_name else translation.name
+                        rows += self.update_term(translation, name, term.slug, f"{translation.locale.language_code} {kind}")
+        except Exception as exc:
+            # Rolled back, so `found` is unchanged: it is still the kept term, never one to delete.
+            rows = [{"action": FAILED, "detail": f"{kind}: {type(exc).__name__}: {exc}"}]
+            self.blocked_terms.add((model, term.slug))
+        for row in rows:
+            self.record(None, {"fix": FIX_TAXONOMY, "slug": term.slug, **row})
+        return found
+
+    def update_term(self, snippet, name, slug, kind):
+        """Rename one topic or tag snippet and publish it, returning its report rows.
+
+        A snippet that isn't live is published from its latest revision, since a topic or tag only
+        shows once published; that includes a translation wagtail-localize's Translate put back to
+        draft. A live one with a pending draft is skipped, since publishing would publish that edit.
+        """
+        old = f"{snippet.name} ({snippet.slug})"
+        if snippet.live and snippet.has_unpublished_changes:
+            return [{"action": SKIPPED, "detail": f"{kind} has an unpublished draft: publish or revert it, then rerun", "old": old}]
+        draft = snippet.get_latest_revision_as_object()
+        if snippet.live and (draft.name, draft.slug) == (name, slug):
+            return []
+        renamed = (draft.name, draft.slug) != (name, slug)
+        row = {"old": old, "new": f"{name} ({slug})"}
+        if self.dry_run:
+            return [{**row, "action": WOULD_CHANGE, "detail": f"{kind}: {'rename and publish' if renamed else 'publish'}"}]
+        draft.name, draft.slug = name, slug
+        revision = draft.save_revision(log_action=True)
+        revision.publish(log_action=True)
+        return [{**row, "action": CHANGED, "detail": f"{kind}: {'renamed and published' if renamed else 'published'}", "revision_id": revision.pk}]
+
+    def retag_post(self, page, topic_term, tag_terms):
+        """Give a post and each of its translations their new topic and tags, in one transaction."""
+        translations = page.get_translations().select_related("locale").order_by("locale__language_code")
+        rows_by_page = []
+        try:
+            with transaction.atomic():
+                for each in (page, *translations):
+                    rows_by_page.append((each, self.retag_page(each, topic_term, tag_terms)))
+        except Exception as exc:
+            rows_by_page = [(page, [{"action": FAILED, "detail": f"{type(exc).__name__}: {exc}"}])]
+        for each, rows in rows_by_page:
+            for row in rows:
+                self.record(each, {"fix": FIX_TAXONOMY, **row})
+
+    def retag_page(self, page, topic_term, tag_terms):
+        """Set one page's topic and tags and publish it, returning its report rows.
+
+        Tags always point at the default-locale tags; a translation's topic is the translation of
+        the post's topic, created from it if the locale has none yet.
+        """
+        prefix = "" if page.locale_id == self.locale.pk else f"{page.locale.language_code} translation: "
+        topic = self.topics[topic_term.slug]
+        if topic is not None and page.locale_id != self.locale.pk:
+            topic = topic.get_translation_or_none(page.locale)
+        tags = [self.tags[term.slug] for term in tag_terms]
+        draft = page.get_latest_revision_as_object()
+        old_topic, old_tags = draft.topic, list(draft.tags.all())
+
+        rows = []
+        if old_topic is None or topic is None or old_topic.pk != topic.pk:
+            rows.append({"detail": f"{prefix}topic", "old": old_topic.name if old_topic else "", "new": topic_term.name})
+        old_tag_pks = {tag.pk for tag in old_tags}
+        new_tag_pks = {tag.pk for tag in tags if tag is not None}
+        added = [term.name for term, tag in zip(tag_terms, tags) if tag is None or tag.pk not in old_tag_pks]
+        removed = [tag.name for tag in old_tags if tag.pk not in new_tag_pks]
+        if added or removed:
+            detail = f"{prefix}tags: added {', '.join(added) or 'none'}; removed {', '.join(removed) or 'none'}"
+            rows.append({"detail": detail, "old": ", ".join(tag.name for tag in old_tags), "new": ", ".join(term.name for term in tag_terms)})
+        if not rows:
+            return []
+
+        if not page.live or page.has_unpublished_changes:
+            # Publishing would put someone's unfinished edit live, or make an unpublished page live.
+            reason = "has unpublished changes" if page.live else "isn't published"
+            return [{**row, "action": SKIPPED, "detail": f"{reason}, set by hand or rerun once it's published: {row['detail']}"} for row in rows]
+        needed = [(BlogTopic, topic_term.slug), *((BlogTag, term.slug) for term in tag_terms)]
+        if any(term in self.blocked_terms for term in needed):
+            return [{**row, "action": SKIPPED, "detail": f"a topic or tag it needs was skipped or failed above: {row['detail']}"} for row in rows]
+        if self.dry_run:
+            self.retagged.add(page.pk)
+            if topic is None and page.locale_id != self.locale.pk:
+                rows[0]["detail"] += f" (creates the {page.locale.language_code} topic)"
+            return [{**row, "action": WOULD_CHANGE} for row in rows]
+
+        if topic is None:
+            topic = self.topics[topic_term.slug].copy_for_translation(page.locale)
+            topic.save()
+            topic.save_revision(log_action=True).publish(log_action=True)
+            rows[0]["detail"] += f" (created the {page.locale.language_code} topic)"
+        draft.topic = topic
+        draft.tagged_items = [TaggedBlogArticle(tag=tag) for tag in tags]
+        revision = draft.save_revision(log_action=True)
+        revision.publish(log_action=True)
+        return [{**row, "action": CHANGED, "revision_id": revision.pk} for row in rows]
+
+    def delete_if_unused(self, snippet, kind):
+        """Delete a retired topic or a tag that's off the list, with its translations, once nothing
+        uses any of them."""
+        snippets = [*snippet.get_translations(), snippet]
+        uses = sorted({use for each in snippets for use in self.uses_of(each)})
+        row = {"fix": FIX_TAXONOMY, "slug": snippet.slug, "old": f"{snippet.name} ({snippet.slug})"}
+        translations = f" and its {len(snippets) - 1} translations" if len(snippets) > 1 else ""
+        if uses:
+            listed = ", ".join(uses[:5]) + (f" and {len(uses) - 5} more" if len(uses) > 5 else "")
+            self.record(None, {**row, "action": SKIPPED, "detail": f"{kind} kept, still used by {listed}"})
+            return
+        if self.dry_run:
+            self.record(None, {**row, "action": WOULD_CHANGE, "detail": f"delete the {kind}{translations}"})
+            return
+        for each in snippets:
+            log(each, "wagtail.delete")
+            each.delete()
+        self.record(None, {**row, "action": CHANGED, "detail": f"deleted the {kind}{translations}"})
+
+    def uses_of(self, snippet):
+        """What still uses a topic or tag: blog posts, saved or in a pending draft, topic pages, and
+        anything else in Wagtail's reference index, such as a blog index's featured topics."""
+        if isinstance(snippet, BlogTopic):
+            posts = BlogArticlePage.objects.filter(topic=snippet)
+            uses = {f"topic page {slug}" for slug in BlogTopicPage.objects.filter(topic=snippet).values_list("slug", flat=True)}
+            in_drafts = [slug for slug, topic_pk, _ in self.pending_drafts() if topic_pk == snippet.pk]
+        else:
+            posts = BlogArticlePage.objects.filter(tagged_items__tag=snippet)
+            uses = set()
+            in_drafts = [slug for slug, _, tag_pks in self.pending_drafts() if snippet.pk in tag_pks]
+        uses |= {f"post {slug} ({locale})" for slug, locale in posts.exclude(pk__in=self.retagged).values_list("slug", "locale__language_code")}
+        uses |= {f"draft of {slug}" for slug in in_drafts}
+        # Posts and topic pages are checked above, from their own rows, in case the index is stale.
+        covered = ContentType.objects.get_for_models(BlogArticlePage, BlogTopicPage).values()
+        for reference in ReferenceIndex.get_references_to(snippet).exclude(content_type__in=covered):
+            uses.add(f"{ContentType.objects.get_for_id(reference.content_type_id).name.lower()} {reference.object_id}")
+        return uses
+
+    def pending_drafts(self):
+        """The topic and tags in each blog post's unpublished draft, as (slug, topic pk, tag pks)."""
+        if not hasattr(self, "_pending_drafts"):
+            self._pending_drafts = []
+            for page in BlogArticlePage.objects.filter(has_unpublished_changes=True):
+                draft = page.get_latest_revision_as_object()
+                self._pending_drafts.append((page.slug, draft.topic_id, {tag.pk for tag in draft.tags.all()}))
+        return self._pending_drafts
 
     # -----------------------------------------------------------------------
     # Reporting
