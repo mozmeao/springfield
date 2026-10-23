@@ -680,7 +680,7 @@ def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
 
     youtube_id = None
     if "youtube.com" in video_url or "youtu.be" in video_url:
-        youtube_id = video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
+        youtube_id = youtube_video_id(video_url) or video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
 
     button = video_element.find("button", class_="fl-video-play")
     assert button and button["aria-label"] == alt

@@ -1,3 +1,8 @@
+## 2026-10-23
+
+- Video blocks have a Poster setting. "YouTube thumbnail" (the default for new video blocks) adds the video's own thumbnail to the image library when you save, and changes with the video URL. "Upload an image" uses your own poster image, and is required for assets.mozilla.net videos. Existing videos keep their poster image.
+- Drafts save with an incomplete video block. The poster is checked when you publish.
+
 ## 2026-10-21
 
 - Blog articles have an "Exclude from RSS" checkbox on the Settings tab. It keeps the article out of the blog's RSS feeds; the article still shows on the blog. Translations follow after Sync translated pages and publish.
