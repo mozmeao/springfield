@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.functional import cached_property
+from django.utils.timezone import template_localtime
 from django.utils.translation import gettext as _, gettext_lazy
 
 from django_filters.filters import ModelMultipleChoiceFilter
@@ -109,4 +110,4 @@ def translations_display(page):
 
 
 def post_date_display(page):
-    return date_format(page.first_published_at) if page.first_published_at else _("Not published")
+    return date_format(template_localtime(page.first_published_at)) if page.first_published_at else _("Not published")
