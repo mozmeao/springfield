@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from datetime import UTC, datetime
 from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -12,8 +13,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
-from django.utils import translation
-from django.utils.formats import date_format
+from django.utils import timezone, translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -59,6 +59,7 @@ from springfield.cms.blocks import (
     IconListItemValue,
     ImpactDashBlock,
     QRCodeModalButtonBlock,
+    QuoteBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -4774,6 +4775,7 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
     assert url == "/pt-PT/article-url-locale-test/"
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
 def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
@@ -4782,9 +4784,13 @@ def test_roadmap_list_section_block(index_page, rf):
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    page.last_published_at = datetime(2026, 10, 13, 4, 1, tzinfo=UTC)
 
     request = rf.get(page.get_full_url())
-    response = page.serve(request)
+    # The Wagtail admin renders previews in the editor's own time zone.
+    with timezone.override("Europe/Berlin"):
+        response = page.serve(request)
     assert response.status_code == 200
 
     context = page.get_context(request)
@@ -4823,7 +4829,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+    assert "Last updated: Oct. 12, 2026" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
@@ -6760,3 +6766,61 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def _render_quote(**value):
+    block = QuoteBlock()
+    raw = {"quote": '<p data-block-key="q1">The web is for everyone.</p>', **value}
+    return BeautifulSoup(block.render(block.to_python(raw)), "html.parser").find("figure")
+
+
+def test_quote_block_without_style_renders_standard():
+    # Quote blocks saved before the style field existed have no "style" key.
+    figure = _render_quote(author="Ada Lovelace")
+
+    assert figure["class"] == ["fl-quote"]
+    assert figure.find(class_="fl-quote-mark") is None
+    assert "The web is for everyone." in figure.find("blockquote").get_text()
+
+
+@pytest.mark.parametrize("style", ["pull", "passage"])
+def test_quote_block_style_sets_class(style):
+    figure = _render_quote(style=style)
+
+    assert figure["class"] == ["fl-quote", f"fl-quote-{style}"]
+
+
+def test_quote_block_pull_quote_mark_is_hidden_from_screen_readers():
+    figure = _render_quote(style="pull")
+
+    mark = figure.find(class_="fl-quote-mark")
+    assert mark["aria-hidden"] == "true"
+    assert mark.get_text() == ""
+
+
+def test_quote_block_passage_has_no_quote_mark():
+    assert _render_quote(style="passage").find(class_="fl-quote-mark") is None
+
+
+def test_quote_block_attribution_is_optional():
+    assert _render_quote().find("figcaption") is None
+
+
+def test_quote_block_renders_name_and_title():
+    caption = _render_quote(author="Karen Kim", authors_title="product manager for Firefox desktop").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+    # A real comma and space, so Reader View and feeds don't run the two together.
+    assert caption.get_text() == "Karen Kim, product manager for Firefox desktop"
+
+
+def test_quote_block_renders_name_without_title():
+    assert _render_quote(author="Karen Kim").find("figcaption").get_text() == "Karen Kim"
+
+
+def test_quote_block_renders_title_without_name():
+    caption = _render_quote(authors_title="Firefox community").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name") is None
+    assert caption.get_text() == "Firefox community"
