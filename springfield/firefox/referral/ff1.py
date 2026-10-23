@@ -78,7 +78,12 @@ def _prf(key: bytes, data: bytes) -> bytes:
 
     `data` (which is P || Q) is always a whole number of 16-byte blocks, so a
     single CBC encryption over a zero IV yields the CBC-MAC as its final block.
+
+    Semgrep flags unauthenticated CBC. That rule targets message encryption;
+    here CBC is the PRF the standard specifies and its output is never a
+    ciphertext anyone decrypts, so no MAC applies.
     """
+    # nosemgrep: python.cryptography.security.mode-without-authentication.crypto-mode-without-authentication
     encryptor = Cipher(algorithms.AES(key), modes.CBC(b"\x00" * 16)).encryptor()
     ciphertext = encryptor.update(data) + encryptor.finalize()
     return ciphertext[-16:]
@@ -92,11 +97,16 @@ def _generate_s(key: bytes, R: bytes, d: int) -> bytes:
     parameters d <= 16 so only R itself is needed, but the full expansion is
     implemented for conformance with larger domains. A fresh ECB encryptor per
     block keeps the code obviously correct (ECB has no chaining).
+
+    ECB is what the standard specifies for this single-block expansion step. It
+    encrypts one counter block at a time, not a message, so the usual ECB
+    concern about repeating plaintext blocks does not arise.
     """
     S = bytearray(R)
     j = 1
     while len(S) < d:
         block = bytes(r ^ counter for r, counter in zip(R, j.to_bytes(16, "big")))
+        # nosemgrep: python.cryptography.security.insecure-cipher-mode-ecb.insecure-cipher-mode-ecb
         encryptor = Cipher(algorithms.AES(key), modes.ECB()).encryptor()
         S += encryptor.update(block) + encryptor.finalize()
         j += 1

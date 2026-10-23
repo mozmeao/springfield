@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("blog", "0004_blogtopicpage_hide_breadcrumb_and_more"),
+        ("blog", "0005_blogarticlepage_exclude_from_rss"),
     ]
 
     operations = [

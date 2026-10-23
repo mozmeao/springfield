@@ -2,15 +2,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.test import override_settings
+from django.utils import timezone
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.admin.panels import FieldRowPanel
 from wagtail.models import Locale, PageViewRestriction
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
@@ -1962,6 +1965,17 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
     assert soup.find("div", class_="fl-banner") is None
 
 
+def _panel_labels(panels):
+    return [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in panels]
+
+
+def test_blog_index_internal_title_and_page_heading_are_in_settings_tab():
+    content_tab, *_, settings_tab = BlogIndexPage.get_edit_handler().children
+
+    assert _panel_labels(content_tab.children) == ["title", "featured_articles", "Article Sections"]
+    assert _panel_labels(settings_tab.children)[:2] == ["internal_title", "page_heading"]
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1970,27 +1984,64 @@ def test_blog_article_edit_handler_tabs():
 
 def test_blog_article_content_tab_panel_order():
     content_tab = BlogArticlePage.get_edit_handler().children[0]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in content_tab.children]
 
-    assert labels == [
+    assert _panel_labels(content_tab.children) == [
         "title",
-        "internal_title",
-        "description",
-        "Topic & Tags",
-        "article_authors",
-        "Dates",
-        "Featured Image",
-        "Hero Options",
+        "Post details",
+        "Featured image & hero",
         "content",
-        "bottom_banner",
+        "Bottom banner",
     ]
+
+
+def test_blog_article_content_tab_groups():
+    _, post_details, featured, _, bottom_banner = BlogArticlePage.get_edit_handler().children[0].children
+
+    assert _panel_labels(post_details.children) == [
+        "description",
+        "topic",
+        "tags",
+        "article_authors",
+        "first_published_at",
+        "updated_date",
+        "hide_dates",
+    ]
+    assert _panel_labels(featured.children) == [
+        "image",
+        "image_alt",
+        "listing_image",
+        "listing_image_alt",
+        "Dark mode & mobile versions",
+        "hero_style",
+        "hero_video",
+    ]
+    assert _panel_labels(featured.children[4].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
+    assert isinstance(featured.children[4], FieldRowPanel)
+    for panel in (post_details, featured, bottom_banner):
+        assert "collapsed" in panel.classname
+
+
+def test_blog_article_hero_video_shows_only_for_video_hero_style():
+    featured = BlogArticlePage.get_edit_handler().children[0].children[2]
+    hero_video = featured.children[-1]
+
+    assert featured.attrs["data-controller"] == "w-rules"
+    assert hero_video.field_name == "hero_video"
+    assert hero_video.attrs["data-w-rules-target"] == "show"
+    assert json.loads(hero_video.attrs["data-w-rules"]) == {"hero_style": ["video"]}
+
+
+def test_blog_article_internal_title_is_in_settings_tab():
+    content_tab, *_, settings_tab = BlogArticlePage.get_edit_handler().children
+
+    assert "internal_title" not in _panel_labels(content_tab.children)
+    assert _panel_labels(settings_tab.children)[0] == "internal_title"
 
 
 def test_blog_article_related_articles_tab_panel_order():
     related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
 
-    assert labels == [
+    assert _panel_labels(related_articles_tab.children) == [
         "hide_related",
         "related_articles",
     ]
@@ -2030,6 +2081,34 @@ def test_blog_article_hero_renders_published_date(make_article, rf):
     assert meta
     assert meta.find("time")["datetime"].startswith("2026-06-12")
     assert "Last updated on" not in meta.get_text()
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_shows_site_time_zone_date(make_article, rf):
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
+    assert time_el["datetime"].startswith("2026-10-13T04:01")
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_ignores_the_editor_time_zone(make_article, rf):
+    # The Wagtail admin renders previews in the editor's own time zone.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    with timezone.override("Europe/Berlin"):
+        response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
 
 
 def test_blog_article_hero_renders_updated_date(make_article, rf):

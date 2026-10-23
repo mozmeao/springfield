@@ -219,6 +219,7 @@ DOWNLOAD_BUTTON_TYPE = "download_button"
 STORE_BUTTON_TYPE = "store_button"
 FOCUS_BUTTON_TYPE = "focus_button"
 QR_CODE_MODAL_BUTTON_TYPE = "qr_code_modal_button"
+VIDEO_MODAL_BUTTON_TYPE = "video_modal_button"
 REFERRAL_DOWNLOAD_BUTTON_TYPE = "referral_download"
 
 
@@ -247,6 +248,27 @@ def validate_animation_url(value):
 def validate_video_url(value):
     if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
+    return value
+
+
+def youtube_video_id(url):
+    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None."""
+    parsed = urlparse(url or "")
+    host = parsed.netloc.lower().removeprefix("www.").removeprefix("m.")
+    if host == "youtu.be":
+        return parsed.path.strip("/").split("/")[0] or None
+    if host in ("youtube.com", "youtube-nocookie.com"):
+        if parsed.path == "/watch":
+            return QueryDict(parsed.query).get("v") or None
+        path_segments = parsed.path.strip("/").split("/")
+        if len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed") and path_segments[1]:
+            return path_segments[1]
+    return None
+
+
+def validate_youtube_url(value):
+    if value and not youtube_video_id(value):
+        raise ValidationError("Please provide a YouTube video URL, e.g. https://www.youtube.com/watch?v=VIDEO_ID.")
     return value
 
 
@@ -566,7 +588,7 @@ def get_button_types(allow_uitour=False, allow_referral_download=False):
     Returns:
         List of button type strings.
     """
-    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE]
+    base_button_types = [BUTTON_TYPE, FXA_BUTTON_TYPE, DOWNLOAD_BUTTON_TYPE, STORE_BUTTON_TYPE, FOCUS_BUTTON_TYPE, VIDEO_MODAL_BUTTON_TYPE]
     if allow_uitour:
         base_button_types = [*base_button_types, UITOUR_BUTTON_TYPE, SET_AS_DEFAULT_BUTTON, QR_CODE_MODAL_BUTTON_TYPE]
     if allow_referral_download:
@@ -1000,6 +1022,37 @@ def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
     return _QRCodeModalButtonBlock(**kwargs)
 
 
+class VideoModalButtonValue(BaseButtonValue):
+    def video_id(self) -> str:
+        return youtube_video_id(self.get("video_url")) or ""
+
+
+def VideoModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
+    class _VideoModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
+        settings = BaseButtonSettings(themes=themes)
+        video_url = blocks.URLBlock(
+            label="YouTube URL",
+            help_text="The video opens in a modal and starts playing.",
+            validators=[validate_youtube_url],
+        )
+        video_title = blocks.CharBlock(
+            label="Video title",
+            help_text="Describes the video for screen readers.",
+        )
+
+        class Meta:
+            template = "cms/blocks/video-modal-button.html"
+            label = "Video Modal Button"
+            label_format = "{custom_label} {pretranslated_label}"
+            value_class = VideoModalButtonValue
+            form_layout = blocks.BlockGroup(
+                children=["pretranslated_label", "custom_label", "video_url", "video_title"],
+                settings=["settings"],
+            )
+
+    return _VideoModalButtonBlock(**kwargs)
+
+
 def DownloadFirefoxButtonSettings(themes=BUTTON_THEMES, **kwargs):
     themes = themes or BUTTON_THEME_CHOICES.keys()
 
@@ -1157,6 +1210,7 @@ def MixedButtonsBlock(
         STORE_BUTTON_TYPE: StoreButtonBlock(),
         FOCUS_BUTTON_TYPE: FirefoxFocusButtonBlock(themes=themes),
         QR_CODE_MODAL_BUTTON_TYPE: QRCodeModalButtonBlock(themes=themes),
+        VIDEO_MODAL_BUTTON_TYPE: VideoModalButtonBlock(themes=themes),
         REFERRAL_DOWNLOAD_BUTTON_TYPE: ReferralDownloadBlock(),
     }
     return blocks.StreamBlock(
@@ -1744,6 +1798,46 @@ class ReferralControlsBlock(blocks.StructBlock):
         template = "cms/blocks/referral-controls.html"
 
 
+class SharingLinksBlock(blocks.StructBlock):
+    """A row of buttons for sharing a URL: copy it, email it or show it as a QR code."""
+
+    copy_label = blocks.CharBlock(default="Copy link", label="Share this button label", help_text="Label for the button that copies the link.")
+    copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
+    url = blocks.URLBlock(label="Share this URL", help_text="The link that is copied, emailed and encoded in the QR code.")
+    email_label = blocks.CharBlock(
+        default="Share by email",
+        help_text="Read by screen readers for the email button, which only shows an icon.",
+    )
+    email_subject = blocks.CharBlock(required=False, label="E-mail subject")
+    email_body = blocks.TextBlock(
+        required=False,
+        label="E-mail body",
+        help_text="A short paragraph for the email draft. The shared URL is added to the end.",
+    )
+    qr_label = blocks.CharBlock(
+        default="Show QR code",
+        label="QR code button label",
+        help_text="Read by screen readers for the QR code button, which only shows an icon, and for its modal.",
+    )
+    qr_heading = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False, label="QR code modal heading")
+    qr_text = blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES, required=False, label="QR code modal text")
+    analytics_id = UUIDBlock(
+        label="Analytics ID",
+        help_text="Unique identifier for analytics tracking. Leave blank to auto-generate.",
+        required=False,
+    )
+
+    class Meta:
+        label = "Sharing Links"
+        label_format = "Sharing Links - {url}"
+        icon = "link"
+        template = "cms/blocks/sharing-links.html"
+        form_layout = blocks.BlockGroup(
+            children=["copy_label", "url", "email_subject", "email_body", "qr_heading", "qr_text"],
+            settings=["copy_success_label", "email_label", "qr_label", "analytics_id"],
+        )
+
+
 class TabReferralControlsBlock(blocks.StreamBlock):
     """Wrapper making ReferralControlsBlock a genuinely optional tab field.
 
@@ -2127,6 +2221,7 @@ def MediaContentBlock(allow_uitour=False, *args, **kwargs):
                         required=False,
                     ),
                 ),
+                ("sharing_links", SharingLinksBlock()),
             ]
         )
 
@@ -2190,6 +2285,20 @@ class CodeBlock(blocks.StructBlock):
 
 
 class QuoteBlock(blocks.StructBlock):
+    style = blocks.ChoiceBlock(
+        choices=[
+            ("", "Standard"),
+            ("pull", "Pull quote"),
+            ("passage", "Passage"),
+        ],
+        required=False,
+        default="",
+        label="Style",
+        help_text=(
+            "Standard for someone quoted. Pull quote for one short line from the article; "
+            "it adds its own quotation mark, so leave yours out. Passage for long extracts, definitions or lists of comments."
+        ),
+    )
     quote = blocks.RichTextBlock(
         features=HEADING_TEXT_FEATURES,
         label="Quote",
@@ -2819,6 +2928,7 @@ def TwoColumnCardBlock(allow_uitour=False, *args, **kwargs):
                 ("rich_text", blocks.RichTextBlock(features=EXPANDED_TEXT_FEATURES)),
                 ("icon_list", IconListBlock()),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
                 ("media", MediaBlock(max_num=1, min_num=0, required=False)),
                 ("numbered_list", NumberedListBlock()),
                 ("timeline", TimelineBlock()),
@@ -3055,6 +3165,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                 ("resources", ResourcesBlock()),
                 ("two_column_cards", TwoColumnCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
                 ("comparison_table", ComparisonTableBlock()),
                 ("browser_comparison_table", BrowserComparisonTableBlock()),
                 ("certification_list", CertificationListBlock()),
@@ -3094,6 +3205,7 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
                 ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour)),
                 ("line_cards", LineCardsBlock(allow_uitour=allow_uitour)),
                 ("button_row", ButtonRowBlock(allow_uitour=allow_uitour)),
+                ("sharing_links", SharingLinksBlock()),
             ],
             required=False,
         )
@@ -3340,6 +3452,15 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             max_num=2,
             required=False,
         )
+        # The referral download CTA renders fixed IDs, so the page allows only one, and only in the first row.
+        buttons_below = MixedButtonsBlock(
+            button_types=get_button_types(allow_uitour=allow_uitour),
+            min_num=0,
+            max_num=2,
+            required=False,
+            label="Buttons below",
+            help_text="A second row of buttons, below the first row and its privacy notice.",
+        )
         media = MediaBlock(
             max_num=1,
             min_num=0,
@@ -3352,7 +3473,7 @@ def KitIntroBlock(allow_uitour=False, allow_referral_download=False, allow_media
             label = "Kit Intro"
             label_format = "{heading}"
             form_layout = blocks.BlockGroup(
-                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "media"],
+                children=["heading", *(["media_above_buttons"] if allow_media_above_buttons else []), "buttons", "buttons_below", "media"],
                 settings=["settings", "scroll_to_see_more_snippet"],
             )
 

@@ -7,7 +7,7 @@ from django.db import transaction
 
 from springfield.base.fixtures.registry import PAGE_FIXTURES
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_scroll_to_see_more_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_partner_repack_snippet, get_pre_footer_cta_form_snippet, get_scroll_to_see_more_snippet
 
 
 def _as_pages(result):
@@ -47,6 +47,9 @@ class Command(BaseCommand):
 
         scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
         self.stdout.write(self.style.SUCCESS(f"Scroll to See More Snippet loaded: {scroll_to_see_more_snippet.id}"))
+
+        partner_repack = get_partner_repack_snippet()
+        self.stdout.write(self.style.SUCCESS(f"Partner Download Snippet loaded: {partner_repack.slug}"))
 
         for fixture in PAGE_FIXTURES:
             for page in _as_pages(fixture()):

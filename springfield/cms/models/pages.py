@@ -11,6 +11,7 @@ import json
 import re
 import time
 import uuid
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django import forms
@@ -423,7 +424,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -447,6 +448,10 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    promote_panels = UTMParamsMixin.promote_panels + [
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1289,7 +1294,7 @@ class FreeFormPage2026(
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
@@ -1333,10 +1338,6 @@ class FreeFormPage2026(
 
     def __str__(self):
         return f"FreeFormPage2026: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     @property
     def pencil_banners(self):
@@ -1682,7 +1683,7 @@ class SmartWindowPage(ImageAltTextMixin, PromotedPageMixin, UTMParamsMixin, Abst
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1709,10 +1710,6 @@ class SmartWindowPage(ImageAltTextMixin, PromotedPageMixin, UTMParamsMixin, Abst
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()
@@ -2347,6 +2344,11 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
             return {"page": page, "children": children}
 
         context["sections"] = [build_node(child) for child in children]
+
+        if self.slug == "flare-docs":
+            changelog = Path(settings.ROOT) / "CMS_CHANGELOG.md"
+            if changelog.exists():
+                context["changelog"] = changelog.read_text(encoding="utf-8")
         return context
 
 

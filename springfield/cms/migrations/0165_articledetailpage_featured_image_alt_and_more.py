@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0162_sharefirefoxpage"),
+        ("cms", "0164_partnerrepack"),
     ]
 
     operations = [

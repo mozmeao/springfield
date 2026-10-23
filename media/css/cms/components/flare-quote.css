@@ -1,0 +1,112 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+/* Quotes: the Quote block (.fl-quote) and blockquotes typed into rich text. */
+
+:root {
+    --fl-quote-font-size: var(--token-font-size-xl);
+    --fl-quote-pull-font-size: 1.375rem; /* 22px */
+}
+
+/* Standard: someone quoted, with optional attribution. */
+.fl-rich-text blockquote,
+.fl-quote {
+    border-inline-start: 3px solid var(--fl-theme-quote-rule-color);
+    font-family: var(--fl-theme-font-family-headline);
+    font-size: var(--fl-quote-font-size);
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    margin: var(--token-spacing-2xl) 0;
+    padding-inline-start: var(--token-spacing-xl);
+}
+
+.fl-quote blockquote {
+    border: 0;
+    font: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+.fl-rich-text blockquote p,
+.fl-quote blockquote p {
+    margin: 0;
+}
+
+.fl-rich-text blockquote p + p,
+.fl-quote blockquote p + p {
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-rich-text blockquote cite,
+.fl-quote .fl-quote-author {
+    color: var(--fl-theme-quote-meta-color);
+    display: block;
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--token-font-size-md);
+    font-style: normal;
+    font-weight: var(--token-font-weight-regular);
+    line-height: 1.4;
+    margin-block-start: var(--token-spacing-md);
+}
+
+.fl-quote .fl-quote-name {
+    color: var(--fl-theme-color-text);
+    font-weight: var(--token-font-weight-semibold);
+}
+
+/* Pull quote: one short line lifted from the article, shown large between thin rules. */
+.fl-quote.fl-quote-pull {
+    border-block: 1px solid var(--fl-theme-quote-subtle-rule-color);
+    border-inline-start: 0;
+    font-size: var(--fl-quote-pull-font-size);
+    font-weight: var(--token-font-weight-medium);
+    line-height: 1.2;
+    margin: var(--token-layout-2xs) 0;
+
+    /* Less on top: the mark's glyph already has space above its ink. */
+    padding: var(--token-spacing-sm) 0 var(--token-spacing-xl);
+}
+
+.fl-quote-pull .fl-quote-mark {
+    block-size: 0.5em;
+    color: var(--fl-theme-quote-mark-color);
+    display: block;
+    font-size: 3.5em;
+    font-weight: var(--token-font-weight-semibold);
+    line-height: 1;
+    margin-block-end: var(--token-spacing-sm);
+    quotes: auto;
+}
+
+/* The mark follows the page language (“ „ «); the span is aria-hidden. */
+.fl-quote-pull .fl-quote-mark::before {
+    content: open-quote;
+}
+
+/* Close the quote level again, so the next pull quote's mark isn't a nested ‘. */
+.fl-quote-pull .fl-quote-mark::after {
+    content: no-close-quote;
+}
+
+/* Passage: long extracts, definitions or lists of comments, at body size. */
+.fl-quote.fl-quote-passage {
+    border-inline-start-color: var(--fl-theme-quote-subtle-rule-color);
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--token-font-size-lg);
+    line-height: 1.5;
+    margin: var(--token-spacing-xl) 0;
+}
+
+.fl-quote-passage blockquote p + p {
+    margin-block-start: var(--token-spacing-lg);
+}
+
+@media (--viewport-sm-up) {
+    :root {
+        --fl-quote-font-size: 1.375rem; /* 22px */
+        --fl-quote-pull-font-size: 2rem; /* 32px */
+    }
+}

@@ -76,3 +76,41 @@
     flex-basis: 100%;
 }
 /* stylelint-enable */
+
+/* Image listing rows edited in place */
+.listing tr:has(.inline-edit-cell) td {
+    vertical-align: top;
+}
+
+/* Align image inline editing textareas with other inputs in row. */
+.listing .inline-edit-cell textarea {
+    padding-bottom: 0.375rem;
+    padding-top: 0.375rem;
+}
+
+.listing .inline-edit-cell[data-inline-cell='title'],
+.listing .inline-edit-cell[data-inline-cell='description'] {
+    min-width: 14rem;
+}
+
+.listing .inline-edit-cell[data-inline-cell='title'] {
+    max-width: 20rem;
+}
+
+.listing .inline-edit-cell[data-inline-cell='title'] a {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listing tr[data-inline-dirty] {
+    box-shadow: inset 4px 0 0 var(--w-color-warning-100);
+}
+
+.image-usage-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}

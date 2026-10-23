@@ -30,10 +30,9 @@
     </content:content>
     {% if value.cta %}
       <content:cta>
-        {% for cta in value.cta %}
-          {% set block_position = block_position ~ ".cta-" ~ loop.index %}
-          {% include_block cta %}
-        {% endfor %}
+        {% with buttons_class = "is-horizontal is-center", button_position_label = "cta" %}
+          {% include_block value.cta %}
+        {% endwith %}
       </content:cta>
     {% endif %}
   </include:section>

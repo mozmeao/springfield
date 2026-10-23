@@ -57,6 +57,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/firefox/download/get.css"
+      ],
+      "name": "firefox_download_get"
+    },
+    {
+      "files": [
         "css/firefox/download/desktop/thanks-ie.scss"
       ],
       "name": "firefox_desktop_download_thanks_ie"
@@ -244,7 +251,8 @@
     {
       "files": [
         "css/cms/wagtail-admin.css",
-        "css/cms/routing/admin.css"
+        "css/cms/routing/admin.css",
+        "css/cms/workspaces/admin.css"
       ],
       "name": "wagtail-admin"
     },
@@ -599,6 +607,12 @@
     },
     {
       "files": [
+        "js/firefox/download/partner-download-init.es6.js"
+      ],
+      "name": "partner-download"
+    },
+    {
+      "files": [
         "js/base/mobile-attribution.js"
       ],
       "name": "mobile-attribution"
@@ -910,6 +924,12 @@
         "js/cms/wagtailadmin-image-alt-prefill-init.es6.js"
       ],
       "name": "wagtailadmin-image-alt-prefill"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-image-inline-edit.es6.js"
+      ],
+      "name": "wagtailadmin-image-inline-edit"
     },
     {
       "files": [

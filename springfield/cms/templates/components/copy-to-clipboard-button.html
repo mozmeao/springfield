@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props value="", label="", success_label="", theme_class="" #}
+{# props value="", label="", success_label="", theme_class="", analytics_text="", analytics_position="", analytics_id="" #}
 
 <button
   class="fl-button fl-copy-to-clipboard-button {{ theme_class }}"
@@ -13,6 +13,11 @@
   data-copy-value="{{ value }}"
   data-label-success="{{ success_label }}"
   aria-live="polite"
+  {% if analytics_text %}
+    data-cta-position="{{ analytics_position }}"
+    data-cta-text="{{ analytics_text|escape }}"
+    data-cta-uid="{{ analytics_id }}"
+  {% endif %}
 >
   <span class="fl-copy-to-clipboard-label">{{ label }}</span>
   <span class="fl-copy-to-clipboard-label-success hidden" aria-hidden="true">{{ success_label }}</span>

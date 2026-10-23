@@ -56,8 +56,7 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
 }
 
 /* download button checkbox labels */
-.fl-download-firefox-button .default-browser-label,
-.fl-download-firefox-button .marketing-opt-out-checkbox-label {
+.fl-download-firefox-button .default-browser-label {
     align-items: center;
     display: flex;
     font-size: var(--fl-theme-font-size-body-xs);
@@ -65,20 +64,49 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
     justify-content: flex-start;
 }
 
-.fl-download-firefox-button .default-browser-label input[type='checkbox'],
-.fl-download-firefox-button
-    .marketing-opt-out-checkbox-label
-    input[type='checkbox'] {
+.fl-download-firefox-button .default-browser-label input[type='checkbox'] {
     block-size: 16px;
     inline-size: 16px;
     min-block-size: 16px;
     min-inline-size: 16px;
 }
 
-/* Left-align download button contents when in a split layout with media */
+/* Marketing opt-out: its text wraps onto several lines, so it reads
+   left-aligned beside a checkbox held to the first line. */
+.marketing-opt-out-checkbox-label {
+    align-items: flex-start;
+    display: flex;
+    font-size: var(--fl-theme-font-size-body-xs);
+    gap: var(--token-spacing-sm);
+    max-inline-size: 42em;
+    text-align: start;
+}
+
+/* "Learn how we use the data" starts its own line beneath the opt-out text. */
+.marketing-opt-out-text a::before {
+    content: '\A';
+    white-space: pre;
+}
+
+.marketing-opt-out-checkbox-label input[type='checkbox'] {
+    block-size: 16px;
+    flex-shrink: 0;
+    inline-size: 16px;
+    min-block-size: 16px;
+    min-inline-size: 16px;
+}
+
 .fl-intro-media-right .fl-download-firefox-button,
 .fl-intro-media-left .fl-download-firefox-button {
     align-items: flex-start;
+}
+
+.fl-card-start .fl-download-firefox-button.has-marketing-opt-out {
+    align-items: flex-start;
+}
+
+.fl-card-end .fl-download-firefox-button.has-marketing-opt-out {
+    align-items: flex-end;
 }
 
 .fl-privacy-link {

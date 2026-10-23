@@ -51,9 +51,9 @@
 
   {% if value.cta %}
   <content:cta>
-    {% for cta in value.cta %}
-      {% include_block cta %}
-    {% endfor %}
+    {% with buttons_class = "is-horizontal is-center", button_position_label = "cta" %}
+      {% include_block value.cta %}
+    {% endwith %}
   </content:cta>
   {% endif %}
 </include:showcase>

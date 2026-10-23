@@ -21,15 +21,20 @@
     {% set hero_sizes = "(min-width: 1440px) 1100px, 100vw" if hero_style == "large_image" else "(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw" %}
     {% set hero_alt = alt_text(page.image_alt, page.image) %}
     <div class="image-variants-display">
-      {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, loading="lazy", alt=hero_alt, class=classes.primary) }}
+      {# Hidden variants are only skipped when lazy, so the hero loads first only when it has none. #}
+      {% if page.image_mobile or page.image_dark_mode or page.image_dark_mode_mobile %}
+        {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, height=page.image.height, loading="lazy", alt=hero_alt, class=classes.primary) }}
+      {% else %}
+        {{ srcset_image(page.image, hero_filterspec, sizes=hero_sizes, width=page.image.width, height=page.image.height, fetchpriority="high", alt=hero_alt, class=classes.primary) }}
+      {% endif %}
       {% if page.image_mobile %}
-        {{ srcset_image(page.image_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_mobile.width, loading="lazy", alt=hero_alt, class=classes.mobile) }}
+        {{ srcset_image(page.image_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_mobile.width, height=page.image_mobile.height, loading="lazy", alt=hero_alt, class=classes.mobile) }}
       {% endif %}
       {% if page.image_dark_mode_mobile %}
-        {{ srcset_image(page.image_dark_mode_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode_mobile.width, loading="lazy", alt=hero_alt, class=classes.dark_mode_mobile) }}
+        {{ srcset_image(page.image_dark_mode_mobile, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode_mobile.width, height=page.image_dark_mode_mobile.height, loading="lazy", alt=hero_alt, class=classes.dark_mode_mobile) }}
       {% endif %}
       {% if page.image_dark_mode %}
-        {{ srcset_image(page.image_dark_mode, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode.width, loading="lazy", alt=hero_alt, class=classes.dark_mode) }}
+        {{ srcset_image(page.image_dark_mode, hero_filterspec, sizes=hero_sizes, width=page.image_dark_mode.width, height=page.image_dark_mode.height, loading="lazy", alt=hero_alt, class=classes.dark_mode) }}
       {% endif %}
     </div>
   {% elif show_video %}
@@ -64,7 +69,7 @@
         <div class="fl-article-dates">
           {% if page.first_published_at %}
             <time class="fl-article-date" datetime="{{ page.first_published_at.isoformat() }}">
-              {{ page.first_published_at|date("DATE_FORMAT") }}
+              {{ page.first_published_at|timezone(settings.TIME_ZONE)|date("DATE_FORMAT") }}
             </time>
           {% endif %}
           {% if page.updated_date %}

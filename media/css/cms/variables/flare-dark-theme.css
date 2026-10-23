@@ -22,6 +22,12 @@
 --token-color-error-text-color: var(--token-color-soft-magenta);
 --fl-theme-code-background: var(--token-color-link-purple);
 
+/* Quotes */
+--fl-theme-quote-rule-color: var(--token-color-soft-purple-5);
+--fl-theme-quote-meta-color: var(--token-color-soft-purple-4);
+--fl-theme-quote-mark-color: var(--token-color-soft-purple-5);
+--fl-theme-quote-subtle-rule-color: var(--token-color-black-1);
+
 /* Divider color */
 --fl-theme-divider-color: var(--token-color-light-purple);
 --fl-subtle-border-color: var(--token-color-purple);

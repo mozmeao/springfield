@@ -8,6 +8,11 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
+{% block extra_meta %}
+  {% set feed_index = page %}
+  {% include 'blog/includes/blog-feed-links.html' %}
+{% endblock %}
+
 {% block body_class %}fl-blog-body fl-blog-all-body{% endblock %}
 
 {% block content %}

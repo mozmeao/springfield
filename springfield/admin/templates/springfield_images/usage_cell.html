@@ -1,0 +1,29 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+The pages and snippets that use an image, translations folded into one entry.
+{% endcomment %}
+{% load i18n %}
+<td class="inline-edit-cell" data-inline-cell="usage">
+    {% if instance.usage.groups %}
+        <ul class="image-usage-list">
+            {% for group in instance.usage.groups %}
+                <li>
+                    {% if group.edit_url %}<a href="{{ group.edit_url }}">{{ group.title }}</a>{% else %}{{ group.title }}{% endif %}
+                    {% if group.locale_count > 1 %}· {% blocktrans with count=group.locale_count %}{{ count }} locales{% endblocktrans %}{% endif %}
+                    {% if group.is_snippet %}<span class="w-status">{% trans "Snippet" %}</span>{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {% if instance.usage.more_count %}
+            <a href="{{ instance.usage_url }}">{% blocktrans with count=instance.usage.more_count %}+{{ count }} more{% endblocktrans %}</a>
+        {% endif %}
+    {% else %}
+        {% trans "Not used" %}
+    {% endif %}
+</td>
