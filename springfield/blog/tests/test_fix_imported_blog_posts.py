@@ -20,7 +20,7 @@ from wagtail.utils.file import hash_filelike
 
 from springfield.blog.fixtures.blog_fixtures import get_blog_index_page
 from springfield.blog.management.commands.fix_imported_blog_posts import crop_to_widescreen
-from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogTopic, HeroStyle
+from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, HeroStyle, TaggedBlogArticle
 from springfield.cms.models import SpringfieldImage
 
 pytestmark = [pytest.mark.django_db]
@@ -721,3 +721,262 @@ def test_one_failing_author_does_not_stop_the_others(tmp_path, index_page, monke
 
     assert [(row["slug"], row["action"]) for row in rows] == [("ada", "failed"), ("grace", "changed")]
     assert BlogAuthor.objects.get(slug="grace").name == "Grace"
+
+
+# -------------------------------------------------------------------------
+# taxonomy
+# -------------------------------------------------------------------------
+
+
+def taxonomy_csv(tmp_path, *rows):
+    """A mapping CSV like the reviewed one, with the columns the fix reads plus one it ignores."""
+    path = tmp_path / "taxonomy.csv"
+    with open(path, "w", newline="") as taxonomy_file:
+        writer = csv.writer(taxonomy_file)
+        writer.writerow(["slug", "current_topic", "final_topic", "final_tags"])
+        for slug, topic, tags in rows:
+            writer.writerow([slug, "ignored", topic, tags])
+    return str(path)
+
+
+def snippet(model, slug, locale=None, **fields):
+    """A published topic or tag, as the importer left it."""
+    created = model.objects.create(slug=slug, locale=locale or Locale.get_default(), **fields)
+    created.save_revision().publish()
+    return model.objects.get(pk=created.pk)
+
+
+def retag(page, topic, *tags):
+    page.topic = topic
+    page.tagged_items = [TaggedBlogArticle(tag=tag) for tag in tags]
+    page.save_revision().publish()
+    return BlogArticlePage.objects.get(pk=page.pk)
+
+
+def tag_slugs(page):
+    return sorted(tag.slug for tag in BlogArticlePage.objects.get(pk=page.pk).tags.all())
+
+
+def test_taxonomy_renames_kept_topics_and_tags_in_place(tmp_path, make_post):
+    features = snippet(BlogTopic, "firefox-features", name="Firefox Features")
+    mobile = snippet(BlogTag, "firefox-for-mobile", name="Firefox for mobile")
+    android = snippet(BlogTag, "android", name="android")
+    post = retag(make_post("a-post", live=True), features, mobile, android)
+
+    run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("a-post", "features", "mobile|android")))
+
+    renamed = BlogTopic.objects.get(pk=features.pk)
+    assert (renamed.name, renamed.slug, renamed.translation_key, renamed.live) == ("Features", "features", features.translation_key, True)
+    assert [(tag.name, tag.slug) for tag in BlogTag.objects.filter(pk__in=[mobile.pk, android.pk]).order_by("slug")] == [
+        ("Android", "android"),
+        ("Mobile", "mobile"),
+    ]
+    assert BlogArticlePage.objects.get(pk=post.pk).topic_id == features.pk
+
+
+def test_taxonomy_moves_a_post_and_publishes_it(tmp_path, make_post, topic):
+    old_tag = snippet(BlogTag, "our-work", name="Our Work")
+    post = retag(make_post("a-post", live=True), topic, old_tag)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("a-post", "community-culture", "kit|anniversary")))
+
+    post = BlogArticlePage.objects.get(pk=post.pk)
+    assert (post.topic.name, post.topic.slug, post.topic.live) == ("Community & culture", "community-culture", True)
+    assert tag_slugs(post) == ["anniversary", "kit"]
+    assert (post.live, post.has_unpublished_changes) == (True, False)
+    post_rows = [row for row in rows if row["slug"] == "a-post"]
+    assert [(row["action"], row["detail"]) for row in post_rows] == [
+        ("changed", "topic"),
+        ("changed", "tags: added Kit, Anniversaries; removed Our Work"),
+    ]
+    assert post_rows[0]["revision_id"] == str(post.live_revision_id)
+    # The tag nothing uses any more is gone; News, a kept topic, stays.
+    assert not BlogTag.objects.filter(slug="our-work").exists()
+    assert BlogTopic.objects.filter(slug="news").exists()
+
+
+def test_taxonomy_dry_run_writes_nothing_and_second_run_finds_nothing(tmp_path, make_post):
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    post = retag(make_post("a-post", live=True), firefox, snippet(BlogTag, "ai", name="AI"))
+    mapping = taxonomy_csv(tmp_path, ("a-post", "ai", "ai-controls"))
+
+    stdout, _, dry_rows = run(tmp_path, "taxonomy", taxonomy=mapping, dry_run=True)
+
+    assert {row["action"] for row in dry_rows} == {"would change"}
+    assert ("firefox", "delete the topic") in [(row["slug"], row["detail"]) for row in dry_rows]
+    assert "posts per topic in the CSV: AI 1" in stdout
+    assert BlogArticlePage.objects.get(pk=post.pk).topic_id == firefox.pk
+    assert not BlogTopic.objects.filter(slug="ai").exists()
+
+    run(tmp_path, "taxonomy", taxonomy=mapping)
+    stdout, _, second_rows = run(tmp_path, "taxonomy", taxonomy=mapping)
+    assert second_rows == []
+    assert "posts per topic now: AI 1" in stdout
+    assert not BlogTopic.objects.filter(slug="firefox").exists()
+
+
+def test_taxonomy_skips_posts_with_unpublished_changes_and_keeps_what_they_use(tmp_path, make_post):
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    drafted = retag(make_post("drafted", live=True), firefox)
+    drafted.title = "Unfinished edit"
+    drafted.save_revision()
+    retag(make_post("unlisted", live=True), firefox)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("drafted", "news", "")))
+
+    assert BlogArticlePage.objects.get(pk=drafted.pk).topic_id == firefox.pk
+    actions = {(row["slug"], row["action"]) for row in rows}
+    assert {("drafted", "skipped"), ("unlisted", "skipped"), ("firefox", "skipped")} <= actions
+    kept = next(row for row in rows if row["slug"] == "firefox")
+    assert kept["detail"] == "topic kept, still used by draft of drafted, post drafted (en-US), post unlisted (en-US)"
+
+
+def test_taxonomy_never_publishes_an_unpublished_post(tmp_path, make_post):
+    post = make_post("unpublished")
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("unpublished", "ai", "")))
+
+    post = BlogArticlePage.objects.get(pk=post.pk)
+    assert (post.live, post.topic.slug) == (False, "news")
+    assert [row["action"] for row in rows if row["slug"] == "unpublished"] == ["skipped"]
+
+
+def test_taxonomy_keeps_a_tag_off_the_list_that_a_post_outside_the_csv_uses(tmp_path, make_post, topic):
+    used = snippet(BlogTag, "our-work", name="Our Work")
+    snippet(BlogTag, "uncategorized", name="Uncategorized")
+    retag(make_post("unlisted", live=True), topic, used)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path))
+
+    assert BlogTag.objects.filter(slug="our-work").exists()
+    assert not BlogTag.objects.filter(slug="uncategorized").exists()
+    assert ("uncategorized", "changed") in [(row["slug"], row["action"]) for row in rows]
+
+
+def test_taxonomy_keeps_a_retired_topic_a_blog_index_features(tmp_path, index_page):
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    index_page.featured_topics = [("topic", firefox)]
+    index_page.save_revision().publish()
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path))
+
+    assert BlogTopic.objects.filter(pk=firefox.pk).exists()
+    assert next(row for row in rows if row["slug"] == "firefox")["detail"].startswith("topic kept, still used by blog index page")
+
+
+def test_taxonomy_updates_translations_and_their_topics(tmp_path, make_post):
+    french = Locale.objects.get(language_code="fr")
+    features = snippet(BlogTopic, "firefox-features", name="Firefox Features")
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    french_features = features.copy_for_translation(french)
+    french_features.save()
+    french_features.save_revision().publish()
+    french_firefox = firefox.copy_for_translation(french)
+    french_firefox.name = "Firefox (fr)"
+    french_firefox.save()
+    french_firefox.save_revision().publish()
+
+    moved = retag(make_post("moved", live=True), firefox)
+    stays = retag(make_post("stays", live=True), features)
+    french_moved = retag(moved.copy_for_translation(french, copy_parents=True), french_firefox)
+    french_stays = retag(stays.copy_for_translation(french), french_features)
+
+    run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("moved", "community-culture", "kit"), ("stays", "features", "")))
+
+    # A French topic still named in English follows the rename; the slug always does.
+    french_features.refresh_from_db()
+    assert (french_features.name, french_features.slug, french_features.live) == ("Features", "features", True)
+    assert BlogArticlePage.objects.get(pk=french_stays.pk).topic_id == french_features.pk
+    # A topic the locale lacks is created from the English one, and the post keeps English tags.
+    french_moved = BlogArticlePage.objects.get(pk=french_moved.pk)
+    english_topic = BlogTopic.objects.get(slug="community-culture", locale=Locale.get_default())
+    assert (french_moved.topic.locale, french_moved.topic.translation_key, french_moved.topic.live) == (french, english_topic.translation_key, True)
+    assert [tag.locale for tag in french_moved.tags.all()] == [Locale.get_default()]
+    # The retired topic goes in every locale.
+    assert not BlogTopic.objects.filter(translation_key=firefox.translation_key).exists()
+
+
+def test_taxonomy_publishes_a_topic_translation_put_back_to_draft(tmp_path, make_post, topic):
+    french = Locale.objects.get(language_code="fr")
+    french_news = topic.copy_for_translation(french)
+    french_news.save()
+    french_news.save_revision().publish()
+    # What wagtail-localize's Translate does to an existing snippet translation.
+    BlogTopic.objects.filter(pk=french_news.pk).update(live=False)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path))
+
+    french_news.refresh_from_db()
+    assert french_news.live
+    assert ("news", "changed", "fr topic: published") in [(row["slug"], row["action"], row["detail"]) for row in rows]
+
+
+def test_taxonomy_skips_a_kept_topic_with_a_pending_draft_and_what_needs_it(tmp_path, make_post):
+    french = Locale.objects.get(language_code="fr")
+    features = snippet(BlogTopic, "firefox-features", name="Firefox Features")
+    french_features = features.copy_for_translation(french)
+    french_features.save()
+    french_features.save_revision().publish()
+    features.name = "Unfinished edit"
+    features.save_revision()
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    post = retag(make_post("a-post", live=True), firefox)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("a-post", "features", "")))
+
+    features.refresh_from_db()
+    french_features.refresh_from_db()
+    assert (features.name, features.slug) == ("Firefox Features", "firefox-features")
+    # Its translation keeps the slug the English topic still has, so translated pages still find it.
+    assert french_features.slug == "firefox-features"
+    assert BlogArticlePage.objects.get(pk=post.pk).topic_id == firefox.pk
+    assert BlogTopic.objects.filter(pk=firefox.pk).exists()
+    actions = {(row["slug"], row["action"]) for row in rows}
+    assert {("features", "skipped"), ("a-post", "skipped"), ("firefox", "skipped")} <= actions
+
+
+def test_taxonomy_keeps_the_old_tags_of_a_post_that_fails_to_publish(tmp_path, make_post, topic, monkeypatch):
+    old_tag = snippet(BlogTag, "our-work", name="Our Work")
+    post = retag(make_post("a-post", live=True), topic, old_tag)
+    real_save_revision = BlogArticlePage.save_revision
+
+    def save_revision(self, *args, **kwargs):
+        if self.slug == "a-post":
+            raise RuntimeError("database said no")
+        return real_save_revision(self, *args, **kwargs)
+
+    monkeypatch.setattr(BlogArticlePage, "save_revision", save_revision)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("a-post", "news", "kit")))
+
+    assert tag_slugs(post) == ["our-work"]
+    assert [(row["slug"], row["action"]) for row in rows if row["slug"] in ("a-post", "our-work")] == [
+        ("a-post", "failed"),
+        ("our-work", "skipped"),
+    ]
+
+
+def test_taxonomy_reports_csv_posts_it_cannot_find(tmp_path, index_page):
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("missing", "news", "")))
+
+    assert [(row["slug"], row["action"]) for row in rows if row["slug"] == "missing"] == [("missing", "skipped")]
+
+
+@pytest.mark.parametrize(
+    "row, message",
+    [
+        (("a-post", "firefox", ""), "line 2: needs a slug and one of the topics"),
+        (("a-post", "news", "news|kit"), "line 2: not on the tag list: news"),
+        (("", "news", ""), "line 2: needs a slug"),
+    ],
+)
+def test_taxonomy_rejects_bad_rows(tmp_path, index_page, row, message):
+    with pytest.raises(CommandError, match=message):
+        run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, row))
+
+
+def test_taxonomy_needs_a_csv_and_runs_on_its_own(tmp_path, index_page):
+    with pytest.raises(CommandError, match="--taxonomy"):
+        run(tmp_path, "taxonomy")
+    with pytest.raises(CommandError, match="on its own"):
+        run(tmp_path, "taxonomy", "mozilla-byline", taxonomy=taxonomy_csv(tmp_path))
