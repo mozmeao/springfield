@@ -9,7 +9,6 @@ import re
 import time
 from copy import deepcopy
 from decimal import Decimal
-from functools import lru_cache
 from io import BytesIO
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
@@ -2581,7 +2580,6 @@ CODE_LANGUAGE_CHOICES = [
 CODE_LANGUAGE_LABELS = {value: label for value, label in CODE_LANGUAGE_CHOICES if value and value not in CODE_PROSE_LANGUAGES}
 
 
-@lru_cache(maxsize=256)
 def highlight_code(language: str, code: str) -> str:
     """Return Pygments HTML for the code, using classes rather than inline styles (CSP blocks those).
 
@@ -2618,6 +2616,7 @@ class CodeBlock(blocks.StructBlock):
         label="Language",
         help_text="Adds colours and a label. Prompt and Model output wrap long lines; code scrolls sideways.",
     )
+    # Prompts stay untranslated too: they show the exact text a model was given.
     code = UntranslatableTextBlock(
         label="Code",
         help_text="Paste the code snippet here. Not sent for translation.",

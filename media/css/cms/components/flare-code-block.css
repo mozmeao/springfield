@@ -22,8 +22,8 @@
     display: flex;
     font-size: var(--token-font-size-sm);
     gap: var(--token-spacing-sm);
-    padding-block: var(--token-spacing-2xs);
-    padding-inline: var(--token-spacing-lg) var(--token-spacing-2xs);
+    padding-block: var(--token-spacing-xs);
+    padding-inline: var(--token-spacing-lg) var(--token-spacing-xs);
 }
 
 .fl-code-block-label {
@@ -49,6 +49,11 @@
 
 .fl-button.fl-code-block-copy:hover {
     --button-border-color: var(--code-block-border);
+}
+
+/* Keeps the focus ring inside the block, which clips overflow. */
+.fl-button.fl-code-block-copy:focus-visible {
+    outline-offset: 0;
 }
 
 .fl-code-block pre {
@@ -135,7 +140,9 @@
         .tok-dl,
         .tok-sr,
         .tok-se,
-        .tok-na
+        .tok-si,
+        .tok-na,
+        .tok-ni
     ) {
     color: var(--code-block-string);
 }
@@ -144,7 +151,17 @@
     color: var(--code-block-number);
 }
 
-.fl-code-block :is(.tok-nf, .tok-fm, .tok-nb, .tok-bp, .tok-nc) {
+.fl-code-block
+    :is(
+        .tok-nf,
+        .tok-fm,
+        .tok-nb,
+        .tok-bp,
+        .tok-nc,
+        .tok-nd,
+        .tok-nn,
+        .tok-nv
+    ) {
     color: var(--code-block-function);
 }
 
