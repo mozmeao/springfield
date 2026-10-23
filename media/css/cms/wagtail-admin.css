@@ -105,6 +105,16 @@
     white-space: nowrap;
 }
 
+.listing .inline-edit-cell[data-inline-cell='save'] {
+    min-width: 12rem;
+}
+
+.listing .inline-edit-status {
+    display: block;
+    min-height: 1lh;
+    white-space: nowrap;
+}
+
 .listing tr[data-inline-dirty] {
     box-shadow: inset 4px 0 0 var(--w-color-warning-100);
 }
