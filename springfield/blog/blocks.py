@@ -99,6 +99,9 @@ class BlogArticleOverrideBlock(blocks.StructBlock):
     title = blocks.CharBlock(required=False)
     description = blocks.RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
 
+    class Meta:
+        collapsed = True
+
 
 class BlogArticleBlock(blocks.StructBlock):
     """Picks a blog article with optional field overrides for display on the index page."""
