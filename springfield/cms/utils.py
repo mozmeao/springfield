@@ -102,6 +102,7 @@ def compute_cms_page_locales(page):
         _actual_translations = (
             page.get_translations()
             .live()
+            .public()
             .exclude(
                 id__in=Subquery(
                     page.aliases.all().values_list("id", flat=True),
@@ -113,6 +114,11 @@ def compute_cms_page_locales(page):
         # when there's no draft and no potential for aliases, etc, the above lookup will fail
         pass
 
+    return with_alias_locales(content_locales)
+
+
+def with_alias_locales(content_locales):
+    """Return (all_locales, content_locales) for a list of locales with real content."""
     # Expand with alias locales from FALLBACK_LOCALES reverse map.
     # e.g. if es-MX is in the list, also add es-AR and es-CL.
     alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in content_locales]
