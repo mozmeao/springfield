@@ -33,16 +33,12 @@
   <div class="nav-cta-wrap nav-get-mobile {% if hide_nav_cta %}hide-cta-on-desktop{% endif %} {% if hide_nav_download_button %}hide-nav-download-on-desktop{% endif %}">
     <include:dropdown label="{{ ftl('navigation-firefox-for-mobile') }}" id="nav-get-mobile" testid="nav-get-mobile">
       <div class="nav-get-mobile-qr">
-        {# Alt text identifies the QR code itself; the caption below is a separate
+        {# The label identifies the QR code itself; the caption below is a separate
            link so keyboard / screen-reader users, and anyone without a phone
            camera, can reach the mobile page too. #}
-        <img
-          src="/media/img/firefox/flare/fxcom-nav-mobile-qr.png"
-          alt="{{ ftl('navigation-firefox-for-mobile') }}"
-          width="160"
-          height="160"
-          class="nav-get-mobile-qr-img"
-        >
+        <div class="nav-get-mobile-qr-img" role="img" aria-label="{{ ftl('navigation-firefox-for-mobile') }}">
+          {{ qrcode_rounded_svg("https://mzl.la/fxcomnavbutton?r=qr", 12) }}
+        </div>
         <a href="{{ url('firefox.browsers.mobile') }}" class="nav-get-mobile-qr-caption">{{ ftl('navigation-get-firefox-phone') }}</a>
       </div>
     </include:dropdown>

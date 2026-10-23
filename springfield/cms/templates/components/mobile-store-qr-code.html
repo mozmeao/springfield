@@ -15,7 +15,7 @@
     <div class="fl-mobile-store-qr-content">
       <include:conditional-display platform_conditions="{{ ['linux', 'osx', 'windows', 'other-os', 'unsupported'] }}">
         <div class="fl-mobile-store-qr-code">
-          {{ qrcode(qr_code_data, 12) }}
+          {{ qrcode_rounded_svg(qr_code_data, 12) }}
         </div>
       </include:conditional-display>
 

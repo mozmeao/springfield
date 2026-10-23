@@ -58,10 +58,11 @@ def test_flare_header_renders_get_mobile_qr_gated_to_firefox_desktop(client):
     for platform in ("condition-windows", "condition-osx", "condition-linux"):
         assert platform in wrapper_classes
 
-    # The designed QR image is referenced from /media/ (matches flare convention).
-    img = dropdown.find("img", class_="nav-get-mobile-qr-img")
-    assert img is not None
-    assert img["src"] == "/media/img/firefox/flare/fxcom-nav-mobile-qr.png"
+    # The QR code is generated inline and labelled for assistive tech.
+    qr_wrapper = dropdown.find("div", class_="nav-get-mobile-qr-img")
+    assert qr_wrapper is not None
+    assert qr_wrapper["role"] == "img"
+    assert qr_wrapper.find("svg") is not None
 
     # Compact label on the button, descriptive caption in the panel.
     trigger = dropdown.find(class_="fl-dropdown-trigger")
@@ -75,9 +76,9 @@ def test_flare_header_renders_get_mobile_qr_gated_to_firefox_desktop(client):
     assert "/mobile/" in caption["href"]
     assert "on your phone" in caption.get_text()
 
-    # QR image carries real alt text (the trigger label) so screen-reader users
+    # QR image carries a real label (the trigger label) so screen-reader users
     # know it's there, distinct from the caption link's fuller text.
-    assert img.get("alt") == trigger.get_text().strip()
+    assert qr_wrapper.get("aria-label") == trigger.get_text().strip()
 
 
 def test_get_mobile_hidden_until_locale_is_translated(client):

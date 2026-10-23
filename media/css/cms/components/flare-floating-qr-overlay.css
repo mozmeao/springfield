@@ -228,6 +228,7 @@
     padding-block: var(--token-spacing-lg);
 }
 
+.fl-qr-code-dialog .fl-qr-code-image svg,
 .fl-qr-code-dialog .fl-qr-code-image img {
     block-size: 100%;
     inline-size: 100%;
