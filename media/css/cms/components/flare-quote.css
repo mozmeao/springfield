@@ -57,10 +57,6 @@
     font-weight: var(--token-font-weight-semibold);
 }
 
-.fl-quote .fl-quote-name + .fl-quote-authors-title::before {
-    content: ', ';
-}
-
 /* Pull quote: one short line lifted from the article, shown large between thin rules. */
 .fl-quote.fl-quote-pull {
     border-block: 1px solid var(--fl-theme-quote-subtle-rule-color);
@@ -69,7 +65,9 @@
     font-weight: var(--token-font-weight-medium);
     line-height: 1.2;
     margin: var(--token-layout-2xs) 0;
-    padding: var(--token-spacing-xl) 0;
+
+    /* Less on top: the mark's glyph already has space above its ink. */
+    padding: var(--token-spacing-sm) 0 var(--token-spacing-xl);
 }
 
 .fl-quote-pull .fl-quote-mark {

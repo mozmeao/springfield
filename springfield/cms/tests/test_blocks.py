@@ -6806,10 +6806,16 @@ def test_quote_block_renders_name_and_title():
 
     assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
     assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+    # A real comma and space, so Reader View and feeds don't run the two together.
+    assert caption.get_text() == "Karen Kim, product manager for Firefox desktop"
+
+
+def test_quote_block_renders_name_without_title():
+    assert _render_quote(author="Karen Kim").find("figcaption").get_text() == "Karen Kim"
 
 
 def test_quote_block_renders_title_without_name():
     caption = _render_quote(authors_title="Firefox community").find("figcaption")
 
     assert caption.find(class_="fl-quote-name") is None
-    assert caption.find(class_="fl-quote-authors-title").get_text() == "Firefox community"
+    assert caption.get_text() == "Firefox community"

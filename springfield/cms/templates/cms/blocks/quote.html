@@ -14,6 +14,7 @@
   {% if value.author or value.authors_title %}
     <figcaption class="fl-quote-author fl-body fl-body-small">
       {%- if value.author %}<span class="fl-quote-name">{{ value.author }}</span>{% endif -%}
+      {%- if value.author and value.authors_title %}, {% endif -%}
       {%- if value.authors_title %}<span class="fl-quote-authors-title">{{ value.authors_title }}</span>{% endif -%}
     </figcaption>
   {% endif %}
