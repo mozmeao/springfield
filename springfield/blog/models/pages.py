@@ -14,7 +14,7 @@ from django.db.models import Case, Count, Exists, OuterRef, Q, Value, When
 from django.http import Http404
 
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.search import index
@@ -799,14 +799,13 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             [
                 FieldPanel("image"),
                 FieldPanel("listing_image"),
-                MultiFieldPanel(
+                FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
                         FieldPanel("image_mobile"),
                         FieldPanel("image_dark_mode_mobile"),
                     ],
                     heading="Dark mode & mobile versions",
-                    classname="collapsed",
                 ),
                 FieldPanel("hero_style"),
                 FieldPanel(

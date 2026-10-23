@@ -14,6 +14,7 @@ from django.utils import timezone
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.admin.panels import FieldRowPanel
 from wagtail.models import Locale, PageViewRestriction, Site
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
@@ -2020,7 +2021,8 @@ def test_blog_article_content_tab_groups():
     ]
     assert _panel_labels(featured.children) == ["image", "listing_image", "Dark mode & mobile versions", "hero_style", "hero_video"]
     assert _panel_labels(featured.children[2].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
-    for panel in (post_details, featured, featured.children[2], bottom_banner):
+    assert isinstance(featured.children[2], FieldRowPanel)
+    for panel in (post_details, featured, bottom_banner):
         assert "collapsed" in panel.classname
 
 
