@@ -1,0 +1,33 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set block_level = block_level or 2 %}
+{% set block_text = value.heading.heading_text|richtext|remove_tags %}
+{% set show_to = none if conditional_display_handled else value.show_to %}
+
+<include:conditional-display condition_settings={{ show_to }}>
+
+  <include:form-content form_before="{{ value.form_before }}">
+    <content:heading>
+      {% with heading_size="fl-heading-sm" %}
+        {% include_block value.heading %}
+      {% endwith %}
+    </content:heading>
+
+    <content:content>
+      {% for block in value.content %}
+        {# Make sure that any inner block with a heading uses the correct block level #}
+        {% set block_level = block_level + 1 %}
+        {% include_block block %}
+      {% endfor %}
+    </content:content>
+
+    <content:form>
+      {% include_block value.form %}
+    </content:form>
+  </include:form-content>
+
+</include:conditional-display>
