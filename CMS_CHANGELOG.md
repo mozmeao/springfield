@@ -1,3 +1,8 @@
+## 2026-10-23
+
+- Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images. This applies wherever a QR code is made from a URL: the QR Code block, QR Code and Floating QR Code snippets, banners, the Mobile Store QR block, the QR Code Modal Button, Sharing Links and the Referral Hub invite dialog. Uploaded QR images are unchanged.
+- Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
+
 ## 2026-10-20
 
 - Added the Sharing Links block: copy link, email and QR code buttons for one URL. It is available in Section, Featured Image Section, Media + Content and Two-Column Card blocks.

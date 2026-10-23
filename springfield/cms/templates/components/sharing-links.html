@@ -72,7 +72,7 @@
       </div>
       <div class="fl-qr-code-floating-content">
         <div class="fl-qr-code-image" aria-hidden="true">
-          {{ qrcode_rounded(url) }}
+          {{ qrcode_rounded_svg(url, 12) }}
         </div>
         {% if qr_text %}
           <div class="fl-sharing-links-qr-text">{{ qr_text }}</div>
