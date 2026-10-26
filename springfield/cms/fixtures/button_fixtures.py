@@ -1022,7 +1022,6 @@ def get_button_blocks() -> list[dict]:
                                     },
                                     "button_type": "set_treatment_tag",
                                     "treatment_tag_name": "wnp-test-show-callout",
-                                    "treatment_tag_value": "WNP_TEST_CALLOUT",
                                     "pretranslated_label": None,
                                     "custom_label": "Set Treatment Tag",
                                 },

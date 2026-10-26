@@ -923,11 +923,6 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
                 f"'{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix that Firefox adds, e.g. 'wnp-160-show-callout'."
             ),
         )
-        treatment_tag_value = UntranslatableCharBlock(
-            required=False,
-            default="",
-            help_text="Only used by the 'Set Treatment Tag' button type. The value to store in the pref, e.g. 'WNP_160_CALLOUT'.",
-        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -935,7 +930,7 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type", "wallpaper", "treatment_tag_name", "treatment_tag_value"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper", "treatment_tag_name"],
                 settings=["settings"],
             )
 
@@ -944,18 +939,17 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
                 raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
             if value.get("button_type") == UITOUR_BUTTON_SET_TREATMENT_TAG:
-                errors = {
-                    field: ValidationError("This field is required for this button type.")
-                    for field in ("treatment_tag_name", "treatment_tag_value")
-                    if not value.get(field)
-                }
                 tag_name = value.get("treatment_tag_name") or ""
-                if tag_name.startswith(UITOUR_TREATMENT_TAG_PREF_PREFIX):
-                    errors["treatment_tag_name"] = ValidationError(f"Leave out the '{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix; Firefox adds it.")
+                if not tag_name:
+                    tag_name_error = "A treatment tag name is required for this button type."
+                elif tag_name.startswith(UITOUR_TREATMENT_TAG_PREF_PREFIX):
+                    tag_name_error = f"Leave out the '{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix; Firefox adds it."
                 elif any(character.isspace() for character in tag_name):
-                    errors["treatment_tag_name"] = ValidationError("The name can't contain spaces.")
-                if errors:
-                    raise StructBlockValidationError(block_errors=errors)
+                    tag_name_error = "The name can't contain spaces."
+                else:
+                    tag_name_error = None
+                if tag_name_error:
+                    raise StructBlockValidationError(block_errors={"treatment_tag_name": ValidationError(tag_name_error)})
             return value
 
     return _UITourButtonBlock(**kwargs)

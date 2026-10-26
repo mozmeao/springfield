@@ -323,35 +323,26 @@ function init() {
         // Find any buttons that should set the treatment tag named in their
         // data-treatment-tag-name attribute. Firefox stores it in the
         // browser.uitour.treatment.<name> pref, which messaging can observe.
+        // Each click stores a new random value so the pref always changes.
         const setTreatmentTagButtons = document.querySelectorAll(
             '.ui-tour-set-treatment-tag'
         );
         setTreatmentTagButtons.forEach((button) => {
             const name = button.dataset.treatmentTagName;
-            const value = button.dataset.treatmentTagValue;
 
-            button.addEventListener(
+            // Listen on the card when the button expands to fill one, so a
+            // click on the button sets the tag once rather than twice.
+            const clickTarget =
+                button.closest('.fl-card-expand-link') || button;
+            clickTarget.addEventListener(
                 'click',
                 (e) => {
                     e.preventDefault();
 
-                    Mozilla.UITour.setTreatmentTag(name, value);
+                    Mozilla.UITour.setTreatmentTag(name, crypto.randomUUID());
                 },
                 false
             );
-
-            const card = button.closest('.fl-card-expand-link');
-            if (card) {
-                card.addEventListener(
-                    'click',
-                    (e) => {
-                        e.preventDefault();
-
-                        Mozilla.UITour.setTreatmentTag(name, value);
-                    },
-                    false
-                );
-            }
         });
 
         // Find any openSmartWindowButtons that should open the  Firefox Accounts sign-in flow for the AI Window feature.
