@@ -1425,6 +1425,8 @@ WAGTAIL_ENABLE_UPDATE_CHECK = False
 WAGTAIL_ENABLE_ADMIN = config("WAGTAIL_ENABLE_ADMIN", default="false", parser=bool)
 # The production domain for the CMS admin interface
 CMS_HOSTNAME = config("CMS_HOSTNAME", default="")
+# Shows the bar of previous translations above the translation editor
+CMS_PREVIOUS_TRANSLATIONS_ENABLED = config("CMS_PREVIOUS_TRANSLATIONS_ENABLED", default="true", parser=bool)
 
 if WAGTAIL_ENABLE_ADMIN:
     # Enable Middleware essential for admin

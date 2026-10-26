@@ -1,0 +1,49 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Rendered by the previous_translations_bar inclusion tag, which supplies entries,
+source_locale and target_locale.
+{% endcomment %}
+
+{% load i18n %}
+
+{% if entries %}
+    <details class="previous-translations">
+        <summary class="previous-translations-heading">
+            {% blocktranslate count counter=entries|length trimmed %}
+                {{ counter }} untranslated segment has a previous translation
+            {% plural %}
+                {{ counter }} untranslated segments have previous translations
+            {% endblocktranslate %}
+        </summary>
+        <ul class="previous-translations-list">
+            {% for entry in entries %}
+                <li>
+                    <details class="previous-translations-entry">
+                        <summary class="previous-translations-row">
+                            <span class="previous-translations-source">{{ entry.source_now }}</span>
+                            <span class="previous-translations-arrow" aria-hidden="true">&rarr;</span>
+                            <span class="previous-translations-value">{{ entry.value }}</span>
+                        </summary>
+                        <dl class="previous-translations-detail">
+                            <dt>{% blocktranslate with locale=source_locale %}Source then ({{ locale }}){% endblocktranslate %}</dt>
+                            <dd>{{ entry.source }}</dd>
+                            <dt>{% blocktranslate with locale=source_locale %}Source now ({{ locale }}){% endblocktranslate %}</dt>
+                            <dd>{{ entry.source_now }}</dd>
+                            <dt>{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>
+                            <dd class="previous-translations-previous">{{ entry.value }}</dd>
+                        </dl>
+                        <p class="previous-translations-meta">
+                            {{ entry.comment|default:"" }}{% if entry.translated_by %} &middot; {{ entry.translated_by }}{% endif %}
+                        </p>
+                    </details>
+                </li>
+            {% endfor %}
+        </ul>
+    </details>
+{% endif %}

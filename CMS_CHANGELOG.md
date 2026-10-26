@@ -1,3 +1,7 @@
+## 2026-10-26
+
+- When a page's English text is edited after it has been translated, the translation editor now shows the previous translation for that text in a bar at the top, so it can be read and reused instead of retyped.
+
 ## 2026-10-21
 
 - Blog articles have an "Exclude from RSS" checkbox on the Settings tab. It keeps the article out of the blog's RSS feeds; the article still shows on the blog. Translations follow after Sync translated pages and publish.
