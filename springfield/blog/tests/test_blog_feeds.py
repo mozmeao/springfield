@@ -59,7 +59,9 @@ def make_article(blog_index, blog_topic):
         number = next(numbers)
         fields.setdefault("topic", blog_topic)
         fields.setdefault("first_published_at", datetime(2026, 1, 1, tzinfo=UTC) + timedelta(days=number))
-        if not fields.get("image"):
+        if fields.get("image"):
+            fields.setdefault("image_alt", f"Image for article {number}")
+        else:
             fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
         parent = parent or blog_index
         article = BlogArticlePage(title=fields.pop("title", f"Article {number}"), slug=f"test-unit-article-{number}", locale=parent.locale, **fields)
@@ -138,13 +140,16 @@ def item_content(index, rf):
 
 def test_feed_item_content_is_the_full_article(blog_index, make_article, rf):
     image = get_placeholder_images()[0]
-    make_article(
+    article = make_article(
         image=image,
         hero_style=HeroStyle.STANDARD_IMAGE,
         description="<p>Summary.</p>",
         content=[
             {"type": "text", "value": '<p class="intro">Body <a href="/en-US/about/">text</a>.</p>'},
-            {"type": "image_caption", "value": {"image": {"image": image.pk}, "caption": "<p>A caption</p>", "layout": "default"}},
+            {
+                "type": "image_caption",
+                "value": {"image": {"image": image.pk, "image_alt": "A body image"}, "caption": "<p>A caption</p>", "layout": "default"},
+            },
             {"type": "code", "value": {"code": "<b>bold</b>"}},
             {"type": "quote", "value": {"quote": "<p>Quoted.</p>", "author": "Ada", "authors_title": "Countess"}},
         ],
@@ -154,11 +159,12 @@ def test_feed_item_content_is_the_full_article(blog_index, make_article, rf):
 
     hero, figure = content.find_all("figure")
     assert hero.img["src"].startswith("http://testserver/")
-    assert hero.img["alt"] == image.default_alt_text
+    assert hero.img["alt"] == article.image_alt
     paragraph = content.find("p")
     assert paragraph.get_text() == "Body text."
     assert not paragraph.has_attr("class")
     assert paragraph.a["href"] == "http://testserver/en-US/about/"
+    assert figure.img["alt"] == article.content[1].value["image"]["image_alt"]
     assert figure.figcaption.get_text() == "A caption"
     assert content.find("pre").get_text() == "<b>bold</b>"
     assert content.blockquote.get_text() == "Quoted.— Ada, Countess"
