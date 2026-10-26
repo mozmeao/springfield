@@ -7,11 +7,14 @@ from unittest import mock
 
 from django.http import Http404
 from django.test import override_settings
+from django.urls import reverse
 
 import pytest
-from wagtail.models import PageViewRestriction
+from bs4 import BeautifulSoup
+from wagtail.models import Locale, PageViewRestriction
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.tests.factories import LocaleFactory
 from springfield.cms.utils import LOCALE_FALLBACK_EXEMPT_ATTR
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -58,3 +61,66 @@ def test_unrelated_attribute_error_without_admin_still_errors(test_page, rf):
 
     with mock.patch("springfield.cms.views.wagtail_serve", side_effect=unrelated_error), pytest.raises(AttributeError):
         wagtail_serve_with_locale_fallback(rf.get("/en-US/test-page/"), "test-page/")
+
+
+@pytest.fixture
+def create_locales(minimal_site):
+    """Replace the locales `minimal_site` creates with the given language codes."""
+
+    def _create_locales(*language_codes):
+        Locale.objects.filter(language_code="fr").delete()
+        return [LocaleFactory(language_code=code) for code in language_codes]
+
+    return _create_locales
+
+
+@override_settings(FALLBACK_LOCALES={"en-CA": "en-US", "en-GB": "en-US"})
+def test_submit_page_translation_includes_aliases(admin_client, create_locales, test_page):
+    """Check the patched submit page translation view's alias related additions.
+    See CmsConfig._patch_submit_translation_form"""
+    create_locales("de", "en-CA", "en-GB")
+    submit_url = reverse("wagtail_localize:submit_page_translation", args=(test_page.pk,))
+
+    response = admin_client.get(submit_url)
+
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # "Select all except aliases" control added
+    select_all_except_aliases = soup.select_one("input#id_select_all_except_aliases")
+    assert select_all_except_aliases is not None
+
+    # Languages that are aliases show a badge of their source language
+    language_labels = [label.get_text(strip=True, separator="\n") for label in soup.select("#id_locales label")]
+    expected_language_labels = [
+        "German",
+        "English (Canada)\nalias → en-US",
+        "English (Great Britain)\nalias → en-US",
+    ]
+    assert language_labels == expected_language_labels
+
+
+@pytest.mark.parametrize(
+    "locales",
+    [
+        (),  # only default en-US
+        ("de",),
+        ("en-CA", "en-GB"),
+    ],
+    ids=["no_locales", "no_aliases", "all_aliases"],
+)
+@override_settings(FALLBACK_LOCALES={"en-CA": "en-US", "en-GB": "en-US"})
+def test_submit_page_translation_no_select_all_except_aliases_checkbox(admin_client, create_locales, locales, test_page):
+    """The "Select all except aliases" control is added only if some languages are aliases."""
+    create_locales(*locales)
+    submit_url = reverse("wagtail_localize:submit_page_translation", args=(test_page.pk,))
+
+    response = admin_client.get(submit_url)
+
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    select_all_except_aliases = soup.select_one("input#id_select_all_except_aliases")
+    assert select_all_except_aliases is None
