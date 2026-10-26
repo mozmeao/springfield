@@ -2100,7 +2100,16 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
         template = "cms/blocks/smart-window-instructions.html"
 
 
-def BaseContentBlock(allow_uitour=False, **kwargs):
+def BaseContentBlock(allow_uitour=False, allow_sharing_links=False, **kwargs):
+    """Content stream for heading-led blocks.
+
+    Args:
+        allow_sharing_links: If True, adds the Sharing Links block. Only used in BannerBlock.
+    """
+    local_blocks = []
+    if allow_sharing_links:
+        local_blocks.append(("sharing_links", SharingLinksBlock()))
+
     class _BaseContentBlock(blocks.StreamBlock):
         tags = TagsBlock(min_num=0, max_num=3, default=[])
         rich_text = RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
@@ -2116,7 +2125,7 @@ def BaseContentBlock(allow_uitour=False, **kwargs):
             label_format = "Content"
             template = "cms/blocks/base_content.html"
 
-    return _BaseContentBlock(**kwargs)
+    return _BaseContentBlock(local_blocks or None, **kwargs)
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -3247,7 +3256,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
+        content = BaseContentBlock(allow_uitour=allow_uitour, allow_sharing_links=True, required=False)
 
         class Meta:
             template = "cms/blocks/sections/banner.html"
