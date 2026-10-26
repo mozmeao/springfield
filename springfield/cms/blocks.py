@@ -170,6 +170,8 @@ UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_SET_NEWTAB_WALLPAPER = "set_newtab_wallpaper"
+UITOUR_BUTTON_SET_TREATMENT_TAG = "set_treatment_tag"
+UITOUR_TREATMENT_TAG_PREF_PREFIX = "browser.uitour.treatment."
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
@@ -190,6 +192,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
     (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Set New Tab Wallpaper"),
+    (UITOUR_BUTTON_SET_TREATMENT_TAG, "Set Treatment Tag"),
 )
 
 UI_TOUR_CLASSES = {
@@ -209,6 +212,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER: "ui-tour-set-newtab-wallpaper",
+    UITOUR_BUTTON_SET_TREATMENT_TAG: "ui-tour-set-treatment-tag",
 }
 
 BUTTON_TYPE = "button"
@@ -911,6 +915,14 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
                 "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
             ),
         )
+        treatment_tag_name = UntranslatableCharBlock(
+            required=False,
+            default="",
+            help_text=(
+                "Only used by the 'Set Treatment Tag' button type. Enter the name without the "
+                f"'{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix that Firefox adds, e.g. 'wnp-160-show-callout'."
+            ),
+        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -918,7 +930,7 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type", "wallpaper"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper", "treatment_tag_name"],
                 settings=["settings"],
             )
 
@@ -926,6 +938,18 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             value = super().clean(value)
             if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
                 raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
+            if value.get("button_type") == UITOUR_BUTTON_SET_TREATMENT_TAG:
+                tag_name = value.get("treatment_tag_name") or ""
+                if not tag_name:
+                    tag_name_error = "A treatment tag name is required for this button type."
+                elif tag_name.startswith(UITOUR_TREATMENT_TAG_PREF_PREFIX):
+                    tag_name_error = f"Leave out the '{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix; Firefox adds it."
+                elif any(character.isspace() for character in tag_name):
+                    tag_name_error = "The name can't contain spaces."
+                else:
+                    tag_name_error = None
+                if tag_name_error:
+                    raise StructBlockValidationError(block_errors={"treatment_tag_name": ValidationError(tag_name_error)})
             return value
 
     return _UITourButtonBlock(**kwargs)
