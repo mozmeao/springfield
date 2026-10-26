@@ -44,6 +44,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
+    UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -1335,6 +1336,11 @@ def test_uitour_buttons_2026(index_page, rf):
 
         expected_wallpaper = btn_value.get("wallpaper") or None
         assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
+
+        expected_tag_name = btn_value.get("treatment_tag_name") or None
+        expected_tag_value = btn_value.get("treatment_tag_value") or None
+        assert button_el.get("data-treatment-tag-name") == expected_tag_name, f"{analytics_id}: unexpected data-treatment-tag-name on button"
+        assert button_el.get("data-treatment-tag-value") == expected_tag_value, f"{analytics_id}: unexpected data-treatment-tag-value on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -4671,6 +4677,45 @@ def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_typ
         with pytest.raises(StructBlockValidationError) as exc_info:
             UITourButtonBlock().clean(value)
         assert "wallpaper" in exc_info.value.block_errors
+
+
+@pytest.mark.parametrize(
+    ("button_type", "tag_name", "tag_value", "missing"),
+    [
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", "WNP_CALLOUT", set()),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", "WNP_CALLOUT", {"treatment_tag_name"}),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", "", {"treatment_tag_value"}),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", "", {"treatment_tag_name", "treatment_tag_value"}),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "browser.uitour.treatment.wnp-show-callout", "WNP_CALLOUT", {"treatment_tag_name"}),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp show callout", "WNP_CALLOUT", {"treatment_tag_name"}),
+        (UITOUR_BUTTON_NEW_TAB, "", "", set()),
+    ],
+)
+def test_uitour_button_validates_treatment_tag_only_for_set_treatment_tag_type(button_type, tag_name, tag_value, missing):
+    value = {
+        "button_type": button_type,
+        "treatment_tag_name": tag_name,
+        "treatment_tag_value": tag_value,
+        "pretranslated_label": None,
+        "custom_label": "Go",
+        "settings": {},
+    }
+
+    if not missing:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert set(exc_info.value.block_errors) == missing
+
+
+def test_uitour_button_treatment_tag_fields_are_not_translatable():
+    block = UITourButtonBlock()
+    value = block.to_python(
+        {"button_type": UITOUR_BUTTON_SET_TREATMENT_TAG, "treatment_tag_name": "wnp-show-callout", "treatment_tag_value": "WNP_CALLOUT"}
+    )
+    for field in ("treatment_tag_name", "treatment_tag_value"):
+        assert block.child_blocks[field].get_translatable_segments(value[field]) == []
 
 
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):

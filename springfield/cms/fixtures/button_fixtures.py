@@ -1011,6 +1011,23 @@ def get_button_blocks() -> list[dict]:
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000020",
                             },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000021",
+                                    },
+                                    "button_type": "set_treatment_tag",
+                                    "treatment_tag_name": "wnp-test-show-callout",
+                                    "treatment_tag_value": "WNP_TEST_CALLOUT",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Set Treatment Tag",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000021",
+                            },
                         ],
                     },
                 ],
