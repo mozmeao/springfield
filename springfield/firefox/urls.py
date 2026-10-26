@@ -203,14 +203,6 @@ urlpatterns += (
         name="firefox.browsers.mobile.ios",
     ),
     path(
-        "download/chromebook/",
-        prefer_cms(
-            L10nTemplateView.as_view(template_name="firefox/browsers/desktop/chromebook.html", ftl_files=["firefox/browsers/desktop/chromebook"]),
-            fallback_ftl_files=["firefox/browsers/desktop/chromebook"],
-        ),
-        name="firefox.browsers.desktop.chromebook",
-    ),
-    path(
         "download/linux/",
         prefer_cms(views.PlatformViewLinux.as_view(), fallback_ftl_files=["firefox/download/platform", "firefox/download/download"]),
         name="firefox.browsers.desktop.linux",
