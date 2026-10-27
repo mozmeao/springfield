@@ -1,0 +1,15 @@
+{% extends "springfield_images/inline_edit_cells.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+A tag row's cells after a save, including its image count, whose link filters by the tag's name.
+{% endcomment %}
+{% block extra_cells %}
+    {% include "springfield_images/tag_image_count_cell.html" %}
+{% endblock %}
