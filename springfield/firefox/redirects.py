@@ -54,7 +54,7 @@ redirectpatterns = (
         permanent=False,
     ),
     # Retired UK influencer campaign landing pages
-    redirect(r"^landing/(tech|education|gaming)/?$", "/", permanent=False),
+    redirect(r"^landing/(tech|education|gaming)/?$", "/", permanent=True),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172
