@@ -144,10 +144,6 @@ urlpatterns = (
         prefer_cms(views.landing_get_page, fallback_ftl_files=["firefox/download/desktop", "firefox/download/home"]),
         name="landing.get",
     ),
-    # Issue 15841, 15920, 5953 - UK influencer campaign pages
-    page("landing/tech/", "firefox/landing/tech.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
-    page("landing/education/", "firefox/landing/education.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
-    page("landing/gaming/", "firefox/landing/gaming.html", ftl_files="firefox/download/desktop", active_locales="en-GB"),
     # Issue 487 - Win10 End of Service
     page(
         "landing/win-new-features/",
